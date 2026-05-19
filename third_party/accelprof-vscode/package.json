@@ -1,0 +1,58 @@
+{
+  "name": "accelprof-vscode",
+  "displayName": "AccelProf",
+  "description": "AccelProf heatmap viewer and SASS disassembler for GPU memory analysis",
+  "version": "0.1.0",
+  "engines": { "vscode": "^1.80.0" },
+  "categories": ["Other"],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "accelprof.openHeatmap",
+        "title": "Open Heatmap View",
+        "category": "AccelProf"
+      },
+      {
+        "command": "accelprof.dumpSass",
+        "title": "Dump SASS (nvdisasm)",
+        "category": "AccelProf"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "accelprof.openHeatmap",
+          "when": "resourceExtname == '.csv'",
+          "group": "accelprof@1"
+        },
+        {
+          "command": "accelprof.dumpSass",
+          "when": "resourceExtname == '' || resourceExtname == '.elf' || resourceExtname == '.cubin'",
+          "group": "accelprof@2"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "AccelProf",
+      "properties": {
+        "accelprof.cudaToolkitPath": {
+          "type": "string",
+          "default": "/usr/local/cuda",
+          "description": "Path to CUDA toolkit root (contains bin/nvdisasm and bin/cuobjdump)"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "vscode:prepublish": "npm run compile"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "@types/vscode": "^1.80.0",
+    "typescript": "^5.0.0"
+  }
+}
