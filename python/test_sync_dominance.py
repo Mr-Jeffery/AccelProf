@@ -3,10 +3,10 @@
 The ScoR corpus test drives every microbenchmark binary through getall.sh
 (nvdisasm CFG + accelprof pc_dependency trace) and then sync_dominance.analyze.
 
-sync_dominance v1 over-reports (never under-reports): atomics, fences and locks
-are NOT modelled as ordering, so many `norace_*` benchmarks are flagged as races
-on purpose. The only sound assertion is therefore one-directional:
-  * `race_*`   -> at least one RACE   (a miss here is a false negative = a real bug)
+Atomic coherence scope and the scoped happens-before closure are modelled, so
+the suite is asserted in both directions:
+  * `race_*`   -> at least one RACE  (a miss is a false negative = a real bug)
+  * `norace_*` -> zero RACEs         (a hit is a false positive)
   * every binary -> pipeline aligns, no unknown sync opcodes
 """
 import os
@@ -95,10 +95,10 @@ def test_scor_microbenchmark(binary, logfile):
                 f"unknown sync opcodes in {binary.name}"
             races += report["summary"]["races"]
 
-    # soundness: a labelled race must be reported (norace may over-report, so no
-    # 0-race assertion there — v1 does not model atomics/fences/locks as ordering)
     if binary.name.startswith("race_"):
         assert races >= 1, f"false negative: {binary.name} reported no race"
+    else:
+        assert races == 0, f"false positive: {binary.name} reported {races} race(s)"
 
 
 _DIR = _ROOT / "cuHadron/intersubwarp/" \

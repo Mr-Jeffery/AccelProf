@@ -1,24 +1,32 @@
 #!/usr/bin/env python3
 """
-Dominance-based data-race verdicts: join a kernel CFG (nvdisasm -bbcfg -poff
-dot, from getall.sh) with its cuVein pc_dependency_analysis trace (kernel_N.json).
+Scoped happens-before data-race verdicts: join a kernel CFG (nvdisasm -bbcfg
+-poff dot, from getall.sh) with its cuVein pc_dependency_analysis trace
+(kernel_N.json).
 
-The CFG is used ONLY for sync structure. It is split into sync-delimited
-regions (each sync instruction is its own graph node). For every conflicting
-PC pair (u, v) observed as a trace edge:
+For every conflicting PC pair (u, v) observed as a trace edge, the pair RACES
+at its observed thread distance d iff u and v are NOT ordered at scope >= d, on
+the lattice  none < warp < block < grid.
 
-    strength(u, v) = max{ scope(s) : s qualifying sync,
-                          s in postdom(u) & dom(v)  or  s in postdom(v) & dom(u) }
+Ordering is one "ordered-by" relation (class HBGraph) built from three
+edge-generation rules; the pair's strength is the max scope those rules certify:
 
-on the lattice none < warp < block < grid.  RACE iff strength < the edge's
-observed topological distance.  Qualifying: BAR.SYNC*/BAR.RED* (block),
-WARPSYNC (warp).  BAR.ARV*, MEMBAR* never order anything in v1 (over-reports,
-never under-reports).  Same-PC pairs are ordered iff a qualifying sync lies on
-every cycle through the PC's region.
+ R1 sync dominance (static): a qualifying sync s orders (u, v) at scope(s) iff
+    s in postdom(u) & dom(v)  or  s in postdom(v) & dom(u)  — s runs after one
+    access and before the other on every path. Qualifying: BAR.SYNC*/BAR.RED*
+    (block), WARPSYNC (warp); BAR.ARV* never orders. Same-PC pairs: a qualifying
+    sync of scope >= s on every cycle through the PC's region.
+ R2 atomic coherence (static x dynamic): two same-address atomics are ordered
+    at min of their .STRONG scopes (SM/CTA -> block, GPU/SYS -> grid).
+ R3 scoped happens-before chain (static x dynamic, ScoRD model): release fence
+    (MEMBAR in postdom(u) & dom(a), scope covering the hop) -> observed atomic-
+    atomic sync edge(s) from the trace -> acquire (dependency order behind the
+    spin atomic). MEMBAR alone never orders; a store in a CAS critical section
+    needs its own acquire fence.
 
-Memory space, read/write/atomic type and warp masks come from the trace, not
-from SASS; the CFG opcode is only used to confirm every traced PC is a memory
-instruction (Phase 0 alignment invariant).
+The CFG is used ONLY for sync structure. Memory space, read/write/atomic type
+and warp masks come from the trace; the CFG opcode only confirms every traced
+PC is a memory instruction (Phase 0 alignment invariant).
 
 Usage:  python sync_dominance.py <kernel_cfg.dot> <kernel_N.json> [-o out.json]
 Exit codes: 0 ok; 1 trace/CFG alignment failure; 2 unknown sync opcodes seen.
@@ -67,8 +75,10 @@ def classify(opcode):
         return ("sync", BLOCK, False, True)         # unknown BAR.* -> CI tripwire
     if base == "WARPSYNC":                          # mask matched dynamically (trace)
         return ("sync", WARP, True, False)
-    if base == "MEMBAR":                            # fence: non-qualifying in v1
-        return ("sync", NONE, False, False)
+    if base == "MEMBAR":                            # fence: non-qualifying for barrier
+        # dominance, but real scope recorded for HB release certification
+        return ("sync", GRID if opcode.split(".")[-1] in ("GPU", "SYS") else BLOCK,
+                False, False)
     if base in ("EXIT", "RET"):
         return "exit"
     if base in _MEM_OPS:
@@ -76,6 +86,19 @@ def classify(opcode):
     if base not in _NOT_SYNC and "SYNC" in opcode:  # unrecognized *SYNC* -> tripwire
         return ("sync", NONE, False, True)
     return None
+
+
+_ATOM_BASES = {"ATOM", "ATOMG", "ATOMS", "RED"}
+_ATOM_SCOPE = {"CTA": BLOCK, "SM": BLOCK, "GPU": GRID, "SYS": GRID}
+
+
+def atomic_scope(opcode):
+    """Coherence-ordering scope of an atomic RMW; None if not an atomic."""
+    parts = opcode.split(".")
+    if parts[0] not in _ATOM_BASES:
+        return None
+    s = parts[parts.index("STRONG") + 1] if "STRONG" in parts else None
+    return _ATOM_SCOPE.get(s, NONE)  # unknown/weak scope -> NONE (over-report, sound)
 
 
 def parse_flags(flags):
@@ -137,12 +160,22 @@ def parse_dot(path):
     return kernels
 
 
-class Engine:
-    """Sync-split region graph + dominator/post-dominator strength queries."""
+class HBGraph:
+    """The ordered-by relation over traced memory PCs.
+
+    Built from the sync-split region graph (dominator/post-dominator sets) plus,
+    after attach_trace, the dynamic facts (atomic scopes + observed atomic-atomic
+    sync edges). Three edge rules certify ordering scope for a PC pair:
+      R1 dominance() / loop_scope()  — static barriers/warpsync,
+      R2 coherence()                 — same-address atomics,
+      R3 chain()                     — release -> observed sync -> acquire.
+    ordered() runs the single query max(R1, R2) then R3, per roadmap Phase 1."""
 
     def __init__(self, blocks, edges, entry):
         self.G = nx.DiGraph()
         self.G.add_node(VEXIT)
+        self.atom = {}        # pc -> atomic coherence scope (after attach_trace)
+        self.sync_edges = []  # (anc, cur, d) observed atomic sync hops
         self.pc_opcode = {}   # every parsed pc -> opcode (alignment check)
         self.pc_node = {}     # pc -> its region node
         self.syncs = {}       # sync node id -> (pc, opcode, scope, qualifying)
@@ -190,10 +223,15 @@ class Engine:
             out[n] = s
         return out
 
-    def strength(self, u, v):
-        """Ordering strength of PC pair -> (scope, [ordering sync pcs])."""
-        if u == v:
-            return self.loop_strength(u)
+    def attach_trace(self, atom, sync_edges):
+        """Bind the dynamic facts: atom = {pc -> atomic coherence scope},
+        sync_edges = validated observed atomic-atomic hops (anc, cur, d)."""
+        self.atom = atom
+        self.sync_edges = sync_edges
+
+    # -- R1: sync dominance (static) ------------------------------------------
+    def dominance(self, u, v):
+        """Barrier/warpsync ordering of a cross-PC pair -> (scope, [sync pcs])."""
         ru, rv = self.pc_node[u], self.pc_node[v]
         if ru == rv:
             return NONE, []  # same sync interval: nothing between them
@@ -206,13 +244,9 @@ class Engine:
                 used.append(pc)
         return best, sorted(used)
 
-    def _on_cycle(self, r, excluded):
-        sub = self.G.subgraph(n for n in self.G if n not in excluded)
-        return any(nx.has_path(sub, s, r) for s in sub.successors(r))
-
-    def loop_strength(self, pc):
-        """Same-PC pair: ordered at scope s iff a qualifying sync of scope >= s
-        lies on every cycle through the PC's region (roadmap 1.5)."""
+    def loop_scope(self, pc):
+        """R1's cycle form for a same-PC pair: ordered at scope s iff a qualifying
+        sync of scope >= s lies on every cycle through the PC's region (1.5)."""
         r = self.pc_node[pc]
         if not self._on_cycle(r, ()):
             return NONE, []  # no loop: distinct threads, same interval
@@ -223,6 +257,104 @@ class Engine:
                                      if nx.has_path(self.G, r, s)
                                      and nx.has_path(self.G, s, r))
         return NONE, []
+
+    # -- R2: atomic coherence (static x dynamic) ------------------------------
+    def coherence(self, u, v):
+        """Same-address atomics -> min of their .STRONG scopes; NONE otherwise."""
+        return min(self.atom[u], self.atom[v]) if u in self.atom and v in self.atom \
+            else NONE
+
+    # -- R3: scoped happens-before chain (static x dynamic) -------------------
+    def po(self, u, v):
+        """Certified program order u -> v: u's region dominates v's (any thread
+        executing v ran u first); same region falls back to offset order."""
+        ru, rv = self.pc_node[u], self.pc_node[v]
+        return u < v if ru == rv else ru in self.dom.get(rv, ())
+
+    def release_scope(self, u, a):
+        """Max MEMBAR scope with fence in postdom(u) & dom(a) — certifies both
+        the program order u -> a and the fence between them; NONE if no fence."""
+        ru, ra = self.pc_node[u], self.pc_node[a]
+        return max((scope for sid, (_, op, scope, _) in self.syncs.items()
+                    if op.startswith("MEMBAR") and sid in self.postdom.get(ru, ())
+                    and sid in self.dom.get(ra, ())), default=NONE)
+
+    def _cs_fenced(self, x, need):
+        """Release-side gate for an ordinary store x: if x sits in a CAS-acquired
+        critical section, a fence of scope >= need must sit between the CAS and x.
+        Competing (CAS) acquires succeed in schedule-dependent order, so the
+        observed chain direction cannot vouch for the other schedule; flag/spin
+        handoffs (non-CAS) pin their direction by dataflow and need no fence."""
+        return all(self.release_scope(c, x) >= need
+                   for c in self.atom
+                   if "CAS" in self.pc_opcode[c].split(".") and self.po(c, x))
+
+    def chain(self, anc, cur):
+        """Scoped happens-before path anc -> cur: a release side (fence-certified
+        for an ordinary store, program order for an atomic), one or more observed
+        atomic sync hops, then a dependency-ordered acquire. Returns the chain of
+        atomic PCs, or None.
+
+        PC-level: assumes all dynamic instances of a PC are ordered alike — exact
+        for one-thread-per-arm and lock-protected patterns; per-thread epochs
+        (roadmap Phase 2) are the precise upgrade."""
+        hops = {}
+        for a1, a2, d in self.sync_edges:
+            hops.setdefault(a1, []).append((a2, d))
+        anc_atomic = anc in self.atom
+        if anc_atomic:  # atomics need no release fence, only certified program order
+            starts = [(anc, GRID)]
+        else:  # fence scope gates the first sync hop's distance
+            starts = [(a, s) for a in self.atom
+                      if (s := self.release_scope(anc, a)) > NONE]
+        for a0, first_scope in starts:
+            stack, seen = [(a0, False, [a0])], set()
+            while stack:
+                n, synced, path = stack.pop()
+                if synced and n != cur and self.po(n, cur):  # acquire: dependency
+                    return path
+                if (n, synced) in seen:
+                    continue
+                seen.add((n, synced))
+                for a2, d in hops.get(n, ()):
+                    if synced or d <= first_scope:
+                        stack.append((a2, True, path + [a2]))
+                if synced or anc_atomic:  # po hop between atomics, no fence needed
+                    for b in self.atom:
+                        if b != n and self.po(n, b):
+                            stack.append((b, synced, path + [b]))
+        return None
+
+    def _on_cycle(self, r, excluded):
+        sub = self.G.subgraph(n for n in self.G if n not in excluded)
+        return any(nx.has_path(sub, s, r) for s in sub.successors(r))
+
+    # -- the single ordered-by query ------------------------------------------
+    def ordered(self, cur, anc, d, cur_read, anc_read, static=True):
+        """Is the conflicting pair ordered at scope >= d? Returns a dict with the
+        certified strength, the R1 sync pcs, the R2 coherence scope and the R3
+        chain — the fields the report needs. verdict = strength >= d or chain.
+
+        static=False for a warp-same-instruction multi-lane write: no static sync
+        (R1) or chain (R3) can intervene within one instruction, only R2 applies."""
+        if not static:
+            strength, syncs = NONE, []
+        elif cur == anc:
+            strength, syncs = self.loop_scope(cur)              # R1 (cycle form)
+        else:
+            strength, syncs = self.dominance(cur, anc)          # R1
+        coherence = self.coherence(cur, anc)                    # R2
+        if coherence > strength:
+            strength, syncs = coherence, []
+        chain = None
+        if static and strength < d:                             # R3
+            ok = lambda x, rd: x in self.atom or rd or self._cs_fenced(x, d)
+            if ok(anc, anc_read) and ok(cur, cur_read):
+                # cross-thread edge direction is temporal only for single-worker
+                # replay (accelprof -n 1); stay direction-agnostic otherwise
+                chain = self.chain(anc, cur) or self.chain(cur, anc)
+        return {"strength": strength, "syncs": syncs,
+                "coherence": coherence, "chain": chain}
 
 
 def _demangle(name):
@@ -253,11 +385,20 @@ def _race_type(cur_access, anc_access):
            "RAW" if anc_w else "RAR"
 
 
+def _observed(dist):
+    """Highest inter-thread distance bucket of a trace edge -> (scope, count)."""
+    for sc, key in ((GRID, "intra_grid"), (BLOCK, "intra_block"),
+                    (WARP, "intra_warp")):
+        if dist.get(key, 0) > 0:
+            return sc, dist[key]
+    return NONE, 0
+
+
 def analyze(dot_path, trace_path):
     trace = json.loads(Path(trace_path).read_text())
     kernels = parse_dot(dot_path)
     mangled = select_kernel(kernels, trace["kernel"]["kernel_name"])
-    eng = Engine(*kernels[mangled])
+    eng = HBGraph(*kernels[mangled])
 
     # space/access come from the trace, keyed by pc
     flags = {n["pc"]: parse_flags(n["flags"]) for n in trace.get("nodes", [])}
@@ -272,6 +413,21 @@ def analyze(dot_path, trace_path):
             raise AlignmentError(f"trace PC {pc:#x} is '{eng.pc_opcode[pc]}', "
                                  f"not a memory opcode — PC alignment broken")
 
+    # dynamic facts feeding R2/R3: atomic PCs (coherence scope from the SASS
+    # .STRONG suffix) and observed atomic-atomic sync edges — the shadow memory
+    # tracks flag/lock addresses like any data, so the sync is in the trace
+    atom = {pc: sc for pc in pcs
+            if (sc := atomic_scope(eng.pc_opcode[pc])) is not None}
+    sync_edges = []
+    for e in trace.get("edges", []):
+        cur, anc = e["current_pc"], e.get("ancient_pc")
+        if e.get("cold_miss") or anc is None or cur not in atom or anc not in atom:
+            continue
+        d, _ = _observed(e.get("dist", {}))
+        if d > NONE and min(atom[anc], atom[cur]) >= d:
+            sync_edges.append((anc, cur, d))
+    eng.attach_trace(atom, sync_edges)
+
     verdicts, skipped = [], []
     for e in trace.get("edges", []):
         cur, anc = e["current_pc"], e.get("ancient_pc")
@@ -279,27 +435,25 @@ def analyze(dot_path, trace_path):
         if e.get("cold_miss") or anc is None:
             skipped.append({**rec, "reason": "cold_miss"})
             continue
-        dist = e.get("dist", {})
-        observed, weight = NONE, 0
-        for sc, key in ((GRID, "intra_grid"), (BLOCK, "intra_block"),
-                        (WARP, "intra_warp")):
-            if dist.get(key, 0) > 0:
-                observed, weight = sc, dist[key]
-                break
-        same_inst = dist.get("intra_instance_launch", 0)
+        observed, weight = _observed(e.get("dist", {}))
+        same_inst = e.get("dist", {}).get("intra_instance_launch", 0)
         cur_space, cur_access = flags.get(cur, ("generic", "read"))
         anc_space, anc_access = flags.get(anc, ("generic", "read"))
+        cur_access = "atomic" if cur in atom else cur_access
+        anc_access = "atomic" if anc in atom else anc_access
         if observed == NONE and same_inst == 0:
             skipped.append({**rec, "reason": "intra_thread_only"})
             continue
         if cur_access == "read" and anc_access == "read":
             skipped.append({**rec, "reason": "read_read"})
             continue
-        if observed == NONE:  # only warp-same-instruction traffic, write involved:
-            # multi-lane write in one warp instruction — no sync can intervene
-            strength, used, observed, weight, same = NONE, [], WARP, same_inst, True
-        else:
-            (strength, used), same = eng.strength(cur, anc), False
+        # warp-same-instruction multi-lane write (ITS): no sync can intervene, so
+        # no chain — but R2 coherence still applies to a same-inst atomic pair
+        same = observed == NONE
+        if same:
+            observed, weight = WARP, same_inst
+        ev = eng.ordered(cur, anc, observed, cur_access == "read",
+                         anc_access == "read", static=not same)
         verdicts.append({
             "current_pc": cur, "current_pc_hex": hex(cur),
             "ancient_pc": anc, "ancient_pc_hex": hex(anc),
@@ -309,10 +463,13 @@ def analyze(dot_path, trace_path):
             "observed_distance": SCOPES[observed],
             "contested_weight": weight,
             "access_size": e.get("current_access_size"),
-            "strength": SCOPES[strength],
-            "ordering_syncs": used,
+            "strength": SCOPES[ev["strength"]],
+            "ordering_syncs": ev["syncs"],
+            "atomic_coherence": SCOPES[ev["coherence"]],
+            "hb_chain": [hex(p) for p in ev["chain"]] if ev["chain"] else None,
             "warp_same_inst": same,
-            "verdict": "RACE" if strength < observed else "ORDERED",
+            "verdict": "ORDERED" if ev["strength"] >= observed or ev["chain"]
+                       else "RACE",
         })
 
     races = sum(v["verdict"] == "RACE" for v in verdicts)
@@ -343,7 +500,14 @@ def render(report, out):
                  f"{'' if s['qualifying'] else ',non-qualifying'}]"
                  for s in report["syncs"]) or "none")]
     for v in report["verdicts"]:
-        via = " via " + ",".join(map(hex, v["ordering_syncs"])) if v["ordering_syncs"] else ""
+        if v["ordering_syncs"]:
+            via = " via " + ",".join(map(hex, v["ordering_syncs"]))
+        elif v["hb_chain"]:
+            via = " via hb(" + "->".join(v["hb_chain"]) + ")"
+        elif v["atomic_coherence"] != "none" and v["strength"] == v["atomic_coherence"]:
+            via = f" via atomic({v['atomic_coherence']})"
+        else:
+            via = ""
         note = " (warp-same-inst)" if v["warp_same_inst"] else ""
         lines.append(f"{v['ancient_pc_hex']} -> {v['current_pc_hex']}  "
                      f"{v['opcodes'][1]}/{v['opcodes'][0]}  {v['space']}  {v['race_type']}  "

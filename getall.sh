@@ -28,5 +28,7 @@ shopt -u nullglob
 
 # JSON generation
 cd "$INPUT_DIR"
-accelprof -v -t pc_dependency_analysis "./$INPUT_BASENAME"
+# -n 1: single replay worker so edge ancient/current order is temporal
+# (multi-worker replay records analyzer processing order for cross-block pairs)
+accelprof -v -t pc_dependency_analysis -n 1 "./$INPUT_BASENAME"
 cd "$(dirname "$0")"
