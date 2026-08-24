@@ -385,6 +385,24 @@ def _race_type(cur_access, anc_access):
            "RAW" if anc_w else "RAR"
 
 
+def _hb_class(r1r2_ordered, chain_ordered, dyn_raced):
+    """Verdict-matrix cell (roadmap 4.1). Static all-schedule ordering crossed with
+    the observed-schedule dynamic HB race:
+      * R1 dominance / R2 coherence are all-schedule sound  (r1r2_ordered)
+      * R3 chain is PC-level and can over-order (the canary) (chain_ordered)
+    dyn_raced from the analyzer's C++ HB engine is the observed-schedule truth.
+      structural  raced, and no all-schedule proof orders it (chain over-ordered,
+                  or nothing did) -> a real race static missed.
+      latent      not raced this schedule, but nothing proves all-schedule ordering
+                  -> races under a different schedule.
+      model_bug   R1/R2 claim every-schedule race-freedom yet it raced -> a soundness
+                  bug in R1/R2 or a trace/CFG misalignment; investigate.
+      ordered     not raced and some all-schedule proof orders it."""
+    if dyn_raced:
+        return "model_bug" if r1r2_ordered else "structural"
+    return "ordered" if (r1r2_ordered or chain_ordered) else "latent"
+
+
 def _observed(dist):
     """Highest inter-thread distance bucket of a trace edge -> (scope, count)."""
     for sc, key in ((GRID, "intra_grid"), (BLOCK, "intra_block"),
@@ -428,6 +446,19 @@ def analyze(dot_path, trace_path):
             sync_edges.append((anc, cur, d))
     eng.attach_trace(atom, sync_edges)
 
+    # Dynamic happens-before ground truth (the analyzer's C++ HB engine, present when
+    # the trace was taken with YOSEMITE_HB_TRACE=1). Crossed with the static legs below
+    # into the verdict-matrix class; absent -> the R3 chain is the only observed axis.
+    hb_races = trace.get("hb_races")
+    raced_pcsets = [frozenset(p for p in (r.get("a_pc"), r.get("b_pc")) if p is not None)
+                    for r in hb_races] if hb_races is not None else None
+
+    def hb_pair_raced(a, b):
+        pair = frozenset((a, b))
+        # exact {a,b} match; a WAR record carries only the writer pc and matches any
+        # pair containing it (conservative — the corpus has no WAR to disambiguate).
+        return any(s and s <= pair for s in raced_pcsets)
+
     verdicts, skipped = [], []
     for e in trace.get("edges", []):
         cur, anc = e["current_pc"], e.get("ancient_pc")
@@ -454,6 +485,14 @@ def analyze(dot_path, trace_path):
             observed, weight = WARP, same_inst
         ev = eng.ordered(cur, anc, observed, cur_access == "read",
                          anc_access == "read", static=not same)
+        r1r2_ordered = ev["strength"] >= observed        # R1 dominance / R2 coherence
+        chain_ordered = ev["chain"] is not None          # R3 PC-level handshake
+        if raced_pcsets is not None:
+            hb_class = _hb_class(r1r2_ordered, chain_ordered, hb_pair_raced(cur, anc))
+            verdict = "ORDERED" if hb_class == "ordered" else "RACE"
+        else:
+            hb_class = None
+            verdict = "ORDERED" if r1r2_ordered or chain_ordered else "RACE"
         verdicts.append({
             "current_pc": cur, "current_pc_hex": hex(cur),
             "ancient_pc": anc, "ancient_pc_hex": hex(anc),
@@ -468,8 +507,8 @@ def analyze(dot_path, trace_path):
             "atomic_coherence": SCOPES[ev["coherence"]],
             "hb_chain": [hex(p) for p in ev["chain"]] if ev["chain"] else None,
             "warp_same_inst": same,
-            "verdict": "ORDERED" if ev["strength"] >= observed or ev["chain"]
-                       else "RACE",
+            "hb_class": hb_class,
+            "verdict": verdict,
         })
 
     races = sum(v["verdict"] == "RACE" for v in verdicts)
@@ -488,7 +527,10 @@ def analyze(dot_path, trace_path):
                                      for pc, op in eng.unknown_syncs],
         },
         "summary": {"races": races, "ordered": len(verdicts) - races,
-                    "skipped": len(skipped)},
+                    "skipped": len(skipped),
+                    "hb_classes": {c: sum(v["hb_class"] == c for v in verdicts)
+                                   for c in ("structural", "latent", "model_bug")}
+                                  if raced_pcsets is not None else None},
     }
 
 
@@ -500,8 +542,14 @@ def render(report, out):
                  f"{'' if s['qualifying'] else ',non-qualifying'}]"
                  for s in report["syncs"]) or "none")]
     for v in report["verdicts"]:
+        # A RACE that still carries an hb_chain is a structural race the dynamic HB
+        # engine caught: the PC-level chain (release->sync->acquire) holds for the
+        # threads that actually handshook, but not for the pair that raced — so the
+        # chain was refuted, not the justification. Only ORDERED "via hb(...)".
         if v["ordering_syncs"]:
             via = " via " + ",".join(map(hex, v["ordering_syncs"]))
+        elif v["verdict"] == "RACE" and v["hb_chain"]:
+            via = " (PC-level hb " + "->".join(v["hb_chain"]) + " refuted by dynamic HB)"
         elif v["hb_chain"]:
             via = " via hb(" + "->".join(v["hb_chain"]) + ")"
         elif v["atomic_coherence"] != "none" and v["strength"] == v["atomic_coherence"]:
@@ -509,10 +557,11 @@ def render(report, out):
         else:
             via = ""
         note = " (warp-same-inst)" if v["warp_same_inst"] else ""
+        cls = f" {v['hb_class']}" if v.get("hb_class") else ""
         lines.append(f"{v['ancient_pc_hex']} -> {v['current_pc_hex']}  "
                      f"{v['opcodes'][1]}/{v['opcodes'][0]}  {v['space']}  {v['race_type']}  "
                      f"dist={v['observed_distance']}  strength={v['strength']}  "
-                     f"{v['verdict']}{note}{via}")
+                     f"{v['verdict']}{cls}{note}{via}")
     for s in report["skipped_edges"]:
         anc = hex(s["ancient_pc"]) if s["ancient_pc"] is not None else "-"
         lines.append(f"skipped: {anc} -> {hex(s['current_pc'])}  ({s['reason']})")

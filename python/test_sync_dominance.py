@@ -9,6 +9,7 @@ the suite is asserted in both directions:
   * `norace_*` -> zero RACEs         (a hit is a false positive)
   * every binary -> pipeline aligns, no unknown sync opcodes
 """
+import json
 import os
 import shutil
 import subprocess
@@ -16,6 +17,7 @@ from pathlib import Path
 
 import pytest
 
+import hb_oracle as ho
 import sync_dominance as sd
 
 _ROOT = Path(__file__).resolve().parents[1]
@@ -99,6 +101,39 @@ def test_scor_microbenchmark(binary, logfile):
         assert races >= 1, f"false negative: {binary.name} reported no race"
     else:
         assert races == 0, f"false positive: {binary.name} reported {races} race(s)"
+
+
+def _race_key(r):
+    return (r["addr"], r["a_tid"], r.get("a_pc"), r["b_tid"], r["b_pc"], r["kind"])
+
+
+@pytest.mark.parametrize("binary", _binaries(), ids=lambda p: p.name)
+def test_hb_engine_matches_oracle(binary):
+    """The analyzer's streaming C++ HB engine (hb_races in the trace) must equal the
+    full vector-clock Python oracle (hb_oracle) on every corpus binary — the oracle is
+    the executable correctness spec for the scalable engine (roadmap Phase 2)."""
+    art = _artifacts(binary)
+    if art is None:
+        pytest.skip("corpus not generated (no GPU / accelprof unavailable)")
+    dots, traces = art
+    for trace in traces:
+        tj = json.loads(trace.read_text())
+        if "hb_events" not in tj:
+            pytest.skip("trace has no hb_events (YOSEMITE_HB_TRACE was off)")
+        engine = sorted({_race_key(r) for r in tj.get("hb_races", [])})
+        report = None
+        for dot in dots:  # pick the cubin whose CFG holds this kernel
+            try:
+                report = ho.analyze(dot, trace)
+                break
+            except sd.AlignmentError:
+                continue
+        assert report is not None, f"no CFG aligns with {trace.name}"
+        oracle = sorted({_race_key(r) for r in report["races"]})
+        assert engine == oracle, (
+            f"{binary.name}/{trace.name}: "
+            f"engine-only={[k for k in engine if k not in oracle]} "
+            f"oracle-only={[k for k in oracle if k not in engine]}")
 
 
 _DIR = _ROOT / "cuHadron/intersubwarp/" \
