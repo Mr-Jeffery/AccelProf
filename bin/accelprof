@@ -258,8 +258,8 @@ if [ "${ENABLE_LINUX_PERF}" = "1" ]; then
         "enabled (perf record -g -o ${PERF_OUTPUT})" >> ${OUTPUT_REDIRECT}
 fi
 
-# Record start time in milliseconds since epoch
-start_time=$(date +%s%N)
+# Record start time in seconds since epoch
+start_time=$(date +%s)
 printf "%-30s: %s\n\n" "[ACCELPROF INFO] START TIME" "$(date)" >> ${OUTPUT_REDIRECT}
 
 # accelprof
@@ -317,9 +317,9 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Record end time and calculate elapsed time in milliseconds
-end_time=$(date +%s%N)
-elapsed_ms=$(( (end_time - start_time) / 1000000 ))
+# Record end time and calculate elapsed time
+end_time=$(date +%s)
+elapsed=$((end_time - start_time))
 printf "%-30s: %s\n" "[ACCELPROF INFO] END TIME" "$(date)" >> ${OUTPUT_REDIRECT}
-printf "%-30s: %02d:%02d:%02d.%03d\n" "[ACCELPROF INFO] ELAPSED TIME" \
-        $((elapsed_ms/3600000)) $((elapsed_ms%3600000/60000)) $((elapsed_ms%60000/1000)) $((elapsed_ms%1000)) >> ${OUTPUT_REDIRECT}
+printf "%-30s: %02d:%02d:%02d\n" "[ACCELPROF INFO] ELAPSED TIME" \```
+        $((elapsed/3600)) $((elapsed%3600/60)) $((elapsed%60)) >> ${OUTPUT_REDIRECT}
