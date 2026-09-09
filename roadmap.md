@@ -54,7 +54,7 @@ The CFG is used **only for sync structure**. Memory space, read/write/atomic typ
    - *Release po-edges (static, directional):* `u → a` iff a MEMBAR `f ∈ postdom(region(u)) ∩ dom(region(a))` with fence scope ≥ the following sync edge's distance (atomic u needs no fence, dominance-certified order suffices).
    - *Acquire po-edges (static):* `a → w` iff `region(a) ∈ dom(region(w))`; no fence needed — consumer accesses are dependency-ordered behind the spin-loop atomic. Exception (direction-independent): an ordinary *store* dominated by a **CAS** atomic sits in a competing critical section whose entry order is schedule-dependent, so it additionally needs an acquire fence of sufficient scope between the CAS and the store — `race_*lock-no-stf/blkfence*` are exactly this omission; non-CAS flag/spin handoffs pin their direction by dataflow and are exempt.
    - A residual RACE edge is upgraded to ORDERED iff a valid HB path exists in *either* direction. Cross-thread trace-edge direction is temporal only under **single-worker replay** (`accelprof -n 1` — per the cuVein author; now the `getall.sh` default, ScoR artifacts regenerated with it). Multi-worker replay records offline-analyzer processing order and can even mis-pair last-writers (hrf-indirect's old trace had `0x500→0x2e0` where true dataflow is `0x500→0x420`), so the search stays direction-agnostic for compatibility with such traces. Reported as `hb-chain` with the chain PCs, distinct from dominance-ORDERED.
-   - *Known limitation:* PC-level HB assumes all dynamic instances of a PC are ordered alike — exact for one-thread-per-arm and lock-protected patterns; Phase 2 per-thread epochs are the precise upgrade.
+   - *Known limitation:* PC-level HB assumes all dynamic instances of a PC are ordered alike — exact for one-thread-per-arm and lock-protected patterns, but it over-orders when instances differ (the canary). Phase 2's scoped vector-clock engine is the realized precise upgrade: on the canary's identical trace it reports the 2 WAW races this closure misses, as a consequence of per-address clocks.
 
 Dropped from v2: the static concurrency pre-filter (the trace supplies observed pairs), SASS participation-mask analysis (trace carries masks), and the barrier-divergence diagnostic (deferred; needs mask reconstruction).
 
@@ -62,18 +62,34 @@ Dropped from v2: the static concurrency pre-filter (the trace supplies observed 
 
 ---
 
-## Phase 2 — Dynamic leg: sync events and per-thread epochs in cuVein
+## Phase 2 — Dynamic leg: sync events + scoped vector-clock happens-before *(engine implemented & corpus-validated; verdict matrix + oracle-cross-check pytest wired; scale knobs pending)*
 
-**Goal:** the one cuVein extension; per-thread epochs replace the two Phase 1 approximations that are PC-granular (the hb-chain closure and warp-same-inst handling) with per-instance ordering evidence.
+**Goal:** the one analyzer/GPU extension supplying per-instance ordering evidence, replacing the two PC-granular Phase 1 approximations (the hb-chain closure and warp-same-inst handling). Built as an **exact vector-clock happens-before** mechanism — correct by construction — *not* the scalar per-thread epochs v3 sketched below. The canary, named barriers, masked syncwarps and loop-carried handshakes all fall out of the clocks with no pattern special-cased; that generality was the explicit design mandate (a case-specific canary fix was rejected).
 
-1. **Instrument sync opcodes** in the Trace Collector using the Phase 1 tokenizer classification: BAR family, WARPSYNC (+ mask), MEMBAR family. Sync events interleave with memory events in the existing warp-granularity trace stream.
-2. **Decode scope modifiers** on already-instrumented memory ops (`.STRONG.CTA/GPU/SYS`, acquire/release) — extra trace fields, no new instrumentation points.
-3. **Per-thread (per-warp-slot) epoch counters — not per-CTA-global.** Each thread's barrier epoch advances only when *that thread's* warp executes the sync; a CTA-global counter would fabricate ordering for threads that skipped the barrier (dynamic mirror of the one-sync-arm bug). Warp epochs keyed by (warp, mask). Fence counters recorded but never used as ordering alone.
-4. **Shadow entry extension:** widen GMEM entries to 128-bit (matching SMEM): last **writer** + last **accessor** slots (iGUARD split), each with epoch snapshot(s), PC offset, flat thread ID, generation. Preserve the quartered demand-paged layout; measure paging impact.
-5. **Epoch-based dynamic ordering check:** accesses from threads t1, t2 are dynamically ordered by a barrier iff both threads' relevant epoch counters advanced past a common sync instance between the accesses — same participation logic as the static side, evaluated on the observed execution.
-6. **Trace schema fixes:** per-access-instance flags (no `READWRITE GLOBALSHARED` unions), documented cold-miss edge semantics (cold-miss edges excluded from race logic), confirm `intra_instance_launch` ≡ warp-same-inst.
+**Design as built** (diverges from the 2.1–2.6 sketch wherever reality forced it):
 
-**Exit criteria:** writewrite trace shows epoch delta on init-store→divergent-store edges and none on the divergent WAW edge; one-sync-arm trace shows *no* fabricated epoch delta for the non-syncing thread.
+1. **Sync instrumentation (GPU).** BAR family and WARPSYNC are instrumented via compute-sanitizer instruction patch points (`SANITIZER_INSTRUCTION_BARRIER`, `_SYNCWARP`); a first-lane callback emits one `MemoryType::{Barrier,Syncwarp}` record — participation = arrived-lane `active_mask` (barrier) / syncwarp mask — into the existing warp-granularity stream. **No MEMBAR instrumentation:** compute-sanitizer exposes no general fence patch point (only Hopper `WARPGROUP_FENCE`), so fence ordering stays CFG-static (Phase 1 `release_scope`). This is a hard tool boundary, not a deferral — fence-omission `race_*` are **static-only by necessity**. (NVBit *can* match `MEMBAR` by opcode if a fence-dynamic leg is ever wanted.)
+2. **Atomic scope from the CFG, not instrumented** (2.2 dropped). `.STRONG.{CTA,SM,GPU,SYS}` is a static SASS property; `python/atomic_scope_sidecar.py` distills a `pc→scope` table from the CFG `.dot` (which `getall.sh` produces *before* the trace run) into a sidecar the analyzer reads (`YOSEMITE_ATOMIC_SCOPE_FILE`). No new trace fields.
+3. **Scoped vector clocks, not scalar epochs** (supersedes 2.3). Every thread `(block<<10 | warp<<5 | lane)` carries a sparse VC. HB comes only from sync events: a barrier/syncwarp joins its *actual participants* then ticks each own component; a release atomic publishes the releaser's clock **keyed by address** at its scope; an acquire joins it back iff `min(acquire_scope, release_scope)` covers the two threads (GRID = any block / BLOCK = same block / NONE = never). A conflict (same location, ≥1 write, distinct threads) is a race iff the two instances' clocks are HB-unordered. Because releases are per-address, the canary's `flag[i]` never leaks block-*i*'s clock to a block that only touched `flag[j]` — precisely the over-ordering PC-level HB commits.
+4. **Two artifacts, one spec.** `python/hb_oracle.py` is the exact full-VC oracle (offline over the `hb_events` dump, the executable correctness spec). A streaming **C++ engine** in `pc_dependency_analysis.cpp` is a 1:1 port that runs in-analyzer over the raw buffer in temporal order (`-n 1`) — per-thread sparse VCs + address-keyed release map + writer/reader location shadow — emitting `hb_races` into `kernel_N.json` under `YOSEMITE_HB_TRACE`. The engine is a **`.cpp` file-static singleton, not a `PcDependency` member**: adding any member re-triggers a latent heap-corruption UB in a non-instrumented dependency (ASan-clean, so *not* in `libsanalyzer`; documented in the build memo). The 128-bit shadow-entry merge (2.4) was therefore *not* done — the engine keeps its own `std::map` location shadow.
+5. **Scale knobs deferred, set to exact for the corpus.** The engine uses **unbounded** VCs + **full** reader sets — O(threads) memory, O(threads) per barrier/atomic join. FastTrack epoch collapse (per-location read/write *epoch* vs. a reader set) and bounded per-thread clocks are the calibration knobs, left exact so the C++ engine matches the oracle bit-for-bit; `YOSEMITE_HB_NO_ENGINE` isolates dump-vs-engine cost for that calibration.
+
+**Validated.** Canary (documented PC-level false negative, `sync_dominance` = 0) → **2 WAW races**, C++ engine == oracle exactly. Full ScoR corpus (32 binaries) → **C++ `hb_races` == oracle `races`, 0 mismatches**, exercising reads (RAW/WAR), barrier joins, BLOCK/NONE-scope coherence, and fence-based release/acquire (ordered via the atomic flag; the fence is redundant for HB). writewrite → race caught.
+
+**Overhead** (reduction, 4M elts → 136K events, best-of-4, single GPU, `-n 1`):
+
+| stage | time | vs bare |
+|---|---|---|
+| bare (no instrumentation) | 0.89 s | 1× |
+| compute-sanitizer + `pc_dependency` (HB off) | 2.25 s | 2.5× |
+| + event dump | 3.55 s | 4.0× |
+| + engine (`HB_TRACE=1`) | 7.54 s | 8.5× |
+
+Normal mode (flag off) adds **zero** cost — engine gated off, and off-class so no layout change. The base 2.5× is compute-sanitizer, not Phase 2. Within the HB delta the engine (~+4 s) dominates the dump (~+1.3 s), driven by barrier-grown vector clocks — the exact term the scale knobs target. Reduction is near-worst-case (all barriers); atomic-light kernels show a smaller engine delta.
+
+**Exit criteria:** canary → 2 WAW as a *consequence* of per-address clocks (met); C++ engine == VC oracle on every corpus binary (met, 0 mismatches). **Done since:** verdict-matrix wiring (Phase 4.1) consuming `hb_races` — canary STG pair now classifies `structural` where the R3 chain alone said ordered; pytest formalization of the cross-check (`test_hb_engine_matches_oracle` in `test_sync_dominance.py`, asserts engine `hb_races` == oracle `races` per binary). **Pending:** bounded/epoch scale knobs calibrated on iGUARD/XSBench-class workloads; the loopcarried/namedbar/maskedsync microbenches.
+
+*Original v3 sketch, retained for reference (superseded by the above):* per-thread scalar barrier epochs advanced only when that thread's warp executes the sync; 128-bit GMEM shadow entries with writer/accessor epoch snapshots; epoch-delta ordering check. Replaced by exact VCs because scalar epochs cannot represent partial-participation or address-keyed atomic handoff without becoming vector clocks anyway.
 
 ---
 
@@ -88,14 +104,15 @@ The candidate predicate, per-edge verdict, and report v1 (racing PC pair, confli
 
 ---
 
-## Phase 4 — Verdict classification *(join implemented; classification pending Phase 2)*
+## Phase 4 — Verdict classification *(join + verdict matrix implemented)*
 
 The pipeline join (trace PCs → dominance/coherence/HB strength vs. conflict scope) is Phase 1's core loop. Remaining:
 
-1. **Verdict matrix** (needs Phase 2 epochs for the "dynamically ordered" axis):
-   - Observed race ∧ strength < scope → **structural race** (every execution).
-   - Observed race ∧ strength ≥ scope → **canary cell**: the model says ordered but execution disagreed — indicates conditional/named barriers beyond the model, or an epoch bug. Investigate immediately.
-   - Dynamically ordered ∧ strength < scope → **latent race** (lucky schedule); lower-severity report.
+1. **Verdict matrix** *(wired — `sync_dominance.analyze` consumes the Phase 2 engine's `hb_races` when the trace carries them; `_hb_class` assigns the cell, added as `hb_class` per verdict and a `summary.hb_classes` breakdown. Without `hb_races` it falls back to the R3 chain, as before).* Cells, crossing the static all-schedule axis (R1 dominance / R2 coherence, and the R3 handshake) with the observed dynamic HB race:
+   - Observed race ∧ **not** R1/R2-ordered → **structural race** (chain over-ordered at PC level, or nothing ordered it — the false negative the dynamic leg corrects). *Live: the canary STG pair `0x1f0→0x160` — static `strength = none`, R3 chain present (would say ORDERED), dynamic HB = race → `structural`.*
+   - Observed race ∧ **R1/R2**-ordered → **model_bug cell**: R1/R2 are all-schedule sound, so a race here means an unsound rule or a trace/CFG misalignment. Investigate immediately. (Empty on the whole corpus — a tripwire.)
+   - Dynamically ordered ∧ nothing proves all-schedule ordering → **latent race** (lucky schedule); lower-severity report.
+   - Dynamically ordered ∧ some all-schedule proof orders it → **ordered** (the common norace case; R3-handshake norace binaries land here, not latent).
 2. **Masked syncwarp qualification:** WARPSYNC currently qualifies unconditionally at warp scope; validate its mask against the trace's dynamic warp masks (both conflicting lanes covered) before trusting warp-scope verdicts on masked syncs.
 3. **Diagnostics:** attach PCDepGraph neighborhood + per-PC racing-traffic volume (weighted out-degree over racing edges) — the race-in-context output no existing detector provides.
 
@@ -120,7 +137,7 @@ All defensible as future work in a first paper; the ScoR corpus exercises none o
 
 1. **Accuracy:** ScoR microbenchmark suite as the scoped-synchronization accuracy table (all `norace_*` clean, all `race_*` caught — already in CI); iGUARD benchmark suite (github.com/csl-iisc/iGUARD-SOSP21) — races found, false positives (target: zero), plus structural/latent classification iGUARD cannot produce. Cross-check compute-sanitizer racecheck on shared-memory cases.
 2. **Differentiators to demonstrate:** compiler-transformed races (collapsed-loop example), latent races invisible to single-execution tools, asymmetric-sync races (one-sync-arm — a class where deletion-style static methods are unsound), scoped-atomic and transitive-HB classification (ScoRD-class precision from a binary-only tool), race-in-context diagnostics.
-3. **Overhead:** vs. baseline, vs. cuVein-without-race-logic (isolating epoch + 128-bit entry cost), vs. iGUARD's ~5×, vs. compute-sanitizer. Reuse cuVein's worker-scaling methodology.
+3. **Overhead:** vs. baseline, vs. tool-without-HB-logic (isolating the engine cost via `YOSEMITE_HB_NO_ENGINE`), vs. iGUARD's ~5×, vs. compute-sanitizer. Reuse cuVein's worker-scaling methodology. *First data point* (reduction, 136K events, single GPU, `-n 1`, exact/unbounded engine): bare → sanitizer+tool **2.5×** → +event-dump 4.0× → +engine **8.5×**; normal mode (HB off) zero cost. The engine term (~4× of the 8.5×) is the exact-VC cost the scale knobs (FastTrack epoch collapse, bounded clocks) must retire — the headline overhead number is *not* meaningful until they are calibrated.
 4. **Paper figures locked early:** (a) aligned triple: source race → PCDepGraph WAW edge → dominance query showing strength ⊥; (b) same-kernel false-positive control (barrier-separated twin edge, strength = block); (c) the bottleneck formalization: `strength = max(dominance, coherence, hb-chain)` on the scope lattice, with the deletion-method counterexamples as motivation; (d) verdict matrix, one real example per cell.
 
 ---
@@ -135,7 +152,8 @@ All defensible as future work in a first paper; the ScoR corpus exercises none o
 | Dominance model vs. named/conditional barrier instances | 1, 5.2 | Canary cell in verdict matrix; corpus kernel per new pattern before trusting verdicts on it |
 | Regression to reachability-as-ordering thinking | 1 | Divergent-siblings + one-sync-arm kernels as permanent method-regression tests |
 | Atomic-scope map wrong for an arch (`.SM`/`.CTA`/`.GPU`/`.SYS` drift) | 1 | Unknown scope suffix → ⊥ (over-reports); ScoR `race_*blkatom*` controls pin the SM→block mapping |
-| PC-level HB closure over-orders multi-instance sync PCs (false negatives) | 1, 5.4 | `hb-chain` verdicts labeled distinctly from dominance-ORDERED; ScoR `race_*` ≥1 assertions in CI; Phase 2 epochs are the precise fix |
-| Per-thread epoch state size in Offline Analyzer | 2 | Counters live in per-worker CTA-scoped state (SMEM-pool pattern), not global |
-| 128-bit GMEM entries blow paging footprint | 2 | Quartered layout preserved; measure on XSBench-class workload first |
-| Last-access shadow depth misses W₁ | 2 | Writer/accessor split; iGUARD depth-2/4/8 null result as justification |
+| PC-level HB closure over-orders multi-instance sync PCs (false negatives) | 1, 5.4 | `hb-chain` verdicts labeled distinctly from dominance-ORDERED; ScoR `race_*` ≥1 assertions in CI; **Phase 2 scoped-VC engine implemented** — catches the canary (2 WAW) and matches the VC oracle on all 32 corpus binaries (0 mismatches) |
+| Per-thread HB state size in analyzer | 2 | Engine state off-class (file-static singleton), reset per kernel; bounded per-thread clocks are the deferred scale knob |
+| Latent heap-corruption UB re-triggered by any `PcDependency` layout change (`malloc(): invalid size` at init) | 2 | Engine kept off-class → zero layout change; ASan-clean in `libsanalyzer` (with `protect_shadow_gap=0`) so the UB is in a non-instrumented dep; root-cause deferred, documented in build memo |
+| Exact unbounded vector clocks don't scale (O(threads) joins under heavy barriers; ~4× of the 8.5× on reduction) | 2, 6 | Exact only to match the oracle on the corpus; FastTrack epoch collapse + bounded clocks are the knobs; `YOSEMITE_HB_NO_ENGINE` isolates the cost for calibration |
+| Atomic-scope sidecar wrong/missing (pc→scope from CFG) drops HB → over-report | 2 | Skips unparseable dots (empty cubin stubs) instead of aborting; cross-checked against the VC oracle on all 32 binaries (0 mismatches) |
