@@ -213,14 +213,20 @@ class HBGraph:
 
     @staticmethod
     def _dom_sets(idom):
-        """Full dominator sets = ancestors in the immediate-dominator tree."""
+        """Full dominator sets = ancestors in the immediate-dominator tree.
+
+        networkx >= 3.x drops the root from immediate_dominators() (older
+        versions mapped it to itself), so the walk stops when the current node
+        is its own idom OR is absent (the root); the root is then seeded with
+        its singleton set to match the pre-3.x semantics callers rely on."""
         out = {}
         for n in idom:
             s, cur = {n}, n
-            while idom[cur] != cur:
+            while cur in idom and idom[cur] != cur:
                 cur = idom[cur]
                 s.add(cur)
             out[n] = s
+            out.setdefault(cur, {cur})
         return out
 
     def attach_trace(self, atom, sync_edges):
