@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <cstdlib>
+#include <cstdio>
 #include <fstream>
 #include <memory>
 #include <cassert>
@@ -70,10 +71,29 @@ struct HbEngine {
     std::map<std::pair<uint64_t, uint32_t>, std::set<uint32_t>> bar_warps_seen;  // (block,bar_index)->warps ever arrived
     std::map<std::pair<uint64_t, uint32_t>, std::pair<uint64_t, uint32_t>> warp_waiting;  // (block,warp)->pending key
 
+    // Coherence profile Pi (Phase 3, observational — never affects a verdict): per
+    // address touched by >=1 atomic, the observed sequence of (tid, that thread's atomic
+    // index) in event order. Same FNV-1a as hb_oracle.coherence_hash so the two profiles
+    // cross-check. Only addresses with an atomic are kept.
+    std::unordered_map<uint32_t, uint64_t> atom_idx;   // tid -> atomics issued so far
+    std::map<uint64_t, std::vector<std::pair<uint32_t, uint64_t>>> coherence;  // addr -> order
+
     void reset() {
         vc.clear(); released.clear(); last_write.clear(); last_reads.clear(); races.clear();
         pending_barriers.clear();  // block_thread_count is (re)set by hb_engine_reset
         bar_warps_seen.clear(); warp_waiting.clear(); tv_violation.clear();
+        atom_idx.clear(); coherence.clear();
+    }
+
+    // Stable 64-bit FNV-1a of a (tid, atomic-index) sequence; byte-for-byte identical to
+    // hb_oracle.coherence_hash (tid as 4 bytes LE, idx as 8 bytes LE, per pair).
+    static uint64_t coherence_hash(const std::vector<std::pair<uint32_t, uint64_t>>& seq) {
+        uint64_t h = 0xcbf29ce484222325ULL;
+        for (const auto& p : seq) {
+            for (int s = 0; s < 32; s += 8) { h ^= (p.first >> s) & 0xFF; h *= 0x100000001b3ULL; }
+            for (int s = 0; s < 64; s += 8) { h ^= (p.second >> s) & 0xFF; h *= 0x100000001b3ULL; }
+        }
+        return h;
     }
 
     void tv_fail(const std::string& msg) {
@@ -209,6 +229,10 @@ struct HbEngine {
                 const Loc loc{space, loc_block, addr};
 
                 if (is_atomic) {
+                    // Coherence profile Pi (observational): append this thread's next
+                    // atomic index to the address's observed atomic order.
+                    coherence[addr].push_back({t, atom_idx[t]});
+                    atom_idx[t] += 1;
                     // scoped acquire-release: pick up a's release only if the min of
                     // the two atomics' .STRONG scopes covers both threads.
                     const int my_scope = atom_scope[pc];
@@ -279,6 +303,25 @@ struct HbEngine {
             jout << "\n";
         }
         jout << "  ]";
+        // Coherence profile Pi (Phase 3): per atomic address, its observed atomic order
+        // and hash. Additive/observational — the verdict above is unaffected.
+        jout << ",\n  \"coherence_profile\": {";
+        bool first_addr = true;
+        for (const auto& kv : coherence) {
+            if (!first_addr) jout << ",";
+            first_addr = false;
+            char hbuf[24];
+            std::snprintf(hbuf, sizeof(hbuf), "0x%016llx",
+                          static_cast<unsigned long long>(coherence_hash(kv.second)));
+            jout << "\n    \"" << kv.first << "\": {\"len\": " << kv.second.size()
+                 << ", \"hash\": \"" << hbuf << "\", \"seq\": [";
+            for (size_t j = 0; j < kv.second.size(); ++j) {
+                if (j) jout << ", ";
+                jout << "[" << kv.second[j].first << ", " << kv.second[j].second << "]";
+            }
+            jout << "]}";
+        }
+        jout << (first_addr ? "}" : "\n  }");
         // Surface any trace-validity violation so corpus/validation runs (and the
         // Phase-4 harness) can assert zero. Absent key == none.
         if (!tv_violation.empty()) {

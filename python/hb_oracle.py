@@ -42,6 +42,23 @@ def tid_of(block, warp, lane):
     return (block << 10) | (warp << 5) | lane
 
 
+_FNV64_OFFSET = 0xcbf29ce484222325
+_FNV64_PRIME = 0x100000001b3
+_MASK64 = (1 << 64) - 1
+
+
+def coherence_hash(seq):
+    """Stable 64-bit FNV-1a of a (tid, atomic-index) sequence. Byte-for-byte the same
+    construction as HbEngine::coherence_hash so oracle and engine profiles compare."""
+    h = _FNV64_OFFSET
+    for tid, idx in seq:
+        for shift in (0, 8, 16, 24):                 # tid: 4 bytes little-endian
+            h = ((h ^ ((tid >> shift) & 0xFF)) * _FNV64_PRIME) & _MASK64
+        for shift in range(0, 64, 8):                # idx: 8 bytes little-endian
+            h = ((h ^ ((idx >> shift) & 0xFF)) * _FNV64_PRIME) & _MASK64
+    return h
+
+
 class VC(dict):
     """tid -> logical clock; a missing entry reads 0."""
     def joined(self, other):
@@ -73,6 +90,14 @@ def analyze(dot_path, trace_path):
     last_write = {}                   # loc -> (tid, clock, pc)
     last_reads = defaultdict(dict)    # loc -> {tid: clock}
     races = []                        # list of race records
+
+    # Coherence profile Pi (Phase 3, observational — never affects a verdict). The
+    # single-trace certificate is per-profile: the observed per-address coherence order
+    # of atomics. Record, per address touched by >=1 atomic, the sequence of
+    # (tid, that thread's atomic index) in event order, plus a stable hash of it (the
+    # SAME FNV-1a the engine emits, so the two profiles are cross-checkable).
+    atom_idx = defaultdict(int)      # tid -> count of atomics this thread has issued
+    coherence = defaultdict(list)    # addr -> [(tid, per-thread atomic index), ...]
 
     # Block-barrier instance assembly. A block-wide __syncthreads (BAR.SYNC) emits one
     # arrival record per warp; buffer arrivals per (block, bar_index) and join the
@@ -187,6 +212,10 @@ def analyze(dot_path, trace_path):
             loc = loc_of(space, e["block"], addr)
 
             if is_atomic:
+                # Coherence profile Pi (observational): this thread's next atomic index
+                # appended to the address's observed atomic order.
+                coherence[addr].append((t, atom_idx[t]))
+                atom_idx[t] += 1
                 # Scoped acquire-release. The synchronization strength is the min
                 # of the two atomics' .STRONG scopes; a release is picked up only
                 # if that strength covers the two threads (GRID = any block,
@@ -239,12 +268,22 @@ def analyze(dot_path, trace_path):
             seen.add(key)
             uniq.append(r)
 
+    # Coherence profile Pi: per atomic address, the observed atomic order and its hash.
+    coherence_profile = {
+        hex(addr): {"len": len(seq),
+                    "hash": f"{coherence_hash(seq):#018x}",
+                    "seq": [[t, i] for t, i in seq]}
+        for addr, seq in sorted(coherence.items())
+    }
+
     return {
         "inputs": {"cfg_dot": str(dot_path), "trace_json": str(trace_path)},
         "kernel": {"mangled": mangled, "name": trace["kernel"]["kernel_name"]},
         "atomic_pcs": {hex(pc): sd.SCOPES[s] for pc, s in sorted(atom_scope.items())},
         "races": uniq,
-        "summary": {"races": len(uniq), "events": len(events)},
+        "coherence_profile": coherence_profile,
+        "summary": {"races": len(uniq), "events": len(events),
+                    "atomic_addrs": len(coherence_profile)},
     }
 
 
