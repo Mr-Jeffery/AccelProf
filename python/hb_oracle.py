@@ -65,6 +65,17 @@ def analyze(dot_path, trace_path):
     last_reads = defaultdict(dict)    # loc -> {tid: clock}
     races = []                        # list of race records
 
+    # Block-barrier instance assembly. A block-wide __syncthreads (BAR.SYNC) emits one
+    # arrival record per warp; buffer arrivals per (block, bar_index) and join the
+    # UNION of all participants only once the instance is complete, so warp 0's
+    # pre-barrier writes are ordered before every warp's post-barrier reads (the
+    # cross-warp tile idiom). thread_count is the expected participant count; 0 for a
+    # plain __syncthreads means the whole block, so fall back to block_thread_count. A
+    # loop reuses (block, bar_index): the barrier prevents any warp reaching instance
+    # k+1 before k completes, so accumulate-then-reset segments dynamic instances.
+    block_tc = trace["kernel"].get("block_thread_count")
+    pending_bar = defaultdict(set)    # (block, bar_index) -> set of arrived tids
+
     def own(t):
         # a thread's own clock starts at 1: a write is then (t@>=1) while a thread
         # that never synced with t knows it only as 0, so >0 catches the race.
@@ -92,10 +103,24 @@ def analyze(dot_path, trace_path):
 
     for e in events:
         typ = e["type"]
-        if typ in ("barrier", "syncwarp"):
-            mask = e["active_mask"] if typ == "barrier" else e["sync_mask"]
+        if typ == "syncwarp":
+            # syncwarp is genuinely per-warp: join THIS warp's masked lanes now.
+            mask = e["sync_mask"]
             tids = [tid_of(e["block"], e["warp"], k) for k in range(32) if (mask >> k) & 1]
             sync_group(tids)
+            continue
+        if typ == "barrier":
+            mask = e["active_mask"]
+            key = (e["block"], e["bar_index"])
+            arrived = pending_bar[key]
+            arrived.update(tid_of(e["block"], e["warp"], k)
+                           for k in range(32) if (mask >> k) & 1)
+            expected = e["thread_count"] or block_tc
+            # fire once complete; falsy expected (unknown count, unreachable for a
+            # launched kernel) degrades to per-warp so the oracle never stalls.
+            if not expected or len(arrived) >= expected:
+                sync_group(sorted(arrived))
+                del pending_bar[key]
             continue
 
         pc = e["pc"]
