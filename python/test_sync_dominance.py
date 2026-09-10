@@ -136,28 +136,77 @@ def test_hb_engine_matches_oracle(binary):
             f"oracle-only={[k for k in oracle if k not in engine]}")
 
 
-_DIR = _ROOT / "cuHadron/intersubwarp/" \
-    "shared_readwrite_race.sm86_extracted_cubins"
-_DOT = _DIR / "shared_readwrite_race.sm_86.dot"
-_TRACE = next(_DIR.glob("dependency_*/kernel_0.json"), None) if _DIR.exists() else None
+_ISW = _ROOT / "cuHadron/intersubwarp"
 
 
-@pytest.mark.skipif(not (_DOT.exists() and _TRACE), reason="corpus not present")
+def _intersubwarp_artifacts():
+    """(dots, trace) for cuHadron intersubwarp shared_readwrite_race, built and
+    traced on demand (mirrors _artifacts). None if source/GPU/build unavailable.
+
+    The benchmark is compiled for whatever GPU runs the suite (-arch=native) so
+    the test carries no hardcoded arch or PC offsets, and with --cudart shared so
+    accelprof's LD_PRELOADed libcompute_sanitizer.so can resolve cudart symbols."""
+    src = _ISW / "shared_readwrite_race.cu"
+    if not src.is_file():
+        return None
+    binary = _ISW / "shared_readwrite_race.out"
+    ext = _ISW / "shared_readwrite_race_extracted_cubins"
+
+    def _collect():
+        dots = sorted(ext.glob("*.dot"))
+        deps = sorted(_ISW.glob("dependency_shared_readwrite_race*"))
+        traces = sorted(deps[-1].glob("kernel_*.json")) if deps else []
+        return dots, (traces[-1] if traces else None)
+
+    dots, trace = _collect()
+    if dots and trace:
+        return dots, trace
+
+    build = subprocess.run(
+        ["nvcc", "-arch=native", "-lineinfo", "--cudart", "shared",
+         str(src), "-o", str(binary)], cwd=_ISW, capture_output=True)
+    if build.returncode != 0 or not binary.exists():
+        return None
+    subprocess.run(["bash", str(_ROOT / "getall.sh"), str(binary.resolve())],
+                   cwd=_ROOT, capture_output=True, timeout=600)
+    dots, trace = _collect()
+    return (dots, trace) if dots and trace else None
+
+
 def test_intersubwarp_readwrite():
-    report = sd.analyze(_DOT, _TRACE)
-    v = {(x["ancient_pc"], x["current_pc"]): x for x in report["verdicts"]}
+    """Inter-subwarp shared-memory read/write race (cuHadron). Asserted by
+    semantics, not PC offsets, so it holds across CUDA versions and archs:
+      * exactly one race, at warp distance, unsynchronized, on shared memory,
+        read-vs-write; and
+      * a block-barrier-ordered pair exists (the init store the __syncthreads()
+        orders before the read — the false-positive control)."""
+    art = _intersubwarp_artifacts()
+    if art is None:
+        pytest.skip("cuHadron intersubwarp corpus unavailable (no GPU / build)")
+    dots, trace = art
 
-    # injected inter-subwarp read/write race: no qualifying sync between them
-    race = v[(0x120, 0x1c0)]
-    assert race["verdict"] == "RACE"
-    assert race["strength"] == "none"
-    assert race["observed_distance"] == "warp"
-
-    # false-positive control: init store ordered before the read by BAR.SYNC@0x60
-    ordered = v[(0x40, 0x120)]
-    assert ordered["verdict"] == "ORDERED"
-    assert ordered["strength"] == "block"
-    assert ordered["ordering_syncs"] == [0x60]
+    report = None
+    for dot in dots:  # pick the cubin whose CFG holds this kernel
+        try:
+            report = sd.analyze(dot, trace)
+            break
+        except sd.AlignmentError:
+            continue
+    assert report is not None, "no cubin CFG aligns with the trace"
 
     assert report["diagnostics"]["unknown_sync_count"] == 0
     assert report["summary"]["races"] == 1
+
+    races = [v for v in report["verdicts"] if v["verdict"] == "RACE"]
+    assert len(races) == 1
+    race = races[0]
+    assert race["observed_distance"] == "warp"   # inter-subwarp -> same warp
+    assert race["strength"] == "none"            # no qualifying sync between them
+    assert race["space"] == "shared"             # __shared__ race
+    assert race["race_type"] in ("RAW", "WAR")   # read-vs-write
+
+    # false-positive control: init store ordered before the read by a block barrier
+    ordered = [v for v in report["verdicts"]
+               if v["verdict"] == "ORDERED" and v["strength"] == "block"
+               and v["ordering_syncs"]]
+    assert ordered, "expected a barrier-ordered pair"
