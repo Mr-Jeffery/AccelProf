@@ -135,6 +135,15 @@ def test_hb_engine_matches_oracle(binary):
             f"engine-only={[k for k in engine if k not in oracle]} "
             f"oracle-only={[k for k in oracle if k not in engine]}")
 
+        # Coherence profile Pi (Phase 3): the engine's per-address atomic-order hashes
+        # must equal the oracle's (both use the same FNV-1a over (tid, atomic-index)).
+        eng_pi = {int(a): v["hash"] for a, v in tj.get("coherence_profile", {}).items()}
+        orc_pi = {int(a, 16): v["hash"] for a, v in report.get("coherence_profile", {}).items()}
+        assert eng_pi == orc_pi, (
+            f"{binary.name}/{trace.name}: coherence_profile mismatch "
+            f"engine-only={ {a: h for a, h in eng_pi.items() if orc_pi.get(a) != h} } "
+            f"oracle-only={ {a: h for a, h in orc_pi.items() if eng_pi.get(a) != h} }")
+
 
 _ISW = _ROOT / "cuHadron/intersubwarp"
 
