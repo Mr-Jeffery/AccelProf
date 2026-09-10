@@ -22,11 +22,20 @@ Usage:  python hb_oracle.py <kernel_cfg.dot> <kernel_N.json> [-o out.json]
 """
 import argparse
 import json
+import os
 import sys
 from collections import defaultdict
 from pathlib import Path
 
 import sync_dominance as sd
+
+
+# Trace-validity (TV) invariants. The correctness argument assumes the collector
+# emits "valid" traces; these turn four of those assumptions into checked runtime
+# invariants that raise AlignmentError (never a silent verdict) when violated. ON
+# by default in the oracle; set YOSEMITE_HB_STRICT=0 only to debug a known-bad trace.
+def _strict_enabled():
+    return os.environ.get("YOSEMITE_HB_STRICT", "1") != "0"
 
 
 def tid_of(block, warp, lane):
@@ -75,6 +84,10 @@ def analyze(dot_path, trace_path):
     # k+1 before k completes, so accumulate-then-reset segments dynamic instances.
     block_tc = trace["kernel"].get("block_thread_count")
     pending_bar = defaultdict(set)    # (block, bar_index) -> set of arrived tids
+    # --- Trace-validity (TV) invariant bookkeeping (see _strict_enabled) ---
+    strict = _strict_enabled()
+    bar_warps_seen = defaultdict(set)  # (block, bar_index) -> set of warp ids ever arrived
+    warp_waiting = {}                  # (block, warp) -> key it is blocked on (not yet fired)
 
     def own(t):
         # a thread's own clock starts at 1: a write is then (t@>=1) while a thread
@@ -101,7 +114,17 @@ def analyze(dot_path, trace_path):
         # shared memory is per-block; global/local keyed by absolute address.
         return (space, block, addr) if space == "shared" else (space, addr)
 
+    prev_seq = None
     for e in events:
+        # TV-seq-monotonic: events are consumed in strictly increasing seq. The
+        # stream is pre-sorted by seq; seq <= prev means a duplicate/rewound record.
+        seq = e["seq"]
+        if strict and prev_seq is not None and seq <= prev_seq:
+            raise sd.AlignmentError(
+                f"TV-seq-monotonic: seq {seq} not > previous {prev_seq} "
+                "(duplicate or non-monotonic hb_events)")
+        prev_seq = seq
+
         typ = e["type"]
         if typ == "syncwarp":
             # syncwarp is genuinely per-warp: join THIS warp's masked lanes now.
@@ -110,18 +133,49 @@ def analyze(dot_path, trace_path):
             sync_group(tids)
             continue
         if typ == "barrier":
+            block, warp = e["block"], e["warp"]
             mask = e["active_mask"]
-            key = (e["block"], e["bar_index"])
+            key = (block, e["bar_index"])
             arrived = pending_bar[key]
-            arrived.update(tid_of(e["block"], e["warp"], k)
+            arrived.update(tid_of(block, warp, k)
                            for k in range(32) if (mask >> k) & 1)
+            bar_warps_seen[key].add(warp)
             expected = e["thread_count"] or block_tc
+            # TV-barrier-overfill: arrivals must never EXCEED the expected participant
+            # count. A well-formed instance lands on exactly `expected` and fires; more
+            # means a stale/duplicated arrival or a wrong thread_count.
+            if strict and expected and len(arrived) > expected:
+                raise sd.AlignmentError(
+                    f"TV-barrier-overfill: barrier {key} arrived {len(arrived)} > "
+                    f"expected {expected}")
             # fire once complete; falsy expected (unknown count, unreachable for a
             # launched kernel) degrades to per-warp so the oracle never stalls.
             if not expected or len(arrived) >= expected:
+                # TV-expected-nonzero-multiwarp: the per-warp fallback (unknown expected)
+                # is exactly the pre-fix bug for a multi-warp block. If >1 warp has ever
+                # arrived at this static barrier, degrading to per-warp is unsound -> raise.
+                if strict and not expected and len(bar_warps_seen[key]) > 1:
+                    raise sd.AlignmentError(
+                        f"TV-expected-nonzero-multiwarp: barrier {key} has "
+                        f"{len(bar_warps_seen[key])} warps but expected count is "
+                        "unknown (block_thread_count missing) -> per-warp degrade unsound")
                 sync_group(sorted(arrived))
                 del pending_bar[key]
+                for w in {(t >> 5) & 0x1f for t in arrived}:
+                    warp_waiting.pop((block, w), None)
+            else:
+                # instance still pending: this warp is now blocked at the barrier.
+                warp_waiting[(block, warp)] = key
             continue
+
+        # TV-barrier-completion-order: a warp blocked at a pending barrier cannot
+        # execute a post-barrier memory access before its instance completes (fires).
+        # This is the segmentation property the barrier-instance assembly relies on.
+        if strict and (e["block"], e["warp"]) in warp_waiting:
+            raise sd.AlignmentError(
+                f"TV-barrier-completion-order: block {e['block']} warp {e['warp']} "
+                f"issues a post-barrier {typ} at pc {hex(e['pc'])} (seq {seq}) while "
+                f"still pending at barrier {warp_waiting[(e['block'], e['warp'])]}")
 
         pc = e["pc"]
         is_atomic = pc in atom_scope

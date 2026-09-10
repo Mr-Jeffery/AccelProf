@@ -59,9 +59,28 @@ struct HbEngine {
     uint64_t block_thread_count = 0;
     std::map<std::pair<uint64_t, uint32_t>, std::set<uint32_t>> pending_barriers;
 
+    // --- Trace-validity (TV) invariants: 1:1 with hb_oracle. ON by default; set
+    // YOSEMITE_HB_STRICT=0 to disable. A violation is a collector/trace bug: it prints
+    // a loud banner and is recorded in `tv_violation` (surfaced in the JSON output) so
+    // corpus/validation runs can assert zero. The oracle raises AlignmentError; the
+    // engine cannot unwind the streaming process, so it records-and-continues instead
+    // (equivalent on valid traces, where no violation ever fires).
+    bool strict = true;
+    std::string tv_violation;
+    std::map<std::pair<uint64_t, uint32_t>, std::set<uint32_t>> bar_warps_seen;  // (block,bar_index)->warps ever arrived
+    std::map<std::pair<uint64_t, uint32_t>, std::pair<uint64_t, uint32_t>> warp_waiting;  // (block,warp)->pending key
+
     void reset() {
         vc.clear(); released.clear(); last_write.clear(); last_reads.clear(); races.clear();
         pending_barriers.clear();  // block_thread_count is (re)set by hb_engine_reset
+        bar_warps_seen.clear(); warp_waiting.clear(); tv_violation.clear();
+    }
+
+    void tv_fail(const std::string& msg) {
+        std::cerr << "\n[HB_ENGINE] *** TRACE-VALIDITY VIOLATION *** " << msg
+                  << "\n  (the single-trace certificate assumes this cannot happen; "
+                     "verdict for this kernel is untrustworthy)\n" << std::endl;
+        if (tv_violation.empty()) tv_violation = msg;  // keep the first
     }
 
     static uint32_t tid_of(uint64_t block, uint32_t warp, uint32_t lane) {
@@ -134,12 +153,33 @@ struct HbEngine {
                 std::set<uint32_t>& arrived = pending_barriers[key];
                 for (uint32_t m = a.active_mask; m != 0; m &= (m - 1))
                     arrived.insert(tid_of(a.ctaId, a.warpId, static_cast<uint32_t>(__builtin_ctz(m))));
+                if (strict) bar_warps_seen[key].insert(a.warpId);
+                // TV-barrier-overfill: arrivals must never EXCEED the expected count.
+                if (strict && expected != 0 && arrived.size() > expected)
+                    tv_fail("TV-barrier-overfill: barrier (block " + std::to_string(a.ctaId)
+                            + ", bar " + std::to_string(a.flags) + ") arrived "
+                            + std::to_string(arrived.size()) + " > expected "
+                            + std::to_string(expected));
                 // fire once complete; expected==0 (unknown count, unreachable for a
                 // launched kernel) degrades to per-warp so the engine never stalls.
                 if (expected == 0 || arrived.size() >= expected) {
+                    // TV-expected-nonzero-multiwarp: the per-warp fallback with an unknown
+                    // count is exactly the pre-fix bug for a >1-warp block.
+                    if (strict && expected == 0 && bar_warps_seen[key].size() > 1)
+                        tv_fail("TV-expected-nonzero-multiwarp: barrier (block "
+                                + std::to_string(a.ctaId) + ", bar " + std::to_string(a.flags)
+                                + ") has " + std::to_string(bar_warps_seen[key].size())
+                                + " warps but expected count is unknown (block_thread_count "
+                                  "missing) -> per-warp degrade unsound");
                     std::vector<uint32_t> tids(arrived.begin(), arrived.end());
+                    if (strict)
+                        for (uint32_t t : tids)
+                            warp_waiting.erase({a.ctaId, (t >> 5) & 0x1f});
                     sync_group(tids);
                     pending_barriers.erase(key);
+                } else if (strict) {
+                    // instance still pending: this warp is now blocked at the barrier.
+                    warp_waiting[{a.ctaId, a.warpId}] = key;
                 }
                 continue;
             }
@@ -148,6 +188,18 @@ struct HbEngine {
             const bool is_write = (a.flags & SANITIZER_MEMORY_DEVICE_FLAG_WRITE) != 0;
             const int space = (a.type == MemoryType::Shared) ? 1
                             : (a.type == MemoryType::Local)  ? 2 : 0;
+
+            // TV-barrier-completion-order: a warp blocked at a pending barrier cannot
+            // execute a post-barrier memory access before its instance fires. This is the
+            // segmentation property block-barrier assembly relies on. (TV-seq-monotonic is
+            // structural here: the engine consumes the trace buffer in native order, so the
+            // event sequence is monotonic by construction — the oracle checks it because it
+            // reads an external JSON that could be reordered.)
+            if (strict && warp_waiting.count({a.ctaId, a.warpId}))
+                tv_fail("TV-barrier-completion-order: block " + std::to_string(a.ctaId)
+                        + " warp " + std::to_string(a.warpId)
+                        + " issues a post-barrier access at pc " + std::to_string(pc)
+                        + " while still pending at a barrier");
 
             for (uint32_t lm = a.active_mask; lm != 0; lm &= (lm - 1)) {
                 const uint32_t lane = static_cast<uint32_t>(__builtin_ctz(lm));
@@ -227,6 +279,13 @@ struct HbEngine {
             jout << "\n";
         }
         jout << "  ]";
+        // Surface any trace-validity violation so corpus/validation runs (and the
+        // Phase-4 harness) can assert zero. Absent key == none.
+        if (!tv_violation.empty()) {
+            std::string esc;
+            for (char c : tv_violation) { if (c == '"' || c == '\\') esc += '\\'; esc += c; }
+            jout << ",\n  \"tv_violation\": \"" << esc << "\"";
+        }
     }
 };
 
@@ -535,6 +594,9 @@ void PcDependency::hb_engine_reset() {
     // expected participant count for a plain __syncthreads (thread_count 0 in the
     // trace) -> the whole block; used to assemble block-barrier instances.
     engine->block_thread_count = _current_block_thread_count;
+    // TV invariants ON by default; YOSEMITE_HB_STRICT=0 disables them.
+    const char* strict_env = std::getenv("YOSEMITE_HB_STRICT");
+    engine->strict = (strict_env == nullptr) || (std::string(strict_env) != "0");
 }
 
 void PcDependency::hb_engine_emit(std::ofstream& jout) {
