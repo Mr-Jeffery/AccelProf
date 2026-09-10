@@ -9,6 +9,7 @@
 #include <iostream>
 #include <sstream>
 #include <set>
+#include <utility>
 #include <iomanip>
 #include <thread>
 #include <atomic>
@@ -51,8 +52,16 @@ struct HbEngine {
                   uint32_t a_tid; long a_pc; uint32_t b_tid; uint32_t b_pc; const char* kind; };
     std::vector<Race> races;
 
+    // Block-barrier instance assembly (see the barrier branch in process): buffer
+    // per-warp arrivals per (block, bar_index) until the instance is complete.
+    // block_thread_count is the expected participant count for a plain __syncthreads
+    // (whose per-record thread_count is 0); set per-kernel by hb_engine_reset.
+    uint64_t block_thread_count = 0;
+    std::map<std::pair<uint64_t, uint32_t>, std::set<uint32_t>> pending_barriers;
+
     void reset() {
         vc.clear(); released.clear(); last_write.clear(); last_reads.clear(); races.clear();
+        pending_barriers.clear();  // block_thread_count is (re)set by hb_engine_reset
     }
 
     static uint32_t tid_of(uint64_t block, uint32_t warp, uint32_t lane) {
@@ -100,14 +109,38 @@ struct HbEngine {
             if (a.type == MemoryType::BlockExit) continue;
             const uint32_t pc = static_cast<uint32_t>(a.pc & 0x00FFFFFFu);
 
-            if (a.type == MemoryType::Barrier || a.type == MemoryType::Syncwarp) {
-                // barrier joins the arrived warp's lanes (active_mask); syncwarp
-                // joins the masked lanes (sync_mask carried in accessSize).
-                const uint32_t mask = (a.type == MemoryType::Barrier) ? a.active_mask : a.accessSize;
+            if (a.type == MemoryType::Syncwarp) {
+                // syncwarp is genuinely per-warp: join THIS warp's masked lanes now
+                // (sync_mask carried in accessSize).
                 std::vector<uint32_t> tids;
-                for (uint32_t m = mask; m != 0; m &= (m - 1))
+                for (uint32_t m = a.accessSize; m != 0; m &= (m - 1))
                     tids.push_back(tid_of(a.ctaId, a.warpId, static_cast<uint32_t>(__builtin_ctz(m))));
                 sync_group(tids);
+                continue;
+            }
+            if (a.type == MemoryType::Barrier) {
+                // A block-wide barrier (__syncthreads / bar.sync) emits ONE arrival
+                // record per warp (active_mask = arrived lanes). Buffer arrivals per
+                // (block, bar_index) and join the UNION of all participants only once
+                // the instance is complete, so warp 0's pre-barrier writes are ordered
+                // before every warp's post-barrier reads (the cross-warp tile idiom).
+                // A loop reuses (block, bar_index): the barrier prevents any warp
+                // reaching instance k+1 before k completes, so accumulate-then-reset
+                // segments dynamic instances. thread_count (accessSize) is the expected
+                // participant count; 0 for a plain __syncthreads means the whole block,
+                // so fall back to block_thread_count. flags carries the static bar_index.
+                const uint64_t expected = (a.accessSize != 0) ? a.accessSize : block_thread_count;
+                const std::pair<uint64_t, uint32_t> key{a.ctaId, a.flags};
+                std::set<uint32_t>& arrived = pending_barriers[key];
+                for (uint32_t m = a.active_mask; m != 0; m &= (m - 1))
+                    arrived.insert(tid_of(a.ctaId, a.warpId, static_cast<uint32_t>(__builtin_ctz(m))));
+                // fire once complete; expected==0 (unknown count, unreachable for a
+                // launched kernel) degrades to per-warp so the engine never stalls.
+                if (expected == 0 || arrived.size() >= expected) {
+                    std::vector<uint32_t> tids(arrived.begin(), arrived.end());
+                    sync_group(tids);
+                    pending_barriers.erase(key);
+                }
                 continue;
             }
 
@@ -499,6 +532,9 @@ void PcDependency::hb_engine_reset() {
         engine->load_scopes(std::getenv("YOSEMITE_ATOMIC_SCOPE_FILE"));
     }
     engine->reset();
+    // expected participant count for a plain __syncthreads (thread_count 0 in the
+    // trace) -> the whole block; used to assemble block-barrier instances.
+    engine->block_thread_count = _current_block_thread_count;
 }
 
 void PcDependency::hb_engine_emit(std::ofstream& jout) {
