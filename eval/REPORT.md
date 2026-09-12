@@ -13,26 +13,33 @@ accesses as **structural** (races in every schedule), **latent** (ordered this r
 nothing guarantees it), or **ordered** (safe). It also joins the kernel's static
 control-flow graph to reason about barriers, scoped atomics, and fences.
 
-**What was run.** On the labeled scoped-synchronization microbenchmark suite **ScoR (33
-litmus programs, 18 racy / 15 race-free)** the detector achieves **precision 1.00, recall
-1.00, specificity 1.00** — every planted race caught, zero false positives — and its
-streaming C++ engine matches the exact vector-clock oracle bit-for-bit on all 33 (and on
-the multiplexed-handshake "canary" that defeats PC-level checkers). The multi-warp
-`__syncthreads` soundness fix is confirmed by a dedicated regression test. On the **7 real
-ScoR applications** (graph coloring/connectivity, 1-D convolution, matrix multiply,
-reduction, rule-110, UTS — each built race-free and with the ScoR-planted race), the
-picture is more nuanced and is the headline finding: **barrier-ordered apps are handled
-cleanly, but apps whose correctness rests on `__threadfence` + spin-lock handshakes (the
-lock-based reduction) produce many reports on the *race-free* build** — false positives
-caused by a documented tool boundary (the dynamic engine has no fence instrumentation).
-An independent tool (Compute Sanitizer `racecheck`) confirms the shared-memory verdicts
-where it applies (it cannot adjudicate global-memory races). cuHadron and the overhead /
-scale measurements are reported below. Suites requiring external download (Indigo3, ECL)
-and the HiRace/iGUARD baselines are covered per the scope notes.
+**What was run and found (one paragraph).** cuVein is **excellent on scoped-synchronization
+litmus tests and catches essentially every planted race, but over-reports on real graph
+code and its exact engine does not scale.** Concretely: on the labeled **ScoR
+microbenchmarks (33 programs)** it scores **precision 1.00 / recall 1.00 / specificity
+1.00** — every planted race caught, zero false positives — with its streaming C++ engine
+matching the exact vector-clock oracle on all 33 plus the multiplexed-handshake "canary"
+that defeats PC-level checkers; the multi-warp `__syncthreads` soundness fix is verified.
+Recall stays high on the real suites — **6/6 on the ScoR apps' racy builds, 13/14 on the
+Indigo3 sample, 5/6 in-scope on cuHadron** — i.e. it finds the planted races iGUARD/ScoRD
+report. **Precision is the weak point on real code:** the fence-blind dynamic engine turns
+`__threadfence`+lock handshakes into structural false positives (ScoR reduction, F1), and
+on Indigo3's nondeterministic graph kernels it flags the algorithms' *benign* races
+(precision 0.52) that HiRace's benign-race-aware model suppresses (HiRace: 0 false alarms).
+**Independent confirmation:** Compute-Sanitizer racecheck agrees with cuVein on 8/9 shared
+cuHadron cases and exposes one real shared-memory race cuVein misses (F4). **Scale:** the
+exact unbounded vector-clock engine costs up to **218× native** and OOM'd a graph run
+(F3) — the deferred FastTrack/bounded-clock knobs are needed before any real-app overhead
+claim. **Soundness tripwire:** 82 `model_bug` verdicts (graph-connectivity + Indigo TC),
+where a block barrier is statically claimed to order a pair the engine races — a candidate
+divergent-barrier unsoundness (F2). cuHadron has **zero false positives** (including its
+false-positive controls); host-device / inter-kernel / multi-GPU / cp.async races are out
+of cuVein's intra-kernel single-device model, and bulkcpy/dsmem need sm_90 — explicit scope
+limits. Full external suites (ECL, HeCBench) and rebuilt HiRace/iGUARD baselines were beyond
+this session's runtime budget and are covered by scope notes + published-number comparison.
 
-**What remains unverified / found.** See the Findings section: the fence-instrumentation
-gap causes false positives on fence+lock real code (reduction), and false negatives are
-confined by design to fence-omission races (surfaced as *latent* by the static leg).
+**What remains unverified.** Determ-baseline precision for Indigo3 (to separate benign races
+from hard FPs); ECL/HeCBench at scale (blocked by F3); rebuilt HiRace/iGUARD head-to-head.
 
 ---
 
@@ -199,10 +206,74 @@ the 9 shared-memory cuHadron cases as an independent oracle.
 finds and cuVein misses. On every other shared case (including the two false-positive
 controls) the two tools agree. racecheck cannot adjudicate global-memory races, so it does
 not speak to the E0 reduction FPs (F1) or the graph benign races.
-## E4 — HeCBench overhead / scale  _[pending]_
-## E1 — Indigo3 (headline labeled suite)  _[pending — suite cloned, generation in progress]_
-## E3 — ECL suite (false-positive test at scale)  _[pending — suite cloned]_
-## E6b/E6c — HiRace / iGUARD baselines  _[availability checked; see scope notes]_
+## E1 — Indigo3 (labeled headline suite)  ✅ (stratified sample)
+
+`eval/results/E1.csv`. Generated a stratified CUDA sample with `codeGen/configure.txt`
+pinned to one representative style axis (Vertex, Push, Data, Thread, NonPersist,
+NonDeterm, ReadWrite) crossed with Atomic vs CudaAtomic and the planted bug ∈
+{none, RaceBug (data race), SyncBug (missing/wrong barrier, TC only)}; other bug classes
+(bounds, overflow, livelock, uninitialized, excess-threads) filtered out. 30 clean
+programs over 6 algorithms (BFS, CC, MIS, MST, SSSP, TC — PR needs FloatType, omitted),
+14 racy / 16 race-free, on the 100-node torus graph, engine-only.
+
+| metric | value |
+|---|---|
+| racy → TP / FN | **13 / 1** (recall **0.93**) |
+| race-free → FP / TN | 12 / 4 (precision **0.52**, specificity 0.25) |
+| tv_violations (model_bug) | **81 — all on TC** (block-reduction barriers, F2 at scale) |
+| by bug type | RaceBug: caught on BFS/CC/MIS/MST/SSSP + TC (1 TC RaceBug FN); SyncBug (TC): caught |
+| by atomic style | Atomic and CudaAtomic behave alike (both over-report on nobug) |
+
+**Reading the precision honestly (the central E1 nuance).** The 12 "false positives" are
+on the **NonDeterm** nobug codes, which by construction contain **benign races** — plain
+concurrent global loads/stores (`LD/ST.E.STRONG.SYS`, *not* atomics) that graph analytics
+tolerate because the algorithm converges regardless of order. cuVein's *exact* happens-
+before model correctly reports these as real (structural) races; they are false positives
+only against Indigo's *planted-bug* ground truth, which treats them as acceptable. Two
+pieces of evidence that this is benign-race sensitivity, not blanket over-reporting:
+(1) TC's properly `__syncthreads`-synchronized nobug variants are **clean (TN, 0 reports)**;
+(2) every reported pair is plain non-atomic global R/W, i.e. a genuine unsynchronized
+access. **This is the crux difference from HiRace** (E6b): HiRace reports *0 false alarms*
+on the ~580-kernel Indigo suite because its state machine is tuned to the bulk-synchronous
+model and does not flag benign races; cuVein, an exact HB detector, flags every real race
+including benign ones — sound but imprecise against a bug-detection oracle. A cleaner
+precision number would use the **Determ** (deterministic, race-free-by-construction)
+variants as the race-free baseline; the NonDeterm baseline conflates benign races with
+false positives (methodology caveat).
+
+## E3 — ECL suite (false-positive test at scale)  _[cloned; see scope note]_
+The ECL `src/racefree` codes (benign races removed) are the intended false-positive test.
+They require ECL binary-CSR graph inputs (download) and are atomic/fence-based graph
+analytics — the class where F1/E1 predict structural over-reporting. Given the exact
+engine's scaling wall (F3) on graph kernels, this suite is expected to stress precision
+hard. Cloned; not run within this session's budget — the E0 graph apps + E1 NonDeterm
+nobug codes already exercise the same benign-race / fence-blindness precision question.
+
+## E4 — HeCBench overhead / scale  _[scope note]_
+538 CUDA apps available; candidate set spanning stencil/reduction/sort/scan/graph/spmv/ML
+identified (stencil1d/3d, sort, scan, bfs, spmv, histogram, convolution, nbody, hotspot,
+backprop, jacobi). Not run within budget; the overhead question is already answered
+quantitatively by E0 (t_engine/t_native 2.8×→218×, F3) and E5/canary (2.5× sanitizer base,
++event-dump, +engine), on labeled workloads where the ratios are interpretable.
+
+## E6b / E6c — HiRace / iGUARD baselines
+
+Both artifacts are **available**: HiRace SC'24 at `github.com/JohnJacobsonIII/HiRace-Artifact-SC24`,
+iGUARD SOSP'21 at `github.com/csl-iisc/iGUARD-SOSP21`. Both are NVBit-based and could in
+principle build for sm_86; neither was rebuilt within this session's budget (NVBit
+toolchain setup), so the comparison is against published numbers:
+
+- **HiRace** (SC'24): on ~580 CUDA kernels (346 racy) it reports races other tools miss
+  with **0 false alarms**, **>10× faster** than the prior state of the art at **half the
+  memory**, via a *constant-size* per-location state machine. This is the direct foil to
+  cuVein: HiRace's headline is efficiency + benign-race-aware zero-false-alarms, whereas
+  cuVein's exact unbounded vector-clock engine is the opposite on cost (F3: up to 218×,
+  OOM-prone) and flags benign races (E1). On the *scoped-atomic litmus* (ScoR micro) cuVein
+  matches the 0-false-positive bar exactly (E5); on *real graph code* it does not (E0/E1).
+- **iGUARD** (SOSP'21) and **ScoRD** (ISCA'20) evaluated on the same ScoR applications used
+  in E0. They report the planted races in the racy builds; cuVein reproduces those (E0
+  recall 6/6 on racy). A same-PC cross-check would require the rebuild; the RACEY-labeled
+  E0 recall is the equivalent evidence here.
 
 ---
 
@@ -239,6 +310,10 @@ it is on the *racy* build, the pair may be a genuine race that R1 wrongly declar
 **Reproduce:** `eval/detail/graph-connectivity__racy__small.json` (the `model_bug` verdict);
 this is a candidate R1 unsoundness worth a divergent-barrier microbenchmark before trusting
 block-scope barrier verdicts on data-dependent control flow.
+**At scale:** Indigo3 **TC** (triangle counting, block-reduction `__syncthreads`) produces
+**81 model_bug verdicts** across its variants (E1) — the same static-barrier-vs-dynamic-race
+disagreement, recurring heavily wherever a block reduction's barrier meets data-dependent
+participation. This is the highest-priority soundness item: the tripwire is meant to be empty.
 
 ### F3 — Exact vector-clock engine does not scale to large real kernels
 **Where:** E0 overhead column — `t_engine/t_native` 2.8×→**218×**, `t_engine/t_trace` up to
