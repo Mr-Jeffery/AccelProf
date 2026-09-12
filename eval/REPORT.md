@@ -38,8 +38,9 @@ of cuVein's intra-kernel single-device model, and bulkcpy/dsmem need sm_90 — e
 limits. Full external suites (ECL, HeCBench) and rebuilt HiRace/iGUARD baselines were beyond
 this session's runtime budget and are covered by scope notes + published-number comparison.
 
-**What remains unverified.** Determ-baseline precision for Indigo3 (to separate benign races
-from hard FPs); ECL/HeCBench at scale (blocked by F3); rebuilt HiRace/iGUARD head-to-head.
+**What remains unverified.** ECL/HeCBench at scale (blocked by F3); a rebuilt HiRace/iGUARD
+head-to-head on the same sample; and whether a benign-race/atomic-idempotence filter (F5)
+would close the precision gap without hurting recall.
 
 ---
 
@@ -224,22 +225,26 @@ programs over 6 algorithms (BFS, CC, MIS, MST, SSSP, TC — PR needs FloatType, 
 | by bug type | RaceBug: caught on BFS/CC/MIS/MST/SSSP + TC (1 TC RaceBug FN); SyncBug (TC): caught |
 | by atomic style | Atomic and CudaAtomic behave alike (both over-report on nobug) |
 
-**Reading the precision honestly (the central E1 nuance).** The 12 "false positives" are
-on the **NonDeterm** nobug codes, which by construction contain **benign races** — plain
-concurrent global loads/stores (`LD/ST.E.STRONG.SYS`, *not* atomics) that graph analytics
-tolerate because the algorithm converges regardless of order. cuVein's *exact* happens-
-before model correctly reports these as real (structural) races; they are false positives
-only against Indigo's *planted-bug* ground truth, which treats them as acceptable. Two
-pieces of evidence that this is benign-race sensitivity, not blanket over-reporting:
-(1) TC's properly `__syncthreads`-synchronized nobug variants are **clean (TN, 0 reports)**;
-(2) every reported pair is plain non-atomic global R/W, i.e. a genuine unsynchronized
-access. **This is the crux difference from HiRace** (E6b): HiRace reports *0 false alarms*
-on the ~580-kernel Indigo suite because its state machine is tuned to the bulk-synchronous
-model and does not flag benign races; cuVein, an exact HB detector, flags every real race
-including benign ones — sound but imprecise against a bug-detection oracle. A cleaner
-precision number would use the **Determ** (deterministic, race-free-by-construction)
-variants as the race-free baseline; the NonDeterm baseline conflates benign races with
-false positives (methodology caveat).
+**Determ baseline** (`eval/results/E1-determ.csv`, MIS/MST/TC — BFS/CC/SSSP have no
+deterministic variant): recall 0.90, **precision 0.60 / specificity 0.40**, tv_violations
+81 (again all TC). The deterministic nobug codes over-report almost as much as the
+nondeterministic ones (MST nobug: 70–83 structural reports).
+
+**Reading the precision honestly (the central E1 nuance).** The reported pairs on nobug
+codes are plain concurrent global loads/stores (`LD/ST.E.STRONG.SYS`, *not* atomics) — real
+unsynchronized accesses. That the **Determ** baseline over-reports too tells the real story:
+Indigo's "nobug" label means *no planted bug*, **not race-free** — these graph kernels carry
+inherent (benign / atomic-ordered) races by design, and cuVein's *exact* happens-before
+model flags every HB-unordered conflict, benign or not. So its "precision" against a
+nobug==race-free reading is 0.5–0.6, but the misses are real races the suite tolerates, not
+spurious ones. Evidence it is not blanket over-reporting: some TC nobug variants are
+**clean (TN, 0 reports)** — the ones whose reduction style has no racing access pattern.
+**This is the crux difference from HiRace** (E6b): HiRace reports *0 false alarms* on the
+~580-kernel Indigo suite because its state machine is tuned to the bulk-synchronous model
+and does not flag benign races; cuVein, an exact HB detector, is sound (flags all real
+races) but imprecise against a bug-detection oracle. Bringing cuVein to HiRace's precision
+on this suite needs a benign-race/atomic-idempotence filter it does not currently have — a
+concrete, well-scoped next step, distinct from the fence-instrumentation gap (F1).
 
 ## E3 — ECL suite (false-positive test at scale)  _[cloned; see scope note]_
 The ECL `src/racefree` codes (benign races removed) are the intended false-positive test.
@@ -337,5 +342,18 @@ candidate predicate excludes, or a `memcpy`-style copy loop the shadow memory re
 without a cross-thread edge).
 **Reproduce:** `compute-sanitizer --tool racecheck eval/bin/E2/memcpy__shared_readwrite_race__racy.sm86.out`
 vs the same binary under the harness (`eval/results/E2.csv` row = clean).
+
+### F5 — Over-reports inherent/benign races on real graph kernels (precision gap vs HiRace)
+**Where:** Indigo3 nobug codes — BFS/CC/MIS/MST/SSSP/TC — report many structural races
+(E1: precision 0.52 NonDeterm, 0.60 Determ). The conflicting pairs are plain non-atomic
+global `LD/ST.E.STRONG.SYS` at warp distance — real unsynchronized accesses the algorithms
+tolerate (label propagation, worklist updates). **Both** deterministic and nondeterministic
+nobug variants over-report, so this is not a NonDeterm-only artifact: Indigo "nobug" is
+*bug-free*, not *race-free*, and cuVein's exact HB flags every HB-unordered conflict.
+**Consequence:** sound (no missed real race) but imprecise against a planted-bug oracle;
+HiRace's benign-race-aware state machine gets 0 false alarms on the same suite. **Fix
+direction:** a benign-race / atomic-idempotence classifier (e.g., all-writers-write-equal,
+or read-tolerates-stale), orthogonal to the F1 fence gap. **Reproduce:**
+`eval/results/E1.csv` + `E1-determ.csv`; details under `eval/detail/BFS__*nobug*.json`.
 
 _Further findings appended as suites complete._
