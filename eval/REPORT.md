@@ -35,8 +35,11 @@ where a block barrier is statically claimed to order a pair the engine races —
 divergent-barrier unsoundness (F2). cuHadron has **zero false positives** (including its
 false-positive controls); host-device / inter-kernel / multi-GPU / cp.async races are out
 of cuVein's intra-kernel single-device model, and bulkcpy/dsmem need sm_90 — explicit scope
-limits. Full external suites (ECL, HeCBench) and rebuilt HiRace/iGUARD baselines were beyond
-this session's runtime budget and are covered by scope notes + published-number comparison.
+limits. The **ECL race-free graph suite** (benign races removed by construction) is the
+cleanest demonstration of the precision gap: all 4 codes flagged (F5), chiefly the
+plain-read-of-an-atomically-updated location (union-find). HeCBench overhead-at-scale and
+rebuilt HiRace/iGUARD head-to-heads were beyond this session's runtime budget (covered by
+scope notes + published-number comparison).
 
 **What remains unverified.** ECL/HeCBench at scale (blocked by F3); a rebuilt HiRace/iGUARD
 head-to-head on the same sample; and whether a benign-race/atomic-idempotence filter (F5)
@@ -246,13 +249,32 @@ races) but imprecise against a bug-detection oracle. Bringing cuVein to HiRace's
 on this suite needs a benign-race/atomic-idempotence filter it does not currently have — a
 concrete, well-scoped next step, distinct from the fence-instrumentation gap (F1).
 
-## E3 — ECL suite (false-positive test at scale)  _[cloned; see scope note]_
-The ECL `src/racefree` codes (benign races removed) are the intended false-positive test.
-They require ECL binary-CSR graph inputs (download) and are atomic/fence-based graph
-analytics — the class where F1/E1 predict structural over-reporting. Given the exact
-engine's scaling wall (F3) on graph kernels, this suite is expected to stress precision
-hard. Cloned; not run within this session's budget — the E0 graph apps + E1 NonDeterm
-nobug codes already exercise the same benign-race / fence-blindness precision question.
+## E3 — ECL suite (false-positive test at scale)  ✅ (egr-input racefree subset)
+
+`eval/results/E3.csv`. The four ECL `src/racefree/egr-input` codes (CC, GC, MIS, MST) —
+real graph analytics with **benign races removed** by construction (atomics substituted
+for the racy accesses) — built for sm_86 and run on the torus-100 ECL graph. Expected
+verdict: race-free for every code.
+
+| code | events | reports raw/dedup | structural | verdict |
+|---|--:|--:|--:|---|
+| ECL-CC | 13724 | 26/16 | 25 | **FP** |
+| ECL-GC | 3406 | 2/1 | 2 | **FP** |
+| ECL-MIS | 265 | 20/11 | 20 | **FP** |
+| ECL-MST | 1195 | 28/6 | 25 | **FP** |
+
+**All four report structural races → 0/4 clean.** Triaged (guardrail: FP requires the
+ordering argument): the reports are the graph algorithms' **retained benign races**, chiefly
+the union-find pattern — a plain `LD.E.STRONG.SYS` read of a parent pointer racing an
+`ATOMG.E.CAS.STRONG.GPU` update of it (thread A CAS-updates `parent[v]`, thread B plain-reads
+it; both the old and new value are valid, path compression converges) — plus idempotent
+plain WAW (`ST/ST` same address, equal values). These are real HB-unordered conflicts, so
+cuVein is *sound* to flag them, but they are benign and ECL/HiRace count them race-free.
+This is F5 at scale: **the plain-read-of-atomically-updated-data idiom (and idempotent
+writes) is the dominant false-positive source on real race-free graph code** — atomic
+coherence (R2) needs *both* endpoints atomic, so a plain read of an atomic's location is
+never ordered, and the engine has no acquire model for it. The ECL suite, designed to be
+race-free, is therefore the clearest demonstration of the precision gap.
 
 ## E4 — HeCBench overhead / scale  _[scope note]_
 538 CUDA apps available; candidate set spanning stencil/reduction/sort/scan/graph/spmv/ML
@@ -344,12 +366,16 @@ without a cross-thread edge).
 vs the same binary under the harness (`eval/results/E2.csv` row = clean).
 
 ### F5 — Over-reports inherent/benign races on real graph kernels (precision gap vs HiRace)
-**Where:** Indigo3 nobug codes — BFS/CC/MIS/MST/SSSP/TC — report many structural races
-(E1: precision 0.52 NonDeterm, 0.60 Determ). The conflicting pairs are plain non-atomic
-global `LD/ST.E.STRONG.SYS` at warp distance — real unsynchronized accesses the algorithms
-tolerate (label propagation, worklist updates). **Both** deterministic and nondeterministic
-nobug variants over-report, so this is not a NonDeterm-only artifact: Indigo "nobug" is
-*bug-free*, not *race-free*, and cuVein's exact HB flags every HB-unordered conflict.
+**Where:** Indigo3 nobug codes (E1: precision 0.52 NonDeterm, 0.60 Determ) *and* all 4
+ECL `racefree` graph codes (E3: 0/4 clean). Conflicting pairs are plain global
+`LD/ST.E.STRONG.SYS` — real unsynchronized accesses the algorithms tolerate. The dominant
+idiom (clearest in ECL union-find) is a **plain read of an atomically-updated location**:
+`LD.E.STRONG.SYS` racing `ATOMG.E.CAS.STRONG.GPU` on the same address — atomic coherence
+(R2) requires *both* endpoints atomic, so a plain read of an atomic's location is never
+ordered and there is no acquire model for it. Also idempotent plain WAW (equal values).
+**Both** deterministic and nondeterministic nobug variants over-report, so this is not a
+NonDeterm-only artifact: Indigo "nobug" is *bug-free*, not *race-free*, and cuVein's exact
+HB flags every HB-unordered conflict.
 **Consequence:** sound (no missed real race) but imprecise against a planted-bug oracle;
 HiRace's benign-race-aware state machine gets 0 false alarms on the same suite. **Fix
 direction:** a benign-race / atomic-idempotence classifier (e.g., all-writers-write-equal,
