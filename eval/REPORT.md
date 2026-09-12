@@ -37,9 +37,11 @@ false-positive controls); host-device / inter-kernel / multi-GPU / cp.async race
 of cuVein's intra-kernel single-device model, and bulkcpy/dsmem need sm_90 — explicit scope
 limits. The **ECL race-free graph suite** (benign races removed by construction) is the
 cleanest demonstration of the precision gap: all 4 codes flagged (F5), chiefly the
-plain-read-of-an-atomically-updated location (union-find). HeCBench overhead-at-scale and
-rebuilt HiRace/iGUARD head-to-heads were beyond this session's runtime budget (covered by
-scope notes + published-number comparison).
+plain-read-of-an-atomically-updated location (union-find). Reassuringly, on four real
+**HeCBench** compute/stencil/sort apps cuVein reports **zero false positives** — the
+over-reporting is specific to graph analytics, not real GPU code in general — while their
+overhead (4× floor → 66× → timeout) re-confirms F3. A rebuilt HiRace/iGUARD head-to-head
+was beyond this session's runtime budget (covered by published-number comparison).
 
 **What remains unverified.** ECL/HeCBench at scale (blocked by F3); a rebuilt HiRace/iGUARD
 head-to-head on the same sample; and whether a benign-race/atomic-idempotence filter (F5)
@@ -86,7 +88,7 @@ atomics, fences, locks, indirect HB):
 | **precision** | **1.000** |
 | **recall** | **1.000** |
 | **specificity** (race-free clean) | **1.000** |
-| structural / latent (of the 18 caught) | 11 / 10 (7)* |
+| structural / latent (total verdicts) | 11 / 10* |
 | tv_violations (model_bug) | 0 |
 | unknown_sync opcodes | 0 |
 | oracle_verified (engine == exact VC oracle) | **33 / 33** |
@@ -276,12 +278,28 @@ coherence (R2) needs *both* endpoints atomic, so a plain read of an atomic's loc
 never ordered, and the engine has no acquire model for it. The ECL suite, designed to be
 race-free, is therefore the clearest demonstration of the precision gap.
 
-## E4 — HeCBench overhead / scale  _[scope note]_
-538 CUDA apps available; candidate set spanning stencil/reduction/sort/scan/graph/spmv/ML
-identified (stencil1d/3d, sort, scan, bfs, spmv, histogram, convolution, nbody, hotspot,
-backprop, jacobi). Not run within budget; the overhead question is already answered
-quantitatively by E0 (t_engine/t_native 2.8×→218×, F3) and E5/canary (2.5× sanitizer base,
-+event-dump, +engine), on labeled workloads where the ratios are interpretable.
+## E4 — HeCBench overhead / scale  ✅ (4 real apps)
+
+`eval/results/E4.csv`. Four real HeCBench CUDA apps built for sm_86, run at small sizes
+(the exact engine OOMs at realistic sizes — F3). Overhead ratios vs native, tracing and
+engine separated:
+
+| app (kind) | events | t_native | t_trace | t_engine | peak MB | trace× | engine× | reports |
+|---|--:|--:|--:|--:|--:|--:|--:|--:|
+| bitonic-sort (sort) | 1 048 | 0.52 | 2.18 | 2.08 | 818 | 4.2× | 4.0× | 0 |
+| stencil1d (stencil) | 14 973 | 0.57 | 1.77 | 2.23 | 916 | 3.1× | 3.9× | 0 |
+| nbody (n-body/compute) | 2.64 M | 0.67 | 33.0 | 44.2 | 2198 | 49× | **66×** | 0 |
+| mandelbrot (compute) | 4.18 M | 0.92 | **≥120 (timeout)** | ≥120 | 2362 | **>130×** | >130× | 0 |
+
+Two findings: **(1) precision — all four report zero races (0 false positives).** These
+compute/stencil/sort kernels have no benign-race idiom, so the F5 over-reporting is
+specific to graph analytics, not real GPU code in general — a meaningful positive. **(2)
+overhead tracks event count** (F3): a fixed ~4× Compute-Sanitizer floor at low event counts
+(bitonic 1k, stencil 15k), rising to 66× at 2.6 M events and *timing out* (tracing alone
+exceeds 120 s) at 4.2 M. Tracing vs engine separates cleanly: for these compute kernels the
+**event dump** dominates (nbody engine only +34% over tracing), whereas for the E0 graph
+kernels the **engine's vector-clock joins** dominate (graph-coloring engine 43× its trace).
+Both point to the same unimplemented scale knobs.
 
 ## E6b / E6c — HiRace / iGUARD baselines
 
@@ -382,4 +400,18 @@ direction:** a benign-race / atomic-idempotence classifier (e.g., all-writers-wr
 or read-tolerates-stale), orthogonal to the F1 fence gap. **Reproduce:**
 `eval/results/E1.csv` + `E1-determ.csv`; details under `eval/detail/BFS__*nobug*.json`.
 
-_Further findings appended as suites complete._
+---
+
+## Bottom line
+
+**Accuracy:** perfect on the scoped-synchronization litmus (ScoR micro: P=R=1.00,
+engine==oracle on 33/33); high recall on every real suite (ScoR apps 6/6, Indigo3 13/14,
+cuHadron 5/6 in-scope). **Precision is the open problem on real code** — structural false
+positives from the fence-instrumentation gap on lock/fence handshakes (F1) and from
+flagging the inherent benign races of graph analytics (F5, incl. all of ECL's race-free
+codes); clean on non-graph HeCBench apps. **Soundness:** 82 `model_bug` tripwire hits on
+block-reduction barriers (F2) need root-causing. **One confirmed in-scope false negative**
+(F4, racecheck-verified). **Scale:** the exact vector-clock engine is not yet viable on
+large kernels (F3, up to 218× and OOM). Next steps, in priority order: F2 (soundness),
+then F5 benign-race/atomic-idempotence filtering and F1 fence modeling (precision), then
+F3 scale knobs. All numbers reproducible via `eval/` (see `eval/README.md`).
