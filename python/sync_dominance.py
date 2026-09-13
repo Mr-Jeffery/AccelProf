@@ -13,11 +13,14 @@ edge-generation rules; the pair's strength is the max scope those rules certify:
 
  R1 sync dominance (static): a qualifying sync s orders (u, v) at scope(s) iff
     s in postdom(u) & dom(v)  or  s in postdom(v) & dom(u)  — s runs after one
-    access and before the other on every path. Qualifying: BAR.SYNC*/BAR.RED*
-    (block), WARPSYNC (warp); BAR.ARV* never orders. Same-PC pairs: a qualifying
-    sync of scope >= s on every cycle through the PC's region.
+    access and before the other on every path, and no sync-free path joins the two
+    regions (a loop's wrap-around would pair instances from different iterations).
+    Qualifying: BAR.SYNC*/BAR.RED* (block), WARPSYNC (warp); BAR.ARV* never orders.
+    Same-PC pairs: a qualifying sync of scope >= s on every cycle through the PC's
+    region.
  R2 atomic coherence (static x dynamic): two same-address atomics are ordered
-    at min of their .STRONG scopes (SM/CTA -> block, GPU/SYS -> grid).
+    at min of their .STRONG scopes (SM/CTA -> block, GPU/SYS -> grid); a shared-
+    memory ATOMS without a scope suffix is block-coherent by construction.
  R3 scoped happens-before chain (static x dynamic, ScoRD model): release fence
     (MEMBAR in postdom(u) & dom(a), scope covering the hop) -> observed atomic-
     atomic sync edge(s) from the trace -> acquire (dependency order behind the
@@ -98,6 +101,10 @@ def atomic_scope(opcode):
     if parts[0] not in _ATOM_BASES:
         return None
     s = parts[parts.index("STRONG") + 1] if "STRONG" in parts else None
+    if s is None and parts[0] == "ATOMS":
+        # a shared-memory atomic (atomicAdd_block on __shared__) carries no .STRONG
+        # suffix; shared memory is per-CTA, so it is CTA-coherent by construction.
+        return BLOCK
     return _ATOM_SCOPE.get(s, NONE)  # unknown/weak scope -> NONE (over-report, sound)
 
 
@@ -248,6 +255,15 @@ class HBGraph:
                (sid in self.postdom.get(rv, ()) and sid in self.dom.get(ru, ())):
                 best = max(best, scope)
                 used.append(pc)
+        if best > NONE:
+            # dom/postdom are computed on the cyclic region graph: with a loop, u's
+            # instance in iteration k+1 reaches v's instance in iteration k with no
+            # sync in between (the wrap-around path skips the barrier). Order only if
+            # every path between the two regions crosses a sync of scope >= best.
+            cut = {s for s in self.qualifying if self.syncs[s][2] >= best}
+            sub = self.G.subgraph(n for n in self.G if n not in cut)
+            if nx.has_path(sub, ru, rv) or nx.has_path(sub, rv, ru):
+                return NONE, []
         return best, sorted(used)
 
     def loop_scope(self, pc):
@@ -418,7 +434,7 @@ def _observed(dist):
     return NONE, 0
 
 
-def analyze(dot_path, trace_path):
+def analyze(dot_path, trace_path, assume_warp_lockstep=False):
     trace = json.loads(Path(trace_path).read_text())
     kernels = parse_dot(dot_path)
     mangled = select_kernel(kernels, trace["kernel"]["kernel_name"])
@@ -456,14 +472,38 @@ def analyze(dot_path, trace_path):
     # the trace was taken with YOSEMITE_HB_TRACE=1). Crossed with the static legs below
     # into the verdict-matrix class; absent -> the R3 chain is the only observed axis.
     hb_races = trace.get("hb_races")
-    raced_pcsets = [frozenset(p for p in (r.get("a_pc"), r.get("b_pc")) if p is not None)
-                    for r in hb_races] if hb_races is not None else None
+    # exact {a,b} match on the pc pair. Every record now names both pcs (the engine
+    # and oracle keep the reader pc for WAR); a subset match over single-pc keys
+    # attributed a race to every pair sharing one pc, filling the model_bug cell.
+    raced_records = {}  # frozenset{pc_a, pc_b} -> [race records]  (a same-pc race is {pc})
+    if hb_races is not None:
+        for r in hb_races:
+            raced_records.setdefault(frozenset((r["a_pc"], r["b_pc"])), []).append(r)
+    raced_pcsets = set(raced_records) if hb_races is not None else None
 
     def hb_pair_raced(a, b):
-        pair = frozenset((a, b))
-        # exact {a,b} match; a WAR record carries only the writer pc and matches any
-        # pair containing it (conservative — the corpus has no WAR to disambiguate).
-        return any(s and s <= pair for s in raced_pcsets)
+        return frozenset((a, b)) in raced_pcsets
+
+    # Benign-race evidence (static, PC-granular): the set of write/atomic pcs each
+    # read pc was observed to conflict with. A read whose every conflicting writer is
+    # an atomic RMW reads an atomically-maintained location (graph-analytics idiom:
+    # plain read of a parent pointer another thread CAS-updates) — a real HB-unordered
+    # access the algorithm tolerates. Tagged and re-bucketed, never hidden.
+    # ponytail: PC-granular; the exact per-location "never plainly written" bit
+    # belongs in the engine's location shadow.
+    writers = {}
+    for e in trace.get("edges", []):
+        cur, anc = e["current_pc"], e.get("ancient_pc")
+        if e.get("cold_miss") or anc is None:
+            continue
+        d, _ = _observed(e.get("dist", {}))
+        if d == NONE and not e.get("dist", {}).get("intra_instance_launch", 0):
+            continue
+        acc = {pc: ("atomic" if pc in atom else flags.get(pc, ("generic", "read"))[1])
+               for pc in (cur, anc)}
+        for r, w in ((cur, anc), (anc, cur)):
+            if acc[r] == "read" and acc[w] != "read":
+                writers.setdefault(r, set()).add(w)
 
     verdicts, skipped = [], []
     for e in trace.get("edges", []):
@@ -499,12 +539,36 @@ def analyze(dot_path, trace_path):
         else:
             hb_class = None
             verdict = "ORDERED" if r1r2_ordered or chain_ordered else "RACE"
+        race_type = _race_type(cur_access, anc_access)
+        benign = assumption = None
+        if verdict == "RACE" and race_type in ("RAW", "WAR"):
+            read_pc = cur if cur_access == "read" else anc
+            ws = writers.get(read_pc, set())
+            if ws and ws <= atom.keys():
+                benign, hb_class = "atomic-maintained-read", "benign"
+        if assume_warp_lockstep and hb_class == "structural" and observed == WARP \
+                and not same:
+            # Lanes of ONE warp at two pcs in program order are ordered by lock-step
+            # execution on pre-ITS hardware (the volatile warp-synchronous idiom).
+            # Not a proof under independent thread scheduling: opt-in, and the
+            # verdict carries the assumption.
+            # Program order for a lock-step warp = anc's region reaches cur's with no
+            # path back (a loop would interleave iterations); same region -> offset
+            # order. Divergent siblings (neither reaches the other) stay races: that
+            # is the ITS-sensitive class the divergent-siblings regression pins.
+            ra, rc = eng.pc_node[anc], eng.pc_node[cur]
+            in_order = (anc < cur) if ra == rc else \
+                (nx.has_path(eng.G, ra, rc) and not nx.has_path(eng.G, rc, ra))
+            recs = raced_records.get(frozenset((cur, anc)), [])
+            if recs and in_order \
+                    and all((r["a_tid"] >> 5) == (r["b_tid"] >> 5) for r in recs):
+                hb_class, verdict, assumption = "warp-po-ordered", "ORDERED", "warp-lockstep"
         verdicts.append({
             "current_pc": cur, "current_pc_hex": hex(cur),
             "ancient_pc": anc, "ancient_pc_hex": hex(anc),
             "opcodes": [eng.pc_opcode[cur], eng.pc_opcode[anc]],
             "space": cur_space if cur_space == anc_space else f"{cur_space}/{anc_space}",
-            "race_type": _race_type(cur_access, anc_access),
+            "race_type": race_type,
             "observed_distance": SCOPES[observed],
             "contested_weight": weight,
             "access_size": e.get("current_access_size"),
@@ -514,6 +578,8 @@ def analyze(dot_path, trace_path):
             "hb_chain": [hex(p) for p in ev["chain"]] if ev["chain"] else None,
             "warp_same_inst": same,
             "hb_class": hb_class,
+            "benign": benign,
+            "assumption": assumption,
             "verdict": verdict,
         })
 
@@ -535,7 +601,8 @@ def analyze(dot_path, trace_path):
         "summary": {"races": races, "ordered": len(verdicts) - races,
                     "skipped": len(skipped),
                     "hb_classes": {c: sum(v["hb_class"] == c for v in verdicts)
-                                   for c in ("structural", "latent", "model_bug")}
+                                   for c in ("structural", "latent", "model_bug",
+                                             "benign", "warp-po-ordered")}
                                   if raced_pcsets is not None else None},
     }
 
@@ -563,6 +630,10 @@ def render(report, out):
         else:
             via = ""
         note = " (warp-same-inst)" if v["warp_same_inst"] else ""
+        if v.get("benign"):
+            note += f" benign({v['benign']})"
+        if v.get("assumption"):
+            note += f" [assumes {v['assumption']}]"
         cls = f" {v['hb_class']}" if v.get("hb_class") else ""
         lines.append(f"{v['ancient_pc_hex']} -> {v['current_pc_hex']}  "
                      f"{v['opcodes'][1]}/{v['opcodes'][0]}  {v['space']}  {v['race_type']}  "
@@ -583,9 +654,13 @@ def main(argv=None):
     ap.add_argument("trace_json", type=Path)
     ap.add_argument("-o", "--output", type=Path,
                     help="output JSON (default: <trace-stem>.races.json)")
+    ap.add_argument("--assume-warp-lockstep", action="store_true",
+                    help="reclassify same-warp program-ordered structural races as "
+                         "ordered (pre-ITS lock-step assumption; not a proof)")
     args = ap.parse_args(argv)
     try:
-        report = analyze(args.cfg_dot, args.trace_json)
+        report = analyze(args.cfg_dot, args.trace_json,
+                         assume_warp_lockstep=args.assume_warp_lockstep)
     except AlignmentError as exc:
         print(f"ALIGNMENT FAILURE: {exc}", file=sys.stderr)
         return 1

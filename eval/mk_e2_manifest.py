@@ -16,11 +16,15 @@ def main():
     ap.add_argument("--out", required=True)
     ap.add_argument("--csv", required=True)
     ap.add_argument("--detail-dir", required=True)
+    ap.add_argument("--only", default="", help="comma substrings; keep matching names")
     args = ap.parse_args()
+    only = [s for s in args.only.split(",") if s]
 
     progs = []
     for p in sorted(glob.glob(f"{args.bin}/*.sm86.out")):
         base = os.path.basename(p)[:-len(".sm86.out")]
+        if only and not any(s in base for s in only):
+            continue
         cat, name, variant = base.split("__")
         if variant == "fixed":
             label = "race-free"

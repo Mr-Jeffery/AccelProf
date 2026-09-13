@@ -114,7 +114,8 @@ def emit_row(args):
         rep, used_dot = None, None
         for dot in dots:
             try:
-                rep = sd.analyze(dot, kj)
+                rep = sd.analyze(dot, kj,
+                                 assume_warp_lockstep=bool(g("assume_warp_lockstep", False)))
                 used_dot = dot
                 break
             except sd.AlignmentError:
@@ -153,6 +154,12 @@ def emit_row(args):
     structural = sum(v.get("hb_class") == "structural" for v in verdicts)
     latent = sum(v.get("hb_class") == "latent" for v in verdicts)
     tv_violations = sum(v.get("hb_class") == "model_bug" for v in verdicts)
+    benign = sum(v.get("hb_class") == "benign" for v in verdicts)
+    warp_po = sum(v.get("hb_class") == "warp-po-ordered" for v in verdicts)
+    if benign:
+        notes.append(f"benign={benign}")
+    if warp_po:
+        notes.append(f"warp-po-ordered={warp_po}(assumes-lockstep)")
 
     # oracle_verified summary across kernels
     if all(s in ("yes", "no-hb") for s in oracle_states) and "yes" in oracle_states:

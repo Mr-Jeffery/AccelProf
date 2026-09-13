@@ -46,7 +46,11 @@ struct HbEngine {
     std::unordered_map<uint64_t, Released> released;        // addr -> release record
     struct Writer { uint32_t tid; uint64_t clock; uint32_t pc; };
     std::map<Loc, Writer> last_write;                       // loc -> last writer epoch
-    std::map<Loc, Clock> last_reads;                        // loc -> {reader tid -> clock}
+    // reader pc is kept so a WAR race names both pcs: a WAR record with only the
+    // writer pc degenerates to a single-pc key in sync_dominance's verdict matrix
+    // and mis-attributes the race to every pair containing that pc (model_bug FPs).
+    struct Reader { uint64_t clock; uint32_t pc; };
+    std::map<Loc, std::unordered_map<uint32_t, Reader>> last_reads;  // loc -> {tid -> read}
 
     struct Race { uint64_t addr; int space; uint64_t loc_block;
                   uint32_t a_tid; long a_pc; uint32_t b_tid; uint32_t b_pc; const char* kind; };
@@ -191,12 +195,13 @@ struct HbEngine {
                     auto lrit = last_reads.find(loc);
                     if (lrit != last_reads.end())
                         for (const auto& kv : lrit->second)
-                            if (kv.first != t && kv.second > clk_get(vc[t], kv.first))
-                                add_race(addr, space, a.ctaId, kv.first, -1, t, pc, "WAR");
+                            if (kv.first != t && kv.second.clock > clk_get(vc[t], kv.first))
+                                add_race(addr, space, a.ctaId, kv.first,
+                                         static_cast<long>(kv.second.pc), t, pc, "WAR");
                     last_write[loc] = Writer{t, clk, pc};
                     last_reads[loc].clear();
                 } else {
-                    last_reads[loc][t] = clk;
+                    last_reads[loc][t] = Reader{clk, pc};
                 }
             }
         }
@@ -218,8 +223,7 @@ struct HbEngine {
                  << ", \"space\": \"" << sp << "\""
                  << ", \"loc_block\": " << r.loc_block
                  << ", \"a_tid\": " << r.a_tid
-                 << ", \"a_pc\": " << (r.a_pc < 0 ? std::string("null")
-                                                  : std::to_string(static_cast<uint32_t>(r.a_pc)))
+                 << ", \"a_pc\": " << r.a_pc
                  << ", \"b_tid\": " << r.b_tid
                  << ", \"b_pc\": " << r.b_pc
                  << ", \"kind\": \"" << r.kind << "\"}";

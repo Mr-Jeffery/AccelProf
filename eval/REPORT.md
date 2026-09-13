@@ -22,17 +22,22 @@ matching the exact vector-clock oracle on all 33 plus the multiplexed-handshake 
 that defeats PC-level checkers; the multi-warp `__syncthreads` soundness fix is verified.
 Recall stays high on the real suites — **6/6 on the ScoR apps' racy builds, 13/14 on the
 Indigo3 sample, 5/6 in-scope on cuHadron** — i.e. it finds the planted races iGUARD/ScoRD
-report. **Precision is the weak point on real code:** the fence-blind dynamic engine turns
-`__threadfence`+lock handshakes into structural false positives (ScoR reduction, F1), and
-on Indigo3's nondeterministic graph kernels it flags the algorithms' *benign* races
-(precision 0.52) that HiRace's benign-race-aware model suppresses (HiRace: 0 false alarms).
-**Independent confirmation:** Compute-Sanitizer racecheck agrees with cuVein on 8/9 shared
-cuHadron cases and exposes one real shared-memory race cuVein misses (F4). **Scale:** the
-exact unbounded vector-clock engine costs up to **218× native** and OOM'd a graph run
-(F3) — the deferred FastTrack/bounded-clock knobs are needed before any real-app overhead
-claim. **Soundness tripwire:** 82 `model_bug` verdicts (graph-connectivity + Indigo TC),
-where a block barrier is statically claimed to order a pair the engine races — a candidate
-divergent-barrier unsoundness (F2). cuHadron has **zero false positives** (including its
+report. **Precision is the weak point on real code:** on the ScoR lock-based reduction the
+race-free build gets 12 structural reports — root-caused (F1) to **intra-warp lock-step
+pairs** the engine has no event for (10) and a **trace record-order inversion** on a tight
+spin handshake (2), *not* fence-blindness; and on Indigo3/ECL graph kernels it flags the
+algorithms' *benign* races (F5, precision 0.52) that HiRace's benign-race-aware model
+suppresses (HiRace: 0 false alarms). **Independent confirmation:** Compute-Sanitizer
+racecheck agrees with cuVein on 8/9 shared cuHadron cases and exposes one real
+shared-memory race cuVein misses (F4 — a `cp.async` write attributed to the issuing lane's
+own tid; fix designed, needs a patch rebuild). **Scale:** the exact unbounded vector-clock
+engine costs up to **218× native** and OOM'd a graph run (F3) — the deferred
+FastTrack/bounded-clock knobs are needed before any real-app overhead claim. **Soundness
+tripwire:** the 82 `model_bug` verdicts (graph-connectivity + Indigo TC) turned out to be a
+**report-attribution bug** — WAR records carried only the writer pc and a subset match
+credited every pair sharing it — plus an unscoped shared-memory `ATOMS`; both **fixed**, and
+a latent R1 loop back-edge hole found on the way is closed (F2). cuHadron has **zero false
+positives** (including its
 false-positive controls); host-device / inter-kernel / multi-GPU / cp.async races are out
 of cuVein's intra-kernel single-device model, and bulkcpy/dsmem need sm_90 — explicit scope
 limits. The **ECL race-free graph suite** (benign races removed by construction) is the
@@ -324,41 +329,68 @@ toolchain setup), so the comparison is against published numbers:
 
 ## Findings (suspected detector limitations, with reproducers)
 
-### F1 — False positives on fence + spin-lock ordered code (dynamic engine is fence-blind)
+### F1 — Reduction false positives: intra-warp lock-step pairs + a trace record-order inversion
+_(Corrected after root-cause analysis; the first draft's "fence-blind engine" story was wrong.)_
 **Where:** real lock-based reduction (`ScoR/benchmarks/reduction`, race-free build) →
 25 deduped RACE reports (**12 structural**, 13 latent), all on volatile global
 `LDG/STG.E.STRONG.SYS` pairs; the fixed and racy builds report the same count (25).
-**Mechanism:** the reduction orders its shared/global stores relative to the lock release
-with `__threadfence_block()`. The dynamic HB engine has **no `MEMBAR` instrumentation**
-(a documented Compute-Sanitizer boundary — only barriers and syncwarp are patchable), so
-it cannot transfer the atomic-handshake ordering to the fence-ordered ordinary
-store/load, and the verdict matrix (which trusts the observed-schedule engine over the
-PC-level static chain) marks them structural. The static R3 chain reconstructs at most
-1/24 of them, so this is not merely an engine issue but also PC-level HB imprecision on
-multi-level spin-lock handshakes (roadmap 5.4).
-**Consequence:** on real code that uses fences + locks (as opposed to `__syncthreads`),
-precision drops sharply. This is the single most important precision result and should
-gate any "binary-only ScoRD-class precision" claim.
+**Mechanism — not fences.** The engine publishes the releaser's *entire* vector clock at
+every atomic (`hb_oracle.py:157`, `pc_dependency_analysis.cpp:178`), so a `__threadfence`
+adds nothing to HB (roadmap.md:77), and the static R3 chain certifies **6/6** of the
+lock-handshake store→load pairs. The 12 structural reports are two other things:
+- **10 are intra-warp** (`tid<32` tail, `red_kernel.cu:89-117`): lanes *i* and *i−off* of
+  one warp doing `sdata[i]=…` / `sdata[i−off+off]` with no lock or fence in the source —
+  ordered only by lock-step warp execution and `BSSY/BSYNC` reconvergence, which emits no
+  event the engine can see. This is roadmap 5.3 ("ITS-era intra-warp ordering assumptions
+  made explicit") surfacing as false positives.
+- **2 are a trace record-order inversion** (stage-1 handshake, both inlined copies): the
+  Compute-Sanitizer callback is a *pre-op* patch and the buffer slot is reserved by an
+  `atomicAdd` in `GetBufferIndex` (`gpu_patch_pc_dependency.cu:9-24`), so in a tight
+  spin-then-exit the spinner's last `ATOMG.ADD` record lands *before* the releaser's
+  `ATOMG.EXCH` (seq 475 vs 478) → the engine sees acquire-before-release. Stages 2–4 survive
+  only because extra spin iterations land a record after the release.
+The 13 latent reports are phase-1→phase-2 pairs ordered by the retirement ticket
+(`MEMBAR.SC.GPU + ATOMG.INC.STRONG.GPU`), which no static rule reaches — benign.
+**Fixability:** MEMBAR instrumentation is impossible on the Sanitizer backend (no fence
+patch point among the 40 `Sanitizer_InstructionId`s; `WARPGROUP_FENCE` is the Hopper wgmma
+register fence) and would not remove any of the 12. Downgrading `dyn_raced ∧ chain_ordered`
+to latent is unsound — it is exactly the canary's cell. **Fix applied for the 10:** an
+**opt-in** `--assume-warp-lockstep` post-filter (`sync_dominance.analyze`): a structural
+warp-distance pair whose racing instances are all in one warp, with the ancient access's
+region reaching the current's and no path back (no loop; divergent siblings stay races) is
+reclassified `warp-po-ordered` / ORDERED, carrying `assumption: warp-lockstep`. Off by
+default because it is not a proof under independent thread scheduling. **The 2 remain**,
+documented as a known limitation (`pc_dependency_analysis.h`, `hb_collect_events`): a pre-op
+patch cannot reserve the slot after the op; a device timestamp would narrow, not close it.
 **Reproduce:** `eval/bin/E0/reduction_norace < eval/inputs/reduction.small.in` under the
 harness; detail in `eval/detail/reduction__norace__small.json`.
 
-### F2 — `model_bug` soundness tripwire on graph-connectivity (racy build)
-**Where:** `graph-connectivity` racy, one deduped report `0x400→0x430` global RAW at
-**intra-block distance with strength=block** classified `model_bug` (tv_violations = 1;
-the roadmap requires this cell to be empty). **Meaning:** the static leg (R1 dominance)
-certified that a block barrier orders the pair in *every* schedule, yet the dynamic VC
-engine — which joins only the barrier's *actual* participants — observed them racing.
-**Likely cause:** a conditional/divergent barrier (not all warps reach the `BAR.SYNC`,
-so it does not actually order the two warps), the known named/conditional-barrier
-limitation (roadmap 5.2); R1's full-participation assumption is then unsound here. Because
-it is on the *racy* build, the pair may be a genuine race that R1 wrongly declared ordered.
-**Reproduce:** `eval/detail/graph-connectivity__racy__small.json` (the `model_bug` verdict);
-this is a candidate R1 unsoundness worth a divergent-barrier microbenchmark before trusting
-block-scope barrier verdicts on data-dependent control flow.
-**At scale:** Indigo3 **TC** (triangle counting, block-reduction `__syncthreads`) produces
-**81 model_bug verdicts** across its variants (E1) — the same static-barrier-vs-dynamic-race
-disagreement, recurring heavily wherever a block reduction's barrier meets data-dependent
-participation. This is the highest-priority soundness item: the tripwire is meant to be empty.
+### F2 — `model_bug` tripwire: a report-attribution bug (fixed), not a divergent-barrier unsoundness
+_(Corrected after root-cause analysis; the first draft's "divergent barrier" hypothesis is refuted.)_
+**Where:** 82 `model_bug` verdicts — graph-connectivity racy (`0x400→0x430`, 1) and Indigo3
+TC BlockAdd variants (81).
+**Mechanism:** `sync_dominance.hb_pair_raced` matched a pc pair against the engine's race
+records with a **subset** test, and a record degenerates to a single-pc key when (a) it is a
+WAR — the engine and oracle kept only the *writer* pc (`a_pc: null`), or (b) `a_pc == b_pc`.
+Any pair containing that one pc was then counted as dynamically raced. graph-connectivity's
+`linkKernel` emits 5520 WAR records, all `a_pc: null`; the real partner of `0x400` is `0x160`
+(the planted race, same barrier interval), while `0x400→0x430` is genuinely ordered — barrier
+instance #2 completes 400/400 at seq 1147 before the `0x430` reads; participation is perfect
+(780 barrier events, 0 pending), and no `__syncthreads` sits in a thread-dependent branch.
+On TC, `atomicAdd_block` on shared memory compiles to bare `ATOMS.ADD` (no `.STRONG`),
+which `atomic_scope()` mapped to NONE → the engine never joined on it → 6 self-races per
+launch with `a_pc==b_pc` → singleton keys → the two barrier-ordered pairs became `model_bug`
+(and TC nobug's lone FP was that self-race).
+**Fixes applied:** (1) engine + oracle now record the reader pc, WAR records name both pcs,
+and `hb_pair_raced` is an exact pc-pair match; (2) bare shared-memory `ATOMS` → BLOCK scope
+(shared memory is per-CTA, so CTA-coherent by construction). **Two real defects found
+alongside and fixed/documented:** (3) `dominance()` applied dom/postdom to the cyclic region
+graph without a back-edge check, so a loop-carried pair (`read@0x430` iter k vs
+`write@0x400` iter k+1, joined by a sync-free wrap-around path) was declared block-ordered —
+now ordered only if every path between the regions crosses a sync of sufficient scope (the
+same-PC `loop_scope` check already did this); it had not fired only because the trace held
+~1 iteration/block; (4) a harness collision: three TC flavors shared a detail-file key.
+**Result:** `tv_violations` = 0 on every re-run suite (post-fix tables below).
 
 ### F3 — Exact vector-clock engine does not scale to large real kernels
 **Where:** E0 overhead column — `t_engine/t_native` 2.8×→**218×**, `t_engine/t_trace` up to
@@ -373,13 +405,24 @@ bug; a scalability ceiling that any overhead claim must state.
 ### F4 — Missed shared-memory race in cuHadron `memcpy/shared_readwrite` (racecheck-confirmed FN)
 **Where:** `cuHadron/memcpy/shared_readwrite_race` racy build → cuVein reports **clean**,
 but Compute-Sanitizer **racecheck reports a shared-memory hazard** (E6a). An independently
-confirmed false negative *inside* cuVein's design scope (intra-kernel shared read/write).
-**Consequence:** unlike the E2 host-device/inter-kernel/multi-GPU misses (which are outside
-the intra-kernel single-device model), this one should be catchable — worth diffing the
-kernel against `intersubwarp/shared_readwrite` (which cuVein *does* catch) to see why the
-conflict edge is absent from the trace (candidate: same-warp / same-instruction access the
-candidate predicate excludes, or a `memcpy`-style copy loop the shadow memory records
-without a cross-thread edge).
+confirmed false negative *inside* cuVein's design scope.
+**Mechanism (root-caused):** the kernel `cp.async`-copies global→shared (`LDGSTS @0x70`) and
+reads the shared tile (`LDS @0x90`) *before* `cp.async.wait_all` (`DEPBAR.LE @0xa0`; the
+fixed build moves the wait ahead of the read). The shared **write is recorded** —
+`compute_sanitizer.cpp:285` registers `SANITIZER_INSTRUCTION_MEMCPY_ASYNC` and the callback
+emits both a global READ and a shared WRITE at the same pc, addresses matching the reads —
+but both legs treat the async write as a *synchronous store by the issuing lane*: the engine's
+conflict check is `writer.tid != t` and the LDS is the same tid; the static leg drops the
+`0x90←0x70` edge as `intra_thread_only`. The wait (`LDGDEPBAR`/`DEPBAR`) is not
+instrumented, so racy and fixed traces are event-for-event identical. Blast radius is
+exactly this case — `memcpy/shared_writewrite` (32 WAW) and `memcpy/global_readwrite`
+(32 RAW) are caught because their pairs are cross-thread; ScoR has no cp.async.
+**Fix (designed, not applied this round — needs a GPU-patch rebuild):** the Sanitizer API
+has `SANITIZER_INSTRUCTION_PIPELINE_WAIT` (fires on `cp.async.wait_group/wait_all`), unused
+repo-wide. Attribute the LDGSTS shared write to a virtual async agent (`t | ASYNC_BIT`) and
+join it into `vc[t]` on the wait event (engine + oracle), and promote `DEPBAR` from
+`_NOT_SYNC` to a thread-local ordering source in the static leg. Expected: racy → 1 RAW,
+fixed → 0, E6a agreement 9/9. `bulkcpy`/TMA (sm90) is a separate unregistered family.
 **Reproduce:** `compute-sanitizer --tool racecheck eval/bin/E2/memcpy__shared_readwrite_race__racy.sm86.out`
 vs the same binary under the harness (`eval/results/E2.csv` row = clean).
 
@@ -395,10 +438,19 @@ ordered and there is no acquire model for it. Also idempotent plain WAW (equal v
 NonDeterm-only artifact: Indigo "nobug" is *bug-free*, not *race-free*, and cuVein's exact
 HB flags every HB-unordered conflict.
 **Consequence:** sound (no missed real race) but imprecise against a planted-bug oracle;
-HiRace's benign-race-aware state machine gets 0 false alarms on the same suite. **Fix
-direction:** a benign-race / atomic-idempotence classifier (e.g., all-writers-write-equal,
-or read-tolerates-stale), orthogonal to the F1 fence gap. **Reproduce:**
-`eval/results/E1.csv` + `E1-determ.csv`; details under `eval/detail/BFS__*nobug*.json`.
+HiRace's benign-race-aware state machine gets 0 false alarms on the same suite.
+**Fix applied (Tier 1, static, PC-granular):** `sync_dominance.analyze` now tags a RAW/WAR
+whose read-pc conflicts *only* with atomic-RMW write-pcs (atomicity from the CFG/sidecar —
+**not** the trace's `ATOMIC` flag, which is the system-scope `ATOMSYS` bit and is unset on
+`.STRONG.GPU` CAS) as `benign: atomic-maintained-read` in a new `hb_class` cell; the verdict
+stays RACE and nothing is hidden, but precision tables count `structural` only. Where the
+array is *also* plainly written (ECL-CC's path-compression `ST` beside the `CAS`), the tag
+correctly declines — that residue needs the value-based check. **Follow-ups designed:**
+Tier 2, an exact per-location "never plainly written" bit in the engine's shadow (+ oracle
+mirror); Tier 3, same-value WAW, which needs the written value captured from the callback's
+`pData` into the trace record (currently discarded). **Reproduce:** `eval/results/E1.csv` +
+`E1-determ.csv` (pre-fix), `E1-fixed.csv`/`E3-fixed.csv` (post-fix); details under
+`eval/detail/`.
 
 ---
 

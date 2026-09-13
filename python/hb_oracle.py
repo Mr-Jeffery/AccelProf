@@ -62,7 +62,7 @@ def analyze(dot_path, trace_path):
     vc = defaultdict(VC)              # tid -> vector clock
     released = {}                     # addr -> (clock, releaser_block, scope)
     last_write = {}                   # loc -> (tid, clock, pc)
-    last_reads = defaultdict(dict)    # loc -> {tid: clock}
+    last_reads = defaultdict(dict)    # loc -> {tid: (clock, pc)}
     races = []                        # list of race records
 
     # Block-barrier instance assembly. A block-wide __syncthreads (BAR.SYNC) emits one
@@ -167,15 +167,17 @@ def analyze(dot_path, trace_path):
                               "a_tid": w[0], "a_pc": w[2], "b_tid": t, "b_pc": pc,
                               "kind": "WAW" if is_write else "RAW"})
             if is_write:
-                for rt, rc in last_reads[loc].items():
+                for rt, (rc, rpc) in last_reads[loc].items():
                     if rt != t and rc > vc[t].get(rt, 0):
                         races.append({"addr": addr, "space": space, "loc_block": e["block"],
-                                      "a_tid": rt, "a_pc": None, "b_tid": t, "b_pc": pc,
+                                      "a_tid": rt, "a_pc": rpc, "b_tid": t, "b_pc": pc,
                                       "kind": "WAR"})
                 last_write[loc] = (t, clk, pc)
                 last_reads[loc] = {}
             else:
-                last_reads[loc][t] = clk
+                # keep the reader pc: a WAR record must name both pcs (see sync_dominance
+                # hb_pair_raced — a single-pc key mis-attributes the race to every pair).
+                last_reads[loc][t] = (clk, pc)
 
     # dedup identical race tuples (same pc pair, tid pair, addr)
     seen, uniq = set(), []

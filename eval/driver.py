@@ -26,9 +26,11 @@ from pathlib import Path
 
 import aggregate  # same dir
 
-APH = "/home/fzheng4/AccelProf"
+# CUVEIN_HOME selects which checkout's bin/, lib/, .env/ and python/ run (a worktree
+# with lib/build/.env symlinked to the main checkout is a full runtime mirror).
+APH = os.environ.get("CUVEIN_HOME", "/home/fzheng4/AccelProf")
 CUDA_HOME = "/home/fzheng4/spack/opt/spack/linux-zen2/cuda-12.9.0-owxskbbrhugkzflau7xe3gyqnvdqlfyw"
-PY310LIB = f"{APH}/.claude/worktrees/fix+multiwarp-barrier-hb/py310/lib"
+PY310LIB = "/home/fzheng4/AccelProf/.claude/worktrees/fix+multiwarp-barrier-hb/py310/lib"
 PYDIR = f"{APH}/python"
 SIDECAR = f"{PYDIR}/atomic_scope_sidecar.py"
 
@@ -220,6 +222,7 @@ def run_program(pg, csv, detail_dir):
         racecheck=pg.get("racecheck", ""), oracle=pg.get("oracle", False),
         oracle_max_events=pg.get("oracle_max_events", 300000),
         expect_pcs=pg.get("expect_pcs", ""), csv=csv,
+        assume_warp_lockstep=pg.get("assume_warp_lockstep", False),
         detail=(f"{detail_dir}/{pg['program']}__{pg.get('variant','')}__{tag}.json"
                 if detail_dir else ""))
     aggregate.emit_row(ns)

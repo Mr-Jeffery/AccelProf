@@ -19,6 +19,8 @@ def main():
     ap.add_argument("--detail-dir", required=True)
     ap.add_argument("--sizes", default="small,large")
     ap.add_argument("--benches", default=",".join(BENCHES))
+    ap.add_argument("--lockstep", action="store_true",
+                    help="analyze with --assume-warp-lockstep (opt-in, tags input '+lockstep')")
     args = ap.parse_args()
     sizes = [s for s in args.sizes.split(",") if s]
     benches = [b for b in args.benches.split(",") if b]
@@ -31,7 +33,9 @@ def main():
                 stdin = os.path.join(args.inputs, f"{b}.{size}.in")
                 progs.append({
                     "suite": "E0", "program": b, "variant": variant, "label": label,
-                    "input": size, "exe": exe, "args": [], "stdin": stdin,
+                    "input": size + ("+lockstep" if args.lockstep else ""),
+                    "assume_warp_lockstep": args.lockstep,
+                    "exe": exe, "args": [], "stdin": stdin,
                     # engine-only: the exact VC oracle is O(threads) per conflict and
                     # impractical on many-kernel real apps (graph-*). engine==oracle
                     # already established on the 33 ScoR litmus + canary.

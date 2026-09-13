@@ -11,7 +11,11 @@ import argparse
 import glob
 import json
 import os
+import re
 
+# pinned style axes / boilerplate tokens that carry no information in the slug
+NOISE = {"CUDA", "V", "Thread", "NonPersist", "IntType", "Atomic", "CudaAtomic",
+         "Data", "Push", "ReadWrite", "NonDup"}
 BUGS = ["RaceBug", "SyncBug", "NbrBoundsBug", "NborBoundsBug", "ExcessThreadsBug",
         "LivelockBug", "FieldBug", "OverflowBug", "BoundsBug", "PrecedenceBug",
         "UninitializedBug"]
@@ -30,7 +34,8 @@ def active_bugs(name):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--exe-dir", required=True)
-    ap.add_argument("--graph", required=True, help="abs path to a .egr input")
+    ap.add_argument("--graph", required=True, action="append",
+                    help="abs path to a .egr input (repeatable: one program per graph)")
     ap.add_argument("--out", required=True)
     ap.add_argument("--csv", required=True)
     ap.add_argument("--detail-dir", required=True)
@@ -47,16 +52,25 @@ def main():
             skipped += 1
             continue
         racy = bool(bugs & RACE_BUGS)
-        algo = name.split("_")[0]
-        atomic = "CudaAtomic" if "CudaAtomic" in name else "Atomic"
-        style = "+".join([algo, atomic] + sorted(bugs) if bugs else [algo, atomic, "nobug"])
-        progs.append({
-            "suite": "E1", "program": algo, "variant": style,
-            "label": "racy" if racy else "race-free", "input": "torus100",
-            "exe": os.path.abspath(p),
-            "args": [args.graph, "1", "0", "1"], "oracle": False,
-            "reps": 1, "timeout": args.timeout,
-        })
+        parts = name.split("_")
+        algo = parts[0]
+        atomic = "CudaAtomic" if "CudaAtomic" in parts else "Atomic"
+        # keep every distinguishing style token (e.g. TC's BlockAdd/GlobalAdd/Reduction,
+        # Determ/NonDeterm) in the slug: it keys the detail file, and flavors that
+        # shared a slug overwrote each other's details.
+        extra = [t for t in parts[1:]
+                 if t not in NOISE and t not in BUGS and not t.startswith("No")]
+        style = "+".join([algo, *extra, atomic, *(sorted(bugs) or ["nobug"])])
+        for graph in args.graph:
+            m = re.search(r"(\d+)n_", os.path.basename(graph))
+            tag = (m.group(1) + "n") if m else os.path.splitext(os.path.basename(graph))[0]
+            progs.append({
+                "suite": "E1", "program": algo, "variant": style,
+                "label": "racy" if racy else "race-free", "input": tag,
+                "exe": os.path.abspath(p),
+                "args": [graph, "1", "0", "1"], "oracle": False,
+                "reps": 1, "timeout": args.timeout,
+            })
     man = {"csv": os.path.abspath(args.csv),
            "detail_dir": os.path.abspath(args.detail_dir), "programs": progs}
     with open(args.out, "w") as f:

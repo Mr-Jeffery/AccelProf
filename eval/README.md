@@ -59,6 +59,20 @@ $CONDA eval/mk_e2_manifest.py --bin eval/bin/E2 --out eval/manifests/e2.json \
 $CONDA eval/driver.py eval/manifests/e2.json
 ```
 
+## Re-analyzing existing traces / running from a worktree
+- `eval/reanalyze.py --bindir eval/bin/E0 --python-dir python <stems>` re-runs the static
+  leg + aggregation on already-recorded traces (no GPU) — validates `sync_dominance` changes
+  in seconds. `--assume-warp-lockstep` forwards the opt-in filter.
+- `CUVEIN_HOME=<checkout>` makes `driver.py` use that checkout's `bin/ lib/ .env/ python/`.
+  A worktree becomes a full runtime mirror by symlinking the gitignored `lib build .env
+  nv-compute/lib ScoR cuHadron` to the main checkout; the rebuilt engine must install into
+  the RPATH location `build/sanalyzer/lib` (see `sanalyzer` Makefile `INSTALL_DIR`, and pass
+  `CXX=` the conda compiler the existing build used).
+- Run the pytest with the env's python directly (`.env/bin/python -m pytest …`), **not**
+  under `conda run`: `getall.sh` calls `conda run` for the atomic-scope sidecar and a nested
+  `conda run` fails silently — the engine then has no atomic scopes and every atomic looks
+  like a plain access. Wipe `ScoR/microbenchmarks/artifacts/*` first so traces regenerate.
+
 ## Notes
 - `-n 1` single-worker replay is required (cross-thread edge direction is temporal only then).
 - The atomic-scope sidecar (`YOSEMITE_ATOMIC_SCOPE_FILE`) is mandatory — without it the
