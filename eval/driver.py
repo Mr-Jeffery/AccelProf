@@ -154,7 +154,7 @@ def extract(exe_abs, cubindir):
     return ""
 
 
-def run_program(pg, csv, detail_dir):
+def run_program(pg, csv, detail_dir, no_engine=False):
     exe_abs = os.path.realpath(pg["exe"])
     exe_dir = os.path.dirname(exe_abs)
     exe_base = os.path.basename(exe_abs)
@@ -195,12 +195,20 @@ def run_program(pg, csv, detail_dir):
     # rely on cwd=exe_dir (matches getall.sh).
     accel = ["accelprof", "-t", "pc_dependency_analysis", "-n", "1",
              f"./{exe_base}", *args]
-    tt, _, rct, _ = run_timed(accel, tr_env, exe_dir, timeout, 1, stdin_path=stdin_path)
-    for d in glob.glob(f"{exe_dir}/dependency_{exe_base}_*"):
-        shutil.rmtree(d, ignore_errors=True)
-    # 3) full engine — keep depdir, poll memory
-    ten, peak, rce, _ = run_timed(accel, te_env, exe_dir, timeout, 1, poll_mem=True,
-                                  stdin_path=stdin_path)
+    # trace-only mode (YOSEMITE_HB_NO_ENGINE): the dump is the analyzed run — no
+    # in-process vector-clock engine, verdicts come from the static leg over the
+    # trace (hb_races absent), overhead = tracing cost.
+    engine_on = pg.get("engine", True) and not no_engine
+    tt, peak_t, rct, _ = run_timed(accel, tr_env, exe_dir, timeout, 1,
+                                   poll_mem=not engine_on, stdin_path=stdin_path)
+    if engine_on:
+        for d in glob.glob(f"{exe_dir}/dependency_{exe_base}_*"):
+            shutil.rmtree(d, ignore_errors=True)
+        # 3) full engine — keep depdir, poll memory
+        ten, peak, rce, _ = run_timed(accel, te_env, exe_dir, timeout, 1, poll_mem=True,
+                                      stdin_path=stdin_path)
+    else:
+        ten, peak, rce = "", peak_t, rct
     deps = sorted(glob.glob(f"{exe_dir}/dependency_{exe_base}_*"), key=os.path.getmtime)
     depdir = deps[-1] if deps else ""
     log = f"{exe_dir}/{exe_base}.accelprof.log"
@@ -223,24 +231,42 @@ def run_program(pg, csv, detail_dir):
         oracle_max_events=pg.get("oracle_max_events", 300000),
         expect_pcs=pg.get("expect_pcs", ""), csv=csv,
         assume_warp_lockstep=pg.get("assume_warp_lockstep", False),
+        notes_extra=("" if engine_on else "mode=trace-only(no-engine)"),
+        no_engine=not engine_on,
         detail=(f"{detail_dir}/{pg['program']}__{pg.get('variant','')}__{tag}.json"
                 if detail_dir else ""))
     aggregate.emit_row(ns)
 
 
 def main():
-    man = json.loads(Path(sys.argv[1]).read_text())
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("manifest")
+    ap.add_argument("--no-engine", action="store_true",
+                    help="trace-only mode: skip the engine run, analyze the "
+                         "YOSEMITE_HB_NO_ENGINE dump with the static leg")
+    ap.add_argument("--csv-suffix", default="",
+                    help="insert before .csv of the manifest's csv (keeps mode results apart)")
+    ap.add_argument("--detail-suffix", default="", help="subdir suffix for detail JSONs")
+    a = ap.parse_args()
+    man = json.loads(Path(a.manifest).read_text())
     csv = man["csv"]
+    if a.csv_suffix:
+        root, ext = os.path.splitext(csv)
+        csv = root + a.csv_suffix + ext
     detail_dir = man.get("detail_dir", "")
+    if detail_dir and a.detail_suffix:
+        detail_dir = detail_dir.rstrip("/") + a.detail_suffix
     if detail_dir:
         os.makedirs(detail_dir, exist_ok=True)
     os.makedirs(os.path.dirname(csv), exist_ok=True)
     progs = man["programs"]
-    print(f"driver: {len(progs)} program(s) -> {csv}")
+    print(f"driver: {len(progs)} program(s) -> {csv}"
+          + (" [trace-only, no engine]" if a.no_engine else ""))
     for i, pg in enumerate(progs, 1):
         print(f"[{i}/{len(progs)}] {pg['suite']} {pg['program']} {pg.get('variant','')}")
         try:
-            run_program(pg, csv, detail_dir)
+            run_program(pg, csv, detail_dir, no_engine=a.no_engine)
         except Exception as e:
             print(f"  ERROR {type(e).__name__}: {e}")
     print("driver: done")

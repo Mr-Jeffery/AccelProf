@@ -59,6 +59,14 @@ $CONDA eval/mk_e2_manifest.py --bin eval/bin/E2 --out eval/manifests/e2.json \
 $CONDA eval/driver.py eval/manifests/e2.json
 ```
 
+## Trace-only mode (no in-process engine)
+`driver.py MANIFEST --no-engine --csv-suffix=-noengine --detail-suffix=-noengine` runs
+native + `YOSEMITE_HB_TRACE=1 YOSEMITE_HB_NO_ENGINE=1` only and analyzes that dump: verdicts
+come from the static leg (R1/R2/R3 over the trace's pc edges; every RACE is `latent`, there
+is no `hb_races`), `t_engine` is blank, `peak_mem` is the tracing run's, `oracle_verified`
+= `no-engine`. Results land next to the engine-mode CSVs as `*-noengine.csv`. (Use the
+`--opt=value` form: a suffix starting with `-` is otherwise parsed as a flag.)
+
 ## Re-analyzing existing traces / running from a worktree
 - `eval/reanalyze.py --bindir eval/bin/E0 --python-dir python <stems>` re-runs the static
   leg + aggregation on already-recorded traces (no GPU) — validates `sync_dominance` changes

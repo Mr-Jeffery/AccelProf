@@ -130,7 +130,11 @@ def emit_row(args):
         verdicts.extend(rep["verdicts"])
 
         # oracle cross-check (engine hb_races vs exact VC oracle over the same dump)
-        if hb_races is None:
+        if g("no_engine", False):
+            # trace-only mode: the dump carries an empty hb_races (engine skipped);
+            # verdicts are the static leg's, there is nothing to cross-check.
+            oracle_states.append("no-engine")
+        elif hb_races is None:
             oracle_states.append("no-hb")
         elif not args.oracle or hb_oracle is None:
             oracle_states.append("engine-only")
@@ -162,7 +166,9 @@ def emit_row(args):
         notes.append(f"warp-po-ordered={warp_po}(assumes-lockstep)")
 
     # oracle_verified summary across kernels
-    if all(s in ("yes", "no-hb") for s in oracle_states) and "yes" in oracle_states:
+    if oracle_states and all(s == "no-engine" for s in oracle_states):
+        oracle_verified = "no-engine"
+    elif all(s in ("yes", "no-hb") for s in oracle_states) and "yes" in oracle_states:
         oracle_verified = "yes"
     elif "mismatch" in oracle_states:
         oracle_verified = "MISMATCH"
