@@ -139,7 +139,11 @@ def analyze(dot_path, trace_path):
                 # BLOCK = same block, NONE = never). This is what turns a
                 # block-scoped atomic used across blocks into a caught race.
                 my_scope, my_block = atom_scope[pc], e["block"]
-                rel = released.get(addr)
+                # keyed by location, not raw address: shared-memory addresses are
+                # per-block offsets, so with >1 block another block's release on the
+                # same offset would clobber this block's and its next acquire would
+                # miss it (spurious atomic race). Global locs carry no block.
+                rel = released.get(loc)
                 if rel is not None:
                     rclk, rblock, rscope = rel
                     eff = min(my_scope, rscope)
@@ -154,7 +158,7 @@ def analyze(dot_path, trace_path):
                                   "a_tid": w[0], "a_pc": w[2], "b_tid": t, "b_pc": pc,
                                   "kind": "atomic"})
                 vc[t][t] = own(t) + 1
-                released[addr] = (VC(vc[t]), my_block, my_scope)
+                released[loc] = (VC(vc[t]), my_block, my_scope)
                 last_write[loc] = (t, vc[t][t], pc)
                 last_reads[loc] = {}
                 continue

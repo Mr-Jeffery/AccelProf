@@ -231,7 +231,7 @@ programs over 6 algorithms (BFS, CC, MIS, MST, SSSP, TC — PR needs FloatType, 
 |---|---|
 | racy → TP / FN | **13 / 1** (recall **0.93**) |
 | race-free → FP / TN | 12 / 4 (precision **0.52**, specificity 0.25) |
-| tv_violations (model_bug) | **81 — all on TC** (block-reduction barriers, F2 at scale) |
+| tv_violations (model_bug) | **81 — all on TC** _(pre-fix; an attribution bug + unscoped `ATOMS` + per-block release keying — **0 after F2/F6**, see Post-fix results)_ |
 | by bug type | RaceBug: caught on BFS/CC/MIS/MST/SSSP + TC (1 TC RaceBug FN); SyncBug (TC): caught |
 | by atomic style | Atomic and CudaAtomic behave alike (both over-report on nobug) |
 
@@ -324,6 +324,69 @@ toolchain setup), so the comparison is against published numbers:
   in E0. They report the planted races in the racy builds; cuVein reproduces those (E0
   recall 6/6 on racy). A same-PC cross-check would require the rebuild; the RACEY-labeled
   E0 recall is the equivalent evidence here.
+
+---
+
+## Post-fix results (detector fixes from the root-cause round; `eval/results/*-fixed.csv`)
+
+Fixes applied (details in Findings F1/F2/F5/F6; detector diffs in `python/sync_dominance.py`,
+`python/hb_oracle.py`, `sanalyzer/src/tools/pc_dependency_analysis.cpp`): WAR race records
+name both pcs + exact pc-pair matching in the verdict matrix; bare shared `ATOMS` → BLOCK
+scope; R1 dominance requires no sync-free path between the regions; release map keyed by
+location (per-block shared offsets); `benign` (atomic-maintained-read) class; opt-in
+`--assume-warp-lockstep`. Litmus + engine==oracle parity: **68/68 tests pass** after every
+fix; the canary still reports exactly its one structural race.
+
+**E0 (ScoR apps, re-run):**
+
+| app | build | reports raw/dedup | structural | latent | tv | note |
+|---|---|--:|--:|--:|--:|---|
+| reduction | race-free | 24/24 | 11 | 13 | 0 | 10 intra-warp lock-step pairs + 1 record-order inversion |
+| reduction | race-free, `--assume-warp-lockstep` | 14/14 | **1** | 13 | 0 | `warp-po-ordered`=10; the 1 = record-order inversion (documented) |
+| reduction | racy | 26/26 | 11 | 15 | 0 | TP (planted fence-omission race surfaces latent, as in the litmus) |
+| reduction | racy, lockstep | 16/16 | 1 | 15 | 0 | TP |
+| graph-connectivity | race-free | 6/6 | 0 | 6 | 0 | benign latent, unchanged |
+| graph-connectivity | racy | 13/11 | 5 | 8 | **0** (was 1) | `0x160→0x400` (planted) structural = TP; `0x400→0x430` now latent (loop check) |
+
+**E2 (cuHadron memcpy/intersubwarp subset, re-run):** byte-identical to the pre-fix result —
+intersubwarp ×2, memcpy global-RW and shared-WW caught; `memcpy/shared_readwrite` still the
+F4 FN (fix designed, not applied); all fixed builds clean; tv 0.
+
+**E3 (ECL race-free, re-run):**
+
+| code | reports raw/dedup | structural (pre → post) | benign | note |
+|---|--:|--:|--:|---|
+| ECL-CC | 26/17 | 25 → **24** | 2 | union-find array is also plainly written (path compression) → needs the value-based Tier 3 |
+| ECL-GC | 2/1 | 2 → 2 | 0 | idempotent plain WAW |
+| ECL-MIS | 19/11 | 20 → **0** | 19 | every read conflicts only with atomic writers |
+| ECL-MST | 29/6 | 25 → **14** | 15 | partial |
+
+Total ECL structural 52 → 40; MIS fully re-bucketed. The verdicts are still RACE (nothing
+hidden); `structural` is what a precision table should count.
+
+**E1 (Indigo3, re-run with flavor-aware slugs and both the 100-node and a 2-block
+1024-node graph; `E1-final.csv`, `E1-determ-final.csv`):**
+
+| set | rows (racy / race-free) | recall | precision | specificity | tv |
+|---|---|--:|--:|--:|--:|
+| NonDeterm | 60 (28 / 32) | **26/28 = 0.93** | 0.57 | 12/32 = 0.38 | **0** (was 81) |
+| Determ | 40 (20 / 20) | **18/20 = 0.90** | 0.69 | 12/20 = 0.60 | **0** (was 81) |
+
+- **By bug type.** RaceBug: 10/10 on BFS/CC/MIS/MST/SSSP (both sizes); on TC 4/6 — the two
+  misses are the 1-block 100-node inputs (the planted `*g_count += val` by one thread per
+  block needs ≥2 blocks) and both are **caught on the 1024-node graph**. SyncBug (missing
+  barrier, TC): 8/8, surfacing as latent with `benign`-tagged reads. RaceBug+SyncBug: 4/4.
+- **By style.** Atomic vs CudaAtomic behave identically. **Every TC nobug variant
+  (BlockAdd / GlobalAdd / Reduction, both sizes) is now clean — 12 TN, 0 FP** (pre-fix:
+  BlockAdd nobug reported 27 and was the FP). The 3 TC flavors no longer collide in the
+  detail files.
+- **Remaining race-free reports = F5's residue**, unchanged in kind: BFS/CC/SSSP nobug
+  (47–752 structural) are plain-vs-plain unsynchronized label/worklist updates — no atomic
+  writer, so the Tier-1 tag cannot apply; MIS (6–16); MST 25–98 structural with 37–43
+  re-bucketed benign. Closing these needs Tier 2/3 (per-location atomic-only bit; same-value
+  writes).
+- The pre-fix "precision 0.52 / 0.60" figures are superseded; the TC-only slice is now
+  precision 1.00 / specificity 1.00 in both sets.
 
 ---
 
@@ -452,18 +515,42 @@ mirror); Tier 3, same-value WAW, which needs the written value captured from the
 `E1-determ.csv` (pre-fix), `E1-fixed.csv`/`E3-fixed.csv` (post-fix); details under
 `eval/detail/`.
 
+### F6 — Release map keyed by raw address clobbers per-block shared-memory releases (found by the re-run; fixed)
+**Where:** after F2's fixes, Indigo3 TC BlockAdd still showed `model_bug` — but **only on the
+2-block 1024-node graph**, never on the 1-block 100-node one: the flagged pair is
+`0x680→0x680` (`ATOMS.ADD` vs itself, same block), correctly BLOCK-ordered by R2, yet the
+engine reported it raced.
+**Mechanism:** both engine and oracle stored atomic releases as `released[addr]`. Shared-memory
+addresses are per-block *offsets*, so with two resident blocks, block B's `ATOMS` on offset X
+overwrote block A's release record for X; A's next `ATOMS` on X then found B's record, failed
+the same-block scope check, never acquired A's own earlier release, and reported a spurious
+same-block atomic race. Confirmed by running the oracle keyed by location on the recorded
+trace: it no longer reproduces the engine's races (`oracle_verified = MISMATCH` against the
+old engine). Global memory was unaffected (its location key carries no block).
+**Fix applied:** `released` is keyed by the location tuple (space, block, addr) in both
+`HbEngine` and `hb_oracle.analyze` (parity re-verified, 68/68). Post-fix TC numbers in the E1
+table. **Lesson for the eval:** the litmus corpus has no multi-block shared-memory atomics, so
+this could not have been caught there — the 2-block Indigo input found it.
+
 ---
 
 ## Bottom line
 
 **Accuracy:** perfect on the scoped-synchronization litmus (ScoR micro: P=R=1.00,
-engine==oracle on 33/33); high recall on every real suite (ScoR apps 6/6, Indigo3 13/14,
-cuHadron 5/6 in-scope). **Precision is the open problem on real code** — structural false
-positives from the fence-instrumentation gap on lock/fence handshakes (F1) and from
-flagging the inherent benign races of graph analytics (F5, incl. all of ECL's race-free
-codes); clean on non-graph HeCBench apps. **Soundness:** 82 `model_bug` tripwire hits on
-block-reduction barriers (F2) need root-causing. **One confirmed in-scope false negative**
-(F4, racecheck-verified). **Scale:** the exact vector-clock engine is not yet viable on
-large kernels (F3, up to 218× and OOM). Next steps, in priority order: F2 (soundness),
-then F5 benign-race/atomic-idempotence filtering and F1 fence modeling (precision), then
-F3 scale knobs. All numbers reproducible via `eval/` (see `eval/README.md`).
+engine==oracle on 33/33, re-verified after every fix); high recall on every real suite
+(ScoR apps 6/6, Indigo3 26/28 with the 2 misses needing a ≥2-block input, cuHadron 5/6
+in-scope). **Root-cause round:** the `model_bug` tripwire (82 hits) was a report-attribution
+bug plus two engine/spec defects (unscoped shared `ATOMS`; release map keyed by raw address
+that clobbered per-block shared releases) and a latent R1 loop hole — **all fixed, tripwire
+now 0 everywhere, every TC variant clean** (F2, F6). The reduction FPs were **not** fence
+blindness but intra-warp lock-step pairs (10, removable under an explicit opt-in assumption)
+and a trace record-order inversion (2, documented) (F1). **Precision on graph analytics
+remains the open problem**: the exact HB model flags the inherent benign races of
+BFS/CC/SSSP-style kernels and of ECL's race-free codes (F5); the atomic-maintained-read
+tag re-buckets the atomic-writer cases (ECL-MIS 20→0 structural) but plain-vs-plain and
+value-idempotent writes need the designed Tier 2/3 filters. **One confirmed in-scope false
+negative** (F4, `cp.async` write attributed to the issuing lane) has a designed fix pending
+a GPU-patch rebuild. **Scale:** the exact vector-clock engine is not yet viable on large
+kernels (F3, up to 218× and OOM). Next steps, in priority order: F4 (`PIPELINE_WAIT`
+instrumentation), F5 Tier 2/3 (precision on graph code), F3 scale knobs. All numbers
+reproducible via `eval/` (see `eval/README.md`).

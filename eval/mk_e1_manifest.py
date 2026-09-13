@@ -40,13 +40,17 @@ def main():
     ap.add_argument("--csv", required=True)
     ap.add_argument("--detail-dir", required=True)
     ap.add_argument("--timeout", type=int, default=90)
+    ap.add_argument("--only", default="", help="comma substrings; keep matching names")
     args = ap.parse_args()
+    only = [s for s in args.only.split(",") if s]
 
     progs, skipped = [], 0
     for p in sorted(glob.glob(f"{args.exe_dir}/**/*", recursive=True)):
         if not (os.path.isfile(p) and os.access(p, os.X_OK)):
             continue
         name = os.path.basename(p)
+        if only and not any(s in name for s in only):
+            continue
         bugs = active_bugs(name)
         if bugs - RACE_BUGS:            # some non-race bug present -> skip
             skipped += 1

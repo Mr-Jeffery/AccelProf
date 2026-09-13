@@ -43,7 +43,10 @@ struct HbEngine {
 
     std::unordered_map<uint32_t, Clock> vc;                 // tid -> vector clock
     struct Released { Clock clk; uint64_t block; int scope; };
-    std::unordered_map<uint64_t, Released> released;        // addr -> release record
+    // keyed by location, not raw address: shared-memory addresses are per-block
+    // offsets, so with >1 block another block's release on the same offset would
+    // clobber this block's and its next acquire would miss it (spurious atomic race).
+    std::map<Loc, Released> released;                       // loc -> release record
     struct Writer { uint32_t tid; uint64_t clock; uint32_t pc; };
     std::map<Loc, Writer> last_write;                       // loc -> last writer epoch
     // reader pc is kept so a WAR race names both pcs: a WAR record with only the
@@ -164,7 +167,7 @@ struct HbEngine {
                     // scoped acquire-release: pick up a's release only if the min of
                     // the two atomics' .STRONG scopes covers both threads.
                     const int my_scope = atom_scope[pc];
-                    auto rit = released.find(addr);
+                    auto rit = released.find(loc);
                     if (rit != released.end()) {
                         const int eff = std::min(my_scope, rit->second.scope);
                         if (eff == SCOPE_GRID || (eff == SCOPE_BLOCK && rit->second.block == a.ctaId))
@@ -179,7 +182,7 @@ struct HbEngine {
                                  static_cast<long>(wit->second.pc), t, pc, "atomic");
                     const uint64_t nc = own(t) + 1;
                     vc[t][t] = nc;
-                    released[addr] = Released{vc[t], a.ctaId, my_scope};
+                    released[loc] = Released{vc[t], a.ctaId, my_scope};
                     last_write[loc] = Writer{t, nc, pc};
                     last_reads[loc].clear();
                     continue;
