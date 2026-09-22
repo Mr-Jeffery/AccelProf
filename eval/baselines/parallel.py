@@ -375,29 +375,82 @@ def cmd_collect(a):
 
 
 # ---------- analyze (CPU) ----------
-def _analyze_capped(mode_dir, dots_dir, cap_s):
-    """rc._analyze_reports with a wall-clock cap (0 = none): the analysis runs in a
-    forked child; past the cap it is killed and (empty result, True) is returned so
-    the rows can say 'analysis-timeout' instead of the shard being SLURM-killed with
-    no row at all (P9-mr: 113 GB trace, >4.5 h of sync_dominance)."""
+def _analysis_mem_cap_gb(mem_gb):
+    """-1 = auto (80 % of MemTotal), 0 = no cap, else GB."""
+    if mem_gb is None or mem_gb < 0:
+        try:
+            for line in open("/proc/meminfo"):
+                if line.startswith("MemTotal:"):
+                    return int(line.split()[1]) * 1024 * 0.8 / 1e9
+        except OSError:
+            pass
+        return 0
+    return mem_gb or 0
+
+
+def _analyze_capped(mode_dir, dots_dir, cap_s, mem_gb=-1):
+    """rc._analyze_reports in a forked child with a wall-clock cap (cap_s, 0 = run
+    inline, uncapped) and an address-space cap (mem_gb: -1 = 80 % of the node's RAM,
+    0 = none). -> (result, reason): reason '' = analyzed; 'analysis-timeout' (child
+    killed past cap_s; P9-mr: 113 GB trace, >4.5 h of sync_dominance); 'analysis-oom'
+    (MemoryError under the cap -- without the cap the kernel OOM killer took the whole
+    shard, P7-bezier-surface at 183 GB RSS on a 188 GB node, and the shard left NO row);
+    'analysis-died(rc=N)' (the child vanished without a result). A ValueError in the
+    child (truncated kernel JSON of a partial dump) is re-raised here so analyze_one's
+    handling of it is unchanged; any other exception becomes a RuntimeError -> ERROR row."""
     if not cap_s:
-        return rc._analyze_reports(mode_dir, dots_dir), False
+        return rc._analyze_reports(mode_dir, dots_dir), ""
     import multiprocessing, queue
+    mem_gb = _analysis_mem_cap_gb(mem_gb)
     ctx = multiprocessing.get_context("fork")
     q = ctx.Queue()
-    proc = ctx.Process(target=lambda: q.put(rc._analyze_reports(mode_dir, dots_dir)))
+
+    def _child():
+        try:
+            if mem_gb:
+                import resource
+                lim = int(mem_gb * 1e9)
+                resource.setrlimit(resource.RLIMIT_AS, (lim, lim))
+            q.put(("OK", rc._analyze_reports(mode_dir, dots_dir)))
+        except MemoryError:
+            os._exit(3)     # nothing can be allocated any more (not even the queue's
+                            # feeder thread): exit code 3 is the OOM marker for the parent
+        except Exception as e:  # noqa: BLE001 -- reported, not swallowed
+            q.put(("EXC", (type(e).__name__, str(e)[:300])))
+
+    proc = ctx.Process(target=_child)
     proc.start()
-    try:
-        res = q.get(timeout=cap_s)
-        proc.join()
-        return res, False
-    except queue.Empty:
-        proc.kill()
-        proc.join()
-        return ([], set(), []), True
+    deadline = time.time() + cap_s
+    tag = payload = None
+    while tag is None:
+        try:
+            tag, payload = q.get(timeout=5)
+            break
+        except queue.Empty:
+            pass
+        if not proc.is_alive():
+            try:                       # the result may have landed just before exit
+                tag, payload = q.get(timeout=5)
+                break
+            except queue.Empty:
+                proc.join()
+                if proc.exitcode == 3:
+                    return ([], set(), []), f"analysis-oom(cap={mem_gb:.0f}GB)"
+                return ([], set(), []), f"analysis-died(rc={proc.exitcode})"
+        if time.time() > deadline:
+            proc.kill()
+            proc.join()
+            return ([], set(), []), "analysis-timeout"
+    proc.join()
+    if tag == "OK":
+        return payload, ""
+    name, msg = payload
+    if name == "ValueError":
+        raise ValueError(msg)
+    raise RuntimeError(f"{name}:{msg}")
 
 
-def analyze_one(idir, writer, confirm_dir, analysis_cap=0):
+def analyze_one(idir, writer, confirm_dir, analysis_cap=0, analysis_mem=-1):
     meta = json.loads(Path(f"{idir}/meta.json").read_text())
     common = dict(id=meta["id"], pset=meta["pset"], program=meta["program"],
                   build=meta["build"], input=meta["input"], tool="cuvein")
@@ -434,12 +487,13 @@ def analyze_one(idir, writer, confirm_dir, analysis_cap=0):
             continue
         # analyze the saved trace once (deterministic verdict), reuse across reps
         ids_, pcs, raw = [], set(), []
-        analyzed = capped = False
+        analyzed, reason = False, ""
         partial = bool(mm.get("partial"))
         if mm.get("saved") and os.path.isdir(f"{idir}/{mode}"):
             try:
-                (ids_, pcs, raw), capped = _analyze_capped(f"{idir}/{mode}", dots_dir, analysis_cap)
-                analyzed = not capped
+                (ids_, pcs, raw), reason = _analyze_capped(f"{idir}/{mode}", dots_dir,
+                                                           analysis_cap, analysis_mem)
+                analyzed = not reason
             except ValueError:
                 if not partial:     # a killed run's last kernel JSON may be truncated
                     raise
@@ -453,9 +507,10 @@ def analyze_one(idir, writer, confirm_dir, analysis_cap=0):
                 notes = (f"timeout={meta.get('tool_timeout')}s;dump_mb={rm.get('dump_mb', '')}"
                          f"{nat_note};err={_csvsafe(rm.get('err', ''))[-200:]}")
                 ri, rl, nd = "", "", 0
-            elif capped and rm.get("nkernels", 0):
-                verdict = "ERROR"     # trace collected; offline analysis exceeded the cap
-                notes = (f"analysis-timeout={analysis_cap}s;dump_mb={rm.get('dump_mb', '')};"
+            elif reason and rm.get("nkernels", 0):
+                verdict = "ERROR"     # trace collected; offline analysis timed out / OOM / died
+                tagn = f"analysis-timeout={analysis_cap}s" if reason == "analysis-timeout" else reason
+                notes = (f"{tagn};dump_mb={rm.get('dump_mb', '')};"
                          f"nkernels={rm.get('nkernels')};node={meta.get('node')}{nat_note}")
                 ri, rl, nd = "", "", 0
             elif rm.get("nkernels", 0) == 0 or (not analyzed and complete):
@@ -623,7 +678,8 @@ def cmd_analyze(a):
             n += 1
             print(f"[analyze {n}] {m['id']}", flush=True)
             try:
-                analyze_one(idir, w, confirm_dir, getattr(a, "analysis_timeout", 0))
+                analyze_one(idir, w, confirm_dir, getattr(a, "analysis_timeout", 0),
+                            getattr(a, "analysis_mem", -1))
             except Exception as e:
                 w.writerow(blib.row(id=m["id"], pset=m["pset"], program=m["program"],
                                     build=m["build"], input=m["input"], tool="cuvein",
@@ -672,7 +728,8 @@ def cmd_run(a):
             idir = f"{STORE}/{m['id']}"
             try:
                 collect_one(m, cuda, a.reps, floor=getattr(a, "timeout_floor", 120))
-                verdicts = analyze_one(idir, w, confirm_dir, getattr(a, "analysis_timeout", 0)) or {}
+                verdicts = analyze_one(idir, w, confirm_dir, getattr(a, "analysis_timeout", 0),
+                            getattr(a, "analysis_mem", -1)) or {}
                 if keep_dir:
                     reason = _keep_decision(verdicts, m.get("label", ""))
                     if reason:
@@ -747,6 +804,11 @@ def main():
         p.add_argument("--analysis-timeout", dest="analysis_timeout", type=int, default=0,
                        help="cap (s) on the offline per-mode trace analysis; past it the "
                             "rows are ERROR analysis-timeout (0 = unbounded)")
+        p.add_argument("--analysis-mem-gb", dest="analysis_mem", type=float, default=-1,
+                       help="with --analysis-timeout: address-space cap (GB) of the forked "
+                            "analysis; -1 = 80%% of the node's RAM (default), 0 = none. A "
+                            "MemoryError becomes an ERROR analysis-oom row instead of the "
+                            "kernel OOM killer taking the whole shard (no row at all)")
         p.add_argument("--results-dir", dest="results_dir", default="",
                        help="write the shard csv here instead of eval/results (a detector "
                             "revision's re-run, kept apart from the merged baseline)")
