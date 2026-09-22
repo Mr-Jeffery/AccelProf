@@ -29,7 +29,14 @@ done
 # a static SASS property only in the CFG, so distill it here (before the trace run)
 # into a file the analyzer reads via YOSEMITE_ATOMIC_SCOPE_FILE.
 if [ ${#cubin_files[@]} -gt 0 ]; then
-    conda run -p "$ACCEL_PROF_HOME/.env" python \
+    # Prefer the env's python directly: a nested `conda run` (getall.sh launched from
+    # inside one) fails silently, leaving the engine without any atomic scopes.
+    if [ -x "$ACCEL_PROF_HOME/.env/bin/python" ]; then
+        SIDECAR_PY=("$ACCEL_PROF_HOME/.env/bin/python")
+    else
+        SIDECAR_PY=(conda run -p "$ACCEL_PROF_HOME/.env" python)
+    fi
+    "${SIDECAR_PY[@]}" \
         "$ACCEL_PROF_HOME/python/atomic_scope_sidecar.py" *.dot -o atomic_scope.txt \
         && export YOSEMITE_ATOMIC_SCOPE_FILE="$(pwd)/atomic_scope.txt"
 fi

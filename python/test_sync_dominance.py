@@ -135,6 +135,21 @@ def test_hb_engine_matches_oracle(binary):
             f"engine-only={[k for k in engine if k not in oracle]} "
             f"oracle-only={[k for k in oracle if k not in engine]}")
 
+        # Barrier/syncwarp-only clock: the pairs (and conflict counts) it leaves
+        # unordered decide latent vs barrier-ordered, so they must agree too.
+        assert tj.get("hb_races_sync_only") == report["races_sync_only"], (
+            f"{binary.name}/{trace.name}: hb_races_sync_only mismatch "
+            f"engine={tj.get('hb_races_sync_only')} oracle={report['races_sync_only']}")
+
+        # ... and so must the static analyzer's offline barrier-only pass (what the
+        # trace-only mode uses in place of the engine's set).
+        kern = sd.parse_dot(report["inputs"]["cfg_dot"])[report["kernel"]["mangled"]]
+        ops = sd.HBGraph(*kern).pc_opcode
+        rmw = {pc: s for pc, op in ops.items() if (s := sd.atomic_scope(op)) is not None}
+        coh = {pc: s for pc, op in ops.items() if (s := sd.coherent_scope(op)) is not None}
+        fast = sorted([a, b, n] for (a, b), n in sd.barrier_only_pairs(tj, rmw, coh).items())
+        assert fast == report["races_sync_only"], f"{binary.name}/{trace.name}: offline pass"
+
         # Coherence profile Pi (Phase 3): the engine's per-address atomic-order hashes
         # must equal the oracle's (both use the same FNV-1a over (tid, atomic-index)).
         eng_pi = {int(a): v["hash"] for a, v in tj.get("coherence_profile", {}).items()}
@@ -143,6 +158,88 @@ def test_hb_engine_matches_oracle(binary):
             f"{binary.name}/{trace.name}: coherence_profile mismatch "
             f"engine-only={ {a: h for a, h in eng_pi.items() if orc_pi.get(a) != h} } "
             f"oracle-only={ {a: h for a, h in orc_pi.items() if eng_pi.get(a) != h} }")
+
+
+# PC-level false negative of the static leg by design (one release pc multiplexes two
+# handshakes; only the address-keyed engine separates them) — not a trace-only target.
+_TRACE_ONLY_KNOWN_FN = set()
+
+
+@pytest.mark.parametrize("binary", _binaries(), ids=lambda p: p.name)
+def test_scor_microbenchmark_trace_only(binary, tmp_path):
+    """Trace-only mode = the same dump without the engine's keys (what
+    YOSEMITE_HB_NO_ENGINE writes): static leg + offline barrier-only pass. It must keep
+    the litmus verdicts — the barrier pass may only turn barrier-ordered pairs into
+    ORDERED, never a fence/lock/atomic-omission race."""
+    art = _artifacts(binary)
+    if art is None:
+        pytest.skip("corpus not generated (no GPU / accelprof unavailable)")
+    dots, traces = art
+    races = engine_races = 0
+    for trace in traces:
+        tj = json.loads(trace.read_text())
+        for k in ("hb_races", "hb_races_sync_only", "coherence_profile"):
+            tj.pop(k, None)
+        stripped = tmp_path / trace.name
+        stripped.write_text(json.dumps(tj))
+        for dot in dots:
+            try:
+                races += sd.analyze(dot, stripped)["summary"]["races"]
+                engine_races += sd.analyze(dot, trace)["summary"]["races"]
+                break
+            except sd.AlignmentError:
+                continue
+    if binary.name.startswith("norace_"):
+        assert races == 0, f"trace-only false positive: {binary.name}"
+    elif binary.name not in _TRACE_ONLY_KNOWN_FN:
+        assert races >= 1, f"trace-only false negative: {binary.name} " \
+                           f"(engine mode reports {engine_races})"
+
+
+def test_write_after_unlock_is_event_candidate(tmp_path, monkeypatch):
+    """ScoR race_interblock_none-lock_rtraw: block 0 writes data AFTER its unlock, block 1
+    reads it under the lock. Asserted by roles, not pc offsets:
+      * the racing pair has no dependency edge (the last-accessor shadow hides block 1's
+        read behind block 0's own), so it must come from the event stream;
+      * R3 must not order it — the write is past its thread's own release of the
+        CAS-acquired lock (the hop direction is schedule-dependent);
+      * engine mode classes it latent (this schedule's lock hand-off ordered it);
+      * each half alone is not enough: either knob off -> the race is missed again."""
+    binary = _BIN / "race_interblock_none-lock_rtraw"
+    art = _artifacts(binary) if binary.exists() else None
+    if art is None:
+        pytest.skip("corpus not generated (no GPU / accelprof unavailable)")
+    dots, traces = art
+    for k in ("CUVEIN_EVENT_CANDIDATES", "CUVEIN_R3_PAST_RELEASE"):
+        monkeypatch.delenv(k, raising=False)
+
+    def both_modes(trace):
+        tj = json.loads(trace.read_text())
+        for k in ("hb_races", "hb_races_sync_only", "coherence_profile"):
+            tj.pop(k, None)
+        stripped = tmp_path / trace.name
+        stripped.write_text(json.dumps(tj))
+        return (("engine", trace), ("trace-only", stripped))
+
+    for mode, trace in both_modes(traces[-1]):
+        rep = sd.analyze(dots[0], trace)
+        races = [v for v in rep["verdicts"] if v["verdict"] == "RACE"]
+        assert len(races) == 1, f"{mode}: {races}"
+        race = races[0]
+        assert race["event_candidate"] and not race["edge_rescued"]
+        assert race["race_type"] in ("WAR", "RAW") and race["space"] == "global"
+        assert race["observed_distance"] == "grid" and race["hb_chain"] is None
+        assert race["hb_class"] == ("latent" if mode == "engine" else None)
+        edges = {frozenset((e["current_pc"], e.get("ancient_pc")))
+                 for e in json.loads(Path(trace).read_text())["edges"]}
+        assert frozenset((race["current_pc"], race["ancient_pc"])) not in edges
+        # the lock-protected pairs stay ordered (R3 inside the critical section)
+        assert all(v["verdict"] == "ORDERED" for v in rep["verdicts"] if v is not race)
+
+        assert sd.analyze(dots[0], trace, event_candidates=False)["summary"]["races"] == 0
+        monkeypatch.setenv("CUVEIN_R3_PAST_RELEASE", "0")
+        assert sd.analyze(dots[0], trace)["summary"]["races"] == 0
+        monkeypatch.delenv("CUVEIN_R3_PAST_RELEASE")
 
 
 _ISW = _ROOT / "cuHadron/intersubwarp"

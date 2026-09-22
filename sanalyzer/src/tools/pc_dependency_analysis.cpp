@@ -1,6 +1,7 @@
 #include "tools/pc_dependency_analysis.h"
 #include "utils/helper.h"
 
+#include <cctype>
 #include <cstdint>
 #include <cstdlib>
 #include <cstdio>
@@ -39,19 +40,45 @@ struct HbEngine {
     using Clock = std::unordered_map<uint32_t, uint64_t>;   // tid -> logical clock
     using Loc = std::tuple<int, uint64_t, uint64_t>;        // (space, block-or-0, addr)
 
-    // pc offset -> atomic coherence scope; absence => plain ld/st (not an atomic).
-    std::unordered_map<uint32_t, int> atom_scope;
+    // pc offset -> coherent-access info; absence => plain ld/st. rmw = an atomic RMW
+    // (release/acquire point + write); !rmw = a .STRONG load/store (cuda::atomic
+    // load()/store()): pairwise same-address coherence only, otherwise an ordinary
+    // read/write. pcs are function-relative, so the table is per kernel (sidecar line
+    // `<pc> <scope> <kind> <kernel>`); `merged` serves legacy `<pc> <scope>` sidecars
+    // and kernels the sidecar does not name.
+    struct PcInfo { int scope; bool rmw; };
+    using PcTable = std::unordered_map<uint32_t, PcInfo>;
+    std::unordered_map<std::string, PcTable> kernel_tables;
+    PcTable merged;
+    const PcTable* atom_scope = &merged;
 
     std::unordered_map<uint32_t, Clock> vc;                 // tid -> vector clock
+    // second clock advanced by barriers/syncwarps ONLY (never by atomic release/
+    // acquire): its races (hb_races_sync_only) tell the verdict matrix which dynamically
+    // ordered pairs rest on schedule-independent barrier joins alone. It changes only
+    // in sync_group, where every participant ends with the same joined clock plus its
+    // own tick, so a sync group SHARES one immutable base and each thread keeps just
+    // its own component: a barrier costs O(threads), not O(threads^2) like vc.
+    struct SyncClock { std::shared_ptr<const Clock> base; uint64_t own = 0; };
+    std::unordered_map<uint32_t, SyncClock> vs;
+    bool sync_only_pass = true;                             // YOSEMITE_HB_NO_SYNC_ONLY=1 disables
     struct Released { Clock clk; uint64_t block; int scope; };
-    std::unordered_map<uint64_t, Released> released;        // addr -> release record
-    struct Writer { uint32_t tid; uint64_t clock; uint32_t pc; };
+    // keyed by location, not raw address: shared-memory addresses are per-block
+    // offsets, so with >1 block another block's release on the same offset would
+    // clobber this block's and its next acquire would miss it (spurious atomic race).
+    std::map<Loc, Released> released;                       // loc -> release record
+    // coh = coherent-access scope of the recorded access (-1 = plain), block = its block.
+    struct Writer { uint32_t tid; uint64_t clock; uint64_t sclock; uint32_t pc; int coh; uint64_t block; };
     std::map<Loc, Writer> last_write;                       // loc -> last writer epoch
-    std::map<Loc, Clock> last_reads;                        // loc -> {reader tid -> clock}
+    // reader pc is kept so a WAR race names both pcs: a single-pc record is
+    // mis-attributed by sync_dominance to every pair containing that pc.
+    struct Reader { uint64_t clock; uint64_t sclock; uint32_t pc; int coh; uint64_t block; };
+    std::map<Loc, std::unordered_map<uint32_t, Reader>> last_reads;  // loc -> {tid -> read}
 
     struct Race { uint64_t addr; int space; uint64_t loc_block;
                   uint32_t a_tid; long a_pc; uint32_t b_tid; uint32_t b_pc; const char* kind; };
     std::vector<Race> races;
+    std::map<std::pair<uint32_t, uint32_t>, uint64_t> sync_pairs;  // (pc_lo, pc_hi) -> count
 
     // Block-barrier instance assembly (see the barrier branch in process): buffer
     // per-warp arrivals per (block, bar_index) until the instance is complete.
@@ -79,7 +106,8 @@ struct HbEngine {
     std::map<uint64_t, std::vector<std::pair<uint32_t, uint64_t>>> coherence;  // addr -> order
 
     void reset() {
-        vc.clear(); released.clear(); last_write.clear(); last_reads.clear(); races.clear();
+        vc.clear(); vs.clear(); released.clear(); last_write.clear(); last_reads.clear();
+        races.clear(); sync_pairs.clear();
         pending_barriers.clear();  // block_thread_count is (re)set by hb_engine_reset
         bar_warps_seen.clear(); warp_waiting.clear(); tv_violation.clear();
         atom_idx.clear(); coherence.clear();
@@ -122,24 +150,89 @@ struct HbEngine {
     // barrier/syncwarp: everyone joins everyone's pre-sync clock, then each ticks
     // its own component (post-sync accesses ordered after the join, concurrent with
     // each other).
+    // Applied to both clocks; it is the ONLY thing that advances vs.
     void sync_group(const std::vector<uint32_t>& tids) {
         for (uint32_t t : tids) own(t);
         Clock j;
         for (uint32_t t : tids) join_into(j, vc[t]);
         for (uint32_t t : tids) { Clock nv = j; nv[t] += 1; vc[t] = std::move(nv); }
+        if (!sync_only_pass) return;
+        for (uint32_t t : tids) owns(t);
+        auto js = std::make_shared<Clock>();
+        std::set<const Clock*> joined;                      // each shared base once
+        for (uint32_t t : tids) {
+            const SyncClock& c = vs[t];
+            if (c.base && joined.insert(c.base.get()).second) join_into(*js, *c.base);
+        }
+        for (uint32_t t : tids) { uint64_t& d = (*js)[t]; if (vs[t].own > d) d = vs[t].own; }
+        for (uint32_t t : tids) { SyncClock& c = vs[t]; c.own = (*js)[t] + 1; c.base = js; }
+    }
+    uint64_t owns(uint32_t t) {
+        uint64_t& v = vs[t].own;
+        if (v == 0) v = 1;
+        return v;
+    }
+    // what thread t knows of thread u on the sync-only clock
+    uint64_t vs_get(uint32_t t, uint32_t u) {
+        const SyncClock& c = vs[t];
+        if (u == t) return c.own;
+        return c.base ? clk_get(*c.base, u) : 0;
+    }
+    // two coherent accesses whose min .STRONG scope covers both threads
+    static bool coherent(int c1, uint64_t b1, int c2, uint64_t b2) {
+        if (c1 < 0 || c2 < 0) return false;
+        const int eff = std::min(c1, c2);
+        return eff == SCOPE_GRID || (eff == SCOPE_BLOCK && b1 == b2);
+    }
+    // one unordered-ness test per clock for a conflicting (prev, current) pair
+    void conflict(uint64_t addr, int space, uint64_t loc_block,
+                  uint32_t p_tid, uint64_t p_clk, uint64_t p_sclk, uint32_t p_pc,
+                  uint32_t t, uint32_t pc, const char* kind) {
+        if (p_clk > clk_get(vc[t], p_tid))
+            add_race(addr, space, loc_block, p_tid, static_cast<long>(p_pc), t, pc, kind);
+        if (sync_only_pass && p_sclk > vs_get(t, p_tid))
+            sync_pairs[{std::min(p_pc, pc), std::max(p_pc, pc)}] += 1;
     }
     void add_race(uint64_t addr, int space, uint64_t loc_block,
                   uint32_t a_tid, long a_pc, uint32_t b_tid, uint32_t b_pc, const char* kind) {
         races.push_back(Race{addr, space, loc_block, a_tid, a_pc, b_tid, b_pc, kind});
     }
 
+    static std::string norm_name(const std::string& n) {
+        std::string o;
+        for (char c : n) if (!std::isspace(static_cast<unsigned char>(c))) o += c;
+        return o;
+    }
+    // sidecar lines: `<pc> <scope> <kind> <kernel>` (kind rmw|ldst, kernel = demangled
+    // name without whitespace), `# kernel <kernel>` declaring a kernel (so one without
+    // coherent pcs gets an empty table, not the merged one), or the legacy
+    // `<pc> <scope>` (rmw, all kernels merged).
     void load_scopes(const char* path) {
-        atom_scope.clear();
+        kernel_tables.clear(); merged.clear(); atom_scope = &merged;
         if (path == nullptr) return;
         std::ifstream f(path);
         if (!f) return;
-        uint32_t pc = 0; int scope = 0;
-        while (f >> pc >> scope) atom_scope[pc] = scope;
+        std::string line;
+        while (std::getline(f, line)) {
+            std::istringstream ls(line);
+            uint32_t pc = 0; int scope = 0; std::string kind, kernel;
+            if (line.rfind("# kernel ", 0) == 0) {
+                kernel_tables[norm_name(line.substr(9))];
+                continue;
+            }
+            if (!(ls >> pc >> scope)) continue;
+            ls >> kind >> kernel;
+            const PcInfo info{scope, kind != "ldst"};
+            if (!kernel.empty()) kernel_tables[kernel][pc] = info;
+            merged.emplace(pc, info);
+        }
+    }
+    void select_kernel(const std::string& kernel_name) {
+        auto it = kernel_tables.find(norm_name(kernel_name));
+        atom_scope = (it != kernel_tables.end()) ? &it->second : &merged;
+        if (it == kernel_tables.end() && !kernel_tables.empty())
+            std::cerr << "[HB_ENGINE] kernel '" << kernel_name << "' not in the atomic-scope "
+                         "sidecar; using the merged pc table" << std::endl;
     }
 
     void process(const MemoryAccess* buf, uint64_t size) {
@@ -204,7 +297,9 @@ struct HbEngine {
                 continue;
             }
 
-            const bool is_atomic = atom_scope.count(pc) != 0;
+            const auto pit = atom_scope->find(pc);
+            const bool is_atomic = pit != atom_scope->end() && pit->second.rmw;
+            const int my_coh = (pit != atom_scope->end()) ? pit->second.scope : -1;
             const bool is_write = (a.flags & SANITIZER_MEMORY_DEVICE_FLAG_WRITE) != 0;
             const int space = (a.type == MemoryType::Shared) ? 1
                             : (a.type == MemoryType::Local)  ? 2 : 0;
@@ -235,44 +330,57 @@ struct HbEngine {
                     atom_idx[t] += 1;
                     // scoped acquire-release: pick up a's release only if the min of
                     // the two atomics' .STRONG scopes covers both threads.
-                    const int my_scope = atom_scope[pc];
-                    auto rit = released.find(addr);
+                    const int my_scope = pit->second.scope;
+                    auto rit = released.find(loc);
                     if (rit != released.end()) {
                         const int eff = std::min(my_scope, rit->second.scope);
                         if (eff == SCOPE_GRID || (eff == SCOPE_BLOCK && rit->second.block == a.ctaId))
                             join_into(vc[t], rit->second.clk);
                     }
-                    // an atomic RMW is a write: races a prior writer the scoped
-                    // acquire did NOT order (a coherence race at too-narrow scope).
+                    // an atomic RMW is a write: it races a prior writer / reader that is
+                    // neither HB-ordered nor coherent with it (same-address atomics at a
+                    // scope too narrow for their distance, or a plain access).
+                    own(t);
+                    const uint64_t sclk = sync_only_pass ? owns(t) : 0;
                     auto wit = last_write.find(loc);
                     if (wit != last_write.end() && wit->second.tid != t
-                        && wit->second.clock > clk_get(vc[t], wit->second.tid))
-                        add_race(addr, space, a.ctaId, wit->second.tid,
-                                 static_cast<long>(wit->second.pc), t, pc, "atomic");
+                        && !coherent(my_coh, a.ctaId, wit->second.coh, wit->second.block))
+                        conflict(addr, space, a.ctaId, wit->second.tid, wit->second.clock,
+                                 wit->second.sclock, wit->second.pc, t, pc, "atomic");
+                    auto arit = last_reads.find(loc);
+                    if (arit != last_reads.end())
+                        for (const auto& kv : arit->second)
+                            if (kv.first != t
+                                && !coherent(my_coh, a.ctaId, kv.second.coh, kv.second.block))
+                                conflict(addr, space, a.ctaId, kv.first, kv.second.clock,
+                                         kv.second.sclock, kv.second.pc, t, pc, "WAR");
                     const uint64_t nc = own(t) + 1;
                     vc[t][t] = nc;
-                    released[addr] = Released{vc[t], a.ctaId, my_scope};
-                    last_write[loc] = Writer{t, nc, pc};
+                    released[loc] = Released{vc[t], a.ctaId, my_scope};
+                    last_write[loc] = Writer{t, nc, sclk, pc, my_coh, a.ctaId};
                     last_reads[loc].clear();
                     continue;
                 }
 
                 const uint64_t clk = own(t);
+                const uint64_t sclk = sync_only_pass ? owns(t) : 0;
                 auto wit = last_write.find(loc);
                 if (wit != last_write.end() && wit->second.tid != t
-                    && wit->second.clock > clk_get(vc[t], wit->second.tid))
-                    add_race(addr, space, a.ctaId, wit->second.tid,
-                             static_cast<long>(wit->second.pc), t, pc, is_write ? "WAW" : "RAW");
+                    && !coherent(my_coh, a.ctaId, wit->second.coh, wit->second.block))
+                    conflict(addr, space, a.ctaId, wit->second.tid, wit->second.clock,
+                             wit->second.sclock, wit->second.pc, t, pc, is_write ? "WAW" : "RAW");
                 if (is_write) {
                     auto lrit = last_reads.find(loc);
                     if (lrit != last_reads.end())
                         for (const auto& kv : lrit->second)
-                            if (kv.first != t && kv.second > clk_get(vc[t], kv.first))
-                                add_race(addr, space, a.ctaId, kv.first, -1, t, pc, "WAR");
-                    last_write[loc] = Writer{t, clk, pc};
+                            if (kv.first != t
+                                && !coherent(my_coh, a.ctaId, kv.second.coh, kv.second.block))
+                                conflict(addr, space, a.ctaId, kv.first, kv.second.clock,
+                                         kv.second.sclock, kv.second.pc, t, pc, "WAR");
+                    last_write[loc] = Writer{t, clk, sclk, pc, my_coh, a.ctaId};
                     last_reads[loc].clear();
                 } else {
-                    last_reads[loc][t] = clk;
+                    last_reads[loc][t] = Reader{clk, sclk, pc, my_coh, a.ctaId};
                 }
             }
         }
@@ -294,8 +402,7 @@ struct HbEngine {
                  << ", \"space\": \"" << sp << "\""
                  << ", \"loc_block\": " << r.loc_block
                  << ", \"a_tid\": " << r.a_tid
-                 << ", \"a_pc\": " << (r.a_pc < 0 ? std::string("null")
-                                                  : std::to_string(static_cast<uint32_t>(r.a_pc)))
+                 << ", \"a_pc\": " << r.a_pc
                  << ", \"b_tid\": " << r.b_tid
                  << ", \"b_pc\": " << r.b_pc
                  << ", \"kind\": \"" << r.kind << "\"}";
@@ -303,6 +410,18 @@ struct HbEngine {
             jout << "\n";
         }
         jout << "  ]";
+        // barrier/syncwarp-only race pairs [pc_lo, pc_hi, count]; key absent when the
+        // second pass is disabled so sync_dominance falls back to plain `latent`.
+        if (sync_only_pass) {
+            jout << ",\n  \"hb_races_sync_only\": [";
+            bool first_pair = true;
+            for (const auto& kv : sync_pairs) {
+                jout << (first_pair ? "" : ", ") << "[" << kv.first.first << ", "
+                     << kv.first.second << ", " << kv.second << "]";
+                first_pair = false;
+            }
+            jout << "]";
+        }
         // Coherence profile Pi (Phase 3): per atomic address, its observed atomic order
         // and hash. Additive/observational — the verdict above is unaffected.
         jout << ",\n  \"coherence_profile\": {";
@@ -524,6 +643,8 @@ PcDependency::~PcDependency() {
 }
 
 
+static void hb_engine_select_kernel(const std::string& kernel_name);
+
 void PcDependency::kernel_start_callback(std::shared_ptr<KernelLaunch_t> kernel) {
 
     kernel->kernel_id = kernel_id++;
@@ -538,6 +659,7 @@ void PcDependency::kernel_start_callback(std::shared_ptr<KernelLaunch_t> kernel)
     _hb_events.clear();
     _hb_seq = 0;
     hb_engine_reset();
+    hb_engine_select_kernel(kernel->kernel_name);
     for (uint64_t worker_idx = 0; worker_idx < _worker_count; ++worker_idx) {
         auto& worker_state = _worker_shadow_memory_shared[worker_idx];
         worker_state.pool_miss_count = 0;
@@ -621,6 +743,12 @@ std::unique_ptr<HbEngine>& hb_engine_singleton() {
 }
 }  // namespace
 
+// pcs are function-relative: bind the engine to the launching kernel's pc table.
+static void hb_engine_select_kernel(const std::string& kernel_name) {
+    auto& engine = hb_engine_singleton();
+    if (engine) engine->select_kernel(kernel_name);
+}
+
 void PcDependency::hb_engine_process(const MemoryAccess* buffer, uint64_t size) {
     auto& engine = hb_engine_singleton();
     if (engine) engine->process(buffer, size);
@@ -640,9 +768,15 @@ void PcDependency::hb_engine_reset() {
     // TV invariants ON by default; YOSEMITE_HB_STRICT=0 disables them.
     const char* strict_env = std::getenv("YOSEMITE_HB_STRICT");
     engine->strict = (strict_env == nullptr) || (std::string(strict_env) != "0");
+    engine->sync_only_pass = std::getenv("YOSEMITE_HB_NO_SYNC_ONLY") == nullptr;
 }
 
 void PcDependency::hb_engine_emit(std::ofstream& jout) {
+    // With YOSEMITE_HB_NO_ENGINE the engine never saw an event: emit NO hb_races /
+    // hb_races_sync_only rather than empty ones. An empty list is a claim ("nothing
+    // raced", "every pair is barrier-ordered") that the verdict matrix would act on;
+    // an absent key sends sync_dominance down its static-only path.
+    if (std::getenv("YOSEMITE_HB_NO_ENGINE") != nullptr) return;
     auto& engine = hb_engine_singleton();
     if (engine) engine->emit(jout);
 }
