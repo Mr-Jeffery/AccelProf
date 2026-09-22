@@ -260,6 +260,17 @@ UNEXPLAINED: 0 — every program has, per mode, a saved dump or an explicit part
 marker. 47 GB on disk at that point (`du`, c70 probe). No saved dump above 20 GB in this
 leg (expected: none of P1–P6 has one; the acceptance case is P9-mr in the P7/P9 leg).
 
+CPU-node re-score of this leg (job 286663, `--array=0-3` on `normal`: c57, c4, c5, c6;
+3–16 min per shard):
+```
+CV=/home/fzheng4/wt-T0 TAG=full-2026-09-22 OUT=full-2026-09-22-cpu MANIFEST=eval/baselines/setup/manifest.evcand.csv \
+    IDFILE=eval/baselines/setup/t0_full_ids_rest.txt sbatch --array=0-3 eval/baselines/setup/p_analyze_cpu.sh
+GPU-phase rows (P1-P6 ids): 130  CPU re-score rows: 130  only-GPU: 0  only-CPU: 0  differing: 0
+confirm-file sets identical (93 files each)
+```
+GPU-phase verdicts of the leg: engine RACE 19 / CLEAN 9 / TIMEOUT 37; trace-only RACE 50 /
+CLEAN 15 (one rep each).
+
 ### 7.2 P7/P9 leg (21 apps; job 286578, `--array=0-20`, `rtx4060ti16g` only, 20-minute floor) — PENDING
 
 ## 8. Acceptance — PENDING
