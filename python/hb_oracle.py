@@ -11,9 +11,16 @@ Model: every thread carries a vector clock. Synchronization updates the clocks �
 a barrier / masked syncwarp joins its actual participants; an atomic acquires the
 value released to its address and republishes. A conflict (same location, >=1
 write, different threads) is a RACE iff the two accesses are not ordered by the
-resulting happens-before relation. No pattern is special-cased: the canary, named
-barriers, masked syncwarps and loop-carried handshakes all fall out as a
-consequence of the clocks.
+resulting happens-before relation and are not both coherent accesses (atomic RMWs or
+cuda::atomic loads/stores, see sync_dominance.coherent_scope) whose .STRONG scopes
+cover the two threads. No pattern is special-cased: the canary, named barriers,
+masked syncwarps and loop-carried handshakes all fall out as a consequence of the
+clocks.
+
+A second clock per thread is advanced by barriers/syncwarps ONLY. Its races
+(`races_sync_only`, pc pairs with counts) tell the verdict matrix which dynamically
+ordered pairs owe their order to schedule-independent barrier joins alone and which
+to atomic release/acquire joins (which ignore fences -> stay latent).
 
 This is the exact O(threads) reference; the analyzer's epoch engine must agree
 with it on every corpus binary. Not for large workloads.
@@ -71,7 +78,7 @@ class VC(dict):
 
 
 
-def analyze(dot_path, trace_path):
+def analyze(dot_path, trace_path, strong_ldst=None):
     trace = json.loads(Path(trace_path).read_text())
     events = sorted(trace.get("hb_events", []), key=lambda e: e["seq"])
     if not events:
@@ -84,12 +91,20 @@ def analyze(dot_path, trace_path):
     # pc -> atomic coherence scope (sd.NONE/BLOCK/GRID); NONE = weak/unknown, no HB.
     atom_scope = {pc: s for pc in eng.pc_opcode
                   if (s := sd.atomic_scope(eng.pc_opcode[pc])) is not None}
+    # pc -> coherent-access scope: the RMW atomics plus (per policy) .STRONG loads/
+    # stores. Pairwise same-address coherence only — a coherent load/store is an
+    # ordinary read/write otherwise (no release/acquire join).
+    policy = sd.strong_ldst_policy(strong_ldst)
+    coh_scope = {pc: s for pc in eng.pc_opcode
+                 if (s := sd.coherent_scope(eng.pc_opcode[pc], policy)) is not None}
 
-    vc = defaultdict(VC)              # tid -> vector clock
-    released = {}                     # addr -> (clock, releaser_block, scope)
-    last_write = {}                   # loc -> (tid, clock, pc)
-    last_reads = defaultdict(dict)    # loc -> {tid: clock}
+    vc = defaultdict(VC)              # tid -> vector clock (barriers + atomic handoffs)
+    vs = defaultdict(VC)              # tid -> barrier/syncwarp-ONLY vector clock
+    released = {}                     # loc -> (clock, releaser_block, scope)
+    last_write = {}                   # loc -> (tid, clock, sync_clock, pc, coh, block)
+    last_reads = defaultdict(dict)    # loc -> {tid: (clock, sync_clock, pc, coh, block)}
     races = []                        # list of race records
+    sync_pairs = defaultdict(int)     # (pc_lo, pc_hi) -> conflicts unordered by vs
 
     # Coherence profile Pi (Phase 3, observational — never affects a verdict). The
     # single-trace certificate is per-profile: the observed per-address coherence order
@@ -121,19 +136,41 @@ def analyze(dot_path, trace_path):
             vc[t][t] = 1
         return vc[t][t]
 
+    def owns(t):
+        if vs[t].get(t, 0) == 0:
+            vs[t][t] = 1
+        return vs[t][t]
+
     def sync_group(tids):
         """Barrier/syncwarp: everyone learns everyone's pre-sync clock (join),
         then each ticks its own component so post-sync accesses are ordered after
-        the join but concurrent with each other (two post-barrier writes race)."""
-        for t in tids:
-            own(t)
-        j = VC()
-        for t in tids:
-            j = j.joined(vc[t])
-        for t in tids:
-            nv = VC(j)
-            nv[t] = nv.get(t, 0) + 1
-            vc[t] = nv
+        the join but concurrent with each other (two post-barrier writes race).
+        Applied to both clocks; it is the ONLY thing that advances vs."""
+        for clocks, init in ((vc, own), (vs, owns)):
+            for t in tids:
+                init(t)
+            j = VC()
+            for t in tids:
+                j = j.joined(clocks[t])
+            for t in tids:
+                nv = VC(j)
+                nv[t] = nv.get(t, 0) + 1
+                clocks[t] = nv
+
+    def coherent(c1, b1, c2, b2):
+        """Two coherent accesses whose min .STRONG scope covers both threads."""
+        if c1 is None or c2 is None:
+            return False
+        eff = min(c1, c2)
+        return eff == sd.GRID or (eff == sd.BLOCK and b1 == b2)
+
+    def conflict(prev_tid, prev_clk, prev_sclk, prev_pc, t, pc, kind, rec):
+        """One unordered-ness test per clock for a conflicting (prev, current) pair."""
+        if prev_clk > vc[t].get(prev_tid, 0):
+            races.append({**rec, "a_tid": prev_tid, "a_pc": prev_pc,
+                          "b_tid": t, "b_pc": pc, "kind": kind})
+        if prev_sclk > vs[t].get(prev_tid, 0):
+            sync_pairs[(min(prev_pc, pc), max(prev_pc, pc))] += 1
 
     def loc_of(space, block, addr):
         # shared memory is per-block; global/local keyed by absolute address.
@@ -206,10 +243,12 @@ def analyze(dot_path, trace_path):
         is_atomic = pc in atom_scope
         is_write = (typ == "write")
         space = e["space"]
+        my_coh, my_block = coh_scope.get(pc), e["block"]
         for lane in e["lanes"]:
             t = tid_of(e["block"], e["warp"], lane["lane"])
             addr = lane["addr"]
             loc = loc_of(space, e["block"], addr)
+            rec = {"addr": addr, "space": space, "loc_block": e["block"]}
 
             if is_atomic:
                 # Coherence profile Pi (observational): this thread's next atomic index
@@ -221,44 +260,47 @@ def analyze(dot_path, trace_path):
                 # if that strength covers the two threads (GRID = any block,
                 # BLOCK = same block, NONE = never). This is what turns a
                 # block-scoped atomic used across blocks into a caught race.
-                my_scope, my_block = atom_scope[pc], e["block"]
-                rel = released.get(addr)
+                # Keyed by location, not raw address: shared-memory addresses are
+                # per-block offsets, so with >1 block another block's release on the
+                # same offset would clobber this block's (spurious atomic race).
+                my_scope = atom_scope[pc]
+                rel = released.get(loc)
                 if rel is not None:
                     rclk, rblock, rscope = rel
                     eff = min(my_scope, rscope)
                     if eff == sd.GRID or (eff == sd.BLOCK and rblock == my_block):
                         vc[t] = vc[t].joined(rclk)
-                # an atomic RMW is a write: it races a prior writer the scoped
-                # acquire did NOT order — e.g. same-address atomics at a scope too
-                # narrow for their distance (a coherence race).
+                # an atomic RMW is a write: it races a prior writer / reader that is
+                # neither HB-ordered nor coherent with it — e.g. same-address atomics
+                # at a scope too narrow for their distance, or a plain access.
+                own(t), owns(t)
                 w = last_write.get(loc)
-                if w and w[0] != t and w[1] > vc[t].get(w[0], 0):
-                    races.append({"addr": addr, "space": space, "loc_block": e["block"],
-                                  "a_tid": w[0], "a_pc": w[2], "b_tid": t, "b_pc": pc,
-                                  "kind": "atomic"})
+                if w and w[0] != t and not coherent(my_coh, my_block, w[4], w[5]):
+                    conflict(w[0], w[1], w[2], w[3], t, pc, "atomic", rec)
+                for rt, (rc, rsc, rpc, rcoh, rblk) in last_reads[loc].items():
+                    if rt != t and not coherent(my_coh, my_block, rcoh, rblk):
+                        conflict(rt, rc, rsc, rpc, t, pc, "WAR", rec)
                 vc[t][t] = own(t) + 1
-                released[addr] = (VC(vc[t]), my_block, my_scope)
-                last_write[loc] = (t, vc[t][t], pc)
+                released[loc] = (VC(vc[t]), my_block, my_scope)
+                last_write[loc] = (t, vc[t][t], owns(t), pc, my_coh, my_block)
                 last_reads[loc] = {}
                 continue
 
-            clk = own(t)
+            clk, sclk = own(t), owns(t)
             # conflict with the last writer / concurrent readers not HB-before t
             w = last_write.get(loc)
-            if w and w[0] != t and w[1] > vc[t].get(w[0], 0):
-                races.append({"addr": addr, "space": space, "loc_block": e["block"],
-                              "a_tid": w[0], "a_pc": w[2], "b_tid": t, "b_pc": pc,
-                              "kind": "WAW" if is_write else "RAW"})
+            if w and w[0] != t and not coherent(my_coh, my_block, w[4], w[5]):
+                conflict(w[0], w[1], w[2], w[3], t, pc, "WAW" if is_write else "RAW", rec)
             if is_write:
-                for rt, rc in last_reads[loc].items():
-                    if rt != t and rc > vc[t].get(rt, 0):
-                        races.append({"addr": addr, "space": space, "loc_block": e["block"],
-                                      "a_tid": rt, "a_pc": None, "b_tid": t, "b_pc": pc,
-                                      "kind": "WAR"})
-                last_write[loc] = (t, clk, pc)
+                # the reader pc is kept: a WAR record must name both pcs (a single-pc
+                # key mis-attributes the race to every pair sharing it).
+                for rt, (rc, rsc, rpc, rcoh, rblk) in last_reads[loc].items():
+                    if rt != t and not coherent(my_coh, my_block, rcoh, rblk):
+                        conflict(rt, rc, rsc, rpc, t, pc, "WAR", rec)
+                last_write[loc] = (t, clk, sclk, pc, my_coh, my_block)
                 last_reads[loc] = {}
             else:
-                last_reads[loc][t] = clk
+                last_reads[loc][t] = (clk, sclk, pc, my_coh, my_block)
 
     # dedup identical race tuples (same pc pair, tid pair, addr)
     seen, uniq = set(), []
@@ -281,6 +323,7 @@ def analyze(dot_path, trace_path):
         "kernel": {"mangled": mangled, "name": trace["kernel"]["kernel_name"]},
         "atomic_pcs": {hex(pc): sd.SCOPES[s] for pc, s in sorted(atom_scope.items())},
         "races": uniq,
+        "races_sync_only": [[a, b, n] for (a, b), n in sorted(sync_pairs.items())],
         "coherence_profile": coherence_profile,
         "summary": {"races": len(uniq), "events": len(events),
                     "atomic_addrs": len(coherence_profile)},
@@ -305,9 +348,12 @@ def main(argv=None):
     ap.add_argument("cfg_dot", type=Path)
     ap.add_argument("trace_json", type=Path)
     ap.add_argument("-o", "--output", type=Path)
+    ap.add_argument("--strong-ldst", choices=sd.STRONG_LDST_POLICIES,
+                    help="which .STRONG loads/stores are coherent accesses "
+                         "(default: $CUVEIN_STRONG_LDST or 'generic')")
     args = ap.parse_args(argv)
     try:
-        report = analyze(args.cfg_dot, args.trace_json)
+        report = analyze(args.cfg_dot, args.trace_json, strong_ldst=args.strong_ldst)
     except sd.AlignmentError as exc:
         print(f"ALIGNMENT FAILURE: {exc}", file=sys.stderr)
         return 1

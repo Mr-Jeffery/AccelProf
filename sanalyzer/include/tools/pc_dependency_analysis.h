@@ -235,6 +235,12 @@ private:
     // ordered per-instance event stream (memory accesses + barrier/syncwarp events)
     // so python/hb_oracle.py can replay exact vector-clock happens-before. Corpus-
     // scale only; the buffer index order is the temporal order (best with -n 1).
+    // Known limitation: a record's slot is reserved by the PRE-op sanitizer callback
+    // (GetBufferIndex atomicAdd in gpu_patch_pc_dependency.cu), so slot order is
+    // instrumentation order, not memory-operation order. A tight atomic release/
+    // acquire spin can be recorded acquire-before-release; the engine then misses
+    // that join and reports the handshake-ordered store as a structural race (2 of
+    // the 12 structural reports on the ScoR reduction race-free build are this).
     void hb_collect_events(const MemoryAccess* buffer, uint64_t size);
 
     // Phase 2 dynamic HB engine: streaming scoped vector-clock happens-before over
