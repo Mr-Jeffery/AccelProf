@@ -1,0 +1,17 @@
+label: working-tree-2026-09-20
+recorded: 2026-09-21T03:38:45-04:00
+HEAD: fe694b5b1fcc5957fcd49c00c260b8dd1a073490 (harden/trace-validity-and-scale)
+working-tree diff (python/ sanalyzer/ bin/): 1492 lines, sha256[:16]=881ac6458f1449e5 -> eval/baselines/setup/cuvein_rev/working-tree-2026-09-20.diff
+modified detector files:
+  2026-09-17 15:12:07  bin/accelprof
+  2026-09-17 15:00:58  python/atomic_scope_sidecar.py
+  2026-09-17 14:54:07  python/hb_oracle.py
+  2026-09-20 21:25:56  python/sync_dominance.py
+  2026-09-20 21:26:19  python/test_sync_dominance.py
+  2026-09-17 14:51:23  sanalyzer/include/tools/pc_dependency_analysis.h
+  2026-09-17 15:22:27  sanalyzer/src/tools/pc_dependency_analysis.cpp
+engine libs:
+  2026-09-17 15:22:59  sha256[:16]=26c4ea0cbea63590  build/sanalyzer/lib/libsanalyzer.so
+  2026-09-10 15:16:54  sha256[:16]=368bea48d8d8ab35  lib/libcompute_sanitizer.so
+knobs: CUVEIN_STRONG_LDST=<unset: generic> CUVEIN_BARRIER_PASS=<unset: on> BASELINE_MODES=<unset: engine,trace-only>
+OK: engine lib newer than every sanalyzer/ source

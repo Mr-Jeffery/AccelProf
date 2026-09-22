@@ -1,0 +1,15 @@
+suite,program,variant,bug_label,input,grid,block,events,t_native,t_trace,t_engine,peak_mem_mb,reports_raw,reports_dedup,TP,FN,FP,TN,racecheck_verdict,oracle_verified,tv_violations,structural,latent,unknown_sync,notes
+E2,asyncmemcpy/kernel_memcpy_dtoh_race,fixed,race-free,default,,,0,,,,,0,0,,,0,1,,engine-only,0,0,0,0,no-engine-output(rc=124)
+E2,asyncmemcpy/kernel_memcpy_dtoh_race,racy,racy,default,,,0,,,,,0,0,0,1,,,,engine-only,0,0,0,0,no-engine-output(rc=124)
+E2,asyncmemcpy/memcpy_htod_kernel_race,fixed,race-free,default,,,0,,,,,0,0,,,0,1,,engine-only,0,0,0,0,no-engine-output(rc=124)
+E2,asyncmemcpy/memcpy_htod_kernel_race,racy,racy,default,,,0,,,,,0,0,0,1,,,,engine-only,0,0,0,0,no-engine-output(rc=124)
+E2,intersubwarp/shared_readwrite_race,fixed,race-free,default,,,20005,1.019,1.723,1.774,828.4,0,0,,,0,1,,yes,0,0,0,0,
+E2,intersubwarp/shared_readwrite_race,racy,racy,default,,,20005,0.667,1.723,1.824,827.2,1,1,1,0,,,,yes,0,1,0,0,
+E2,intersubwarp/shared_writewrite_race,fixed,race-free,default,,,7,0.617,1.573,1.523,819.9,0,0,,,0,1,,yes,0,0,0,0,
+E2,intersubwarp/shared_writewrite_race,racy,racy,default,,,7,0.517,1.522,1.573,820.1,1,1,1,0,,,,yes,0,1,0,0,
+E2,memcpy/global_readwrite_race,fixed,race-free,default,,,7,0.517,1.525,1.623,819.9,0,0,,,0,1,,yes,0,0,0,0,
+E2,memcpy/global_readwrite_race,racy,racy,default,,,5,0.517,1.623,1.575,820.0,1,1,1,0,,,,yes,0,1,0,0,
+E2,memcpy/shared_readwrite_race,fixed,race-free,default,,,10,0.517,1.573,1.574,819.9,0,0,,,0,1,,yes,0,0,0,0,
+E2,memcpy/shared_readwrite_race,racy,racy,default,,,12,0.517,1.624,1.574,817.4,0,0,0,1,,,,yes,0,0,0,0,
+E2,memcpy/shared_writewrite_race,fixed,race-free,default,,,10,0.567,1.623,1.573,817.4,0,0,,,0,1,,yes,0,0,0,0,
+E2,memcpy/shared_writewrite_race,racy,racy,default,,,10,0.517,1.574,1.573,817.4,1,1,1,0,,,,yes,0,1,0,0,
