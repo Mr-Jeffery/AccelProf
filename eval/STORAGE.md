@@ -78,10 +78,29 @@ The quota report says "used 0 Byte" although the user's directory holds 140 GB: 
 accounting is off or not per-user on this pool — read it as "no quota", not as a size
 (unverified which).
 
-### 2.3 GPU-partition node (`rtx4060ti16g`), job 286568
-PENDING — the partition's 35 nodes were fully allocated by another user when this was
-written (SLURM's start estimate 21:22). The log will be
-`setup/build_logs/t0-probe-286568.log`; section to be filled from it.
+### 2.3 GPU-partition node `c70` (partition `rtx4060ti16g`, RTX 4060 Ti cc 8.9, 188 GB RAM), job 286568
+Same script, log `setup/build_logs/t0-probe-286568.log` (ran 17:51–17:55 once the partition freed):
+```
+beegfs_nodev on /mnt/beegfs type beegfs (rw,nosuid,relatime,cfgFile=/etc/beegfs/beegfs-client.conf,_netdev)
+beegfs_nodev     127T   73T   54T  58% /mnt/beegfs
+/dev/sdb1        914G   57G  811G   7% /mnt/local
+beegfs-ctl --getquota --uid / --gid : unlimited (and "used 0 Byte" again)
+```
+| test | c70 (`rtx4060ti16g`) | c4 (`normal`) |
+|---|---|---|
+| 20 GiB `dd` write, `conv=fsync` | 56.1 s, 383 MB/s | 48.3 s, 445 MB/s |
+| 20 GiB `dd` read, `iflag=direct` | 40.6 s, 532 MB/s | 43.3 s, 496 MB/s |
+| write 100 000 × 4 KB files | 53.1 s, 1884 files/s | 60.0 s, 1667 files/s |
+| `listdir` 100 dirs | 0.25 s | 0.24 s |
+| read the 100 000 files | 42.1 s, 2378 files/s | 43.4 s, 2304 files/s |
+| `rm` 20 GiB / `rm -rf` 100 000 files | 0.0 s / 6.8 s | 0.0 s / 6.9 s |
+
+Both measurements ran while other users' jobs occupied the cluster (the 16g partition was
+fully allocated); they are single samples, not a benchmark. For the harness this means: a
+P7/P9 app that dumps 300 GB in its 20-minute budget writes at ~250 MB/s, i.e. within one
+node's measured bandwidth, but with 20 such nodes writing at once the aggregate (5 GB/s)
+is unverified — the P7/P9 leg's `dump_mb` at timeout versus the node-local numbers in
+`eval/BASELINES.md` §1b is the check (§7).
 
 ### 2.4 Node types seen while doing this (measured)
 - `normal`/`max` nodes carry GPUs of several kinds (c4: RTX 5060 Ti sm_120; c48: RTX 3060 Ti
@@ -225,7 +244,23 @@ identical verdict/report rows: 16
 never resolves CUDA_HOME); the 7 confirm JSONs (`confirm_t0-smoke-cpu/`) match the
 GPU phase's set (no confirm file for the uts engine TIMEOUT, as designed).
 
-## 7. Step 6: re-collection into `cuvein_traces/full-2026-09-22` — PENDING (jobs 286578/286579)
+## 7. Step 6: re-collection into `cuvein_traces/full-2026-09-22`
+
+### 7.1 P1–P6 leg (65 programs; job 286589, `--array=0-15`, partitions `rtx4060ti16g,rtx4060ti8g`; ran 16:26–17:54 on the 8g nodes c20, c57, c21 with the sm_89 pin; 120 s floor, 1 rep, both modes, `--analysis-timeout 3600`)
+`t0_check_full_store.py` on the store from a `normal` node (`setup/build_logs/t0-check-rest.txt`):
+
+| mode | state | programs |
+|---|---|---|
+| engine | SAVED (complete dump) | 28 |
+| engine | PARTIAL-DUMP (`engine-partial-rep1/` kept, TIMEOUT row) | 31 |
+| engine | TIMEOUT-EMPTY (timed out with a 0-byte dump: the engine buffers the kernel; nothing to keep, the TIMEOUT row is the marker) | 6 |
+| trace-only | SAVED | 65 |
+
+UNEXPLAINED: 0 — every program has, per mode, a saved dump or an explicit partial/timeout
+marker. 47 GB on disk at that point (`du`, c70 probe). No saved dump above 20 GB in this
+leg (expected: none of P1–P6 has one; the acceptance case is P9-mr in the P7/P9 leg).
+
+### 7.2 P7/P9 leg (21 apps; job 286578, `--array=0-20`, `rtx4060ti16g` only, 20-minute floor) — PENDING
 
 ## 8. Acceptance — PENDING
 
