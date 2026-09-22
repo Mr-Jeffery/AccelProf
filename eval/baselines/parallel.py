@@ -327,8 +327,9 @@ def collect_one(mrow, cuda, reps, floor=120):
                 if kept:
                     partial_dump = kept
             _clean_deps()               # free the (possibly multi-GB) dump at once
+        ev, uncounted = _count_events(f"{idir}/{mode}") if saved else (0, [])
         meta["modes"][mode] = dict(reps=reps_meta, saved=saved, partial=partial,
-                                   events=_count_events(f"{idir}/{mode}") if saved else 0,
+                                   events=ev, events_uncounted=uncounted,
                                    partial_dump=partial_dump)
         _write_meta()                   # per-mode checkpoint
     # trace size (for the P7 "largest-trace" selection): total hb_events in the
@@ -340,15 +341,27 @@ def collect_one(mrow, cuda, reps, floor=120):
     _write_meta()
 
 
+# json.loads needs ~6-10x the text size in RAM: P7-bezier-surface's complete 138 GB
+# trace-only dump took the HARNESS (not the collector, not the analysis) to 183 GB RSS
+# while counting its events and the kernel OOM killer took the whole shard.
+COUNT_EVENTS_MAX_GB = float(os.environ.get("BASELINE_COUNT_EVENTS_MAX_GB", "12"))
+
+
 def _count_events(mode_dir):
-    """Total hb_events over one mode's saved kernel dumps."""
-    events = 0
-    for kj in glob.glob(f"{mode_dir}/kernel_*.json"):
+    """-> (total hb_events over the mode's saved kernel dumps that were parsed,
+    [kernel JSONs above COUNT_EVENTS_MAX_GB that were NOT parsed]). The count is
+    informational (notes, P7 largest-trace selection); an unparsed file is named in
+    meta.modes.<mode>.events_uncounted rather than risking the shard."""
+    events, uncounted = 0, []
+    for kj in sorted(glob.glob(f"{mode_dir}/kernel_*.json")):
         try:
+            if os.path.getsize(kj) > COUNT_EVENTS_MAX_GB * 1e9:
+                uncounted.append(os.path.basename(kj))
+                continue
             events += len(json.loads(Path(kj).read_text()).get("hb_events", []))
         except (OSError, ValueError):
             pass
-    return events
+    return events, uncounted
 
 
 def _csvsafe(s):
@@ -498,6 +511,8 @@ def analyze_one(idir, writer, confirm_dir, analysis_cap=0, analysis_mem=-1):
                 if not partial:     # a killed run's last kernel JSON may be truncated
                     raise
         mode_events = mm.get("events", meta.get("events", 0) if mode == "engine" else "")
+        if mm.get("events_uncounted"):
+            mode_events = f"{mode_events}(+{len(mm['events_uncounted'])} dumps >{COUNT_EVENTS_MAX_GB:.0f}GB uncounted)"
         for rep, rm in enumerate(reps_meta, 1):
             # metas written before the `complete` flag existed: derive it
             complete = rm.get("complete", not rm.get("timed_out")

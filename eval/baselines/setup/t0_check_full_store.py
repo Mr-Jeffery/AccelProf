@@ -34,7 +34,12 @@ def classify(idir, meta, mode):
     if meta.get("error"):
         return "ERROR:" + meta["error"], saved_b, part_b
     if mm is None:
-        return "UNEXPLAINED:mode-missing" + (":collecting" if meta.get("status") == "collecting" else ""), saved_b, part_b
+        if meta.get("status") == "collecting":
+            # the shard died while this mode was being collected: the marker T0 adds;
+            # whatever landed in <mode>/ or work/ is reported but is not a verdict
+            work_b = size(glob.glob(f"{idir}/work/dependency_*/kernel_*.json"))
+            return f"INTERRUPTED(job={meta.get('slurm_job')};work={work_b/1e9:.1f}GB)", saved_b, part_b
+        return "UNEXPLAINED:mode-missing", saved_b, part_b
     reps = mm.get("reps", [])
     if mm.get("saved"):
         if saved_b == 0:
@@ -85,6 +90,10 @@ def main():
     print("\nSaved dumps above 20 GB (acceptance case):")
     for _id, mode, sb in sorted(big, key=lambda x: -x[2]):
         print(f"  {sb/1e9:7.1f} GB  {mode:10}  {_id}")
+    inter = [f"{r[0]}/{m}: {c}" for r in rows if isinstance(r[3], list) for m, (c, _, _) in zip(modes, r[3]) if c.startswith("INTERRUPTED")]
+    print("\nINTERRUPTED (marker present, no verdict):", len(inter))
+    for u in inter:
+        print("  ", u)
     print("\nUNEXPLAINED:", len(unexplained))
     for u in unexplained:
         print("  ", u)
