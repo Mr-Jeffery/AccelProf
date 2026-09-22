@@ -114,6 +114,19 @@ def _shard(items, shard):
     return [it for i, it in enumerate(items) if i % n == k]
 
 
+def _mem_total_gb():
+    """Node RAM (GB). The rtx4060ti16g partition mixes 128 GB (c3, c58, ...) and 188 GB
+    (c70, ...) nodes; a collector run that finishes on the latter is OOM-killed at ~122 GB
+    on the former (P7-bezier-surface trace-only, T0), so the number belongs in meta.json."""
+    try:
+        for line in open("/proc/meminfo"):
+            if line.startswith("MemTotal:"):
+                return round(int(line.split()[1]) * 1024 / 1e9, 1)
+    except OSError:
+        pass
+    return None
+
+
 def _arch():
     """compute_cap of the GPU the run will use. nvidia-smi ignores CUDA_VISIBLE_DEVICES,
     so on a dual-GPU node (c20-22/c25/c34: an sm_89 4060 Ti next to a 2060/2080 Super)
@@ -147,8 +160,8 @@ def collect_one(mrow, cuda, reps, floor=120):
     os.makedirs(work, exist_ok=True)
     os.makedirs(logs, exist_ok=True)
     meta = {k: mrow[k] for k in ("id", "pset", "program", "build", "input")}
-    meta.update(node=socket.gethostname(), arch=_arch(), modes={},
-                store=STORE, status="collecting",
+    meta.update(node=socket.gethostname(), arch=_arch(), mem_total_gb=_mem_total_gb(),
+                modes={}, store=STORE, status="collecting",
                 started=time.strftime("%Y-%m-%d %H:%M:%S"),
                 slurm_job=os.environ.get("SLURM_JOB_ID", ""))
 
