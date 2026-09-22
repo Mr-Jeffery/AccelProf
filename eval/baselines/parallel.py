@@ -15,6 +15,9 @@ not just sm_86; the Python analysis + even nvcc builds run on CPU-only nodes):
            GPU. Distributed over CPU nodes via --shard.
 
 Then merge_csv concatenates the shard CSVs into eval/results/baselines-cuvein.csv.
+Every trace store lives on BeeGFS (/mnt/beegfs/$USER/cuvein_traces/<tag>; compute
+nodes only, not backed up, no caps) -- see eval/STORAGE.md; _store_root() refuses
+anything else.
 Verdicts are arch-independent (a racy litmus reports on sm_86 and sm_89 alike);
 node+arch are recorded per program so overhead stays interpretable.
 
@@ -33,6 +36,7 @@ import shutil
 import socket
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -48,33 +52,45 @@ import run_cuvein as rc       # reuse _analyze_reports  # noqa: E402
 MODES = tuple(m for m in os.environ.get("BASELINE_MODES", "engine,trace-only").split(",") if m)
 
 
+BEEGFS_ROOT = f"/mnt/beegfs/{os.environ.get('USER', 'nobody')}"
+
+
 def _store_root():
-    """Where trace dumps go. Home is a 40 GB quota and a SINGLE program's dump can
-    be multi-GB (a global write-write cuHadron case dumped 7.6 GB), so all heavy
-    trace IO must go to cluster scratch, never home:
-      1. $BASELINE_TRACE_DIR if set (the sbatch scripts point this at node-local
-         /mnt/local for the lean same-node 'run' mode);
-      2. /mnt/beegfs/$USER -- SHARED 145 TB parallel FS, so a GPU collect phase and
-         a CPU analyze phase can share traces across nodes (the two-phase design);
-      3. /mnt/local/$USER -- node-local SSD (lean mode only, not cross-node);
-      4. home results dir (last resort; small runs only).
-    Mounts exist only on compute nodes, so this resolves at run time."""
+    """Where trace dumps go: BeeGFS, and nothing else (T0 policy, eval/STORAGE.md).
+
+    $BASELINE_TRACE_DIR must name a directory under /mnt/beegfs/$USER (the sbatch
+    scripts use /mnt/beegfs/$USER/cuvein_traces/<tag>); unset, the default is
+    /mnt/beegfs/$USER/cuvein_traces. Anything else -- /mnt/local, /tmp, home -- is
+    refused with a message instead of being used silently: the earlier policy (sbatch
+    scripts pointing at node-local /mnt/local or /tmp; unset -> silent fall-through
+    beegfs -> /mnt/local -> home) is what filled the 230 GB node-local disk on c37
+    (memcpy_htod_kernel_race-fixed row lost), overflowed the 40 GB home quota (11 GB
+    for 117 programs) and deleted every timed-out rep's partial dump. BeeGFS is
+    mounted on compute nodes only (not the login node), so
+    this resolves at run time on the node. BASELINE_TRACE_ALLOW_NONBEEGFS=1 is the
+    explicit escape hatch for a throw-away local test (it prints a warning)."""
     env = os.environ.get("BASELINE_TRACE_DIR")
-    if env:
-        os.makedirs(env, exist_ok=True)
-        return env
-    user = os.environ.get("USER", "nobody")
-    for base in (f"/mnt/beegfs/{user}", f"/mnt/local/{user}"):
-        if os.path.isdir(os.path.dirname(base)):
-            try:
-                os.makedirs(base, exist_ok=True)
-                os.chmod(base, 0o700)
-                d = f"{base}/cuvein_traces"
-                os.makedirs(d, exist_ok=True)
-                return d
-            except OSError:
-                continue
-    d = f"{blib.RESULTS_DIR}/traces"
+    d = env or f"{BEEGFS_ROOT}/cuvein_traces"
+    real = os.path.realpath(d)
+    on_beegfs = real.startswith(os.path.realpath(BEEGFS_ROOT) + "/") or real == os.path.realpath(BEEGFS_ROOT)
+    if not on_beegfs and not os.environ.get("BASELINE_TRACE_ALLOW_NONBEEGFS"):
+        raise SystemExit(
+            f"trace store {d!r} is not under {BEEGFS_ROOT}: every trace store lives on BeeGFS "
+            f"(export BASELINE_TRACE_DIR=/mnt/beegfs/$USER/cuvein_traces/<tag>; see eval/STORAGE.md). "
+            f"Set BASELINE_TRACE_ALLOW_NONBEEGFS=1 only for a throw-away local test.")
+    if not on_beegfs:
+        print(f"WARNING: trace store {d} is not on BeeGFS (BASELINE_TRACE_ALLOW_NONBEEGFS set)",
+              file=sys.stderr, flush=True)
+    elif not os.path.isdir("/mnt/beegfs"):
+        raise SystemExit(
+            f"/mnt/beegfs is not mounted on {socket.gethostname()}: trace collection and "
+            f"analysis run on compute nodes (srun/sbatch), never on the login node.")
+    else:
+        os.makedirs(BEEGFS_ROOT, exist_ok=True)
+        try:
+            os.chmod(BEEGFS_ROOT, 0o700)
+        except OSError:
+            pass
     os.makedirs(d, exist_ok=True)
     return d
 
@@ -99,10 +115,17 @@ def _shard(items, shard):
 
 
 def _arch():
+    """compute_cap of the GPU the run will use. nvidia-smi ignores CUDA_VISIBLE_DEVICES,
+    so on a dual-GPU node (c20-22/c25/c34: an sm_89 4060 Ti next to a 2060/2080 Super)
+    the first line would be the wrong GPU; with a single pinned device (setup/pin8g.sh
+    sets its UUID) ask for that one."""
+    cmd = ["nvidia-smi", "--query-gpu=compute_cap", "--format=csv,noheader"]
+    vis = os.environ.get("CUDA_VISIBLE_DEVICES", "")
+    if vis and "," not in vis:
+        cmd[1:1] = ["-i", vis]
     try:
-        out = subprocess.run(["nvidia-smi", "--query-gpu=compute_cap",
-                              "--format=csv,noheader"], capture_output=True,
-                             text=True, timeout=30).stdout.strip().splitlines()
+        out = subprocess.run(cmd, capture_output=True, text=True,
+                             timeout=30).stdout.strip().splitlines()
         return out[0].strip() if out else "?"
     except Exception:
         return "?"
@@ -125,10 +148,24 @@ def collect_one(mrow, cuda, reps, floor=120):
     os.makedirs(logs, exist_ok=True)
     meta = {k: mrow[k] for k in ("id", "pset", "program", "build", "input")}
     meta.update(node=socket.gethostname(), arch=_arch(), modes={},
-                store=STORE)
+                store=STORE, status="collecting",
+                started=time.strftime("%Y-%m-%d %H:%M:%S"),
+                slurm_job=os.environ.get("SLURM_JOB_ID", ""))
+
+    def _write_meta():
+        # written at the start and after every mode so that a shard killed by SLURM
+        # (time limit, node failure, OOM) leaves a readable marker: status stays
+        # "collecting" and `analyze` turns it into an ERROR collection-interrupted row
+        # instead of silently producing no row at all.
+        tmp = f"{idir}/meta.json.tmp"
+        Path(tmp).write_text(json.dumps(meta))
+        os.replace(tmp, f"{idir}/meta.json")
+
+    _write_meta()
     if not (os.path.exists(exe) and os.access(exe, os.X_OK)):
         meta["error"] = "missing-exe"
-        Path(f"{idir}/meta.json").write_text(json.dumps(meta))
+        meta["status"] = "done"
+        _write_meta()
         return
     base = os.path.basename(exe)
     link = f"{work}/{base}"
@@ -209,16 +246,45 @@ def collect_one(mrow, cuda, reps, floor=120):
             shutil.rmtree(d, ignore_errors=True)
 
     def _save(kjs, md):
+        # work/ and <idir>/<mode>/ are on the same filesystem (both under STORE), so
+        # this is a rename, not a copy: a saved program never needs 2x its dump.
         shutil.rmtree(md, ignore_errors=True)
         os.makedirs(md, exist_ok=True)
         for kj in kjs:
-            shutil.copy(kj, f"{md}/")
+            shutil.move(kj, f"{md}/{os.path.basename(kj)}")
+
+    def _keep_partial(depdir, mode, rep, rm):
+        """A timed-out rep is killed mid-write: its kernel JSONs are a prefix of the
+        run and the last one may be truncated. Keep them under <id>/<mode>-partial-rep<k>/
+        with a PARTIAL marker (analysis never reads that directory; it is evidence for
+        the memory-footprint / trace-size studies), one such directory per mode: the
+        rep that got furthest (largest raw dump) wins."""
+        cur = glob.glob(f"{idir}/{mode}-partial-rep*")
+        if cur:
+            try:
+                prev = json.loads(Path(f"{cur[0]}/PARTIAL").read_text()).get("dump_mb", 0)
+            except (OSError, ValueError):
+                prev = 0
+            if rm.get("dump_mb", 0) <= prev:
+                return None
+            for c in cur:
+                shutil.rmtree(c, ignore_errors=True)
+        pd = f"{idir}/{mode}-partial-rep{rep}"
+        os.makedirs(pd, exist_ok=True)
+        for kj in glob.glob(f"{depdir}/kernel_*.json"):
+            shutil.move(kj, f"{pd}/{os.path.basename(kj)}")
+        Path(f"{pd}/PARTIAL").write_text(json.dumps(dict(
+            rm, mode=mode, rep=rep,
+            note="timed-out rep: prefix of the run, last kernel JSON may be truncated; "
+                 "never a verdict")))
+        return os.path.basename(pd)
 
     for mode in MODES:
         env = blib.base_env(cuda, hb_trace=True, no_engine=(mode == "trace-only"),
                             scope_file=scope or None)
         reps_meta = []
         saved = partial = False
+        partial_dump = None
         for rep in range(1, reps + 1):
             _clean_deps()
             errp = f"{logs}/{mode}_rep{rep}.txt"
@@ -256,14 +322,22 @@ def collect_one(mrow, cuda, reps, floor=120):
             if kjs and not to and (not saved or (partial and complete)):
                 _save(kjs, f"{idir}/{mode}")
                 saved, partial = True, not complete
+            elif kjs and to:
+                kept = _keep_partial(depdir, mode, rep, rm)
+                if kept:
+                    partial_dump = kept
             _clean_deps()               # free the (possibly multi-GB) dump at once
         meta["modes"][mode] = dict(reps=reps_meta, saved=saved, partial=partial,
-                                   events=_count_events(f"{idir}/{mode}") if saved else 0)
+                                   events=_count_events(f"{idir}/{mode}") if saved else 0,
+                                   partial_dump=partial_dump)
+        _write_meta()                   # per-mode checkpoint
     # trace size (for the P7 "largest-trace" selection): total hb_events in the
     # saved engine dump. Rows report their OWN mode's count (meta.modes.<mode>.events).
     meta["events"] = meta["modes"].get("engine", {}).get("events", 0)
     shutil.rmtree(work, ignore_errors=True)   # keep only kernel JSONs + dots + meta + logs
-    Path(f"{idir}/meta.json").write_text(json.dumps(meta))
+    meta["status"] = "done"
+    meta["finished"] = time.strftime("%Y-%m-%d %H:%M:%S")
+    _write_meta()
 
 
 def _count_events(mode_dir):
@@ -345,6 +419,19 @@ def analyze_one(idir, writer, confirm_dir, analysis_cap=0):
     for mode in MODES:
         mm = meta["modes"].get(mode, {})
         reps_meta = mm.get("reps", [])
+        if not reps_meta:
+            # No rep of this mode reached a checkpoint. With a T0 meta (status key)
+            # that is still "collecting", the shard was killed (SLURM time limit,
+            # NODE_FAIL, OOM) -- say so instead of writing no row at all. A finished
+            # meta without the mode was collected with a restricted $BASELINE_MODES
+            # (pre-T0 metas have no status key): no row, as before.
+            if meta.get("status") == "collecting":
+                writer.writerow(blib.row(**common, mode=mode, rep=1, verdict="ERROR",
+                                         notes=f"collection-interrupted(node={meta.get('node')};"
+                                               f"job={meta.get('slurm_job', '')};"
+                                               f"started={meta.get('started', '')})"))
+                verdicts[mode] = "ERROR"
+            continue
         # analyze the saved trace once (deterministic verdict), reuse across reps
         ids_, pcs, raw = [], set(), []
         analyzed = capped = False
@@ -424,7 +511,8 @@ def _keep_decision(verdicts, label):
 def _keep_trace(idir, keep_dir, reason, cap_mb):
     """Copy kernel JSONs + dots + meta + logs of a kept program into keep_dir/<id>
     (home). Above cap_mb the kernel JSONs are dropped (meta+logs+dots kept) and the
-    reason is suffixed with 'trace-too-large'."""
+    reason is suffixed with 'trace-too-large'; cap_mb 0 = no cap. The full trace
+    stays in the BeeGFS store in any case (--keep-all is the default)."""
     _id = os.path.basename(idir)
     dst = f"{keep_dir}/{_id}"
     shutil.rmtree(dst, ignore_errors=True)
@@ -436,7 +524,7 @@ def _keep_trace(idir, keep_dir, reason, cap_mb):
                 size += os.path.getsize(os.path.join(root, f))
             except OSError:
                 pass
-    too_large = size > cap_mb * 1e6
+    too_large = bool(cap_mb) and size > cap_mb * 1e6
     for sub in ("dots", "logs", *MODES):
         s = f"{idir}/{sub}"
         if os.path.isdir(s) and not (too_large and sub in MODES):
@@ -483,7 +571,12 @@ def _write_store_info(store, a):
 
 
 def _cap_kept(idir, cap_gb):
-    """--keep-all: a program whose saved dumps exceed cap_gb keeps meta/dots/logs only."""
+    """--keep-all-cap-gb N (default 0 = no cap): a program whose saved dumps exceed
+    N GB keeps meta/dots/logs only and meta.trace_dropped says so. The first BeeGFS
+    sweep (evcand, 2026-09-20) ran with a 20 GB cap; it never fired there (no P1-P6
+    trace is that large), but on the P7/P9 apps it would silently discard exactly the
+    traces worth keeping -- do not set one unless the store really has to fit
+    somewhere (eval/STORAGE.md)."""
     size = sum(os.path.getsize(f) for m in MODES
                for f in glob.glob(f"{idir}/{m}/kernel_*.json"))
     if cap_gb and size > cap_gb * 1e9:
@@ -539,15 +632,13 @@ def cmd_analyze(a):
 
 
 def cmd_run(a):
-    """Lean combined mode: for each program in the shard, collect its trace, analyze
-    it, then DELETE the trace immediately -- peak disk is one program's trace, not
-    the whole corpus. Runs on a GPU node (analysis inline). Chosen because
-    persisting every trace for a separate CPU analyze phase overflowed the 40 GB
-    home quota (11 GB for 117 programs).
-
-    --keep-all keeps every program's trace in the store instead (point
-    $BASELINE_TRACE_DIR at BeeGFS: /mnt/beegfs/$USER/..., compute nodes only, not backed
-    up), so a later detector revision is re-scored with `analyze` on identical traces."""
+    """Combined mode: for each program in the shard, collect its trace on this GPU
+    node, analyze it inline, and KEEP the trace in the store (BeeGFS,
+    $BASELINE_TRACE_DIR=/mnt/beegfs/$USER/cuvein_traces/<tag>; compute nodes only, not
+    backed up) so a later detector revision is re-scored with `analyze` on identical
+    traces without a GPU. --delete-traces restores the older lean behaviour (delete
+    each program's trace right after its analysis; peak disk = one program) -- it was
+    the default while traces landed on node-local disk or in the 40 GB home quota."""
     global STORE
     STORE = _store_root()
     import csv
@@ -561,7 +652,7 @@ def cmd_run(a):
     if confirm_dir:
         os.makedirs(confirm_dir, exist_ok=True)
     os.makedirs(STORE, exist_ok=True)
-    keep_all = getattr(a, "keep_all", False)
+    keep_all = not getattr(a, "delete_traces", False)
     if keep_all:
         _write_store_info(STORE, a)
     kept_bytes = 0
@@ -593,7 +684,7 @@ def cmd_run(a):
                                     verdict="ERROR", notes=f"{type(e).__name__}:{e}"))
             finally:
                 if keep_all:
-                    kept_bytes += _cap_kept(idir, getattr(a, "keep_all_cap_gb", 20))
+                    kept_bytes += _cap_kept(idir, getattr(a, "keep_all_cap_gb", 0))
                 else:
                     shutil.rmtree(idir, ignore_errors=True)   # TP/TN (and everything raw) deleted
             fh.flush()
@@ -641,13 +732,17 @@ def main():
         p.add_argument("--keep-mismatch", dest="keep_mismatch", default="",
                        help="dir (home) where FP/FN/ERROR/TIMEOUT traces are kept; "
                             "TP/TN traces are always deleted")
-        p.add_argument("--keep-cap-mb", dest="keep_cap_mb", type=int, default=300)
+        p.add_argument("--keep-cap-mb", dest="keep_cap_mb", type=int, default=300,
+                       help="size cap (MB) of one program's --keep-mismatch home copy; 0 = none")
         p.add_argument("--keep-all", dest="keep_all", action="store_true",
-                       help="run: keep EVERY program's trace in the store "
-                            "($BASELINE_TRACE_DIR, e.g. /mnt/beegfs/$USER/cuvein_traces/<tag>) "
-                            "for later `analyze` re-scoring")
-        p.add_argument("--keep-all-cap-gb", dest="keep_all_cap_gb", type=float, default=20,
-                       help="with --keep-all: drop a program's kernel JSONs above this size")
+                       help="(default since T0; kept for old scripts) run: keep EVERY "
+                            "program's trace in the BeeGFS store for later `analyze` re-scoring")
+        p.add_argument("--delete-traces", dest="delete_traces", action="store_true",
+                       help="run: delete each program's trace right after its analysis "
+                            "(the pre-T0 lean mode; nothing is left to re-score)")
+        p.add_argument("--keep-all-cap-gb", dest="keep_all_cap_gb", type=float, default=0,
+                       help="drop a program's kernel JSONs above this size (0 = no cap, the "
+                            "default: BeeGFS has room; a cap silently loses the largest traces)")
         p.add_argument("--tag", default="", help="prefix for the shard csv name")
         p.add_argument("--analysis-timeout", dest="analysis_timeout", type=int, default=0,
                        help="cap (s) on the offline per-mode trace analysis; past it the "

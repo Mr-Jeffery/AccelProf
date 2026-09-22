@@ -14,8 +14,7 @@
 # residual_ids.txt (setup/mk_followup_ids.py prints it); the shard count follows.
 cd /home/fzheng4/AccelProf || exit 1
 source eval/baselines/gpu_env.sh
-T=/mnt/local/$USER/cvtraces; mkdir -p $T 2>/dev/null || T=/tmp/$USER/cvtraces; mkdir -p $T   # c2: /mnt/local is root-owned
-export BASELINE_TRACE_DIR=$T
+export BASELINE_TRACE_DIR=/mnt/beegfs/$USER/cuvein_traces/diag   # BeeGFS, every trace kept (eval/STORAGE.md)
 $PY eval/baselines/parallel.py run --id-file eval/baselines/setup/residual_ids.txt \
     --shard ${SLURM_ARRAY_TASK_ID}/${SLURM_ARRAY_TASK_COUNT:-23} --confirm --tag resid --timeout-floor 1200 \
     --keep-mismatch /home/fzheng4/AccelProf/eval/baselines/traces_keep --keep-cap-mb 300

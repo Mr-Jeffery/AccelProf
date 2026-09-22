@@ -12,8 +12,7 @@
 # like-for-like. One app per array task.
 cd /home/fzheng4/AccelProf || exit 1
 source eval/baselines/gpu_env.sh
-T=/mnt/local/$USER/cvtraces; mkdir -p $T 2>/dev/null || T=/tmp/$USER/cvtraces; mkdir -p $T   # c2: /mnt/local is root-owned
-export BASELINE_TRACE_DIR=$T
+export BASELINE_TRACE_DIR=/mnt/beegfs/$USER/cuvein_traces/rerun-p9   # BeeGFS, every trace kept (eval/STORAGE.md)
 $PY eval/baselines/parallel.py run --id-file eval/baselines/setup/p9_ids.txt \
     --shard ${SLURM_ARRAY_TASK_ID}/10 --confirm --tag p9 --timeout-floor 1200 --analysis-timeout 3600 \
     --keep-mismatch /home/fzheng4/AccelProf/eval/baselines/traces_keep --keep-cap-mb 300
