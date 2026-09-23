@@ -35,7 +35,7 @@ def show(path):
         chain_ct[(r.get("hb_class"), bool(r.get("hb_chain")))] += 1
         print(f"  {r['ancient_pc_hex']:>7}->{r['current_pc_hex']:<7} "
               f"{r['space']:<16} {r['race_type']:<4} d={r['observed_distance']:<5} "
-              f"str={r['strength']:<5} {r.get('hb_class'):<10} {has} "
+              f"str={r['strength']:<5} {str(r.get('hb_class')):<10} {has} "
               f"{'/'.join(r['opcodes'])}")
     print("  totals (space,class):", dict(by))
     print("  (class, has_chain):", dict(chain_ct))
