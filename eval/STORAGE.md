@@ -387,17 +387,22 @@ with `peak_mb` ≈ 122 000, not a lost trace.
 
 ## 8. Acceptance
 
+Revision: branch `infra/beegfs-store` on top of `cuVein` @ `b7d463e`; detector runtime
+= the main checkout (`libsanalyzer.so` of 2026-09-17 15:22:59, `sync_dominance.py` of
+2026-09-20 21:25, as in `setup/cuvein_rev.status`); hardware: RTX 4060 Ti (cc 8.9) nodes of
+`rtx4060ti16g` (128 GB and 188 GB variants) and `rtx4060ti8g` (pinned), CPU work on `normal`.
+
+
 | criterion | result |
 |---|---|
 | a keep-all run of ≥5 programs including one whose trace exceeds 20 GB lands complete on BeeGFS | **met**: 86 programs in `cuvein_traces/full-2026-09-22`; complete (non-partial, non-timed-out) saved dumps above 20 GB: P9-mr trace-only **113.0 GB** (1600 kernels), P9-fpc trace-only 50.0 GB (115.8 M events, CLEAN), P7-hotspot trace-only 26.3 GB (34.8 M events, CLEAN) |
-| `parallel.py analyze` of that store from a `normal` node reproduces the GPU phase's verdicts | **met** for the 65 P1–P6 programs (130 rows, 0 differing, confirm sets identical; job 286663) and the 19 finished P7/P9 apps (38 rows, 0 differing; job 287083); the last two apps (fpc, mr) — see below |
+| `parallel.py analyze` of that store from a `normal` node reproduces the GPU phase's verdicts | **met**: all 86 programs — `verdict_diff.py 'eval/results/full-2026-09-22/*.csv' 'eval/results/full-2026-09-22-cpu/*.csv'` → `A: 172 rows  B: 172 rows  common: 172  only-A: 0  only-B: 0  differing: 0`; the 100 confirm JSONs are the same set (jobs 286663 P1–P6, 287083 19 P7/P9 apps, 287114 fpc + mr — mr's 113 GB trace hits the 3600 s analysis cap in both phases, `ERROR analysis-timeout=3600s`, identically) |
 | no `p_*.sh` references `/mnt/local` or `/tmp` | **met**: `grep -rn "/mnt/local\|/tmp" eval/baselines/setup/p_*.sh eval/baselines/setup/p7_run.sh` → nothing |
 | green set unchanged | 136 passed, 1 xfailed (c20, job 286580); detector code untouched |
 
 
 
 ## 9. What remains unverified / not done
-- The P9-fpc and P9-mr CPU re-score (job 287114) — result appended in §8 when it finishes.
 - BeeGFS behaviour with 30+ concurrent collector writers (this sweep peaked at 9 GPU
   tasks); a 32-shard P1–P8 re-run (`p_rerun.sh`) is the test.
 - The quota report (`beegfs-ctl --getquota`: "used 0 Byte" with 3.7 TB in the directory):
