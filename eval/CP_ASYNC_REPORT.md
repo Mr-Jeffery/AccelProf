@@ -21,9 +21,11 @@ committed ones, and copies not yet committed are not covered by it; `wait_all` i
 still in flight, i.e. hide real races whenever N > 0. The model below therefore also registers
 `PIPELINE_COMMIT` and keeps one clock snapshot per committed group:
 * issue of an async copy by thread `t`: the access belongs to the agent `α(t)`; `vc[α(t)] ⊔= vc[t]`
-  (the copy is ordered after `t`'s earlier accesses), then `α(t)` ticks and the access is
-  recorded at `α(t)`'s epoch;
-* `commit` by `t`: push `vc[α(t)]` onto `t`'s group list;
+  (the copy is ordered after `t`'s earlier accesses), and the access is recorded at `α(t)`'s
+  current epoch;
+* `commit` by `t`: push `vc[α(t)]` onto `t`'s group list, then `α(t)` ticks, so the copies of
+  later groups get a newer epoch (as implemented; an earlier draft of this list ticked at issue,
+  which gives the same orders);
 * `wait_group N` by `t`: with G committed groups, join the snapshot of group `G-N` (1-based;
   snapshots only grow) into `vc[t]`; N ≥ G joins nothing.
 The same in the sync-only clock (`vs`): the join is schedule-independent, like a barrier.
@@ -36,7 +38,8 @@ thread's id and gain `"async"`: `"a"`, `"b"` or `"ab"`, the side(s) the copy per
 string rather than the brief's boolean, because either side of a pair can be a copy. No virtual
 id leaks into reports.
 
-**Flag for the async write.** Memory records carry the Sanitizer's `SANITIZER_MEMORY_DEVICE_FLAG_*`
+**Flag for the async write** (considered, not implemented; the next paragraph says why).
+Memory records carry the Sanitizer's `SANITIZER_MEMORY_DEVICE_FLAG_*`
 bits (0x1-0x80; barrier records reuse `flags` for the bar index but are a different
 `MemoryType`), so `ASYNC_COPY = 0x40000000` on the two records `MemcpyAsyncCallback` emits (the
 global read and the shared write, both performed by the copy, not by the thread) cannot collide.
@@ -55,7 +58,8 @@ atomic RMW (`PcInfo{scope, kind != "ldst"}`), so an older engine would read an `
 an atomic. It skips a `#` line instead. The two new patch points (`PIPELINE_COMMIT`, `PIPELINE_WAIT`) are
 registered only when `YOSEMITE_HB_TRACE=1`, so the default path does not change at all.
 
-**Plan** (unchanged otherwise): new `MemoryType::PipelineCommit` / `PipelineWait` emitted through
+**Plan** (as drafted before implementation; §2 lists what was built, and the static-leg part
+went differently, see below): new `MemoryType::PipelineCommit` / `PipelineWait` emitted through
 `EmitSyncEvent` (`groups` in `accessSize`); serialized as `"pipeline_commit"` /
 `"pipeline_wait"` events; 64-bit thread ids in `HbEngine`; the agent model above in engine +
 oracle + `barrier_only_pairs` in one commit; the static leg treats an `LDGSTS` writer as another
@@ -75,7 +79,7 @@ So the commit/wait model maps one-to-one onto `LDGDEPBAR` / `DEPBAR.LE`; whether
 (Node note: c11 in `normal` has no CUDA 13.3 — up to 13.2 only; builds needing it run on the
 GPU partitions.)
 
-**The static leg is left unchanged — a deviation from the brief's step 4, on purpose.** The
+**The static leg gets no cp.async rule — a deviation from the brief's step 4, on purpose.** The
 `0x80 ← 0x70` edge (the read after the thread's own copy) is intra-thread in the dependency
 graph, and `sync_dominance.analyze` already judges such an edge whenever the event stream
 shows the pair cross-agent: the engine's race record (vector-clock mode) or the offline barrier
@@ -85,6 +89,12 @@ and the edge stays dropped. A static rule would have to decide, per path, which 
 covers which `LDGSTS` (commit-group counting across the CFG); without it, a static rescue would
 report the fixed build as racy. Cost of the choice: scalar-clock mode sees an async race only
 when the offline pass runs (it skips dumps above `CUVEIN_BARRIER_PASS_MAX_LANES`, 5 M lanes).
+*Correction from the review (§6):* "R1 finds no ordering sync" holds only when nothing
+separates the copy from the read. With a `__syncthreads()` in between, R1 credits the barrier,
+although a barrier completes no copy. Scalar-clock mode then returned ORDERED before it
+consulted the offline pass, and vector-clock mode labelled the race `model_bug`. The static
+rules therefore now give no credit to a pair whose *earlier* access is a copy, and R3 gives no
+credit to any pair with a copy.
 
 **Old dumps: the `hb_async` marker** (added after the first evaluation run, §3). Every
 LDGSTS access in a dump from an older collector is present, but its commit and wait events
@@ -111,6 +121,9 @@ and fails on one that has only one of them (a partial install).
 | engine (`HbEngine`) | 64-bit `Tid`; `ASYNC_BIT = 1 << 62`; `async_issue` / `async_commit` / `async_wait` on both clocks; race records keep the thread's id and add `"async": "a"|"b"|"ab"`; the dump gains `"hb_async": 1` after `hb_events` (HB-trace mode only) |
 | oracle (`hb_oracle.py`) | the same model, one-to-one; the async pcs from the CFG (`sd.async_pcs`: opcode `LDGSTS`), for a dump with the `hb_async` marker only (`sd.dump_async_pcs`) |
 | offline pass (`barrier_only_pairs`) | the same model on its shared-base clocks (`async_pc=`, from `sd.dump_async_pcs` in `analyze`); an agent's distance is its thread's |
+| static leg (`analyze`), review | no R1/R2 credit when the earlier access of a pair is a copy, no R3 credit for a pair with a copy (§6) |
+| copies completed through an mbarrier, review | `sd.async_pcs` is empty for a kernel with `ARRIVES.LDGSTSBAR` (`cp.async.mbarrier.arrive`): pre-T1a reading, for the engine (sidecar) and the oracle / offline pass (CFG) alike (§6) |
+| two copies of one thread, review | engine, oracle and offline pass report the pair (WAW) unless a wait completed the first: the thread's view of its agent decides (§6) |
 | tests | `python/testdata/cp_async_wait.cu` (racy / fixed / groups), `python/test_cp_async.py` (21 cases, incl. the marker and an unmarked dump), the two parity tests pass the dump's async pcs |
 
 ## 3. Results
@@ -192,7 +205,10 @@ pcs. Across the CFG dots kept in every store (720 of the 4,725 manifest rows, co
 P1, P3, P4, P5, P7 and P9 binary, 33 of the 34 built P6 binaries, and 130 of the 590 PI
 binaries), plus a `cuobjdump -sass` scan of the 461 built binaries the dots do not cover, only
 the six `P6-memcpy-*` programs contain `LDGSTS`. The 16 sm_90-only `bulkcpy` and `dsmem`
-binaries are not built. So no other program's verdict can move under T1a.
+binaries are not built. So no other program's verdict can move through the cp.async
+model. The one other engine change, the 64-bit thread ids, matters only for a launch of
+2²² or more blocks, where the 32-bit ids used to collide (`block << 10` overflowed); no
+such launch was checked for here.
 
 **Kept pre-T1a stores are unaffected** (measured, `setup/t1a_oldstore.sh`, CPU re-score of the
 same dumps by the merged detector and by T1a's):
@@ -221,8 +237,12 @@ named `*-shard*`, and the per-run CSV is one. `t1a_eval.sh` now compares through
 
 * **Other architectures.** Measured on sm_89 only. The brief's tripwire names sm_86 as well,
   and no sm_86 node was used.
-* **The static leg** still has no cp.async rule (§1), so in scalar-clock mode an async race is
-  seen only when the offline pass runs, which it skips above `CUVEIN_BARRIER_PASS_MAX_LANES`.
+* **The static leg** has no cp.async rule of its own (§1); since the review it only withholds
+  credit from pairs with a copy (§6). So in scalar-clock mode an async race is seen only when
+  the offline pass runs, which it skips above `CUVEIN_BARRIER_PASS_MAX_LANES`; above the cap
+  a pair whose earlier access is a copy is reported (no static proof), fixed or not.
+* **Copies completed through an mbarrier** (`cuda::memcpy_async` with a `cuda::barrier`) keep
+  the pre-T1a reading (§6): their races are not seen until mbarriers are modelled (T1b).
 * **Mixed runtimes.** A T1a libsanalyzer with an older collector writes the marker without the
   events: copies never complete, and reads after them are reported. `test_cp_async.py` fails
   in that state, but nothing in the tool refuses it.
@@ -238,3 +258,55 @@ named `*-shard*`, and the per-run CSV is one. `t1a_eval.sh` now compares through
   mixed-space report in every stored table, so it is left for a task that re-keys them.
 * **Green-set definition.** The brief adds `test_cp_async.py` to the green set. The command in
   `Claude.md` Part A still lists four files; it was not edited here.
+
+## 6. Fresh-context review (follow-up branch `fix/cp-async-review`)
+
+The brief asks for a verifier in a fresh context. A read-only Opus review of the merged T1a
+(`bc32a1f`) found the dynamic model right in all three implementations, including uncommitted
+copies at a wait, `N >= G`, repeated waits, divergent warps, a write to the source before the
+wait, and a barrier between issue and wait. It also found the parity of issue / commit / wait,
+both clocks, the `async` field and the agent distance, the 64-bit ids, the marker gating and
+the default path in order. Each finding below was checked against the code, and each
+behavioural one was reproduced before it was fixed. `python/testdata/cp_async_wait.cu` gained
+six builds for this: `barrier`, `barrier_fixed`, `barrier_own`, `twice`, `twice_fixed` and
+`mbarrier`. A full-mask `__syncwarp()` on a converged warp compiles to a `NOP` (checked with
+a runtime mask too), so the "a syncwarp suffices" case is covered by `barrier_own`.
+
+| # | finding | verified | fix |
+|---|---|---|---|
+| 1 | a `__syncthreads()` between a copy and the read is credited by R1 | reproduced: scalar-clock ORDERED (FN), vector-clock RACE classed `model_bug` | no R1/R2 credit when the earlier access is a copy; no R3 credit for a pair with a copy (`analyze`) |
+| 2 | copies completed through an mbarrier (`ARRIVES.LDGSTSBAR`) never complete | reproduced: spurious RAW copy → own read, vector-clock | such a kernel keeps the pre-T1a reading (`sd.async_pcs`, so sidecar and CFG agree) |
+| 3 | two copies of one thread are unordered (PTX orders no two cp.async operations) but never raced: one agent per thread, and same-tid pairs are skipped | reproduced: no race | a same-agent write is checked against the thread's view of the agent (engine `conflict(..., obs)`, oracle `observer=`, offline pass) |
+| 4 | `--assume-warp-lockstep` orders the copy vs the read (same warp, program order) | read from the code (the harness does not pass the flag) | no lock-step rescue for records with `async` |
+| 5 | inputs: the sidecar's copy pcs were last-cubin-wins for a multi-arch binary; the engine falls back to all kernels' copy pcs for an unmatched kernel name; the marker is written even when the engine had no copy pcs (no sidecar) | read from the code | union per kernel, like the coherent-pc table. The fallback is unchanged (the coherent table does the same, with a warning). A missing sidecar already degrades every atomic to a plain access (`eval/FIX_REPORT.md`, Verification), so it is documented rather than special-cased |
+| 6 | doc errors: tick at issue (the code ticks at commit), the `ASYNC_COPY` flag and the static-leg plan described as if built, the corpus claim without the 64-bit ids | read | corrected in §1 and §3 |
+| 7 | `async_issue` copies the sync-only base per copied lane (O(block) each) | not measured | left for T5b (shared-base clocks); noted in §5 |
+
+**Before → after**, from the same nine builds on c20 (RTX 4060 Ti, sm_89): the T1a runtime
+and Python (job 288377) against the review runtime (libsanalyzer `95659970773ed751`, fatbin
+unchanged `a2d7368bc1c61986`) and Python (job 288384). The probe is `.probe/run_variants.sh`,
+kept out of the repository; the same assertions are `python/test_cp_async.py`.
+
+| build | engine races on a copy, before → after | vector-clock | scalar-clock |
+|---|---|---|---|
+| racy, groups | the copy/read RAW → same | RACE `structural` → same | RACE → same |
+| fixed, barrier_fixed, twice_fixed | none → none | CLEAN → CLEAN | CLEAN → CLEAN |
+| barrier, barrier_own | the copy/read RAW → same | RACE `model_bug` → RACE `structural` | **ORDERED → RACE** |
+| twice | none → **WAW `"ab"`** | CLEAN → **RACE** | CLEAN → **RACE** |
+| mbarrier | **spurious RAW** → none | **RACE** → CLEAN on the copy | CLEAN → CLEAN |
+
+In the mbarrier build the `cuda::barrier`'s own polling of its state word (`ATOMS.ADD` vs
+`LDS`) is also an engine race, classed `benign`, before and after. mbarriers are T1b. Engine
+== oracle holds on all nine builds.
+
+**Checks after the fixes** (c20):
+* `setup/review_check.sh`, job 288385. The default tool path is IDENTICAL to the installed
+  runtime's for the two ScoR programs, and the vector-clock dumps are IDENTICAL minus
+  `hb_async`. `python/test_cp_async.py`: 67 passed. The green set with it: 203 passed,
+  1 xfailed (136 + 67).
+* `setup/review_rescore.sh`, job 288383 (CPU, c1). The T1a evaluation store (`t1a-p56`,
+  marked dumps, 59 programs, both modes), re-scored with the review Python against the T1a
+  Python's rows, gives 118 rows, **0 differ**. The pre-T1a store evcand against the merged
+  detector gives 354 rows, **0 differ**. The engine change (#3) is not in those dumps'
+  `hb_races`, but no kept program has two copies of one thread to one location (only the six
+  P6 `memcpy` programs contain `LDGSTS`, one copy per thread each).

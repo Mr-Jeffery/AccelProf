@@ -267,13 +267,20 @@ struct HbEngine {
         return eff == SCOPE_GRID || (eff == SCOPE_BLOCK && b1 == b2);
     }
     // one unordered-ness test per clock for a conflicting (prev, current) pair
+    // the pair as seen by `obs`: t itself, or for two copies of one agent the issuing
+    // thread (the agent always knows its own copies; the thread only those a wait completed)
+    void conflict(uint64_t addr, int space, uint64_t loc_block,
+                  Tid p_tid, uint64_t p_clk, uint64_t p_sclk, uint32_t p_pc,
+                  Tid t, uint32_t pc, const char* kind, Tid obs) {
+        if (p_clk > clk_get(vc[obs], p_tid))
+            add_race(addr, space, loc_block, p_tid, static_cast<long>(p_pc), t, pc, kind);
+        if (sync_only_pass && p_sclk > vs_get(obs, p_tid))
+            sync_pairs[{std::min(p_pc, pc), std::max(p_pc, pc)}] += 1;
+    }
     void conflict(uint64_t addr, int space, uint64_t loc_block,
                   Tid p_tid, uint64_t p_clk, uint64_t p_sclk, uint32_t p_pc,
                   Tid t, uint32_t pc, const char* kind) {
-        if (p_clk > clk_get(vc[t], p_tid))
-            add_race(addr, space, loc_block, p_tid, static_cast<long>(p_pc), t, pc, kind);
-        if (sync_only_pass && p_sclk > vs_get(t, p_tid))
-            sync_pairs[{std::min(p_pc, pc), std::max(p_pc, pc)}] += 1;
+        conflict(addr, space, loc_block, p_tid, p_clk, p_sclk, p_pc, t, pc, kind, t);
     }
     void add_race(uint64_t addr, int space, uint64_t loc_block,
                   Tid a_tid, long a_pc, Tid b_tid, uint32_t b_pc, const char* kind) {
@@ -472,10 +479,17 @@ struct HbEngine {
                 const uint64_t clk = own(t);
                 const uint64_t sclk = sync_only_pass ? owns(t) : 0;
                 auto wit = last_write.find(loc);
-                if (wit != last_write.end() && wit->second.tid != t
-                    && !coherent(my_coh, a.ctaId, wit->second.coh, wit->second.block))
-                    conflict(addr, space, a.ctaId, wit->second.tid, wit->second.clock,
-                             wit->second.sclock, wit->second.pc, t, pc, is_write ? "WAW" : "RAW");
+                if (wit != last_write.end()
+                    && !coherent(my_coh, a.ctaId, wit->second.coh, wit->second.block)) {
+                    if (wit->second.tid != t)
+                        conflict(addr, space, a.ctaId, wit->second.tid, wit->second.clock,
+                                 wit->second.sclock, wit->second.pc, t, pc, is_write ? "WAW" : "RAW");
+                    else if (is_write && is_async)
+                        // two copies of one thread: PTX orders no two cp.async operations,
+                        // so they are unordered until a wait completes the first
+                        conflict(addr, space, a.ctaId, wit->second.tid, wit->second.clock,
+                                 wit->second.sclock, wit->second.pc, t, pc, "WAW", t0);
+                }
                 if (is_write) {
                     auto lrit = last_reads.find(loc);
                     if (lrit != last_reads.end())

@@ -134,7 +134,13 @@ ASYNC_BIT = 1 << 62
 
 
 def async_pcs(eng):
-    """The cp.async (LDGSTS) pcs of an HBGraph: the accesses of the async agent."""
+    """The cp.async (LDGSTS) pcs of an HBGraph: the accesses of the async agent. Empty for
+    a kernel that completes copies through an mbarrier (cp.async.mbarrier.arrive, SASS
+    ARRIVES.LDGSTSBAR): only commit_group / wait_group completion is modelled, so under the
+    agent model those copies would never complete. Such a kernel keeps the pre-T1a reading
+    (the copy is the issuing thread's own access) until mbarriers are modelled (T1b)."""
+    if any(op.split(".")[:2] == ["ARRIVES", "LDGSTSBAR"] for op in eng.pc_opcode.values()):
+        return set()
     return {pc for pc, op in eng.pc_opcode.items() if op.split(".")[0] == "LDGSTS"}
 
 
@@ -612,9 +618,15 @@ def barrier_only_pairs(trace, rmw, coh, max_lanes=None, dist_out=None, order_out
             loc = (space, blk, lane["addr"]) if space == "shared" else (space, lane["addr"])
             clk = own.setdefault(t, 1)
             w = last_write.get(loc)
-            if w and w[0] != t and not coherent(my_coh, blk, w[3], w[4]) \
-                    and unordered(t, w[0], w[1]):
-                hit(w[2], pc, w[0], t)
+            if w and not coherent(my_coh, blk, w[3], w[4]):
+                if w[0] != t:
+                    if unordered(t, w[0], w[1]):
+                        hit(w[2], pc, w[0], t)
+                elif is_write and t & ASYNC_BIT and unordered(t0, t, w[1]):
+                    # two copies of one thread: PTX orders no two cp.async operations, so
+                    # they are unordered until a wait completes the first. The agent knows
+                    # its own copies; the thread knows only those a wait completed.
+                    hit(w[2], pc, t, t)
             if is_write:
                 for rt, (rc, rpc, rcoh, rblk) in last_reads.get(loc, {}).items():
                     if rt != t and not coherent(my_coh, blk, rcoh, rblk) \
@@ -699,6 +711,7 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
     kernels = parse_dot(dot_path)
     mangled = select_kernel(kernels, trace["kernel"]["kernel_name"])
     eng = HBGraph(*kernels[mangled])
+    asy = dump_async_pcs(eng, trace)   # T1a: the copies (cp.async), if the dump models them
 
     # space/access come from the trace, keyed by pc
     flags = {n["pc"]: parse_flags(n["flags"]) for n in trace.get("nodes", [])}
@@ -790,7 +803,7 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
                 pairs = barrier_only_pairs(
                     trace, rmw_all, coh_all,
                     int(os.environ.get("CUVEIN_BARRIER_PASS_MAX_LANES", "5000000")),
-                    dist, order, dump_async_pcs(eng, trace))
+                    dist, order, asy)
                 if pairs is not None:
                     res = (pairs, dist, order)
             offline_memo.append(res)
@@ -863,6 +876,17 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
             observed, weight = WARP, same_inst
         ev = eng.ordered(cur, anc, observed, cur_access == "read",
                          anc_access == "read", static=not same)
+        if cur in asy or anc in asy:
+            # T1a review: the static rules place an access at its instruction, but a copy
+            # completes later, when a wait covering its group returns -- an event-stream
+            # fact (engine races / the offline pass), not a CFG one. A sync after the
+            # copy's issue orders nothing about it: no R1/R2 credit when the copy is the
+            # EARLIER access (as the later one it starts after its issue, so a sync before
+            # it still orders it), and no R3 credit either way (the chain is
+            # direction-agnostic).
+            ev = dict(ev, chain=None)
+            if anc in asy:
+                ev.update(strength=NONE, syncs=[])
         r1r2_ordered = ev["strength"] >= observed        # R1 dominance / R2 coherence
         chain_ordered = ev["chain"] is not None          # R3 PC-level handshake
         if raced_pcsets is not None:
@@ -901,7 +925,8 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
             in_order = (anc < cur) if ra == rc else \
                 (nx.has_path(eng.G, ra, rc) and not nx.has_path(eng.G, rc, ra))
             recs = raced_records.get(frozenset((cur, anc)), [])
-            if recs and in_order \
+            # a copy's side is its async agent, not the lane: lock-step orders no copy
+            if recs and in_order and not any(r.get("async") for r in recs) \
                     and all((r["a_tid"] >> 5) == (r["b_tid"] >> 5) for r in recs):
                 hb_class, verdict, assumption = "warp-po-ordered", "ORDERED", "warp-lockstep"
         verdicts.append({
