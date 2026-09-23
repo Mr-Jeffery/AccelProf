@@ -15,7 +15,7 @@ evidence, whether it is fixable, what was changed, and what remains. Detector di
 | F6 (new) | residual `model_bug` on 2-block TC | atomic **release map keyed by raw address**; shared-memory offsets repeat per block, so one block's release clobbered another's → spurious same-block atomic race | yes | **fixed** (engine + oracle) |
 | R1 loop hole (new, latent) | none observed | `dominance()` ignored sync-free wrap-around paths on the cyclic region graph | yes | **fixed** |
 | F1 | 12 structural FPs on the lock-based reduction | **not** fence-blindness: 10 intra-warp lock-step pairs the engine has no event for; 2 a trace **record-order inversion** | partly | opt-in `--assume-warp-lockstep` removes the 10; the 2 are documented |
-| F4 | confirmed FN (`cp.async` read-before-wait) | the async shared write **is** recorded but attributed to the issuing lane's own tid; the wait is not instrumented | yes | **fixed** in T1a (`eval/CP_ASYNC_REPORT.md`): async agent per thread + commit groups (`PIPELINE_COMMIT` / `PIPELINE_WAIT`); racy → 1 RAW, fixed → 0 in both modes, E6a 9/9, no other P5/P6 verdict change |
+| F4 | confirmed FN (`cp.async` read-before-wait) | the async shared write **is** recorded but attributed to the issuing lane's own tid; the wait is not instrumented | yes | **fixed** in T1a (`eval/CP_ASYNC_REPORT.md`): async agent per thread + commit groups (`PIPELINE_COMMIT` / `PIPELINE_WAIT`); racy → 1 RAW, fixed → 0 in both modes, E6a 9/9, no other P5/P6 verdict change; review follow-up: a barrier between copy and read, two copies of one thread, mbarrier-completed copies |
 | F5 | structural FPs on graph-analytics benign races | plain reads of atomically-updated locations; idempotent plain WAW; trace `ATOMIC` flag is `ATOMSYS` (unusable) | partly | Tier-1 `benign` re-bucket applied; plain-vs-plain residue needs Tier 2/3 |
 | — | 1 Indigo3 TC RaceBug miss | 1-block input cannot exhibit the cross-block planted race | yes | caught on the 2-block 1024-node graph |
 
@@ -181,6 +181,19 @@ fixed CLEAN, in both modes. The other 116 P5/P6 rows are unchanged. E6a agreemen
 green set plus `python/test_cp_async.py` gives 157 passed and 1 xfail. The default tool path
 is byte-identical. The tripwire holds: `PIPELINE_WAIT` fires for `DEPBAR.LE`. The sm_86 half
 of the tripwire was not run.
+
+**Review follow-up (`fix/cp-async-review`, `eval/CP_ASYNC_REPORT.md` §6).** A fresh-context
+review found three model gaps, each reproduced before it was fixed:
+1. **A barrier between a copy and the read.** The static rules credited the barrier, which
+   gave a scalar-clock FN and a vector-clock `model_bug`. They now give no credit to a pair
+   whose earlier access is a copy.
+2. **Two copies of one thread to one location.** These were unordered but never raced. They
+   are now checked against the thread's view of its agent (engine, oracle and offline pass).
+3. **Copies completed through an mbarrier.** These never completed under the model. Such a
+   kernel now keeps the pre-T1a reading until T1b.
+
+The corpus verdicts are unchanged (118 + 354 re-scored rows). Green set + `test_cp_async.py`
+(67 cases): 203 passed, 1 xfail.
 
 ## F5 — Benign / inherent races of graph analytics (Tier 1 applied)
 
