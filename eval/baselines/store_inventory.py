@@ -10,7 +10,9 @@ missing -- the answer to "what did the earlier keep-all run drop":
   trace_dropped        --keep-all-cap-gb: `_cap_kept` deleted the kernel JSONs
   trace-too-large      --keep-cap-mb: `_keep_trace` copied meta/dots/logs only
   <mode>:unsaved:...   no rep of that mode produced a saveable dump
-                       (all-reps-timed-out / no-kernel-json / not-saved)
+                       (all-reps-timed-out / no-kernel-json / not-saved) and no
+                       <mode>-partial-rep<k>/ prefix dump is there either (a kept
+                       prefix dump is listed under kept_partial, not lost)
   <mode>:missing       the mode never ran (shard killed before it started)
   <mode>:missing-on-disk  meta says saved but no kernel_*.json is there
   error:<msg>          collect_one failed before the runs (missing-exe, ...)
@@ -105,7 +107,12 @@ def scan_program(idir, store_modes):
                     why = "no-kernel-json"
                 else:
                     why = "not-saved"
-                rec["lost"].append(f"{mode}:unsaved:{why}")
+                if mm.get("partial_dump") and p_json:
+                    # T0: the timed-out rep's prefix dump IS in the store -- evidence
+                    # kept, not a loss (it is still not a verdict)
+                    rec.setdefault("kept_partial", []).append(f"{mode}:{mm['partial_dump']}")
+                else:
+                    rec["lost"].append(f"{mode}:unsaved:{why}")
             elif n_json == 0 and not meta.get("trace_dropped") \
                     and "trace-too-large" not in (meta.get("keep_reason") or ""):
                 rec["lost"].append(f"{mode}:missing-on-disk")

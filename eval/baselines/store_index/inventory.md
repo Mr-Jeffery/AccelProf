@@ -1,13 +1,16 @@
 | store | kind | created | git head | modes | programs | with a loss | on disk | scanned on |
 |---|---|---|---|---|---|---|---|---|
-| `/mnt/beegfs/fzheng4/cuvein_traces/evcand` | beegfs | 2026-09-20 21:31:41 | `fe694b5b` | engine,trace-only | 613 | 55 | 149.4 GB | c39 |
-| `/mnt/beegfs/fzheng4/cuvein_traces/evcand_smoke` | beegfs | 2026-09-20 21:28:45 | `fe694b5b` | engine,trace-only | 6 | 0 | 0.0 GB | c39 |
-| `/home/fzheng4/AccelProf/eval/baselines/traces_keep` | home | — | `—` | engine,trace-only | 248 | 81 | 3.2 GB | c39 |
-| `/home/fzheng4/AccelProf/eval/baselines/traces_keep.prefix_36a93d08` | home | — | `—` | engine,trace-only | 110 | 83 | 3.0 GB | c39 |
-| `/home/fzheng4/AccelProf/eval/baselines/traces_keep.prefix_fe694b5` | home | — | `—` | engine,trace-only | 208 | 67 | 3.9 GB | c39 |
-| `/home/fzheng4/AccelProf/eval/baselines/traces_keep_evcand` | home | — | `—` | engine,trace-only | 86 | 69 | 1.0 GB | c39 |
-| `/home/fzheng4/AccelProf/eval/baselines/traces_keep_fpfix` | home | — | `—` | engine,trace-only | 87 | 87 | 0.6 GB | c39 |
-| `/home/fzheng4/AccelProf/eval/baselines/traces_keep_fpfix_tr` | home | — | `—` | engine,trace-only | 55 | 55 | 0.7 GB | c39 |
+| `/mnt/beegfs/fzheng4/cuvein_traces/evcand` | beegfs | 2026-09-20 21:31:41 | `fe694b5b` | engine,trace-only | 613 | 55 | 149.4 GB | c73 |
+| `/mnt/beegfs/fzheng4/cuvein_traces/evcand_smoke` | beegfs | 2026-09-20 21:28:45 | `fe694b5b` | engine,trace-only | 6 | 0 | 0.0 GB | c73 |
+| `/mnt/beegfs/fzheng4/cuvein_traces/full-2026-09-22` | beegfs | 2026-09-22 16:26:11 | `b616cf9d` | engine,trace-only | 86 | 14 | 3883.9 GB | c73 |
+| `/mnt/beegfs/fzheng4/cuvein_traces/t0-smoke` | beegfs | 2026-09-22 16:04:14 | `b616cf9d` | engine,trace-only | 4 | 1 | 0.1 GB | c73 |
+| `/mnt/beegfs/fzheng4/cuvein_traces/t0-smoke2` | beegfs | 2026-09-22 16:13:24 | `b616cf9d` | engine,trace-only | 2 | 1 | 1.8 GB | c73 |
+| `/home/fzheng4/AccelProf/eval/baselines/traces_keep` | home | — | `—` | engine,trace-only | 248 | 81 | 3.2 GB | c73 |
+| `/home/fzheng4/AccelProf/eval/baselines/traces_keep.prefix_36a93d08` | home | — | `—` | engine,trace-only | 110 | 83 | 3.0 GB | c73 |
+| `/home/fzheng4/AccelProf/eval/baselines/traces_keep.prefix_fe694b5` | home | — | `—` | engine,trace-only | 208 | 67 | 3.9 GB | c73 |
+| `/home/fzheng4/AccelProf/eval/baselines/traces_keep_evcand` | home | — | `—` | engine,trace-only | 86 | 69 | 1.0 GB | c73 |
+| `/home/fzheng4/AccelProf/eval/baselines/traces_keep_fpfix` | home | — | `—` | engine,trace-only | 87 | 87 | 0.6 GB | c73 |
+| `/home/fzheng4/AccelProf/eval/baselines/traces_keep_fpfix_tr` | home | — | `—` | engine,trace-only | 55 | 55 | 0.7 GB | c73 |
 
 Per-store loss breakdown (count of programs per reason; a program can carry several):
 
@@ -18,6 +21,11 @@ Per-store loss breakdown (count of programs per reason; a program can carry seve
 | evcand | `error` | 16 |
 | evcand | `trace-only:missing` | 16 |
 | evcand | `trace-only:unsaved:all-reps-timed-out` | 4 |
+| full-2026-09-22 | `engine:unsaved:all-reps-timed-out` | 10 |
+| full-2026-09-22 | `engine:unsaved:no-kernel-json` | 4 |
+| full-2026-09-22 | `trace-only:unsaved:no-kernel-json` | 2 |
+| t0-smoke | `engine:unsaved:all-reps-timed-out` | 1 |
+| t0-smoke2 | `engine:unsaved:all-reps-timed-out` | 1 |
 | traces_keep | `engine:missing` | 16 |
 | traces_keep | `engine:unsaved:all-reps-timed-out` | 56 |
 | traces_keep | `engine:unsaved:no-kernel-json` | 2 |
@@ -119,6 +127,22 @@ Every program with a lost or partial trace:
 | evcand | `P6-dsmem-shared_writewrite_race-racy` | error:missing-exe, engine:missing, trace-only:missing | engine:0j/0.0 GB; trace-only:0j/0.0 GB | 0 | 0 |
 | evcand | `P6-interkernel-global_writewrite_race-fixed` | engine:unsaved:all-reps-timed-out, trace-only:unsaved:all-reps-timed-out | engine:0j/0.0 GB; trace-only:0j/0.0 GB | 9123 | 11408 |
 | evcand | `P6-interkernel-global_writewrite_race-racy` | engine:unsaved:all-reps-timed-out, trace-only:unsaved:all-reps-timed-out | engine:0j/0.0 GB; trace-only:0j/0.0 GB | 9123 | 11403 |
+| full-2026-09-22 | `P4-matrix-multiplication-norace-large` | engine:unsaved:all-reps-timed-out | engine:0j/0.0 GB; trace-only:1j/10.4 GB | 10436 | 11137 |
+| full-2026-09-22 | `P4-matrix-multiplication-racy-large` | engine:unsaved:all-reps-timed-out | engine:0j/0.0 GB; trace-only:1j/10.4 GB | 10437 | 11145 |
+| full-2026-09-22 | `P4-uts-norace-large` | engine:unsaved:all-reps-timed-out | engine:0j/0.0 GB; trace-only:1j/1.7 GB | 1654 | 13472 |
+| full-2026-09-22 | `P4-uts-norace-small` | engine:unsaved:all-reps-timed-out | engine:0j/0.0 GB; trace-only:1j/0.1 GB | 56 | 11273 |
+| full-2026-09-22 | `P4-uts-racy-large` | engine:unsaved:all-reps-timed-out | engine:0j/0.0 GB; trace-only:1j/1.7 GB | 1659 | 12794 |
+| full-2026-09-22 | `P4-uts-racy-small` | engine:unsaved:all-reps-timed-out | engine:0j/0.0 GB; trace-only:1j/0.1 GB | 56 | 11260 |
+| full-2026-09-22 | `P7-bezier-surface-cuda` | engine:unsaved:no-kernel-json, trace-only:unsaved:no-kernel-json | engine:0j/0.0 GB; trace-only:0j/0.0 GB | 0 | 122017 |
+| full-2026-09-22 | `P7-lavaMD-cuda` | engine:unsaved:all-reps-timed-out, trace-only:unsaved:no-kernel-json | engine:0j/0.0 GB; trace-only:0j/0.0 GB | 0 | 186246 |
+| full-2026-09-22 | `P7-pathfinder-cuda` | engine:unsaved:all-reps-timed-out | engine:0j/0.0 GB; trace-only:0j/0.0 GB+1partial | 254097 | 121963 |
+| full-2026-09-22 | `P7-stencil1d-cuda` | engine:unsaved:no-kernel-json | engine:0j/0.0 GB; trace-only:0j/0.0 GB+1partial | 240044 | 121394 |
+| full-2026-09-22 | `P9-expdist-cuda` | engine:unsaved:all-reps-timed-out | engine:0j/0.0 GB; trace-only:0j/0.0 GB+1partial | 192254 | 61383 |
+| full-2026-09-22 | `P9-fpc-cuda` | engine:unsaved:no-kernel-json | engine:0j/0.0 GB; trace-only:202j/50.0 GB | 50045 | 122040 |
+| full-2026-09-22 | `P9-gpp-cuda` | engine:unsaved:no-kernel-json | engine:0j/0.0 GB; trace-only:10j/14.1 GB | 14142 | 122438 |
+| full-2026-09-22 | `P9-knn-cuda` | engine:unsaved:all-reps-timed-out | engine:0j/0.0 GB; trace-only:0j/0.0 GB+1partial | 202568 | 103120 |
+| t0-smoke | `P4-uts-norace-small` | engine:unsaved:all-reps-timed-out | engine:0j/0.0 GB; trace-only:1j/0.1 GB | 60 | 11526 |
+| t0-smoke2 | `P4-uts-norace-large` | engine:unsaved:all-reps-timed-out | engine:0j/0.0 GB; trace-only:1j/1.6 GB | 1648 | 13184 |
 | traces_keep | `P1-BFS_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoOverflowBug_NoLivelockBug-slower_atomic-1296n` | engine:unsaved:all-reps-timed-out | engine:0j/0.0 GB; trace-only:14j/0.2 GB | 237 | 10182 |
 | traces_keep | `P1-CC_CUDA_V_Data_Pull_Determ_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-default-1296n` | trace-too-large, engine:unsaved:all-reps-timed-out | engine:0j/0.0 GB; trace-only:0j/0.0 GB | 1663 | 33776 |
 | traces_keep | `P1-CC_CUDA_V_Data_Pull_Determ_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-slower_atomic-1296n` | trace-too-large, engine:unsaved:all-reps-timed-out | engine:0j/0.0 GB; trace-only:0j/0.0 GB | 1649 | 33660 |
