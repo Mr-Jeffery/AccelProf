@@ -36,6 +36,7 @@ sys.path.insert(0, blib.PYDIR)          # python/ : sync_dominance, hb_oracle
 sys.path.insert(0, f"{blib.APH}/eval")  # eval/   : aggregate (dedup key)
 import sync_dominance as sd  # noqa: E402
 import aggregate as agg      # noqa: E402
+import host_hb               # noqa: E402  (T2: host copies / cross-stream kernels)
 
 
 def _analyze_reports(depdir, cubindir):
@@ -75,7 +76,41 @@ def _analyze_reports(depdir, cubindir):
         raw.append({"a_pc": a, "b_pc": b, "space": space,
                     "race_type": v.get("race_type"), "strength": v.get("strength"),
                     "hb_class": v.get("hb_class"), "hb_chain": v.get("hb_chain")})
-    return ids, pcs_all, raw
+    ids_h, raw_h = _host_reports(depdir)
+    return ids + ids_h, pcs_all | {r[p] for r in raw_h for p in ("a_pc", "b_pc") if r[p] is not None}, \
+        raw + raw_h
+
+
+def _host_label(d, pc):
+    if d["kind"] == "launch":
+        return f"k{d.get('kernel_id')}@{hex(pc) if pc is not None else '?'}"
+    return f"{d['kind']}{d.get('direction', '')}#{d['seq']}"
+
+
+def _host_reports(depdir):
+    """T2 (YOSEMITE_HB_HOST_MEMCPY=1; python/host_hb.py, design/host_memcpy_model.md): races
+    between host copies/sets and kernels, or kernels on two streams, that no stream order,
+    event or host synchronize orders. Present only when the dump carries host_ops.json.
+    Report id global:host:<A>-<B>:<type> (A/B = memcpyH2D#<seq>, memset#<seq> or
+    k<kernel>@<pc>); raw records carry "host" (a copy/set side has no pc: a_pc/b_pc None),
+    and the pc-pair classifiers skip them. hb_class "host-spec-only" = a race only under the
+    CUDA Runtime's documented synchronization (a synchronous copy/set that may not have
+    completed when it returned; host_hb.py), "host" otherwise. Deduped on (A, B, type)."""
+    res = host_hb.races(depdir)
+    if not res:
+        return [], []
+    ids, raw, seen = [], [], set()
+    for r in res["races"]:
+        a, b = _host_label(r["a"], r.get("a_pc")), _host_label(r["b"], r.get("b_pc"))
+        if (a, b, r["race_type"]) in seen:
+            continue
+        seen.add((a, b, r["race_type"]))
+        ids.append(f"global:host:{a}-{b}:{r['race_type']}")
+        raw.append({"a_pc": r.get("a_pc"), "b_pc": r.get("b_pc"), "space": "global",
+                    "race_type": r["race_type"], "strength": "none",
+                    "hb_class": "host-spec-only" if r["spec_only"] else "host",
+                    "hb_chain": None, "host": {"a": r["a"], "b": r["b"], "addr": r["addr"]}})
+    return ids, raw
 
 
 def run_one(mrow, modes, cuda, writer, confirm_dir):
