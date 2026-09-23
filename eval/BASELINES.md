@@ -7504,6 +7504,104 @@ Slowdown = tool wall / native wall of the same program and input (median of reps
 
 HiRace's slowdown is its hand-instrumented twin vs the uninstrumented build of the same code, same input and launch. iGUARD was not run on the HeCBench overhead set; SuperCollider exists only for cuHadron and its own two subsets.
 
+## 4b. Memory footprint (peak RSS of the whole process tree)
+
+Peak RSS = max over a program's reps of the accelprof process tree's resident set (0.1 s `/proc` poller; runs shorter than a poll interval are under-sampled, which is why a few tiny programs sit below the floor). Cells are `min / median / geomean / max` in MB over the programs that finished (RACE/CLEAN); `× floor` is the median over the Compute-Sanitizer floor, the median peak of the ScoR litmus programs (baselines harness: 848 MB, P5; E-series driver: 818 MB, E5; `eval/REPORT.md` quotes ~818 MB). `unfinished` = TIMEOUT/ERROR programs with the last RSS observed before the kill — a lower bound of what they need. Native RSS is not recorded by either harness (the native runs are timed, not polled).
+
+| suite | mode | n | finished: min / median / geomean / max (MB) | median × floor | unfinished: n, max last-seen (MB) |
+|---|---|---|---|---|---|
+| P1 Indigo3 | vector-clock | 381 | 845 / 860 / 991 / 35,575 | 1.01× | 19, 127,494 |
+| P1 Indigo3 | scalar-clock | 400 | 844 / 850 / 861 / 1,028 | 1.00× | 0 |
+| PI Indigo original (all 590 IndigoSuite codes x 7 inputs) | vector-clock | 4130 | 732 / 847 / 928 / 1,744 | 1.00× | 0 |
+| PI Indigo original (all 590 IndigoSuite codes x 7 inputs) | scalar-clock | 4130 | 661 / 846 / 847 / 942 | 1.00× | 0 |
+| P3 ECL race-free | vector-clock | 58 | 845 / 849 / 1,257 / 38,707 | 1.00× | 2, 84,190 |
+| P3 ECL race-free | scalar-clock | 60 | 844 / 848 / 851 / 865 | 1.00× | 0 |
+| P4 ScoR apps | vector-clock | 18 | 851 / 1,345 / 1,601 / 6,598 | 1.59× | 10, 16,123 |
+| P4 ScoR apps | scalar-clock | 28 | 846 / 887 / 1,206 / 11,148 | 1.05× | 0 |
+| P5 ScoR micro + canary | vector-clock | 33 | 844 / 848 / 847 / 852 | 1.00× | 0 |
+| P5 ScoR micro + canary | scalar-clock | 33 | 844 / 848 / 847 / 851 | 1.00× | 0 |
+| P6 cuHadron | vector-clock | 29 | 844 / 849 / 1,217 / 11,408 | 1.00× | 4, 122,688 |
+| P6 cuHadron | scalar-clock | 30 | 818 / 850 / 1,260 / 16,407 | 1.00× | 3, 122,718 |
+| P7 HeCBench (overhead) | vector-clock | 3 | 4,332 / 12,862 / 18,850 / 120,212 | 15.17× | 11, 121,866 |
+| P7 HeCBench (overhead) | scalar-clock | 4 | 1,151 / 1,574 / 4,291 / 120,172 | 1.86× | 10, 169,845 |
+| P9 HeCBench — SuperCollider's 10-app subset | vector-clock | 2 | 3,006 / 4,382 / 4,160 / 5,758 | 5.17× | 8, 144,656 |
+| P9 HeCBench — SuperCollider's 10-app subset | scalar-clock | 4 | 1,276 / 1,625 / 1,647 / 2,273 | 1.92× | 6, 98,520 |
+| E0 ScoR apps | vector-clock | 6 | 958 / 963 / 1,327 / 2,529 | 1.18× | 0 |
+| E0 ScoR apps | scalar-clock | 12 | 817 / 820 / 857 / 1,074 | 1.00× | 0 |
+| E1 Indigo3 (stratified) | vector-clock | 100 | 817 / 826 / 827 / 850 | 1.01× | 0 |
+| E1 Indigo3 (stratified) | scalar-clock | 100 | 817 / 818 / 819 / 823 | 1.00× | 0 |
+| E2 cuHadron | vector-clock | 28 | 818 / 818 / 988 / 2,183 | 1.00× | 10 rows without a peak (no-kernel-json) |
+| E2 cuHadron | scalar-clock | 28 | 817 / 820 / 941 / 2,183 | 1.00× | 8 rows without a peak (no-kernel-json) |
+| E3 ECL | vector-clock | 4 | 818 / 839 / 1,116 / 2,697 | 1.03× | 0 |
+| E3 ECL | scalar-clock | 4 | 818 / 822 / 822 / 826 | 1.00× | 0 |
+| E4 HeCBench (small inputs) | vector-clock | 4 | 818 / 1,557 / 1,404 / 2,362 | 1.90× | 0 |
+| E4 HeCBench (small inputs) | scalar-clock | 7 | 817 / 862 / 1,006 / 1,534 | 1.05× | 0 |
+| E5 ScoR litmus + canary | vector-clock | 34 | 817 / 818 / 818 / 820 | 1.00× | 0 |
+| E5 ScoR litmus + canary | scalar-clock | 34 | 817 / 820 / 820 / 820 | 1.00× | 0 |
+
+**`setup/engine_timeout_ids.txt`** (58 programs, the vector-clock TIMEOUT/OOM set): last observed peak RSS per mode (MB) and the vector-clock / scalar-clock ratio on the same program.
+
+| program | vector-clock | scalar-clock | VC ÷ SC |
+|---|---|---|---|
+| P1-BFS_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoOverflowBug_NoLivelockBug-slower_atomic-1296n | TIMEOUT 10,182 | CLEAN 894 | 11.4× |
+| P1-CC_CUDA_V_Data_Pull_Determ_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-default-1296n | TIMEOUT 34,860 | RACE 1,023 | 34.1× |
+| P1-CC_CUDA_V_Data_Pull_Determ_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-slower_atomic-1296n | TIMEOUT 34,882 | RACE 1,025 | 34.0× |
+| P1-CC_CUDA_V_Data_Pull_Determ_IntType_Persist_RaceBug_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-default-100n | TIMEOUT 34,284 | RACE 864 | 39.7× |
+| P1-CC_CUDA_V_Data_Pull_Determ_IntType_Persist_RaceBug_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-default-1296n | TIMEOUT 64,153 | RACE 1,028 | 62.4× |
+| P1-CC_CUDA_V_Data_Pull_Determ_IntType_Persist_RaceBug_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-slower_atomic-100n | TIMEOUT 35,331 | RACE 861 | 41.0× |
+| P1-CC_CUDA_V_Data_Pull_Determ_IntType_Persist_RaceBug_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-slower_atomic-1296n | TIMEOUT 64,954 | RACE 1,027 | 63.3× |
+| P1-CC_CUDA_V_Data_Pull_Determ_IntType_Persist_RaceBug_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-default-1296n | TIMEOUT 42,919 | RACE 868 | 49.4× |
+| P1-CC_CUDA_V_Data_Pull_Determ_IntType_Persist_RaceBug_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-slower_atomic-1296n | TIMEOUT 42,306 | RACE 869 | 48.7× |
+| P1-CC_CUDA_V_Data_Pull_NonDeterm_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-default-1296n | TIMEOUT 34,932 | RACE 1,023 | 34.1× |
+| P1-CC_CUDA_V_Data_Pull_NonDeterm_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-slower_atomic-1296n | TIMEOUT 34,916 | RACE 1,025 | 34.1× |
+| P1-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_RaceBug_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-default-100n | RACE 35,575 | RACE 862 | 41.3× |
+| P1-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_RaceBug_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-default-1296n | TIMEOUT 64,286 | RACE 1,024 | 62.8× |
+| P1-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_RaceBug_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-slower_atomic-100n | RACE 34,768 | RACE 862 | 40.3× |
+| P1-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_RaceBug_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-slower_atomic-1296n | TIMEOUT 66,401 | RACE 1,027 | 64.6× |
+| P1-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_RaceBug_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-default-1296n | TIMEOUT 43,007 | RACE 866 | 49.7× |
+| P1-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_RaceBug_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-slower_atomic-1296n | TIMEOUT 43,278 | RACE 867 | 49.9× |
+| P1-CC_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Block_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-default-1296n | TIMEOUT 127,494 | RACE 998 | 127.8× |
+| P1-CC_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Block_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n | TIMEOUT 127,215 | RACE 1,000 | 127.2× |
+| P1-CC_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_Persist_RaceBug_Block_NonDup_NoNbrBoundsBug_NoBoundsBug_NoLivelockBug_NoFieldBug-default-1296n | TIMEOUT 95,885 | RACE 1,001 | 95.8× |
+| P1-CC_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_Persist_RaceBug_Block_NonDup_NoNbrBoundsBug_NoBoundsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n | TIMEOUT 97,108 | RACE 1,001 | 97.0× |
+| P3-CC_CUDA_V_Data_Pull_Determ_IntType_Persist_Atomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n | TIMEOUT 84,190 | RACE 861 | 97.8× |
+| P3-CC_CUDA_V_Data_Pull_Determ_IntType_Persist_CudaAtomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n | TIMEOUT 83,346 | RACE 864 | 96.4× |
+| P4-graph-coloring-norace-large | TIMEOUT 1,790 | CLEAN 855 | 2.1× |
+| P4-graph-coloring-racy-large | TIMEOUT 1,796 | RACE 858 | 2.1× |
+| P4-graph-connectivity-norace-large | TIMEOUT 3,138 | CLEAN 898 | 3.5× |
+| P4-graph-connectivity-racy-large | TIMEOUT 3,087 | RACE 902 | 3.4× |
+| P4-matrix-multiplication-norace-large | TIMEOUT 6,282 | RACE 11,144 | 0.6× |
+| P4-matrix-multiplication-racy-large | TIMEOUT 4,278 | RACE 11,148 | 0.4× |
+| P4-uts-norace-large | TIMEOUT 14,333 | CLEAN 2,887 | 5.0× |
+| P4-uts-norace-small | TIMEOUT 12,587 | CLEAN 927 | 13.6× |
+| P4-uts-racy-large | TIMEOUT 16,123 | RACE 2,832 | 5.7× |
+| P4-uts-racy-small | TIMEOUT 12,668 | RACE 933 | 13.6× |
+| P6-asyncmemcpy-kernel_memcpy_dtoh_race-fixed | TIMEOUT 24,835 | TIMEOUT 58,108 | 0.4× |
+| P6-asyncmemcpy-kernel_memcpy_dtoh_race-racy | TIMEOUT 122,688 | TIMEOUT 122,718 | 1.0× |
+| P6-asyncmemcpy-memcpy_htod_kernel_race-racy | TIMEOUT 85,060 | CLEAN 16,407 | 5.2× |
+| P6-interkernel-global_writewrite_race-fixed | TIMEOUT 10,431 | TIMEOUT 10,823 | 1.0× |
+| P6-interkernel-global_writewrite_race-racy | CLEAN 11,408 | CLEAN 11,407 | 1.0× |
+| P7-bezier-surface-cuda | TIMEOUT 33,207 | TIMEOUT 66,015 | 0.5× |
+| P7-bitonic-sort-cuda | TIMEOUT 19,199 | TIMEOUT 3,974 | 4.8× |
+| P7-haversine-cuda | TIMEOUT 29,412 | TIMEOUT 10,314 | 2.9× |
+| P7-heartwall-cuda | TIMEOUT 83,349 | TIMEOUT 84,929 | 1.0× |
+| P7-hotspot-cuda | TIMEOUT 6,659 | CLEAN 1,151 | 5.8× |
+| P7-lavaMD-cuda | TIMEOUT 35,720 | TIMEOUT 169,845 | 0.2× |
+| P7-mandelbrot-cuda | TIMEOUT 2,734 | TIMEOUT 1,231 | 2.2× |
+| P7-nbody-cuda | TIMEOUT 117,015 | TIMEOUT 44,346 | 2.6× |
+| P7-particlefilter-cuda | RACE 120,212 | RACE 120,172 | 1.0× |
+| P7-pathfinder-cuda | TIMEOUT 95,489 | TIMEOUT 7,339 | 13.0× |
+| P7-srad-cuda | TIMEOUT 3,644 | TIMEOUT 1,042 | 3.5× |
+| P7-stencil1d-cuda | TIMEOUT 121,866 | TIMEOUT 83,478 | 1.5× |
+| P9-atomicCAS-cuda | TIMEOUT 33,156 | TIMEOUT 878 | 37.8× |
+| P9-dxtc2-cuda | TIMEOUT 13,452 | TIMEOUT 4,500 | 3.0× |
+| P9-expdist-cuda | TIMEOUT 45,633 | TIMEOUT 61,527 | 0.7× |
+| P9-fpc-cuda | TIMEOUT 125,297 | CLEAN 1,276 | 98.2× |
+| P9-gpp-cuda | TIMEOUT 144,656 | CLEAN 2,273 | 63.7× |
+| P9-knn-cuda | TIMEOUT 103,680 | TIMEOUT 98,520 | 1.1× |
+| P9-mr-cuda | TIMEOUT 1,784 | TIMEOUT 985 | 1.8× |
+| P9-tridiagonal-cuda | TIMEOUT 51,132 | TIMEOUT 14,982 | 3.4× |
+
 ## 5. Pre-registered expectations (computed)
 
 - **X1: PARTIAL** — cuVein vector-clock P1 default: **0/100 race-free programs reported RACE (0%)**, 91/91 racy caught (9 err/timeout excluded). iGUARD on P1 (both builds): 100/200 race-free reported RACE, 196/200 racy caught (0 err/timeout). Expectation was 'cuVein reports most'.

@@ -1161,6 +1161,101 @@ def overhead_minmax_section(runs, meta, man):
     return "\n".join(out)
 
 
+# The current E-series CSVs (eval/REPORT.md names them per suite): vector-clock files,
+# scalar-clock files. peak_mem_mb there = the vector-clock run's / the scalar-clock
+# tracing run's process-tree RSS (eval/driver.py, 0.1 s /proc poller).
+E_SUITES = [
+    ("E0", "ScoR apps", ("E0-fixed.csv",), ("E0-scalar-clock.csv",)),
+    ("E1", "Indigo3 (stratified)", ("E1-final.csv", "E1-determ-final.csv"),
+     ("E1-fixed-scalar-clock.csv", "E1-determ-fixed-scalar-clock.csv")),
+    ("E2", "cuHadron", ("E2.csv",), ("E2-scalar-clock.csv",)),
+    ("E3", "ECL", ("E3-fixed.csv",), ("E3-fixed-scalar-clock.csv",)),
+    ("E4", "HeCBench (small inputs)", ("E4.csv",), ("E4-scalar-clock.csv",)),
+    ("E5", "ScoR litmus + canary", ("E5-micro.csv", "E5-special-fixed.csv"),
+     ("E5-micro-scalar-clock.csv", "E5-special-fixed-scalar-clock.csv")),
+]
+
+
+def _mem_stats(xs):
+    """-> 'min / median / geomean / max' (MB) of a non-empty list."""
+    return (f"{min(xs):,.0f} / {statistics.median(xs):,.0f} / {_geomean(xs):,.0f} / "
+            f"{max(xs):,.0f}")
+
+
+def memory_footprint_section(runs, meta, man):
+    """§4b: peak RSS per suite and mode against the Compute-Sanitizer floor (T5a,
+    eval/MEMORY_FOOTPRINT.md). Baselines: peak_mb of eval/results/baselines-cuvein.csv
+    (max over a program's reps); E-series: peak_mem_mb of the current E*.csv."""
+    fin = defaultdict(list)       # (pset, mode) -> peaks of finished programs
+    unf = defaultdict(list)       # (pset, mode) -> last observed peak of TIMEOUT/ERROR
+    for (i, t, m), r in runs.items():
+        if t != "cuvein" or r["peak"] is None or i not in meta:
+            continue
+        (fin if r["verdict"] in ("RACE", "CLEAN") else unf)[(meta[i][0], m)].append(r["peak"])
+    floor_b = [p for m in (VC, SC) for p in fin.get(("P5", m), [])]
+    floor_b = statistics.median(floor_b) if floor_b else None
+    erows = {}
+    for suite, _, vcf, scf in E_SUITES:
+        for m, files in ((VC, vcf), (SC, scf)):
+            xs, blank = [], 0
+            for f in files:
+                for r in load_csv(f"{RES}/{f}"):
+                    try:
+                        xs.append(float(r["peak_mem_mb"]))
+                    except (KeyError, ValueError):
+                        blank += 1
+            erows[(suite, m)] = (xs, blank)
+    floor_e = [p for m in (VC, SC) for p in erows.get(("E5", m), ([], 0))[0]]
+    floor_e = statistics.median(floor_e) if floor_e else None
+    out = ["\n## 4b. Memory footprint (peak RSS of the whole process tree)\n",
+           "Peak RSS = max over a program's reps of the accelprof process tree's resident set "
+           "(0.1 s `/proc` poller; runs shorter than a poll interval are under-sampled, which is "
+           "why a few tiny programs sit below the floor). Cells are `min / median / geomean / "
+           "max` in MB over the programs that finished (RACE/CLEAN); `× floor` is the median over "
+           "the Compute-Sanitizer floor, the median peak of the ScoR litmus programs "
+           f"(baselines harness: {floor_b:,.0f} MB, P5; E-series driver: {floor_e:,.0f} MB, E5; "
+           "`eval/REPORT.md` quotes ~818 MB). `unfinished` = TIMEOUT/ERROR programs with the "
+           "last RSS observed before the kill — a lower bound of what they need. Native RSS is "
+           "not recorded by either harness (the native runs are timed, not polled).\n",
+           f"| suite | mode | n | finished: min / median / geomean / max (MB) | median × floor "
+           f"| unfinished: n, max last-seen (MB) |",
+           "|---|---|---|---|---|---|"]
+    for ps in ALL_PSETS:
+        for m in (VC, SC):
+            xs, us = fin.get((ps, m), []), unf.get((ps, m), [])
+            if not xs and not us:
+                continue
+            cell = _mem_stats(xs) if xs else "—"
+            ratio = f"{statistics.median(xs) / floor_b:.2f}×" if xs and floor_b else "—"
+            u = f"{len(us)}, {max(us):,.0f}" if us else "0"
+            out.append(f"| {PSET_LABEL.get(ps, ps)} | {m} | {len(xs)} | {cell} | {ratio} | {u} |")
+    for suite, label, _, _ in E_SUITES:
+        for m in (VC, SC):
+            xs, blank = erows.get((suite, m), ([], 0))
+            if not xs and not blank:
+                continue
+            cell = _mem_stats(xs) if xs else "—"
+            ratio = f"{statistics.median(xs) / floor_e:.2f}×" if xs and floor_e else "—"
+            u = f"{blank} rows without a peak (no-kernel-json)" if blank else "0"
+            out.append(f"| {suite} {label} | {m} | {len(xs)} | {cell} | {ratio} | {u} |")
+    # the vector-clock TIMEOUT/OOM set the engine-memory fix (T5b) is measured on
+    tf = f"{HERE}/setup/engine_timeout_ids.txt"
+    if os.path.exists(tf):
+        ids = [x.strip() for x in open(tf) if x.strip()]
+        out += ["", f"**`setup/engine_timeout_ids.txt`** ({len(ids)} programs, the vector-clock "
+                "TIMEOUT/OOM set): last observed peak RSS per mode (MB) and the vector-clock / "
+                "scalar-clock ratio on the same program.\n",
+                "| program | vector-clock | scalar-clock | VC ÷ SC |", "|---|---|---|---|"]
+        for i in ids:
+            v, sc = runs.get((i, "cuvein", VC)), runs.get((i, "cuvein", SC))
+            def f(r):
+                return f"{r['verdict']} {r['peak']:,.0f}" if r and r["peak"] is not None else "—"
+            q = (f"{v['peak'] / sc['peak']:.1f}×" if v and sc and v["peak"] and sc["peak"]
+                 else "—")
+            out.append(f"| {i} | {f(v)} | {f(sc)} | {q} |")
+    return "\n".join(out)
+
+
 SUMMARY_OUT = f"{APH}/eval/BASELINES_SUMMARY.md"
 
 
@@ -1336,6 +1431,9 @@ def main():
     runs, meta = load_runs()
     add_sanitizer_union(runs)
     man = load_manifest()
+    if "--memory" in sys.argv[1:]:     # §4b alone (eval/MEMORY_FOOTPRINT.md)
+        print(memory_footprint_section(runs, meta, man))
+        return
     build_rows = load_csv(f"{RES}/baselines-build.csv")
     cols = tools_present(runs) or TOOLCOLS
     dis = load_csv(f"{RES}/baselines-disagreements.csv")
@@ -1400,6 +1498,7 @@ def main():
                    "confirmation run to populate `baselines-disagreements.csv`._")
     doc.append(overhead_table(runs, meta))
     doc.append(overhead_minmax_section(runs, meta, man))
+    doc.append(memory_footprint_section(runs, meta, man))
     doc.append(x_checks(runs, meta, man))
     doc.append("\n## 6. To re-run after a detector revision\n")
     doc.append("```\nbash eval/baselines/setup/run_full.sh      # everything (corpora, all tools)\n"
