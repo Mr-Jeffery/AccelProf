@@ -7,7 +7,7 @@ Reproduce the attribution with `python3 eval/baselines/classify_fp_causes.py`
 
 ## The numbers being explained
 
-Race-free programs reported RACE (engine mode; trace-only is the same or worse):
+Race-free programs reported RACE (vector-clock mode; scalar-clock is the same or worse):
 
 | pset | FP / race-free | note |
 |---|---|---|
@@ -27,7 +27,7 @@ kept next to the trace) and each endpoint typed as `atom` (ATOM/ATOMG/ATOMS/RED)
 (`MEMBAR; ERRBAR; CCTL.*; LD|ST.*.STRONG.*`), `strong` (unfenced `LD|ST.*.STRONG.*`) or `plain`;
 for engine dumps the report was also checked against the engine's exact `hb_races` pairs.
 
-Program-level result (`classify_fp_causes.py`, engine mode):
+Program-level result (`classify_fp_causes.py`, vector-clock mode):
 
 | pset | programs | set of causes |
 |---|---|---|
@@ -130,12 +130,12 @@ handoffs the R3 chain cannot certify. Unchanged.
 3. **RC2** — engine + oracle keep a second, barrier/syncwarp-only clock and emit
    `hb_races_sync_only`; a pair that did not race, has no static proof and is absent from that set
    is `barrier-ordered` (ORDERED); pairs ordered only through atomic handoffs stay `latent`. With
-   `YOSEMITE_HB_NO_ENGINE` the engine emits no race keys at all (an empty list would read as
+   `YOSEMITE_HB_MODE=scalar-clock` the engine emits no race keys at all (an empty list would read as
    "everything is barrier-ordered").
-3b. **RC2 in trace-only mode** — the barrier-only clock needs no atomic joins, so
+3b. **RC2 in scalar-clock mode** — the barrier-only clock needs no atomic joins, so
    `sync_dominance.barrier_only_pairs()` derives the same set offline from the dump's `hb_events`
    (shared-base clock, O(threads) per barrier; identical to the oracle's second clock on every
-   corpus kernel). A trace-only pair without a static proof is ORDERED (`barrier-ordered`) iff
+   corpus kernel). A scalar-clock pair without a static proof is ORDERED (`barrier-ordered`) iff
    barrier/syncwarp joins order every observed conflict; anything they leave unordered stays RACE,
    so fence/lock/atomic-omission races are untouched. `CUVEIN_BARRIER_PASS=0` disables it, dumps
    above `CUVEIN_BARRIER_PASS_MAX_LANES` (5 M) stay static-only. Also used for engine dumps that
@@ -143,7 +143,7 @@ handoffs the R3 chain cannot certify. Unchanged.
 3c. **Edge rescue** — a dependency edge remembers only the LAST accessor of a location, so a
    single-instance conflict is recorded at intra-thread distance when the last reader happened
    to be the writer's own thread, and was skipped (`conditional_edge_neighbor_cond_guardBug`:
-   RACE in 3/3 baseline trace-only reps, CLEAN in 6/6 after the collector timing shifted). The
+   RACE in 3/3 baseline scalar-clock reps, CLEAN in 6/6 after the collector timing shifted). The
    event stream keeps every reader: a pair it shows as a cross-thread unordered conflict (engine
    race record, or the offline pass) is now analysed at that thread distance instead of being
    skipped (`edge_rescued`).
@@ -158,53 +158,53 @@ engine == oracle on `hb_races` and `hb_races_sync_only`). Corpus: 88 passed, 1 x
 1 failed — `race_interblock_none-lock_rtraw`, a schedule-dependent miss whose output is
 byte-identical to the 2026-09-10 artifacts (already an FN in BASELINES).
 
-Post-fix re-runs of P1–P6 (615 programs) with the final code: engine mode `setup/p_fpfix_eng.sh`
-→ `eval/results/fpfix/`, `confirm_fpfix/`, `traces_keep_fpfix/`; trace-only `setup/p_fpfix_tr.sh` →
+Post-fix re-runs of P1–P6 (615 programs) with the final code: vector-clock mode `setup/p_fpfix_eng.sh`
+→ `eval/results/fpfix/`, `confirm_fpfix/`, `traces_keep_fpfix/`; scalar-clock `setup/p_fpfix_tr.sh` →
 `eval/results/fpfix_tr/`, `confirm_fpfix_tr/`, `traces_keep_fpfix_tr/`. Table from
 `compare_fpfix.py --after-glob 'eval/results/fpfix*/baselines-cuvein-shardfpfix*.csv'`
-(an earlier engine+trace-only run from before the edge rescue is in `eval/results/superseded_pre_rescue/`):
+(an earlier vector-clock+scalar-clock run from before the edge rescue is in `eval/results/superseded_pre_rescue/`):
 
 | pset | mode | FP before | FP after | TP before | TP after |
 |---|---|---|---|---|---|
-| P1 | engine | 72/199 | **0/199** | 185/185 | 178/178 |
-| P1 | trace-only | 72/200 | **0/200** | 200/200 | 200/200 |
-| P2 | engine | 6/30 | **0/30** | 23/30 | 25/30 |
-| P2 | trace-only | 6/30 | **0/30** | 25/30 | 25/30 |
-| P3 | engine | 41/57 | **14/58** | — | — |
-| P3 | trace-only | 44/60 | **16/60** | — | — |
-| P4 | engine | 7/9 | 5/9 | 9/9 | 9/9 |
-| P4 | trace-only | 10/14 | 6/14 | 14/14 | 14/14 |
-| P5 | engine | 0/14 | 0/14 | 18/19 | 18/19 |
-| P5 | trace-only | 0/14 | 0/14 | 17/19 | 17/19 |
-| P6 | engine | 0/19 | 0/18 | 5/11 | 5/10 |
-| P6 | trace-only | 0/20 | 0/19 | 5/12 | 5/11 |
+| P1 | vector-clock | 72/199 | **0/199** | 185/185 | 178/178 |
+| P1 | scalar-clock | 72/200 | **0/200** | 200/200 | 200/200 |
+| P2 | vector-clock | 6/30 | **0/30** | 23/30 | 25/30 |
+| P2 | scalar-clock | 6/30 | **0/30** | 25/30 | 25/30 |
+| P3 | vector-clock | 41/57 | **14/58** | — | — |
+| P3 | scalar-clock | 44/60 | **16/60** | — | — |
+| P4 | vector-clock | 7/9 | 5/9 | 9/9 | 9/9 |
+| P4 | scalar-clock | 10/14 | 6/14 | 14/14 | 14/14 |
+| P5 | vector-clock | 0/14 | 0/14 | 18/19 | 18/19 |
+| P5 | scalar-clock | 0/14 | 0/14 | 17/19 | 17/19 |
+| P6 | vector-clock | 0/19 | 0/18 | 5/11 | 5/10 |
+| P6 | scalar-clock | 0/20 | 0/19 | 5/12 | 5/11 |
 
 - **No true positive lost and no new false positive in either mode.**
-- Residual FPs are exactly the two classes left out of scope. P3 (14 engine / 16 trace-only): every
+- Residual FPs are exactly the two classes left out of scope. P3 (14 vector-clock / 16 scalar-clock): every
   program carries ONE report, the same-pc `STS` write-write `updated = true` (RC4) — really
   unordered, benign by value. P4 (5 / 6): ScoR volatile handshakes — reduction, rule-110,
-  matrix-mult (RC5/F1). In trace-only the P4 graph-coloring/-connectivity programs and all six P2
+  matrix-mult (RC5/F1). In scalar-clock the P4 graph-coloring/-connectivity programs and all six P2
   block reductions are now clean through the offline barrier pass.
 - P2 engine TP 23 → 25: the RMW-vs-readers check catches plain-read-then-atomic-write pairs the
   engine used to miss.
 - Engine ERROR/TIMEOUT: P1 16 → 23, P6 4 → 6 (P3 3 → 2). Every program involved sat at the 120 s
   cap already (baseline: TIMEOUT in ~25 of 30 reps, a verdict only in a rep at 113–119 s, or only
-  under the separate 20-minute budget; the P6 interkernel pair also times out in trace-only, where
+  under the separate 20-minute budget; the P6 interkernel pair also times out in scalar-clock, where
   no engine runs). The P1 TP denominator drops 185 → 178 for that reason, not through misses. The
   sync-only clock is O(threads) per barrier; the exact main clock remains the scaling wall (F3).
-- Trace-only collector wall time is unchanged (medians within noise); the offline pass runs in
+- Scalar-clock collector wall time is unchanged (medians within noise); the offline pass runs in
   the analysis step.
 
 ## Addendum (2026-09-20) — the engine "FN" that was an OOM-killed partial run
 
 In the Sep 18 re-run `P1-CC_CUDA_V_Data_Push_…_RaceBug_Block_…-slower_atomic-1296n` scored
-engine CLEAN ×1 / TIMEOUT ×2 but trace-only RACE ×3, all rows saying `events=83`. It looks like
+vector-clock CLEAN ×1 / TIMEOUT ×2 but scalar-clock RACE ×3, all rows saying `events=83`. It looks like
 the two modes disagree on one trace. They never saw the same trace:
 
 - The CLEAN rep is `rc=1`, 111 s, 113.8 GB peak — the only `CLEAN` row with `rc≠0` in the merged
   CSV. Every other `rc=1` row carries `accelprof: … Killed … Fail to run the application`: the
   app was OOM-killed under the engine.
-- Engine reps dumped `nkernels=1` (0.1 MB); trace-only reps `nkernels=5` (381 MB). The one kernel
+- Vector-clock reps dumped `nkernels=1` (0.1 MB); scalar-clock reps `nkernels=5` (381 MB). The one kernel
   is `init`, which has exactly 83 `hb_events`; the racy `cc_vertex_data` kernels never finished.
 - `events=` was the *engine* dump's count (`meta["events"]`) printed on the rows of both modes.
 
@@ -219,7 +219,7 @@ exactly this program, engine CLEAN → TO; P1 engine TP 182/183 → 182/182 with
 
 Live check after the fix (job 284845, node c37): engine rep 1 was OOM-killed again (rc=1, 70 GB,
 stderr `Killed`) and is now `ERROR incomplete-trace(rc=1;nkernels=1;peak_mb=70133.6)`, reps 2–3
-TIMEOUT; trace-only RACE ×3 with its real size `events=451467;nkernels=5` (the engine prefix had
+TIMEOUT; scalar-clock RACE ×3 with its real size `events=451467;nkernels=5` (the engine prefix had
 83). Four control programs (P1 TP/TN, P4 TP/TN) keep their verdicts in both modes.
 
 Why the engine dies here (not fixed — deferred): `cc_vertex_data<<<wlsize=1296, 512>>>` is
@@ -243,7 +243,7 @@ block 1: `lock; read data; unlock`) was missed in both modes — the one standin
    (the earlier "edge rescue" only upgrades an edge that exists). The event stream does show the pair:
    engine `hb_races_sync_only = [[0x140,0x340,1], …]`, and the offline barrier pass finds the same.
    → **Event-stream candidates**: every pc pair in `hb_races_sync_only ∪ hb_races` (engine) / the
-   offline pass (trace-only) that no edge produced a verdict for is judged like an edge pair
+   offline pass (scalar-clock) that no edge produced a verdict for is judged like an edge pair
    (distance, orientation and conflict count from the event stream; `event_candidate: true`). Their
    writers also enter the benign-read map, so a plain writer seen only in the events cannot be
    masked as `atomic-maintained-read`. Pairs that barriers alone order need no candidate
@@ -273,8 +273,8 @@ the lock-protected pairs, not this race.
 Measured (2026-09-20, `setup/p_evcand.sh`, jobs 285124; 31 of 32 shards = 597 of 631 P1–P6
 programs, both modes; compared with the merged baseline by
 `compare_fpfix.py --manifest eval/baselines/setup/manifest.evcand.csv --after-glob 'eval/results/evcand/*.csv'`):
-**0 true positives lost, 0 new false positives**; P5 TP engine 18/19 → 19/19 and trace-only
-17/19 → 18/19 (rtraw; the remaining trace-only miss is the canary, engine-only by design); every
+**0 true positives lost, 0 new false positives**; P5 TP vector-clock 18/19 → 19/19 and scalar-clock
+17/19 → 18/19 (rtraw; the remaining scalar-clock miss is the canary, vector-clock-only by design); every
 other cell unchanged (P1 0/187 FP, P2 0/28, P3 14/56 | 16/58, P4 5/9 | 6/14, P6 0/17). Offline:
 `pytest python/test_sync_dominance.py python/test_coherent_ldst.py` is fully green for the first
 time (rtraw was the standing failure).

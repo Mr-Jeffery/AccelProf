@@ -6,7 +6,7 @@ _AccelProf `cuVein` branch · RTX A5000 (sm_86) · CUDA 12.9 · produced by the 
 fixes**; the causes and fixes themselves are in `eval/FIX_REPORT.md`, referenced here as
 F1–F6. Pre-fix numbers are kept where they matter and are marked as such. Sections follow
 the suite numbering E0–E6 of the evaluation plan; the runtime-mode comparison (engine vs
-trace-only) and overhead follow the suites._
+scalar-clock) and overhead follow the suites._
 
 ## Summary (for someone who has not seen the tool)
 
@@ -17,8 +17,8 @@ through a scoped happens-before (HB) engine, and reports each conflicting access
 it), **benign** (a real unordered access on an atomically-maintained location the algorithm
 tolerates) or **ordered** (safe). It also joins the kernel's static control-flow graph to
 reason about barriers, scoped atomics and fences. It has two runtime modes: the full
-**engine mode** (an in-process exact vector-clock engine) and a **trace-only mode**
-(`YOSEMITE_HB_NO_ENGINE`) where only the static leg classifies the recorded trace.
+**vector-clock mode** (an in-process exact vector-clock engine) and a **scalar-clock mode**
+(`YOSEMITE_HB_MODE=scalar-clock`) where only the static leg classifies the recorded trace.
 
 **What was found.** On the labeled scoped-synchronization litmus (**ScoR, 33 programs**) the
 detector is perfect — **precision 1.00, recall 1.00, specificity 1.00**, streaming engine ==
@@ -35,7 +35,7 @@ HeCBench apps and on cuHadron's synchronized builds it reports **zero false posi
 An independent tool (Compute-Sanitizer racecheck, E6a) agrees on 8/9 shared-memory cases
 and exposes one real miss (F4, a `cp.async` write attributed to the issuing lane; fix
 designed). **Overhead is the second open problem:** the exact engine costs 3×–218× native
-and OOMs on large graph kernels (F3). The **trace-only mode** (`YOSEMITE_HB_NO_ENGINE`)
+and OOMs on large graph kernels (F3). The **scalar-clock mode** (`YOSEMITE_HB_MODE=scalar-clock`)
 was evaluated on every suite: it reaches the **same recall on every suite** (all planted
 races flagged, as latent) at **3–9× native and ~820 MB**, losing only the structural/latent
 classification and the address-multiplexed canary class — it is the configuration to run at
@@ -50,9 +50,9 @@ scale; the engine is the classifier and tripwire for small inputs.
 | Hardware | 2× NVIDIA RTX A5000, 24 GB, sm_86, driver 595.84; 503 GB host RAM |
 | Toolchain | CUDA 12.9 (spack), host g++ 13.3 / conda gcc 15.2 for the analyzer, Python 3.10 + networkx 3.2.1 / pydot |
 | Pipeline | cuobjdump→nvdisasm CFG + atomic-scope sidecar; `YOSEMITE_HB_TRACE=1 accelprof -t pc_dependency_analysis -n 1`; verdicts `python/sync_dominance.py`; exact oracle `python/hb_oracle.py` |
-| Modes | **engine**: dump + in-process vector-clock engine (`hb_races`); **trace-only**: `YOSEMITE_HB_NO_ENGINE=1`, dump only, static-leg verdicts |
-| Harness | `eval/driver.py` (extraction, native / trace-only / engine timing, `/proc` peak-RSS poller, process-group reaping) → `eval/aggregate.py` (pairs each kernel JSON with its CFG, dedups RACE reports on (unordered pc pair, space), engine-vs-oracle cross-check) |
-| Timing | `t_native` = bare app (min of reps); `t_trace` = `YOSEMITE_HB_NO_ENGINE=1`; `t_engine` = full engine; `peak_mem` = host RSS of the whole process tree |
+| Modes | **vector-clock**: dump + in-process vector-clock engine (`hb_races`); **scalar-clock**: `YOSEMITE_HB_MODE=scalar-clock`, dump only, static-leg verdicts |
+| Harness | `eval/driver.py` (extraction, native / scalar-clock / vector-clock timing, `/proc` peak-RSS poller, process-group reaping) → `eval/aggregate.py` (pairs each kernel JSON with its CFG, dedups RACE reports on (unordered pc pair, space), engine-vs-oracle cross-check) |
+| Timing | `t_native` = bare app (min of reps); `t_trace` = `YOSEMITE_HB_MODE=scalar-clock`; `t_engine` = vector-clock run (full engine); `peak_mem` = host RSS of the whole process tree |
 
 **Column schema** (`eval/results/<suite>.csv`): suite, program, variant, bug_label, input,
 grid, block, events, t_native, t_trace, t_engine, peak_mem_mb, reports_raw, reports_dedup,
@@ -66,7 +66,7 @@ with any RACE verdict is an **FP** by that strict reading, and the tables separa
 `tv_violations` = the `model_bug` cell (static all-schedule ordering claimed, engine raced —
 must be 0). `oracle_verified` = engine `hb_races` equals the exact oracle over the same dump.
 CSV naming: `*.csv` = original run; `*-fixed.csv` / `*-final.csv` = after the detector fixes;
-`*-noengine.csv` = trace-only mode.
+`*-scalar-clock.csv` = scalar-clock mode.
 
 ---
 
@@ -253,7 +253,7 @@ cross-check would require the rebuild; the RACEY-labeled E0 recall is the equiva
 
 ---
 
-## Overhead — engine mode
+## Overhead — vector-clock mode
 
 Ratios vs native (`t_x / t_native`), tracing and engine separated (from E0/E4/E5 rows):
 
@@ -273,13 +273,13 @@ Two regimes: on compute kernels the **event dump** dominates (nbody: engine only
 tracing; mandelbrot's tracing alone times out); on graph kernels the **engine's vector-clock
 joins** dominate (graph-coloring: engine 43× its trace). Host memory grows to GB-scale and a
 graph run was killed by the OS — the exact unbounded vector clocks (F3) bound the engine to
-small inputs. This motivates the trace-only evaluation below.
+small inputs. This motivates the scalar-clock evaluation below.
 
 ---
 
-## Trace-only mode (`YOSEMITE_HB_TRACE=1 YOSEMITE_HB_NO_ENGINE=1`)
+## Scalar-clock mode (`YOSEMITE_HB_TRACE=1 YOSEMITE_HB_MODE=scalar-clock`)
 
-`*-noengine.csv` (every suite re-run with `driver.py --no-engine`). The runtime dumps the
+`*-scalar-clock.csv` (every suite re-run with `driver.py --mode scalar-clock`). The runtime dumps the
 event stream but runs no vector-clock engine; verdicts come from the static leg alone (R1
 barrier dominance, R2 atomic coherence, R3 fence→atomic→acquire chains over the trace's pc
 edges). Without `hb_races` every detection is **latent** — the structural/latent split and
@@ -287,7 +287,7 @@ the address-level per-instance evidence are exactly what the engine adds.
 
 **Accuracy: identical recall on every suite; the only loss is the canary class.**
 
-| suite | engine mode | trace-only mode |
+| suite | vector-clock mode | scalar-clock mode |
 |---|---|---|
 | E5 litmus (33) | P 1.00 / R 1.00 / S 1.00; 11 structural + 10 latent | **P 1.00 / R 1.00 / S 1.00**; all 21 latent |
 | E5 canary | TP — 2 WAW structural (address-keyed) | **FN** — the PC-level false negative the engine exists to close |
@@ -307,7 +307,7 @@ tripwire. It does not change which programs are flagged.
 
 **Overhead: 3–9× native instead of 48–218×, and ~820 MB instead of GB-scale.**
 
-| workload | events | native | trace-only | engine | trace× | engine× | peak trace / engine (MB) |
+| workload | events | native | scalar-clock | vector-clock | SC× | VC× | peak SC / VC (MB) |
 |---|--:|--:|--:|--:|--:|--:|--:|
 | 1dconv | 520 | 0.52 | 1.52 | 1.57 | 2.9× | 3.0× | 820 / 818 |
 | reduction | 889 | 0.52 | 1.57 | 2.13 | 3.0× | 4.1× | 819 / 963 |
@@ -321,16 +321,16 @@ tripwire. It does not change which programs are flagged.
 | nbody 2048 | 2.6 M | 0.67 | 33.7 | 44.2 | 50× | 66× | 1534 / 2198 |
 | mandelbrot | 9.4 M | 0.87–1.72 | ≥120 (timeout) | ≥120 | >70× | — | 1197 / 2362 |
 
-The trace-only cost is the Compute-Sanitizer floor (~3× on small kernels) plus the event
+The scalar-clock cost is the Compute-Sanitizer floor (~3× on small kernels) plus the event
 dump, which scales with event count (nbody 50×; mandelbrot's 9.4 M-event dump exceeds the
 120 s budget). The engine's extra cost is what the vector-clock joins add on top — negligible
 on straight-line kernels, 15–43× on graph kernels — and its memory is what OOM'd the graph
-runs. Two configurations the engine mode could not finish at all (bitonic p12, stencil
-65536×10) complete in trace-only mode in seconds.
+runs. Two configurations the vector-clock mode could not finish at all (bitonic p12, stencil
+65536×10) complete in scalar-clock mode in seconds.
 
-**Reading.** For finding *which programs and pc pairs race*, the trace-only mode delivers the
-engine mode's recall at a fraction of the cost and is the configuration to run at scale. The
-engine mode is the tool for *classifying* a report (structural vs latent), for
+**Reading.** For finding *which programs and pc pairs race*, the scalar-clock mode delivers the
+vector-clock mode's recall at a fraction of the cost and is the configuration to run at scale. The
+vector-clock mode is the tool for *classifying* a report (structural vs latent), for
 address-multiplexed handshakes (canary), and as the soundness tripwire — and, until the
 FastTrack/bounded-clock knobs land (F3), only on small inputs.
 
@@ -359,7 +359,7 @@ inherent benign races of BFS/CC/SSSP-style kernels and ECL's race-free codes; th
 class re-buckets the atomic-writer cases, the plain-vs-plain residue needs value-level
 information the trace does not yet carry. **One confirmed in-scope false negative** (F4) has
 a designed fix. **Overhead:** the exact engine is not viable on large kernels (F3), but the
-**trace-only mode matches its recall on every suite at 3–9× native and ~820 MB** — losing
+**scalar-clock mode matches its recall on every suite at 3–9× native and ~820 MB** — losing
 only the structural/latent label and the canary class — so the practical deployment is
-trace-only at scale with the engine reserved for classifying and cross-checking small cases.
+scalar-clock at scale with vector-clock mode reserved for classifying and cross-checking small cases.
 All numbers reproducible via `eval/` (`eval/README.md`).

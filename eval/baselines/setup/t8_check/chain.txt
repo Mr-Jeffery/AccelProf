@@ -1,0 +1,46 @@
+== host c0 2026-09-23T02:29:02-04:00
+== BEFORE chain (pre-T8 code, /home/fzheng4/wt-T0 @ 29c5f08)
+-- classify_residuals
+  trace-only  analysis-timeout  1
+  trace-only  collector-memory  3
+  trace-only  resolved          5
+  trace-only  trace-volume      13
+-- classify_endpoints
+36840 disagreement report-rows -> /home/fzheng4/wt-T0/eval/results/baselines-disagreements.csv
+-- classify_fp_causes
+  P4    6 programs : RC5-volatile
+  P9    1 programs : RC2-latent
+
+285 reports -> /home/fzheng4/wt-T0/eval/results/baselines-fp-causes.csv
+-- make_tables
+wrote /home/fzheng4/wt-T0/eval/BASELINES_SUMMARY.md
+wrote /home/fzheng4/wt-T0/eval/BASELINES.md (43111 run-keys, tools=['cuvein', 'hirace', 'iguard', 'initcheck', 'memcheck', 'racecheck', 'sanitizer', 'supercollider', 'synccheck'])
+compare_fpfix before rc=0
+== copy + migrate confirm/ traces_keep/ into /mnt/beegfs/fzheng4/t8_stores
+13M	/mnt/beegfs/fzheng4/t8_stores/confirm
+3.0G	/mnt/beegfs/fzheng4/t8_stores/traces_keep
+APPLIED 2026-09-23 02:31:01 on c0 in 15s: results roots [], 1 store(s) / 248 program dir(s), confirm dirs ['/mnt/beegfs/fzheng4/t8_stores/confirm']; confirm-mode=9344, meta=248, rename-confirm=9344, rename-dir=352, rename-log=1392
+DRY RUN 2026-09-23 02:31:06 on c0 in 5s: results roots [], 1 store(s) / 248 program dir(s), confirm dirs ['/mnt/beegfs/fzheng4/t8_stores/confirm']; 
+== AFTER chain (T8 code, /home/fzheng4/wt-T8 @ da9e9dc, CUVEIN_NO_LEGACY_NAMES=1)
+-- classify_residuals
+  vector-clock collector-hang    1
+  vector-clock collector-memory  6
+  vector-clock resolved          4
+  vector-clock trace-volume      11
+   rc=0
+-- classify_endpoints
+36840 disagreement report-rows -> /home/fzheng4/wt-T8/eval/results/baselines-disagreements.csv
+   rc=0
+-- classify_fp_causes
+  P4    6 programs : RC5-volatile
+  P9    1 programs : RC2-latent
+
+285 reports -> /home/fzheng4/wt-T8/eval/results/baselines-fp-causes.csv
+   rc=0
+-- make_tables
+wrote /home/fzheng4/wt-T8/eval/BASELINES_SUMMARY.md
+wrote /home/fzheng4/wt-T8/eval/BASELINES.md (43111 run-keys, tools=['cuvein', 'hirace', 'iguard', 'initcheck', 'memcheck', 'racecheck', 'sanitizer', 'supercollider', 'synccheck'])
+   rc=0
+compare_fpfix after rc=0
+no legacy name met in compare_fpfix
+== done 2026-09-23T02:31:24-04:00

@@ -1,0 +1,11 @@
+id,pset,program,build,input,tool,mode,rep,verdict,reports_dedup,report_ids,report_lines,wall_s,native_wall_s,peak_mb,rc,notes
+P4-1dconv-norace-small,P4,1dconv,norace,small,cuvein,vector-clock,1,CLEAN,0,,,1.171,0.27,856.5,0,node=c20;arch=8.9;events=520;nkernels=2
+P4-1dconv-norace-small,P4,1dconv,norace,small,cuvein,scalar-clock,1,CLEAN,0,,,1.071,0.27,854.7,0,node=c20;arch=8.9;events=520;nkernels=2
+P4-graph-coloring-norace-large,P4,graph-coloring,norace,large,cuvein,vector-clock,1,TIMEOUT,0,,,120.008,0.35,1792.7,124,timeout=120s;dump_mb=42.9;err=./graph-coloring_norace  | Running the pc_dependency_analysis tool for graph-coloring_norace...
+P4-graph-coloring-norace-large,P4,graph-coloring,norace,large,cuvein,scalar-clock,1,CLEAN,0,,,2.375,0.35,858.1,0,node=c20;arch=8.9;events=158661;nkernels=30
+P5-norace_interblock_atom,P5,norace_interblock_atom,default,default,cuvein,vector-clock,1,CLEAN,0,,,1.075,0.324,852.1,0,node=c20;arch=8.9;events=2;nkernels=1
+P5-norace_interblock_atom,P5,norace_interblock_atom,default,default,cuvein,scalar-clock,1,CLEAN,0,,,0.923,0.324,846.5,0,node=c20;arch=8.9;events=2;nkernels=1
+P5-race_interblock_none-lock_rtraw,P5,race_interblock_none-lock_rtraw,default,default,cuvein,vector-clock,1,RACE,1,global:0x140-0x340:WAR,race_interblock_none-lock_rtraw.cu:31;race_interblock_none-lock_rtraw.cu:37,1.025,0.274,853.1,0,node=c20;arch=8.9;events=13;nkernels=1
+P5-race_interblock_none-lock_rtraw,P5,race_interblock_none-lock_rtraw,default,default,cuvein,scalar-clock,1,RACE,1,global:0x140-0x340:WAR,race_interblock_none-lock_rtraw.cu:31;race_interblock_none-lock_rtraw.cu:37,0.925,0.274,852.1,0,node=c20;arch=8.9;events=13;nkernels=1
+P5-canary,P5,canary_pc_level_false_negative,default,default,cuvein,vector-clock,1,RACE,1,global:0x160-0x1f0:WAW,canary_pc_level_false_negative.cu:11;canary_pc_level_false_negative.cu:16,0.925,0.287,852.0,0,node=c20;arch=8.9;events=10;nkernels=1
+P5-canary,P5,canary_pc_level_false_negative,default,default,cuvein,scalar-clock,1,CLEAN,0,,,0.923,0.287,852.0,0,node=c20;arch=8.9;events=10;nkernels=1

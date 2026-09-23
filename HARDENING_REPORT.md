@@ -112,7 +112,7 @@ each show their 3-atomic observed order.
 
 **Harness** (`python/scale_harness.py`): runs an app through `YOSEMITE_HB_TRACE=1 -n 1`,
 records event count, engine race count (deduped + grouped by pc-pair), TV violations,
-coherence-profile size, A/B wall time (dump vs dump+engine via `YOSEMITE_HB_NO_ENGINE`), and
+coherence-profile size, A/B wall time (scalar-clock dump vs vector-clock dump+engine via `YOSEMITE_HB_MODE`), and
 the exact-VC oracle verdict + peak RSS + wall **where it fits** — flagging engine-only rows
 above the fit bound as **UNVERIFIED against the oracle**. (Fixed a bug where `getall.sh`
 doesn't forward app args; the harness now runs accelprof itself with args.)
