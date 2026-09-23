@@ -27,8 +27,15 @@ VC, SC = hb_modes.VECTOR_CLOCK, hb_modes.SCALAR_CLOCK
 
 
 def _mode_rank(mode):
-    """harness order: vector-clock before scalar-clock (as engine / trace-only sorted)"""
+    """harness order: vector-clock before scalar-clock (keeps the pre-T8 table order)"""
     return hb_modes.MODES.index(mode) if mode in hb_modes.MODES else len(hb_modes.MODES)
+
+
+def _tool_key(label):
+    """sort key for 'cuvein/<mode>' / '<tool>' labels in the harness mode order"""
+    for i, m in enumerate(hb_modes.MODES):
+        label = label.replace(f"cuvein/{m}", f"cuvein/{i}")
+    return label
 
 # tool column order in verdict tables. Race detectors first, then the three
 # non-race compute-sanitizer tools (their RACE verdict means FLAGGED).
@@ -394,7 +401,7 @@ def residual_section():
                "- **collector-hang** — TIMEOUT with an empty dump and modest RSS: the collector stalled\n"
                "- **collector-memory** — TIMEOUT with an empty dump but ≥32 GB RSS: the collector holds the whole trace in memory (nothing written before the end): **attributable to the cuVein collector**\n"
                "- **collector-oom** — native rc 0 but the accelprof child was SIGKILLed (`Killed`): the collector's memory grows with the trace: **attributable to the cuVein collector**\n"
-               "- **engine-hang** — vector-clock TIMEOUT with an empty dump while scalar-clock of the same program resolved: **attributable to the cuVein engine** (not the tracer)\n"
+               "- **engine-hang** — vector-clock-mode TIMEOUT with an empty dump while scalar-clock of the same program resolved: **attributable to the cuVein engine** (not the tracer)\n"
                "- **collector-fail** — native rc 0 but accelprof rc≠0 / no kernel JSON: **attributable to the cuVein collector**\n"
                "- **trace-disk-full** — the raw dump filled the node-local scratch disk (`No space left on device`): **attributable to the cuVein collector** (unbounded dump)\n"
                "- **analysis-oom** — the collector finished but the Python `sync_dominance` analysis of the trace was Killed (OOM): **attributable to cuVein's scalar-clock analysis path**\n"
@@ -404,7 +411,7 @@ def residual_section():
         c[(r["mode"], r["cause"])] += 1
     out.append("| mode | cause | n |")
     out.append("|---|---|---|")
-    for k in sorted(c):
+    for k in sorted(c, key=lambda k: (_mode_rank(k[0]), k[1])):
         out.append(f"| {k[0]} | {k[1]} | {c[k]} |")
     coll = [r for r in rows if r["cause"] in ("collector-fail", "collector-hang", "collector-memory", "collector-oom", "engine-hang", "analysis-oom", "analysis-timeout", "trace-disk-full")]
     out.append(f"\n**cuVein-attributable (collector-fail/hang/memory/oom + trace-disk-full + engine-hang + analysis-oom/timeout): {len(coll)} "
@@ -494,7 +501,7 @@ def fp_cause_table():
         a["n"] += 1
         a["struct"] += bool(d["cls"] & {"structural", "model_bug"})
         a["causes"]["+".join(sorted(d["cause"]))] += 1
-    for (ps, mode), a in sorted(agg.items()):
+    for (ps, mode), a in sorted(agg.items(), key=lambda kv: (kv[0][0], _mode_rank(kv[0][1]))):
         causes = ", ".join(f"{k} ({v})" for k, v in sorted(a["causes"].items()))
         out.append(f"| {ps} | {mode} | {a['n']} | {a['struct']} | "
                    f"{a['n'] - a['struct']} | {causes} |")
@@ -517,7 +524,7 @@ def _fn_reason(ps, prog, build):
                 "false_positives": "race-free by label"}.get(cat, cat)
         return hint
     if prog.startswith("canary"):
-        return "PC-level dedup hides the pair (scalar-clock only; vector-clock catches it)"
+        return "PC-level dedup hides the pair (scalar-clock leg only; vector-clock catches it)"
     return ""
 
 
@@ -1061,7 +1068,7 @@ def comparison_matrix_section(runs, meta, man):
                     "consumes no host memcpy events. `interkernel/*` races two kernels on different streams: the "
                     "happens-before model is per kernel launch. cuVein verdicts on them: "
                     + "; ".join(f"{c} {m}: " + ", ".join(f"{k} {v}" for k, v in sorted(d.items()))
-                                for (c, m), d in sorted(am.items())) +
+                                for (c, m), d in sorted(am.items(), key=lambda kv: (kv[0][0], _mode_rank(kv[0][1])))) +
                     " (4 program-inputs per category). Their failures are trace volume of the kernels themselves "
                     "(`kernel_memcpy_dtoh_race`: 64M threads × 201 writes ≈ 1.3e10 traced accesses; "
                     "`memcpy_htod_kernel_race`: ≈ 2.6e8 reads, vector-clock mode only; `interkernel/global_writewrite_race`: "
@@ -1350,8 +1357,8 @@ def main():
     doc.append(residual_section())
     doc.append("\n## 2. Verdicts per program set\n")
     doc.append("Cells: `RACE(n)` = race reported with n deduped reports; `CLEAN`; "
-               f"`TO` timeout; `ERR`; `—` not run. {hb_modes.SHORT[VC]} = vector-clock mode (C++ HB engine "
-               f"verdict); {hb_modes.SHORT[SC]} = scalar-clock mode (sync_dominance static leg). "
+               f"`TO` timeout; `ERR`; `—` not run. {hb_modes.SHORT[VC]} = C++ HB engine "
+               f"verdict; {hb_modes.SHORT[SC]} = scalar-clock (sync_dominance static leg). "
                "Columns marked `*` (memcheck/synccheck/initcheck) are NOT race detectors: "
                "`FLAG(n)` = the tool reported ≥1 error of its own class; `clean` = none.")
     doc.append(headtohead_section(runs, meta, man))
@@ -1375,7 +1382,7 @@ def main():
             c[(r["tool_a"], r["tool_b"], r["category"], r["mechanism"])] += 1
         doc.append("| tool_a | tool_b | category | mechanism | rows |")
         doc.append("|---|---|---|---|---|")
-        for k in sorted(c):
+        for k in sorted(c, key=lambda k: (_tool_key(k[0]), _tool_key(k[1]), k[2], k[3])):
             doc.append(f"| {k[0]} | {k[1]} | {k[2]} | {k[3]} | {c[k]} |")
         CAP = 2000    # the whole list is in eval/results/baselines-disagreements.csv
         shown = dis if len(dis) <= CAP else dis[:CAP]

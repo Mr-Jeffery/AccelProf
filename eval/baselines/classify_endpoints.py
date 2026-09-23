@@ -161,7 +161,7 @@ def main():
     rows = []
     for i, tv in byid.items():
         # tool order, then the harness's mode order (vector-clock before scalar-clock,
-        # as engine sorted before trace-only): tool_a/tool_b stay where they were
+        # which keeps the pre-T8 column order): tool_a/tool_b stay where they were
         cols = sorted(tv.items(), key=lambda kv: (kv[0][0], _mode_rank(kv[0][1])))
         for a in range(len(cols)):
             for b in range(a + 1, len(cols)):

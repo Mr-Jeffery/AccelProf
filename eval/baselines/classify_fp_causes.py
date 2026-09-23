@@ -22,7 +22,7 @@ access lowers to). The report is then assigned one cause:
   RC1-atomic-ldst     both endpoints are language-level atomics (atom, or generic-form
                       seq/strong) and at least one is a load/store: the atomic model
                       only knows RMW opcodes, so cuda::atomic load/store looks plain
-  RC3-attribution     engine mode only: hb_class says the pair raced, but no engine
+  RC3-attribution     vector-clock mode only: hb_class says the pair raced, but no engine
                       hb_races record names this pc pair (subset pair matching marks
                       every pair sharing a pc with a same-pc race) -- or model_bug
   RC2-latent          not raced dynamically (hb_class latent) and no static proof:
@@ -153,7 +153,11 @@ def main():
 
     man = {r["id"]: r for r in csv.DictReader(open(a.manifest))}
     rows, nodots = [], collections.Counter()
-    for f in sorted(glob.glob(f"{a.confirm}/*__cuvein__*.json")):
+    def _order(f):   # (id, harness mode order): vector-clock rows before scalar-clock, as before T8
+        i, _, m = os.path.basename(f)[:-len(".json")].rpartition("__cuvein__")
+        m = hb_modes.LEGACY.get(m, m)
+        return (i, hb_modes.MODES.index(m) if m in hb_modes.MODES else len(hb_modes.MODES))
+    for f in sorted(glob.glob(f"{a.confirm}/*__cuvein__*.json"), key=_order):
         j = json.load(open(f))
         j["mode"] = hb_modes.canon(j["mode"], a.confirm)
         m = man.get(j["id"])

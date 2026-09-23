@@ -20,7 +20,7 @@ setup/residual_ids.txt and every mode, the best row of the *diagnostic* shard
   collector-oom     native rc==0 but the accelprof child was SIGKILLed (bash
                     "Killed", rc 137) -- the collector's memory grows with the
                     trace and is killed by the node: attributable to cuVein
-  engine-hang       engine-mode TIMEOUT with an empty dump while trace-only of
+  engine-hang       vector-clock-mode TIMEOUT with an empty dump while scalar-clock of
                     the SAME program resolved -- attributable to the cuVein
                     engine (not the tracer)
   collector-fail    native rc==0 but accelprof exits non-zero / no kernel JSON:
@@ -33,7 +33,7 @@ setup/residual_ids.txt and every mode, the best row of the *diagnostic* shard
   analysis-oom      the diagnostic shard log shows the *Python* runner itself
                     was Killed (no row written): the collector finished but the
                     sync_dominance analysis of the trace exhausted memory --
-                    attributable to cuVein's trace-only analysis path
+                    attributable to cuVein's scalar-clock analysis path
   no-diag-run       the diagnostic shard has no row for it (still running)
 
 Writes eval/results/baselines-diagnose.csv (id, pset, program, mode, verdict,

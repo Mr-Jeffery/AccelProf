@@ -28,7 +28,7 @@ import hb_modes  # noqa: E402  (vector-clock / scalar-clock; legacy names accept
 
 
 def _rank(mode):
-    """harness order: vector-clock, then scalar-clock (as engine / trace-only sorted)"""
+    """harness order: vector-clock, then scalar-clock (keeps the pre-T8 row order)"""
     return hb_modes.MODES.index(mode) if mode in hb_modes.MODES else len(hb_modes.MODES)
 
 
