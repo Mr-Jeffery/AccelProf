@@ -9,5 +9,5 @@
 # persistence -> no disk blowup). Writes a per-shard cuvein CSV.
 cd /home/fzheng4/AccelProf || exit 1
 source eval/baselines/gpu_env.sh
-export BASELINE_TRACE_DIR=/mnt/local/$USER/cvtraces
+export BASELINE_TRACE_DIR=/mnt/beegfs/$USER/cuvein_traces/run   # BeeGFS, every trace kept (eval/STORAGE.md)
 $PY eval/baselines/parallel.py run --pset P4,P5,P6 --shard ${SLURM_ARRAY_TASK_ID}/16 --confirm

@@ -110,14 +110,22 @@ is no `hb_races`), `t_engine` is blank, `peak_mem` is the tracing run's, `oracle
   LAST accessor of a location, so a pair can have no edge at all. `CUVEIN_R3_PAST_RELEASE=0`
   disables R3's past-release gate (an access after its thread's own unlock of a CAS-acquired lock
   is not ordered by the lock hand-off). Both exist for ablation on identical traces.
-- Keeping traces: `parallel.py run --keep-all` with
-  `BASELINE_TRACE_DIR=/mnt/beegfs/$USER/cuvein_traces/<tag>` keeps EVERY program's dump
-  (`<id>/{meta.json,dots/,logs/,<mode>/kernel_*.json}`, `STORE_INFO.json` = collector build).
-  BeeGFS is mounted on compute nodes only and is neither RAID-protected nor backed up, so csvs,
-  confirm JSONs and mismatch traces still go to home. `parallel.py analyze --results-dir …
-  --confirm-dir …` re-scores a kept store without a GPU: `setup/p_evcand.sh` (re-run, keep all)
-  + `setup/p_evcand_base.sh` (same traces, new rules off) +
-  `compare_fpfix.py --before 'eval/results/evcand_base/*.csv' --after-glob 'eval/results/evcand/*.csv'`.
+- Storage (T0, `eval/STORAGE.md`): every trace store lives on BeeGFS,
+  `BASELINE_TRACE_DIR=/mnt/beegfs/$USER/cuvein_traces/<tag>` (127 TB shared FS, no quota,
+  ~450 MB/s per node; mounted on every compute node, NOT on the login node; not backed up).
+  `parallel.py run` keeps EVERY program's trace there (`<id>/{meta.json,dots/,logs/,
+  <mode>/kernel_*.json}`, `STORE_INFO.json` = collector build), with no size cap
+  (`--keep-all-cap-gb 0`), and a timed-out rep's partial dump under
+  `<id>/<mode>-partial-rep<k>/` (marked `PARTIAL`, never a verdict). `_store_root()` refuses
+  any other location (`/mnt/local`, `/tmp`, home): the pre-T0 fall-through is what filled
+  node-local disks and the 40 GB home quota. `--delete-traces` restores the old lean mode.
+  Result CSVs and confirm JSONs still go to home; `store_inventory.py` mirrors every
+  store's `STORE_INFO.json`/`meta.json` into `eval/baselines/store_index/<tag>/` (home) and
+  lists what each store lacks. Re-score a store on CPU nodes with
+  `TAG=<tag> sbatch eval/baselines/setup/p_analyze_cpu.sh` (`parallel.py analyze` never
+  touches CUDA); `setup/p_evcand.sh` + `setup/p_evcand_base.sh` +
+  `compare_fpfix.py --before 'eval/results/evcand_base/*.csv' --after-glob 'eval/results/evcand/*.csv'`
+  is the worked example.
 - A cuVein rep is a verdict only if the app reached its own exit status under the tool
   (`rc == native rc`). An app killed mid-run (OOM under the engine: accelprof rc 1) leaves the
   kernels dumped so far; such a rep is `ERROR incomplete-trace(rc;nkernels;peak_mb)` — or RACE

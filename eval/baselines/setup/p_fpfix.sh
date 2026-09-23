@@ -13,7 +13,7 @@
 # Compare with:  python3 eval/baselines/compare_fpfix.py
 cd /home/fzheng4/AccelProf || exit 1
 source eval/baselines/gpu_env.sh
-export BASELINE_TRACE_DIR=/mnt/local/$USER/cvtraces_fpfix
+export BASELINE_TRACE_DIR=/mnt/beegfs/$USER/cuvein_traces/fpfix   # BeeGFS, every trace kept (eval/STORAGE.md)
 $PY eval/baselines/parallel.py run --pset P1,P2,P3,P4,P5,P6 \
     --shard ${SLURM_ARRAY_TASK_ID}/32 --confirm --tag fpfix \
     --results-dir /home/fzheng4/AccelProf/eval/results/fpfix \

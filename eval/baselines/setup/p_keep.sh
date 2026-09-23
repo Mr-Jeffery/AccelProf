@@ -11,8 +11,7 @@
 # merged as extra reps (shard tag 'keep').
 cd /home/fzheng4/AccelProf || exit 1
 source eval/baselines/gpu_env.sh
-T=/mnt/local/$USER/cvtraces; mkdir -p $T 2>/dev/null || T=/tmp/$USER/cvtraces; mkdir -p $T   # c2: /mnt/local is root-owned
-export BASELINE_TRACE_DIR=$T
+export BASELINE_TRACE_DIR=/mnt/beegfs/$USER/cuvein_traces/keep   # BeeGFS, every trace kept (eval/STORAGE.md)
 $PY eval/baselines/parallel.py run --id-file eval/baselines/setup/keep_all_ids.txt \
     --shard ${SLURM_ARRAY_TASK_ID}/32 --confirm --tag keep \
     --keep-mismatch /home/fzheng4/AccelProf/eval/baselines/traces_keep --keep-cap-mb 300

@@ -9,9 +9,7 @@
 # cuVein (current detector revision, setup/cuvein_rev.status), both modes, over PI.
 cd /home/fzheng4/AccelProf || exit 1
 source eval/baselines/gpu_env.sh
-# node-local scratch; c2 ships /mnt/local root-owned (no user dirs) -> fall back to its /tmp (752 GB)
-T=/mnt/local/$USER/cvtraces; mkdir -p $T 2>/dev/null || T=/tmp/$USER/cvtraces; mkdir -p $T
-export BASELINE_TRACE_DIR=$T
+export BASELINE_TRACE_DIR=/mnt/beegfs/$USER/cuvein_traces/pi   # BeeGFS, every trace kept (eval/STORAGE.md)
 $PY eval/baselines/parallel.py run --pset PI --shard ${SLURM_ARRAY_TASK_ID}/32 --confirm --tag pi \
     --analysis-timeout 3600 \
     --keep-mismatch /home/fzheng4/AccelProf/eval/baselines/traces_keep --keep-cap-mb 100

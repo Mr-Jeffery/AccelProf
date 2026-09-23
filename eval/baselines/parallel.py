@@ -15,6 +15,9 @@ not just sm_86; the Python analysis + even nvcc builds run on CPU-only nodes):
            GPU. Distributed over CPU nodes via --shard.
 
 Then merge_csv concatenates the shard CSVs into eval/results/baselines-cuvein.csv.
+Every trace store lives on BeeGFS (/mnt/beegfs/$USER/cuvein_traces/<tag>; compute
+nodes only, not backed up, no caps) -- see eval/STORAGE.md; _store_root() refuses
+anything else.
 Verdicts are arch-independent (a racy litmus reports on sm_86 and sm_89 alike);
 node+arch are recorded per program so overhead stays interpretable.
 
@@ -33,6 +36,7 @@ import shutil
 import socket
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -48,33 +52,45 @@ import run_cuvein as rc       # reuse _analyze_reports  # noqa: E402
 MODES = tuple(m for m in os.environ.get("BASELINE_MODES", "engine,trace-only").split(",") if m)
 
 
+BEEGFS_ROOT = f"/mnt/beegfs/{os.environ.get('USER', 'nobody')}"
+
+
 def _store_root():
-    """Where trace dumps go. Home is a 40 GB quota and a SINGLE program's dump can
-    be multi-GB (a global write-write cuHadron case dumped 7.6 GB), so all heavy
-    trace IO must go to cluster scratch, never home:
-      1. $BASELINE_TRACE_DIR if set (the sbatch scripts point this at node-local
-         /mnt/local for the lean same-node 'run' mode);
-      2. /mnt/beegfs/$USER -- SHARED 145 TB parallel FS, so a GPU collect phase and
-         a CPU analyze phase can share traces across nodes (the two-phase design);
-      3. /mnt/local/$USER -- node-local SSD (lean mode only, not cross-node);
-      4. home results dir (last resort; small runs only).
-    Mounts exist only on compute nodes, so this resolves at run time."""
+    """Where trace dumps go: BeeGFS, and nothing else (T0 policy, eval/STORAGE.md).
+
+    $BASELINE_TRACE_DIR must name a directory under /mnt/beegfs/$USER (the sbatch
+    scripts use /mnt/beegfs/$USER/cuvein_traces/<tag>); unset, the default is
+    /mnt/beegfs/$USER/cuvein_traces. Anything else -- /mnt/local, /tmp, home -- is
+    refused with a message instead of being used silently: the earlier policy (sbatch
+    scripts pointing at node-local /mnt/local or /tmp; unset -> silent fall-through
+    beegfs -> /mnt/local -> home) is what filled the 230 GB node-local disk on c37
+    (memcpy_htod_kernel_race-fixed row lost), overflowed the 40 GB home quota (11 GB
+    for 117 programs) and deleted every timed-out rep's partial dump. BeeGFS is
+    mounted on compute nodes only (not the login node), so
+    this resolves at run time on the node. BASELINE_TRACE_ALLOW_NONBEEGFS=1 is the
+    explicit escape hatch for a throw-away local test (it prints a warning)."""
     env = os.environ.get("BASELINE_TRACE_DIR")
-    if env:
-        os.makedirs(env, exist_ok=True)
-        return env
-    user = os.environ.get("USER", "nobody")
-    for base in (f"/mnt/beegfs/{user}", f"/mnt/local/{user}"):
-        if os.path.isdir(os.path.dirname(base)):
-            try:
-                os.makedirs(base, exist_ok=True)
-                os.chmod(base, 0o700)
-                d = f"{base}/cuvein_traces"
-                os.makedirs(d, exist_ok=True)
-                return d
-            except OSError:
-                continue
-    d = f"{blib.RESULTS_DIR}/traces"
+    d = env or f"{BEEGFS_ROOT}/cuvein_traces"
+    real = os.path.realpath(d)
+    on_beegfs = real.startswith(os.path.realpath(BEEGFS_ROOT) + "/") or real == os.path.realpath(BEEGFS_ROOT)
+    if not on_beegfs and not os.environ.get("BASELINE_TRACE_ALLOW_NONBEEGFS"):
+        raise SystemExit(
+            f"trace store {d!r} is not under {BEEGFS_ROOT}: every trace store lives on BeeGFS "
+            f"(export BASELINE_TRACE_DIR=/mnt/beegfs/$USER/cuvein_traces/<tag>; see eval/STORAGE.md). "
+            f"Set BASELINE_TRACE_ALLOW_NONBEEGFS=1 only for a throw-away local test.")
+    if not on_beegfs:
+        print(f"WARNING: trace store {d} is not on BeeGFS (BASELINE_TRACE_ALLOW_NONBEEGFS set)",
+              file=sys.stderr, flush=True)
+    elif not os.path.isdir("/mnt/beegfs"):
+        raise SystemExit(
+            f"/mnt/beegfs is not mounted on {socket.gethostname()}: trace collection and "
+            f"analysis run on compute nodes (srun/sbatch), never on the login node.")
+    else:
+        os.makedirs(BEEGFS_ROOT, exist_ok=True)
+        try:
+            os.chmod(BEEGFS_ROOT, 0o700)
+        except OSError:
+            pass
     os.makedirs(d, exist_ok=True)
     return d
 
@@ -98,11 +114,31 @@ def _shard(items, shard):
     return [it for i, it in enumerate(items) if i % n == k]
 
 
-def _arch():
+def _mem_total_gb():
+    """Node RAM (GB). The rtx4060ti16g partition mixes 128 GB (c3, c58, ...) and 188 GB
+    (c70, ...) nodes; a collector run that finishes on the latter is OOM-killed at ~122 GB
+    on the former (P7-bezier-surface trace-only, T0), so the number belongs in meta.json."""
     try:
-        out = subprocess.run(["nvidia-smi", "--query-gpu=compute_cap",
-                              "--format=csv,noheader"], capture_output=True,
-                             text=True, timeout=30).stdout.strip().splitlines()
+        for line in open("/proc/meminfo"):
+            if line.startswith("MemTotal:"):
+                return round(int(line.split()[1]) * 1024 / 1e9, 1)
+    except OSError:
+        pass
+    return None
+
+
+def _arch():
+    """compute_cap of the GPU the run will use. nvidia-smi ignores CUDA_VISIBLE_DEVICES,
+    so on a dual-GPU node (c20-22/c25/c34: an sm_89 4060 Ti next to a 2060/2080 Super)
+    the first line would be the wrong GPU; with a single pinned device (setup/pin8g.sh
+    sets its UUID) ask for that one."""
+    cmd = ["nvidia-smi", "--query-gpu=compute_cap", "--format=csv,noheader"]
+    vis = os.environ.get("CUDA_VISIBLE_DEVICES", "")
+    if vis and "," not in vis:
+        cmd[1:1] = ["-i", vis]
+    try:
+        out = subprocess.run(cmd, capture_output=True, text=True,
+                             timeout=30).stdout.strip().splitlines()
         return out[0].strip() if out else "?"
     except Exception:
         return "?"
@@ -124,11 +160,25 @@ def collect_one(mrow, cuda, reps, floor=120):
     os.makedirs(work, exist_ok=True)
     os.makedirs(logs, exist_ok=True)
     meta = {k: mrow[k] for k in ("id", "pset", "program", "build", "input")}
-    meta.update(node=socket.gethostname(), arch=_arch(), modes={},
-                store=STORE)
+    meta.update(node=socket.gethostname(), arch=_arch(), mem_total_gb=_mem_total_gb(),
+                modes={}, store=STORE, status="collecting",
+                started=time.strftime("%Y-%m-%d %H:%M:%S"),
+                slurm_job=os.environ.get("SLURM_JOB_ID", ""))
+
+    def _write_meta():
+        # written at the start and after every mode so that a shard killed by SLURM
+        # (time limit, node failure, OOM) leaves a readable marker: status stays
+        # "collecting" and `analyze` turns it into an ERROR collection-interrupted row
+        # instead of silently producing no row at all.
+        tmp = f"{idir}/meta.json.tmp"
+        Path(tmp).write_text(json.dumps(meta))
+        os.replace(tmp, f"{idir}/meta.json")
+
+    _write_meta()
     if not (os.path.exists(exe) and os.access(exe, os.X_OK)):
         meta["error"] = "missing-exe"
-        Path(f"{idir}/meta.json").write_text(json.dumps(meta))
+        meta["status"] = "done"
+        _write_meta()
         return
     base = os.path.basename(exe)
     link = f"{work}/{base}"
@@ -209,16 +259,45 @@ def collect_one(mrow, cuda, reps, floor=120):
             shutil.rmtree(d, ignore_errors=True)
 
     def _save(kjs, md):
+        # work/ and <idir>/<mode>/ are on the same filesystem (both under STORE), so
+        # this is a rename, not a copy: a saved program never needs 2x its dump.
         shutil.rmtree(md, ignore_errors=True)
         os.makedirs(md, exist_ok=True)
         for kj in kjs:
-            shutil.copy(kj, f"{md}/")
+            shutil.move(kj, f"{md}/{os.path.basename(kj)}")
+
+    def _keep_partial(depdir, mode, rep, rm):
+        """A timed-out rep is killed mid-write: its kernel JSONs are a prefix of the
+        run and the last one may be truncated. Keep them under <id>/<mode>-partial-rep<k>/
+        with a PARTIAL marker (analysis never reads that directory; it is evidence for
+        the memory-footprint / trace-size studies), one such directory per mode: the
+        rep that got furthest (largest raw dump) wins."""
+        cur = glob.glob(f"{idir}/{mode}-partial-rep*")
+        if cur:
+            try:
+                prev = json.loads(Path(f"{cur[0]}/PARTIAL").read_text()).get("dump_mb", 0)
+            except (OSError, ValueError):
+                prev = 0
+            if rm.get("dump_mb", 0) <= prev:
+                return None
+            for c in cur:
+                shutil.rmtree(c, ignore_errors=True)
+        pd = f"{idir}/{mode}-partial-rep{rep}"
+        os.makedirs(pd, exist_ok=True)
+        for kj in glob.glob(f"{depdir}/kernel_*.json"):
+            shutil.move(kj, f"{pd}/{os.path.basename(kj)}")
+        Path(f"{pd}/PARTIAL").write_text(json.dumps(dict(
+            rm, mode=mode, rep=rep,
+            note="timed-out rep: prefix of the run, last kernel JSON may be truncated; "
+                 "never a verdict")))
+        return os.path.basename(pd)
 
     for mode in MODES:
         env = blib.base_env(cuda, hb_trace=True, no_engine=(mode == "trace-only"),
                             scope_file=scope or None)
         reps_meta = []
         saved = partial = False
+        partial_dump = None
         for rep in range(1, reps + 1):
             _clean_deps()
             errp = f"{logs}/{mode}_rep{rep}.txt"
@@ -256,25 +335,46 @@ def collect_one(mrow, cuda, reps, floor=120):
             if kjs and not to and (not saved or (partial and complete)):
                 _save(kjs, f"{idir}/{mode}")
                 saved, partial = True, not complete
+            elif kjs and to:
+                kept = _keep_partial(depdir, mode, rep, rm)
+                if kept:
+                    partial_dump = kept
             _clean_deps()               # free the (possibly multi-GB) dump at once
+        ev, uncounted = _count_events(f"{idir}/{mode}") if saved else (0, [])
         meta["modes"][mode] = dict(reps=reps_meta, saved=saved, partial=partial,
-                                   events=_count_events(f"{idir}/{mode}") if saved else 0)
+                                   events=ev, events_uncounted=uncounted,
+                                   partial_dump=partial_dump)
+        _write_meta()                   # per-mode checkpoint
     # trace size (for the P7 "largest-trace" selection): total hb_events in the
     # saved engine dump. Rows report their OWN mode's count (meta.modes.<mode>.events).
     meta["events"] = meta["modes"].get("engine", {}).get("events", 0)
     shutil.rmtree(work, ignore_errors=True)   # keep only kernel JSONs + dots + meta + logs
-    Path(f"{idir}/meta.json").write_text(json.dumps(meta))
+    meta["status"] = "done"
+    meta["finished"] = time.strftime("%Y-%m-%d %H:%M:%S")
+    _write_meta()
+
+
+# json.loads needs ~6-10x the text size in RAM: P7-bezier-surface's complete 138 GB
+# trace-only dump took the HARNESS (not the collector, not the analysis) to 183 GB RSS
+# while counting its events and the kernel OOM killer took the whole shard.
+COUNT_EVENTS_MAX_GB = float(os.environ.get("BASELINE_COUNT_EVENTS_MAX_GB", "12"))
 
 
 def _count_events(mode_dir):
-    """Total hb_events over one mode's saved kernel dumps."""
-    events = 0
-    for kj in glob.glob(f"{mode_dir}/kernel_*.json"):
+    """-> (total hb_events over the mode's saved kernel dumps that were parsed,
+    [kernel JSONs above COUNT_EVENTS_MAX_GB that were NOT parsed]). The count is
+    informational (notes, P7 largest-trace selection); an unparsed file is named in
+    meta.modes.<mode>.events_uncounted rather than risking the shard."""
+    events, uncounted = 0, []
+    for kj in sorted(glob.glob(f"{mode_dir}/kernel_*.json")):
         try:
+            if os.path.getsize(kj) > COUNT_EVENTS_MAX_GB * 1e9:
+                uncounted.append(os.path.basename(kj))
+                continue
             events += len(json.loads(Path(kj).read_text()).get("hb_events", []))
         except (OSError, ValueError):
             pass
-    return events
+    return events, uncounted
 
 
 def _csvsafe(s):
@@ -301,29 +401,82 @@ def cmd_collect(a):
 
 
 # ---------- analyze (CPU) ----------
-def _analyze_capped(mode_dir, dots_dir, cap_s):
-    """rc._analyze_reports with a wall-clock cap (0 = none): the analysis runs in a
-    forked child; past the cap it is killed and (empty result, True) is returned so
-    the rows can say 'analysis-timeout' instead of the shard being SLURM-killed with
-    no row at all (P9-mr: 113 GB trace, >4.5 h of sync_dominance)."""
+def _analysis_mem_cap_gb(mem_gb):
+    """-1 = auto (80 % of MemTotal), 0 = no cap, else GB."""
+    if mem_gb is None or mem_gb < 0:
+        try:
+            for line in open("/proc/meminfo"):
+                if line.startswith("MemTotal:"):
+                    return int(line.split()[1]) * 1024 * 0.8 / 1e9
+        except OSError:
+            pass
+        return 0
+    return mem_gb or 0
+
+
+def _analyze_capped(mode_dir, dots_dir, cap_s, mem_gb=-1):
+    """rc._analyze_reports in a forked child with a wall-clock cap (cap_s, 0 = run
+    inline, uncapped) and an address-space cap (mem_gb: -1 = 80 % of the node's RAM,
+    0 = none). -> (result, reason): reason '' = analyzed; 'analysis-timeout' (child
+    killed past cap_s; P9-mr: 113 GB trace, >4.5 h of sync_dominance); 'analysis-oom'
+    (MemoryError under the cap -- without the cap the kernel OOM killer took the whole
+    shard, P7-bezier-surface at 183 GB RSS on a 188 GB node, and the shard left NO row);
+    'analysis-died(rc=N)' (the child vanished without a result). A ValueError in the
+    child (truncated kernel JSON of a partial dump) is re-raised here so analyze_one's
+    handling of it is unchanged; any other exception becomes a RuntimeError -> ERROR row."""
     if not cap_s:
-        return rc._analyze_reports(mode_dir, dots_dir), False
+        return rc._analyze_reports(mode_dir, dots_dir), ""
     import multiprocessing, queue
+    mem_gb = _analysis_mem_cap_gb(mem_gb)
     ctx = multiprocessing.get_context("fork")
     q = ctx.Queue()
-    proc = ctx.Process(target=lambda: q.put(rc._analyze_reports(mode_dir, dots_dir)))
+
+    def _child():
+        try:
+            if mem_gb:
+                import resource
+                lim = int(mem_gb * 1e9)
+                resource.setrlimit(resource.RLIMIT_AS, (lim, lim))
+            q.put(("OK", rc._analyze_reports(mode_dir, dots_dir)))
+        except MemoryError:
+            os._exit(3)     # nothing can be allocated any more (not even the queue's
+                            # feeder thread): exit code 3 is the OOM marker for the parent
+        except Exception as e:  # noqa: BLE001 -- reported, not swallowed
+            q.put(("EXC", (type(e).__name__, str(e)[:300])))
+
+    proc = ctx.Process(target=_child)
     proc.start()
-    try:
-        res = q.get(timeout=cap_s)
-        proc.join()
-        return res, False
-    except queue.Empty:
-        proc.kill()
-        proc.join()
-        return ([], set(), []), True
+    deadline = time.time() + cap_s
+    tag = payload = None
+    while tag is None:
+        try:
+            tag, payload = q.get(timeout=5)
+            break
+        except queue.Empty:
+            pass
+        if not proc.is_alive():
+            try:                       # the result may have landed just before exit
+                tag, payload = q.get(timeout=5)
+                break
+            except queue.Empty:
+                proc.join()
+                if proc.exitcode == 3:
+                    return ([], set(), []), f"analysis-oom(cap={mem_gb:.0f}GB)"
+                return ([], set(), []), f"analysis-died(rc={proc.exitcode})"
+        if time.time() > deadline:
+            proc.kill()
+            proc.join()
+            return ([], set(), []), "analysis-timeout"
+    proc.join()
+    if tag == "OK":
+        return payload, ""
+    name, msg = payload
+    if name == "ValueError":
+        raise ValueError(msg)
+    raise RuntimeError(f"{name}:{msg}")
 
 
-def analyze_one(idir, writer, confirm_dir, analysis_cap=0):
+def analyze_one(idir, writer, confirm_dir, analysis_cap=0, analysis_mem=-1):
     meta = json.loads(Path(f"{idir}/meta.json").read_text())
     common = dict(id=meta["id"], pset=meta["pset"], program=meta["program"],
                   build=meta["build"], input=meta["input"], tool="cuvein")
@@ -345,18 +498,34 @@ def analyze_one(idir, writer, confirm_dir, analysis_cap=0):
     for mode in MODES:
         mm = meta["modes"].get(mode, {})
         reps_meta = mm.get("reps", [])
+        if not reps_meta:
+            # No rep of this mode reached a checkpoint. With a T0 meta (status key)
+            # that is still "collecting", the shard was killed (SLURM time limit,
+            # NODE_FAIL, OOM) -- say so instead of writing no row at all. A finished
+            # meta without the mode was collected with a restricted $BASELINE_MODES
+            # (pre-T0 metas have no status key): no row, as before.
+            if meta.get("status") == "collecting":
+                writer.writerow(blib.row(**common, mode=mode, rep=1, verdict="ERROR",
+                                         notes=f"collection-interrupted(node={meta.get('node')};"
+                                               f"job={meta.get('slurm_job', '')};"
+                                               f"started={meta.get('started', '')})"))
+                verdicts[mode] = "ERROR"
+            continue
         # analyze the saved trace once (deterministic verdict), reuse across reps
         ids_, pcs, raw = [], set(), []
-        analyzed = capped = False
+        analyzed, reason = False, ""
         partial = bool(mm.get("partial"))
         if mm.get("saved") and os.path.isdir(f"{idir}/{mode}"):
             try:
-                (ids_, pcs, raw), capped = _analyze_capped(f"{idir}/{mode}", dots_dir, analysis_cap)
-                analyzed = not capped
+                (ids_, pcs, raw), reason = _analyze_capped(f"{idir}/{mode}", dots_dir,
+                                                           analysis_cap, analysis_mem)
+                analyzed = not reason
             except ValueError:
                 if not partial:     # a killed run's last kernel JSON may be truncated
                     raise
         mode_events = mm.get("events", meta.get("events", 0) if mode == "engine" else "")
+        if mm.get("events_uncounted"):
+            mode_events = f"{mode_events}(+{len(mm['events_uncounted'])} dumps >{COUNT_EVENTS_MAX_GB:.0f}GB uncounted)"
         for rep, rm in enumerate(reps_meta, 1):
             # metas written before the `complete` flag existed: derive it
             complete = rm.get("complete", not rm.get("timed_out")
@@ -366,9 +535,10 @@ def analyze_one(idir, writer, confirm_dir, analysis_cap=0):
                 notes = (f"timeout={meta.get('tool_timeout')}s;dump_mb={rm.get('dump_mb', '')}"
                          f"{nat_note};err={_csvsafe(rm.get('err', ''))[-200:]}")
                 ri, rl, nd = "", "", 0
-            elif capped and rm.get("nkernels", 0):
-                verdict = "ERROR"     # trace collected; offline analysis exceeded the cap
-                notes = (f"analysis-timeout={analysis_cap}s;dump_mb={rm.get('dump_mb', '')};"
+            elif reason and rm.get("nkernels", 0):
+                verdict = "ERROR"     # trace collected; offline analysis timed out / OOM / died
+                tagn = f"analysis-timeout={analysis_cap}s" if reason == "analysis-timeout" else reason
+                notes = (f"{tagn};dump_mb={rm.get('dump_mb', '')};"
                          f"nkernels={rm.get('nkernels')};node={meta.get('node')}{nat_note}")
                 ri, rl, nd = "", "", 0
             elif rm.get("nkernels", 0) == 0 or (not analyzed and complete):
@@ -424,7 +594,8 @@ def _keep_decision(verdicts, label):
 def _keep_trace(idir, keep_dir, reason, cap_mb):
     """Copy kernel JSONs + dots + meta + logs of a kept program into keep_dir/<id>
     (home). Above cap_mb the kernel JSONs are dropped (meta+logs+dots kept) and the
-    reason is suffixed with 'trace-too-large'."""
+    reason is suffixed with 'trace-too-large'; cap_mb 0 = no cap. The full trace
+    stays in the BeeGFS store in any case (--keep-all is the default)."""
     _id = os.path.basename(idir)
     dst = f"{keep_dir}/{_id}"
     shutil.rmtree(dst, ignore_errors=True)
@@ -436,7 +607,7 @@ def _keep_trace(idir, keep_dir, reason, cap_mb):
                 size += os.path.getsize(os.path.join(root, f))
             except OSError:
                 pass
-    too_large = size > cap_mb * 1e6
+    too_large = bool(cap_mb) and size > cap_mb * 1e6
     for sub in ("dots", "logs", *MODES):
         s = f"{idir}/{sub}"
         if os.path.isdir(s) and not (too_large and sub in MODES):
@@ -483,7 +654,12 @@ def _write_store_info(store, a):
 
 
 def _cap_kept(idir, cap_gb):
-    """--keep-all: a program whose saved dumps exceed cap_gb keeps meta/dots/logs only."""
+    """--keep-all-cap-gb N (default 0 = no cap): a program whose saved dumps exceed
+    N GB keeps meta/dots/logs only and meta.trace_dropped says so. The first BeeGFS
+    sweep (evcand, 2026-09-20) ran with a 20 GB cap; it never fired there (no P1-P6
+    trace is that large), but on the P7/P9 apps it would silently discard exactly the
+    traces worth keeping -- do not set one unless the store really has to fit
+    somewhere (eval/STORAGE.md)."""
     size = sum(os.path.getsize(f) for m in MODES
                for f in glob.glob(f"{idir}/{m}/kernel_*.json"))
     if cap_gb and size > cap_gb * 1e9:
@@ -530,7 +706,8 @@ def cmd_analyze(a):
             n += 1
             print(f"[analyze {n}] {m['id']}", flush=True)
             try:
-                analyze_one(idir, w, confirm_dir, getattr(a, "analysis_timeout", 0))
+                analyze_one(idir, w, confirm_dir, getattr(a, "analysis_timeout", 0),
+                            getattr(a, "analysis_mem", -1))
             except Exception as e:
                 w.writerow(blib.row(id=m["id"], pset=m["pset"], program=m["program"],
                                     build=m["build"], input=m["input"], tool="cuvein",
@@ -539,15 +716,13 @@ def cmd_analyze(a):
 
 
 def cmd_run(a):
-    """Lean combined mode: for each program in the shard, collect its trace, analyze
-    it, then DELETE the trace immediately -- peak disk is one program's trace, not
-    the whole corpus. Runs on a GPU node (analysis inline). Chosen because
-    persisting every trace for a separate CPU analyze phase overflowed the 40 GB
-    home quota (11 GB for 117 programs).
-
-    --keep-all keeps every program's trace in the store instead (point
-    $BASELINE_TRACE_DIR at BeeGFS: /mnt/beegfs/$USER/..., compute nodes only, not backed
-    up), so a later detector revision is re-scored with `analyze` on identical traces."""
+    """Combined mode: for each program in the shard, collect its trace on this GPU
+    node, analyze it inline, and KEEP the trace in the store (BeeGFS,
+    $BASELINE_TRACE_DIR=/mnt/beegfs/$USER/cuvein_traces/<tag>; compute nodes only, not
+    backed up) so a later detector revision is re-scored with `analyze` on identical
+    traces without a GPU. --delete-traces restores the older lean behaviour (delete
+    each program's trace right after its analysis; peak disk = one program) -- it was
+    the default while traces landed on node-local disk or in the 40 GB home quota."""
     global STORE
     STORE = _store_root()
     import csv
@@ -561,7 +736,7 @@ def cmd_run(a):
     if confirm_dir:
         os.makedirs(confirm_dir, exist_ok=True)
     os.makedirs(STORE, exist_ok=True)
-    keep_all = getattr(a, "keep_all", False)
+    keep_all = not getattr(a, "delete_traces", False)
     if keep_all:
         _write_store_info(STORE, a)
     kept_bytes = 0
@@ -581,7 +756,8 @@ def cmd_run(a):
             idir = f"{STORE}/{m['id']}"
             try:
                 collect_one(m, cuda, a.reps, floor=getattr(a, "timeout_floor", 120))
-                verdicts = analyze_one(idir, w, confirm_dir, getattr(a, "analysis_timeout", 0)) or {}
+                verdicts = analyze_one(idir, w, confirm_dir, getattr(a, "analysis_timeout", 0),
+                            getattr(a, "analysis_mem", -1)) or {}
                 if keep_dir:
                     reason = _keep_decision(verdicts, m.get("label", ""))
                     if reason:
@@ -593,7 +769,7 @@ def cmd_run(a):
                                     verdict="ERROR", notes=f"{type(e).__name__}:{e}"))
             finally:
                 if keep_all:
-                    kept_bytes += _cap_kept(idir, getattr(a, "keep_all_cap_gb", 20))
+                    kept_bytes += _cap_kept(idir, getattr(a, "keep_all_cap_gb", 0))
                 else:
                     shutil.rmtree(idir, ignore_errors=True)   # TP/TN (and everything raw) deleted
             fh.flush()
@@ -641,17 +817,26 @@ def main():
         p.add_argument("--keep-mismatch", dest="keep_mismatch", default="",
                        help="dir (home) where FP/FN/ERROR/TIMEOUT traces are kept; "
                             "TP/TN traces are always deleted")
-        p.add_argument("--keep-cap-mb", dest="keep_cap_mb", type=int, default=300)
+        p.add_argument("--keep-cap-mb", dest="keep_cap_mb", type=int, default=300,
+                       help="size cap (MB) of one program's --keep-mismatch home copy; 0 = none")
         p.add_argument("--keep-all", dest="keep_all", action="store_true",
-                       help="run: keep EVERY program's trace in the store "
-                            "($BASELINE_TRACE_DIR, e.g. /mnt/beegfs/$USER/cuvein_traces/<tag>) "
-                            "for later `analyze` re-scoring")
-        p.add_argument("--keep-all-cap-gb", dest="keep_all_cap_gb", type=float, default=20,
-                       help="with --keep-all: drop a program's kernel JSONs above this size")
+                       help="(default since T0; kept for old scripts) run: keep EVERY "
+                            "program's trace in the BeeGFS store for later `analyze` re-scoring")
+        p.add_argument("--delete-traces", dest="delete_traces", action="store_true",
+                       help="run: delete each program's trace right after its analysis "
+                            "(the pre-T0 lean mode; nothing is left to re-score)")
+        p.add_argument("--keep-all-cap-gb", dest="keep_all_cap_gb", type=float, default=0,
+                       help="drop a program's kernel JSONs above this size (0 = no cap, the "
+                            "default: BeeGFS has room; a cap silently loses the largest traces)")
         p.add_argument("--tag", default="", help="prefix for the shard csv name")
         p.add_argument("--analysis-timeout", dest="analysis_timeout", type=int, default=0,
                        help="cap (s) on the offline per-mode trace analysis; past it the "
                             "rows are ERROR analysis-timeout (0 = unbounded)")
+        p.add_argument("--analysis-mem-gb", dest="analysis_mem", type=float, default=-1,
+                       help="with --analysis-timeout: address-space cap (GB) of the forked "
+                            "analysis; -1 = 80%% of the node's RAM (default), 0 = none. A "
+                            "MemoryError becomes an ERROR analysis-oom row instead of the "
+                            "kernel OOM killer taking the whole shard (no row at all)")
         p.add_argument("--results-dir", dest="results_dir", default="",
                        help="write the shard csv here instead of eval/results (a detector "
                             "revision's re-run, kept apart from the merged baseline)")
