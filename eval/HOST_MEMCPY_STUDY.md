@@ -1,6 +1,7 @@
 # Host-memcpy (`cudaMemcpyAsync`) races: evidence, sizes, results (T2)
 
-Branch `feat/host-memcpy` (worktree `/home/fzheng4/wt-T2`), based on `cuVein` @ `81b4262`.
+Branch `feat/host-memcpy` (worktree `/home/fzheng4/wt-T2`), based on `cuVein` @ `81b4262`,
+rebased onto `6d843e3` (T5a merged).
 Claude.md T2; the model is `design/host_memcpy_model.md`. Decision D5 (whether the paper's
 scope includes host↔kernel and kernel↔kernel races) is the user's.
 
@@ -173,6 +174,12 @@ instrumented.
 **Green set** with the T2 runtime (job 287961, c20): 148 passed, 1 xfailed — the standard
 136 + 1 xfail (`test_relaxed_handoff_should_race`) and 12 `python/test_host_hb.py` unit tests
 (13 now, with the spec-only case; `.env/bin/python -m pytest python/test_host_hb.py`, no GPU).
+
+**After rebasing onto T5a** (`cuVein` @ `6d843e3`; one conflict in `pc_dependency_analysis.cpp`,
+both sides kept), job 287972 on c20 with the combined library (`698e6aec2432a206`, collector
+unchanged): the gating comparisons above hold, `YOSEMITE_HB_STATS=1` adds only its `hb_stats`
+field, the micro test gives the same four results in both modes, and the green set gives 149
+passed, 1 xfailed (136 + 13 `test_host_hb.py`).
 
 ## 6. For decision D5
 

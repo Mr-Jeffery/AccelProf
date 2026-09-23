@@ -8,6 +8,7 @@
 # programs; up to device addresses) and no host_ops.json is written. (2) Flag set on the
 # same program: identical kernel dumps plus a host_ops.json. (3) The micro test, four
 # variants x both modes, YOSEMITE_HB_TRACE=1 YOSEMITE_HB_HOST_MEMCPY=1: host_hb.py races.
+# (2b) YOSEMITE_HB_STATS (T5a) adds only hb_stats. GREEN=1: the green set at the end.
 #   PIN8G=1 sbatch -p rtx4060ti8g -w c20 eval/baselines/setup/t2_check.sh
 set -u
 W=/home/fzheng4/wt-T2; A=/home/fzheng4/AccelProf
@@ -40,6 +41,9 @@ for exe in $A/ScoR/microbenchmarks/bin/race_interblock_none-lock_rtraw $A/ScoR/m
   echo "$b vector-clock main vs t2: $($C $OUT/$b/vc-main/dump $OUT/$b/vc-t2/dump)"
   echo "$b vector-clock t2 vs t2+flag: $($C $OUT/$b/vc-t2/dump $OUT/$b/vc-t2-flag/dump)"
   echo "$b host_ops.json: unset=$(ls $OUT/$b/vc-t2/dump/host_ops.json 2>/dev/null | wc -l) default=$(ls $OUT/$b/default-t2/dump/host_ops.json 2>/dev/null | wc -l) flag=$(ls $OUT/$b/vc-t2-flag/dump/host_ops.json 2>/dev/null | wc -l) ($(grep -c '"kind"' $OUT/$b/vc-t2-flag/dump/host_ops.json 2>/dev/null) ops)"
+  # T5a's hook in the same build: YOSEMITE_HB_STATS adds only the hb_stats field
+  run $OUT/$b/vc-t2-stats $W $exe YOSEMITE_HB_TRACE=1 YOSEMITE_HB_MODE=vector-clock YOSEMITE_HB_STATS=1
+  echo "$b vector-clock t2 vs t2+HB_STATS: $($C $OUT/$b/vc-t2/dump $OUT/$b/vc-t2-stats/dump --drop hb_stats)"
 done
 echo "== (3) micro test"
 B=$OUT/bin; mkdir -p $B
@@ -55,4 +59,10 @@ for v in racy fixed kfirst-racy kfirst-fixed; do
 done
 cp $OUT/micro/racy/vector-clock/dump/host_ops.json $W/eval/baselines/setup/t2_evidence/host_ops.micro_racy.json 2>/dev/null
 cp $OUT/micro/kfirst-fixed/vector-clock/dump/host_ops.json $W/eval/baselines/setup/t2_evidence/host_ops.micro_kfirst-fixed.json 2>/dev/null
+if [ -n "${GREEN:-}" ]; then
+  echo "== green set (T2 runtime)"
+  rm -rf ScoR/microbenchmarks/artifacts/*
+  $PY -m pytest python/test_sync_dominance.py python/test_barrier_soundness.py \
+      python/test_coherent_ldst.py python/test_atomic_memory_model.py python/test_host_hb.py -rxXs 2>&1 | tail -4
+fi
 echo "== done $(date -Is)"
