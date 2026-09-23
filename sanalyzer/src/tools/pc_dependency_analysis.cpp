@@ -105,12 +105,28 @@ struct HbEngine {
     std::unordered_map<uint32_t, uint64_t> atom_idx;   // tid -> atomics issued so far
     std::map<uint64_t, std::vector<std::pair<uint32_t, uint64_t>>> coherence;  // addr -> order
 
+    // YOSEMITE_HB_STATS_EVERY=<n> (T5a): also print the stats line after n, 2n, 4n, ...
+    // processed records of a kernel, so a kernel killed before its end still leaves its
+    // growth curve. Counted per record, not per buffer drain (one drain can hold a whole
+    // kernel: 198,617 records for Indigo3 CC 1296n); doubling keeps the cost of walking
+    // the state bounded. 0 = only at kernel end (YOSEMITE_HB_STATS).
+    uint64_t stats_every = 0, processed = 0, next_snapshot = 0;
+    void snapshot() {
+        std::ostringstream o;
+        stats(o);
+        fprintf(stderr, "[HB_STATS] mid-kernel after %llu records: {%s} rss_kb %llu\n",
+                static_cast<unsigned long long>(processed), o.str().c_str(),
+                static_cast<unsigned long long>(self_rss_kb()));
+        next_snapshot = 2 * processed;
+    }
+
     void reset() {
         vc.clear(); vs.clear(); released.clear(); last_write.clear(); last_reads.clear();
         races.clear(); sync_pairs.clear();
         pending_barriers.clear();  // block_thread_count is (re)set by hb_engine_reset
         bar_warps_seen.clear(); warp_waiting.clear(); tv_violation.clear();
         atom_idx.clear(); coherence.clear();
+        processed = 0; next_snapshot = stats_every;
     }
 
     // Stable 64-bit FNV-1a of a (tid, atomic-index) sequence; byte-for-byte identical to
@@ -237,6 +253,7 @@ struct HbEngine {
 
     void process(const MemoryAccess* buf, uint64_t size) {
         for (uint64_t i = 0; i < size; ++i) {
+            if (stats_every && ++processed >= next_snapshot) snapshot();   // T5a
             const MemoryAccess& a = buf[i];
             if (a.type == MemoryType::BlockExit) continue;
             const uint32_t pc = static_cast<uint32_t>(a.pc & 0x00FFFFFFu);
@@ -384,6 +401,84 @@ struct HbEngine {
                 }
             }
         }
+    }
+
+    // YOSEMITE_HB_STATS (T5a): what the engine holds at kernel end, per container.
+    // Entry counts are exact; bytes are estimates from libstdc++'s node layouts (hash
+    // node = next pointer + value, tree node = 32 bytes of links + value, each rounded to
+    // a glibc malloc chunk; buckets = one pointer each) and leave out allocator slack.
+    // Observational only: nothing here feeds a verdict, so hb_oracle.py has no twin.
+    static uint64_t self_rss_kb() {                 // VmRSS of this process, kB
+        std::ifstream st("/proc/self/status");
+        for (std::string line; std::getline(st, line);)
+            if (line.rfind("VmRSS:", 0) == 0) return std::strtoull(line.c_str() + 6, nullptr, 10);
+        return 0;
+    }
+    static uint64_t mchunk(uint64_t n) {            // glibc chunk for an n-byte request
+        const uint64_t c = (n + 8 + 15) & ~uint64_t(15);
+        return c < 32 ? 32 : c;
+    }
+    template <class M> static uint64_t buckets(const M& m) {  // 1 bucket = inline, no alloc
+        return m.bucket_count() > 1 ? m.bucket_count() * sizeof(void*) : 0;
+    }
+    static uint64_t clock_bytes(const Clock& c) {
+        return c.size() * mchunk(sizeof(void*) + sizeof(Clock::value_type)) + buckets(c);
+    }
+    void stats(std::ostream& o) const {
+        uint64_t vc_entries = 0, vc_max = 0;
+        uint64_t vc_bytes = vc.size() * mchunk(sizeof(void*) + sizeof(decltype(vc)::value_type))
+                          + buckets(vc);
+        for (const auto& kv : vc) {
+            vc_entries += kv.second.size();
+            vc_max = std::max<uint64_t>(vc_max, kv.second.size());
+            vc_bytes += clock_bytes(kv.second);
+        }
+        uint64_t rel_entries = 0;
+        uint64_t rel_bytes = released.size() * mchunk(32 + sizeof(decltype(released)::value_type));
+        for (const auto& kv : released) {
+            rel_entries += kv.second.clk.size();
+            rel_bytes += clock_bytes(kv.second.clk);
+        }
+        const uint64_t lw_bytes =
+            last_write.size() * mchunk(32 + sizeof(decltype(last_write)::value_type));
+        uint64_t lr_readers = 0;
+        uint64_t lr_bytes = last_reads.size() * mchunk(32 + sizeof(decltype(last_reads)::value_type));
+        for (const auto& kv : last_reads) {
+            lr_readers += kv.second.size();
+            lr_bytes += kv.second.size() *
+                        mchunk(sizeof(void*) + sizeof(std::pair<const uint32_t, Reader>))
+                      + buckets(kv.second);
+        }
+        std::set<const Clock*> bases;
+        uint64_t vs_base_entries = 0;
+        uint64_t vs_bytes = vs.size() * mchunk(sizeof(void*) + sizeof(decltype(vs)::value_type))
+                          + buckets(vs);
+        for (const auto& kv : vs)
+            if (kv.second.base && bases.insert(kv.second.base.get()).second) {
+                vs_base_entries += kv.second.base->size();
+                vs_bytes += mchunk(16 + sizeof(Clock)) + clock_bytes(*kv.second.base);
+            }
+        uint64_t arrivals = 0;
+        for (const auto& kv : pending_barriers) arrivals += kv.second.size();
+        const uint64_t pend_bytes =
+            pending_barriers.size() * mchunk(32 + sizeof(decltype(pending_barriers)::value_type))
+            + arrivals * mchunk(32 + sizeof(uint32_t));
+        o << "\"vc\": {\"threads\": " << vc.size() << ", \"entries\": " << vc_entries
+          << ", \"max_entries\": " << vc_max << ", \"bytes_est\": " << vc_bytes << "}"
+          << ", \"released\": {\"records\": " << released.size() << ", \"entries\": "
+          << rel_entries << ", \"bytes_est\": " << rel_bytes << "}"
+          << ", \"last_write\": {\"locations\": " << last_write.size()
+          << ", \"bytes_est\": " << lw_bytes << "}"
+          << ", \"last_reads\": {\"locations\": " << last_reads.size() << ", \"readers\": "
+          << lr_readers << ", \"bytes_est\": " << lr_bytes << "}"
+          << ", \"pending_barriers\": {\"instances\": " << pending_barriers.size()
+          << ", \"arrivals\": " << arrivals << ", \"bytes_est\": " << pend_bytes << "}"
+          << ", \"vs\": {\"threads\": " << vs.size() << ", \"unique_bases\": " << bases.size()
+          << ", \"base_entries\": " << vs_base_entries << ", \"bytes_est\": " << vs_bytes << "}"
+          << ", \"races\": {\"records\": " << races.size() << ", \"bytes_est\": "
+          << races.capacity() * sizeof(Race) << "}"
+          << ", \"sync_pairs\": " << sync_pairs.size()
+          << ", \"coherence_addrs\": " << coherence.size();
     }
 
     void emit(std::ostream& jout) {
@@ -586,6 +681,16 @@ static bool hb_scalar_clock_mode() {
         return s;
     }();
     return scalar;
+}
+
+// YOSEMITE_HB_STATS=1 (T5a, eval/MEMORY_FOOTPRINT.md): attribute the HB state's memory
+// at every kernel end (hb_stats_emit). Read once; zero cost when unset.
+static bool hb_stats_enabled() {
+    static const bool on = [] {
+        const char* v = std::getenv("YOSEMITE_HB_STATS");
+        return v != nullptr && *v != '\0' && std::string(v) != "0";
+    }();
+    return on;
 }
 } // namespace
 
@@ -807,6 +912,8 @@ void PcDependency::hb_engine_reset() {
     const char* strict_env = std::getenv("YOSEMITE_HB_STRICT");
     engine->strict = (strict_env == nullptr) || (std::string(strict_env) != "0");
     engine->sync_only_pass = std::getenv("YOSEMITE_HB_NO_SYNC_ONLY") == nullptr;
+    engine->stats_every = read_env_u32("YOSEMITE_HB_STATS_EVERY", 0);
+    engine->next_snapshot = engine->stats_every;
 }
 
 void PcDependency::hb_engine_emit(std::ofstream& jout) {
@@ -819,6 +926,43 @@ void PcDependency::hb_engine_emit(std::ofstream& jout) {
     if (engine) engine->emit(jout);
 }
 
+
+// YOSEMITE_HB_STATS=1: the kernel's HB memory at kernel end, when it peaks (the engine
+// resets at the next launch) -> "hb_stats" in kernel_N.json and one stderr line.
+// hb_events: the kernel's event objects, buffered as one std::string each until this
+// dump, so RAM = the string objects + their heap buffers; json_bytes = their text.
+namespace {
+void hb_stats_emit(std::ostream& jout, const std::vector<std::string>& ev,
+                   const KernelLaunch_t& kernel) {
+    uint64_t text = 0, heap = 0;
+    for (const auto& e : ev) {
+        text += e.size();
+        if (e.capacity() > 15) heap += HbEngine::mchunk(e.capacity() + 1);  // past SSO
+    }
+    const uint64_t ev_ram = ev.capacity() * sizeof(std::string) + heap;
+    uint64_t rss = 0, hwm = 0;                      // kB
+    std::ifstream st("/proc/self/status");
+    for (std::string line; std::getline(st, line);) {
+        if (line.rfind("VmRSS:", 0) == 0) rss = std::strtoull(line.c_str() + 6, nullptr, 10);
+        else if (line.rfind("VmHWM:", 0) == 0) hwm = std::strtoull(line.c_str() + 6, nullptr, 10);
+    }
+    std::ostringstream o;
+    o << "{\"hb_events\": {\"count\": " << ev.size() << ", \"json_bytes\": " << text
+      << ", \"ram_bytes_est\": " << ev_ram << "}, \"engine\": ";
+    auto& engine = hb_engine_singleton();
+    if (engine && !hb_scalar_clock_mode()) {    // scalar-clock: the engine never ran
+        o << "{";
+        engine->stats(o);
+        o << "}";
+    } else {
+        o << "null";
+    }
+    o << ", \"rss_kb\": " << rss << ", \"hwm_kb\": " << hwm << "}";
+    jout << ",\n  \"hb_stats\": " << o.str();
+    fprintf(stderr, "[HB_STATS] kernel_%u %s %s\n", kernel.kernel_id,
+            kernel.kernel_name.c_str(), o.str().c_str());
+}
+}  // namespace
 
 void PcDependency::kernel_trace_flush(std::shared_ptr<KernelLaunch_t> kernel) {
     // JSON output for building PC dependency graph (joinable with CFG)
@@ -993,6 +1137,7 @@ void PcDependency::kernel_trace_flush(std::shared_ptr<KernelLaunch_t> kernel) {
         jout << "  ]";
         // Phase 2 dynamic-HB engine verdicts (streaming; mirrors hb_oracle.py).
         hb_engine_emit(jout);
+        if (hb_stats_enabled()) hb_stats_emit(jout, _hb_events, *kernel);
     }
 
     jout << "\n}\n";
