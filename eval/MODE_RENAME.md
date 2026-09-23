@@ -1,14 +1,14 @@
 # Mode rename: vector-clock / scalar-clock (task T8)
 
-Branch `rename/clock-modes` (worktree `/home/fzheng4/wt-T8`), based on `cuVein` @ `4898513`.
+Branch `rename/clock-modes` (worktree `/home/fzheng4/wt-T8`, removed after the merge, §4f), based on
+`cuVein` @ `4898513`.
 2026-09-23. Claude.md T8 brief, decision D3 (persisted strings migrate too).
 
-**Status.** Code, collector, converter, tests and docs are done and verified in the worktree
-(§3). Three steps change shared state and are **not done**; they need the user's go-ahead and
-must happen together (§4): install the T8 engine library into the live
-`build/sanalyzer/lib`, merge the branch into `cuVein`, and apply the converter to the kept-trace
-stores and confirm directories in home and on BeeGFS. Installing the library was attempted and
-refused by the session's permission policy ("modify shared resources").
+**Status: done (2026-09-23).** Code, collector, converter, tests and docs were verified in
+the worktree (§3); the three shared-state steps followed on the user's go-ahead (§4): the T8
+engine library is installed in `build/sanalyzer/lib`, the branch is merged into `cuVein`
+(`1a45653`, by the user), and every kept-trace store and confirm directory in home and on
+BeeGFS carries the new names.
 
 Legend: **measured** = a command ran and its output is quoted; **read from the code**;
 **unverified**.
@@ -100,6 +100,12 @@ order), agree modulo schedule order in scalar-clock mode, and agree at the pc-pa
 vector-clock mode, before and after alike. Device allocation addresses move between runs.
 Read from the code: the changed C++ is reached only inside the `_hb_trace` branches.
 
+The before log's header (`setup/t8_check/collector-before.txt`) names no library: its helper
+imports `hb_modes`, which the pre-T8 checkout does not have, so it printed a traceback and the
+hash of an empty string (`e3b0c442…`). The library that run used was the then-live pre-T8 build
+`26c4ea0cbea63590`: nothing replaced it before 11:31, and the earlier before-run on the same node
+(job 287215, `setup/t8_check/collector-before-287215.txt`) printed that hash.
+
 ### 3.3 Green set (job 287228, c20, from the T8 worktree runtime)
 ```
 rm -rf ScoR/microbenchmarks/artifacts/*
@@ -109,7 +115,8 @@ rm -rf ScoR/microbenchmarks/artifacts/*
 XFAIL python/test_atomic_memory_model.py::test_relaxed_handoff_should_race - KNOWN UNSOUND (Phase 2)
 ```
 39 renamed `*_scalar_clock` tests collected and passed. Engine library in use:
-`/home/fzheng4/wt-T8/sanalyzer/t8_install/lib/libsanalyzer.so`.
+`/home/fzheng4/wt-T8/sanalyzer/t8_install/lib/libsanalyzer.so` (`785d27a28b6456c5`, the file
+installed in §4a; removed with the worktree).
 
 ### 3.4 Converter
 - Fixture (228 MB copied from real CSVs, stores, confirm files): the dry run changes nothing
@@ -170,33 +177,66 @@ parse function, `migrate_mode_names.py`, two comments in `parallel.py`, `eval/RE
 `t8_fresh.sh`), and `eval/baselines/store_index/inventory.md`, which is generated from the
 stores and is regenerated after they are migrated (§4c).
 
-## 4. Pending: needs the user's go-ahead (shared state)
+## 4. Shared-state steps (done 2026-09-23, on the user's go-ahead)
 
-Order matters. The current `cuVein` code reads only the old store names; the T8 code refuses
-to collect until the T8 library is live. So these three go together:
+Order: the pre-T8 code reads only the old store names, and the T8 code refuses to collect with
+a pre-T8 library, so the library went first, then the merge, then the stores.
 
-a. **Install the T8 engine library** (the documented RPATH location, old one kept):
-```
-L=/home/fzheng4/AccelProf/build/sanalyzer/lib
-cp -p $L/libsanalyzer.so $L/libsanalyzer.so.pre-t8
-cp /home/fzheng4/wt-T8/sanalyzer/t8_install/lib/libsanalyzer.so $L/libsanalyzer.so.t8tmp
-mv $L/libsanalyzer.so.t8tmp $L/libsanalyzer.so          # sha256[:16] 785d27a28b6456c5
-```
-   It honours the old `YOSEMITE_HB_NO_ENGINE`, so pre-T8 code keeps working with it.
-b. **Merge** `rename/clock-modes` into `cuVein` (`git merge --no-ff`).
-c. **Migrate the stores** (exactly the dry run of §3.4; rollback: same command with `--reverse`):
-```
-APPLY=1 srun -p normal -N1 -n1 -t 01:00:00 bash eval/baselines/setup/t8_stores_dry.sh
-```
-   then `store_inventory.py` to regenerate `eval/baselines/store_index/inventory.md`, and
-   `setup/cuvein_rev.sh` to re-pin the revision (the library hash changes).
+a. **Engine library installed** 11:31 (`build/sanalyzer/lib/libsanalyzer.so`, sha256[:16]
+   `785d27a28b6456c5`). The user's three `!` lines ran in separate shells (`L` empty) and changed
+   nothing; the same commands then ran in one shell at 11:31:20, installing the library and
+   keeping the previous one (`26c4ea0cbea63590`) as `libsanalyzer.so.pre-t8`. The same commands
+   ran once more at 11:31:30, not from this session (the file times show it; most likely the
+   block pasted into the user's terminal before the merge): that re-installed the identical
+   library and overwrote `libsanalyzer.so.pre-t8` with it. Found during the cleanup (§4f): the
+   previous library survives unchanged as the build copy `sanalyzer/lib/libsanalyzer.so`
+   (2026-09-17 15:22, `26c4ea0cbea63590`) and is now also kept as
+   `build/sanalyzer/lib/libsanalyzer.so.pre-t8-26c4ea0c`; `libsanalyzer.so.pre-t8` is a
+   duplicate of the live library (replacing it was refused by the session's permission policy).
+b. **Merged** by the user at 11:31:46 (`git merge --no-ff rename/clock-modes`). The subject line
+   of that commit, `c6bad1a`, had caught the store-migration command pasted while vi was open; on
+   the user's request it was reworded before any push, keeping its tree (`ab8ebd8…`, identical
+   to the branch tree), parents, author and date: `1a45653`. The follow-up merge was recreated on
+   top of it. While that merge was writing files, a failed merge attempt of
+   mine was mistaken for its wreckage and the checkout was partly reset; after the user saved the
+   commit, the working tree was resynced to it (`git reset --hard HEAD`, after checking that the
+   tracked files were byte-identical to the old `cuVein` and every untracked file byte-identical
+   to the merge commit).
+c. **Stores migrated** (job 287762, c8, 2 991 s; log `setup/migrate_logs/stores.apply.txt.gz`):
+   12 stores (6 home `traces_keep*`, 6 BeeGFS `cuvein_traces/*`), 1 510 program dirs, all home
+   `confirm*` dirs: 2 137 dirs, 7 652 logs, 15 113 confirm files renamed; 1 489 `meta.json`, 56
+   `PARTIAL`, 5 `STORE_INFO.json` rewritten; 0 conflicts; exactly the dry run's numbers; a second
+   pass finds nothing. `store_inventory.py` under `CUVEIN_NO_LEGACY_NAMES=1` then read every
+   store without meeting an old name; per-store program and loss counts are unchanged
+   (`eval/baselines/store_index/inventory.md`).
+d. **Green set from the main checkout** at the merge (`c6bad1a`, the same tree as `1a45653`)
+   with the installed library (job 287761, c20): 136 passed, 1 xfailed.
+e. **Revision re-pinned** (`setup/cuvein_rev.sh t8-2026-09-23` → `setup/cuvein_rev.status`): HEAD
+   `c6bad1a` (the same tree as `1a45653`; the next task re-pins), empty working-tree diff, engine
+   library `785d27a28b6456c5`, OK. Its freshness check compares modification times only; git's
+   rewrite of `pc_dependency_analysis.cpp` during the merge made the file look newer than the
+   library, so the file got back the modification time of its build input (`touch -r`, after
+   `cmp` showed the two byte-identical and `git diff 94cbf5e HEAD -- sanalyzer/` was empty).
+f. **Scratch removed** (2026-09-23, on the user's request): the worktrees `/home/fzheng4/wt-T0`
+   and `/home/fzheng4/wt-T8` (paths under them in §3 and in `setup/t0_*.sh`, `setup/t8_*.sh` are
+   historical), `/mnt/beegfs/fzheng4/t8_stores` (the private migrated copies of §3.4, 3.1 GB) and
+   `/mnt/beegfs/fzheng4/t8_check` (the collector dumps of §3.2, 13 MB). Files that existed only in
+   a worktree and are cited or are evidence moved to the main checkout first: the 76 T0 job logs
+   (`eval/baselines/setup/build_logs/`, cited by `eval/STORAGE.md`), the fresh run's 9 confirm
+   files (`eval/baselines/confirm_t8-fresh/`), the job-287215 log (§3.2), and the T8 build,
+   relink and superseded after-run logs (`build_logs/t8-*.log`: jobs 287207–287209, 287216,
+   287217). The worktrees' remaining raw logs are byte-identical to the tracked
+   `setup/t8_check/*.txt`.
+
+Rollback, if ever needed: the stores with `migrate_mode_names.py --results '' --store … --confirm
+… --reverse --apply`; the library by copying `libsanalyzer.so.pre-t8-26c4ea0c` back; the code with
+git.
 
 ## 5. What remains unverified
 - The T8 library under the real harness on the full corpus: verified on 3 programs × 5
   configurations, the green set (33 ScoR micro-benchmarks + canary + coherent/barrier/atomic
   litmus) and 5 harness programs, all on sm_89.
 - The T8 library's behaviour on other architectures (sm_86, sm_120, sm_90): not run.
-- Store migration on the real stores: dry run only (§4c).
 - `driver.py` / `harness.sh` end to end (the E-series harness): changed and compiled, not run
   (`driver.py` carries a stale CUDA_HOME from before this task).
 - `scale_harness.py`: changed and compiled, not run.
