@@ -195,6 +195,22 @@ SanitizerPatchResult SyncwarpCallback(void* userdata, uint64_t pc, uint32_t mask
     return SANITIZER_PATCH_SUCCESS;
 }
 
+// T1a (eval/CP_ASYNC_REPORT.md): the completion points of cp.async copies. Registered only
+// for HB-trace runs; one record per warp like a barrier (active_mask = the lanes).
+extern "C" __device__ __noinline__
+SanitizerPatchResult PipelineCommitCallback(void* userdata, uint64_t pc)
+{
+    EmitSyncEvent((MemoryAccessTracker*)userdata, pc, MemoryType::PipelineCommit, 0, 0);
+    return SANITIZER_PATCH_SUCCESS;
+}
+
+extern "C" __device__ __noinline__
+SanitizerPatchResult PipelineWaitCallback(void* userdata, uint64_t pc, uint32_t groups)
+{
+    EmitSyncEvent((MemoryAccessTracker*)userdata, pc, MemoryType::PipelineWait, groups, 0);
+    return SANITIZER_PATCH_SUCCESS;
+}
+
 extern "C" __device__ __noinline__
 SanitizerPatchResult BlockExitCallback(void* userdata, uint64_t pc)
 {

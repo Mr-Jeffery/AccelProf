@@ -17,6 +17,8 @@ enum class MemoryType
     BlockExit,
     Barrier,    // Phase 2 sync event: BAR.SYNC. accessSize=threadCount, flags=barIndex.
     Syncwarp,   // Phase 2 sync event: WARPSYNC. accessSize=syncwarp mask.
+    PipelineCommit,  // T1a: cp.async.commit_group (LDGDEPBAR); HB-trace runs only.
+    PipelineWait,    // T1a: cp.async.wait_group N (DEPBAR.LE SB0, N). accessSize=N.
     // NOTE: no Membar — compute-sanitizer has no general fence instrumentation
     // point, so fence ordering stays CFG-static (release_scope in sync_dominance).
 };

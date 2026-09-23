@@ -147,7 +147,9 @@ def _offline_pairs(dots, trace):
     ops = sd.HBGraph(*kern).pc_opcode
     rmw = {pc: s for pc, op in ops.items() if (s := sd.atomic_scope(op)) is not None}
     coh = {pc: s for pc, op in ops.items() if (s := sd.coherent_scope(op)) is not None}
-    pairs = sd.barrier_only_pairs(json.loads(trace.read_text()), rmw, coh)
+    tj = json.loads(trace.read_text())
+    asy = sd.dump_async_pcs(sd.HBGraph(*kern), tj)
+    pairs = sd.barrier_only_pairs(tj, rmw, coh, async_pc=asy)
     return sorted([a, b, n] for (a, b), n in pairs.items()), rep["races_sync_only"]
 
 
