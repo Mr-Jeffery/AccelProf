@@ -3,12 +3,11 @@
 Branch `rename/clock-modes` (worktree `/home/fzheng4/wt-T8`), based on `cuVein` @ `4898513`.
 2026-09-23. Claude.md T8 brief, decision D3 (persisted strings migrate too).
 
-**Status.** Code, collector, converter, tests and docs are done and verified in the worktree
-(§3). Three steps change shared state and are **not done**; they need the user's go-ahead and
-must happen together (§4): install the T8 engine library into the live
-`build/sanalyzer/lib`, merge the branch into `cuVein`, and apply the converter to the kept-trace
-stores and confirm directories in home and on BeeGFS. Installing the library was attempted and
-refused by the session's permission policy ("modify shared resources").
+**Status: done (2026-09-23).** Code, collector, converter, tests and docs were verified in
+the worktree (§3); the three shared-state steps followed on the user's go-ahead (§4): the T8
+engine library is installed in `build/sanalyzer/lib`, the branch is merged into `cuVein`
+(`c6bad1a`, by the user), and every kept-trace store and confirm directory in home and on
+BeeGFS carries the new names.
 
 Legend: **measured** = a command ran and its output is quoted; **read from the code**;
 **unverified**.
@@ -170,33 +169,46 @@ parse function, `migrate_mode_names.py`, two comments in `parallel.py`, `eval/RE
 `t8_fresh.sh`), and `eval/baselines/store_index/inventory.md`, which is generated from the
 stores and is regenerated after they are migrated (§4c).
 
-## 4. Pending: needs the user's go-ahead (shared state)
+## 4. Shared-state steps (done 2026-09-23, on the user's go-ahead)
 
-Order matters. The current `cuVein` code reads only the old store names; the T8 code refuses
-to collect until the T8 library is live. So these three go together:
+Order: the pre-T8 code reads only the old store names, and the T8 code refuses to collect with
+a pre-T8 library, so the library went first, then the merge, then the stores.
 
-a. **Install the T8 engine library** (the documented RPATH location, old one kept):
-```
-L=/home/fzheng4/AccelProf/build/sanalyzer/lib
-cp -p $L/libsanalyzer.so $L/libsanalyzer.so.pre-t8
-cp /home/fzheng4/wt-T8/sanalyzer/t8_install/lib/libsanalyzer.so $L/libsanalyzer.so.t8tmp
-mv $L/libsanalyzer.so.t8tmp $L/libsanalyzer.so          # sha256[:16] 785d27a28b6456c5
-```
-   It honours the old `YOSEMITE_HB_NO_ENGINE`, so pre-T8 code keeps working with it.
-b. **Merge** `rename/clock-modes` into `cuVein` (`git merge --no-ff`).
-c. **Migrate the stores** (exactly the dry run of §3.4; rollback: same command with `--reverse`):
-```
-APPLY=1 srun -p normal -N1 -n1 -t 01:00:00 bash eval/baselines/setup/t8_stores_dry.sh
-```
-   then `store_inventory.py` to regenerate `eval/baselines/store_index/inventory.md`, and
-   `setup/cuvein_rev.sh` to re-pin the revision (the library hash changes).
+a. **Engine library installed** 11:31 (`build/sanalyzer/lib/libsanalyzer.so`, sha256[:16]
+   `785d27a28b6456c5`; the previous one kept as `libsanalyzer.so.pre-t8`, `26c4ea0cbea63590`).
+   The first attempt (the user's three `!` lines) did nothing: each line ran in its own shell,
+   so `L` was empty; the same commands then ran in one shell.
+b. **Merged** by the user: `c6bad1a` (`git merge --no-ff rename/clock-modes`, message edited in
+   vi; its subject line accidentally carries the store-migration command). Its tree is identical
+   to the branch tree (`ab8ebd8…`). While that merge was writing files, a failed merge attempt of
+   mine was mistaken for its wreckage and the checkout was partly reset; after the user saved the
+   commit, the working tree was resynced to it (`git reset --hard HEAD`, after checking that the
+   tracked files were byte-identical to the old `cuVein` and every untracked file byte-identical
+   to the merge commit).
+c. **Stores migrated** (job 287762, c8, 2 991 s; log `setup/migrate_logs/stores.apply.txt.gz`):
+   12 stores (6 home `traces_keep*`, 6 BeeGFS `cuvein_traces/*`), 1 510 program dirs, all home
+   `confirm*` dirs: 2 137 dirs, 7 652 logs, 15 113 confirm files renamed; 1 489 `meta.json`, 56
+   `PARTIAL`, 5 `STORE_INFO.json` rewritten; 0 conflicts; exactly the dry run's numbers; a second
+   pass finds nothing. `store_inventory.py` under `CUVEIN_NO_LEGACY_NAMES=1` then read every
+   store without meeting an old name; per-store program and loss counts are unchanged
+   (`eval/baselines/store_index/inventory.md`).
+d. **Green set from the main checkout** at `c6bad1a` with the installed library (job 287761,
+   c20): 136 passed, 1 xfailed.
+e. **Revision re-pinned** (`setup/cuvein_rev.sh t8-2026-09-23` → `setup/cuvein_rev.status`): HEAD
+   `c6bad1a`, empty working-tree diff, engine library `785d27a28b6456c5`, OK. Its freshness
+   check compares modification times only; git's rewrite of `pc_dependency_analysis.cpp` during
+   the merge made the file look newer than the library, so the file got back the modification
+   time of its build input (`touch -r`, after `cmp` showed the two byte-identical and
+   `git diff 94cbf5e HEAD -- sanalyzer/` was empty).
+
+Rollback, if ever needed: the stores with `migrate_mode_names.py --results '' --store … --confirm
+… --reverse --apply`; the library by copying `libsanalyzer.so.pre-t8` back; the code with git.
 
 ## 5. What remains unverified
 - The T8 library under the real harness on the full corpus: verified on 3 programs × 5
   configurations, the green set (33 ScoR micro-benchmarks + canary + coherent/barrier/atomic
   litmus) and 5 harness programs, all on sm_89.
 - The T8 library's behaviour on other architectures (sm_86, sm_120, sm_90): not run.
-- Store migration on the real stores: dry run only (§4c).
 - `driver.py` / `harness.sh` end to end (the E-series harness): changed and compiled, not run
   (`driver.py` carries a stale CUDA_HOME from before this task).
 - `scale_harness.py`: changed and compiled, not run.
