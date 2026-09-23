@@ -271,9 +271,149 @@ confirm-file sets identical (93 files each)
 GPU-phase verdicts of the leg: engine RACE 19 / CLEAN 9 / TIMEOUT 37; trace-only RACE 50 /
 CLEAN 15 (one rep each).
 
-### 7.2 P7/P9 leg (21 apps; job 286578, `--array=0-20`, `rtx4060ti16g` only, 20-minute floor) — PENDING
+### 7.2 P7/P9 leg (21 apps; job 286578, `--array=0-20`, `rtx4060ti16g` only, one app per task, 20-minute floor, 1 rep, both modes, `--analysis-timeout 3600`; ran 17:56–21:28 as the partition freed) + re-run job 286816 (bezier-surface, heartwall, srad)
 
-## 8. Acceptance — PENDING
+Three tasks had to be repeated, all for reasons that T0 surfaced and fixed:
+- **bezier-surface** (task 0, c70, 188 GB node): its trace-only run *completed* and `_save`
+  moved a **138 GB** kernel JSON into the store; then the pre-T0 `_count_events` did
+  `json.loads` on it, the harness process reached 183 GB RSS and the kernel OOM killer
+  SIGKILLed the shard (`sacct`: FAILED 9:0, MaxRSS 182 839 768 K). The T0 marker worked:
+  `meta.json` stayed at `status: collecting` and a CPU re-score (job 286735) wrote
+  `ERROR collection-interrupted(node=c70;job=286669;started=17:56:55)` for the mode instead of
+  no row. Fix: kernel JSONs above `BASELINE_COUNT_EVENTS_MAX_GB` (12) are no longer parsed
+  for the event count (`meta.modes.<mode>.events_uncounted`). The re-run (job 286816_0)
+  landed on **c58, a 128 GB node**: both collector runs died at ~122 GB RSS (`ERROR
+  no-kernel-json(rc=1)`), so bezier's 138 GB trace exists only on a 188 GB node — the
+  `rtx4060ti16g` partition mixes 128 GB (c1, c3, c50–c58, …) and 188 GB (c70, c73, …)
+  nodes (`/proc/meminfo` on c3: MemTotal 131 535 632 kB; on c70: 188 GB), which is why
+  `meta.json` now records `mem_total_gb` (added after this sweep; None in these metas).
+- **heartwall, srad** (tasks 2, 7): failed natively in 9 s — `collect_one` mirrors the
+  HeCBench data directory from `eval/baselines/corpora/`, which is gitignored and was
+  absent from the T0 worktree; the symlink was added and both re-ran (job 286816_1/2):
+  TIMEOUT at 20 min with 146 GB / 270 GB partial dumps kept. The superseded rows are in
+  `eval/results/full-2026-09-22/superseded_native_fail/` (and the interrupted bezier
+  re-score in `full-2026-09-22-cpu/superseded_interrupted/`), never overwritten.
 
-## 9. What remains unverified
-- (filled in at the end)
+Also new in the harness after this leg: `_analyze_capped` runs the offline analysis under
+an address-space cap (`--analysis-mem-gb`, default 80 % of the node's RAM) and reports
+`analysis-oom` / `analysis-died(rc=N)` / `analysis-timeout` as ERROR rows — no analysis
+can take a shard down any more (unit-tested on the login node for all six paths; no P7/P9
+analysis hit it in this sweep).
+
+The rows (`t0_p79_table.py`; the last column is the node-local diagnose run of
+`eval/BASELINES.md` §1b, same 20-minute cap, for the dump-size comparison):
+
+| program | mode | T0 verdict (wall s, peak RSS GB) | T0 dump at cap / saved (MB) | node-local run of §1b: verdict, dump (MB), peak GB, cause |
+|---|---|---|---|---|
+| bezier-surface-cuda | engine | ERROR (1118 s, 122) | collector died (rc=1) | —, —, —, analysis-oom |
+| bezier-surface-cuda | trace-only | ERROR (547 s, 122) | collector died (rc=1) | —, —, —, analysis-oom |
+| bitonic-sort-cuda | engine | TIMEOUT (1200 s, 19) | 33061.8 | TIMEOUT, 45446.2, 19, trace-volume |
+| bitonic-sort-cuda | trace-only | TIMEOUT (1200 s, 4) | 138296.8 | TIMEOUT, 245924.9, 4, trace-volume |
+| haversine-cuda | engine | TIMEOUT (1200 s, 29) | 106085.6 | TIMEOUT, 73443.9, 29, trace-volume |
+| haversine-cuda | trace-only | TIMEOUT (1200 s, 10) | 293775.4 | TIMEOUT, 277454.6, 10, trace-volume |
+| heartwall-cuda | engine | TIMEOUT (1200 s, 52) | 12.7 | TIMEOUT, 12.7, 81, trace-volume |
+| heartwall-cuda | trace-only | TIMEOUT (1200 s, 85) | 146073.2 | TIMEOUT, 252269.0, 85, trace-volume |
+| hotspot-cuda | engine | TIMEOUT (1200 s, 7) | 13160.8 | TIMEOUT, 9212.6, 7, trace-volume |
+| hotspot-cuda | trace-only | CLEAN (132 s, 1) | saved, events=34830000 | CLEAN, —, 1, resolved |
+| lavaMD-cuda | engine | TIMEOUT (1200 s, 36) | 0.0 | TIMEOUT, 0.0, 36, collector-memory |
+| lavaMD-cuda | trace-only | ERROR (1098 s, 186) | collector died (rc=1) | TIMEOUT, 0.0, 170, collector-memory |
+| mandelbrot-cuda | engine | TIMEOUT (1200 s, 3) | 89848.4 | TIMEOUT, 77319.7, 3, trace-volume |
+| mandelbrot-cuda | trace-only | TIMEOUT (1200 s, 1) | 298232.8 | TIMEOUT, 288159.0, 1, trace-volume |
+| nbody-cuda | engine | TIMEOUT (1200 s, 117) | 132501.6 | TIMEOUT, 108999.5, 117, trace-volume |
+| nbody-cuda | trace-only | TIMEOUT (1200 s, 44) | 303850.8 | TIMEOUT, 301366.6, 44, trace-volume |
+| particlefilter-cuda | engine | RACE (1001 s, 119) | saved, events=5617276 (prefix dump: app died under the tool) | RACE, —, 120, resolved |
+| particlefilter-cuda | trace-only | RACE (556 s, 119) | saved, events=5617276 (prefix dump: app died under the tool) | RACE, —, 120, resolved |
+| pathfinder-cuda | engine | TIMEOUT (1204 s, 122) | 0.0 | TIMEOUT, 0.0, 95, collector-memory |
+| pathfinder-cuda | trace-only | TIMEOUT (1200 s, 7) | 254097.2 | TIMEOUT, 155281.6, 7, trace-volume |
+| srad-cuda | engine | TIMEOUT (1200 s, 4) | 18692.5 | TIMEOUT, 16262.1, 4, trace-volume |
+| srad-cuda | trace-only | TIMEOUT (1200 s, 1) | 269762.0 | TIMEOUT, 261693.1, 1, trace-volume |
+| stencil1d-cuda | engine | ERROR (994 s, 121) | collector died (rc=1) | TIMEOUT, 0.0, 122, collector-memory |
+| stencil1d-cuda | trace-only | TIMEOUT (1200 s, 83) | 240044.0 | TIMEOUT, 320058.7, 83, trace-volume |
+| atomicCAS-cuda | engine | TIMEOUT (1200 s, 29) | 68231.1 | TIMEOUT, 44397.0, 33, trace-volume |
+| atomicCAS-cuda | trace-only | TIMEOUT (1200 s, 1) | 216436.7 | TIMEOUT, 115870.0, 1, trace-volume |
+| crs-cuda | engine | RACE (260 s, 3) | saved, events=9617332 | — |
+| crs-cuda | trace-only | RACE (44 s, 1) | saved, events=9617332 | — |
+| dxtc2-cuda | engine | TIMEOUT (1200 s, 13) | 21589.3 | TIMEOUT, 17991.0, 13, trace-volume |
+| dxtc2-cuda | trace-only | TIMEOUT (1200 s, 5) | 248928.5 | TIMEOUT, 248236.9, 4, trace-volume |
+| expdist-cuda | engine | TIMEOUT (1200 s, 46) | 0.0 | TIMEOUT, 0.0, 45, collector-memory |
+| expdist-cuda | trace-only | TIMEOUT (1200 s, 61) | 192253.5 | TIMEOUT, 359051.9, 61, trace-volume |
+| fpc-cuda | engine | ERROR (251 s, 122) | collector died (rc=1) | — |
+| fpc-cuda | trace-only | CLEAN (247 s, 1) | saved, events=115834880 | — |
+| gpp-cuda | engine | ERROR (854 s, 122) | collector died (rc=1) | — |
+| gpp-cuda | trace-only | CLEAN (61 s, 2) | saved, events=10240000 | — |
+| knn-cuda | engine | TIMEOUT (1200 s, 103) | 0.0 | TIMEOUT, 0.0, 70, collector-memory |
+| knn-cuda | trace-only | TIMEOUT (1200 s, 99) | 202568.1 | TIMEOUT, 101284.0, 99, trace-volume |
+| mr-cuda | engine | TIMEOUT (1200 s, 2) | 68394.0 | TIMEOUT, 114965.7, 2, trace-volume |
+| mr-cuda | trace-only | ERROR (686 s, 1) | 112955.3 | ERROR, 112955.3, 1, analysis-timeout |
+| tridiagonal-cuda | engine | TIMEOUT (1200 s, 51) | 13787.5 | TIMEOUT, 13787.5, 51, trace-volume |
+| tridiagonal-cuda | trace-only | TIMEOUT (1200 s, 15) | 220846.5 | TIMEOUT, 358474.2, 15, trace-volume |
+
+Dump volume at the 20-minute cap, BeeGFS (T0) vs node-local NVMe (§1b), trace-only mode
+where both timed out: bitonic 138 vs 246 GB, haversine 294 vs 277, heartwall 146 vs 252,
+mandelbrot 298 vs 288, nbody 304 vs 301, pathfinder 254 vs 155, srad 270 vs 262, stencil1d
+240 vs 320, atomicCAS 216 vs 116, dxtc2 249 vs 248, expdist 192 vs 359, knn 203 vs 101,
+tridiagonal 221 vs 358. Ratio range 0.5–2.0 with no consistent sign: the shared filesystem
+does not systematically throttle the collector at this concurrency (up to 9 apps writing
+at once); node-to-node variation dominates. The aggregate-bandwidth concern of §2.3 is
+therefore not borne out at this scale (it remains unverified for 30+ concurrent writers).
+
+### 7.3 The store after the leg (`t0_check_full_store.py`, `setup/build_logs/t0-check-full.txt`)
+
+86 programs, **3.6 TB** (`du -sh`), every `meta.json` `status: done`, `arch: 8.9` on all 12
+nodes used (the 8g nodes c20/c21/c57 included — the pin works), 0 UNEXPLAINED, 0
+INTERRUPTED:
+
+| mode | state | programs |
+|---|---|---|
+| engine | NO-KERNEL-JSON(rc=1) | 4 |
+| engine | PARTIAL-DUMP | 42 |
+| engine | SAVED | 29 |
+| engine | SAVED-partial-prefix | 1 |
+| engine | TIMEOUT-EMPTY | 10 |
+| trace-only | NO-KERNEL-JSON(rc=1) | 2 |
+| trace-only | PARTIAL-DUMP | 13 |
+| trace-only | SAVED | 70 |
+| trace-only | SAVED-partial-prefix | 1 |
+
+Saved dumps above 20 GB (acceptance case):
+    113.0 GB  trace-only  P9-mr-cuda
+     50.0 GB  trace-only  P9-fpc-cuda
+     26.3 GB  trace-only  P7-hotspot-cuda
+
+
+`NO-KERNEL-JSON(rc=1)` = the collector was OOM-killed on a 128 GB node (bezier ×2, fpc,
+gpp, stencil1d engine; lavaMD trace-only at 186 GB on a 188 GB node) — an honest ERROR row
+with `peak_mb` ≈ 122 000, not a lost trace.
+
+## 8. Acceptance
+
+| criterion | result |
+|---|---|
+| a keep-all run of ≥5 programs including one whose trace exceeds 20 GB lands complete on BeeGFS | **met**: 86 programs in `cuvein_traces/full-2026-09-22`; complete (non-partial, non-timed-out) saved dumps above 20 GB: P9-mr trace-only **113.0 GB** (1600 kernels), P9-fpc trace-only 50.0 GB (115.8 M events, CLEAN), P7-hotspot trace-only 26.3 GB (34.8 M events, CLEAN) |
+| `parallel.py analyze` of that store from a `normal` node reproduces the GPU phase's verdicts | **met** for the 65 P1–P6 programs (130 rows, 0 differing, confirm sets identical; job 286663) and the 19 finished P7/P9 apps (38 rows, 0 differing; job 287083); the last two apps (fpc, mr) — see below |
+| no `p_*.sh` references `/mnt/local` or `/tmp` | **met**: `grep -rn "/mnt/local\|/tmp" eval/baselines/setup/p_*.sh eval/baselines/setup/p7_run.sh` → nothing |
+| green set unchanged | 136 passed, 1 xfailed (c20, job 286580); detector code untouched |
+
+
+
+## 9. What remains unverified / not done
+- The P9-fpc and P9-mr CPU re-score (job 287114) — result appended in §8 when it finishes.
+- BeeGFS behaviour with 30+ concurrent collector writers (this sweep peaked at 9 GPU
+  tasks); a 32-shard P1–P8 re-run (`p_rerun.sh`) is the test.
+- The quota report (`beegfs-ctl --getquota`: "used 0 Byte" with 3.7 TB in the directory):
+  read as "no quota", the accounting itself is not understood.
+- `a5000ada` nodes: assumed sm_89, never used.
+- The 16 sm_90 cuHadron targets (no binary until T1b) and the 7 cuHadron
+  `asyncmemcpy`/`interkernel` programs (out of scope by the 2026-09-21 decision) were not
+  re-collected (`setup/t0_full_ids_excluded.txt`).
+- `--keep-mismatch` home copies were not made for this sweep (home is at 35 of 40 GB); the
+  BeeGFS store is the only copy of these traces, and BeeGFS is not backed up. The `meta.json`
+  mirrors (`store_index/`) live in home.
+- The partial-dump policy keeps one prefix per mode with no size cap: the 21 P7/P9 apps
+  contribute ~3.4 TB of prefix dumps that no analysis reads today (T4/T5a/T7 measurements
+  are the intended consumers). Reconsider `--keep-all-cap-gb` for prefix dumps if the
+  55 TB free on BeeGFS becomes a constraint.
+- `mem_total_gb` was added to `meta.json` after this sweep: it is None in the 86 metas.
+- The stale BASELINES.md §1b root cause of bezier-surface (`analysis-oom`) is now known to
+  be the harness's own `_count_events` on a 138 GB dump (not the analysis); the row text in
+  BASELINES.md was not changed (T8 regenerates the tables).
