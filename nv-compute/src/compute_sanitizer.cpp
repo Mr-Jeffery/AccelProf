@@ -293,6 +293,15 @@ void ModuleLoadedCallback(CUmodule module)
             sanitizerPatchInstructions(SANITIZER_INSTRUCTION_BARRIER, module, "BarrierCallback"));
         SANITIZER_SAFECALL(
             sanitizerPatchInstructions(SANITIZER_INSTRUCTION_SYNCWARP, module, "SyncwarpCallback"));
+        // T1a: cp.async commit/wait (LDGDEPBAR / DEPBAR.LE), HB-trace runs only, so the
+        // default tool path gets no new records.
+        const char* hb = std::getenv("YOSEMITE_HB_TRACE");
+        if (hb != nullptr && *hb != '\0' && std::string(hb) != "0") {
+            SANITIZER_SAFECALL(
+                sanitizerPatchInstructions(SANITIZER_INSTRUCTION_PIPELINE_COMMIT, module, "PipelineCommitCallback"));
+            SANITIZER_SAFECALL(
+                sanitizerPatchInstructions(SANITIZER_INSTRUCTION_PIPELINE_WAIT, module, "PipelineWaitCallback"));
+        }
     }
 
     SANITIZER_SAFECALL(sanitizerPatchModule(module));

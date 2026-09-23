@@ -97,6 +97,12 @@ def analyze(dot_path, trace_path, strong_ldst=None):
     policy = sd.strong_ldst_policy(strong_ldst)
     coh_scope = {pc: s for pc in eng.pc_opcode
                  if (s := sd.coherent_scope(eng.pc_opcode[pc], policy)) is not None}
+    # T1a: cp.async (LDGSTS) pcs -- accesses by the issuing thread's async agent. The
+    # engine reads the same set from the sidecar's `# async` lines (sd.async_pcs rule);
+    # a dump without the engine's hb_async marker keeps the pre-T1a reading.
+    async_pcs = sd.dump_async_pcs(eng, trace)
+    ASYNC = sd.ASYNC_BIT
+    groups = defaultdict(list)        # t -> [(vc, vs) of its agent at each commit], oldest first
 
     vc = defaultdict(VC)              # tid -> vector clock (barriers + atomic handoffs)
     vs = defaultdict(VC)              # tid -> barrier/syncwarp-ONLY vector clock
@@ -172,6 +178,34 @@ def analyze(dot_path, trace_path, strong_ldst=None):
         if prev_sclk > vs[t].get(prev_tid, 0):
             sync_pairs[(min(prev_pc, pc), max(prev_pc, pc))] += 1
 
+    # T1a: the async agent (see HbEngine::async_issue/commit/wait; one-to-one)
+    def async_issue(t, ag):
+        own(t)
+        vc[ag] = vc[ag].joined(vc[t])     # the copy follows t's earlier accesses
+        own(ag)
+        owns(t)
+        vs[ag] = vs[ag].joined(vs[t])
+        owns(ag)
+
+    def async_commit(t):
+        ag = t | ASYNC
+        own(ag), owns(ag)
+        groups[t].append((VC(vc[ag]), VC(vs[ag])))
+        vc[ag][ag] += 1                   # later copies: a newer epoch than this group
+        vs[ag][ag] += 1
+
+    def async_wait(t, n):
+        g = groups[t]
+        if len(g) <= n:
+            return
+        done = len(g) - n                 # groups [0, done) are complete
+        svc, svs = g[done - 1]            # snapshots only grow
+        own(t)
+        vc[t] = vc[t].joined(svc)
+        owns(t)
+        vs[t] = vs[t].joined(svs)
+        del g[:done]
+
     def loc_of(space, block, addr):
         # shared memory is per-block; global/local keyed by absolute address.
         return (space, block, addr) if space == "shared" else (space, addr)
@@ -188,6 +222,15 @@ def analyze(dot_path, trace_path, strong_ldst=None):
         prev_seq = seq
 
         typ = e["type"]
+        if typ in ("pipeline_commit", "pipeline_wait"):   # T1a: cp.async commit / wait_group N
+            for k in range(32):
+                if (e["active_mask"] >> k) & 1:
+                    t = tid_of(e["block"], e["warp"], k)
+                    if typ == "pipeline_commit":
+                        async_commit(t)
+                    else:
+                        async_wait(t, e["groups"])
+            continue
         if typ == "syncwarp":
             # syncwarp is genuinely per-warp: join THIS warp's masked lanes now.
             mask = e["sync_mask"]
@@ -244,8 +287,12 @@ def analyze(dot_path, trace_path, strong_ldst=None):
         is_write = (typ == "write")
         space = e["space"]
         my_coh, my_block = coh_scope.get(pc), e["block"]
+        is_async = pc in async_pcs
         for lane in e["lanes"]:
-            t = tid_of(e["block"], e["warp"], lane["lane"])
+            t0 = tid_of(e["block"], e["warp"], lane["lane"])
+            t = t0 | ASYNC if is_async else t0
+            if is_async:
+                async_issue(t0, t)
             addr = lane["addr"]
             loc = loc_of(space, e["block"], addr)
             rec = {"addr": addr, "space": space, "loc_block": e["block"]}
@@ -302,12 +349,17 @@ def analyze(dot_path, trace_path, strong_ldst=None):
             else:
                 last_reads[loc][t] = (clk, sclk, pc, my_coh, my_block)
 
-    # dedup identical race tuples (same pc pair, tid pair, addr)
+    # dedup identical race tuples (same pc pair, tid pair, addr); then report the issuing
+    # thread's id for an agent's access with "async" naming the side(s) (as HbEngine emits)
     seen, uniq = set(), []
     for r in races:
         key = (r["addr"], r["a_tid"], r["a_pc"], r["b_tid"], r["b_pc"], r["kind"])
         if key not in seen:
             seen.add(key)
+            a, b = r["a_tid"] & ASYNC, r["b_tid"] & ASYNC
+            r = dict(r, a_tid=r["a_tid"] & ~ASYNC, b_tid=r["b_tid"] & ~ASYNC)
+            if a or b:
+                r["async"] = "ab" if a and b else "a" if a else "b"
             uniq.append(r)
 
     # Coherence profile Pi: per atomic address, the observed atomic order and its hash.

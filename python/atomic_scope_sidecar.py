@@ -16,6 +16,8 @@ launch's kernel_name). pc offsets are function-relative, so the table is per ker
 a multi-kernel binary routinely has a plain store in one kernel at the offset of an
 atomic in another. Every kernel of the binary is declared with a `# kernel <kernel>`
 line, so one without any coherent pc gets an EMPTY table instead of the merged one.
+`# async <pc> <kernel>` lines list the kernel's cp.async (LDGSTS) pcs (T1a: accesses of the
+issuing thread's async agent); engines older than T1a skip them as comments.
 
 Usage:  python atomic_scope_sidecar.py <dot> [<dot> ...] -o atomic_scope.txt
 """
@@ -32,8 +34,9 @@ def kernel_key(mangled):
     return re.sub(r"\s+", "", sd._demangle(mangled) or mangled)
 
 
-def collect(dot_paths, policy=None):
-    """-> ({(kernel_key, pc): (scope, kind)}, [kernel_key, ...])"""
+def collect(dot_paths, policy=None, asyncs=None):
+    """-> ({(kernel_key, pc): (scope, kind)}, [kernel_key, ...]); asyncs (a dict, if given)
+    receives {kernel_key: sorted cp.async (LDGSTS) pcs} (T1a)."""
     policy = sd.strong_ldst_policy(policy)
     scopes, names = {}, []
     for dp in dot_paths:
@@ -46,7 +49,10 @@ def collect(dot_paths, policy=None):
         for mangled, kern in kernels.items():
             key = kernel_key(mangled)
             names.append(key)
-            for pc, op in sd.HBGraph(*kern).pc_opcode.items():
+            g = sd.HBGraph(*kern)
+            if asyncs is not None and sd.async_pcs(g):
+                asyncs[key] = sorted(sd.async_pcs(g))
+            for pc, op in g.pc_opcode.items():
                 s = sd.coherent_scope(op, policy)
                 if s is not None:
                     kind = "rmw" if sd.atomic_scope(op) is not None else "ldst"
@@ -62,11 +68,16 @@ def main(argv=None):
                     help="which .STRONG loads/stores are coherent accesses "
                          "(default: $CUVEIN_STRONG_LDST or 'generic')")
     args = ap.parse_args(argv)
-    scopes, names = collect(args.dots, args.strong_ldst)
+    asyncs = {}
+    scopes, names = collect(args.dots, args.strong_ldst, asyncs)
     lines = [f"# kernel {key}" for key in names]
     lines += [f"{pc} {s} {kind} {key}" for (key, pc), (s, kind) in sorted(scopes.items())]
+    # T1a: cp.async (LDGSTS) pcs as comment lines -- an engine older than T1a skips them
+    # (it would otherwise read an unknown kind as an atomic RMW)
+    lines += [f"# async {pc} {key}" for key, pcs in sorted(asyncs.items()) for pc in pcs]
     args.output.write_text("\n".join(lines) + ("\n" if lines else ""))
-    print(f"[atomic_scope_sidecar] {len(scopes)} coherent pc(s) -> {args.output}")
+    print(f"[atomic_scope_sidecar] {len(scopes)} coherent pc(s), "
+          f"{sum(len(v) for v in asyncs.values())} cp.async pc(s) -> {args.output}")
     return 0
 
 

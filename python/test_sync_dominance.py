@@ -148,7 +148,9 @@ def test_hb_engine_matches_oracle(binary):
         ops = sd.HBGraph(*kern).pc_opcode
         rmw = {pc: s for pc, op in ops.items() if (s := sd.atomic_scope(op)) is not None}
         coh = {pc: s for pc, op in ops.items() if (s := sd.coherent_scope(op)) is not None}
-        fast = sorted([a, b, n] for (a, b), n in sd.barrier_only_pairs(tj, rmw, coh).items())
+        asy = sd.dump_async_pcs(sd.HBGraph(*kern), tj)
+        fast = sorted([a, b, n] for (a, b), n in
+                      sd.barrier_only_pairs(tj, rmw, coh, async_pc=asy).items())
         assert fast == report["races_sync_only"], f"{binary.name}/{trace.name}: offline pass"
 
         # Coherence profile Pi (Phase 3): the engine's per-address atomic-order hashes

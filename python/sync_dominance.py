@@ -128,6 +128,24 @@ _STRONG_GENERIC = {"LD", "ST"}
 _STRONG_ALL = {"LD", "LDG", "LDS", "LDL", "LDSM", "ST", "STG", "STS", "STL"}
 
 
+# T1a: a cp.async copy (LDGSTS) is performed by the issuing thread's async agent, whose
+# thread id is the thread's with ASYNC_BIT set (HbEngine, hb_oracle, barrier_only_pairs).
+ASYNC_BIT = 1 << 62
+
+
+def async_pcs(eng):
+    """The cp.async (LDGSTS) pcs of an HBGraph: the accesses of the async agent."""
+    return {pc for pc, op in eng.pc_opcode.items() if op.split(".")[0] == "LDGSTS"}
+
+
+def dump_async_pcs(eng, trace):
+    """async_pcs for one dump: empty unless the dump carries the engine's `hb_async`
+    marker. An older dump (pre-T1a collector) has LDGSTS accesses but no pipeline_commit /
+    pipeline_wait records, so under the agent model its copies would never complete; it
+    keeps the pre-T1a reading (the copy is the issuing thread's own access)."""
+    return async_pcs(eng) if trace.get("hb_async") else set()
+
+
 def strong_ldst_policy(policy=None):
     """Resolve the policy: explicit arg > $CUVEIN_STRONG_LDST > 'generic'."""
     policy = policy or os.environ.get("CUVEIN_STRONG_LDST") or "generic"
@@ -463,7 +481,8 @@ def thread_distance(t1, t2):
     return BLOCK if (t1 >> 5) != (t2 >> 5) else WARP
 
 
-def barrier_only_pairs(trace, rmw, coh, max_lanes=None, dist_out=None, order_out=None):
+def barrier_only_pairs(trace, rmw, coh, max_lanes=None, dist_out=None, order_out=None,
+                       async_pc=frozenset()):
     """Offline barrier/syncwarp-ONLY happens-before pass over a dump's `hb_events`:
     the pc pairs {(pc_lo, pc_hi): count} whose conflicts those joins leave unordered
     (the engine's `hb_races_sync_only`, same semantics as hb_oracle's second clock).
@@ -475,6 +494,9 @@ def barrier_only_pairs(trace, rmw, coh, max_lanes=None, dist_out=None, order_out
     coherent accesses. dist_out, if given, receives {(pc_lo, pc_hi): widest thread
     distance (WARP/BLOCK/GRID) among the pair's unordered conflicts}; order_out
     {(pc_lo, pc_hi): (earlier_pc, later_pc)} of the pair's first conflict in event order.
+    async_pc = the cp.async (LDGSTS) pcs: their accesses belong to the issuing thread's
+    async agent, completed for the thread by a covering wait_group (T1a; one-to-one with
+    HbEngine::async_issue/commit/wait).
     -> None if the dump has no hb_events or exceeds max_lanes."""
     events = trace.get("hb_events")
     if not events:
@@ -488,6 +510,35 @@ def barrier_only_pairs(trace, rmw, coh, max_lanes=None, dist_out=None, order_out
     base, own = {}, {}                 # tid -> shared joined clock / own component
     pending = {}                       # (block, bar_index) -> arrived tids
     last_write, last_reads, pairs = {}, {}, {}
+    groups = {}                        # T1a: t -> [its agent's clock at each commit]
+
+    def full(t):                       # t's clock as one dict (base + own component)
+        c = dict(base.get(t) or {})
+        c[t] = max(c.get(t, 0), own.setdefault(t, 1))
+        return c
+
+    def join_to(t, other):             # copy-on-write: bases are shared by sync groups
+        nb = dict(base.get(t) or {})
+        for k, c in other.items():
+            if c > nb.get(k, 0):
+                nb[k] = c
+        base[t] = nb
+
+    def async_issue(t, ag):
+        own.setdefault(ag, 1)
+        join_to(ag, full(t))
+
+    def async_commit(t):
+        ag = t | ASYNC_BIT
+        groups.setdefault(t, []).append(full(ag))
+        own[ag] += 1
+
+    def async_wait(t, n):
+        g = groups.get(t, [])
+        if len(g) > n:
+            done = len(g) - n
+            join_to(t, g[done - 1])
+            del g[:done]
 
     def sync_group(tids):
         for t in tids:
@@ -519,13 +570,23 @@ def barrier_only_pairs(trace, rmw, coh, max_lanes=None, dist_out=None, order_out
     def hit(p_pc, pc, p_tid, t):
         k = (min(p_pc, pc), max(p_pc, pc))
         pairs[k] = pairs.get(k, 0) + 1
-        if dist_out is not None:
-            dist_out[k] = max(dist_out.get(k, NONE), thread_distance(p_tid, t))
+        if dist_out is not None:      # an agent's distance is its thread's
+            dist_out[k] = max(dist_out.get(k, NONE),
+                              thread_distance(p_tid & ~ASYNC_BIT, t & ~ASYNC_BIT))
         if order_out is not None:
             order_out.setdefault(k, (p_pc, pc))
 
     for e in events:
         typ = e["type"]
+        if typ in ("pipeline_commit", "pipeline_wait"):   # T1a
+            for k in range(32):
+                if (e["active_mask"] >> k) & 1:
+                    t = tid_of(e["block"], e["warp"], k)
+                    if typ == "pipeline_commit":
+                        async_commit(t)
+                    else:
+                        async_wait(t, e["groups"])
+            continue
         if typ == "syncwarp":
             m = e["sync_mask"]
             sync_group([tid_of(e["block"], e["warp"], k) for k in range(32) if (m >> k) & 1])
@@ -542,8 +603,12 @@ def barrier_only_pairs(trace, rmw, coh, max_lanes=None, dist_out=None, order_out
         pc, blk, space = e["pc"], e["block"], e["space"]
         is_write = typ == "write" or pc in rmw
         my_coh = coh.get(pc)
+        is_async = pc in async_pc
         for lane in e["lanes"]:
             t = tid_of(blk, e["warp"], lane["lane"])
+            if is_async:
+                t0, t = t, t | ASYNC_BIT
+                async_issue(t0, t)
             loc = (space, blk, lane["addr"]) if space == "shared" else (space, lane["addr"])
             clk = own.setdefault(t, 1)
             w = last_write.get(loc)
@@ -725,7 +790,7 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
                 pairs = barrier_only_pairs(
                     trace, rmw_all, coh_all,
                     int(os.environ.get("CUVEIN_BARRIER_PASS_MAX_LANES", "5000000")),
-                    dist, order)
+                    dist, order, dump_async_pcs(eng, trace))
                 if pairs is not None:
                     res = (pairs, dist, order)
             offline_memo.append(res)
