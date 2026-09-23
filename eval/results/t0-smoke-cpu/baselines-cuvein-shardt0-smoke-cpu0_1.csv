@@ -1,17 +1,17 @@
 id,pset,program,build,input,tool,mode,rep,verdict,reports_dedup,report_ids,report_lines,wall_s,native_wall_s,peak_mb,rc,notes
-P4-1dconv-norace-small,P4,1dconv,norace,small,cuvein,engine,1,CLEAN,0,,,2.271,0.268,859.7,0,node=c20;arch=8.9;events=520;nkernels=2
-P4-1dconv-norace-small,P4,1dconv,norace,small,cuvein,engine,2,CLEAN,0,,,1.22,0.268,854.4,0,node=c20;arch=8.9;events=520;nkernels=2
-P4-1dconv-norace-small,P4,1dconv,norace,small,cuvein,trace-only,1,CLEAN,0,,,1.321,0.268,854.1,0,node=c20;arch=8.9;events=520;nkernels=2
-P4-1dconv-norace-small,P4,1dconv,norace,small,cuvein,trace-only,2,CLEAN,0,,,1.12,0.268,853.9,0,node=c20;arch=8.9;events=520;nkernels=2
-P4-uts-norace-small,P4,uts,norace,small,cuvein,engine,1,TIMEOUT,0,,,120.007,0.271,11525.6,124,timeout=120s;dump_mb=0.0;err=./uts_norace  | Running the pc_dependency_analysis tool for uts_norace...
-P4-uts-norace-small,P4,uts,norace,small,cuvein,engine,2,TIMEOUT,0,,,120.007,0.271,11461.1,124,timeout=120s;dump_mb=0.0;err=./uts_norace  | Running the pc_dependency_analysis tool for uts_norace...
-P4-uts-norace-small,P4,uts,norace,small,cuvein,trace-only,1,CLEAN,0,,,1.924,0.271,924.6,0,node=c20;arch=8.9;events=315938;nkernels=1
-P4-uts-norace-small,P4,uts,norace,small,cuvein,trace-only,2,CLEAN,0,,,1.873,0.271,925.3,0,node=c20;arch=8.9;events=315938;nkernels=1
-P5-norace_interblock_atom,P5,norace_interblock_atom,default,default,cuvein,engine,1,CLEAN,0,,,1.179,0.278,852.9,0,node=c20;arch=8.9;events=2;nkernels=1
-P5-norace_interblock_atom,P5,norace_interblock_atom,default,default,cuvein,engine,2,CLEAN,0,,,1.279,0.278,850.9,0,node=c20;arch=8.9;events=2;nkernels=1
-P5-norace_interblock_atom,P5,norace_interblock_atom,default,default,cuvein,trace-only,1,CLEAN,0,,,4.841,0.278,854.8,0,node=c20;arch=8.9;events=2;nkernels=1
-P5-norace_interblock_atom,P5,norace_interblock_atom,default,default,cuvein,trace-only,2,CLEAN,0,,,2.384,0.278,849.8,0,node=c20;arch=8.9;events=2;nkernels=1
-P5-race_interblock_none-lock_rtraw,P5,race_interblock_none-lock_rtraw,default,default,cuvein,engine,1,RACE,1,global:0x140-0x340:WAR,race_interblock_none-lock_rtraw.cu:31;race_interblock_none-lock_rtraw.cu:37,1.028,0.227,854.9,0,node=c20;arch=8.9;events=13;nkernels=1
-P5-race_interblock_none-lock_rtraw,P5,race_interblock_none-lock_rtraw,default,default,cuvein,engine,2,RACE,1,global:0x140-0x340:WAR,race_interblock_none-lock_rtraw.cu:31;race_interblock_none-lock_rtraw.cu:37,2.383,0.227,849.8,0,node=c20;arch=8.9;events=13;nkernels=1
-P5-race_interblock_none-lock_rtraw,P5,race_interblock_none-lock_rtraw,default,default,cuvein,trace-only,1,RACE,1,global:0x140-0x340:WAR,race_interblock_none-lock_rtraw.cu:31;race_interblock_none-lock_rtraw.cu:37,1.079,0.227,856.0,0,node=c20;arch=8.9;events=13;nkernels=1
-P5-race_interblock_none-lock_rtraw,P5,race_interblock_none-lock_rtraw,default,default,cuvein,trace-only,2,RACE,1,global:0x140-0x340:WAR,race_interblock_none-lock_rtraw.cu:31;race_interblock_none-lock_rtraw.cu:37,1.23,0.227,851.8,0,node=c20;arch=8.9;events=13;nkernels=1
+P4-1dconv-norace-small,P4,1dconv,norace,small,cuvein,vector-clock,1,CLEAN,0,,,2.271,0.268,859.7,0,node=c20;arch=8.9;events=520;nkernels=2
+P4-1dconv-norace-small,P4,1dconv,norace,small,cuvein,vector-clock,2,CLEAN,0,,,1.22,0.268,854.4,0,node=c20;arch=8.9;events=520;nkernels=2
+P4-1dconv-norace-small,P4,1dconv,norace,small,cuvein,scalar-clock,1,CLEAN,0,,,1.321,0.268,854.1,0,node=c20;arch=8.9;events=520;nkernels=2
+P4-1dconv-norace-small,P4,1dconv,norace,small,cuvein,scalar-clock,2,CLEAN,0,,,1.12,0.268,853.9,0,node=c20;arch=8.9;events=520;nkernels=2
+P4-uts-norace-small,P4,uts,norace,small,cuvein,vector-clock,1,TIMEOUT,0,,,120.007,0.271,11525.6,124,timeout=120s;dump_mb=0.0;err=./uts_norace  | Running the pc_dependency_analysis tool for uts_norace...
+P4-uts-norace-small,P4,uts,norace,small,cuvein,vector-clock,2,TIMEOUT,0,,,120.007,0.271,11461.1,124,timeout=120s;dump_mb=0.0;err=./uts_norace  | Running the pc_dependency_analysis tool for uts_norace...
+P4-uts-norace-small,P4,uts,norace,small,cuvein,scalar-clock,1,CLEAN,0,,,1.924,0.271,924.6,0,node=c20;arch=8.9;events=315938;nkernels=1
+P4-uts-norace-small,P4,uts,norace,small,cuvein,scalar-clock,2,CLEAN,0,,,1.873,0.271,925.3,0,node=c20;arch=8.9;events=315938;nkernels=1
+P5-norace_interblock_atom,P5,norace_interblock_atom,default,default,cuvein,vector-clock,1,CLEAN,0,,,1.179,0.278,852.9,0,node=c20;arch=8.9;events=2;nkernels=1
+P5-norace_interblock_atom,P5,norace_interblock_atom,default,default,cuvein,vector-clock,2,CLEAN,0,,,1.279,0.278,850.9,0,node=c20;arch=8.9;events=2;nkernels=1
+P5-norace_interblock_atom,P5,norace_interblock_atom,default,default,cuvein,scalar-clock,1,CLEAN,0,,,4.841,0.278,854.8,0,node=c20;arch=8.9;events=2;nkernels=1
+P5-norace_interblock_atom,P5,norace_interblock_atom,default,default,cuvein,scalar-clock,2,CLEAN,0,,,2.384,0.278,849.8,0,node=c20;arch=8.9;events=2;nkernels=1
+P5-race_interblock_none-lock_rtraw,P5,race_interblock_none-lock_rtraw,default,default,cuvein,vector-clock,1,RACE,1,global:0x140-0x340:WAR,race_interblock_none-lock_rtraw.cu:31;race_interblock_none-lock_rtraw.cu:37,1.028,0.227,854.9,0,node=c20;arch=8.9;events=13;nkernels=1
+P5-race_interblock_none-lock_rtraw,P5,race_interblock_none-lock_rtraw,default,default,cuvein,vector-clock,2,RACE,1,global:0x140-0x340:WAR,race_interblock_none-lock_rtraw.cu:31;race_interblock_none-lock_rtraw.cu:37,2.383,0.227,849.8,0,node=c20;arch=8.9;events=13;nkernels=1
+P5-race_interblock_none-lock_rtraw,P5,race_interblock_none-lock_rtraw,default,default,cuvein,scalar-clock,1,RACE,1,global:0x140-0x340:WAR,race_interblock_none-lock_rtraw.cu:31;race_interblock_none-lock_rtraw.cu:37,1.079,0.227,856.0,0,node=c20;arch=8.9;events=13;nkernels=1
+P5-race_interblock_none-lock_rtraw,P5,race_interblock_none-lock_rtraw,default,default,cuvein,scalar-clock,2,RACE,1,global:0x140-0x340:WAR,race_interblock_none-lock_rtraw.cu:31;race_interblock_none-lock_rtraw.cu:37,1.23,0.227,851.8,0,node=c20;arch=8.9;events=13;nkernels=1
