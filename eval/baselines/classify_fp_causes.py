@@ -46,6 +46,11 @@ import re
 HERE = os.path.dirname(os.path.abspath(__file__))
 APH = os.path.dirname(os.path.dirname(HERE))
 RES = f"{APH}/eval/results"
+
+import sys as _sys
+_sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "python"))
+import hb_modes  # noqa: E402  (vector-clock / scalar-clock; legacy names accepted with a warning)
+VC, SC = hb_modes.VECTOR_CLOCK, hb_modes.SCALAR_CLOCK
 _ATOM = ("ATOM", "ATOMG", "ATOMS", "RED")
 _MEM = re.compile(r"^(U?LD|U?ST|ATOM|RED)")
 
@@ -94,9 +99,10 @@ def lookup(dotmap, a, b):
 
 
 def engine_pairs(idir):
-    """Exact raced pc pairs from the kept engine dumps. A WAR record on this branch has
-    a_pc null: keep it as (None, writer_pc). -> set, or None if no dump was kept."""
-    kjs = glob.glob(f"{idir}/engine/kernel_*.json")
+    """Exact raced pc pairs from the kept vector-clock dumps (the HbEngine's hb_races).
+    A WAR record on this branch has a_pc null: keep it as (None, writer_pc). -> set, or
+    None if no dump was kept."""
+    kjs = glob.glob(f"{hb_modes.resolve_dir(idir, VC)}/kernel_*.json")
     if not kjs:
         return None
     pairs = set()
@@ -123,14 +129,14 @@ def cause_of(ea, eb, hb_class, same_pc, mode, confirmed):
         return e[0] == "atom" or (e[0] in ("seq", "strong") and e[1] == "generic")
     if atomicish(ea) and atomicish(eb) and not (ea[0] == "atom" and eb[0] == "atom"):
         return "RC1-atomic-ldst"
-    if mode == "engine" and (hb_class == "model_bug" or
+    if mode == VC and (hb_class == "model_bug" or
                              (hb_class == "structural" and confirmed is False)):
         return "RC3-attribution"
     if any(e[1] == "spaced" for e in (ea, eb)):
         return "RC5-volatile"
-    # trace-only has no dynamic class: a same-pc plain write-write is the idempotent-
+    # scalar-clock has no dynamic class: a same-pc plain write-write is the idempotent-
     # write candidate there too (the engine confirms these race; barriers don't order them)
-    if same_pc and ea[0] == "plain" and (hb_class == "structural" or mode == "trace-only"):
+    if same_pc and ea[0] == "plain" and (hb_class == "structural" or mode == SC):
         return "RC4-samepc-waw"
     if hb_class in ("latent", None):
         return "RC2-latent"
@@ -149,6 +155,7 @@ def main():
     rows, nodots = [], collections.Counter()
     for f in sorted(glob.glob(f"{a.confirm}/*__cuvein__*.json")):
         j = json.load(open(f))
+        j["mode"] = hb_modes.canon(j["mode"], a.confirm)
         m = man.get(j["id"])
         if not m or m["label"] != "CLEAN" or j["verdict"] != "RACE":
             continue
@@ -159,7 +166,7 @@ def main():
         if not dotmap:
             nodots[(m["pset"], j["mode"])] += 1
             continue
-        pairs = engine_pairs(idir) if j["mode"] == "engine" else None
+        pairs = engine_pairs(idir) if j["mode"] == VC else None
         for r in j["raw"]:
             hit = lookup(dotmap, r["a_pc"], r["b_pc"])
             if hit is None:
@@ -187,7 +194,7 @@ def main():
         w.writeheader()
         w.writerows(rows)
 
-    for mode in ("engine", "trace-only"):
+    for mode in hb_modes.MODES:
         sel = [r for r in rows if r["mode"] == mode]
         print(f"\n=== {mode}: reports per cause")
         c = collections.Counter((r["pset"], r["cause"]) for r in sel)

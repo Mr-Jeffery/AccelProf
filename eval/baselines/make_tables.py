@@ -14,20 +14,29 @@ import math
 import os
 import re
 import statistics
+import sys
 from collections import defaultdict
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 APH = os.path.dirname(os.path.dirname(HERE))
 RES = f"{APH}/eval/results"
 OUT = f"{APH}/eval/BASELINES.md"
+sys.path.insert(0, f"{APH}/python")
+import hb_modes  # noqa: E402  (vector-clock / scalar-clock; legacy names accepted with a warning)
+VC, SC = hb_modes.VECTOR_CLOCK, hb_modes.SCALAR_CLOCK
+
+
+def _mode_rank(mode):
+    """harness order: vector-clock before scalar-clock (as engine / trace-only sorted)"""
+    return hb_modes.MODES.index(mode) if mode in hb_modes.MODES else len(hb_modes.MODES)
 
 # tool column order in verdict tables. Race detectors first, then the three
 # non-race compute-sanitizer tools (their RACE verdict means FLAGGED).
-RACE_TOOLS = [("cuvein", "engine"), ("cuvein", "trace-only"),
+RACE_TOOLS = [("cuvein", VC), ("cuvein", SC),
               ("racecheck", ""), ("hirace", ""), ("iguard", ""), ("supercollider", "")]
 FLAG_TOOLS = [("memcheck", ""), ("synccheck", ""), ("initcheck", "")]
 TOOLCOLS = RACE_TOOLS + FLAG_TOOLS
-COLNAME = {("cuvein", "engine"): "cuVein-eng", ("cuvein", "trace-only"): "cuVein-tr",
+COLNAME = {("cuvein", VC): hb_modes.SHORT[VC], ("cuvein", SC): hb_modes.SHORT[SC],
            ("racecheck", ""): "racecheck", ("hirace", ""): "HiRace",
            ("iguard", ""): "iGUARD", ("supercollider", ""): "SuperCollider",
            ("memcheck", ""): "memcheck*",
@@ -60,7 +69,7 @@ BUG_TOKENS = ["RaceBug", "SyncBug", "BoundsBug", "NbrBoundsBug", "LivelockBug",
 
 def effective_verdict(r):
     """A cuVein CLEAN needs a run that reached its own exit: accelprof returns 1 when
-    the app dies under the tool (OOM-killed engine run) while the kernels dumped before
+    the app dies under the tool (OOM-killed vector-clock run) while the kernels dumped before
     that still parse, so rows written before parallel.py flagged this
     (incomplete-trace) can say CLEAN over a prefix of the run. Re-score them ERROR.
     rc 127 is exempt: the pre-fix bin/accelprof returned it after a SUCCESSFUL run."""
@@ -88,7 +97,7 @@ def load_runs(paths=None):
             for r in rd:
                 if (r.get("tool") or tool) == "cuvein":
                     r["verdict"] = effective_verdict({**r, "tool": "cuvein"})
-                key = (r["id"], r.get("tool") or tool, r.get("mode", ""))
+                key = (r["id"], r.get("tool") or tool, hb_modes.canon(r.get("mode", ""), path))
                 per[key].append(r)
                 meta[r["id"]] = (r["pset"], r["program"], r["build"], r["input"])
     runs = {}
@@ -139,7 +148,11 @@ def load_csv(path):
     if not os.path.exists(path):
         return []
     with open(path, newline="") as f:
-        return list(csv.DictReader(f))
+        rows = list(csv.DictReader(f))
+    for r in rows:              # analysis CSVs with a cuVein mode column (diagnose, fp-causes)
+        if r.get("mode"):
+            r["mode"] = hb_modes.canon(r["mode"], path)
+    return rows
 
 
 SAN_TOOLS = [("memcheck", ""), ("racecheck", ""), ("synccheck", ""), ("initcheck", "")]
@@ -370,7 +383,7 @@ def residual_section():
     if not rows:
         out.append("_No diagnosis CSV yet (run p_diagnose.sh + classify_residuals.py)._")
         return "\n".join(out)
-    out.append("Every program that was ERROR/TIMEOUT in trace-only mode (plus all of P7) was "
+    out.append("Every program that was ERROR/TIMEOUT in scalar-clock mode (plus all of P7) was "
                "re-run by `parallel.py run --timeout-floor 1200` with the native rc/stderr, the "
                "accelprof stderr and the raw-dump size captured; `classify_residuals.py` "
                "assigns one cause per (program, mode). GPU nodes have 188 GB RAM and a 914 GB "
@@ -381,11 +394,11 @@ def residual_section():
                "- **collector-hang** — TIMEOUT with an empty dump and modest RSS: the collector stalled\n"
                "- **collector-memory** — TIMEOUT with an empty dump but ≥32 GB RSS: the collector holds the whole trace in memory (nothing written before the end): **attributable to the cuVein collector**\n"
                "- **collector-oom** — native rc 0 but the accelprof child was SIGKILLed (`Killed`): the collector's memory grows with the trace: **attributable to the cuVein collector**\n"
-               "- **engine-hang** — engine-mode TIMEOUT with an empty dump while trace-only of the same program resolved: **attributable to the cuVein engine** (not the tracer)\n"
+               "- **engine-hang** — vector-clock TIMEOUT with an empty dump while scalar-clock of the same program resolved: **attributable to the cuVein engine** (not the tracer)\n"
                "- **collector-fail** — native rc 0 but accelprof rc≠0 / no kernel JSON: **attributable to the cuVein collector**\n"
                "- **trace-disk-full** — the raw dump filled the node-local scratch disk (`No space left on device`): **attributable to the cuVein collector** (unbounded dump)\n"
-               "- **analysis-oom** — the collector finished but the Python `sync_dominance` analysis of the trace was Killed (OOM): **attributable to cuVein's trace-only analysis path**\n"
-               "- **analysis-timeout** — the collector finished (dump size/kernels in the row) but the offline `sync_dominance` analysis exceeded its wall-clock cap (`--analysis-timeout`): **attributable to cuVein's trace-only analysis path**\n")
+               "- **analysis-oom** — the collector finished but the Python `sync_dominance` analysis of the trace was Killed (OOM): **attributable to cuVein's scalar-clock analysis path**\n"
+               "- **analysis-timeout** — the collector finished (dump size/kernels in the row) but the offline `sync_dominance` analysis exceeded its wall-clock cap (`--analysis-timeout`): **attributable to cuVein's scalar-clock analysis path**\n")
     c = defaultdict(int)
     for r in rows:
         c[(r["mode"], r["cause"])] += 1
@@ -504,7 +517,7 @@ def _fn_reason(ps, prog, build):
                 "false_positives": "race-free by label"}.get(cat, cat)
         return hint
     if prog.startswith("canary"):
-        return "PC-level dedup hides the pair (trace-only leg only; engine catches it)"
+        return "PC-level dedup hides the pair (scalar-clock only; vector-clock catches it)"
     return ""
 
 
@@ -512,7 +525,7 @@ def cuvein_fn_note(runs, meta, man, ps):
     """Which labelled-racy programs cuVein did NOT report, per mode, grouped by the
     mechanical reason hint so the cell stays readable."""
     parts = []
-    for (t, m), tag in ((("cuvein", "engine"), "eng"), (("cuvein", "trace-only"), "tr")):
+    for (t, m), tag in ((("cuvein", VC), "VC"), (("cuvein", SC), "SC")):
         groups = defaultdict(list)
         for _id, mm in sorted(meta.items()):
             if mm[0] != ps or man.get(_id, {}).get("label", "") != "RACE":
@@ -592,7 +605,7 @@ def headtohead_section(runs, meta, man):
                       "All pre-registered sets (P1, PI, P3–P6)",
                       "SuperCollider appears here only through P6: its compiler pass is not "
                       "distributed, so it cannot be run on P1–P5 (see Blockers).")
-    out += _agreement(runs, meta, PREREG_SETS, ("cuvein", "engine"), tools)
+    out += _agreement(runs, meta, PREREG_SETS, ("cuvein", VC), tools)
     if any(k[1] == "supercollider" for k in runs):
         out += _h2h_block(runs, meta, man, SC_SETS, tools,
                           "SuperCollider-matched sets (P6 cuHadron + its 99-test subset of PI Indigo original + P9 HeCBench-10)",
@@ -603,7 +616,7 @@ def headtohead_section(runs, meta, man):
                           "are the SuperCollider paper's racy/race-free flags, not an independent oracle. "
                           "SuperCollider's verdict is RACE if any of 5 attempts reports (its own protocol); "
                           "the others use 3 reps.")
-        out += _agreement(runs, meta, SC_SETS, ("cuvein", "engine"), tools)
+        out += _agreement(runs, meta, SC_SETS, ("cuvein", VC), tools)
         out += cuvein_vs_sc(runs, meta, man)
     return "\n".join(out)
 
@@ -659,7 +672,7 @@ def revision_delta_section(runs, meta, man):
                     if t == "cuvein" and r["wall"] and native.get(i)}
               for tag, o_runs, _, _ in olds}
     for ps in ALL_PSETS:
-        for mode in ("engine", "trace-only"):
+        for mode in hb_modes.MODES:
             for tag, rr, mm, rat in [(tg, o_runs, o_meta, r_olds[tg]) for tg, o_runs, o_meta, _ in olds] + \
                                     [("current", runs, meta, r_new)]:
                 c = fp_tp(rr, mm, man, ps, "cuvein", mode)
@@ -691,17 +704,17 @@ def revision_delta_section(runs, meta, man):
                 flips[(o, r["verdict"])].append((m, i))
         if flips:
             out.append(f"\nVerdict flips per program ({otag} → current), by mode:\n")
-            out.append("| old → new | engine | trace-only |")
+            out.append(f"| old → new | {VC} | {SC} |")
             out.append("|---|---|---|")
             for k in sorted(flips):
-                e = sum(1 for m, _ in flips[k] if m == "engine")
-                t = sum(1 for m, _ in flips[k] if m == "trace-only")
+                e = sum(1 for m, _ in flips[k] if m == VC)
+                t = sum(1 for m, _ in flips[k] if m == SC)
                 out.append(f"| {k[0]} → {k[1]} | {e} | {t} |")
             out.append(f"\n<details><summary>flipped programs ({otag} → current)</summary>\n")
             out.append("| old → new | mode | program | label |")
             out.append("|---|---|---|---|")
             for k in sorted(flips):
-                for m, i in sorted(flips[k]):
+                for m, i in sorted(flips[k], key=lambda mi: (_mode_rank(mi[0]), mi[1])):
                     out.append(f"| {k[0]} → {k[1]} | {m} | `{i}` | {man.get(i, {}).get('label', '')} |")
             out.append("\n</details>")
     return "\n".join(out)
@@ -715,7 +728,7 @@ def cuvein_vs_sc(runs, meta, man):
            "|---|---|---|---|---|---|---|---|"]
     details = []
     for ps in SC_SETS:
-        for cm in (("cuvein", "engine"), ("cuvein", "trace-only")):
+        for cm in (("cuvein", VC), ("cuvein", SC)):
             bb = cc = cvto = scto = 0
             cv = {"RACE": 0, "CLEAN": 0, "": 0}
             sc = {"RACE": 0, "CLEAN": 0, "": 0}
@@ -733,16 +746,16 @@ def cuvein_vs_sc(runs, meta, man):
                     elif av == bv: cc += 1
                     elif av == "RACE":
                         cv[lab] += 1
-                        if cm[1] == "engine": details.append((ps, m[1], m[2], lab, "cuVein only"))
+                        if cm[1] == VC: details.append((ps, m[1], m[2], lab, "cuVein only"))
                     else:
                         sc[lab] += 1
-                        if cm[1] == "engine": details.append((ps, m[1], m[2], lab, "SuperCollider only"))
+                        if cm[1] == VC: details.append((ps, m[1], m[2], lab, "SuperCollider only"))
                 elif bv in ok: cvto += 1
                 elif av in ok: scto += 1
             out.append(f"| {SET_NAME.get(ps, ps)} | {cm[1]} | {bb} | {cc} | {cv['RACE']} / {cv['CLEAN']} / {cv['']} | "
                        f"{sc['RACE']} / {sc['CLEAN']} / {sc['']} | {cvto} | {scto} |")
     if details:
-        out.append(f"\n<details><summary>{len(details)} split programs (cuVein-engine vs SuperCollider)</summary>\n")
+        out.append(f"\n<details><summary>{len(details)} split programs (cuVein {VC} vs SuperCollider)</summary>\n")
         out.append("| set | program | build | label | who reports |")
         out.append("|---|---|---|---|---|")
         for d in details:
@@ -764,13 +777,13 @@ SUITE_FULLNAME = {
     "P7": "HeCBench overhead set (unlabelled real applications)",
     "P9": "HeCBench — SuperCollider's 10-application subset",
 }
-MATRIX_COLS = [("cuvein", "engine"), ("cuvein", "trace-only"), ("racecheck", ""),
+MATRIX_COLS = [("cuvein", VC), ("cuvein", SC), ("racecheck", ""),
                ("sanitizer", ""), ("hirace", ""), ("iguard", ""), ("supercollider", "")]
-MATRIX_NAME = {("cuvein", "engine"): "cuVein (engine)", ("cuvein", "trace-only"): "cuVein (trace-only)",
+MATRIX_NAME = {("cuvein", VC): hb_modes.LABEL[VC], ("cuvein", SC): hb_modes.LABEL[SC],
                ("racecheck", ""): "compute-sanitizer racecheck",
                ("sanitizer", ""): "compute-sanitizer (any of memcheck / racecheck / synccheck / initcheck)",
                ("hirace", ""): "HiRace", ("iguard", ""): "iGUARD", ("supercollider", ""): "SuperCollider"}
-MATRIX_SHORT = {("cuvein", "engine"): "cuVein-eng", ("cuvein", "trace-only"): "cuVein-tr",
+MATRIX_SHORT = {("cuvein", VC): hb_modes.SHORT[VC], ("cuvein", SC): hb_modes.SHORT[SC],
                 ("racecheck", ""): "racecheck", ("sanitizer", ""): "sanitizer(any)",
                 ("hirace", ""): "HiRace", ("iguard", ""): "iGUARD", ("supercollider", ""): "SuperCollider"}
 FP_CAUSE_TEXT = {"RC1": "cuda::atomic load/store not modelled as atomic",
@@ -884,7 +897,7 @@ def _fn_why(runs, meta, man, _id, tool, mode):
     shared = man.get(_id, {}).get("shared_mem", "") == "1"
     cat = prog.split("/")[0]
     if tool == "cuvein":
-        other = "trace-only" if mode == "engine" else "engine"
+        other = SC if mode == VC else VC
         o = runs.get((_id, "cuvein", other))
         if ps == "PI":
             return _bugclass_hint(prog, meta[_id][3], _id)
@@ -942,7 +955,7 @@ def _fail_why(r, diag_cause, tr_ok):
     if "No space left on device" in n:
         return "node scratch disk full (harness, not the tool)"
     if r["verdict"] == "TIMEOUT":
-        return "exceeded the time cap" + (" in engine mode only (trace-only finishes)" if tr_ok else "")
+        return "exceeded the time cap" + (f" in {VC} mode only ({SC} finishes)" if tr_ok else "")
     return "tool error"
 
 
@@ -961,13 +974,13 @@ def matrix_note(runs, meta, man, ps, fpc, diag):
         if c["to"] + c["err"]:
             why = []
             for i in ids["to"] + ids["err"]:
-                tr = runs.get((i, "cuvein", "trace-only"), {}).get("verdict") in ("RACE", "CLEAN")
+                tr = runs.get((i, "cuvein", SC), {}).get("verdict") in ("RACE", "CLEAN")
                 rr = _mrun(runs, i, t, m)
                 if t == "sanitizer":   # the union row carries no notes: take a failed member's
                     rr = next((runs[(i, tt, mm)] for (tt, mm) in SAN_TOOLS if (i, tt, mm) in runs
                                and runs[(i, tt, mm)]["verdict"] in ("TIMEOUT", "ERROR")), rr)
                 why.append(_fail_why(rr, diag.get((i, m)) if t == "cuvein" else "",
-                                     t == "cuvein" and m == "engine" and tr))
+                                     t == "cuvein" and m == VC and tr))
             bits.append(f"TO/ERR {c['to'] + c['err']}: " + _tally(why))
         if bits:
             parts.append(f"**{MATRIX_SHORT[(t, m)]}** — " + ". ".join(bits))
@@ -1051,7 +1064,7 @@ def comparison_matrix_section(runs, meta, man):
                                 for (c, m), d in sorted(am.items())) +
                     " (4 program-inputs per category). Their failures are trace volume of the kernels themselves "
                     "(`kernel_memcpy_dtoh_race`: 64M threads × 201 writes ≈ 1.3e10 traced accesses; "
-                    "`memcpy_htod_kernel_race`: ≈ 2.6e8 reads, engine mode only; `interkernel/global_writewrite_race`: "
+                    "`memcpy_htod_kernel_race`: ≈ 2.6e8 reads, vector-clock mode only; `interkernel/global_writewrite_race`: "
                     "≈ 1.1e8 events, finishes only with the 20-minute cap). Not re-run for that reason: the longer-cap "
                     "diagnose re-runs of `kernel_memcpy_dtoh_race` (cancelled after node failures on c3, c2, c75), the "
                     "`memcpy_htod_kernel_race-fixed` row lost to a full scratch disk on c37, and the "
@@ -1254,55 +1267,55 @@ def x_checks(runs, meta, man):
     def line(x, status, detail):
         L.append(f"- **{x}: {status}** — {detail}")
     F = lambda *a, **k: fp_tp(runs, meta, man, *a, **k)
-    d = F("P1", "cuvein", "engine", "default")
+    d = F("P1", "cuvein", VC, "default")
     nob = d["fp"] + d["tn"]
     ig1 = F("P1", "iguard", "")
     ignob = ig1["fp"] + ig1["tn"]
     if nob:
         rate = 100 * d["fp"] // nob
         status = "CONFIRMED" if d["fp"] > nob // 2 else "PARTIAL"
-        line("X1", status, f"cuVein-engine P1 default: **{d['fp']}/{nob} race-free "
+        line("X1", status, f"cuVein {VC} P1 default: **{d['fp']}/{nob} race-free "
              f"programs reported RACE ({rate}%)**, {d['tp']}/{d['tp']+d['fn']} racy caught "
              f"({d['err']} err/timeout excluded). iGUARD on P1 (both builds): "
              f"{ig1['fp']}/{ignob} race-free reported RACE, {ig1['tp']}/{ig1['tp']+ig1['fn']} racy caught "
              f"({ig1['err']} err/timeout). Expectation was 'cuVein reports most'.")
     else:
         line("X1", "BLOCKED", "P1 default not run.")
-    ds = F("P1", "cuvein", "engine", "slower_atomic")
+    ds = F("P1", "cuvein", VC, "slower_atomic")
     nobs = ds["fp"] + ds["tn"]
     if nobs:
         rate = 100 * ds["fp"] // nobs
         status = "CONFIRMED" if rate <= 5 else "REFUTED"
-        line("X2", status, f"cuVein-engine P1 slower_atomic: **{ds['fp']}/{nobs} race-free "
+        line("X2", status, f"cuVein {VC} P1 slower_atomic: **{ds['fp']}/{nobs} race-free "
              f"reported RACE ({rate}%)** vs {d['fp']}/{nob} on default. Expectation was "
              f"~0; {'met' if rate<=5 else 'NOT met — FP reduced but not to ~0'}.")
     else:
         line("X2", "BLOCKED", "P1 slower_atomic not run.")
-    d2 = F("PI", "cuvein", "engine"); nob2 = d2["fp"] + d2["tn"]
+    d2 = F("PI", "cuvein", VC); nob2 = d2["fp"] + d2["tn"]
     hr2 = F("PI", "hirace", ""); hnob = hr2["fp"] + hr2["tn"]
     ig2 = F("PI", "iguard", ""); ignob2 = ig2["fp"] + ig2["tn"]
     if nob2 or hnob:
         line("X3", "CONFIRMED" if (hr2["fp"] == 0 and hnob) else "PARTIAL",
              f"HiRace (Indigo original suite, bug-free codes x 7 inputs): **{hr2['fp']} FP / {hnob} race-free -> "
-             f"0-FP claim {'HOLDS' if hr2['fp']==0 else 'VIOLATED'}**, {hr2['tp']}/{hr2['tp']+hr2['fn']} racy caught. cuVein-engine PI: "
+             f"0-FP claim {'HOLDS' if hr2['fp']==0 else 'VIOLATED'}**, {hr2['tp']}/{hr2['tp']+hr2['fn']} racy caught. cuVein {VC} PI: "
              f"{d2['fp']}/{nob2} race-free reported RACE, {d2['tp']}/{d2['tp']+d2['fn']} racy caught. "
              f"iGUARD PI: {ig2['fp']}/{ignob2} race-free reported RACE, {ig2['tp']}/{ig2['tp']+ig2['fn']} racy caught.")
     else:
         line("X3", "BLOCKED", "PI not built/run this session.")
-    d3 = F("P3", "cuvein", "engine"); nob3 = d3["fp"] + d3["tn"]
+    d3 = F("P3", "cuvein", VC); nob3 = d3["fp"] + d3["tn"]
     ig3 = F("P3", "iguard", ""); ignob3 = ig3["fp"] + ig3["tn"]
     line("X4", "CONFIRMED" if d3["fp"] > 0 else "see data",
-         f"P3 race-free graph codes: cuVein-engine **{d3['fp']}/{nob3} reported RACE** "
+         f"P3 race-free graph codes: cuVein {VC} **{d3['fp']}/{nob3} reported RACE** "
          f"(over-reports, matches REPORT.md F5); iGUARD {ig3['fp']}/{ignob3} reported RACE; "
          f"HiRace {hr2['fp']}/{hnob} on its race-free patterns.")
     line("X5", "RECORDED", "P4 reduction volatile-tail vs RACEY missing-fence per build "
          "in the P4 table (record-only). See P4 rows.")
-    ce = runs.get(("P5-canary", "cuvein", "engine")); ct = runs.get(("P5-canary", "cuvein", "trace-only"))
+    ce = runs.get(("P5-canary", "cuvein", VC)); ct = runs.get(("P5-canary", "cuvein", SC))
     ci = runs.get(("P5-canary", "iguard", ""))
     if ce and ct:
         ok = ce["verdict"] == "RACE" and ct["verdict"] != "RACE"
         line("X6", "CONFIRMED" if ok else "REFUTED",
-             f"canary: cuVein-engine={ce['verdict']}, cuVein-trace-only={ct['verdict']} "
+             f"canary: cuVein {VC}={ce['verdict']}, cuVein {SC}={ct['verdict']} "
              f"(expected RACE / not-RACE); iGUARD={ci['verdict'] if ci else '—'} "
              f"(the canary's contested words are `__device__` globals, outside iGUARD's "
              f"cuMemAlloc-tracked metadata range).")
@@ -1337,8 +1350,8 @@ def main():
     doc.append(residual_section())
     doc.append("\n## 2. Verdicts per program set\n")
     doc.append("Cells: `RACE(n)` = race reported with n deduped reports; `CLEAN`; "
-               "`TO` timeout; `ERR`; `—` not run. cuVein-eng = C++ HB engine "
-               "verdict; cuVein-tr = trace-only (sync_dominance static leg). "
+               f"`TO` timeout; `ERR`; `—` not run. {hb_modes.SHORT[VC]} = vector-clock mode (C++ HB engine "
+               f"verdict); {hb_modes.SHORT[SC]} = scalar-clock mode (sync_dominance static leg). "
                "Columns marked `*` (memcheck/synccheck/initcheck) are NOT race detectors: "
                "`FLAG(n)` = the tool reported ≥1 error of its own class; `clean` = none.")
     doc.append(headtohead_section(runs, meta, man))
@@ -1351,7 +1364,7 @@ def main():
     doc.append(sanitizer_family_table(runs, meta))
     doc.append(verdict_tables(runs, meta, man, cols))
     doc.append("\n## 3. Disagreements\n")
-    doc.append("Race-capable tools only (cuVein engine/trace-only, racecheck, HiRace, iGUARD); "
+    doc.append(f"Race-capable tools only (cuVein {VC}/{SC}, racecheck, HiRace, iGUARD); "
                "one row per report of the RACE side, classified by endpoint strength "
                "(atomic-scope sidecar) and ordering mechanism (sync_dominance verdict).\n")
     if dis:

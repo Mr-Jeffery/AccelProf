@@ -1,7 +1,7 @@
 """Coherent load/store (RC1) and barrier-ordered (RC2) litmus — see eval/FP_DIAGNOSIS.md.
 
 testdata/coherent_ldst.cu holds one kernel per case. Verdicts come from the full
-pipeline (sync_dominance.analyze over the engine-mode dump produced by getall.sh:
+pipeline (sync_dominance.analyze over the vector-clock dump produced by getall.sh:
 static R1/R2/R3 crossed with the C++ engine's hb_races / hb_races_sync_only), and the
 engine must equal the Python oracle on both race sets. Also pins the toolchain
 lowering the default --strong-ldst=generic policy relies on: cuda::atomic load/store
@@ -153,15 +153,15 @@ def _offline_pairs(dots, trace):
 
 @pytest.mark.parametrize("kernel", _KERNELS)
 def test_offline_barrier_pass_matches_oracle(kernel):
-    """sync_dominance.barrier_only_pairs (shared-base clock, used for trace-only dumps)
+    """sync_dominance.barrier_only_pairs (shared-base clock, used for scalar-clock dumps)
     must equal the oracle's barrier-only second clock."""
     dots, by = _art_or_skip()
     fast, oracle = _offline_pairs(dots, by[kernel])
     assert fast == oracle, kernel
 
 
-def _trace_only_copy(trace, tmp_path):
-    """The same dump as YOSEMITE_HB_NO_ENGINE would write it: no engine keys."""
+def _scalar_clock_copy(trace, tmp_path):
+    """The same dump as YOSEMITE_HB_MODE=scalar-clock would write it: no engine keys."""
     tj = json.loads(trace.read_text())
     for k in ("hb_races", "hb_races_sync_only", "coherence_profile"):
         tj.pop(k, None)
@@ -171,12 +171,12 @@ def _trace_only_copy(trace, tmp_path):
 
 
 @pytest.mark.parametrize("kernel", _KERNELS)
-def test_trace_only_verdict(kernel, tmp_path):
-    """Trace-only mode (static leg + offline barrier pass over hb_events) reaches the
+def test_scalar_clock_verdict(kernel, tmp_path):
+    """Scalar-clock mode (static leg + offline barrier pass over hb_events) reaches the
     same program verdict: the in-loop reduction is barrier-ordered without the engine,
     and with the pass disabled it falls back to the static-only RACE."""
     dots, by = _art_or_skip()
-    trace = _trace_only_copy(by[kernel], tmp_path)
+    trace = _scalar_clock_copy(by[kernel], tmp_path)
     report = _try_dots(sd.analyze, dots, trace)
     assert bool(_races(report)) == (kernel in _RACE), (kernel, _races(report))
     if kernel == "reduce_barrier":

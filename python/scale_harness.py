@@ -7,10 +7,11 @@ cannot surface:
   - engine hb_races: deduped count AND grouped-by-(a_pc,b_pc) pair count
   - TV violations (Phase 1) reported by the engine
   - coherence profile size (atomic addresses; longest per-address order)
-  - wall time A/B: DUMP-only vs DUMP+ENGINE, via YOSEMITE_HB_NO_ENGINE (engine cost)
+  - wall time A/B: scalar-clock (dump only) vs vector-clock (dump + engine), via
+    YOSEMITE_HB_MODE (engine cost = t_vector_clock_s - t_scalar_clock_s)
   - exact VC oracle: verdict + peak RSS + wall, WHERE IT FITS. Above a bound the exact
-    O(threads) oracle is not run -- the row is then flagged engine-only (UNVERIFIED
-    against the oracle), never silently. The engine remains the only verdict there.
+    O(threads) oracle is not run -- the row is then flagged vector_clock_only_unverified
+    (UNVERIFIED against the oracle), never silently. The engine remains the only verdict there.
 
 The harness reuses getall.sh to produce the (CFG .dot, atomic-scope sidecar, trace) tuple,
 then re-runs accelprof directly for the A/B timing.
@@ -18,6 +19,7 @@ then re-runs accelprof directly for the A/B timing.
 Usage: python scale_harness.py <binary> [-- app args...] [--tag NAME] [--oracle-cap-events N]
 """
 import argparse
+import hb_modes  # same dir: vector-clock / scalar-clock
 import json
 import os
 import resource
@@ -39,15 +41,16 @@ def _run(cmd, cwd, env=None, timeout=None):
     return time.time() - t0, p
 
 
-def _accelprof_env(sidecar, no_engine):
+def _accelprof_env(sidecar, mode):
     env = dict(os.environ)
     env["ACCEL_PROF_HOME"] = str(_ROOT)
     env["PATH"] = f"{_ROOT}/bin:" + env.get("PATH", "")
     env["YOSEMITE_HB_TRACE"] = "1"
     if sidecar and Path(sidecar).exists():
         env["YOSEMITE_ATOMIC_SCOPE_FILE"] = str(sidecar)
-    if no_engine:
-        env["YOSEMITE_HB_NO_ENGINE"] = "1"
+    hb_modes.require_collector_support(str(_ROOT))   # a pre-T8 library ignores YOSEMITE_HB_MODE
+    env.pop(hb_modes.LEGACY_ENV, None)      # an inherited pre-T8 switch would flip the mode
+    env.update(hb_modes.collector_env(mode))
     return env
 
 
@@ -80,18 +83,18 @@ def analyze_app(binary, app_args, tag, oracle_cap_events):
     if not dots:
         return {"tag": tag, "error": "no CFG produced (build/GPU/cuobjdump failed)"}
 
-    # 2) The analyzed trace: run accelprof (engine on) WITH the app args, timed. Snapshot
+    # 2) The analyzed trace: run accelprof (vector-clock) WITH the app args, timed. Snapshot
     # dep dirs before/after so we analyze exactly this run's trace, not getall's.
     run_cmd = ["accelprof", "-v", "-t", "pc_dependency_analysis", "-n", "1", f"./{base}", *app_args]
     before = set(idir.glob(f"dependency_{base}_*"))
-    t_engine, _ = _run(run_cmd, cwd=idir, env=_accelprof_env(sidecar, no_engine=False), timeout=7200)
+    t_engine, _ = _run(run_cmd, cwd=idir, env=_accelprof_env(sidecar, hb_modes.VECTOR_CLOCK), timeout=7200)
     new = sorted(set(idir.glob(f"dependency_{base}_*")) - before)
     if not new:
-        return {"tag": tag, "error": "no trace produced (accelprof engine run failed)"}
+        return {"tag": tag, "error": "no trace produced (accelprof vector-clock run failed)"}
     dep = new[-1]
     traces = sorted(dep.glob("kernel_*.json"))
-    # dump-only time (engine cost = t_engine - t_dump), same args.
-    t_dump, _ = _run(run_cmd, cwd=idir, env=_accelprof_env(sidecar, no_engine=True), timeout=7200)
+    # scalar-clock (dump-only) time (engine cost = vector-clock - scalar-clock), same args.
+    t_dump, _ = _run(run_cmd, cwd=idir, env=_accelprof_env(sidecar, hb_modes.SCALAR_CLOCK), timeout=7200)
 
     rows = []
     for tf in traces:
@@ -105,33 +108,33 @@ def analyze_app(binary, app_args, tag, oracle_cap_events):
         row = {
             "tag": tag, "kernel": d["kernel"]["kernel_name"], "trace": tf.name,
             "grid": grid, "block": block, "threads": threads, "events": events,
-            "engine_races_dedup": len(_dedup_races(eng_races)),
-            "engine_race_pc_pairs": len(_pc_pairs(eng_races)),
+            "vector_clock_races_dedup": len(_dedup_races(eng_races)),
+            "vector_clock_race_pc_pairs": len(_pc_pairs(eng_races)),
             "tv_violation": d.get("tv_violation"),
             "atomic_addrs": len(cp),
             "max_coherence_len": max((v["len"] for v in cp.values()), default=0),
-            "t_dump_s": round(t_dump, 3), "t_dump_engine_s": round(t_engine, 3),
-            "t_engine_delta_s": round(t_engine - t_dump, 3),
+            "t_scalar_clock_s": round(t_dump, 3), "t_vector_clock_s": round(t_engine, 3),
+            "t_vector_clock_delta_s": round(t_engine - t_dump, 3),
         }
         # 3) Exact VC oracle where it fits.
         if events == 0:
             row["oracle"] = "n/a (no hb_events)"
         elif events > oracle_cap_events:
             row["oracle"] = f"SKIPPED (events {events} > cap {oracle_cap_events})"
-            row["engine_only_unverified"] = True
+            row["vector_clock_only_unverified"] = True
         else:
             report, peak_kb, t_orc, err = _run_oracle_subprocess(dots, tf)
             if err:
                 row["oracle"] = f"FAILED ({err})"
-                row["engine_only_unverified"] = True
+                row["vector_clock_only_unverified"] = True
             else:
                 orc = _dedup_races(report["races"])
                 eng = _dedup_races(eng_races)
                 row["oracle_races_dedup"] = len(orc)
-                row["engine_eq_oracle"] = (eng == orc)
+                row["vector_clock_eq_oracle"] = (eng == orc)
                 row["oracle_peak_rss_mb"] = round(peak_kb / 1024, 1)
                 row["oracle_wall_s"] = round(t_orc, 3)
-                row["engine_only_unverified"] = False
+                row["vector_clock_only_unverified"] = False
         rows.append(row)
     return {"tag": tag, "rows": rows}
 

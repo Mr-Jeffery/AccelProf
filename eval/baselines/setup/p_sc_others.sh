@@ -7,7 +7,7 @@
 #SBATCH --array=0-15
 #SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/scothers-%A_%a.log
 # The other detectors on the SuperCollider-matched sets P8+P9 (our builds of the
-# same sources): cuVein engine+trace-only, compute-sanitizer family, iGUARD.
+# same sources): cuVein vector-clock+scalar-clock, compute-sanitizer family, iGUARD.
 cd /home/fzheng4/AccelProf || exit 1
 source eval/baselines/gpu_env.sh
 export BASELINE_TRACE_DIR=/mnt/beegfs/$USER/cuvein_traces/sc   # BeeGFS, every trace kept (eval/STORAGE.md)

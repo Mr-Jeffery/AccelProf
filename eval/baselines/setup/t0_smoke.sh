@@ -4,7 +4,7 @@
 #SBATCH --time=01:30:00
 #SBATCH --output=/home/fzheng4/wt-T0/eval/baselines/setup/build_logs/t0-smoke-%j.log
 # T0 smoke test of the storage changes in parallel.py on one GPU node: four small
-# programs (P4-uts-norace-small times out in engine mode -> exercises the
+# programs (P4-uts-norace-small times out in vector-clock mode -> exercises the
 # <mode>-partial-rep<k>/ path; two reps -> the "largest partial wins" rule), into a
 # throw-away BeeGFS store, then the meta/layout is printed.
 #   PIN8G=1 sbatch -p rtx4060ti8g -w c20 eval/baselines/setup/t0_smoke.sh

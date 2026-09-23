@@ -6,21 +6,26 @@ diagnose run of eval/BASELINES.md section 1b (dump_mb at the 20-minute cap).
 """
 import csv
 import glob
+import os
 import re
 import sys
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "python"))
+import hb_modes  # noqa: E402
 
 
 def main():
     resdir, baselines = sys.argv[1], sys.argv[2]
     prev = {}   # (program, mode) -> (verdict, dump_mb, peak_mb, cause)
     for line in open(baselines):
-        m = re.match(r"\| (P[79]) \| ([^|]+) \| (engine|trace-only) \| ([A-Z]*) \| ([^|]*) \| [^|]* \| [^|]* \| ([^|]*) \| ([^|]*) \|", line)
-        if m:
-            prev[(m.group(2).strip(), m.group(3))] = (m.group(4).strip(), m.group(6).strip(), m.group(7).strip(), m.group(5).strip())
+        m = re.match(r"\| (P[79]) \| ([^|]+) \| ([a-z-]+) \| ([A-Z]*) \| ([^|]*) \| [^|]* \| [^|]* \| ([^|]*) \| ([^|]*) \|", line)
+        if m and hb_modes.canon(m.group(3), baselines) in hb_modes.MODES:
+            prev[(m.group(2).strip(), hb_modes.canon(m.group(3), baselines))] = (m.group(4).strip(), m.group(6).strip(), m.group(7).strip(), m.group(5).strip())
     rows = []
     for f in sorted(glob.glob(f"{resdir}/*.csv")):
         for r in csv.DictReader(open(f, newline="")):
             if r["id"].startswith(("P7-", "P9-")):
+                r["mode"] = hb_modes.canon(r["mode"], f)
                 rows.append(r)
     print("| program | mode | T0 verdict (wall s, peak RSS GB) | T0 dump at cap / saved (MB) | node-local run of §1b: verdict, dump (MB), peak GB, cause |")
     print("|---|---|---|---|---|")

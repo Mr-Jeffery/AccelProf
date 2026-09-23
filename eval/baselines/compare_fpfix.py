@@ -22,6 +22,15 @@ APH = os.path.dirname(os.path.dirname(HERE))
 RES = f"{APH}/eval/results"
 PRI = {"RACE": 3, "CLEAN": 2, "TIMEOUT": 1, "ERROR": 0}
 
+import sys as _sys
+_sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(HERE)), "python"))
+import hb_modes  # noqa: E402  (vector-clock / scalar-clock; legacy names accepted with a warning)
+
+
+def _rank(mode):
+    """harness order: vector-clock, then scalar-clock (as engine / trace-only sorted)"""
+    return hb_modes.MODES.index(mode) if mode in hb_modes.MODES else len(hb_modes.MODES)
+
 
 def effective_verdict(r):
     """A cuVein CLEAN needs a run that reached its own exit: accelprof returns 1 when
@@ -41,7 +50,7 @@ def reduce_rows(paths):
         for r in csv.DictReader(open(p, newline="")):
             if r.get("tool", "cuvein") != "cuvein" or not r.get("mode"):
                 continue
-            k, v = (r["id"], r["mode"]), effective_verdict(r)
+            k, v = (r["id"], hb_modes.canon(r["mode"], p)), effective_verdict(r)
             if k not in best or PRI.get(v, -1) > PRI.get(best[k], -1):
                 best[k] = v
     return best
@@ -70,13 +79,13 @@ def main():
     man = {r["id"]: r for r in csv.DictReader(open(a.manifest))}
     before = reduce_rows(sorted(glob.glob(a.before)) or [a.before])   # file or glob
     after = reduce_rows(sorted(glob.glob(a.after_glob)))
-    keys = sorted(k for k in after if k[0] in man)
+    keys = sorted((k for k in after if k[0] in man), key=lambda k: (k[0], _rank(k[1])))
     tb, ta = tally(before, man, keys), tally(after, man, keys)
 
     print(f"{len({k[0] for k in keys})} programs re-run\n")
     print("| pset | mode | FP before | FP after | TP before | TP after | err before | err after |")
     print("|---|---|---|---|---|---|---|---|")
-    for cell in sorted(set(tb) | set(ta)):
+    for cell in sorted(set(tb) | set(ta), key=lambda c: (c[0], _rank(c[1]))):
         b, x = tb[cell], ta[cell]
         print(f"| {cell[0]} | {cell[1]} | {b['FP']}/{b['FP'] + b['TN']} | "
               f"{x['FP']}/{x['FP'] + x['TN']} | {b['TP']}/{b['TP'] + b['FN']} | "
@@ -92,7 +101,7 @@ def main():
                       ("remaining false positives", stillfp)):
         print(f"\n{title}: {len(ks)}")
         for i, mode in ks:
-            print(f"  {mode:10s} {i}")
+            print(f"  {mode:12s} {i}")
 
 
 if __name__ == "__main__":

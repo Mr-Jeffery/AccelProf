@@ -2,11 +2,12 @@
 """Batch driver for the cuVein race eval.
 
 Runs each program in a manifest end-to-end: cubin/CFG extraction + atomic-scope
-sidecar, then three timed configs (native / trace-only / full engine), then the
-verdict aggregator -> one CSV row. All orchestration is subprocess with an
+sidecar, then three timed configs (native / scalar-clock dump / vector-clock), then
+the verdict aggregator -> one CSV row. --mode scalar-clock analyzes the scalar-clock
+dump instead of running the vector-clock config. All orchestration is subprocess with an
 explicit env dict (no shell source/export), so it runs from a worktree session.
 
-Success is detected by the engine dependency dir + kernel JSONs, not accelprof's
+Success is detected by the analyzed run's dependency dir + kernel JSONs, not accelprof's
 exit code (its timing tail can exit nonzero while the tool succeeded).
 
     conda run -p /home/fzheng4/AccelProf/.env python eval/driver.py MANIFEST.json
@@ -26,6 +27,9 @@ from pathlib import Path
 
 import aggregate  # same dir
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "python"))
+import hb_modes  # noqa: E402  (vector-clock / scalar-clock vocabulary)
+
 # CUVEIN_HOME selects which checkout's bin/, lib/, .env/ and python/ run (a worktree
 # with lib/build/.env symlinked to the main checkout is a full runtime mirror).
 APH = os.environ.get("CUVEIN_HOME", "/home/fzheng4/AccelProf")
@@ -43,8 +47,8 @@ def base_env():
     e["PATH"] = f"{APH}/bin:{CUDA_HOME}/bin:" + e.get("PATH", "")
     e["LD_LIBRARY_PATH"] = (f"{CUDA_HOME}/compute-sanitizer:{PY310LIB}:"
                             + e.get("LD_LIBRARY_PATH", ""))
-    # drop any HB knobs inherited from the shell
-    for k in ("YOSEMITE_HB_TRACE", "YOSEMITE_HB_NO_ENGINE", "YOSEMITE_ATOMIC_SCOPE_FILE"):
+    # drop any HB knobs inherited from the shell (the pre-T8 mode switch included)
+    for k in ("YOSEMITE_HB_TRACE", hb_modes.ENV, hb_modes.LEGACY_ENV, "YOSEMITE_ATOMIC_SCOPE_FILE"):
         e.pop(k, None)
     return e
 
@@ -154,7 +158,7 @@ def extract(exe_abs, cubindir):
     return ""
 
 
-def run_program(pg, csv, detail_dir, no_engine=False):
+def run_program(pg, csv, detail_dir, mode=hb_modes.VECTOR_CLOCK):
     exe_abs = os.path.realpath(pg["exe"])
     exe_dir = os.path.dirname(exe_abs)
     exe_base = os.path.basename(exe_abs)
@@ -183,28 +187,31 @@ def run_program(pg, csv, detail_dir, no_engine=False):
     # 1) native
     tn, _, rcn, _ = run_timed([exe_abs, *args], base_env(), exe_dir, timeout, reps,
                               stdin_path=stdin_path)
-    # 2) trace-only (dump, engine skipped) — throwaway depdir
+    # 2) scalar-clock dump (engine skipped) — throwaway depdir unless it is the analyzed run
     for d in glob.glob(f"{exe_dir}/dependency_{exe_base}_*"):
         shutil.rmtree(d, ignore_errors=True)
     te_env = base_env(); te_env["YOSEMITE_HB_TRACE"] = "1"
     if scope:
         te_env["YOSEMITE_ATOMIC_SCOPE_FILE"] = scope
-    tr_env = dict(te_env); tr_env["YOSEMITE_HB_NO_ENGINE"] = "1"
+    hb_modes.require_collector_support(APH)   # a pre-T8 library ignores YOSEMITE_HB_MODE
+    te_env.update(hb_modes.collector_env(hb_modes.VECTOR_CLOCK))
+    tr_env = dict(te_env); tr_env.update(hb_modes.collector_env(hb_modes.SCALAR_CLOCK))
     # accelprof derives its log/output name as ${EXECUTABLE#./}; an absolute path
     # breaks that (writes to a nonexistent dir, app never runs). Pass ./<base> and
     # rely on cwd=exe_dir (matches getall.sh).
     accel = ["accelprof", "-t", "pc_dependency_analysis", "-n", "1",
              f"./{exe_base}", *args]
-    # trace-only mode (YOSEMITE_HB_NO_ENGINE): the dump is the analyzed run — no
-    # in-process vector-clock engine, verdicts come from the static leg over the
-    # trace (hb_races absent), overhead = tracing cost.
-    engine_on = pg.get("engine", True) and not no_engine
+    # scalar-clock mode (YOSEMITE_HB_MODE=scalar-clock): the dump is the analyzed run —
+    # no in-process vector-clock engine, verdicts come from the static leg + offline
+    # barrier-only pass over the trace (hb_races absent), overhead = tracing cost. A
+    # manifest entry with "engine": false forces it per program.
+    engine_on = pg.get("engine", True) and mode == hb_modes.VECTOR_CLOCK
     tt, peak_t, rct, _ = run_timed(accel, tr_env, exe_dir, timeout, 1,
                                    poll_mem=not engine_on, stdin_path=stdin_path)
     if engine_on:
         for d in glob.glob(f"{exe_dir}/dependency_{exe_base}_*"):
             shutil.rmtree(d, ignore_errors=True)
-        # 3) full engine — keep depdir, poll memory
+        # 3) vector-clock — keep depdir, poll memory
         ten, peak, rce, _ = run_timed(accel, te_env, exe_dir, timeout, 1, poll_mem=True,
                                       stdin_path=stdin_path)
     else:
@@ -215,11 +222,11 @@ def run_program(pg, csv, detail_dir, no_engine=False):
 
     kjs = glob.glob(f"{depdir}/kernel_*.json") if depdir else []
     print(f"  [{pg['program']}/{pg.get('variant','')}] "
-          f"native={tn}s trace={tt}s engine={ten}s peak={round(peak/1024,1)}MB "
+          f"native={tn}s scalar-clock={tt}s vector-clock={ten}s peak={round(peak/1024,1)}MB "
           f"kernels={len(kjs)} rc(n/t/e)={rcn}/{rct}/{rce}")
 
     if not kjs:
-        blank_row(f"no-engine-output(rc={rce})")
+        blank_row(f"no-kernel-json(rc={rce})")   # the analyzed run left no dump
         return
 
     ns = types.SimpleNamespace(
@@ -231,8 +238,8 @@ def run_program(pg, csv, detail_dir, no_engine=False):
         oracle_max_events=pg.get("oracle_max_events", 300000),
         expect_pcs=pg.get("expect_pcs", ""), csv=csv,
         assume_warp_lockstep=pg.get("assume_warp_lockstep", False),
-        notes_extra=("" if engine_on else "mode=trace-only(no-engine)"),
-        no_engine=not engine_on,
+        notes_extra=("" if engine_on else f"mode={hb_modes.SCALAR_CLOCK}"),
+        mode=hb_modes.VECTOR_CLOCK if engine_on else hb_modes.SCALAR_CLOCK,
         detail=(f"{detail_dir}/{pg['program']}__{pg.get('variant','')}__{tag}.json"
                 if detail_dir else ""))
     aggregate.emit_row(ns)
@@ -242,13 +249,21 @@ def main():
     import argparse
     ap = argparse.ArgumentParser()
     ap.add_argument("manifest")
-    ap.add_argument("--no-engine", action="store_true",
-                    help="trace-only mode: skip the engine run, analyze the "
-                         "YOSEMITE_HB_NO_ENGINE dump with the static leg")
-    ap.add_argument("--csv-suffix", default="",
-                    help="insert before .csv of the manifest's csv (keeps mode results apart)")
-    ap.add_argument("--detail-suffix", default="", help="subdir suffix for detail JSONs")
+    ap.add_argument("--mode", default=hb_modes.VECTOR_CLOCK, type=hb_modes.check,
+                    help="vector-clock (default: the in-process HbEngine run is analyzed) "
+                         "or scalar-clock (skip it; analyze the YOSEMITE_HB_MODE=scalar-clock "
+                         "dump with the static leg + offline barrier-only pass)")
+    ap.add_argument("--csv-suffix", default=None,
+                    help="insert before .csv of the manifest's csv (keeps mode results "
+                         "apart; default '' for vector-clock, '-scalar-clock' for scalar-clock)")
+    ap.add_argument("--detail-suffix", default=None,
+                    help="subdir suffix for detail JSONs (same defaults as --csv-suffix)")
     a = ap.parse_args()
+    dflt = "" if a.mode == hb_modes.VECTOR_CLOCK else f"-{a.mode}"
+    if a.csv_suffix is None:
+        a.csv_suffix = dflt
+    if a.detail_suffix is None:
+        a.detail_suffix = dflt
     man = json.loads(Path(a.manifest).read_text())
     csv = man["csv"]
     if a.csv_suffix:
@@ -261,12 +276,11 @@ def main():
         os.makedirs(detail_dir, exist_ok=True)
     os.makedirs(os.path.dirname(csv), exist_ok=True)
     progs = man["programs"]
-    print(f"driver: {len(progs)} program(s) -> {csv}"
-          + (" [trace-only, no engine]" if a.no_engine else ""))
+    print(f"driver: {len(progs)} program(s) -> {csv} [{a.mode}]")
     for i, pg in enumerate(progs, 1):
         print(f"[{i}/{len(progs)}] {pg['suite']} {pg['program']} {pg.get('variant','')}")
         try:
-            run_program(pg, csv, detail_dir, no_engine=a.no_engine)
+            run_program(pg, csv, detail_dir, mode=a.mode)
         except Exception as e:
             print(f"  ERROR {type(e).__name__}: {e}")
     print("driver: done")

@@ -6,7 +6,7 @@
 #SBATCH --array=0-31
 #SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/keep-%A_%a.log
 # Re-collect the FP/FN programs (label != verdict in either mode) plus the
-# engine-only TIMEOUT/ERROR programs, keeping their traces under
+# vector-clock-only TIMEOUT/ERROR programs, keeping their traces under
 # eval/baselines/traces_keep/<id>/ (TP/TN traces are deleted as always). Rows are
 # merged as extra reps (shard tag 'keep').
 cd /home/fzheng4/AccelProf || exit 1

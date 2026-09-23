@@ -468,7 +468,7 @@ def barrier_only_pairs(trace, rmw, coh, max_lanes=None, dist_out=None, order_out
     the pc pairs {(pc_lo, pc_hi): count} whose conflicts those joins leave unordered
     (the engine's `hb_races_sync_only`, same semantics as hb_oracle's second clock).
 
-    It needs no atomic release/acquire joins, so it is cheap enough for the trace-only
+    It needs no atomic release/acquire joins, so it is cheap enough for the scalar-clock
     mode: the clock changes only at a sync group, where every participant ends with
     the same joined clock plus its own tick -> one shared base per group, O(threads)
     per barrier. rmw = {pc: scope} atomic RMWs (write semantics), coh = {pc: scope}
@@ -705,8 +705,8 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
     sync_only = trace.get("hb_races_sync_only")
     sync_pcsets = {frozenset((a, b)) for a, b, _ in sync_only} \
         if sync_only is not None else None
-    # No engine-side set (trace-only dump, or a pre-fix engine): derive it offline from
-    # hb_events. The barrier-only clock needs no atomic joins, so the trace-only mode
+    # No engine-side set (scalar-clock dump, or a pre-fix engine): derive it offline from
+    # hb_events. The barrier-only clock needs no atomic joins, so the scalar-clock mode
     # gets the same barrier-ordered evidence without running the exact engine.
     # $CUVEIN_BARRIER_PASS=0 disables it; dumps above $CUVEIN_BARRIER_PASS_MAX_LANES
     # lane-accesses (default 5M) stay static-only.
@@ -889,7 +889,7 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
             if recs[0].get("a_pc") is not None:
                 ev_info[k] = (recs[0]["a_pc"], recs[0]["b_pc"], observed_dyn.get(k, NONE),
                               len(recs))
-        off = offline_pass()    # lazy in engine mode: distance + orientation of the rest
+        off = offline_pass()    # lazy in vector-clock mode: distance + orientation of the rest
         if off is not None:
             for k2, n in off[0].items():
                 ev_info.setdefault(frozenset(k2), (*off[2][k2], off[1][k2], n))
