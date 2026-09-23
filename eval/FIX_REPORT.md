@@ -15,7 +15,7 @@ evidence, whether it is fixable, what was changed, and what remains. Detector di
 | F6 (new) | residual `model_bug` on 2-block TC | atomic **release map keyed by raw address**; shared-memory offsets repeat per block, so one block's release clobbered another's → spurious same-block atomic race | yes | **fixed** (engine + oracle) |
 | R1 loop hole (new, latent) | none observed | `dominance()` ignored sync-free wrap-around paths on the cyclic region graph | yes | **fixed** |
 | F1 | 12 structural FPs on the lock-based reduction | **not** fence-blindness: 10 intra-warp lock-step pairs the engine has no event for; 2 a trace **record-order inversion** | partly | opt-in `--assume-warp-lockstep` removes the 10; the 2 are documented |
-| F4 | confirmed FN (`cp.async` read-before-wait) | the async shared write **is** recorded but attributed to the issuing lane's own tid; the wait is not instrumented | yes | **designed** (`PIPELINE_WAIT` + virtual async agent); not applied — needs a GPU-patch rebuild |
+| F4 | confirmed FN (`cp.async` read-before-wait) | the async shared write **is** recorded but attributed to the issuing lane's own tid; the wait is not instrumented | yes | **fixed** in T1a (`eval/CP_ASYNC_REPORT.md`): async agent per thread + commit groups (`PIPELINE_COMMIT` / `PIPELINE_WAIT`); racy → 1 RAW, fixed → 0 in both modes, E6a 9/9, no other P5/P6 verdict change |
 | F5 | structural FPs on graph-analytics benign races | plain reads of atomically-updated locations; idempotent plain WAW; trace `ATOMIC` flag is `ATOMSYS` (unusable) | partly | Tier-1 `benign` re-bucket applied; plain-vs-plain residue needs Tier 2/3 |
 | — | 1 Indigo3 TC RaceBug miss | 1-block input cannot exhibit the cross-block planted race | yes | caught on the 2-block 1024-node graph |
 
@@ -135,7 +135,7 @@ fresh trace), racy still TP.
 instrumentation order; a `%globaltimer` stamp would narrow but not close the window; a
 "spun-then-released" pattern match is the kind of case-specific heuristic the project rejects.
 
-## F4 — `cp.async` read-before-wait false negative (designed, not applied)
+## F4 — `cp.async` read-before-wait false negative (fixed in T1a)
 
 **Symptom.** `cuHadron/memcpy/shared_readwrite_race` racy: cuVein clean, Compute-Sanitizer
 racecheck reports a shared-memory hazard.
@@ -163,6 +163,24 @@ non-qualifying sync node with an `async_wait()` ordering source. Expected: racy 
 the fixed build reports a race. Requires a clean rebuild of `nv-compute` (fatbin) and
 `sanalyzer` (build notes in `memory/build-toolchain-gotchas.md`; use the conda compiler the
 existing build used, `CXX=/home/fzheng4/miniconda3/bin/x86_64-conda-linux-gnu-c++`).
+
+**Applied (T1a, 2026-09-23; `eval/CP_ASYNC_REPORT.md`).** Merged on `cuVein`, with four
+changes to the design above:
+1. **Commit groups.** `cp.async.wait_group N` completes only the groups older than the N
+   newest, so `PIPELINE_COMMIT` (15) is registered too, and a wait joins the snapshot of the
+   group it completes.
+2. **Where asyncness comes from.** It comes from the `LDGSTS` opcode (sidecar `# async`
+   lines for the engine, the CFG for the oracle and the offline pass), not from an
+   `ASYNC_COPY` flag bit, which would have changed the default path's `current_flags`.
+3. **Static leg unchanged.** The event stream rescues the intra-thread edge instead.
+4. **Old dumps.** The engine marks its dumps `"hb_async": 1`, and unmarked pre-T1a dumps keep
+   the old reading.
+
+Measured on sm_89 (c20): `memcpy/shared_readwrite_race` racy RACE `shared:0x70-0x90:RAW` and
+fixed CLEAN, in both modes. The other 116 P5/P6 rows are unchanged. E6a agreement is 9/9. The
+green set plus `python/test_cp_async.py` gives 157 passed and 1 xfail. The default tool path
+is byte-identical. The tripwire holds: `PIPELINE_WAIT` fires for `DEPBAR.LE`. The sm_86 half
+of the tripwire was not run.
 
 ## F5 — Benign / inherent races of graph analytics (Tier 1 applied)
 
@@ -212,7 +230,7 @@ were artifacts of the `ATOMS` self-race and are now honest 1-block FNs.
 | E0 reduction race-free, structural | 12 | 11 (fresh trace) → **1** with `--assume-warp-lockstep` (10 `warp-po-ordered`) |
 | E0 graph-connectivity racy | tv 1; `0x400→0x430` model_bug | tv 0; planted `0x160→0x400` structural TP; `0x400→0x430` latent |
 | E3 ECL structural (CC/GC/MIS/MST) | 25/2/20/25 = 52 | 24/2/**0**/14 = 40 (benign 2/0/19/15) |
-| E2 memcpy/intersubwarp | 4 TP, F4 FN | unchanged (F4 pending) |
+| E2 memcpy/intersubwarp | 4 TP, F4 FN | unchanged (F4 pending); F4 fixed later in T1a: 5 TP, E6a 9/9 (`eval/CP_ASYNC_REPORT.md`) |
 | E5 litmus / canary | P=R=1.00, 33/33 oracle; 1 structural | unchanged, re-verified 68/68 |
 
 ## Verification
