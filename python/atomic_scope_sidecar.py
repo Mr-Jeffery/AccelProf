@@ -36,7 +36,8 @@ def kernel_key(mangled):
 
 def collect(dot_paths, policy=None, asyncs=None):
     """-> ({(kernel_key, pc): (scope, kind)}, [kernel_key, ...]); asyncs (a dict, if given)
-    receives {kernel_key: sorted cp.async (LDGSTS) pcs} (T1a)."""
+    receives {kernel_key: {cp.async (LDGSTS) pcs}} (T1a), the union over the dots like the
+    coherent-pc table (a multi-arch binary has one cubin per arch)."""
     policy = sd.strong_ldst_policy(policy)
     scopes, names = {}, []
     for dp in dot_paths:
@@ -51,7 +52,7 @@ def collect(dot_paths, policy=None, asyncs=None):
             names.append(key)
             g = sd.HBGraph(*kern)
             if asyncs is not None and sd.async_pcs(g):
-                asyncs[key] = sorted(sd.async_pcs(g))
+                asyncs.setdefault(key, set()).update(sd.async_pcs(g))
             for pc, op in g.pc_opcode.items():
                 s = sd.coherent_scope(op, policy)
                 if s is not None:
@@ -74,7 +75,7 @@ def main(argv=None):
     lines += [f"{pc} {s} {kind} {key}" for (key, pc), (s, kind) in sorted(scopes.items())]
     # T1a: cp.async (LDGSTS) pcs as comment lines -- an engine older than T1a skips them
     # (it would otherwise read an unknown kind as an atomic RMW)
-    lines += [f"# async {pc} {key}" for key, pcs in sorted(asyncs.items()) for pc in pcs]
+    lines += [f"# async {pc} {key}" for key, pcs in sorted(asyncs.items()) for pc in sorted(pcs)]
     args.output.write_text("\n".join(lines) + ("\n" if lines else ""))
     print(f"[atomic_scope_sidecar] {len(scopes)} coherent pc(s), "
           f"{sum(len(v) for v in asyncs.values())} cp.async pc(s) -> {args.output}")

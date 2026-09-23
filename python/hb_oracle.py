@@ -170,12 +170,14 @@ def analyze(dot_path, trace_path, strong_ldst=None):
         eff = min(c1, c2)
         return eff == sd.GRID or (eff == sd.BLOCK and b1 == b2)
 
-    def conflict(prev_tid, prev_clk, prev_sclk, prev_pc, t, pc, kind, rec):
-        """One unordered-ness test per clock for a conflicting (prev, current) pair."""
-        if prev_clk > vc[t].get(prev_tid, 0):
+    def conflict(prev_tid, prev_clk, prev_sclk, prev_pc, t, pc, kind, rec, observer=None):
+        """One unordered-ness test per clock for a conflicting (prev, current) pair, as
+        seen by `observer` (default t; the issuing thread for two copies of its agent)."""
+        o = t if observer is None else observer
+        if prev_clk > vc[o].get(prev_tid, 0):
             races.append({**rec, "a_tid": prev_tid, "a_pc": prev_pc,
                           "b_tid": t, "b_pc": pc, "kind": kind})
-        if prev_sclk > vs[t].get(prev_tid, 0):
+        if prev_sclk > vs[o].get(prev_tid, 0):
             sync_pairs[(min(prev_pc, pc), max(prev_pc, pc))] += 1
 
     # T1a: the async agent (see HbEngine::async_issue/commit/wait; one-to-one)
@@ -336,8 +338,14 @@ def analyze(dot_path, trace_path, strong_ldst=None):
             clk, sclk = own(t), owns(t)
             # conflict with the last writer / concurrent readers not HB-before t
             w = last_write.get(loc)
-            if w and w[0] != t and not coherent(my_coh, my_block, w[4], w[5]):
-                conflict(w[0], w[1], w[2], w[3], t, pc, "WAW" if is_write else "RAW", rec)
+            if w and not coherent(my_coh, my_block, w[4], w[5]):
+                if w[0] != t:
+                    conflict(w[0], w[1], w[2], w[3], t, pc, "WAW" if is_write else "RAW", rec)
+                elif is_write and t & ASYNC:
+                    # two copies of one thread: PTX orders no two cp.async operations, so
+                    # they are unordered until a wait completes the first. The agent knows
+                    # its own copies; the thread knows only those a wait completed.
+                    conflict(w[0], w[1], w[2], w[3], t, pc, "WAW", rec, observer=t0)
             if is_write:
                 # the reader pc is kept: a WAR record must name both pcs (a single-pc
                 # key mis-attributes the race to every pair sharing it).

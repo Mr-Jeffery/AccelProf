@@ -1,11 +1,17 @@
 """T1a (eval/CP_ASYNC_REPORT.md): cp.async (LDGSTS) copies and the waits that complete them,
-end to end. python/testdata/cp_async_wait.cu in three builds -- racy (the read comes before
-cp.async.wait_all), fixed (after it) and groups (two commit groups, wait_group 1: the first is
-complete, the second may still be in flight). Each is built for the GPU running the suite and
-traced with getall.sh (vector-clock); the scalar-clock view is the same dump without the
-engine's keys. Asserted by semantics -- pcs are found through the CFG's opcodes, never
-hard-coded -- so the test holds across architectures and CUDA versions.
-Needs a GPU node; part of the green set.
+end to end. python/testdata/cp_async_wait.cu in nine builds, each built for the GPU running the
+suite and traced with getall.sh (vector-clock); the scalar-clock view is the same dump without
+the engine's keys.
+  racy / fixed      the read before / after cp.async.wait_all
+  groups            two commit groups, wait_group 1: the first is complete, the second in flight
+  barrier(_fixed)   a __syncthreads() between the copy and a read of the other warp's element,
+                    the wait after the read (before the barrier): a barrier completes no copy
+  barrier_own       the same with the thread's own element
+  twice(_fixed)     two copies of one thread into one element, without (with) a wait between
+  mbarrier          a copy completed through a cuda::barrier: not modelled, so the kernel keeps
+                    the pre-T1a reading (no race on the copy)
+Asserted by semantics -- pcs are found through the CFG's opcodes, never hard-coded -- so the
+test holds across architectures and CUDA versions. Needs a GPU node; part of the green set.
 """
 import json
 import shutil
@@ -19,7 +25,11 @@ import sync_dominance as sd
 
 _ROOT = Path(__file__).resolve().parents[1]
 _SRC = _ROOT / "python" / "testdata" / "cp_async_wait.cu"
-VARIANTS = {"racy": [], "fixed": ["-DFIXED"], "groups": ["-DGROUPS"]}
+VARIANTS = {"racy": [], "fixed": ["-DFIXED"], "groups": ["-DGROUPS"],
+            "barrier": ["-DBARRIER"], "barrier_fixed": ["-DBARRIER", "-DFIXED"],
+            "barrier_own": ["-DBARRIER", "-DOWN"],
+            "twice": ["-DTWICE"], "twice_fixed": ["-DTWICE", "-DFIXED"],
+            "mbarrier": ["-DMBARRIER"]}
 
 
 @pytest.fixture(scope="module")
@@ -75,15 +85,34 @@ def _pairs(races):
     return {(r["a_pc"], r["b_pc"], r["kind"], r.get("async")) for r in races}
 
 
+def _expected(v, copies, loads):
+    """The engine's race records ((a_pc, b_pc, kind, async)) that involve a copy."""
+    if v in ("racy", "barrier", "barrier_own"):     # the copy vs the unwaited read
+        return {(copies[0], loads[0], "RAW", "a")}
+    if v == "groups":                               # group B still in flight at wait_group 1
+        return {(copies[1], loads[1], "RAW", "a")}
+    if v == "twice":                                # the two copies of one thread
+        return {(copies[0], copies[1], "WAW", "ab")}
+    return set()                                    # fixed, *_fixed, mbarrier
+
+
+def _copy_pairs(pairs, copies):
+    return {p for p in pairs if p[0] in copies or p[1] in copies}
+
+
 @pytest.mark.parametrize("v", list(VARIANTS))
 def test_commit_and_wait_are_recorded(built, v):
     # tripwire of the design: PIPELINE_COMMIT / PIPELINE_WAIT fire for LDGDEPBAR / DEPBAR.LE
     _, trace = built[v]
-    ev = json.loads(Path(trace).read_text())["hb_events"]
+    tj = json.loads(Path(trace).read_text())
+    ev = tj["hb_events"]
     waits = sorted({e["groups"] for e in ev if e["type"] == "pipeline_wait"})
+    assert tj.get("hb_async") == 1                  # the dump says so
+    if v == "mbarrier":                             # completed through the mbarrier instead
+        assert not any(e["type"].startswith("pipeline_") for e in ev)
+        return
     assert any(e["type"] == "pipeline_commit" for e in ev)
     assert waits == ([0, 1] if v == "groups" else [0])
-    assert json.loads(Path(trace).read_text()).get("hb_async") == 1   # the dump says so
 
 
 @pytest.mark.parametrize("v", list(VARIANTS))
@@ -91,12 +120,9 @@ def test_engine_races(built, v):
     dots, trace = built[v]
     _, copies, loads, _ = _ops(dots, trace)
     races = _pairs(json.loads(Path(trace).read_text())["hb_races"])
-    if v == "racy":      # the copy (async side a) vs the thread's early read
-        assert races == {(copies[0], loads[0], "RAW", "a")}
-    elif v == "fixed":
-        assert races == set()
-    else:                # group B still in flight at wait_group 1; group A complete
-        assert races == {(copies[1], loads[1], "RAW", "a")}
+    assert _copy_pairs(races, set(copies)) == _expected(v, copies, loads)
+    if v != "mbarrier":     # (the cuda::barrier's own polling of its state word races too)
+        assert races == _expected(v, copies, loads)
 
 
 @pytest.mark.parametrize("v", list(VARIANTS))
@@ -121,32 +147,62 @@ def test_offline_pass_matches_oracle(built, v):
     assert sorted([a, b, n] for (a, b), n in fast.items()) == rep["races_sync_only"]
 
 
-@pytest.mark.parametrize("v", list(VARIANTS))
-@pytest.mark.parametrize("mode", ["vector-clock", "scalar-clock"])
-def test_verdict(built, v, mode, tmp_path):
-    dots, trace = built[v]
-    _, copies, loads, _ = _ops(dots, trace)
+def _race_verdicts(dots, trace, tmp_path, mode, **kw):
     t = json.loads(Path(trace).read_text())
     if mode == "scalar-clock":
         for k in ("hb_races", "hb_races_sync_only"):
             t.pop(k, None)
-    p = tmp_path / "k.json"
+    p = tmp_path / f"k_{mode}.json"
     p.write_text(json.dumps(t))
-    races = {(r["ancient_pc"], r["current_pc"]) for r in _try(sd.analyze, dots, p)["verdicts"]
-             if r["verdict"] == "RACE"}
-    want = {(copies[0], loads[0])} if v == "racy" else set() if v == "fixed" \
-        else {(copies[1], loads[1])}
-    assert races == want
+    return {(r["ancient_pc"], r["current_pc"]) for r in _try(sd.analyze, dots, p, **kw)["verdicts"]
+            if r["verdict"] == "RACE"}
+
+
+@pytest.mark.parametrize("v", list(VARIANTS))
+@pytest.mark.parametrize("mode", ["vector-clock", "scalar-clock"])
+def test_verdict(built, v, mode, tmp_path):
+    # both modes, including a barrier between the copy and the read: the static rules may
+    # not order a pair whose earlier access is a copy (it completes only at the wait)
+    dots, trace = built[v]
+    _, copies, loads, _ = _ops(dots, trace)
+    races = _race_verdicts(dots, trace, tmp_path, mode)
+    want = {(a, b) for a, b, _, _ in _expected(v, copies, loads)}
+    assert {p for p in races if p[0] in copies or p[1] in copies} == want
+
+
+@pytest.mark.parametrize("v", ["racy", "barrier_own", "twice"])
+def test_lockstep_orders_no_copy(built, v, tmp_path):
+    # --assume-warp-lockstep orders same-warp pairs in program order; a copy is performed by
+    # the thread's async agent, not in the lane's program order, so its races stay
+    dots, trace = built[v]
+    _, copies, loads, _ = _ops(dots, trace)
+    races = _race_verdicts(dots, trace, tmp_path, "vector-clock", assume_warp_lockstep=True)
+    assert {p for p in races if p[0] in copies or p[1] in copies} == \
+        {(a, b) for a, b, _, _ in _expected(v, copies, loads)}
+
+
+def test_mbarrier_copies_keep_the_pre_t1a_reading(built):
+    # a copy completed through an mbarrier (cp.async.mbarrier.arrive = ARRIVES.LDGSTSBAR) is
+    # not modelled: the kernel's LDGSTS pcs are not async, for the engine (sidecar) and the
+    # oracle / offline pass (CFG) alike
+    dots, trace = built["mbarrier"]
+    ops, copies, _, rep = _ops(dots, trace)
+    assert copies and any(op.startswith("ARRIVES.LDGSTSBAR") for op in ops.values())
+    g = sd.HBGraph(*sd.parse_dot(rep["inputs"]["cfg_dot"])[rep["kernel"]["mangled"]])
+    assert sd.async_pcs(g) == set()
+    sidecar = Path(dots[0]).parent / "atomic_scope.txt"     # getall.sh writes it by the dots
+    assert sidecar.exists() and "# async" not in sidecar.read_text()
 
 
 @pytest.mark.parametrize("v", list(VARIANTS))
 def test_dump_without_marker_keeps_the_pre_t1a_reading(built, v, tmp_path):
     # A dump from a pre-T1a collector: LDGSTS accesses, no commit/wait records, no hb_async
-    # marker. The agent model would leave every copy in flight (the fixed build would
-    # race); without the marker the copy stays the issuing thread's own access, so none of
-    # the three builds races -- the pre-T1a verdict, false negative of the racy build
-    # included (found on the kept pre-T1a stores, eval/CP_ASYNC_REPORT.md).
+    # marker. The agent model would leave every copy in flight (the fixed builds would
+    # race); without the marker the copy stays the issuing thread's own access, so no build
+    # races on a copy -- the pre-T1a verdict, false negatives of the racy builds included
+    # (found on the kept pre-T1a stores, eval/CP_ASYNC_REPORT.md).
     dots, trace = built[v]
+    _, copies, _, _ = _ops(dots, trace)
     t = json.loads(Path(trace).read_text())
     t.pop("hb_async")
     t["hb_events"] = [e for e in t["hb_events"]
@@ -155,5 +211,6 @@ def test_dump_without_marker_keeps_the_pre_t1a_reading(built, v, tmp_path):
         t.pop(k, None)
     p = tmp_path / "k.json"
     p.write_text(json.dumps(t))
-    assert _try(ho.analyze, dots, p)["races"] == []
-    assert [r for r in _try(sd.analyze, dots, p)["verdicts"] if r["verdict"] == "RACE"] == []
+    assert _copy_pairs(_pairs(_try(ho.analyze, dots, p)["races"]), set(copies)) == set()
+    assert [r for r in _try(sd.analyze, dots, p)["verdicts"] if r["verdict"] == "RACE"
+            and (r["ancient_pc"] in copies or r["current_pc"] in copies)] == []
