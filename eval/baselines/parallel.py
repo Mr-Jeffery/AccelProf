@@ -335,7 +335,9 @@ def collect_one(mrow, cuda, reps, floor=120):
             # the first COMPLETE one, else the first partial one (flagged; a race it
             # already shows is still a race, but it can never certify CLEAN).
             if kjs and not to and (not saved or (partial and complete)):
-                _save(kjs, f"{idir}/{mode}")
+                # T2: the program-level host-operation log (YOSEMITE_HB_HOST_MEMCPY=1)
+                hops = [f"{depdir}/host_ops.json"] if os.path.exists(f"{depdir}/host_ops.json") else []
+                _save(kjs + hops, f"{idir}/{mode}")
                 saved, partial = True, not complete
             elif kjs and to:
                 kept = _keep_partial(depdir, mode, rep, rm)

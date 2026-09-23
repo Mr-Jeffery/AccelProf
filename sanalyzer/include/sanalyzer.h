@@ -52,6 +52,36 @@ YosemiteResult_t yosemite_memcpy_callback(uint64_t dst, uint64_t src, uint64_t s
 
 YosemiteResult_t yosemite_memset_callback(uint64_t dst, uint32_t size, int value, bool is_async, int device_id);
 
+// T2 (design/host_memcpy_model.md): one host-side operation that orders or touches device
+// memory outside any kernel. The collector sends these only when YOSEMITE_HB_HOST_MEMCPY=1;
+// pc_dependency_analysis logs them to host_ops.json, every other tool ignores them.
+typedef enum {
+    YOSEMITE_HOST_MEMCPY = 0,         // src/dst/size (+ width/height/depth/pitches), is_async, direction
+    YOSEMITE_HOST_MEMSET = 1,         // dst, width bytes x height rows at dst_pitch, is_async
+    YOSEMITE_HOST_LAUNCH = 2,         // stream; flags = 1 if the launch was monitored (has a kernel_N.json)
+    YOSEMITE_HOST_STREAM_CREATE = 3,  // stream; flags = cuStreamGetFlags, 0xffffffff if unknown
+    YOSEMITE_HOST_STREAM_SYNC = 4,    // stream
+    YOSEMITE_HOST_CTX_SYNC = 5,
+    YOSEMITE_HOST_EVENT_RECORD = 6,   // event, stream
+    YOSEMITE_HOST_STREAM_WAIT = 7,    // event, stream
+    YOSEMITE_HOST_EVENT_SYNC = 8,     // event
+    YOSEMITE_HOST_ALLOC = 9,          // pinned host memory: dst, size, flags
+    YOSEMITE_HOST_FREE = 10,          // dst, size
+} YosemiteHostOpKind_t;
+
+typedef struct YosemiteHostOp {
+    uint32_t kind = 0;
+    uint64_t stream = 0;      // Sanitizer_StreamHandle of the op's (API) stream
+    uint64_t stream_ptr = 0;  // its CUstream value (0 = NULL = the legacy default stream)
+    uint64_t event = 0;       // CUevent
+    uint32_t flags = 0;
+    uint64_t src = 0, dst = 0, size = 0;
+    uint64_t width = 0, height = 0, depth = 0, src_pitch = 0, dst_pitch = 0;
+    uint32_t is_async = 0, direction = 0;   // direction: Sanitizer_MemcpyDirection
+} YosemiteHostOp_t;
+
+YosemiteResult_t yosemite_host_op_callback(const YosemiteHostOp_t& op);
+
 YosemiteResult_t yosemite_kernel_start_callback(
     std::string kernel_name,
     int device_id,

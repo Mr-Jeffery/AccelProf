@@ -172,6 +172,8 @@ def main():
             continue
         pairs = engine_pairs(idir) if j["mode"] == VC else None
         for r in j["raw"]:
+            if r.get("host"):                  # T2 host-copy race: no pc pair to classify
+                continue
             hit = lookup(dotmap, r["a_pc"], r["b_pc"])
             if hit is None:
                 ea = eb = ("?", "", "?")

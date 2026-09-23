@@ -964,6 +964,83 @@ void hb_stats_emit(std::ostream& jout, const std::vector<std::string>& ev,
 }
 }  // namespace
 
+// T2 (design/host_memcpy_model.md): the program's host-side operations in API order --
+// copies, sets, launches (tied to their kernel_N.json), stream creation, synchronize and
+// event calls -- as the collector reports them with YOSEMITE_HB_HOST_MEMCPY=1. Written as
+// <dump dir>/host_ops.json at every kernel flush and at exit (a copy after the last kernel
+// is common), for python/host_hb.py. File-static like the HB engine: PcDependency must not
+// grow members (HARDENING_REPORT.md).
+namespace {
+std::vector<std::string>& host_op_log() {
+    // Never destroyed: the log is first used after the collector registered its atexit
+    // cleanup, so a function-local static would be destroyed BEFORE that cleanup's final
+    // flush() reads it (job 287950 left a truncated host_ops.json that way).
+    static auto* log = new std::vector<std::string>();
+    return *log;
+}
+
+void host_op_append(const YosemiteHostOp_t& op, long kernel_id, const std::string& kernel_name) {
+    static const char* names[] = {"memcpy", "memset", "launch", "stream_create", "stream_sync",
+                                  "ctx_sync", "event_record", "stream_wait", "event_sync",
+                                  "host_alloc", "host_free"};
+    auto& log = host_op_log();
+    std::ostringstream o;
+    o << "{\"seq\": " << log.size() << ", \"kind\": \""
+      << (op.kind < sizeof(names) / sizeof(names[0]) ? names[op.kind] : "unknown") << "\""
+      << ", \"stream\": " << op.stream << ", \"stream_ptr\": " << op.stream_ptr;
+    switch (op.kind) {
+        case YOSEMITE_HOST_MEMCPY:
+            o << ", \"src\": " << op.src << ", \"dst\": " << op.dst << ", \"size\": " << op.size
+              << ", \"width\": " << op.width << ", \"height\": " << op.height
+              << ", \"depth\": " << op.depth << ", \"src_pitch\": " << op.src_pitch
+              << ", \"dst_pitch\": " << op.dst_pitch << ", \"is_async\": " << op.is_async
+              << ", \"direction\": " << op.direction;
+            break;
+        case YOSEMITE_HOST_MEMSET:
+            o << ", \"dst\": " << op.dst << ", \"width\": " << op.width << ", \"height\": "
+              << op.height << ", \"dst_pitch\": " << op.dst_pitch << ", \"element_size\": "
+              << op.flags << ", \"is_async\": " << op.is_async;
+            break;
+        case YOSEMITE_HOST_LAUNCH:
+            o << ", \"monitored\": " << (op.flags ? "true" : "false") << ", \"kernel_id\": ";
+            if (kernel_id >= 0) o << kernel_id << ", \"kernel\": \"" << json_escape(kernel_name) << "\"";
+            else o << "null";
+            break;
+        case YOSEMITE_HOST_STREAM_CREATE:
+            o << ", \"flags\": " << op.flags;
+            break;
+        case YOSEMITE_HOST_EVENT_RECORD:
+        case YOSEMITE_HOST_STREAM_WAIT:
+        case YOSEMITE_HOST_EVENT_SYNC:
+            o << ", \"event\": " << op.event;
+            break;
+        case YOSEMITE_HOST_ALLOC:
+        case YOSEMITE_HOST_FREE:
+            o << ", \"addr\": " << op.dst << ", \"size\": " << op.size << ", \"flags\": " << op.flags;
+            break;
+        default:
+            break;
+    }
+    o << "}";
+    log.push_back(o.str());
+}
+
+void host_op_write(const std::string& dir) {
+    const auto& log = host_op_log();
+    if (log.empty() || dir.empty()) return;
+    const std::string tmp = dir + "/host_ops.json.tmp";
+    {
+        std::ofstream out(tmp);
+        if (!out) return;
+        out << "{\n  \"tool\": \"pc_dependency_analysis\",\n  \"host_ops\": [\n";
+        for (size_t i = 0; i < log.size(); ++i)
+            out << "    " << log[i] << (i + 1 < log.size() ? ",\n" : "\n");
+        out << "  ]\n}\n";
+    }
+    std::rename(tmp.c_str(), (dir + "/host_ops.json").c_str());
+}
+}  // namespace
+
 void PcDependency::kernel_trace_flush(std::shared_ptr<KernelLaunch_t> kernel) {
     // JSON output for building PC dependency graph (joinable with CFG)
     std::string json_filename = output_directory + "/kernel_"
@@ -1142,6 +1219,7 @@ void PcDependency::kernel_trace_flush(std::shared_ptr<KernelLaunch_t> kernel) {
 
     jout << "\n}\n";
     printf("Dumping pc dependency graph json to %s\n", json_filename.c_str());
+    host_op_write(output_directory);   // T2: no-op unless host operations were reported
 }
 
 
@@ -1768,6 +1846,18 @@ void PcDependency::evt_callback(EventPtr_t evt) {
         case EventType_TEN_FREE:
             ten_free_callback(std::dynamic_pointer_cast<TenFree_t>(evt));
             break;
+        case EventType_HOST_OP: {   // T2: YOSEMITE_HB_HOST_MEMCPY=1 only
+            const auto& op = std::dynamic_pointer_cast<HostOp_t>(evt)->op;
+            long kid = -1;
+            std::string kname;
+            if (op.kind == YOSEMITE_HOST_LAUNCH && op.flags && !kernel_events.empty()) {
+                const auto& k = std::prev(kernel_events.end())->second;   // its kernel-start event
+                kid = static_cast<long>(k->kernel_id);                    // came just before
+                kname = k->kernel_name;
+            }
+            host_op_append(op, kid, kname);
+            break;
+        }
         default:
             break;
     }
@@ -1775,4 +1865,5 @@ void PcDependency::evt_callback(EventPtr_t evt) {
 
 
 void PcDependency::flush() {
+    host_op_write(output_directory);   // T2: host operations after the last kernel
 }

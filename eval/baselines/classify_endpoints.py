@@ -186,6 +186,8 @@ def main():
                         report="(no confirmation report captured)"))
                     continue
                 for rr in raws:
+                    if rr.get("host"):         # T2 host-copy race: no pc pair to classify
+                        continue
                     cat, mech = classify_report(rr, scope)
                     rows.append(dict(program=prog.get(i, i),
                         tool_a=f"{ta}/{ma}".rstrip("/"), verdict_a=va,
