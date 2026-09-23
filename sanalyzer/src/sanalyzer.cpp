@@ -183,6 +183,14 @@ YosemiteResult_t yosemite_memcpy_callback(uint64_t dst, uint64_t src, uint64_t s
 }
 
 
+YosemiteResult_t yosemite_host_op_callback(const YosemiteHostOp_t& op) {
+    for (auto &tool : _tools) {
+        tool.second->evt_callback(std::make_shared<HostOp_t>(op));
+    }
+    return YOSEMITE_SUCCESS;
+}
+
+
 YosemiteResult_t yosemite_memset_callback(uint64_t dst, uint32_t size, int value, bool is_async, int device_id) {
     for (auto &tool : _tools) {
         auto mem_set = std::make_shared<MemSet_t>(dst, size, value, is_async, device_id);

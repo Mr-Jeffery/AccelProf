@@ -18,6 +18,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <sstream>
+#include <dlfcn.h>
 
 #define SANITIZER_VERBOSE 1
 
@@ -472,7 +473,43 @@ void buffer_init(CUcontext context) {
 }
 
 
-void LaunchBeginCallback(
+// T2 (design/host_memcpy_model.md): YOSEMITE_HB_HOST_MEMCPY=1 forwards every host-side
+// operation that orders or touches device memory outside a kernel -- copies and sets with
+// their stream and ranges, each launch's stream, stream creation flags, pinned host
+// allocations, synchronize and event callbacks -- to the tools as YosemiteHostOp records
+// (yosemite_host_op_callback). Unset (the default), none of this runs and the EVENTS
+// domain stays off, so every other tool and output is unchanged.
+static bool host_ops_enabled() {
+    static const bool on = [] {
+        const char* v = std::getenv("YOSEMITE_HB_HOST_MEMCPY");
+        return v != nullptr && *v != '\0' && std::string(v) != "0";
+    }();
+    return on;
+}
+
+// cuStreamGetFlags from the driver the application already loaded: the collector is not
+// linked against libcuda, and cudart loads it privately, so a direct call is an undefined
+// symbol at run time (job 287950). Unknown flags -> 0xffffffff (host_hb.py: blocking).
+static bool host_stream_flags(CUstream s, unsigned int* fl) {
+    using Fn = CUresult (*)(CUstream, unsigned int*);
+    static const Fn fn = []() -> Fn {
+        void* h = dlopen("libcuda.so.1", RTLD_LAZY | RTLD_NOLOAD);
+        return h ? reinterpret_cast<Fn>(dlsym(h, "cuStreamGetFlags")) : nullptr;
+    }();
+    return fn != nullptr && s != nullptr && fn(s, fl) == CUDA_SUCCESS;
+}
+
+static void host_op(uint32_t kind, Sanitizer_StreamHandle h, CUstream s, uint64_t event = 0) {
+    YosemiteHostOp_t op;
+    op.kind = kind;
+    op.stream = reinterpret_cast<uint64_t>(h);
+    op.stream_ptr = reinterpret_cast<uint64_t>(s);
+    op.event = event;
+    yosemite_host_op_callback(op);
+}
+
+
+bool LaunchBeginCallback(
     CUcontext context,
     CUmodule module,
     CUfunction function,
@@ -689,6 +726,7 @@ void LaunchBeginCallback(
             functionName, device_id, gridDims.x, gridDims.y, gridDims.z, blockDims.x, blockDims.y, blockDims.z
         );
     }
+    return launch_monitoring;
 }
 
 
@@ -1027,6 +1065,15 @@ void ComputeSanitizerCallback(
                     auto* pStreamData = (Sanitizer_ResourceStreamData*)cbdata;
                     PRINT("[SANITIZER INFO] Stream %p created on context %p\n",
                             &pStreamData->stream, &pStreamData->context);
+                    if (host_ops_enabled()) {   // T2: blocking vs cudaStreamNonBlocking
+                        YosemiteHostOp_t op;
+                        op.kind = YOSEMITE_HOST_STREAM_CREATE;
+                        op.stream = reinterpret_cast<uint64_t>(pStreamData->hStream);
+                        op.stream_ptr = reinterpret_cast<uint64_t>(pStreamData->stream);
+                        unsigned int fl = 0;
+                        op.flags = host_stream_flags(pStreamData->stream, &fl) ? fl : 0xffffffffu;
+                        yosemite_host_op_callback(op);
+                    }
                     break;
                 }
                 case SANITIZER_CBID_RESOURCE_STREAM_DESTROY_STARTING:
@@ -1085,6 +1132,14 @@ void ComputeSanitizerCallback(
                     PRINT("[SANITIZER INFO] Sector tag: %p, end tag: %p\n", (void*)(pModuleData->address >> 5), (void*)((pModuleData->address + pModuleData->size - 1) >> 5));
                     yosemite_alloc_callback(
                             pModuleData->address, pModuleData->size, pModuleData->flags, 0);
+                    if (host_ops_enabled()) {   // T2: pinned host memory (blocking-copy semantics)
+                        YosemiteHostOp_t op;
+                        op.kind = YOSEMITE_HOST_ALLOC;
+                        op.dst = pModuleData->address;
+                        op.size = pModuleData->size;
+                        op.flags = pModuleData->flags;
+                        yosemite_host_op_callback(op);
+                    }
                     break;
                 }
                 case SANITIZER_CBID_RESOURCE_HOST_MEMORY_FREE:
@@ -1099,6 +1154,13 @@ void ComputeSanitizerCallback(
 
                     yosemite_free_callback(
                             pModuleData->address, pModuleData->size, pModuleData->flags, 0);
+                    if (host_ops_enabled()) {
+                        YosemiteHostOp_t op;
+                        op.kind = YOSEMITE_HOST_FREE;
+                        op.dst = pModuleData->address;
+                        op.size = pModuleData->size;
+                        yosemite_host_op_callback(op);
+                    }
                     break;
                 }
                 case SANITIZER_CBID_RESOURCE_MEMORY_ALLOC_ASYNC:
@@ -1161,8 +1223,17 @@ void ComputeSanitizerCallback(
                             pLaunchData->blockDim_x, pLaunchData->blockDim_y, pLaunchData->blockDim_z,
                             device_id, pc, size);
 
-                    LaunchBeginCallback(pLaunchData->context, pLaunchData->module, pLaunchData->function, pc,
-                                    func_name, pLaunchData->hStream, blockDims, gridDims);
+                    const bool monitored = LaunchBeginCallback(pLaunchData->context, pLaunchData->module,
+                                    pLaunchData->function, pc, func_name, pLaunchData->hStream, blockDims, gridDims);
+                    if (host_ops_enabled()) {   // T2: the launch's stream (after its kernel-start event)
+                        const bool api = pLaunchData->hApiStream != nullptr;
+                        YosemiteHostOp_t op;
+                        op.kind = YOSEMITE_HOST_LAUNCH;
+                        op.stream = reinterpret_cast<uint64_t>(api ? pLaunchData->hApiStream : pLaunchData->hStream);
+                        op.stream_ptr = reinterpret_cast<uint64_t>(api ? pLaunchData->apiStream : pLaunchData->stream);
+                        op.flags = monitored ? 1u : 0u;
+                        yosemite_host_op_callback(op);
+                    }
                     break;
                 }
                 case SANITIZER_CBID_LAUNCH_END:
@@ -1207,6 +1278,24 @@ void ComputeSanitizerCallback(
 
                     yosemite_memcpy_callback(pMemcpyData->dstAddress, pMemcpyData->srcAddress,pMemcpyData->size,
                                                 pMemcpyData->isAsync, (uint32_t)pMemcpyData->direction, device_id);
+                    if (host_ops_enabled()) {   // T2: the copy with its stream and exact ranges
+                        const bool api = pMemcpyData->hApiStream != nullptr;
+                        YosemiteHostOp_t op;
+                        op.kind = YOSEMITE_HOST_MEMCPY;
+                        op.stream = reinterpret_cast<uint64_t>(api ? pMemcpyData->hApiStream : pMemcpyData->hDstStream);
+                        op.stream_ptr = reinterpret_cast<uint64_t>(api ? pMemcpyData->apiStream : pMemcpyData->dstStream);
+                        op.src = pMemcpyData->srcAddress;
+                        op.dst = pMemcpyData->dstAddress;
+                        op.size = pMemcpyData->size;
+                        op.width = pMemcpyData->width;
+                        op.height = pMemcpyData->height;
+                        op.depth = pMemcpyData->depth;
+                        op.src_pitch = pMemcpyData->srcPitch;
+                        op.dst_pitch = pMemcpyData->dstPitch;
+                        op.is_async = pMemcpyData->isAsync;
+                        op.direction = static_cast<uint32_t>(pMemcpyData->direction);
+                        yosemite_host_op_callback(op);
+                    }
                     break;
                 }
                 default:
@@ -1227,6 +1316,19 @@ void ComputeSanitizerCallback(
 
                     yosemite_memset_callback(pMemsetData->address, pMemsetData->width,
                                                 pMemsetData->value, pMemsetData->isAsync, device_id);
+                    if (host_ops_enabled()) {   // T2: width elements of elementSize bytes, height rows
+                        YosemiteHostOp_t op;
+                        op.kind = YOSEMITE_HOST_MEMSET;
+                        op.stream = reinterpret_cast<uint64_t>(pMemsetData->hStream);
+                        op.stream_ptr = reinterpret_cast<uint64_t>(pMemsetData->stream);
+                        op.dst = pMemsetData->address;
+                        op.width = pMemsetData->width * (pMemsetData->elementSize ? pMemsetData->elementSize : 1);
+                        op.height = pMemsetData->height;
+                        op.dst_pitch = pMemsetData->pitch;
+                        op.flags = pMemsetData->elementSize;
+                        op.is_async = pMemsetData->isAsync;
+                        yosemite_host_op_callback(op);
+                    }
                     break;
                 }
                 default:
@@ -1243,6 +1345,8 @@ void ComputeSanitizerCallback(
 
                     PRINT("[SANITIZER INFO] Synchronize stream %p finished on context %p on device %d\n",
                             &pSyncData->stream, &pSyncData->context, device_id);
+                    if (host_ops_enabled())
+                        host_op(YOSEMITE_HOST_STREAM_SYNC, pSyncData->hStream, pSyncData->stream);
                     break;
                 }
                 case SANITIZER_CBID_SYNCHRONIZE_CONTEXT_SYNCHRONIZED:
@@ -1252,12 +1356,38 @@ void ComputeSanitizerCallback(
 
                     PRINT("[SANITIZER INFO] Synchronize context %p finished on device %d\n",
                             &pSyncData->context, device_id);
+                    if (host_ops_enabled())
+                        host_op(YOSEMITE_HOST_CTX_SYNC, nullptr, nullptr);
                     break;
                 }
+                case SANITIZER_CBID_SYNCHRONIZE_GREEN_CONTEXT_SYNCHRONIZED:
+                    if (host_ops_enabled())    // T2: treated as a whole-device wait
+                        host_op(YOSEMITE_HOST_CTX_SYNC, nullptr, nullptr);
+                    break;
                 default:
                     break;
             }
             break;
+        case SANITIZER_CB_DOMAIN_EVENTS:    // enabled only with YOSEMITE_HB_HOST_MEMCPY=1 (T2)
+        {
+            auto* pEventData = (Sanitizer_EventData*)cbdata;
+            const uint64_t ev = reinterpret_cast<uint64_t>(pEventData->event);
+            switch (cbid)
+            {
+                case SANITIZER_CBID_EVENTS_RECORD:
+                    host_op(YOSEMITE_HOST_EVENT_RECORD, pEventData->hStream, pEventData->stream, ev);
+                    break;
+                case SANITIZER_CBID_EVENTS_STREAM_WAIT:
+                    host_op(YOSEMITE_HOST_STREAM_WAIT, pEventData->hStream, pEventData->stream, ev);
+                    break;
+                case SANITIZER_CBID_EVENTS_SYNCHRONIZE:
+                    host_op(YOSEMITE_HOST_EVENT_SYNC, nullptr, nullptr, ev);
+                    break;
+                default:
+                    break;
+            }
+            break;
+        }
         default:
             break;
     }
@@ -1307,6 +1437,8 @@ int InitializeInjection()
     SANITIZER_SAFECALL(sanitizerEnableDomain(1, handle, SANITIZER_CB_DOMAIN_MEMCPY));
     SANITIZER_SAFECALL(sanitizerEnableDomain(1, handle, SANITIZER_CB_DOMAIN_MEMSET));
     SANITIZER_SAFECALL(sanitizerEnableDomain(1, handle, SANITIZER_CB_DOMAIN_SYNCHRONIZE));
+    if (host_ops_enabled())     // T2: event record / stream wait / event synchronize
+        SANITIZER_SAFECALL(sanitizerEnableDomain(1, handle, SANITIZER_CB_DOMAIN_EVENTS));
 
     yosemite_init(sanitizer_options);
 

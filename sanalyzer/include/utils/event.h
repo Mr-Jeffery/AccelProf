@@ -5,6 +5,8 @@
 #include <string>
 #include <memory>
 
+#include "sanalyzer.h"   // YosemiteHostOp_t (T2)
+
 typedef uint64_t DevPtr;
 
 typedef struct Timer{
@@ -42,7 +44,8 @@ typedef enum EventType {
     EventType_TEN_FREE = 7,
     EventType_OP_START = 8,
     EventType_OP_END = 9,
-    EventTypeCount = 10,
+    EventType_HOST_OP = 10,     // T2: YosemiteHostOp_t (sanalyzer.h), YOSEMITE_HB_HOST_MEMCPY=1 only
+    EventTypeCount = 11,
 }EventType_t;
 
 
@@ -184,6 +187,14 @@ typedef struct MemCpy : public Event {
 
     ~MemCpy() = default;
 }MemCpy_t;
+
+typedef struct HostOp : public Event {
+    YosemiteHostOp_t op;
+
+    HostOp() { this->evt_type = EventType_HOST_OP; }
+    explicit HostOp(const YosemiteHostOp_t& o) : op(o) { this->evt_type = EventType_HOST_OP; }
+    ~HostOp() = default;
+}HostOp_t;
 
 typedef struct MemSet : public Event {
 
