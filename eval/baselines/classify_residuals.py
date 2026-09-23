@@ -20,7 +20,7 @@ setup/residual_ids.txt and every mode, the best row of the *diagnostic* shard
   collector-oom     native rc==0 but the accelprof child was SIGKILLed (bash
                     "Killed", rc 137) -- the collector's memory grows with the
                     trace and is killed by the node: attributable to cuVein
-  engine-hang       engine-mode TIMEOUT with an empty dump while trace-only of
+  engine-hang       vector-clock-mode TIMEOUT with an empty dump while scalar-clock of
                     the SAME program resolved -- attributable to the cuVein
                     engine (not the tracer)
   collector-fail    native rc==0 but accelprof exits non-zero / no kernel JSON:
@@ -33,7 +33,7 @@ setup/residual_ids.txt and every mode, the best row of the *diagnostic* shard
   analysis-oom      the diagnostic shard log shows the *Python* runner itself
                     was Killed (no row written): the collector finished but the
                     sync_dominance analysis of the trace exhausted memory --
-                    attributable to cuVein's trace-only analysis path
+                    attributable to cuVein's scalar-clock analysis path
   no-diag-run       the diagnostic shard has no row for it (still running)
 
 Writes eval/results/baselines-diagnose.csv (id, pset, program, mode, verdict,
@@ -48,6 +48,12 @@ import re
 HERE = os.path.dirname(os.path.abspath(__file__))
 APH = os.path.dirname(os.path.dirname(HERE))
 RES = f"{APH}/eval/results"
+
+import sys as _sys
+_sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "python"))
+import hb_modes  # noqa: E402  (vector-clock / scalar-clock; legacy names accepted with a warning)
+VC, SC = hb_modes.VECTOR_CLOCK, hb_modes.SCALAR_CLOCK
+OTHER = {VC: SC, SC: VC}
 PRI = {"RACE": 3, "CLEAN": 2, "TIMEOUT": 1, "ERROR": 0}
 _KV = re.compile(r"(native_rc|dump_mb|timeout|events)=([\d.]+)")
 
@@ -98,7 +104,7 @@ def classify(r, manifest_label, other_mode_row=None):
             return "trace-volume"
         if peak_gb >= 32:
             return "collector-memory"
-        if (r["mode"] == "engine" and other_mode_row
+        if (r["mode"] == VC and other_mode_row
                 and other_mode_row["verdict"] in ("RACE", "CLEAN")):
             return "engine-hang"
         return "collector-hang"
@@ -114,8 +120,9 @@ def main():
     for path in sorted(glob.glob(f"{RES}/baselines-cuvein-shardresid*.csv")
                        + glob.glob(f"{RES}/baselines-cuvein-shardp9*.csv")):
         for r in csv.DictReader(open(path, newline="")):
+            r["mode"] = hb_modes.canon(r["mode"], path)
             # a runner-level exception row carries no mode: it applies to both
-            for mode in ((r["mode"],) if r["mode"] else ("engine", "trace-only")):
+            for mode in ((r["mode"],) if r["mode"] else hb_modes.MODES):
                 k = (r["id"], mode)
                 rr = dict(r, mode=mode)
                 # ties go to the LATER shard file (a re-run supersedes an older attempt)
@@ -138,13 +145,14 @@ def main():
     bpath = f"{RES}/baselines-cuvein.csv"
     if os.path.exists(bpath):
         for r in csv.DictReader(open(bpath, newline="")):
+            r["mode"] = hb_modes.canon(r["mode"], bpath)
             k = (r["id"], r["mode"])
             if r["mode"] and (k not in base or PRI[r["verdict"]] >= PRI[base[k]["verdict"]]):
                 base[k] = r
     rows = []
     for i in ids:
         m = man.get(i, {})
-        for mode in ("engine", "trace-only"):
+        for mode in hb_modes.MODES:
             r = best.get((i, mode))
             if not r:
                 if i in killed:
@@ -156,7 +164,7 @@ def main():
                 br = base.get((i, mode))
                 if br:
                     kv = _kv(br["notes"])
-                    cause = classify(br, m.get("label", ""), base.get((i, "trace-only" if mode == "engine" else "engine")))
+                    cause = classify(br, m.get("label", ""), base.get((i, OTHER[mode])))
                     rows.append(dict(id=i, pset=br["pset"], program=br["program"], mode=mode,
                                      verdict=br["verdict"], cause=cause,
                                      native_rc=kv.get("native_rc", "0"), timeout_s=kv.get("timeout", ""),
@@ -171,7 +179,7 @@ def main():
                                  evidence=""))
                 continue
             kv = _kv(r["notes"])
-            other = best.get((i, "trace-only" if mode == "engine" else "engine"))
+            other = best.get((i, OTHER[mode]))
             cause = classify(r, m.get("label", ""), other)
             if i in killed and cause in ("app-native-fail", "collector-fail"):
                 # the later re-run (inputs fixed) got past the app and the runner

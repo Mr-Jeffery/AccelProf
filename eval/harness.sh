@@ -4,7 +4,7 @@
 #   harness.sh --suite S --program P [opts] -- <exe> [args...]
 #
 # Reuses getall.sh's extraction (cuobjdump/nvdisasm/atomic sidecar) then times
-# three configs (native / trace-only / full engine) and runs the verdict
+# three configs (native / scalar-clock dump / vector-clock) and runs the verdict
 # aggregator. Runs against ACCEL_PROF_HOME (the built tree); writes results
 # wherever --csv points. Never aborts the batch on one program's failure.
 set -u
@@ -89,23 +89,28 @@ run_min() {  # reps, env-prefix... -- cmd...; echos "min_elapsed max_rss_kb rc"
 # 1) native (no accelprof)
 read tn _ rcn < <(run_min "$nreps" -- "$exe_abs" "${appargs[@]}")
 
-# 2) trace-only (dump, engine skipped) — one rep, throwaway depdir
+# a pre-T8 engine library ignores YOSEMITE_HB_MODE: the scalar-clock run would silently
+# run the engine. Refuse (hb_modes.require_collector_support does the same in Python).
+"${ACCEL_PROF_HOME}/.env/bin/python" -c "import sys; sys.path.insert(0, '${ACCEL_PROF_HOME}/python'); import hb_modes; hb_modes.require_collector_support('${ACCEL_PROF_HOME}')" \
+  || { echo "harness.sh: engine library predates YOSEMITE_HB_MODE (T8) -- rebuild sanalyzer" >&2; exit 3; }
+
+# 2) scalar-clock (dump only, engine skipped) — one rep, throwaway depdir
 rm -rf "${exe_dir}/dependency_${exe_base}"_* 2>/dev/null
-read tt _ rct < <(run_min 1 YOSEMITE_HB_TRACE=1 YOSEMITE_HB_NO_ENGINE=1 -- \
+read tt _ rct < <(run_min 1 YOSEMITE_HB_TRACE=1 YOSEMITE_HB_MODE=scalar-clock -- \
                   accelprof -t pc_dependency_analysis -n 1 "$exe_abs" "${appargs[@]}")
 rm -rf "${exe_dir}/dependency_${exe_base}"_* 2>/dev/null
 
-# 3) full engine — one rep, keep depdir + capture peak RSS
-read te peak rce < <(run_min 1 YOSEMITE_HB_TRACE=1 -- \
+# 3) vector-clock (dump + in-process engine) — one rep, keep depdir + capture peak RSS
+read te peak rce < <(run_min 1 YOSEMITE_HB_TRACE=1 YOSEMITE_HB_MODE=vector-clock -- \
                      accelprof -t pc_dependency_analysis -n 1 "$exe_abs" "${appargs[@]}")
 depdir="$(ls -dt "${exe_dir}/dependency_${exe_base}"_* 2>/dev/null | head -1)"
 log="${exe_dir}/${exe_base}.accelprof.log"
 
-echo "[$program/$variant] native=${tn}s trace=${tt}s engine=${te}s peakRSS=${peak}kb rc(n/t/e)=$rcn/$rct/$rce depdir=$(basename "${depdir:-none})")"
+echo "[$program/$variant] native=${tn}s scalar-clock=${tt}s vector-clock=${te}s peakRSS=${peak}kb rc(n/t/e)=$rcn/$rct/$rce depdir=$(basename "${depdir:-none})")"
 
 if [ -z "$depdir" ] || [ ! -d "$depdir" ]; then
-  echo "  NO engine depdir (rc=$rce) — emitting failure row" >&2
-  extra_note="engine-run-failed(rc=$rce)"
+  echo "  NO vector-clock depdir (rc=$rce) — emitting failure row" >&2
+  extra_note="vector-clock-run-failed(rc=$rce)"
   # emit a minimal row noting the failure
   $ENV "$AGG" --python-dir "$ACCEL_PROF_HOME/python" --depdir /nonexistent \
        --cubindir "$cubindir" --log "$log" --suite "$suite" --program "$program" \

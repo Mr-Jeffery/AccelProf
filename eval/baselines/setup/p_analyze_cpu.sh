@@ -20,7 +20,7 @@
 #   PSET=P1,...         and/or IDFILE=<path>   which programs (default: every manifest row)
 #   MANIFEST=<csv>      (default eval/baselines/manifest.csv; the evcand store was sharded
 #                       with eval/baselines/setup/manifest.evcand.csv)
-#   MODES=engine,trace-only   $BASELINE_MODES for the store (default both)
+#   MODES=vector-clock,scalar-clock   $BASELINE_MODES for the store (default both)
 #   EXTRA="--analysis-timeout 3600"   anything else for parallel.py analyze
 #   CV=<checkout>       whose eval/baselines/parallel.py runs (default the main checkout)
 #
@@ -32,7 +32,7 @@ source eval/baselines/gpu_env.sh
 OUT=${OUT:-rescore-$TAG}
 N=${SLURM_ARRAY_TASK_COUNT:-1}; K=${SLURM_ARRAY_TASK_ID:-0}
 export BASELINE_TRACE_DIR=/mnt/beegfs/$USER/cuvein_traces/$TAG
-export BASELINE_MODES=${MODES:-engine,trace-only}
+export BASELINE_MODES=${MODES:-vector-clock,scalar-clock}
 SEL=()
 [ -n "${PSET:-}" ] && SEL+=(--pset "$PSET")
 [ -n "${IDFILE:-}" ] && SEL+=(--id-file "$IDFILE")

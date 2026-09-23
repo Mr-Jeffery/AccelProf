@@ -17,6 +17,7 @@ from pathlib import Path
 
 import pytest
 
+import hb_modes
 import hb_oracle as ho
 import sync_dominance as sd
 
@@ -141,8 +142,8 @@ def test_hb_engine_matches_oracle(binary):
             f"{binary.name}/{trace.name}: hb_races_sync_only mismatch "
             f"engine={tj.get('hb_races_sync_only')} oracle={report['races_sync_only']}")
 
-        # ... and so must the static analyzer's offline barrier-only pass (what the
-        # trace-only mode uses in place of the engine's set).
+        # ... and so must the static analyzer's offline barrier-only pass (what
+        # scalar-clock mode uses in place of the engine's set).
         kern = sd.parse_dot(report["inputs"]["cfg_dot"])[report["kernel"]["mangled"]]
         ops = sd.HBGraph(*kern).pc_opcode
         rmw = {pc: s for pc, op in ops.items() if (s := sd.atomic_scope(op)) is not None}
@@ -161,14 +162,14 @@ def test_hb_engine_matches_oracle(binary):
 
 
 # PC-level false negative of the static leg by design (one release pc multiplexes two
-# handshakes; only the address-keyed engine separates them) — not a trace-only target.
-_TRACE_ONLY_KNOWN_FN = set()
+# handshakes; only the address-keyed engine separates them) — not a scalar-clock target.
+_SCALAR_CLOCK_KNOWN_FN = set()
 
 
 @pytest.mark.parametrize("binary", _binaries(), ids=lambda p: p.name)
-def test_scor_microbenchmark_trace_only(binary, tmp_path):
-    """Trace-only mode = the same dump without the engine's keys (what
-    YOSEMITE_HB_NO_ENGINE writes): static leg + offline barrier-only pass. It must keep
+def test_scor_microbenchmark_scalar_clock(binary, tmp_path):
+    """Scalar-clock mode = the same dump without the engine's keys (what
+    YOSEMITE_HB_MODE=scalar-clock writes): static leg + offline barrier-only pass. It must keep
     the litmus verdicts — the barrier pass may only turn barrier-ordered pairs into
     ORDERED, never a fence/lock/atomic-omission race."""
     art = _artifacts(binary)
@@ -190,10 +191,10 @@ def test_scor_microbenchmark_trace_only(binary, tmp_path):
             except sd.AlignmentError:
                 continue
     if binary.name.startswith("norace_"):
-        assert races == 0, f"trace-only false positive: {binary.name}"
-    elif binary.name not in _TRACE_ONLY_KNOWN_FN:
-        assert races >= 1, f"trace-only false negative: {binary.name} " \
-                           f"(engine mode reports {engine_races})"
+        assert races == 0, f"scalar-clock false positive: {binary.name}"
+    elif binary.name not in _SCALAR_CLOCK_KNOWN_FN:
+        assert races >= 1, f"scalar-clock false negative: {binary.name} " \
+                           f"(vector-clock mode reports {engine_races})"
 
 
 def test_write_after_unlock_is_event_candidate(tmp_path, monkeypatch):
@@ -203,7 +204,7 @@ def test_write_after_unlock_is_event_candidate(tmp_path, monkeypatch):
         read behind block 0's own), so it must come from the event stream;
       * R3 must not order it — the write is past its thread's own release of the
         CAS-acquired lock (the hop direction is schedule-dependent);
-      * engine mode classes it latent (this schedule's lock hand-off ordered it);
+      * vector-clock mode classes it latent (this schedule's lock hand-off ordered it);
       * each half alone is not enough: either knob off -> the race is missed again."""
     binary = _BIN / "race_interblock_none-lock_rtraw"
     art = _artifacts(binary) if binary.exists() else None
@@ -219,7 +220,7 @@ def test_write_after_unlock_is_event_candidate(tmp_path, monkeypatch):
             tj.pop(k, None)
         stripped = tmp_path / trace.name
         stripped.write_text(json.dumps(tj))
-        return (("engine", trace), ("trace-only", stripped))
+        return ((hb_modes.VECTOR_CLOCK, trace), (hb_modes.SCALAR_CLOCK, stripped))
 
     for mode, trace in both_modes(traces[-1]):
         rep = sd.analyze(dots[0], trace)
@@ -229,7 +230,7 @@ def test_write_after_unlock_is_event_candidate(tmp_path, monkeypatch):
         assert race["event_candidate"] and not race["edge_rescued"]
         assert race["race_type"] in ("WAR", "RAW") and race["space"] == "global"
         assert race["observed_distance"] == "grid" and race["hb_chain"] is None
-        assert race["hb_class"] == ("latent" if mode == "engine" else None)
+        assert race["hb_class"] == ("latent" if mode == hb_modes.VECTOR_CLOCK else None)
         edges = {frozenset((e["current_pc"], e.get("ancient_pc")))
                  for e in json.loads(Path(trace).read_text())["edges"]}
         assert frozenset((race["current_pc"], race["ancient_pc"])) not in edges

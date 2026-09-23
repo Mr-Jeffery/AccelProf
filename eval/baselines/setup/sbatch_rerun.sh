@@ -6,7 +6,7 @@
 #SBATCH --time=06:00:00
 #SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/rerun-%j.log
 # Re-run cuVein for the present corpora with the fixed sync_dominance call (both
-# modes now go through analyze; the earlier run's trace-only column was zeroed by
+# modes now go through analyze; the earlier run's scalar-clock column was zeroed by
 # a TypeError swallowed as CLEAN). racecheck data is unaffected and kept. Then
 # classify + rebuild tables. Binaries from the first run are reused (bin/ intact).
 cd /home/fzheng4/AccelProf || exit 1

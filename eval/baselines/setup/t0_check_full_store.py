@@ -15,6 +15,9 @@ import json
 import os
 import sys
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "python"))
+import hb_modes  # noqa: E402
+
 
 def size(paths):
     t = 0
@@ -28,8 +31,9 @@ def size(paths):
 
 def classify(idir, meta, mode):
     mm = meta.get("modes", {}).get(mode)
-    saved_b = size(glob.glob(f"{idir}/{mode}/kernel_*.json"))
-    part = sorted(glob.glob(f"{idir}/{mode}-partial-rep*"))
+    saved_b = size(glob.glob(f"{hb_modes.resolve_dir(idir, mode)}/kernel_*.json"))
+    part = sorted(glob.glob(f"{idir}/{mode}-partial-rep*")
+                  + glob.glob(f"{idir}/{hb_modes.LEGACY_OF[mode]}-partial-rep*"))
     part_b = sum(size(glob.glob(f"{p}/kernel_*.json")) for p in part)
     if meta.get("error"):
         return "ERROR:" + meta["error"], saved_b, part_b
@@ -60,9 +64,10 @@ def classify(idir, meta, mode):
 
 def main():
     store = sys.argv[1].rstrip("/")
-    modes = ("engine", "trace-only")
+    modes = hb_modes.MODES
     try:
-        modes = tuple(json.load(open(f"{store}/STORE_INFO.json")).get("modes") or modes)
+        modes = tuple(hb_modes.canon(m, store) for m in
+                      (json.load(open(f"{store}/STORE_INFO.json")).get("modes") or modes))
     except (OSError, ValueError):
         pass
     rows, counts, big, unexplained = [], {}, [], []
@@ -70,7 +75,7 @@ def main():
         idir = os.path.dirname(md)
         _id = os.path.basename(idir)
         try:
-            meta = json.load(open(md))
+            meta = hb_modes.canon_meta(json.load(open(md)), md)
         except ValueError:
             rows.append((_id, "UNREADABLE-META", "", 0, 0)); unexplained.append(_id); continue
         cells = []

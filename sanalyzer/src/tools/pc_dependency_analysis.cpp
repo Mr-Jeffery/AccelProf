@@ -549,6 +549,44 @@ static uint32_t read_env_u32(const char* key, uint32_t default_value) {
     }
     return static_cast<uint32_t>(parsed);
 }
+
+// Analysis mode of an HB trace (YOSEMITE_HB_TRACE=1), read once per process:
+//   YOSEMITE_HB_MODE=vector-clock  (default) the in-process HbEngine runs over the
+//                                  event stream and hb_races / hb_races_sync_only
+//                                  are emitted next to hb_events;
+//   YOSEMITE_HB_MODE=scalar-clock  hb_events are dumped only; the static leg and the
+//                                  offline barrier-only pass decide.
+// The pre-T8 switch YOSEMITE_HB_NO_ENGINE (set = scalar-clock) is honoured for one
+// more release with a deprecation warning; YOSEMITE_HB_MODE wins when both are set.
+// File-static on purpose: PcDependency must not grow members (HARDENING_REPORT.md).
+static bool hb_scalar_clock_mode() {
+    static const bool scalar = [] {
+        const char* mode = std::getenv("YOSEMITE_HB_MODE");
+        const char* legacy = std::getenv("YOSEMITE_HB_NO_ENGINE");
+        bool s = false;
+        if (legacy != nullptr) {
+            fprintf(stderr, "[cuVein] YOSEMITE_HB_NO_ENGINE is deprecated: "
+                            "use YOSEMITE_HB_MODE=scalar-clock\n");
+            s = true;
+        }
+        if (mode != nullptr) {
+            const std::string m(mode);
+            if (m == "scalar-clock") {
+                s = true;
+            } else if (m == "vector-clock") {
+                if (s) fprintf(stderr, "[cuVein] YOSEMITE_HB_MODE=vector-clock overrides "
+                                       "the deprecated YOSEMITE_HB_NO_ENGINE\n");
+                s = false;
+            } else {
+                fprintf(stderr, "[cuVein] YOSEMITE_HB_MODE=%s is neither scalar-clock nor "
+                                "vector-clock; using %s\n", mode,
+                        s ? "scalar-clock" : "vector-clock");
+            }
+        }
+        return s;
+    }();
+    return scalar;
+}
 } // namespace
 
 
@@ -772,11 +810,11 @@ void PcDependency::hb_engine_reset() {
 }
 
 void PcDependency::hb_engine_emit(std::ofstream& jout) {
-    // With YOSEMITE_HB_NO_ENGINE the engine never saw an event: emit NO hb_races /
+    // In scalar-clock mode the engine never saw an event: emit NO hb_races /
     // hb_races_sync_only rather than empty ones. An empty list is a claim ("nothing
     // raced", "every pair is barrier-ordered") that the verdict matrix would act on;
     // an absent key sends sync_dominance down its static-only path.
-    if (std::getenv("YOSEMITE_HB_NO_ENGINE") != nullptr) return;
+    if (hb_scalar_clock_mode()) return;
     auto& engine = hb_engine_singleton();
     if (engine) engine->emit(jout);
 }
@@ -1485,12 +1523,13 @@ void PcDependency::gpu_data_analysis(void* data, uint64_t size) {
 
     if (_hb_trace) {
         hb_collect_events(accesses_buffer, size);
-        // YOSEMITE_HB_NO_ENGINE isolates the event-dump cost from the engine cost
-        // (A/B lever for the bounded-clock / FastTrack-epoch calibration). On a
-        // reduction of 4M elts (136K events) the engine's exact unbounded VCs add
-        // ~4s vs ~1.3s for the dump — the growing per-thread clocks under heavy
-        // __syncthreads are the target of the scale knobs.
-        if (std::getenv("YOSEMITE_HB_NO_ENGINE") == nullptr) hb_engine_process(accesses_buffer, size);
+        // scalar-clock mode dumps the events without running the engine, which also
+        // isolates the event-dump cost from the engine cost (A/B lever for the
+        // bounded-clock / FastTrack-epoch calibration). On a reduction of 4M elts
+        // (136K events) the engine's exact unbounded VCs add ~4s vs ~1.3s for the
+        // dump — the growing per-thread clocks under heavy __syncthreads are the
+        // target of the scale knobs.
+        if (!hb_scalar_clock_mode()) hb_engine_process(accesses_buffer, size);
     }
 
     for (uint64_t worker_idx = 0; worker_idx < _worker_count; ++worker_idx) {

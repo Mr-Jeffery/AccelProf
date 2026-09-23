@@ -19,6 +19,9 @@ import re
 import sys
 from pathlib import Path
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "python"))
+import hb_modes  # noqa: E402  (vector-clock / scalar-clock vocabulary)
+
 # Column schema — every suite, every row (task spec).
 COLUMNS = ["suite", "program", "variant", "bug_label", "input", "grid", "block",
            "events", "t_native", "t_trace", "t_engine", "peak_mem_mb",
@@ -130,11 +133,11 @@ def emit_row(args):
         verdicts.extend(rep["verdicts"])
 
         # oracle cross-check (engine hb_races vs exact VC oracle over the same dump)
-        if g("no_engine", False):
-            # trace-only mode: the dump carries no hb_races (engine skipped; older
-            # dumps carried an empty list);
-            # verdicts are the static leg's, there is nothing to cross-check.
-            oracle_states.append("no-engine")
+        if g("mode", hb_modes.VECTOR_CLOCK) == hb_modes.SCALAR_CLOCK:
+            # scalar-clock mode: the dump carries no hb_races (engine skipped; older
+            # dumps carried an empty list); verdicts are the static leg's + the
+            # offline barrier-only pass, there is nothing to cross-check.
+            oracle_states.append(hb_modes.SCALAR_CLOCK)
         elif hb_races is None:
             oracle_states.append("no-hb")
         elif not args.oracle or hb_oracle is None:
@@ -167,8 +170,8 @@ def emit_row(args):
         notes.append(f"warp-po-ordered={warp_po}(assumes-lockstep)")
 
     # oracle_verified summary across kernels
-    if oracle_states and all(s == "no-engine" for s in oracle_states):
-        oracle_verified = "no-engine"
+    if oracle_states and all(s == hb_modes.SCALAR_CLOCK for s in oracle_states):
+        oracle_verified = hb_modes.SCALAR_CLOCK
     elif all(s in ("yes", "no-hb") for s in oracle_states) and "yes" in oracle_states:
         oracle_verified = "yes"
     elif "mismatch" in oracle_states:

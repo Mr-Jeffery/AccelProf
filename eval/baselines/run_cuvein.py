@@ -2,10 +2,10 @@
 """B5 -- cuVein runner, both modes, into the unified baseline schema.
 
 Two modes, distinct verdict surfaces (this is what X6/canary probes):
-  engine      YOSEMITE_HB_TRACE=1                     -> verdict from the C++ HB
-              engine's `hb_races` in kernel_N.json.
-  trace-only  YOSEMITE_HB_TRACE=1 HB_NO_ENGINE=1      -> dump only; verdict from
-              the sync_dominance static leg re-analyzing the dump offline.
+  vector-clock  YOSEMITE_HB_TRACE=1 YOSEMITE_HB_MODE=vector-clock -> verdict from the
+                C++ HbEngine's `hb_races` in kernel_N.json crossed with the static leg.
+  scalar-clock  YOSEMITE_HB_TRACE=1 YOSEMITE_HB_MODE=scalar-clock -> dump only; verdict
+                from the sync_dominance static leg + offline barrier-only pass.
 
 Invocation of the detector is reused verbatim from eval/driver.py:
   accelprof -t pc_dependency_analysis -n 1 ./<exe> <args>   (cwd = exe dir)
@@ -42,10 +42,11 @@ def _analyze_reports(depdir, cubindir):
     """Run sync_dominance.analyze over the dump and dedup RACE verdicts on
     (unordered pc pair, space). Used for BOTH modes: analyze derives the verdict
     from the trace edges, and when the dump carries the C++ engine's hb_races
-    (engine mode) it crosses them in via _hb_class -- so the ENGINE dump can flag
-    a statically-ordered pair the engine observed racing (e.g. the canary), while
-    the NO_ENGINE dump (trace-only) yields the pure static-leg verdict and misses
-    it. That is exactly the engine-vs-trace-only surface the task compares.
+    (vector-clock mode) it crosses them in via _hb_class -- so the vector-clock dump
+    can flag a statically-ordered pair the engine observed racing (e.g. the canary),
+    while the scalar-clock dump yields the static-leg verdict (+ the offline
+    barrier-only pass) and misses it. That is exactly the vector-clock vs
+    scalar-clock surface the task compares.
 
     -> (ids, pcs_set, raw_verdicts). This branch's analyze(dot, trace) takes no
     assume_warp_lockstep kwarg (that lives only on the eval branch). Only
@@ -102,7 +103,7 @@ def run_one(mrow, modes, cuda, writer, confirm_dir):
         native_rc = max(native_rc, rc or 0)
         if not to and isinstance(w, (int, float)):
             native = w if native is None else min(native, w)
-    # "10x native or 20 min": read as up to 20 min (the engine runs 3-218x native,
+    # "10x native or 20 min": read as up to 20 min (vector-clock runs 3-218x native,
     # so a literal 10x cap kills it on ~0.1s-native programs). Floor 120s, cap 1200s.
     tool_timeout = min(max(int(10 * native), 120), 1200) if native else man_timeout
 
@@ -121,9 +122,7 @@ def run_one(mrow, modes, cuda, writer, confirm_dir):
              f"./{base}", *args]
 
     for mode in modes:
-        no_engine = (mode == "trace-only")
-        env = blib.base_env(cuda, hb_trace=True, no_engine=no_engine,
-                            scope_file=scope or None)
+        env = blib.base_env(cuda, hb_trace=True, hb_mode=mode, scope_file=scope or None)
         for rep in range(1, reps + 1):
             for d in glob.glob(f"{exe_dir}/dependency_{base}_*"):
                 shutil.rmtree(d, ignore_errors=True)
@@ -182,7 +181,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--manifest", default=f"{HERE}/manifest.csv")
     ap.add_argument("--pset", default="", help="comma list filter, e.g. P4,P6")
-    ap.add_argument("--mode", default="engine,trace-only")
+    ap.add_argument("--mode", default=",".join(blib.hb_modes.MODES),
+                    help="comma list of vector-clock,scalar-clock")
     ap.add_argument("--id", default="", help="run only these ids (comma list)")
     ap.add_argument("--confirm", action="store_true",
                     help="write a confirmation-run detail JSON per program (rep 1)")
@@ -190,7 +190,7 @@ def main():
     cuda = blib.resolve_cuda_home()   # raises on the login node
     psets = set(a.pset.split(",")) if a.pset else None
     ids = set(a.id.split(",")) if a.id else None
-    modes = [m for m in a.mode.split(",") if m]
+    modes = list(blib.hb_modes.parse_modes(a.mode))
     confirm_dir = f"{HERE}/confirm" if a.confirm else ""
     if confirm_dir:
         os.makedirs(confirm_dir, exist_ok=True)

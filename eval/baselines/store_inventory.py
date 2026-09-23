@@ -36,6 +36,8 @@ import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 USER = os.environ.get("USER", "nobody")
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(HERE)), "python"))
+import hb_modes  # noqa: E402  (vector-clock / scalar-clock; pre-T8 stores accepted with a warning)
 
 
 def _du_bytes(path):
@@ -62,7 +64,8 @@ def scan_program(idir, store_modes):
     _id = os.path.basename(idir)
     rec = dict(id=_id, modes={}, lost=[])
     try:
-        meta = json.loads(open(f"{idir}/meta.json").read())
+        meta = hb_modes.canon_meta(json.loads(open(f"{idir}/meta.json").read()),
+                                   f"{idir}/meta.json")
     except (OSError, ValueError) as e:
         rec["lost"].append(f"unreadable-meta:{type(e).__name__}")
         return rec
@@ -79,10 +82,12 @@ def scan_program(idir, store_modes):
     if "trace-too-large" in (meta.get("keep_reason") or ""):
         rec["lost"].append("trace-too-large")
     modes_meta = meta.get("modes", {}) or {}
-    for mode in sorted(set(store_modes) | set(modes_meta)):
+    rank = lambda m: hb_modes.MODES.index(m) if m in hb_modes.MODES else len(hb_modes.MODES)
+    for mode in sorted(set(store_modes) | set(modes_meta), key=lambda m: (rank(m), m)):
         mm = modes_meta.get(mode)
-        n_json, b_json = _json_sizes(f"{idir}/{mode}/kernel_*.json")
-        partials = sorted(glob.glob(f"{idir}/{mode}-partial-rep*"))
+        n_json, b_json = _json_sizes(f"{hb_modes.resolve_dir(idir, mode)}/kernel_*.json")
+        partials = sorted(glob.glob(f"{idir}/{mode}-partial-rep*")
+                          + glob.glob(f"{idir}/{hb_modes.LEGACY_OF.get(mode, mode)}-partial-rep*"))
         p_json = sum(_json_sizes(f"{p}/kernel_*.json")[1] for p in partials)
         m = dict(on_disk_json=n_json, on_disk_bytes=b_json,
                  partial_dirs=[os.path.basename(p) for p in partials],
@@ -120,13 +125,13 @@ def scan_program(idir, store_modes):
     return rec
 
 
-def scan_store(store, kind, modes_default=("engine", "trace-only"), du=True):
+def scan_store(store, kind, modes_default=hb_modes.MODES, du=True):
     info = {}
     try:
         info = json.loads(open(f"{store}/STORE_INFO.json").read())
     except (OSError, ValueError):
         pass
-    modes = tuple(info.get("modes") or modes_default)
+    modes = tuple(hb_modes.canon(m, f"{store}/STORE_INFO.json") for m in (info.get("modes") or modes_default))
     programs = [scan_program(os.path.dirname(md), modes)
                 for md in sorted(glob.glob(f"{store}/*/meta.json"))]
     errors = {}

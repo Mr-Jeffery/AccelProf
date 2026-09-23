@@ -7,7 +7,7 @@ used in parallel (feasibility verified: trace collection runs on any GPU node,
 not just sm_86; the Python analysis + even nvcc builds run on CPU-only nodes):
 
   collect  (GPU, sharded)  -- for each program: native timing, cubin/CFG/scope
-           extraction, then accelprof engine + no-engine runs; SAVE the trace
+           extraction, then accelprof vector-clock + scalar-clock runs; SAVE the trace
            dumps + dots + a meta.json (timing, node/arch, pc->line map) under the
            trace store. No analysis. Distributed over many GPU nodes via --shard.
   analyze  (CPU, sharded)  -- read the saved traces + dots, run sync_dominance
@@ -48,8 +48,10 @@ import sync_dominance as sd   # noqa: E402
 import aggregate as agg       # noqa: E402
 import run_cuvein as rc       # reuse _analyze_reports  # noqa: E402
 
-# $BASELINE_MODES=trace-only restricts a run to one mode (e.g. a static-leg revision).
-MODES = tuple(m for m in os.environ.get("BASELINE_MODES", "engine,trace-only").split(",") if m)
+# $BASELINE_MODES=scalar-clock restricts a run to one mode (e.g. a static-leg revision);
+# the default collects vector-clock first, then scalar-clock (hb_modes.MODES).
+MODES = blib.hb_modes.parse_modes(os.environ.get("BASELINE_MODES", ",".join(blib.hb_modes.MODES)))
+VC, SC = blib.hb_modes.VECTOR_CLOCK, blib.hb_modes.SCALAR_CLOCK
 
 
 BEEGFS_ROOT = f"/mnt/beegfs/{os.environ.get('USER', 'nobody')}"
@@ -117,7 +119,7 @@ def _shard(items, shard):
 def _mem_total_gb():
     """Node RAM (GB). The rtx4060ti16g partition mixes 128 GB (c3, c58, ...) and 188 GB
     (c70, ...) nodes; a collector run that finishes on the latter is OOM-killed at ~122 GB
-    on the former (P7-bezier-surface trace-only, T0), so the number belongs in meta.json."""
+    on the former (P7-bezier-surface scalar-clock, T0), so the number belongs in meta.json."""
     try:
         for line in open("/proc/meminfo"):
             if line.startswith("MemTotal:"):
@@ -231,7 +233,7 @@ def collect_one(mrow, cuda, reps, floor=120):
         native_rc = rcode if native_rc is None else max(native_rc, rcode)
         if not to and isinstance(w, (int, float)):
             native = w if native is None else min(native, w)
-    # "10x native or 20 min" read as up to 20 min: floor 120s by default (the engine
+    # "10x native or 20 min" read as up to 20 min: floor 120s by default (vector-clock
     # runs 3-218x native, REPORT.md F3), hard cap 1200s. --timeout-floor raises the
     # floor (P7 overhead-only set uses the full 20 min).
     tool_timeout = min(max(int(10 * native), floor), 1200) if native else max(man_timeout, floor)
@@ -293,7 +295,7 @@ def collect_one(mrow, cuda, reps, floor=120):
         return os.path.basename(pd)
 
     for mode in MODES:
-        env = blib.base_env(cuda, hb_trace=True, no_engine=(mode == "trace-only"),
+        env = blib.base_env(cuda, hb_trace=True, hb_mode=mode,
                             scope_file=scope or None)
         reps_meta = []
         saved = partial = False
@@ -346,8 +348,8 @@ def collect_one(mrow, cuda, reps, floor=120):
                                    partial_dump=partial_dump)
         _write_meta()                   # per-mode checkpoint
     # trace size (for the P7 "largest-trace" selection): total hb_events in the
-    # saved engine dump. Rows report their OWN mode's count (meta.modes.<mode>.events).
-    meta["events"] = meta["modes"].get("engine", {}).get("events", 0)
+    # saved vector-clock dump. Rows report their OWN mode's count (meta.modes.<mode>.events).
+    meta["events"] = meta["modes"].get(VC, {}).get("events", 0)
     shutil.rmtree(work, ignore_errors=True)   # keep only kernel JSONs + dots + meta + logs
     meta["status"] = "done"
     meta["finished"] = time.strftime("%Y-%m-%d %H:%M:%S")
@@ -355,7 +357,7 @@ def collect_one(mrow, cuda, reps, floor=120):
 
 
 # json.loads needs ~6-10x the text size in RAM: P7-bezier-surface's complete 138 GB
-# trace-only dump took the HARNESS (not the collector, not the analysis) to 183 GB RSS
+# scalar-clock dump took the HARNESS (not the collector, not the analysis) to 183 GB RSS
 # while counting its events and the kernel OOM killer took the whole shard.
 COUNT_EVENTS_MAX_GB = float(os.environ.get("BASELINE_COUNT_EVENTS_MAX_GB", "12"))
 
@@ -477,7 +479,10 @@ def _analyze_capped(mode_dir, dots_dir, cap_s, mem_gb=-1):
 
 
 def analyze_one(idir, writer, confirm_dir, analysis_cap=0, analysis_mem=-1):
-    meta = json.loads(Path(f"{idir}/meta.json").read_text())
+    # a store the T8 converter did not reach carries engine/trace-only keys: accepted
+    # for one release with a deprecation line (CUVEIN_NO_LEGACY_NAMES=1 -> error)
+    meta = blib.hb_modes.canon_meta(json.loads(Path(f"{idir}/meta.json").read_text()),
+                                    f"{idir}/meta.json")
     common = dict(id=meta["id"], pset=meta["pset"], program=meta["program"],
                   build=meta["build"], input=meta["input"], tool="cuvein")
     pcmap = {int(k): v for k, v in meta.get("pc_lines", {}).items()}
@@ -515,15 +520,16 @@ def analyze_one(idir, writer, confirm_dir, analysis_cap=0, analysis_mem=-1):
         ids_, pcs, raw = [], set(), []
         analyzed, reason = False, ""
         partial = bool(mm.get("partial"))
-        if mm.get("saved") and os.path.isdir(f"{idir}/{mode}"):
+        mode_dir = blib.hb_modes.resolve_dir(idir, mode)   # pre-T8 store: <id>/engine|trace-only
+        if mm.get("saved") and os.path.isdir(mode_dir):
             try:
-                (ids_, pcs, raw), reason = _analyze_capped(f"{idir}/{mode}", dots_dir,
+                (ids_, pcs, raw), reason = _analyze_capped(mode_dir, dots_dir,
                                                            analysis_cap, analysis_mem)
                 analyzed = not reason
             except ValueError:
                 if not partial:     # a killed run's last kernel JSON may be truncated
                     raise
-        mode_events = mm.get("events", meta.get("events", 0) if mode == "engine" else "")
+        mode_events = mm.get("events", meta.get("events", 0) if mode == VC else "")
         if mm.get("events_uncounted"):
             mode_events = f"{mode_events}(+{len(mm['events_uncounted'])} dumps >{COUNT_EVENTS_MAX_GB:.0f}GB uncounted)"
         for rep, rm in enumerate(reps_meta, 1):

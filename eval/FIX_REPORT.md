@@ -235,7 +235,7 @@ were artifacts of the `ATOMS` self-race and are now honest 1-block FNs.
 - `python/hb_oracle.py`: reader pc in `last_reads` (WAR `a_pc`); `released` keyed by location.
 - `sanalyzer/src/tools/pc_dependency_analysis.cpp`: `Reader{clock,pc}` in `last_reads`; WAR
   emits the reader pc (no `null`); `released` keyed by `Loc`. `.h`: record-order caveat.
-- `eval/`: `driver.py` (`CUVEIN_HOME`, lockstep/no-engine forwarding, `--no-engine`,
+- `eval/`: `driver.py` (`CUVEIN_HOME`, lockstep/scalar-clock forwarding, `--mode scalar-clock`,
   `--csv-suffix`), `aggregate.py` (benign/warp-po notes), `reanalyze.py`, `mk_e1_manifest.py`
   (flavor slug, repeatable `--graph`, `--only`), `mk_e0_manifest.py --lockstep`,
   `mk_e2_manifest.py --only`, manifests, `README.md`.

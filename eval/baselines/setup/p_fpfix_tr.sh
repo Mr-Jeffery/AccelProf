@@ -14,7 +14,7 @@
 #   python3 eval/baselines/compare_fpfix.py --after-glob 'eval/results/fpfix_tr/baselines-cuvein-shard*.csv'
 cd /home/fzheng4/AccelProf || exit 1
 source eval/baselines/gpu_env.sh
-export BASELINE_MODES=trace-only   # static leg + offline barrier-only pass
+export BASELINE_MODES=scalar-clock   # static leg + offline barrier-only pass
 export BASELINE_TRACE_DIR=/mnt/beegfs/$USER/cuvein_traces/fpfix-tr   # BeeGFS, every trace kept (eval/STORAGE.md)
 $PY eval/baselines/parallel.py run --pset P1,P2,P3,P4,P5,P6 \
     --shard ${SLURM_ARRAY_TASK_ID}/32 --confirm --tag fpfixtr \

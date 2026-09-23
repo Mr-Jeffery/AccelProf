@@ -34,6 +34,11 @@ APH = os.environ.get("ACCEL_PROF_HOME") or os.environ.get(
     "CUVEIN_HOME", "/home/fzheng4/AccelProf")
 APH = str(Path(APH).resolve())
 PYDIR = f"{APH}/python"
+# the cuVein mode vocabulary (vector-clock / scalar-clock) lives next to the detector;
+# import it from THIS checkout's python/ (the harness code, not the runtime one)
+import sys as _sys
+_sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "python"))
+import hb_modes  # noqa: E402
 SIDECAR = f"{PYDIR}/atomic_scope_sidecar.py"
 RESULTS_DIR = f"{APH}/eval/results"
 BASELINES_DIR = f"{APH}/eval/baselines"
@@ -41,7 +46,7 @@ BASELINES_DIR = f"{APH}/eval/baselines"
 # The single unified per-run schema. Every tool runner appends rows with exactly
 # these columns to eval/results/baselines-<tool>.csv, so make_tables.py can join
 # them. verdict in {RACE, CLEAN, ERROR, TIMEOUT}. mode is '' except cuVein
-# {engine, trace-only}. report_ids is a space-joined, deduped list of the tool's
+# {vector-clock, scalar-clock} (hb_modes.MODES). report_ids is a space-joined, deduped list of the tool's
 # native identifiers (source lines for HiRace/racecheck; pcs for iGUARD/cuVein);
 # report_lines carries the nvdisasm-mapped source lines for pc-based tools.
 COLUMNS = [
@@ -81,9 +86,10 @@ def cuda_home_or_none():
         return None
 
 
-def base_env(cuda_home=None, hb_trace=False, no_engine=False, scope_file=None):
+def base_env(cuda_home=None, hb_trace=False, hb_mode=None, scope_file=None):
     """Env dict for a tool run. Mirrors eval/driver.py:base_env but resolves a
-    real CUDA_HOME and lets the HB knobs be set explicitly."""
+    real CUDA_HOME and lets the HB knobs be set explicitly. hb_mode: 'vector-clock' /
+    'scalar-clock' (hb_modes.MODES) -> YOSEMITE_HB_MODE; only with hb_trace."""
     ch = cuda_home or resolve_cuda_home()
     e = os.environ.copy()
     e["ACCEL_PROF_HOME"] = APH
@@ -93,12 +99,14 @@ def base_env(cuda_home=None, hb_trace=False, no_engine=False, scope_file=None):
     e["PATH"] = f"{APH}/bin:{ch}/bin:" + e.get("PATH", "")
     e["LD_LIBRARY_PATH"] = (f"{ch}/compute-sanitizer:{ch}/lib64:"
                             + e.get("LD_LIBRARY_PATH", ""))
-    for k in ("YOSEMITE_HB_TRACE", "YOSEMITE_HB_NO_ENGINE", "YOSEMITE_ATOMIC_SCOPE_FILE"):
+    # drop every HB knob inherited from the shell, the pre-T8 mode switch included
+    # (the collector would still honour it and silently flip the mode)
+    for k in ("YOSEMITE_HB_TRACE", hb_modes.ENV, hb_modes.LEGACY_ENV, "YOSEMITE_ATOMIC_SCOPE_FILE"):
         e.pop(k, None)
     if hb_trace:
+        hb_modes.require_collector_support(APH)   # a pre-T8 library ignores YOSEMITE_HB_MODE
         e["YOSEMITE_HB_TRACE"] = "1"
-    if no_engine:
-        e["YOSEMITE_HB_NO_ENGINE"] = "1"
+        e.update(hb_modes.collector_env(hb_mode or hb_modes.VECTOR_CLOCK))
     if scope_file:
         e["YOSEMITE_ATOMIC_SCOPE_FILE"] = scope_file
     return e

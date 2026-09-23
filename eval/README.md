@@ -59,13 +59,32 @@ $CONDA eval/mk_e2_manifest.py --bin eval/bin/E2 --out eval/manifests/e2.json \
 $CONDA eval/driver.py eval/manifests/e2.json
 ```
 
-## Trace-only mode (no in-process engine)
-`driver.py MANIFEST --no-engine --csv-suffix=-noengine --detail-suffix=-noengine` runs
-native + `YOSEMITE_HB_TRACE=1 YOSEMITE_HB_NO_ENGINE=1` only and analyzes that dump: verdicts
-come from the static leg (R1/R2/R3 over the trace's pc edges; every RACE is `latent`, there
-is no `hb_races`), `t_engine` is blank, `peak_mem` is the tracing run's, `oracle_verified`
-= `no-engine`. Results land next to the engine-mode CSVs as `*-noengine.csv`. (Use the
-`--opt=value` form: a suffix starting with `-` is otherwise parsed as a flag.)
+## The two modes: vector-clock and scalar-clock
+cuVein runs in one of two modes (task T8, 2026-09-23, renamed them from "engine" and
+"trace-only"; `python/hb_modes.py` holds the vocabulary):
+- **vector-clock** — `YOSEMITE_HB_TRACE=1 YOSEMITE_HB_MODE=vector-clock` (the default under
+  `YOSEMITE_HB_TRACE=1`): the in-process `HbEngine` (full scoped vector clocks, per-address
+  release/acquire; `python/hb_oracle.py` is its exact oracle) runs over the event stream and its
+  `hb_races` / `hb_races_sync_only` are crossed into the static leg's verdicts.
+- **scalar-clock** — `YOSEMITE_HB_MODE=scalar-clock`: the collector only dumps `hb_events`;
+  verdicts come from the static leg (R1/R2/R3 over the trace's pc edges) plus the offline
+  barrier-only pass (`sync_dominance.barrier_only_pairs`, a per-thread scalar epoch); there is
+  no `hb_races`.
+
+`driver.py MANIFEST --mode scalar-clock` runs native + the scalar-clock dump only and analyzes
+it: `t_engine` is blank, `peak_mem` is the tracing run's, `oracle_verified` = `scalar-clock`,
+notes carry `mode=scalar-clock`, results land next to the vector-clock CSVs as
+`*-scalar-clock.csv` (`--csv-suffix` / `--detail-suffix` override). The harness
+(`parallel.py`, `run_cuvein.py`, `$BASELINE_MODES`) uses `vector-clock,scalar-clock`; kept-trace
+stores hold `<id>/vector-clock/` and `<id>/scalar-clock/`, confirm files are
+`<id>__cuvein__<mode>.json`. Every HB-trace setter refuses to run with an engine library that
+predates `YOSEMITE_HB_MODE` (`hb_modes.require_collector_support`).
+
+Pre-T8 names: `eval/baselines/migrate_mode_names.py` rewrites CSVs, stores and confirm files
+(dry run by default, `--apply`, `--reverse` for stores). For one release every reader still
+accepts `engine` / `trace-only` / `no-engine` with one deprecation line per file
+(`CUVEIN_NO_LEGACY_NAMES=1` turns that into an error), and the collector still honours
+`YOSEMITE_HB_NO_ENGINE` with a warning.
 
 ## Re-analyzing existing traces / running from a worktree
 - `eval/reanalyze.py --bindir eval/bin/E0 --python-dir python <stems>` re-runs the static
@@ -106,7 +125,7 @@ is no `hb_races`), `t_engine` is blank, `peak_mem` is the tracing run's, `oracle
   lists any true positive lost.
 - `CUVEIN_EVENT_CANDIDATES=0` / `--no-event-candidates`: judge trace edges only. By default the
   conflicting pc pairs that only the `hb_events` stream shows (engine `hb_races_sync_only` +
-  `hb_races`; trace-only: the offline barrier pass) are judged too — a trace edge keeps just the
+  `hb_races`; scalar-clock: the offline barrier pass) are judged too — a trace edge keeps just the
   LAST accessor of a location, so a pair can have no edge at all. `CUVEIN_R3_PAST_RELEASE=0`
   disables R3's past-release gate (an access after its thread's own unlock of a CAS-acquired lock
   is not ordered by the lock hand-off). Both exist for ablation on identical traces.

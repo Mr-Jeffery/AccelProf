@@ -33,6 +33,11 @@ from collections import defaultdict
 HERE = os.path.dirname(os.path.abspath(__file__))
 APH = os.path.dirname(os.path.dirname(HERE))
 RES = f"{APH}/eval/results"
+
+import sys as _sys
+_sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "python"))
+import hb_modes  # noqa: E402  (vector-clock / scalar-clock; legacy names accepted with a warning)
+VC, SC = hb_modes.VECTOR_CLOCK, hb_modes.SCALAR_CLOCK
 CONFIRM = f"{HERE}/confirm"
 SCOPE_ORD = {"none": 0, "warp": 1, "block": 2, "grid": 3}
 
@@ -119,7 +124,7 @@ def load_reduced():
             t = r.get("tool") or tool
             if t not in RACE_TOOLS:
                 continue
-            per[(r["id"], t, r.get("mode", ""))].append(r["verdict"])
+            per[(r["id"], t, hb_modes.canon(r.get("mode", ""), path))].append(r["verdict"])
             meta[r["id"]] = r["program"]
     red = {}
     for k, vs in per.items():
@@ -143,6 +148,7 @@ def main():
     confirm = {}
     for f in glob.glob(f"{CONFIRM}/*.json"):
         d = json.loads(open(f).read())
+        d["mode"] = hb_modes.canon(d.get("mode", ""), CONFIRM)
         confirm[(d["id"], f"{d['tool']}:{d['mode']}")] = d
 
     # group verdicts per id across tool-columns
@@ -154,7 +160,9 @@ def main():
 
     rows = []
     for i, tv in byid.items():
-        cols = sorted(tv.items())
+        # tool order, then the harness's mode order (vector-clock before scalar-clock,
+        # which keeps the pre-T8 column order): tool_a/tool_b stay where they were
+        cols = sorted(tv.items(), key=lambda kv: (kv[0][0], _mode_rank(kv[0][1])))
         for a in range(len(cols)):
             for b in range(a + 1, len(cols)):
                 (ta, ma), va = cols[a]
@@ -195,6 +203,10 @@ def main():
         w.writeheader()
         w.writerows(rows)
     print(f"{len(rows)} disagreement report-rows -> {out}")
+
+
+def _mode_rank(m):
+    return hb_modes.MODES.index(m) if m in hb_modes.MODES else -1
 
 
 def _tname(t, m):

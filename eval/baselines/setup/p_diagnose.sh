@@ -5,7 +5,7 @@
 #SBATCH --time=06:00:00
 #SBATCH --array=0-22
 #SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/diag-%A_%a.log
-# Root-cause run for the trace-only ERROR/TIMEOUT residuals + all of P7: same
+# Root-cause run for the scalar-clock ERROR/TIMEOUT residuals + all of P7: same
 # collector, but with the 20-minute floor ("10x native OR 20 min"), native rc +
 # stderr and the accelprof stderr/dump size captured into the notes, and the
 # traces kept under traces_keep/. classify_residuals.py turns the rows into

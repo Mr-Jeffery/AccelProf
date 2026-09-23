@@ -26,7 +26,7 @@ DSHA=$(sha256sum "$DIFF" | cut -c1-16)
   for so in build/sanalyzer/lib/libsanalyzer.so lib/libcompute_sanitizer.so; do
     printf "  %s  sha256[:16]=%s  %s\n" "$(stat -c %y "$so" | cut -c1-19)" "$(sha256sum "$so" | cut -c1-16)" "$so"
   done
-  echo "knobs: CUVEIN_STRONG_LDST=${CUVEIN_STRONG_LDST:-<unset: generic>} CUVEIN_BARRIER_PASS=${CUVEIN_BARRIER_PASS:-<unset: on>} BASELINE_MODES=${BASELINE_MODES:-<unset: engine,trace-only>}"
+  echo "knobs: CUVEIN_STRONG_LDST=${CUVEIN_STRONG_LDST:-<unset: generic>} CUVEIN_BARRIER_PASS=${CUVEIN_BARRIER_PASS:-<unset: on>} BASELINE_MODES=${BASELINE_MODES:-<unset: vector-clock,scalar-clock>}"
 } > "$OUT"
 # freshness: libsanalyzer.so must postdate every sanalyzer source
 SO=build/sanalyzer/lib/libsanalyzer.so
