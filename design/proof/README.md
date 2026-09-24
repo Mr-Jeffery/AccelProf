@@ -8,7 +8,9 @@ the T6/T9 deliverables live under `design/`, next to `design/host_memcpy_model.m
 |---|---|---|
 | `hb_oracle_proof_v3.tex` | The reference: trace model (memory, arrival, **exit** records; ghost arrival/departure events), well-formedness W0–W2 and the monitor, **Algorithm 1** (`alg:hb`), the clock invariant, the two single-trace theorems, the per-profile certificate, §"State of the implementation". | Authoritative for what `hb_oracle.py` / `HbEngine` are measured against. |
 | `hb_defs_v4.tex` | Revision-4 delta: strength/scope labels, the two verdicts DR / SC (PTX §8.7.1), fence-gated (ATOM) via static fence adjacency (`rel`/`acq`), release chains, per-class **buckets** replacing FastTrack last-write/readers, the four-step processing rule (Definition "Processing a record"), obligations O1–O6. | The newest algorithm. A proposal: its four modelling decisions are still Jeffery's to confirm; nothing of it is implemented. |
-| `algorithm1_reference.md` | §A Algorithm 1 as the progress deck states it (same content as `alg:hb`); §B the v4 processing rule in the same style; §C the record kinds the code has added since; **§D Algorithm 1 as implemented at 3331d35**, derived from `hb_oracle.py`, with every line that differs from §A marked. | §A–C are convenience copies (the `.tex` wins); §D is the only statement of the running algorithm and is unreviewed until T6. |
+| `algorithm1_reference.md` | §A Algorithm 1 as the progress deck states it (same content as `alg:hb`); §B the v4 processing rule in the same style; §C the record kinds the code has added since; §D Algorithm 1 as implemented at 3331d35, derived from `hb_oracle.py`, with every line that differs from §A marked. | §A–C are convenience copies (the `.tex` wins); §D is superseded by `../algorithms.md` §2. |
+| `../algorithms.md` | **T6 deliverables 1 and 3 in draft** (2026-09-24): both modes as implemented at 3331d35 — Algorithm 1 (vector-clock: clocks, async agents, `coherent()`, second clock, TV checks, tick-then-publish) and Algorithm 2 (scalar-clock: region graph, R1/R2/R3 with `past_release`/`cs_fenced`, edge rescue, event candidates, offline pass, verdict matrix), cost, the 13-row deviation table, and §5 the lemma-level examination of `hb_oracle_proof_v3.tex` (E1–E7, Prop. S, certificate status), §6 v4 against the same findings, §7 recommendations. | Written from the code, unreviewed: T6's remaining work is the fresh-context review and the simulator `design/algorithms_check.py`; T9 starts from §5. |
+| `../algorithms.tex` | **T6 deliverable 2 in draft**: the same algorithms as `algorithm2e` environments (`alg:vc-helpers`, `alg:vc-main`, `alg:vc-access`, `alg:sc-static`, `alg:sc-rules`, `alg:sc-verdict`, `alg:sc-offline`) and the deviation table (`tab:deviations`), ready to `\input`. | Compiles standalone and appended to `hb_oracle_proof_v3.tex` (macros are `\providecommand`-guarded); content follows `algorithms.md`. |
 
 Terminology (v3 §Terminology, v4 keeps it): **sound** = misses no race / no missed
 verdict; **complete** = every report is a race / no spurious verdict.
@@ -37,9 +39,13 @@ differences; it predates every change since, and two of its own statements are s
 | — (never) | v3's own algorithm publishes then ticks | the code has always ticked first; v3 §impl does not list it |
 
 The v4 delta (`hb_defs_v4.tex`) is newer than the code in the other direction: nothing of
-it is implemented. So there is no document today that states the algorithm as it runs;
-`algorithm1_reference.md` §D is a first such statement, derived from `hb_oracle.py` at
-3331d35, and T6's deliverable 1 is its reviewed, complete form (both modes).
+it is implemented. So no proof document states the algorithm as it runs;
+`design/algorithms.md` (2026-09-24) is the first such statement for both modes, derived
+from `hb_oracle.py` and `sync_dominance.py` at 3331d35, with the v3 proof examined
+against it (its §5: `thm:complete` holds for the implementation, `thm:sound` fails on the
+tick-before-publish class E1 and on the `coherent()`-filter class E2, A3 is false for
+early-exit kernels E3). T6's remaining work is to review it in a fresh context and to
+check it with the simulator; the seed list below is superseded by its §4 table.
 
 ## Seed for T6's deviation table — code at `cuVein` 3331d35 (2026-09-23) vs Algorithm 1
 

@@ -1,0 +1,405 @@
+% design/algorithms.tex — the two cuVein algorithms AS IMPLEMENTED at cuVein 3331d35,
+% rendered for \input into the paper or into design/proof/hb_oracle_proof_v3.tex.
+%
+% Companion of design/algorithms.md (the prose version, the deviation table with
+% its rationale, and the examination of the v3 proof).  Written 2026-09-24 from
+% python/hb_oracle.py and python/sync_dominance.py; unreviewed until T6's
+% fresh-context review and the simulator design/algorithms_check.py have run.
+%
+% Requirements of the including document:
+%   \usepackage{amsmath,amssymb}
+%   \usepackage[ruled,vlined,linesnumbered]{algorithm2e}   (as hb_oracle_proof_v3.tex)
+%   \usepackage{booktabs}
+% Every macro below is defined with \providecommand, so this file can be \input
+% after the preamble of hb_oracle_proof_v3.tex (which already defines \clk,
+% \lastR, \lastW, \rdrs, \arrv, \tid, \pc, \loc, \seq, \HB, ...) or into a
+% document that has none of them.  Labels: alg:vc-helpers, alg:vc-main, alg:vc-access,
+% alg:sc-static, alg:sc-rules, alg:sc-verdict, alg:sc-offline, tab:deviations.
+%
+% Notation: "$\ne$ v3" marks a line that differs from Algorithm 1 (alg:hb) of
+% hb_oracle_proof_v3.tex.  Sound = misses no race; complete = every report is a race.
+
+% ---- macros (all guarded) ------------------------------------------------------
+\providecommand{\tid}{\operatorname{tid}}
+\providecommand{\pc}{\operatorname{pc}}
+\providecommand{\loc}{\operatorname{loc}}
+\providecommand{\seq}{\operatorname{seq}}
+\providecommand{\kind}{\operatorname{kind}}
+\providecommand{\blk}{\operatorname{block}}
+\providecommand{\scope}{\operatorname{scope}}
+\providecommand{\epoch}{\operatorname{epoch}}
+\providecommand{\covers}{\operatorname{covers}}
+\providecommand{\HB}{\to_{\mathrm{HB}}}
+\providecommand{\HBr}{\trianglelefteq_{\mathrm{HB}}}
+\providecommand{\PO}{<_{\mathrm{PO}}}
+\providecommand{\clk}{\mathit{clock}}
+\providecommand{\clkS}{\mathit{sclock}}
+\providecommand{\lastR}{\mathit{lastRelease}}
+\providecommand{\lastW}{\mathit{lastWrite}}
+\providecommand{\rdrs}{\mathit{readers}}
+\providecommand{\arrv}{\mathit{arrived}}
+\providecommand{\grp}{\mathit{groups}}
+\providecommand{\agent}{\operatorname{agent}}
+\providecommand{\coherent}{\operatorname{coherent}}
+\providecommand{\region}{\operatorname{region}}
+\providecommand{\dom}{\operatorname{dom}}
+\providecommand{\postdom}{\operatorname{postdom}}
+\providecommand{\po}{\operatorname{po}}
+\providecommand{\NONE}{\textsc{None}}
+\providecommand{\WARP}{\textsc{Warp}}
+\providecommand{\BLOCK}{\textsc{Block}}
+\providecommand{\GRID}{\textsc{Grid}}
+\providecommand{\Pol}{\mathit{policy}}
+\ifdefined\Switch\else
+  \SetKwSwitch{Switch}{Case}{Other}{switch}{do}{case}{otherwise}{endcase}{endsw}
+\fi
+\SetKwProg{Fn}{function}{:}{}
+\SetKwFunction{Sync}{Sync}
+\SetKwFunction{Own}{own}
+\SetKwFunction{Conflict}{Conflict}
+\SetKwFunction{Access}{Access}
+\SetKwFunction{Coherent}{coherent}
+\SetKwFunction{Covers}{covers}
+\SetKwFunction{Dominance}{dominance}
+\SetKwFunction{LoopScope}{loop\_scope}
+\SetKwFunction{Coherence}{coherence}
+\SetKwFunction{ReleaseScope}{release\_scope}
+\SetKwFunction{Chain}{chain}
+\SetKwFunction{PastRelease}{past\_release}
+\SetKwFunction{CsFenced}{cs\_fenced}
+\SetKwFunction{Ordered}{ordered}
+\SetKwFunction{Judge}{judge}
+\SetKwFunction{Po}{po}
+\SetKw{Reject}{reject}
+\SetKw{Report}{report}
+\SetKw{And}{and}
+\SetKw{Or}{or}
+\SetKw{Not}{not}
+\SetKw{As}{as}
+
+% =================================================================================
+\subsection*{Vector-clock mode, as implemented}
+% =================================================================================
+
+\paragraph{Inputs.}
+A dump \texttt{hb\_events}: memory records (one per warp instruction, with the active
+lanes and their addresses), \texttt{barrier} and \texttt{syncwarp} arrivals, and, in dumps
+with the marker \texttt{hb\_async}, \texttt{pipeline\_commit} / \texttt{pipeline\_wait}
+records (T1a). Exit records are not emitted ($\ne$ v3). Thread ids are
+$\tid(\beta,\omega,l)=\beta\cdot2^{10}+\omega\cdot2^{5}+l$; the async agent of $t$ is
+$\agent(t)=t\mathrel{|}2^{62}$. Locations are
+$\loc=(\texttt{shared},\beta,a)$, $(\texttt{global},a)$ or $(\texttt{local},a)$
+($\ne$ v3: local memory is not keyed per thread). From the CFG and the sidecar:
+$\mathit{AtomScope}[\pc]$ for RMW opcodes (\NONE$<$\WARP$<$\BLOCK$<$\GRID);
+$\mathit{CohScope}[\pc]=\mathit{AtomScope}[\pc]$, or the \texttt{.STRONG} scope of a
+load/store whose opcode form the policy \texttt{--strong-ldst}
+$\in\{\texttt{generic},\texttt{all},\texttt{none}\}$ admits ($\ne$ v3);
+$\mathit{AsyncPCs}$ = the \texttt{LDGSTS} pcs unless the kernel completes copies through an
+mbarrier (\texttt{ARRIVES.LDGSTSBAR}), in which case it is empty; $N_\beta$ the block size.
+
+\paragraph{State.}
+$\clk[t]$ is the vector clock of $t$ (barriers, syncwarps and atomic hand-offs);
+$\clkS[t]$ a second clock advanced by barriers and syncwarps only ($\ne$ v3);
+$\lastR[\ell]$ the $(\text{clock},\beta,\scope)$ published by the last RMW on
+\emph{location} $\ell$ ($\ne$ v3, which keys by address);
+$\lastW[\ell]$ the last write or RMW on $\ell$, as a tuple
+$(\tid,\epoch,\mathit{sepoch},\pc,\mathit{coh},\beta)$;
+$\rdrs[\ell]$ maps each thread to its latest read since $\lastW[\ell]$, as
+$(\epoch,\mathit{sepoch},\pc,\mathit{coh},\beta)$; $\arrv[k]$ the lanes arrived at the open instance of key
+$k=(\beta,\mathit{bar})$; $\grp[t]$ the $(\clk,\clkS)$ snapshots of $\agent(t)$ taken at
+each commit, oldest first ($\ne$ v3); $\Pi[a]$ the per-address sequence of
+$(\tid,\text{index})$ of RMWs (observational). A missing clock entry reads $0$;
+$\sqcup$ is the pointwise maximum.
+
+\begin{algorithm}[H]
+\small
+\caption{Vector-clock mode --- helpers (\texttt{hb\_oracle.py} / \texttt{HbEngine}, cuVein 3331d35)}\label{alg:vc-helpers}
+\Fn{\Own{$C$, $t$}}{
+  \lIf{$C[t][t]=0$}{$C[t][t]\gets1$}
+  \Return $C[t][t]$\;
+}
+\Fn{\Sync{$S$}}{
+  \ForEach{$C\in\{\clk,\clkS\}$}{
+    $J\gets\bigsqcup_{u\in S}C[u]$\;
+    \lForEach{$u\in S$}{$C[u]\gets J$;\quad $C[u][u]\gets J[u]+1$}
+  }
+}
+\Fn{\Coherent{$c_1,\beta_1,c_2,\beta_2$}}{
+  \tcp{both accesses coherent and their scopes cover each other: not a conflict ($\ne$ v3)}
+  \Return $c_1\ne\bot\ \wedge\ c_2\ne\bot\ \wedge\ \bigl(\min(c_1,c_2)=\GRID\ \vee\ (\min(c_1,c_2)=\BLOCK\wedge\beta_1=\beta_2)\bigr)$\;
+}
+\Fn{\Covers{$s_1,\beta_1,s_2,\beta_2$}}{
+  \Return $\min(s_1,s_2)=\GRID\ \vee\ (\min(s_1,s_2)=\BLOCK\wedge\beta_1=\beta_2)$\;
+}
+\Fn{\Conflict{$p$, $e$, $o$}}{
+  \tcp{$p$: an entry of $\lastW$ or $\rdrs$; $e$: the current access; $o$: the observing thread}
+  \lIf{$p.\epoch>\clk[o][p.\tid]$}{\Report $(p.\tid,p.\pc,\tid(e),\pc(e),\loc(e),\kind)$}
+  \lIf{$p.\mathit{sepoch}>\clkS[o][p.\tid]$}{$\mathit{syncpairs}[\{p.\pc,\pc(e)\}]\gets\mathit{syncpairs}[\{p.\pc,\pc(e)\}]+1$ \tcp*[f]{$\ne$ v3}}
+}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\small
+\caption{Vector-clock mode --- main loop}\label{alg:vc-main}
+\KwIn{dump $T$; $\mathit{AtomScope}$, $\mathit{CohScope}$, $\mathit{AsyncPCs}$; $N_\beta$}
+\KwOut{$\mathit{races}$ (\texttt{hb\_races}); $\mathit{syncpairs}$ (\texttt{hb\_races\_sync\_only}); $\Pi$ (\texttt{coherence\_profile})}
+\ForEach{record $e$ of $T$ in $\seq$ order}{
+  \lIf{$\seq(e)\le\mathit{prev}$}{\Reject \tcp*[f]{TV-seq-monotonic}}
+  $\mathit{prev}\gets\seq(e)$\;
+  \Switch{kind of $e$}{
+    \Case{\texttt{pipeline\_commit} by each active lane $t$ \tcp*[f]{$\ne$ v3 (T1a)}}{
+      $g\gets\agent(t)$;\ \Own{$\clk$,$g$};\ \Own{$\clkS$,$g$}\;
+      append copies of $(\clk[g],\clkS[g])$ to $\grp[t]$;\quad $\clk[g][g]\gets\clk[g][g]+1$;\quad $\clkS[g][g]\gets\clkS[g][g]+1$\;
+    }
+    \Case{\texttt{pipeline\_wait} $N$ by each active lane $t$ \tcp*[f]{$\ne$ v3 (T1a)}}{
+      \If{$|\grp[t]|>N$}{
+        $d\gets|\grp[t]|-N$;\quad $(\mathbf{c},\mathbf{s})\gets$ the $d$-th oldest entry of $\grp[t]$\;
+        $\clk[t]\gets\clk[t]\sqcup\mathbf{c}$;\quad $\clkS[t]\gets\clkS[t]\sqcup\mathbf{s}$;\quad drop the $d$ oldest entries of $\grp[t]$\;
+      }
+    }
+    \Case{\texttt{syncwarp} arrival}{\Sync{masked lanes of $e$ as thread ids}\;}
+    \Case{\texttt{barrier} arrival}{
+      $k\gets(\beta(e),\mathit{bar}(e))$;\quad $\arrv[k]\gets\arrv[k]\cup\{\text{lanes of }e\}$;\quad $x\gets n(e)$ if $n(e)>0$ else $N_{\beta(e)}$\;
+      \lIf{$x\ne0$ \And $|\arrv[k]|>x$}{\Reject \tcp*[f]{TV-overfill}}
+      \uIf{$x=0$ \Or $|\arrv[k]|\ge x$}{
+        \lIf{$x=0$ \And a second warp has ever arrived at $k$}{\Reject \tcp*[f]{TV-expected-nonzero-multiwarp}}
+        \Sync{$\arrv[k]$};\quad mark the warps of $\arrv[k]$ not pending;\quad $\arrv[k]\gets\emptyset$\;
+      }
+      \lElse{mark $\omega(e)$ pending at $k$ \tcp*[f]{an exited thread never arrives ($\ne$ A3)}}
+    }
+    \Case{memory access at $\pc$ in space $\sigma$}{
+      \lIf{warp $(\beta(e),\omega(e))$ is pending}{\Reject \tcp*[f]{TV-completion-order}}
+      \lForEach{active lane $t_0$ of $e$ with address $a$}{\Access{$e$,$t_0$,$a$} \tcp*[f]{Algorithm~\ref{alg:vc-access}}}
+    }
+  }
+}
+\Return $\mathit{races}$ deduplicated on $(a,\tid_a,\pc_a,\tid_b,\pc_b,\kind)$ with agent ids mapped to the issuing thread and an \texttt{async} tag; $\mathit{syncpairs}$ as $[\pc_{\mathrm{lo}},\pc_{\mathrm{hi}},\mathit{count}]$; $\Pi$ with its hash\;
+\end{algorithm}
+
+\begin{algorithm}[H]
+\small
+\caption{Vector-clock mode --- one lane's memory access}\label{alg:vc-access}
+\Fn{\Access{$e$, $t_0$, $a$}}{
+  $t\gets t_0$;\quad $\pc\gets\pc(e)$\;
+  \If{$\pc\in\mathit{AsyncPCs}$ \tcp*[f]{a copy is an access of the async agent ($\ne$ v3, T1a)}}{
+    $t\gets\agent(t_0)$;\quad \Own{$\clk$,$t_0$};\quad $\clk[t]\gets\clk[t]\sqcup\clk[t_0]$;\quad \Own{$\clk$,$t$};\quad the same on $\clkS$\;
+  }
+  $\ell\gets\loc(\sigma,\beta(e),a)$;\quad $c\gets\mathit{CohScope}[\pc]$\;
+  \uIf{$\pc\in\mathrm{dom}(\mathit{AtomScope})$ \tcp*[f]{RMW}}{
+    append $(t,\mathit{idx}[t])$ to $\Pi[a]$;\quad $\mathit{idx}[t]\gets\mathit{idx}[t]+1$\;
+    \If{$\lastR[\ell]=(\mathbf{c}_r,\beta_r,s_r)$ \And \Covers{$\mathit{AtomScope}[\pc]$,$\beta(e)$,$s_r$,$\beta_r$}}{$\clk[t]\gets\clk[t]\sqcup\mathbf{c}_r$ \tcp*[f]{acquire}}
+    \Own{$\clk$,$t$};\ \Own{$\clkS$,$t$}\;
+    \lIf{$\lastW[\ell]=w$ \And $w.\tid\ne t$ \And \Not\Coherent{$c$,$\beta(e)$,$w.\mathit{coh}$,$w.\beta$}}{\Conflict{$w$,$e$,$t$} \As \texttt{atomic}}
+    \lForEach{$r\in\rdrs[\ell]$ with $r.\tid\ne t$ \And \Not\Coherent{$c$,$\beta(e)$,$r.\mathit{coh}$,$r.\beta$}}{\Conflict{$r$,$e$,$t$} \As \texttt{WAR}}
+    $\clk[t][t]\gets\clk[t][t]+1$ \tcp*[f]{tick \textbf{first} ($\ne$ v3: publish, then tick)}\;
+    $\lastR[\ell]\gets(\text{copy of }\clk[t],\beta(e),\mathit{AtomScope}[\pc])$ \tcp*[f]{publish the post-tick clock}\;
+    $\lastW[\ell]\gets(t,\clk[t][t],\clkS[t][t],\pc,c,\beta(e))$;\quad $\rdrs[\ell]\gets\emptyset$ \tcp*[f]{post-tick epoch ($\ne$ v3)}\;
+  }
+  \Else(\tcp*[f]{read or write}){
+    $\mathit{ep}\gets$\Own{$\clk$,$t$};\quad $\mathit{sep}\gets$\Own{$\clkS$,$t$}\;
+    \If{$\lastW[\ell]=w$ \And \Not\Coherent{$c$,$\beta(e)$,$w.\mathit{coh}$,$w.\beta$}}{
+      \lIf{$w.\tid\ne t$}{\Conflict{$w$,$e$,$t$} \As \texttt{WAW} if $e$ is a write, else \texttt{RAW}}
+      \lElseIf{$e$ is a write \And $t$ is an agent}{\Conflict{$w$,$e$,$t_0$} \As \texttt{WAW} \tcp*[f]{two copies of one thread, observed by $t_0$ ($\ne$ v3)}}
+    }
+    \uIf{$e$ is a write}{
+      \lForEach{$r\in\rdrs[\ell]$ with $r.\tid\ne t$ \And \Not\Coherent{$c$,$\beta(e)$,$r.\mathit{coh}$,$r.\beta$}}{\Conflict{$r$,$e$,$t$} \As \texttt{WAR}}
+      $\lastW[\ell]\gets(t,\mathit{ep},\mathit{sep},\pc,c,\beta(e))$;\quad $\rdrs[\ell]\gets\emptyset$\;
+    }
+    \lElse{$\rdrs[\ell][t]\gets(\mathit{ep},\mathit{sep},\pc,c,\beta(e))$}
+  }
+}
+\end{algorithm}
+
+\noindent
+Correspondence with the code: $\clk$ = \texttt{vc}, $\clkS$ = \texttt{vs}, $\lastR$ =
+\texttt{released}, $\lastW$ = \texttt{last\_write}, $\rdrs$ = \texttt{last\_reads},
+$\arrv$ = \texttt{pending\_bar}, $\grp$ = \texttt{groups}, \Sync{} = \texttt{sync\_group},
+\Conflict{} = \texttt{conflict} (the \texttt{observer} argument is $o$), $\Pi$ =
+\texttt{profile}. What the algorithm computes: with
+$\mathit{conf}(a,b)$ = same location, different thread ids (an agent is a thread id), at
+least one write or RMW, and $\neg\coherent(a,b)$, a report is a pair with
+$\mathit{conf}(a,b)$ that the clocks leave unordered in the $\seq$ order it is met;
+$\mathit{syncpairs}$ is the same over the closure of (PO) and (SYNC) alone, projected to
+pc pairs. \texttt{design/algorithms.md} \S5 relates the clocks to the proof's $\HB$.
+
+% =================================================================================
+\subsection*{Scalar-clock mode, as implemented}
+% =================================================================================
+
+\paragraph{Inputs.}
+The kernel CFG from \texttt{nvdisasm} (basic blocks with $(\pc,\text{opcode})$ lists and
+edges); the trace's dependency graph (\texttt{nodes}: $\pc\mapsto(\text{space},\text{access})$;
+\texttt{edges}: $(\mathit{cur}\leftarrow\mathit{anc})$ with per-distance counts and a
+\emph{cold} flag); the sidecar scopes; and the event stream: \texttt{hb\_races} and
+\texttt{hb\_races\_sync\_only} of a vector-clock dump, or \texttt{hb\_events} of a
+scalar-clock dump, over which the offline pass (Algorithm~\ref{alg:sc-offline}) runs.
+The name refers to what the offline pass keeps per thread; the rules are PC-level.
+
+\begin{algorithm}[H]
+\small
+\caption{Scalar-clock mode --- region graph and static facts (\texttt{sync\_dominance.py})}\label{alg:sc-static}
+\ForEach{instruction $(\pc,\mathit{op})$ of the CFG}{
+  \Switch{$\mathit{op}$}{
+    \lCase{\texttt{BAR.SYNC*}, \texttt{BAR.RED*}}{sync, scope \BLOCK, qualifying}
+    \lCase{\texttt{BAR.ARV*}}{sync, scope \BLOCK, non-qualifying}
+    \lCase{\texttt{WARPSYNC}}{sync, scope \WARP, qualifying}
+    \lCase{\texttt{MEMBAR.GPU}, \texttt{MEMBAR.SYS}}{fence, scope \GRID}
+    \lCase{\texttt{MEMBAR.CTA}}{fence, scope \BLOCK}
+    \lCase{\texttt{EXIT}, \texttt{RET}}{exit}
+    \lCase{\texttt{LD*}, \texttt{ST*}, \texttt{ATOM*}, \texttt{RED*}, \texttt{LDGSTS}}{memory}
+    \lCase{other \texttt{BAR.*} or unknown \texttt{*SYNC*}}{abort (tripwire, exit code 2)}
+  }
+}
+$G\gets$ the region graph: every basic block split at each sync or fence instruction, each such instruction its own node, exits joined to a virtual exit; $\region(\pc)$ the region holding a memory pc\;
+$\dom,\postdom\gets$ dominators and post-dominators over $G$ (closed to full sets)\;
+\Fn{\Po{$u$,$v$}}{\Return $\region(u)\in\dom(\region(v))$, or $\region(u)=\region(v)$ \And $u<v$ \tcp*[f]{certified program order}}
+\Fn{\ReleaseScope{$u$,$a$}}{\Return $\max\{\scope(f): f\text{ a fence},\ f\in\postdom(\region u)\cap\dom(\region a)\}$, \NONE{} if none}
+\tcp{from the trace: $\mathit{atom}$ = RMW pcs with their scope; $\mathit{coh}$ = coherent pcs with their scope (RMWs, and \texttt{.STRONG} loads/stores admitted by the policy); $\mathit{syncedges}$ = non-cold atomic--atomic edges $(a_1,a_2,d)$ with observed distance $d>\NONE$ and $\min(\scope(a_1),\scope(a_2))\ge d$; $\mathit{sameloc}$ = every atomic--atomic edge pair, any distance}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\small
+\caption{Scalar-clock mode --- the ordering rules R1--R3 and \texttt{ordered}}\label{alg:sc-rules}
+\Fn{\Dominance{$u$,$v$} \tcp*[f]{R1, cross-pc}}{
+  \lIf{$\region(u)=\region(v)$}{\Return \NONE}
+  $\mathit{best}\gets\max\{\scope(s): s\text{ qualifying sync},\ s\in\postdom(\region u)\cap\dom(\region v)\ \text{or}\ s\in\postdom(\region v)\cap\dom(\region u)\}$ (\NONE{} if none)\;
+  \If{$\mathit{best}>\NONE$}{
+    $G'\gets G$ minus every qualifying sync of scope $\ge\mathit{best}$\;
+    \lIf{$\region(u)$ and $\region(v)$ are connected in $G'$ in either direction}{\Return \NONE \tcp*[f]{a sync-free path, e.g. a loop's wrap-around}}
+  }
+  \Return $\mathit{best}$\;
+}
+\Fn{\LoopScope{$u$} \tcp*[f]{R1, same pc}}{
+  \lIf{$\region(u)$ lies on no cycle of $G$}{\Return \NONE}
+  \ForEach{$\sigma\in(\GRID,\BLOCK,\WARP)$}{
+    \lIf{removing the qualifying syncs of scope $\ge\sigma$ (a non-empty set) breaks every cycle through $\region(u)$}{\Return $\sigma$}
+  }
+  \Return \NONE\;
+}
+\Fn{\Coherence{$u$,$v$} \tcp*[f]{R2}}{\lIf{$u,v\in\mathit{coh}$}{\Return $\min(\mathit{coh}[u],\mathit{coh}[v])$} \Return \NONE\;}
+\Fn{\PastRelease{$\mathit{acq}$,$\mathit{cur}$} \tcp*[f]{CAS acquire-side gate; \texttt{CUVEIN\_R3\_PAST\_RELEASE}}}{
+  \lIf{$\mathit{acq}=\bot$ \Or $\mathit{acq}$ is not a CAS}{\Return false}
+  \Return $\exists r\in\mathit{atom}\setminus\{\mathit{acq},\mathit{cur}\}:\ \{\mathit{acq},r\}\in\mathit{sameloc}\ \wedge\ \Po{$\mathit{acq}$,$r$}\ \wedge\ \Po{$r$,$\mathit{cur}$}$ \tcp*[f]{$\mathit{cur}$ lies past the thread's own unlock}
+}
+\Fn{\CsFenced{$x$,$\mathit{need}$} \tcp*[f]{release-side gate for an ordinary store}}{
+  \Return $\forall$ CAS $c$ with \Po{$c$,$x$}: \ReleaseScope{$c$,$x$}$\ \ge\mathit{need}$\;
+}
+\Fn{\Chain{$\mathit{anc}$,$\mathit{cur}$} \tcp*[f]{R3: a scoped happens-before path at pc level}}{
+  \lIf{$\mathit{anc}\in\mathit{atom}$}{$\mathit{starts}\gets[(\mathit{anc},\GRID)]$}
+  \lElse{$\mathit{starts}\gets[(a,s): a\in\mathit{atom},\ s=\ReleaseScope{$\mathit{anc}$,$a$}>\NONE]$ \tcp*[f]{fenced release}}
+  \ForEach{$(a_0,\mathit{first})\in\mathit{starts}$}{
+    DFS over states $(n,\mathit{synced},\mathit{path},\mathit{acq})$ from $(a_0,\mathrm{false},[a_0],\bot)$, each state visited once\;
+    \Indp
+    \lIf{$\mathit{synced}$ \And $n\ne\mathit{cur}$ \And \Po{$n$,$\mathit{cur}$} \And \Not\PastRelease{$\mathit{acq}$,$\mathit{cur}$}}{\Return $\mathit{path}$ \tcp*[f]{dependency-ordered acquire}}
+    \lForEach{$(n,a_2,d)\in\mathit{syncedges}$ with $\mathit{synced}$ \Or $d\le\mathit{first}$}{push $(a_2,\mathrm{true},\mathit{path}{+}[a_2],a_2)$ \tcp*[f]{observed sync hop}}
+    \lIf{$\mathit{synced}$ \Or $\mathit{anc}\in\mathit{atom}$}{push $(b,\mathit{synced},\mathit{path}{+}[b],\mathit{acq})$ for every $b\in\mathit{atom}$, $b\ne n$, with \Po{$n$,$b$} \tcp*[f]{po hop}}
+    \Indm
+  }
+  \Return $\bot$\;
+}
+\Fn{\Ordered{$\mathit{cur}$,$\mathit{anc}$,$d$,$\mathit{static}$}}{
+  \lIf{\Not $\mathit{static}$}{$\mathit{str}\gets\NONE$ \tcp*[f]{same-instruction multi-lane write: only R2}}
+  \lElseIf{$\mathit{cur}=\mathit{anc}$}{$\mathit{str}\gets$\LoopScope{$\mathit{cur}$}}
+  \lElse{$\mathit{str}\gets$\Dominance{$\mathit{cur}$,$\mathit{anc}$}}
+  $\mathit{str}\gets\max(\mathit{str},\Coherence{$\mathit{cur}$,$\mathit{anc}$})$;\quad $\mathit{chain}\gets\bot$\;
+  \If{$\mathit{static}$ \And $\mathit{str}<d$}{
+    $\mathit{ok}(x)\gets x\in\mathit{atom}\ \vee\ x\text{ is a read}\ \vee\ \CsFenced{$x$,$d$}$\;
+    \lIf{$\mathit{ok}(\mathit{anc})$ \And $\mathit{ok}(\mathit{cur})$}{$\mathit{chain}\gets$\Chain{$\mathit{anc}$,$\mathit{cur}$} \Or \Chain{$\mathit{cur}$,$\mathit{anc}$} \tcp*[f]{direction-agnostic}}
+  }
+  \Return $(\mathit{str},\mathit{chain})$\;
+}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\small
+\caption{Scalar-clock mode --- candidate pairs, \texttt{judge} and the verdict matrix}\label{alg:sc-verdict}
+\KwIn{trace edges; $\mathit{dyn}$ = \texttt{hb\_races} and $\mathit{sync}$ = \texttt{hb\_races\_sync\_only} of a vector-clock dump, or $\mathit{off}$ = the pairs of Algorithm~\ref{alg:sc-offline} for a scalar-clock dump}
+\KwOut{one verdict per distinct pc pair}
+\ForEach{trace edge $(\mathit{cur}\leftarrow\mathit{anc})$, not cold, $\mathit{anc}\ne\bot$}{
+  $d\gets$ the widest distance bucket of the edge with a non-zero count (\GRID$>$\BLOCK$>$\WARP), $w\gets$ its count\;
+  \If{$d=\NONE$ \And the edge has no same-instruction lanes}{
+    \lIf{the event stream shows $\{\mathit{cur},\mathit{anc}\}$ at a distance $d'$}{$d\gets d'$ \tcp*[f]{edge rescue}}
+    \lElse{skip \tcp*[f]{intra-thread only}}
+  }
+  \Judge{$\mathit{cur}$,$\mathit{anc}$,$d$,$w$,$\mathit{event}=\mathrm{false}$}\;
+}
+\If{\texttt{CUVEIN\_EVENT\_CANDIDATES}$\ne0$ \tcp*[f]{2026-09-20: pairs the edges lost (an edge keeps only the last accessor)}}{
+  \ForEach{pc pair in $\mathit{sync}\cup\mathit{dyn}$ (vector-clock dump) or in $\mathit{off}$ (scalar-clock dump) that no edge produced a verdict for}{
+    \Judge{$\mathit{cur}$,$\mathit{anc}$,$d$,$w$,$\mathit{event}=\mathrm{true}$} with $(\mathit{anc},\mathit{cur},d,w)$ taken from the race records or the offline pass\;
+  }
+}
+\BlankLine
+\Fn{\Judge{$\mathit{cur}$,$\mathit{anc}$,$d$,$w$,$\mathit{event}$}}{
+  \lIf{both accesses are reads}{\Return}
+  $\mathit{static}\gets\mathrm{true}$;\quad \lIf{the pair has same-instruction lanes}{$d\gets\WARP$;\ $\mathit{static}\gets\mathrm{false}$}
+  $(\mathit{str},\mathit{chain})\gets$\Ordered{$\mathit{cur}$,$\mathit{anc}$,$d$,$\mathit{static}$}\;
+  \lIf{$\mathit{cur}$ or $\mathit{anc}$ is a copy pc}{$\mathit{chain}\gets\bot$;\ \textbf{if} $\mathit{anc}$ is the copy \textbf{then} $\mathit{str}\gets\NONE$ \tcp*[f]{T1a: no static credit across a copy}}
+  $r_{12}\gets(\mathit{str}\ge d)$;\quad $r_3\gets(\mathit{chain}\ne\bot)$\;
+  \uIf{vector-clock dump}{
+    $D\gets\{\mathit{cur},\mathit{anc}\}\in\mathit{dyn}$ \tcp*[f]{exact pc-pair match; a legacy WAR record with $\pc_a=\bot$ matches a read partner}\;
+    $S\gets\{\mathit{cur},\mathit{anc}\}\in\mathit{sync}$ (or $\in\mathit{off}$; $\bot$ if neither exists)\;
+    \lIf{$D\wedge r_{12}$}{$\mathit{class}\gets$ \texttt{model\_bug} \tcp*[f]{R1/R2 claim all-schedule order, yet it raced}}
+    \lElseIf{$D$}{$\mathit{class}\gets$ \texttt{structural}}
+    \lElseIf{$r_{12}\vee r_3$}{$\mathit{class}\gets$ \texttt{ordered}}
+    \lElseIf{$S=\mathrm{false}$}{$\mathit{class}\gets$ \texttt{barrier-ordered} \tcp*[f]{barrier joins alone order every observed conflict}}
+    \lElse{$\mathit{class}\gets$ \texttt{latent} \tcp*[f]{ordered only through this schedule's atomic hand-offs}}
+    $\mathit{verdict}\gets$ \textsc{Ordered} if $\mathit{class}\in\{\texttt{ordered},\texttt{barrier-ordered}\}$ else \textsc{Race}\;
+  }
+  \Else(\tcp*[f]{scalar-clock dump}){
+    $\mathit{verdict}\gets$ \textsc{Ordered} if $r_{12}\vee r_3\vee(\mathit{off}\text{ exists}\wedge\{\mathit{cur},\mathit{anc}\}\notin\mathit{off})$ else \textsc{Race}\;
+  }
+  tags (never change the verdict): \texttt{benign} = ``atomic-maintained-read'' when a RAW/WAR race's read pc conflicts only with RMW writers; \texttt{--assume-warp-lockstep} turns a \texttt{structural} same-warp program-ordered pair into \texttt{warp-po-ordered} / \textsc{Ordered}, never for a copy\;
+  emit $(\mathit{cur},\mathit{anc},d,w,\mathit{str},\mathit{chain},\mathit{class},\mathit{verdict},\mathit{event})$\;
+}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\small
+\caption{Scalar-clock mode --- offline barrier-only pass (\texttt{barrier\_only\_pairs})}\label{alg:sc-offline}
+\KwIn{\texttt{hb\_events}; $\mathit{atom}$, $\mathit{coh}$, $\mathit{AsyncPCs}$}
+\KwOut{$\{(\pc_{\mathrm{lo}},\pc_{\mathrm{hi}})\mapsto\mathit{count}\}$ of conflicts left unordered by (PO) and (SYNC), the widest thread distance per pair, the (earlier, later) orientation of the first}
+\lIf{the dump has no \texttt{hb\_events}, or exceeds \texttt{CUVEIN\_BARRIER\_PASS\_MAX\_LANES} lane accesses, or \texttt{CUVEIN\_BARRIER\_PASS}$=0$}{\Return $\bot$ (skipped)}
+\tcp{Algorithm~\ref{alg:vc-main} restricted to (PO) and (SYNC): the same records, the same \Coherent{} filter, the same async agents (issue, commit, wait), \textbf{no} acquire join and \textbf{no} publish; one clock per thread}
+representation: each thread holds a pointer to an immutable joined base $J$ shared by its last sync group plus a scalar own component; a lookup is $\max(J[s],\text{own if }s=\text{self})$\;
+\Sync{$S$}: build one $J$ from the participants' views, point every $u\in S$ at $J$, set $\mathit{own}_u\gets J[u]+1$ \tcp*[f]{O($|S|$) per instance, not O($|S|^2$)}\;
+on each conflict left unordered: $\mathit{pairs}[\{\pc_a,\pc_b\}]\gets\mathit{pairs}[\{\pc_a,\pc_b\}]+1$, widen the pair's distance, record the orientation if first\;
+\Return $\mathit{pairs}$ \tcp*[f]{claimed identical to $\mathit{syncpairs}$ of Algorithm~\ref{alg:vc-main}: \texttt{test\_offline\_barrier\_pass\_matches\_oracle}}\;
+\end{algorithm}
+
+\paragraph{Cost.}
+R1 is one dominator-set intersection per pair plus a reachability test on the region
+graph, $O(|G|)$; \LoopScope{} up to three reachability tests; R3 a DFS over the atomic pcs
+and the observed hops, $O(|\mathit{atom}|\cdot|\mathit{syncedges}|)$ states --- all per
+\emph{distinct pc pair}. The only $O(\text{events})$ work is
+Algorithm~\ref{alg:sc-offline}: $O(\text{lane accesses})$ plus $O(|S|)$ per barrier
+instance, memoised per kernel. Vector-clock mode is $O(\text{lane accesses}\cdot|\text{clock}|)$
+with $O(\text{threads}^2)$ clock entries after cross-block atomic hand-offs (T5a).
+
+% =================================================================================
+\subsection*{Deviations from Algorithm 1 of the v3 proof}
+% =================================================================================
+
+\begin{table}[htbp]  % use table* in a two-column document
+\footnotesize
+\centering
+\caption{Code at cuVein 3331d35 versus Algorithm~1 (\texttt{alg:hb}) of \texttt{hb\_oracle\_proof\_v3.tex}. E$n$ refers to \texttt{design/algorithms.md} \S5.}\label{tab:deviations}
+\begin{tabular}{@{}r@{\ \ }p{2.3cm}p{3.1cm}p{2.9cm}p{3.1cm}p{2.3cm}@{}}
+\toprule
+\# & item & code & v3 & who is right & action \\
+\midrule
+1 & tick / publish order & ticks, then publishes the post-tick clock; RMW recorded at the post-tick epoch & publishes, records at the pre-tick epoch, then ticks & \textbf{v3}: the code misses races (E1) & T9 Part 3, decision D1 \\
+2 & exit records & dropped; expected count ignores exits & exit records, ``do nothing''; A3 puts the count on the collector & \textbf{neither}: A3 is false for early-exit kernels (E3) & model change + T3b \\
+3 & release-map key & location (per block for shared) & address & \textbf{code} (E4) & fix the v3 text \\
+4 & conflict filter & $\neg\coherent(a,b)$, \texttt{.STRONG} ld/st per policy & any two accesses, $\ge1$ write/RMW & v4's DR/SC is the principled form; with one $\lastW$ the filter is \textbf{unsound} (E2) & decision: v4 buckets (O4) or policy \texttt{none} \\
+5 & second clock $\clkS$, \texttt{races\_sync\_only}, offline pass & present & absent & extension; needs its own statement (Prop.~S) & T9 \\
+6 & async agents (T1a) & present & absent & extension; needs a model appendix (E5) & T9 \\
+7 & readers check on RMW & present & present (\Conflict{} / \texttt{Check}) & agree & --- \\
+8 & reader pcs in WAR records & present & present & agree & --- \\
+9 & monitor & four TV rejections; per-warp degrade when the count is unknown; no $\exp$ consistency check; partial-warp re-arrival accepted & six rows; rejects both; row 4 rejects a re-arriving warp & v3 row 4 over-rejects under ITS (E7); the rest v3 & adjust both \\
+10 & local-memory key & $(\texttt{local},a)$ & per thread & depends on what the collector records (E6) & check, then align or exclude \\
+11 & fence-gated (ATOM) & every strong RMW releases/acquires & same (v3 \S impl item 4, open) & open; v4 gates by fence adjacency & decision \\
+12 & host ops, profile $\Pi$, \texttt{HB\_STATS} & present & outside / observational & --- & --- \\
+13 & mbarrier-completed copies & the issuing thread's own access (pre-T1a reading) & absent & known hole & T1b \\
+\bottomrule
+\end{tabular}
+\end{table}
