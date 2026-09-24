@@ -1,0 +1,1492 @@
+diff --git a/bin/accelprof b/bin/accelprof
+index e0fa582..7a1b2ed 100755
+--- a/bin/accelprof
++++ b/bin/accelprof
+@@ -321,5 +321,5 @@ fi
+ end_time=$(date +%s)
+ elapsed=$((end_time - start_time))
+ printf "%-30s: %s\n" "[ACCELPROF INFO] END TIME" "$(date)" >> ${OUTPUT_REDIRECT}
+-printf "%-30s: %02d:%02d:%02d\n" "[ACCELPROF INFO] ELAPSED TIME" \```
++printf "%-30s: %02d:%02d:%02d\n" "[ACCELPROF INFO] ELAPSED TIME" \
+         $((elapsed/3600)) $((elapsed%3600/60)) $((elapsed%60)) >> ${OUTPUT_REDIRECT}
+diff --git a/python/atomic_scope_sidecar.py b/python/atomic_scope_sidecar.py
+index 52e003d..c5e3bc4 100644
+--- a/python/atomic_scope_sidecar.py
++++ b/python/atomic_scope_sidecar.py
+@@ -1,27 +1,41 @@
+ #!/usr/bin/env python3
+-"""Emit a `pc scope` sidecar for the analyzer's dynamic-HB engine.
++"""Emit the coherent-access sidecar for the analyzer's dynamic-HB engine.
+ 
+ The C++ engine (pc_dependency_analysis.cpp) needs each atomic PC's coherence scope,
+ which is a static SASS property only visible in the CFG. getall.sh generates the
+ CFG .dot before accelprof runs, so we distill it here into a tiny text file the
+-tool reads via YOSEMITE_ATOMIC_SCOPE_FILE. One line per atomic PC:  `<pc> <scope>`
+-with scope matching sync_dominance.SCOPES (NONE=0, BLOCK=2, GRID=3).
++tool reads via YOSEMITE_ATOMIC_SCOPE_FILE. One line per coherent-access PC:
+ 
+-ponytail: pc offsets are merged across all dots/kernels of the binary. Corpus
+-binaries are single-kernel so offsets don't collide; key by (kernel, pc) if a
+-multi-kernel binary ever shares an offset with a different scope.
++    <pc> <scope> <kind> <kernel>
++
++scope matches sync_dominance.SCOPES (NONE=0, BLOCK=2, GRID=3); kind is `rmw` (an
++atomic RMW: release/acquire point) or `ldst` (a .STRONG load/store — cuda::atomic
++load()/store() — coherent pairwise only, per the --strong-ldst policy); kernel is the
++demangled kernel name with all whitespace removed (what the engine derives from the
++launch's kernel_name). pc offsets are function-relative, so the table is per kernel:
++a multi-kernel binary routinely has a plain store in one kernel at the offset of an
++atomic in another. Every kernel of the binary is declared with a `# kernel <kernel>`
++line, so one without any coherent pc gets an EMPTY table instead of the merged one.
+ 
+ Usage:  python atomic_scope_sidecar.py <dot> [<dot> ...] -o atomic_scope.txt
+ """
+ import argparse
++import re
+ import sys
+ from pathlib import Path
+ 
+ import sync_dominance as sd
+ 
+ 
+-def collect(dot_paths):
+-    scopes = {}  # pc -> scope
++def kernel_key(mangled):
++    """Engine-side kernel key: demangled name sans whitespace (mangled if no c++filt)."""
++    return re.sub(r"\s+", "", sd._demangle(mangled) or mangled)
++
++
++def collect(dot_paths, policy=None):
++    """-> ({(kernel_key, pc): (scope, kind)}, [kernel_key, ...])"""
++    policy = sd.strong_ldst_policy(policy)
++    scopes, names = {}, []
+     for dp in dot_paths:
+         # A binary emits one .dot per cubin/arch; empty stubs have no kernel
+         # clusters. Skip those (mirrors the oracle trying each dot), don't abort.
+@@ -29,24 +43,30 @@ def collect(dot_paths):
+             kernels = sd.parse_dot(dp)
+         except sd.AlignmentError:
+             continue
+-        for kern in kernels.values():
+-            eng = sd.HBGraph(*kern)
+-            for pc, op in eng.pc_opcode.items():
+-                s = sd.atomic_scope(op)
++        for mangled, kern in kernels.items():
++            key = kernel_key(mangled)
++            names.append(key)
++            for pc, op in sd.HBGraph(*kern).pc_opcode.items():
++                s = sd.coherent_scope(op, policy)
+                 if s is not None:
+-                    scopes[pc] = s
+-    return scopes
++                    kind = "rmw" if sd.atomic_scope(op) is not None else "ldst"
++                    scopes[(key, pc)] = (s, kind)
++    return scopes, sorted(set(names))
+ 
+ 
+ def main(argv=None):
+     ap = argparse.ArgumentParser(description=__doc__.strip().splitlines()[0])
+     ap.add_argument("dots", nargs="+", type=Path)
+     ap.add_argument("-o", "--output", type=Path, required=True)
++    ap.add_argument("--strong-ldst", choices=sd.STRONG_LDST_POLICIES,
++                    help="which .STRONG loads/stores are coherent accesses "
++                         "(default: $CUVEIN_STRONG_LDST or 'generic')")
+     args = ap.parse_args(argv)
+-    scopes = collect(args.dots)
+-    lines = [f"{pc} {s}" for pc, s in sorted(scopes.items())]
++    scopes, names = collect(args.dots, args.strong_ldst)
++    lines = [f"# kernel {key}" for key in names]
++    lines += [f"{pc} {s} {kind} {key}" for (key, pc), (s, kind) in sorted(scopes.items())]
+     args.output.write_text("\n".join(lines) + ("\n" if lines else ""))
+-    print(f"[atomic_scope_sidecar] {len(scopes)} atomic pc(s) -> {args.output}")
++    print(f"[atomic_scope_sidecar] {len(scopes)} coherent pc(s) -> {args.output}")
+     return 0
+ 
+ 
+diff --git a/python/hb_oracle.py b/python/hb_oracle.py
+index 3707326..85bab2e 100644
+--- a/python/hb_oracle.py
++++ b/python/hb_oracle.py
+@@ -11,9 +11,16 @@ Model: every thread carries a vector clock. Synchronization updates the clocks 
+ a barrier / masked syncwarp joins its actual participants; an atomic acquires the
+ value released to its address and republishes. A conflict (same location, >=1
+ write, different threads) is a RACE iff the two accesses are not ordered by the
+-resulting happens-before relation. No pattern is special-cased: the canary, named
+-barriers, masked syncwarps and loop-carried handshakes all fall out as a
+-consequence of the clocks.
++resulting happens-before relation and are not both coherent accesses (atomic RMWs or
++cuda::atomic loads/stores, see sync_dominance.coherent_scope) whose .STRONG scopes
++cover the two threads. No pattern is special-cased: the canary, named barriers,
++masked syncwarps and loop-carried handshakes all fall out as a consequence of the
++clocks.
++
++A second clock per thread is advanced by barriers/syncwarps ONLY. Its races
++(`races_sync_only`, pc pairs with counts) tell the verdict matrix which dynamically
++ordered pairs owe their order to schedule-independent barrier joins alone and which
++to atomic release/acquire joins (which ignore fences -> stay latent).
+ 
+ This is the exact O(threads) reference; the analyzer's epoch engine must agree
+ with it on every corpus binary. Not for large workloads.
+@@ -71,7 +78,7 @@ class VC(dict):
+ 
+ 
+ 
+-def analyze(dot_path, trace_path):
++def analyze(dot_path, trace_path, strong_ldst=None):
+     trace = json.loads(Path(trace_path).read_text())
+     events = sorted(trace.get("hb_events", []), key=lambda e: e["seq"])
+     if not events:
+@@ -84,12 +91,20 @@ def analyze(dot_path, trace_path):
+     # pc -> atomic coherence scope (sd.NONE/BLOCK/GRID); NONE = weak/unknown, no HB.
+     atom_scope = {pc: s for pc in eng.pc_opcode
+                   if (s := sd.atomic_scope(eng.pc_opcode[pc])) is not None}
+-
+-    vc = defaultdict(VC)              # tid -> vector clock
+-    released = {}                     # addr -> (clock, releaser_block, scope)
+-    last_write = {}                   # loc -> (tid, clock, pc)
+-    last_reads = defaultdict(dict)    # loc -> {tid: clock}
++    # pc -> coherent-access scope: the RMW atomics plus (per policy) .STRONG loads/
++    # stores. Pairwise same-address coherence only — a coherent load/store is an
++    # ordinary read/write otherwise (no release/acquire join).
++    policy = sd.strong_ldst_policy(strong_ldst)
++    coh_scope = {pc: s for pc in eng.pc_opcode
++                 if (s := sd.coherent_scope(eng.pc_opcode[pc], policy)) is not None}
++
++    vc = defaultdict(VC)              # tid -> vector clock (barriers + atomic handoffs)
++    vs = defaultdict(VC)              # tid -> barrier/syncwarp-ONLY vector clock
++    released = {}                     # loc -> (clock, releaser_block, scope)
++    last_write = {}                   # loc -> (tid, clock, sync_clock, pc, coh, block)
++    last_reads = defaultdict(dict)    # loc -> {tid: (clock, sync_clock, pc, coh, block)}
+     races = []                        # list of race records
++    sync_pairs = defaultdict(int)     # (pc_lo, pc_hi) -> conflicts unordered by vs
+ 
+     # Coherence profile Pi (Phase 3, observational — never affects a verdict). The
+     # single-trace certificate is per-profile: the observed per-address coherence order
+@@ -121,19 +136,41 @@ def analyze(dot_path, trace_path):
+             vc[t][t] = 1
+         return vc[t][t]
+ 
++    def owns(t):
++        if vs[t].get(t, 0) == 0:
++            vs[t][t] = 1
++        return vs[t][t]
++
+     def sync_group(tids):
+         """Barrier/syncwarp: everyone learns everyone's pre-sync clock (join),
+         then each ticks its own component so post-sync accesses are ordered after
+-        the join but concurrent with each other (two post-barrier writes race)."""
+-        for t in tids:
+-            own(t)
+-        j = VC()
+-        for t in tids:
+-            j = j.joined(vc[t])
+-        for t in tids:
+-            nv = VC(j)
+-            nv[t] = nv.get(t, 0) + 1
+-            vc[t] = nv
++        the join but concurrent with each other (two post-barrier writes race).
++        Applied to both clocks; it is the ONLY thing that advances vs."""
++        for clocks, init in ((vc, own), (vs, owns)):
++            for t in tids:
++                init(t)
++            j = VC()
++            for t in tids:
++                j = j.joined(clocks[t])
++            for t in tids:
++                nv = VC(j)
++                nv[t] = nv.get(t, 0) + 1
++                clocks[t] = nv
++
++    def coherent(c1, b1, c2, b2):
++        """Two coherent accesses whose min .STRONG scope covers both threads."""
++        if c1 is None or c2 is None:
++            return False
++        eff = min(c1, c2)
++        return eff == sd.GRID or (eff == sd.BLOCK and b1 == b2)
++
++    def conflict(prev_tid, prev_clk, prev_sclk, prev_pc, t, pc, kind, rec):
++        """One unordered-ness test per clock for a conflicting (prev, current) pair."""
++        if prev_clk > vc[t].get(prev_tid, 0):
++            races.append({**rec, "a_tid": prev_tid, "a_pc": prev_pc,
++                          "b_tid": t, "b_pc": pc, "kind": kind})
++        if prev_sclk > vs[t].get(prev_tid, 0):
++            sync_pairs[(min(prev_pc, pc), max(prev_pc, pc))] += 1
+ 
+     def loc_of(space, block, addr):
+         # shared memory is per-block; global/local keyed by absolute address.
+@@ -206,10 +243,12 @@ def analyze(dot_path, trace_path):
+         is_atomic = pc in atom_scope
+         is_write = (typ == "write")
+         space = e["space"]
++        my_coh, my_block = coh_scope.get(pc), e["block"]
+         for lane in e["lanes"]:
+             t = tid_of(e["block"], e["warp"], lane["lane"])
+             addr = lane["addr"]
+             loc = loc_of(space, e["block"], addr)
++            rec = {"addr": addr, "space": space, "loc_block": e["block"]}
+ 
+             if is_atomic:
+                 # Coherence profile Pi (observational): this thread's next atomic index
+@@ -221,44 +260,47 @@ def analyze(dot_path, trace_path):
+                 # if that strength covers the two threads (GRID = any block,
+                 # BLOCK = same block, NONE = never). This is what turns a
+                 # block-scoped atomic used across blocks into a caught race.
+-                my_scope, my_block = atom_scope[pc], e["block"]
+-                rel = released.get(addr)
++                # Keyed by location, not raw address: shared-memory addresses are
++                # per-block offsets, so with >1 block another block's release on the
++                # same offset would clobber this block's (spurious atomic race).
++                my_scope = atom_scope[pc]
++                rel = released.get(loc)
+                 if rel is not None:
+                     rclk, rblock, rscope = rel
+                     eff = min(my_scope, rscope)
+                     if eff == sd.GRID or (eff == sd.BLOCK and rblock == my_block):
+                         vc[t] = vc[t].joined(rclk)
+-                # an atomic RMW is a write: it races a prior writer the scoped
+-                # acquire did NOT order — e.g. same-address atomics at a scope too
+-                # narrow for their distance (a coherence race).
++                # an atomic RMW is a write: it races a prior writer / reader that is
++                # neither HB-ordered nor coherent with it — e.g. same-address atomics
++                # at a scope too narrow for their distance, or a plain access.
++                own(t), owns(t)
+                 w = last_write.get(loc)
+-                if w and w[0] != t and w[1] > vc[t].get(w[0], 0):
+-                    races.append({"addr": addr, "space": space, "loc_block": e["block"],
+-                                  "a_tid": w[0], "a_pc": w[2], "b_tid": t, "b_pc": pc,
+-                                  "kind": "atomic"})
++                if w and w[0] != t and not coherent(my_coh, my_block, w[4], w[5]):
++                    conflict(w[0], w[1], w[2], w[3], t, pc, "atomic", rec)
++                for rt, (rc, rsc, rpc, rcoh, rblk) in last_reads[loc].items():
++                    if rt != t and not coherent(my_coh, my_block, rcoh, rblk):
++                        conflict(rt, rc, rsc, rpc, t, pc, "WAR", rec)
+                 vc[t][t] = own(t) + 1
+-                released[addr] = (VC(vc[t]), my_block, my_scope)
+-                last_write[loc] = (t, vc[t][t], pc)
++                released[loc] = (VC(vc[t]), my_block, my_scope)
++                last_write[loc] = (t, vc[t][t], owns(t), pc, my_coh, my_block)
+                 last_reads[loc] = {}
+                 continue
+ 
+-            clk = own(t)
++            clk, sclk = own(t), owns(t)
+             # conflict with the last writer / concurrent readers not HB-before t
+             w = last_write.get(loc)
+-            if w and w[0] != t and w[1] > vc[t].get(w[0], 0):
+-                races.append({"addr": addr, "space": space, "loc_block": e["block"],
+-                              "a_tid": w[0], "a_pc": w[2], "b_tid": t, "b_pc": pc,
+-                              "kind": "WAW" if is_write else "RAW"})
++            if w and w[0] != t and not coherent(my_coh, my_block, w[4], w[5]):
++                conflict(w[0], w[1], w[2], w[3], t, pc, "WAW" if is_write else "RAW", rec)
+             if is_write:
+-                for rt, rc in last_reads[loc].items():
+-                    if rt != t and rc > vc[t].get(rt, 0):
+-                        races.append({"addr": addr, "space": space, "loc_block": e["block"],
+-                                      "a_tid": rt, "a_pc": None, "b_tid": t, "b_pc": pc,
+-                                      "kind": "WAR"})
+-                last_write[loc] = (t, clk, pc)
++                # the reader pc is kept: a WAR record must name both pcs (a single-pc
++                # key mis-attributes the race to every pair sharing it).
++                for rt, (rc, rsc, rpc, rcoh, rblk) in last_reads[loc].items():
++                    if rt != t and not coherent(my_coh, my_block, rcoh, rblk):
++                        conflict(rt, rc, rsc, rpc, t, pc, "WAR", rec)
++                last_write[loc] = (t, clk, sclk, pc, my_coh, my_block)
+                 last_reads[loc] = {}
+             else:
+-                last_reads[loc][t] = clk
++                last_reads[loc][t] = (clk, sclk, pc, my_coh, my_block)
+ 
+     # dedup identical race tuples (same pc pair, tid pair, addr)
+     seen, uniq = set(), []
+@@ -281,6 +323,7 @@ def analyze(dot_path, trace_path):
+         "kernel": {"mangled": mangled, "name": trace["kernel"]["kernel_name"]},
+         "atomic_pcs": {hex(pc): sd.SCOPES[s] for pc, s in sorted(atom_scope.items())},
+         "races": uniq,
++        "races_sync_only": [[a, b, n] for (a, b), n in sorted(sync_pairs.items())],
+         "coherence_profile": coherence_profile,
+         "summary": {"races": len(uniq), "events": len(events),
+                     "atomic_addrs": len(coherence_profile)},
+@@ -305,9 +348,12 @@ def main(argv=None):
+     ap.add_argument("cfg_dot", type=Path)
+     ap.add_argument("trace_json", type=Path)
+     ap.add_argument("-o", "--output", type=Path)
++    ap.add_argument("--strong-ldst", choices=sd.STRONG_LDST_POLICIES,
++                    help="which .STRONG loads/stores are coherent accesses "
++                         "(default: $CUVEIN_STRONG_LDST or 'generic')")
+     args = ap.parse_args(argv)
+     try:
+-        report = analyze(args.cfg_dot, args.trace_json)
++        report = analyze(args.cfg_dot, args.trace_json, strong_ldst=args.strong_ldst)
+     except sd.AlignmentError as exc:
+         print(f"ALIGNMENT FAILURE: {exc}", file=sys.stderr)
+         return 1
+diff --git a/python/sync_dominance.py b/python/sync_dominance.py
+index 82e965d..2c8cbcf 100644
+--- a/python/sync_dominance.py
++++ b/python/sync_dominance.py
+@@ -13,11 +13,16 @@ edge-generation rules; the pair's strength is the max scope those rules certify:
+ 
+  R1 sync dominance (static): a qualifying sync s orders (u, v) at scope(s) iff
+     s in postdom(u) & dom(v)  or  s in postdom(v) & dom(u)  — s runs after one
+-    access and before the other on every path. Qualifying: BAR.SYNC*/BAR.RED*
+-    (block), WARPSYNC (warp); BAR.ARV* never orders. Same-PC pairs: a qualifying
+-    sync of scope >= s on every cycle through the PC's region.
++    access and before the other on every path, and no sync-free path joins the two
++    regions (a loop's wrap-around would pair instances from different iterations).
++    Qualifying: BAR.SYNC*/BAR.RED* (block), WARPSYNC (warp); BAR.ARV* never orders.
++    Same-PC pairs: a qualifying sync of scope >= s on every cycle through the PC's
++    region.
+  R2 atomic coherence (static x dynamic): two same-address atomics are ordered
+-    at min of their .STRONG scopes (SM/CTA -> block, GPU/SYS -> grid).
++    at min of their .STRONG scopes (SM/CTA -> block, GPU/SYS -> grid); a shared-
++    memory ATOMS without a scope suffix is block-coherent by construction. A
++    cuda::atomic load()/store() is no RMW opcode but a LD|ST.*.STRONG.<scope>; per
++    the --strong-ldst policy it is a coherent access for R2 (never for R3).
+  R3 scoped happens-before chain (static x dynamic, ScoRD model): release fence
+     (MEMBAR in postdom(u) & dom(a), scope covering the hop) -> observed atomic-
+     atomic sync edge(s) from the trace -> acquire (dependency order behind the
+@@ -32,7 +37,9 @@ Usage:  python sync_dominance.py <kernel_cfg.dot> <kernel_N.json> [-o out.json]
+ Exit codes: 0 ok; 1 trace/CFG alignment failure; 2 unknown sync opcodes seen.
+ """
+ import argparse
++import functools
+ import json
++import os
+ import re
+ import shutil
+ import subprocess
+@@ -98,9 +105,58 @@ def atomic_scope(opcode):
+     if parts[0] not in _ATOM_BASES:
+         return None
+     s = parts[parts.index("STRONG") + 1] if "STRONG" in parts else None
++    if s is None and parts[0] == "ATOMS":
++        # a shared-memory atomic (atomicAdd_block on __shared__) carries no .STRONG
++        # suffix; shared memory is per-CTA, so it is CTA-coherent by construction.
++        return BLOCK
+     return _ATOM_SCOPE.get(s, NONE)  # unknown/weak scope -> NONE (over-report, sound)
+ 
+ 
++# .STRONG loads/stores. cuda::atomic<T>::load()/store() do not lower to an ATOM* RMW
++# but to an ordinary load/store carrying the atomic's coherence scope (seq_cst adds a
++# MEMBAR fence in front, relaxed does not): LD|ST.E.STRONG.<scope>. A `volatile`
++# access lowers to the SAME qualifier; the only binary-level difference is the opcode
++# form -- the cuda::atomic builtins emit the generic LD/ST, a volatile pointer access
++# the address-spaced LDG/STG/LDS/STS. Which of them count as language-level atomics
++# is therefore a policy:
++#   generic  LD/ST.*.STRONG only (default: Indigo/ECL-style atomics are coherent,
++#            ScoR-style volatile data stays plain and keeps racing)
++#   all      every .STRONG load/store (volatile too; hides ScoR's volatile races)
++#   none     RMW atomics only (the pre-existing model)
++STRONG_LDST_POLICIES = ("generic", "all", "none")
++_STRONG_GENERIC = {"LD", "ST"}
++_STRONG_ALL = {"LD", "LDG", "LDS", "LDL", "LDSM", "ST", "STG", "STS", "STL"}
++
++
++def strong_ldst_policy(policy=None):
++    """Resolve the policy: explicit arg > $CUVEIN_STRONG_LDST > 'generic'."""
++    policy = policy or os.environ.get("CUVEIN_STRONG_LDST") or "generic"
++    if policy not in STRONG_LDST_POLICIES:
++        raise ValueError(f"strong-ldst policy '{policy}' not in {STRONG_LDST_POLICIES}")
++    return policy
++
++
++def coherent_scope(opcode, policy=None):
++    """Coherence scope of a language-level atomic ACCESS: an atomic RMW, or (per
++    policy) a .STRONG load/store; None if the access is plain.
++
++    Used ONLY for pairwise same-address coherence (R2 and the engine's conflict
++    check). A coherent load/store is never a release/acquire point: it joins no
++    clocks and takes no part in the R3 chain, so it cannot order surrounding
++    non-atomic accesses (that would widen the relaxed-atomic unsoundness)."""
++    s = atomic_scope(opcode)
++    if s is not None:
++        return s
++    policy = strong_ldst_policy(policy)
++    parts = opcode.split(".")
++    if policy == "none" or "STRONG" not in parts:
++        return None
++    if parts[0] not in (_STRONG_GENERIC if policy == "generic" else _STRONG_ALL):
++        return None
++    i = parts.index("STRONG")
++    return _ATOM_SCOPE.get(parts[i + 1] if i + 1 < len(parts) else None, NONE)
++
++
+ def parse_flags(flags):
+     """Trace access flags string -> (space, access)."""
+     f = flags.upper()
+@@ -174,7 +230,8 @@ class HBGraph:
+     def __init__(self, blocks, edges, entry):
+         self.G = nx.DiGraph()
+         self.G.add_node(VEXIT)
+-        self.atom = {}        # pc -> atomic coherence scope (after attach_trace)
++        self.atom = {}        # pc -> atomic RMW scope (after attach_trace); R3's atomics
++        self.coh = {}         # pc -> coherent-access scope (atom + .STRONG ld/st); R2 only
+         self.sync_edges = []  # (anc, cur, d) observed atomic sync hops
+         self.pc_opcode = {}   # every parsed pc -> opcode (alignment check)
+         self.pc_node = {}     # pc -> its region node
+@@ -229,11 +286,17 @@ class HBGraph:
+             out.setdefault(cur, {cur})
+         return out
+ 
+-    def attach_trace(self, atom, sync_edges):
+-        """Bind the dynamic facts: atom = {pc -> atomic coherence scope},
+-        sync_edges = validated observed atomic-atomic hops (anc, cur, d)."""
++    def attach_trace(self, atom, sync_edges, coh=None, same_loc=None):
++        """Bind the dynamic facts: atom = {pc -> atomic RMW scope} (the release/
++        acquire atomics R3 chains over), sync_edges = validated observed atomic-atomic
++        hops (anc, cur, d), coh = {pc -> coherent-access scope} for R2 (atom plus the
++        .STRONG loads/stores; defaults to atom), same_loc = {frozenset{pc_a, pc_b}}
++        atomic pairs observed on one location at ANY distance, intra-thread included
++        (the evidence that an EXCH rewrites the word a CAS acquired)."""
+         self.atom = atom
+         self.sync_edges = sync_edges
++        self.coh = atom if coh is None else coh
++        self.same_loc = same_loc or set()
+ 
+     # -- R1: sync dominance (static) ------------------------------------------
+     def dominance(self, u, v):
+@@ -248,6 +311,15 @@ class HBGraph:
+                (sid in self.postdom.get(rv, ()) and sid in self.dom.get(ru, ())):
+                 best = max(best, scope)
+                 used.append(pc)
++        if best > NONE:
++            # dom/postdom are computed on the cyclic region graph: with a loop, u's
++            # instance in iteration k+1 reaches v's instance in iteration k with no
++            # sync in between (the wrap-around path skips the barrier). Order only if
++            # every path between the two regions crosses a sync of scope >= best.
++            cut = {s for s in self.qualifying if self.syncs[s][2] >= best}
++            sub = self.G.subgraph(n for n in self.G if n not in cut)
++            if nx.has_path(sub, ru, rv) or nx.has_path(sub, rv, ru):
++                return NONE, []
+         return best, sorted(used)
+ 
+     def loop_scope(self, pc):
+@@ -266,8 +338,9 @@ class HBGraph:
+ 
+     # -- R2: atomic coherence (static x dynamic) ------------------------------
+     def coherence(self, u, v):
+-        """Same-address atomics -> min of their .STRONG scopes; NONE otherwise."""
+-        return min(self.atom[u], self.atom[v]) if u in self.atom and v in self.atom \
++        """Same-address coherent accesses (atomic RMWs, cuda::atomic loads/stores)
++        -> min of their .STRONG scopes; NONE otherwise."""
++        return min(self.coh[u], self.coh[v]) if u in self.coh and v in self.coh \
+             else NONE
+ 
+     # -- R3: scoped happens-before chain (static x dynamic) -------------------
+@@ -295,11 +368,29 @@ class HBGraph:
+                    for c in self.atom
+                    if "CAS" in self.pc_opcode[c].split(".") and self.po(c, x))
+ 
++    def _past_release(self, acq, cur):
++        """Acquire-side gate: cur lies PAST the release of the critical section that
++        the CAS `acq` opened — the thread rewrote the same word (an atomic r observed
++        on acq's location, acq -po-> r -po-> cur) before reaching cur. Competing CAS
++        acquires succeed in schedule-dependent order, so the observed hop orders only
++        what is still inside the section: had this thread won the lock first, an
++        access after its own unlock would run concurrently with the other section
++        (ScoR race_interblock_none-lock_rtraw). Non-CAS flag/spin hand-offs pin their
++        direction by dataflow, so everything after the acquire stays ordered.
++        $CUVEIN_R3_PAST_RELEASE=0 disables the gate (ablation).
++        ponytail: the mirror (an access BEFORE its thread's own acquire) is not gated."""
++        if acq is None or "CAS" not in self.pc_opcode[acq].split(".") \
++                or os.environ.get("CUVEIN_R3_PAST_RELEASE", "1") == "0":
++            return False
++        return any(r != acq and r != cur and frozenset((acq, r)) in self.same_loc
++                   and self.po(acq, r) and self.po(r, cur) for r in self.atom)
++
+     def chain(self, anc, cur):
+         """Scoped happens-before path anc -> cur: a release side (fence-certified
+         for an ordinary store, program order for an atomic), one or more observed
+-        atomic sync hops, then a dependency-ordered acquire. Returns the chain of
+-        atomic PCs, or None.
++        atomic sync hops, then a dependency-ordered acquire whose critical section
++        cur has not already left (_past_release). Returns the chain of atomic PCs,
++        or None.
+ 
+         PC-level: assumes all dynamic instances of a PC are ordered alike — exact
+         for one-thread-per-arm and lock-protected patterns; per-thread epochs
+@@ -314,21 +405,23 @@ class HBGraph:
+             starts = [(a, s) for a in self.atom
+                       if (s := self.release_scope(anc, a)) > NONE]
+         for a0, first_scope in starts:
+-            stack, seen = [(a0, False, [a0])], set()
++            # acq = the atomic the latest sync hop landed on (the acquire in force)
++            stack, seen = [(a0, False, [a0], None)], set()
+             while stack:
+-                n, synced, path = stack.pop()
+-                if synced and n != cur and self.po(n, cur):  # acquire: dependency
++                n, synced, path, acq = stack.pop()
++                if synced and n != cur and self.po(n, cur) \
++                        and not self._past_release(acq, cur):  # acquire: dependency
+                     return path
+-                if (n, synced) in seen:
++                if (n, synced, acq) in seen:
+                     continue
+-                seen.add((n, synced))
++                seen.add((n, synced, acq))
+                 for a2, d in hops.get(n, ()):
+                     if synced or d <= first_scope:
+-                        stack.append((a2, True, path + [a2]))
++                        stack.append((a2, True, path + [a2], a2))
+                 if synced or anc_atomic:  # po hop between atomics, no fence needed
+                     for b in self.atom:
+                         if b != n and self.po(n, b):
+-                            stack.append((b, synced, path + [b]))
++                            stack.append((b, synced, path + [b], acq))
+         return None
+ 
+     def _on_cycle(self, r, excluded):
+@@ -363,6 +456,113 @@ class HBGraph:
+                 "coherence": coherence, "chain": chain}
+ 
+ 
++def thread_distance(t1, t2):
++    """Scope distance of two engine tids (block << 10 | warp << 5 | lane)."""
++    if t1 >> 10 != t2 >> 10:
++        return GRID
++    return BLOCK if (t1 >> 5) != (t2 >> 5) else WARP
++
++
++def barrier_only_pairs(trace, rmw, coh, max_lanes=None, dist_out=None, order_out=None):
++    """Offline barrier/syncwarp-ONLY happens-before pass over a dump's `hb_events`:
++    the pc pairs {(pc_lo, pc_hi): count} whose conflicts those joins leave unordered
++    (the engine's `hb_races_sync_only`, same semantics as hb_oracle's second clock).
++
++    It needs no atomic release/acquire joins, so it is cheap enough for the trace-only
++    mode: the clock changes only at a sync group, where every participant ends with
++    the same joined clock plus its own tick -> one shared base per group, O(threads)
++    per barrier. rmw = {pc: scope} atomic RMWs (write semantics), coh = {pc: scope}
++    coherent accesses. dist_out, if given, receives {(pc_lo, pc_hi): widest thread
++    distance (WARP/BLOCK/GRID) among the pair's unordered conflicts}; order_out
++    {(pc_lo, pc_hi): (earlier_pc, later_pc)} of the pair's first conflict in event order.
++    -> None if the dump has no hb_events or exceeds max_lanes."""
++    events = trace.get("hb_events")
++    if not events:
++        return None
++    if max_lanes is not None and \
++            sum(len(e.get("lanes", ())) for e in events) > max_lanes:
++        return None
++    events = sorted(events, key=lambda e: e["seq"])
++    block_tc = trace["kernel"].get("block_thread_count")
++    tid_of = lambda b, w, l: (b << 10) | (w << 5) | l
++    base, own = {}, {}                 # tid -> shared joined clock / own component
++    pending = {}                       # (block, bar_index) -> arrived tids
++    last_write, last_reads, pairs = {}, {}, {}
++
++    def sync_group(tids):
++        for t in tids:
++            own.setdefault(t, 1)
++        js, joined = {}, set()
++        for t in tids:
++            b = base.get(t)
++            if b is not None and id(b) not in joined:
++                joined.add(id(b))
++                for k, c in b.items():
++                    if c > js.get(k, 0):
++                        js[k] = c
++        for t in tids:
++            if own[t] > js.get(t, 0):
++                js[t] = own[t]
++        for t in tids:
++            base[t], own[t] = js, js[t] + 1
++
++    def unordered(t, p_tid, p_clk):
++        b = base.get(t)
++        return p_clk > (b.get(p_tid, 0) if b is not None else 0)
++
++    def coherent(c1, b1, c2, b2):
++        if c1 is None or c2 is None:
++            return False
++        eff = min(c1, c2)
++        return eff == GRID or (eff == BLOCK and b1 == b2)
++
++    def hit(p_pc, pc, p_tid, t):
++        k = (min(p_pc, pc), max(p_pc, pc))
++        pairs[k] = pairs.get(k, 0) + 1
++        if dist_out is not None:
++            dist_out[k] = max(dist_out.get(k, NONE), thread_distance(p_tid, t))
++        if order_out is not None:
++            order_out.setdefault(k, (p_pc, pc))
++
++    for e in events:
++        typ = e["type"]
++        if typ == "syncwarp":
++            m = e["sync_mask"]
++            sync_group([tid_of(e["block"], e["warp"], k) for k in range(32) if (m >> k) & 1])
++            continue
++        if typ == "barrier":
++            key, m = (e["block"], e["bar_index"]), e["active_mask"]
++            arrived = pending.setdefault(key, set())
++            arrived.update(tid_of(e["block"], e["warp"], k) for k in range(32) if (m >> k) & 1)
++            expected = e.get("thread_count") or block_tc
++            if not expected or len(arrived) >= expected:
++                sync_group(sorted(arrived))
++                del pending[key]
++            continue
++        pc, blk, space = e["pc"], e["block"], e["space"]
++        is_write = typ == "write" or pc in rmw
++        my_coh = coh.get(pc)
++        for lane in e["lanes"]:
++            t = tid_of(blk, e["warp"], lane["lane"])
++            loc = (space, blk, lane["addr"]) if space == "shared" else (space, lane["addr"])
++            clk = own.setdefault(t, 1)
++            w = last_write.get(loc)
++            if w and w[0] != t and not coherent(my_coh, blk, w[3], w[4]) \
++                    and unordered(t, w[0], w[1]):
++                hit(w[2], pc, w[0], t)
++            if is_write:
++                for rt, (rc, rpc, rcoh, rblk) in last_reads.get(loc, {}).items():
++                    if rt != t and not coherent(my_coh, blk, rcoh, rblk) \
++                            and unordered(t, rt, rc):
++                        hit(rpc, pc, rt, t)
++                last_write[loc] = (t, clk, pc, my_coh, blk)
++                last_reads[loc] = {}
++            else:
++                last_reads.setdefault(loc, {})[t] = (clk, pc, my_coh, blk)
++    return pairs
++
++
++@functools.lru_cache(maxsize=None)   # one c++filt spawn per symbol, not per query
+ def _demangle(name):
+     if shutil.which("c++filt"):
+         return subprocess.run(["c++filt", name], capture_output=True,
+@@ -391,7 +591,7 @@ def _race_type(cur_access, anc_access):
+            "RAW" if anc_w else "RAR"
+ 
+ 
+-def _hb_class(r1r2_ordered, chain_ordered, dyn_raced):
++def _hb_class(r1r2_ordered, chain_ordered, dyn_raced, sync_raced=None):
+     """Verdict-matrix cell (roadmap 4.1). Static all-schedule ordering crossed with
+     the observed-schedule dynamic HB race:
+       * R1 dominance / R2 coherence are all-schedule sound  (r1r2_ordered)
+@@ -403,10 +603,20 @@ def _hb_class(r1r2_ordered, chain_ordered, dyn_raced):
+                   -> races under a different schedule.
+       model_bug   R1/R2 claim every-schedule race-freedom yet it raced -> a soundness
+                   bug in R1/R2 or a trace/CFG misalignment; investigate.
+-      ordered     not raced and some all-schedule proof orders it."""
++      ordered     not raced and some all-schedule proof orders it.
++      barrier-ordered  not raced, no static proof, but barrier/syncwarp joins alone
++                  order every observed conflict of the pair (schedule-independent:
++                  the barrier-in-loop reduction the PC-level R1 cannot certify)."""
+     if dyn_raced:
+         return "model_bug" if r1r2_ordered else "structural"
+-    return "ordered" if (r1r2_ordered or chain_ordered) else "latent"
++    if r1r2_ordered or chain_ordered:
++        return "ordered"
++    # No static proof. sync_raced is the engine's second, barrier/syncwarp-ONLY clock
++    # (hb_races_sync_only; None when the dump predates it). Barrier joins do not
++    # depend on the schedule, so a pair whose every observed conflict they order is
++    # not a "lucky schedule": barrier-ordered. A pair they leave unordered was ordered
++    # only through atomic release/acquire joins, which ignore fences -> latent.
++    return "barrier-ordered" if sync_raced is False else "latent"
+ 
+ 
+ def _observed(dist):
+@@ -418,7 +628,8 @@ def _observed(dist):
+     return NONE, 0
+ 
+ 
+-def analyze(dot_path, trace_path):
++def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
++            barrier_pass=True, event_candidates=True):
+     trace = json.loads(Path(trace_path).read_text())
+     kernels = parse_dot(dot_path)
+     mangled = select_kernel(kernels, trace["kernel"]["kernel_name"])
+@@ -442,48 +653,144 @@ def analyze(dot_path, trace_path):
+     # tracks flag/lock addresses like any data, so the sync is in the trace
+     atom = {pc: sc for pc in pcs
+             if (sc := atomic_scope(eng.pc_opcode[pc])) is not None}
+-    sync_edges = []
++    sync_edges, same_loc = [], set()
+     for e in trace.get("edges", []):
+         cur, anc = e["current_pc"], e.get("ancient_pc")
+         if e.get("cold_miss") or anc is None or cur not in atom or anc not in atom:
+             continue
++        same_loc.add(frozenset((cur, anc)))   # one location, any distance (R3 gate)
+         d, _ = _observed(e.get("dist", {}))
+         if d > NONE and min(atom[anc], atom[cur]) >= d:
+             sync_edges.append((anc, cur, d))
+-    eng.attach_trace(atom, sync_edges)
++    # R2's coherent accesses: the RMW atomics plus (per policy) .STRONG loads/stores —
++    # cuda::atomic load()/store(). They never enter `atom`: not release/acquire points.
++    policy = strong_ldst_policy(strong_ldst)
++    coh = {pc: sc for pc in pcs
++           if (sc := coherent_scope(eng.pc_opcode[pc], policy)) is not None}
++    eng.attach_trace(atom, sync_edges, coh, same_loc)
+ 
+     # Dynamic happens-before ground truth (the analyzer's C++ HB engine, present when
+     # the trace was taken with YOSEMITE_HB_TRACE=1). Crossed with the static legs below
+     # into the verdict-matrix class; absent -> the R3 chain is the only observed axis.
+     hb_races = trace.get("hb_races")
+-    raced_pcsets = [frozenset(p for p in (r.get("a_pc"), r.get("b_pc")) if p is not None)
+-                    for r in hb_races] if hb_races is not None else None
+-
+-    def hb_pair_raced(a, b):
+-        pair = frozenset((a, b))
+-        # exact {a,b} match; a WAR record carries only the writer pc and matches any
+-        # pair containing it (conservative — the corpus has no WAR to disambiguate).
+-        return any(s and s <= pair for s in raced_pcsets)
+-
+-    verdicts, skipped = [], []
++    # exact {a,b} match on the pc pair. Every record now names both pcs (the engine
++    # and oracle keep the reader pc for WAR); a subset match over single-pc keys
++    # attributed a race to every pair sharing one pc, filling the model_bug cell.
++    raced_records = {}  # frozenset{pc_a, pc_b} -> [race records]  (a same-pc race is {pc})
++    if hb_races is not None:
++        for r in hb_races:
++            raced_records.setdefault(frozenset((r["a_pc"], r["b_pc"])), []).append(r)
++    raced_pcsets = set(raced_records) if hb_races is not None else None
++    # Cross-thread conflicts the EVENT STREAM shows (engine race records / the offline
++    # barrier pass), with their widest thread distance. A trace edge remembers only the
++    # LAST accessor of a location, so a single-instance conflict can be recorded at
++    # intra-thread distance when the last reader happened to be the writer's own
++    # thread; this evidence keeps such an edge from being skipped.
++    observed_dyn = {}
++    for r in hb_races or ():
++        if r.get("a_pc") is not None:
++            k = frozenset((r["a_pc"], r["b_pc"]))
++            observed_dyn[k] = max(observed_dyn.get(k, NONE),
++                                  thread_distance(r["a_tid"], r["b_tid"]))
++    # dumps from before the reader-pc fix carry WAR records with a_pc null: match those
++    # on the writer pc against a read partner (never against write/write pairs).
++    legacy_war_writers = {r["b_pc"] for r in hb_races or () if r.get("a_pc") is None}
++
++    def hb_pair_raced(a, b, a_read=False, b_read=False):
++        if frozenset((a, b)) in raced_pcsets:
++            return True
++        return (a in legacy_war_writers and b_read) or (b in legacy_war_writers and a_read)
++
++    # barrier/syncwarp-only race pairs [[pc_a, pc_b, count], ...]; absent in old dumps
++    sync_only = trace.get("hb_races_sync_only")
++    sync_pcsets = {frozenset((a, b)) for a, b, _ in sync_only} \
++        if sync_only is not None else None
++    # No engine-side set (trace-only dump, or a pre-fix engine): derive it offline from
++    # hb_events. The barrier-only clock needs no atomic joins, so the trace-only mode
++    # gets the same barrier-ordered evidence without running the exact engine.
++    # $CUVEIN_BARRIER_PASS=0 disables it; dumps above $CUVEIN_BARRIER_PASS_MAX_LANES
++    # lane-accesses (default 5M) stay static-only.
++    offline_memo = []
++
++    def offline_pass():
++        """-> (pairs, dist, order) of the offline barrier-only pass, or None. Memoized."""
++        if not offline_memo:
++            res = None
++            if barrier_pass and os.environ.get("CUVEIN_BARRIER_PASS", "1") != "0":
++                rmw_all = {pc: sc for pc, op in eng.pc_opcode.items()
++                           if (sc := atomic_scope(op)) is not None}
++                coh_all = {pc: sc for pc, op in eng.pc_opcode.items()
++                           if (sc := coherent_scope(op, policy)) is not None}
++                dist, order = {}, {}
++                pairs = barrier_only_pairs(
++                    trace, rmw_all, coh_all,
++                    int(os.environ.get("CUVEIN_BARRIER_PASS_MAX_LANES", "5000000")),
++                    dist, order)
++                if pairs is not None:
++                    res = (pairs, dist, order)
++            offline_memo.append(res)
++        return offline_memo[0]
++
++    if sync_pcsets is None and offline_pass() is not None:
++        offline, offline_dist, _ = offline_pass()
++        sync_pcsets = {frozenset(k) for k in offline}
++        for k, d in offline_dist.items():
++            observed_dyn[frozenset(k)] = max(observed_dyn.get(frozenset(k), NONE), d)
++
++    # Event-stream candidates: the conflicting pc pairs the event stream shows that
++    # barriers/syncwarps leave unordered (engine: hb_races_sync_only + hb_races; trace-
++    # only: the offline pass). A trace edge remembers only the LAST accessor of a
++    # location, so a pair can have no edge at all (read by A, read by B, write by B:
++    # the write's edge names B's own read and A's read is gone) — such pairs are judged
++    # after the edges, from the event stream alone. $CUVEIN_EVENT_CANDIDATES=0 disables.
++    use_candidates = event_candidates and \
++        os.environ.get("CUVEIN_EVENT_CANDIDATES", "1") != "0"
++    event_pairs = ((sync_pcsets or set()) | (raced_pcsets or set())) \
++        if use_candidates else set()
++
++    # Benign-race evidence (static, PC-granular): the set of write/atomic pcs each
++    # read pc was observed to conflict with. A read whose every conflicting writer is
++    # an atomic RMW reads an atomically-maintained location (graph-analytics idiom:
++    # plain read of a parent pointer another thread CAS-updates) — a real HB-unordered
++    # access the algorithm tolerates. Tagged and re-bucketed, never hidden.
++    # ponytail: PC-granular; the exact per-location "never plainly written" bit
++    # belongs in the engine's location shadow.
++    writers = {}
+     for e in trace.get("edges", []):
+         cur, anc = e["current_pc"], e.get("ancient_pc")
+-        rec = {"current_pc": cur, "ancient_pc": anc}
+         if e.get("cold_miss") or anc is None:
+-            skipped.append({**rec, "reason": "cold_miss"})
+             continue
+-        observed, weight = _observed(e.get("dist", {}))
+-        same_inst = e.get("dist", {}).get("intra_instance_launch", 0)
++        d, _ = _observed(e.get("dist", {}))
++        if d == NONE and not e.get("dist", {}).get("intra_instance_launch", 0):
++            continue
++        acc = {pc: ("atomic" if pc in atom else flags.get(pc, ("generic", "read"))[1])
++               for pc in (cur, anc)}
++        for r, w in ((cur, anc), (anc, cur)):
++            if acc[r] == "read" and acc[w] != "read":
++                writers.setdefault(r, set()).add(w)
++    # ... plus the writers only the event stream shows (else a read whose EDGE writers
++    # are all atomics would be tagged benign although a plain writer conflicts with it)
++    for k in event_pairs:
++        a, b = (tuple(k) * 2)[:2]
++        acc = {pc: ("atomic" if pc in atom else flags.get(pc, ("generic", "read"))[1])
++               for pc in (a, b)}
++        for r, w in ((a, b), (b, a)):
++            if acc[r] == "read" and acc[w] != "read":
++                writers.setdefault(r, set()).add(w)
++
++    verdicts, skipped = [], []
++
++    def judge(cur, anc, observed, weight, same_inst, rescued, access_size, from_events):
++        """Verdict for one conflicting pc pair (anc earlier, cur later), observed at
++        thread distance `observed` (NONE = warp-same-instruction, weight same_inst)."""
++        rec = {"current_pc": cur, "ancient_pc": anc}
+         cur_space, cur_access = flags.get(cur, ("generic", "read"))
+         anc_space, anc_access = flags.get(anc, ("generic", "read"))
+         cur_access = "atomic" if cur in atom else cur_access
+         anc_access = "atomic" if anc in atom else anc_access
+-        if observed == NONE and same_inst == 0:
+-            skipped.append({**rec, "reason": "intra_thread_only"})
+-            continue
+         if cur_access == "read" and anc_access == "read":
+             skipped.append({**rec, "reason": "read_read"})
+-            continue
++            return
+         # warp-same-instruction multi-lane write (ITS): no sync can intervene, so
+         # no chain — but R2 coherence still applies to a same-inst atomic pair
+         same = observed == NONE
+@@ -494,29 +801,108 @@ def analyze(dot_path, trace_path):
+         r1r2_ordered = ev["strength"] >= observed        # R1 dominance / R2 coherence
+         chain_ordered = ev["chain"] is not None          # R3 PC-level handshake
+         if raced_pcsets is not None:
+-            hb_class = _hb_class(r1r2_ordered, chain_ordered, hb_pair_raced(cur, anc))
+-            verdict = "ORDERED" if hb_class == "ordered" else "RACE"
++            hb_class = _hb_class(
++                r1r2_ordered, chain_ordered,
++                hb_pair_raced(cur, anc, cur_access == "read", anc_access == "read"),
++                None if sync_pcsets is None else frozenset((cur, anc)) in sync_pcsets)
++            verdict = "ORDERED" if hb_class in ("ordered", "barrier-ordered") else "RACE"
+         else:
+-            hb_class = None
+-            verdict = "ORDERED" if r1r2_ordered or chain_ordered else "RACE"
++            # static leg only (no engine): a pair without a static proof is still
++            # ordered when barrier/syncwarp joins order every observed conflict.
++            if r1r2_ordered or chain_ordered:
++                hb_class, verdict = None, "ORDERED"
++            elif sync_pcsets is not None and frozenset((cur, anc)) not in sync_pcsets:
++                hb_class, verdict = "barrier-ordered", "ORDERED"
++            else:
++                hb_class, verdict = None, "RACE"
++        race_type = _race_type(cur_access, anc_access)
++        benign = assumption = None
++        if verdict == "RACE" and race_type in ("RAW", "WAR"):
++            read_pc = cur if cur_access == "read" else anc
++            ws = writers.get(read_pc, set())
++            if ws and ws <= atom.keys():
++                benign, hb_class = "atomic-maintained-read", "benign"
++        if assume_warp_lockstep and hb_class == "structural" and observed == WARP \
++                and not same:
++            # Lanes of ONE warp at two pcs in program order are ordered by lock-step
++            # execution on pre-ITS hardware (the volatile warp-synchronous idiom).
++            # Not a proof under independent thread scheduling: opt-in, and the
++            # verdict carries the assumption.
++            # Program order for a lock-step warp = anc's region reaches cur's with no
++            # path back (a loop would interleave iterations); same region -> offset
++            # order. Divergent siblings (neither reaches the other) stay races: that
++            # is the ITS-sensitive class the divergent-siblings regression pins.
++            ra, rc = eng.pc_node[anc], eng.pc_node[cur]
++            in_order = (anc < cur) if ra == rc else \
++                (nx.has_path(eng.G, ra, rc) and not nx.has_path(eng.G, rc, ra))
++            recs = raced_records.get(frozenset((cur, anc)), [])
++            if recs and in_order \
++                    and all((r["a_tid"] >> 5) == (r["b_tid"] >> 5) for r in recs):
++                hb_class, verdict, assumption = "warp-po-ordered", "ORDERED", "warp-lockstep"
+         verdicts.append({
+             "current_pc": cur, "current_pc_hex": hex(cur),
+             "ancient_pc": anc, "ancient_pc_hex": hex(anc),
+             "opcodes": [eng.pc_opcode[cur], eng.pc_opcode[anc]],
+             "space": cur_space if cur_space == anc_space else f"{cur_space}/{anc_space}",
+-            "race_type": _race_type(cur_access, anc_access),
++            "race_type": race_type,
+             "observed_distance": SCOPES[observed],
+             "contested_weight": weight,
+-            "access_size": e.get("current_access_size"),
++            "access_size": access_size,
+             "strength": SCOPES[ev["strength"]],
+             "ordering_syncs": ev["syncs"],
+             "atomic_coherence": SCOPES[ev["coherence"]],
+             "hb_chain": [hex(p) for p in ev["chain"]] if ev["chain"] else None,
+             "warp_same_inst": same,
++            "edge_rescued": rescued,
++            "event_candidate": from_events,
+             "hb_class": hb_class,
++            "benign": benign,
++            "assumption": assumption,
+             "verdict": verdict,
+         })
+ 
++
++    for e in trace.get("edges", []):
++        cur, anc = e["current_pc"], e.get("ancient_pc")
++        rec = {"current_pc": cur, "ancient_pc": anc}
++        if e.get("cold_miss") or anc is None:
++            skipped.append({**rec, "reason": "cold_miss"})
++            continue
++        observed, weight = _observed(e.get("dist", {}))
++        same_inst = e.get("dist", {}).get("intra_instance_launch", 0)
++        rescued = False
++        if observed == NONE and same_inst == 0:
++            observed = observed_dyn.get(frozenset((cur, anc)), NONE) if cur != anc else NONE
++            if observed == NONE:
++                skipped.append({**rec, "reason": "intra_thread_only"})
++                continue
++            rescued, weight = True, 1   # cross-thread per the event stream, not the edge
++        judge(cur, anc, observed, weight, same_inst, rescued,
++              e.get("current_access_size"), False)
++
++    # event-stream candidates no edge produced a verdict for (see event_pairs above)
++    cand_diag = None
++    missing = event_pairs - {frozenset((v["current_pc"], v["ancient_pc"])) for v in verdicts}
++    if missing:
++        ev_info = {}   # pair -> (anc, cur, distance, conflicts)
++        for k, recs in raced_records.items():       # engine race records carry tids
++            if recs[0].get("a_pc") is not None:
++                ev_info[k] = (recs[0]["a_pc"], recs[0]["b_pc"], observed_dyn.get(k, NONE),
++                              len(recs))
++        off = offline_pass()    # lazy in engine mode: distance + orientation of the rest
++        if off is not None:
++            for k2, n in off[0].items():
++                ev_info.setdefault(frozenset(k2), (*off[2][k2], off[1][k2], n))
++        cand_diag = {"pairs": len(missing), "judged": 0, "no_event_evidence": 0}
++        for k in sorted(missing, key=sorted):
++            info = ev_info.get(k)
++            if info is None or info[2] == NONE or any(pc not in flags for pc in k):
++                cand_diag["no_event_evidence"] += 1
++                continue
++            anc, cur, dist, n = info
++            judge(cur, anc, dist, n, 0, False, None, True)
++            cand_diag["judged"] += 1
++
+     races = sum(v["verdict"] == "RACE" for v in verdicts)
+     return {
+         "inputs": {"cfg_dot": str(dot_path), "trace_json": str(trace_path)},
+@@ -531,11 +917,15 @@ def analyze(dot_path, trace_path):
+             "unknown_sync_count": len(eng.unknown_syncs),
+             "unknown_sync_opcodes": [{"pc": pc, "opcode": op}
+                                      for pc, op in eng.unknown_syncs],
++            # event-stream pairs without an edge verdict: how many, judged, unusable
++            "event_candidates": cand_diag,
+         },
+         "summary": {"races": races, "ordered": len(verdicts) - races,
+                     "skipped": len(skipped),
+                     "hb_classes": {c: sum(v["hb_class"] == c for v in verdicts)
+-                                   for c in ("structural", "latent", "model_bug")}
++                                   for c in ("structural", "latent", "model_bug",
++                                             "benign", "warp-po-ordered",
++                                             "barrier-ordered")}
+                                   if raced_pcsets is not None else None},
+     }
+ 
+@@ -560,9 +950,19 @@ def render(report, out):
+             via = " via hb(" + "->".join(v["hb_chain"]) + ")"
+         elif v["atomic_coherence"] != "none" and v["strength"] == v["atomic_coherence"]:
+             via = f" via atomic({v['atomic_coherence']})"
++        elif v.get("hb_class") == "barrier-ordered":
++            via = " via observed barrier/syncwarp joins"
+         else:
+             via = ""
+         note = " (warp-same-inst)" if v["warp_same_inst"] else ""
++        if v.get("edge_rescued"):
++            note += " (cross-thread per event stream)"
++        if v.get("event_candidate"):
++            note += " (candidate from the event stream; no dependency edge)"
++        if v.get("benign"):
++            note += f" benign({v['benign']})"
++        if v.get("assumption"):
++            note += f" [assumes {v['assumption']}]"
+         cls = f" {v['hb_class']}" if v.get("hb_class") else ""
+         lines.append(f"{v['ancient_pc_hex']} -> {v['current_pc_hex']}  "
+                      f"{v['opcodes'][1]}/{v['opcodes'][0]}  {v['space']}  {v['race_type']}  "
+@@ -583,9 +983,21 @@ def main(argv=None):
+     ap.add_argument("trace_json", type=Path)
+     ap.add_argument("-o", "--output", type=Path,
+                     help="output JSON (default: <trace-stem>.races.json)")
++    ap.add_argument("--strong-ldst", choices=STRONG_LDST_POLICIES,
++                    help="which .STRONG loads/stores are language-level atomics "
++                         "(default: $CUVEIN_STRONG_LDST or 'generic')")
++    ap.add_argument("--no-event-candidates", action="store_true",
++                    help="judge trace edges only; do not add the conflicting pairs only "
++                         "the hb_events stream shows (also $CUVEIN_EVENT_CANDIDATES=0)")
++    ap.add_argument("--assume-warp-lockstep", action="store_true",
++                    help="reclassify same-warp program-ordered structural races as "
++                         "ordered (pre-ITS lock-step assumption; not a proof)")
+     args = ap.parse_args(argv)
+     try:
+-        report = analyze(args.cfg_dot, args.trace_json)
++        report = analyze(args.cfg_dot, args.trace_json,
++                         assume_warp_lockstep=args.assume_warp_lockstep,
++                         strong_ldst=args.strong_ldst,
++                         event_candidates=not args.no_event_candidates)
+     except AlignmentError as exc:
+         print(f"ALIGNMENT FAILURE: {exc}", file=sys.stderr)
+         return 1
+diff --git a/python/test_sync_dominance.py b/python/test_sync_dominance.py
+index 25cb800..9fed504 100644
+--- a/python/test_sync_dominance.py
++++ b/python/test_sync_dominance.py
+@@ -135,6 +135,21 @@ def test_hb_engine_matches_oracle(binary):
+             f"engine-only={[k for k in engine if k not in oracle]} "
+             f"oracle-only={[k for k in oracle if k not in engine]}")
+ 
++        # Barrier/syncwarp-only clock: the pairs (and conflict counts) it leaves
++        # unordered decide latent vs barrier-ordered, so they must agree too.
++        assert tj.get("hb_races_sync_only") == report["races_sync_only"], (
++            f"{binary.name}/{trace.name}: hb_races_sync_only mismatch "
++            f"engine={tj.get('hb_races_sync_only')} oracle={report['races_sync_only']}")
++
++        # ... and so must the static analyzer's offline barrier-only pass (what the
++        # trace-only mode uses in place of the engine's set).
++        kern = sd.parse_dot(report["inputs"]["cfg_dot"])[report["kernel"]["mangled"]]
++        ops = sd.HBGraph(*kern).pc_opcode
++        rmw = {pc: s for pc, op in ops.items() if (s := sd.atomic_scope(op)) is not None}
++        coh = {pc: s for pc, op in ops.items() if (s := sd.coherent_scope(op)) is not None}
++        fast = sorted([a, b, n] for (a, b), n in sd.barrier_only_pairs(tj, rmw, coh).items())
++        assert fast == report["races_sync_only"], f"{binary.name}/{trace.name}: offline pass"
++
+         # Coherence profile Pi (Phase 3): the engine's per-address atomic-order hashes
+         # must equal the oracle's (both use the same FNV-1a over (tid, atomic-index)).
+         eng_pi = {int(a): v["hash"] for a, v in tj.get("coherence_profile", {}).items()}
+@@ -145,6 +160,88 @@ def test_hb_engine_matches_oracle(binary):
+             f"oracle-only={ {a: h for a, h in orc_pi.items() if eng_pi.get(a) != h} }")
+ 
+ 
++# PC-level false negative of the static leg by design (one release pc multiplexes two
++# handshakes; only the address-keyed engine separates them) — not a trace-only target.
++_TRACE_ONLY_KNOWN_FN = set()
++
++
++@pytest.mark.parametrize("binary", _binaries(), ids=lambda p: p.name)
++def test_scor_microbenchmark_trace_only(binary, tmp_path):
++    """Trace-only mode = the same dump without the engine's keys (what
++    YOSEMITE_HB_NO_ENGINE writes): static leg + offline barrier-only pass. It must keep
++    the litmus verdicts — the barrier pass may only turn barrier-ordered pairs into
++    ORDERED, never a fence/lock/atomic-omission race."""
++    art = _artifacts(binary)
++    if art is None:
++        pytest.skip("corpus not generated (no GPU / accelprof unavailable)")
++    dots, traces = art
++    races = engine_races = 0
++    for trace in traces:
++        tj = json.loads(trace.read_text())
++        for k in ("hb_races", "hb_races_sync_only", "coherence_profile"):
++            tj.pop(k, None)
++        stripped = tmp_path / trace.name
++        stripped.write_text(json.dumps(tj))
++        for dot in dots:
++            try:
++                races += sd.analyze(dot, stripped)["summary"]["races"]
++                engine_races += sd.analyze(dot, trace)["summary"]["races"]
++                break
++            except sd.AlignmentError:
++                continue
++    if binary.name.startswith("norace_"):
++        assert races == 0, f"trace-only false positive: {binary.name}"
++    elif binary.name not in _TRACE_ONLY_KNOWN_FN:
++        assert races >= 1, f"trace-only false negative: {binary.name} " \
++                           f"(engine mode reports {engine_races})"
++
++
++def test_write_after_unlock_is_event_candidate(tmp_path, monkeypatch):
++    """ScoR race_interblock_none-lock_rtraw: block 0 writes data AFTER its unlock, block 1
++    reads it under the lock. Asserted by roles, not pc offsets:
++      * the racing pair has no dependency edge (the last-accessor shadow hides block 1's
++        read behind block 0's own), so it must come from the event stream;
++      * R3 must not order it — the write is past its thread's own release of the
++        CAS-acquired lock (the hop direction is schedule-dependent);
++      * engine mode classes it latent (this schedule's lock hand-off ordered it);
++      * each half alone is not enough: either knob off -> the race is missed again."""
++    binary = _BIN / "race_interblock_none-lock_rtraw"
++    art = _artifacts(binary) if binary.exists() else None
++    if art is None:
++        pytest.skip("corpus not generated (no GPU / accelprof unavailable)")
++    dots, traces = art
++    for k in ("CUVEIN_EVENT_CANDIDATES", "CUVEIN_R3_PAST_RELEASE"):
++        monkeypatch.delenv(k, raising=False)
++
++    def both_modes(trace):
++        tj = json.loads(trace.read_text())
++        for k in ("hb_races", "hb_races_sync_only", "coherence_profile"):
++            tj.pop(k, None)
++        stripped = tmp_path / trace.name
++        stripped.write_text(json.dumps(tj))
++        return (("engine", trace), ("trace-only", stripped))
++
++    for mode, trace in both_modes(traces[-1]):
++        rep = sd.analyze(dots[0], trace)
++        races = [v for v in rep["verdicts"] if v["verdict"] == "RACE"]
++        assert len(races) == 1, f"{mode}: {races}"
++        race = races[0]
++        assert race["event_candidate"] and not race["edge_rescued"]
++        assert race["race_type"] in ("WAR", "RAW") and race["space"] == "global"
++        assert race["observed_distance"] == "grid" and race["hb_chain"] is None
++        assert race["hb_class"] == ("latent" if mode == "engine" else None)
++        edges = {frozenset((e["current_pc"], e.get("ancient_pc")))
++                 for e in json.loads(Path(trace).read_text())["edges"]}
++        assert frozenset((race["current_pc"], race["ancient_pc"])) not in edges
++        # the lock-protected pairs stay ordered (R3 inside the critical section)
++        assert all(v["verdict"] == "ORDERED" for v in rep["verdicts"] if v is not race)
++
++        assert sd.analyze(dots[0], trace, event_candidates=False)["summary"]["races"] == 0
++        monkeypatch.setenv("CUVEIN_R3_PAST_RELEASE", "0")
++        assert sd.analyze(dots[0], trace)["summary"]["races"] == 0
++        monkeypatch.delenv("CUVEIN_R3_PAST_RELEASE")
++
++
+ _ISW = _ROOT / "cuHadron/intersubwarp"
+ 
+ 
+diff --git a/sanalyzer/include/tools/pc_dependency_analysis.h b/sanalyzer/include/tools/pc_dependency_analysis.h
+index 9be276e..beafe75 100644
+--- a/sanalyzer/include/tools/pc_dependency_analysis.h
++++ b/sanalyzer/include/tools/pc_dependency_analysis.h
+@@ -235,6 +235,12 @@ private:
+     // ordered per-instance event stream (memory accesses + barrier/syncwarp events)
+     // so python/hb_oracle.py can replay exact vector-clock happens-before. Corpus-
+     // scale only; the buffer index order is the temporal order (best with -n 1).
++    // Known limitation: a record's slot is reserved by the PRE-op sanitizer callback
++    // (GetBufferIndex atomicAdd in gpu_patch_pc_dependency.cu), so slot order is
++    // instrumentation order, not memory-operation order. A tight atomic release/
++    // acquire spin can be recorded acquire-before-release; the engine then misses
++    // that join and reports the handshake-ordered store as a structural race (2 of
++    // the 12 structural reports on the ScoR reduction race-free build are this).
+     void hb_collect_events(const MemoryAccess* buffer, uint64_t size);
+ 
+     // Phase 2 dynamic HB engine: streaming scoped vector-clock happens-before over
+diff --git a/sanalyzer/src/tools/pc_dependency_analysis.cpp b/sanalyzer/src/tools/pc_dependency_analysis.cpp
+index 48b08e1..309dcaa 100644
+--- a/sanalyzer/src/tools/pc_dependency_analysis.cpp
++++ b/sanalyzer/src/tools/pc_dependency_analysis.cpp
+@@ -1,6 +1,7 @@
+ #include "tools/pc_dependency_analysis.h"
+ #include "utils/helper.h"
+ 
++#include <cctype>
+ #include <cstdint>
+ #include <cstdlib>
+ #include <cstdio>
+@@ -39,19 +40,45 @@ struct HbEngine {
+     using Clock = std::unordered_map<uint32_t, uint64_t>;   // tid -> logical clock
+     using Loc = std::tuple<int, uint64_t, uint64_t>;        // (space, block-or-0, addr)
+ 
+-    // pc offset -> atomic coherence scope; absence => plain ld/st (not an atomic).
+-    std::unordered_map<uint32_t, int> atom_scope;
++    // pc offset -> coherent-access info; absence => plain ld/st. rmw = an atomic RMW
++    // (release/acquire point + write); !rmw = a .STRONG load/store (cuda::atomic
++    // load()/store()): pairwise same-address coherence only, otherwise an ordinary
++    // read/write. pcs are function-relative, so the table is per kernel (sidecar line
++    // `<pc> <scope> <kind> <kernel>`); `merged` serves legacy `<pc> <scope>` sidecars
++    // and kernels the sidecar does not name.
++    struct PcInfo { int scope; bool rmw; };
++    using PcTable = std::unordered_map<uint32_t, PcInfo>;
++    std::unordered_map<std::string, PcTable> kernel_tables;
++    PcTable merged;
++    const PcTable* atom_scope = &merged;
+ 
+     std::unordered_map<uint32_t, Clock> vc;                 // tid -> vector clock
++    // second clock advanced by barriers/syncwarps ONLY (never by atomic release/
++    // acquire): its races (hb_races_sync_only) tell the verdict matrix which dynamically
++    // ordered pairs rest on schedule-independent barrier joins alone. It changes only
++    // in sync_group, where every participant ends with the same joined clock plus its
++    // own tick, so a sync group SHARES one immutable base and each thread keeps just
++    // its own component: a barrier costs O(threads), not O(threads^2) like vc.
++    struct SyncClock { std::shared_ptr<const Clock> base; uint64_t own = 0; };
++    std::unordered_map<uint32_t, SyncClock> vs;
++    bool sync_only_pass = true;                             // YOSEMITE_HB_NO_SYNC_ONLY=1 disables
+     struct Released { Clock clk; uint64_t block; int scope; };
+-    std::unordered_map<uint64_t, Released> released;        // addr -> release record
+-    struct Writer { uint32_t tid; uint64_t clock; uint32_t pc; };
++    // keyed by location, not raw address: shared-memory addresses are per-block
++    // offsets, so with >1 block another block's release on the same offset would
++    // clobber this block's and its next acquire would miss it (spurious atomic race).
++    std::map<Loc, Released> released;                       // loc -> release record
++    // coh = coherent-access scope of the recorded access (-1 = plain), block = its block.
++    struct Writer { uint32_t tid; uint64_t clock; uint64_t sclock; uint32_t pc; int coh; uint64_t block; };
+     std::map<Loc, Writer> last_write;                       // loc -> last writer epoch
+-    std::map<Loc, Clock> last_reads;                        // loc -> {reader tid -> clock}
++    // reader pc is kept so a WAR race names both pcs: a single-pc record is
++    // mis-attributed by sync_dominance to every pair containing that pc.
++    struct Reader { uint64_t clock; uint64_t sclock; uint32_t pc; int coh; uint64_t block; };
++    std::map<Loc, std::unordered_map<uint32_t, Reader>> last_reads;  // loc -> {tid -> read}
+ 
+     struct Race { uint64_t addr; int space; uint64_t loc_block;
+                   uint32_t a_tid; long a_pc; uint32_t b_tid; uint32_t b_pc; const char* kind; };
+     std::vector<Race> races;
++    std::map<std::pair<uint32_t, uint32_t>, uint64_t> sync_pairs;  // (pc_lo, pc_hi) -> count
+ 
+     // Block-barrier instance assembly (see the barrier branch in process): buffer
+     // per-warp arrivals per (block, bar_index) until the instance is complete.
+@@ -79,7 +106,8 @@ struct HbEngine {
+     std::map<uint64_t, std::vector<std::pair<uint32_t, uint64_t>>> coherence;  // addr -> order
+ 
+     void reset() {
+-        vc.clear(); released.clear(); last_write.clear(); last_reads.clear(); races.clear();
++        vc.clear(); vs.clear(); released.clear(); last_write.clear(); last_reads.clear();
++        races.clear(); sync_pairs.clear();
+         pending_barriers.clear();  // block_thread_count is (re)set by hb_engine_reset
+         bar_warps_seen.clear(); warp_waiting.clear(); tv_violation.clear();
+         atom_idx.clear(); coherence.clear();
+@@ -122,24 +150,89 @@ struct HbEngine {
+     // barrier/syncwarp: everyone joins everyone's pre-sync clock, then each ticks
+     // its own component (post-sync accesses ordered after the join, concurrent with
+     // each other).
++    // Applied to both clocks; it is the ONLY thing that advances vs.
+     void sync_group(const std::vector<uint32_t>& tids) {
+         for (uint32_t t : tids) own(t);
+         Clock j;
+         for (uint32_t t : tids) join_into(j, vc[t]);
+         for (uint32_t t : tids) { Clock nv = j; nv[t] += 1; vc[t] = std::move(nv); }
++        if (!sync_only_pass) return;
++        for (uint32_t t : tids) owns(t);
++        auto js = std::make_shared<Clock>();
++        std::set<const Clock*> joined;                      // each shared base once
++        for (uint32_t t : tids) {
++            const SyncClock& c = vs[t];
++            if (c.base && joined.insert(c.base.get()).second) join_into(*js, *c.base);
++        }
++        for (uint32_t t : tids) { uint64_t& d = (*js)[t]; if (vs[t].own > d) d = vs[t].own; }
++        for (uint32_t t : tids) { SyncClock& c = vs[t]; c.own = (*js)[t] + 1; c.base = js; }
++    }
++    uint64_t owns(uint32_t t) {
++        uint64_t& v = vs[t].own;
++        if (v == 0) v = 1;
++        return v;
++    }
++    // what thread t knows of thread u on the sync-only clock
++    uint64_t vs_get(uint32_t t, uint32_t u) {
++        const SyncClock& c = vs[t];
++        if (u == t) return c.own;
++        return c.base ? clk_get(*c.base, u) : 0;
++    }
++    // two coherent accesses whose min .STRONG scope covers both threads
++    static bool coherent(int c1, uint64_t b1, int c2, uint64_t b2) {
++        if (c1 < 0 || c2 < 0) return false;
++        const int eff = std::min(c1, c2);
++        return eff == SCOPE_GRID || (eff == SCOPE_BLOCK && b1 == b2);
++    }
++    // one unordered-ness test per clock for a conflicting (prev, current) pair
++    void conflict(uint64_t addr, int space, uint64_t loc_block,
++                  uint32_t p_tid, uint64_t p_clk, uint64_t p_sclk, uint32_t p_pc,
++                  uint32_t t, uint32_t pc, const char* kind) {
++        if (p_clk > clk_get(vc[t], p_tid))
++            add_race(addr, space, loc_block, p_tid, static_cast<long>(p_pc), t, pc, kind);
++        if (sync_only_pass && p_sclk > vs_get(t, p_tid))
++            sync_pairs[{std::min(p_pc, pc), std::max(p_pc, pc)}] += 1;
+     }
+     void add_race(uint64_t addr, int space, uint64_t loc_block,
+                   uint32_t a_tid, long a_pc, uint32_t b_tid, uint32_t b_pc, const char* kind) {
+         races.push_back(Race{addr, space, loc_block, a_tid, a_pc, b_tid, b_pc, kind});
+     }
+ 
++    static std::string norm_name(const std::string& n) {
++        std::string o;
++        for (char c : n) if (!std::isspace(static_cast<unsigned char>(c))) o += c;
++        return o;
++    }
++    // sidecar lines: `<pc> <scope> <kind> <kernel>` (kind rmw|ldst, kernel = demangled
++    // name without whitespace), `# kernel <kernel>` declaring a kernel (so one without
++    // coherent pcs gets an empty table, not the merged one), or the legacy
++    // `<pc> <scope>` (rmw, all kernels merged).
+     void load_scopes(const char* path) {
+-        atom_scope.clear();
++        kernel_tables.clear(); merged.clear(); atom_scope = &merged;
+         if (path == nullptr) return;
+         std::ifstream f(path);
+         if (!f) return;
+-        uint32_t pc = 0; int scope = 0;
+-        while (f >> pc >> scope) atom_scope[pc] = scope;
++        std::string line;
++        while (std::getline(f, line)) {
++            std::istringstream ls(line);
++            uint32_t pc = 0; int scope = 0; std::string kind, kernel;
++            if (line.rfind("# kernel ", 0) == 0) {
++                kernel_tables[norm_name(line.substr(9))];
++                continue;
++            }
++            if (!(ls >> pc >> scope)) continue;
++            ls >> kind >> kernel;
++            const PcInfo info{scope, kind != "ldst"};
++            if (!kernel.empty()) kernel_tables[kernel][pc] = info;
++            merged.emplace(pc, info);
++        }
++    }
++    void select_kernel(const std::string& kernel_name) {
++        auto it = kernel_tables.find(norm_name(kernel_name));
++        atom_scope = (it != kernel_tables.end()) ? &it->second : &merged;
++        if (it == kernel_tables.end() && !kernel_tables.empty())
++            std::cerr << "[HB_ENGINE] kernel '" << kernel_name << "' not in the atomic-scope "
++                         "sidecar; using the merged pc table" << std::endl;
+     }
+ 
+     void process(const MemoryAccess* buf, uint64_t size) {
+@@ -204,7 +297,9 @@ struct HbEngine {
+                 continue;
+             }
+ 
+-            const bool is_atomic = atom_scope.count(pc) != 0;
++            const auto pit = atom_scope->find(pc);
++            const bool is_atomic = pit != atom_scope->end() && pit->second.rmw;
++            const int my_coh = (pit != atom_scope->end()) ? pit->second.scope : -1;
+             const bool is_write = (a.flags & SANITIZER_MEMORY_DEVICE_FLAG_WRITE) != 0;
+             const int space = (a.type == MemoryType::Shared) ? 1
+                             : (a.type == MemoryType::Local)  ? 2 : 0;
+@@ -235,44 +330,57 @@ struct HbEngine {
+                     atom_idx[t] += 1;
+                     // scoped acquire-release: pick up a's release only if the min of
+                     // the two atomics' .STRONG scopes covers both threads.
+-                    const int my_scope = atom_scope[pc];
+-                    auto rit = released.find(addr);
++                    const int my_scope = pit->second.scope;
++                    auto rit = released.find(loc);
+                     if (rit != released.end()) {
+                         const int eff = std::min(my_scope, rit->second.scope);
+                         if (eff == SCOPE_GRID || (eff == SCOPE_BLOCK && rit->second.block == a.ctaId))
+                             join_into(vc[t], rit->second.clk);
+                     }
+-                    // an atomic RMW is a write: races a prior writer the scoped
+-                    // acquire did NOT order (a coherence race at too-narrow scope).
++                    // an atomic RMW is a write: it races a prior writer / reader that is
++                    // neither HB-ordered nor coherent with it (same-address atomics at a
++                    // scope too narrow for their distance, or a plain access).
++                    own(t);
++                    const uint64_t sclk = sync_only_pass ? owns(t) : 0;
+                     auto wit = last_write.find(loc);
+                     if (wit != last_write.end() && wit->second.tid != t
+-                        && wit->second.clock > clk_get(vc[t], wit->second.tid))
+-                        add_race(addr, space, a.ctaId, wit->second.tid,
+-                                 static_cast<long>(wit->second.pc), t, pc, "atomic");
++                        && !coherent(my_coh, a.ctaId, wit->second.coh, wit->second.block))
++                        conflict(addr, space, a.ctaId, wit->second.tid, wit->second.clock,
++                                 wit->second.sclock, wit->second.pc, t, pc, "atomic");
++                    auto arit = last_reads.find(loc);
++                    if (arit != last_reads.end())
++                        for (const auto& kv : arit->second)
++                            if (kv.first != t
++                                && !coherent(my_coh, a.ctaId, kv.second.coh, kv.second.block))
++                                conflict(addr, space, a.ctaId, kv.first, kv.second.clock,
++                                         kv.second.sclock, kv.second.pc, t, pc, "WAR");
+                     const uint64_t nc = own(t) + 1;
+                     vc[t][t] = nc;
+-                    released[addr] = Released{vc[t], a.ctaId, my_scope};
+-                    last_write[loc] = Writer{t, nc, pc};
++                    released[loc] = Released{vc[t], a.ctaId, my_scope};
++                    last_write[loc] = Writer{t, nc, sclk, pc, my_coh, a.ctaId};
+                     last_reads[loc].clear();
+                     continue;
+                 }
+ 
+                 const uint64_t clk = own(t);
++                const uint64_t sclk = sync_only_pass ? owns(t) : 0;
+                 auto wit = last_write.find(loc);
+                 if (wit != last_write.end() && wit->second.tid != t
+-                    && wit->second.clock > clk_get(vc[t], wit->second.tid))
+-                    add_race(addr, space, a.ctaId, wit->second.tid,
+-                             static_cast<long>(wit->second.pc), t, pc, is_write ? "WAW" : "RAW");
++                    && !coherent(my_coh, a.ctaId, wit->second.coh, wit->second.block))
++                    conflict(addr, space, a.ctaId, wit->second.tid, wit->second.clock,
++                             wit->second.sclock, wit->second.pc, t, pc, is_write ? "WAW" : "RAW");
+                 if (is_write) {
+                     auto lrit = last_reads.find(loc);
+                     if (lrit != last_reads.end())
+                         for (const auto& kv : lrit->second)
+-                            if (kv.first != t && kv.second > clk_get(vc[t], kv.first))
+-                                add_race(addr, space, a.ctaId, kv.first, -1, t, pc, "WAR");
+-                    last_write[loc] = Writer{t, clk, pc};
++                            if (kv.first != t
++                                && !coherent(my_coh, a.ctaId, kv.second.coh, kv.second.block))
++                                conflict(addr, space, a.ctaId, kv.first, kv.second.clock,
++                                         kv.second.sclock, kv.second.pc, t, pc, "WAR");
++                    last_write[loc] = Writer{t, clk, sclk, pc, my_coh, a.ctaId};
+                     last_reads[loc].clear();
+                 } else {
+-                    last_reads[loc][t] = clk;
++                    last_reads[loc][t] = Reader{clk, sclk, pc, my_coh, a.ctaId};
+                 }
+             }
+         }
+@@ -294,8 +402,7 @@ struct HbEngine {
+                  << ", \"space\": \"" << sp << "\""
+                  << ", \"loc_block\": " << r.loc_block
+                  << ", \"a_tid\": " << r.a_tid
+-                 << ", \"a_pc\": " << (r.a_pc < 0 ? std::string("null")
+-                                                  : std::to_string(static_cast<uint32_t>(r.a_pc)))
++                 << ", \"a_pc\": " << r.a_pc
+                  << ", \"b_tid\": " << r.b_tid
+                  << ", \"b_pc\": " << r.b_pc
+                  << ", \"kind\": \"" << r.kind << "\"}";
+@@ -303,6 +410,18 @@ struct HbEngine {
+             jout << "\n";
+         }
+         jout << "  ]";
++        // barrier/syncwarp-only race pairs [pc_lo, pc_hi, count]; key absent when the
++        // second pass is disabled so sync_dominance falls back to plain `latent`.
++        if (sync_only_pass) {
++            jout << ",\n  \"hb_races_sync_only\": [";
++            bool first_pair = true;
++            for (const auto& kv : sync_pairs) {
++                jout << (first_pair ? "" : ", ") << "[" << kv.first.first << ", "
++                     << kv.first.second << ", " << kv.second << "]";
++                first_pair = false;
++            }
++            jout << "]";
++        }
+         // Coherence profile Pi (Phase 3): per atomic address, its observed atomic order
+         // and hash. Additive/observational — the verdict above is unaffected.
+         jout << ",\n  \"coherence_profile\": {";
+@@ -524,6 +643,8 @@ PcDependency::~PcDependency() {
+ }
+ 
+ 
++static void hb_engine_select_kernel(const std::string& kernel_name);
++
+ void PcDependency::kernel_start_callback(std::shared_ptr<KernelLaunch_t> kernel) {
+ 
+     kernel->kernel_id = kernel_id++;
+@@ -538,6 +659,7 @@ void PcDependency::kernel_start_callback(std::shared_ptr<KernelLaunch_t> kernel)
+     _hb_events.clear();
+     _hb_seq = 0;
+     hb_engine_reset();
++    hb_engine_select_kernel(kernel->kernel_name);
+     for (uint64_t worker_idx = 0; worker_idx < _worker_count; ++worker_idx) {
+         auto& worker_state = _worker_shadow_memory_shared[worker_idx];
+         worker_state.pool_miss_count = 0;
+@@ -621,6 +743,12 @@ std::unique_ptr<HbEngine>& hb_engine_singleton() {
+ }
+ }  // namespace
+ 
++// pcs are function-relative: bind the engine to the launching kernel's pc table.
++static void hb_engine_select_kernel(const std::string& kernel_name) {
++    auto& engine = hb_engine_singleton();
++    if (engine) engine->select_kernel(kernel_name);
++}
++
+ void PcDependency::hb_engine_process(const MemoryAccess* buffer, uint64_t size) {
+     auto& engine = hb_engine_singleton();
+     if (engine) engine->process(buffer, size);
+@@ -640,9 +768,15 @@ void PcDependency::hb_engine_reset() {
+     // TV invariants ON by default; YOSEMITE_HB_STRICT=0 disables them.
+     const char* strict_env = std::getenv("YOSEMITE_HB_STRICT");
+     engine->strict = (strict_env == nullptr) || (std::string(strict_env) != "0");
++    engine->sync_only_pass = std::getenv("YOSEMITE_HB_NO_SYNC_ONLY") == nullptr;
+ }
+ 
+ void PcDependency::hb_engine_emit(std::ofstream& jout) {
++    // With YOSEMITE_HB_NO_ENGINE the engine never saw an event: emit NO hb_races /
++    // hb_races_sync_only rather than empty ones. An empty list is a claim ("nothing
++    // raced", "every pair is barrier-ordered") that the verdict matrix would act on;
++    // an absent key sends sync_dominance down its static-only path.
++    if (std::getenv("YOSEMITE_HB_NO_ENGINE") != nullptr) return;
+     auto& engine = hb_engine_singleton();
+     if (engine) engine->emit(jout);
+ }

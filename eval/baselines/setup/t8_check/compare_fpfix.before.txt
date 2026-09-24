@@ -1,0 +1,35 @@
+555 programs re-run
+
+| pset | mode | FP before | FP after | TP before | TP after | err before | err after |
+|---|---|---|---|---|---|---|---|
+| P1 | engine | 0/199 | 0/199 | 182/182 | 178/178 | 19 | 23 |
+| P3 | engine | 14/58 | 14/58 | 0/0 | 0/0 | 2 | 2 |
+| P4 | engine | 5/9 | 5/9 | 9/9 | 9/9 | 10 | 10 |
+| P5 | engine | 0/14 | 0/14 | 19/19 | 18/19 | 0 | 0 |
+| P6 | engine | 0/18 | 0/18 | 5/11 | 5/10 | 5 | 6 |
+
+TRUE POSITIVES LOST (RACE -> CLEAN): 1
+  engine     P5-race_interblock_none-lock_rtraw
+
+NEW FALSE POSITIVES (CLEAN -> RACE): 0
+
+remaining false positives: 19
+  engine     P3-CC_CUDA_V_Data_Pull_Determ_IntType_NonPersist_Atomic_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-100n
+  engine     P3-CC_CUDA_V_Data_Pull_Determ_IntType_NonPersist_Atomic_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-100n
+  engine     P3-CC_CUDA_V_Data_Pull_Determ_IntType_NonPersist_CudaAtomic_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-100n
+  engine     P3-CC_CUDA_V_Data_Pull_Determ_IntType_NonPersist_CudaAtomic_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-100n
+  engine     P3-CC_CUDA_V_Data_Pull_Determ_IntType_Persist_Atomic_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n
+  engine     P3-CC_CUDA_V_Data_Pull_Determ_IntType_Persist_CudaAtomic_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n
+  engine     P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_NonPersist_Atomic_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-100n
+  engine     P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_NonPersist_Atomic_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-100n
+  engine     P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_NonPersist_CudaAtomic_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-100n
+  engine     P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_NonPersist_CudaAtomic_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-100n
+  engine     P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n
+  engine     P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n
+  engine     P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n
+  engine     P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n
+  engine     P4-matrix-multiplication-norace-small
+  engine     P4-reduction-norace-large
+  engine     P4-reduction-norace-small
+  engine     P4-rule-110-norace-large
+  engine     P4-rule-110-norace-small

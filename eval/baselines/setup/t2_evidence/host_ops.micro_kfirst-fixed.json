@@ -1,0 +1,22 @@
+{
+  "tool": "pc_dependency_analysis",
+  "host_ops": [
+    {"seq": 0, "kind": "stream_create", "stream": 95902576, "stream_ptr": 0, "flags": 4294967295},
+    {"seq": 1, "kind": "stream_create", "stream": 95897696, "stream_ptr": 0, "flags": 4294967295},
+    {"seq": 2, "kind": "stream_create", "stream": 95892816, "stream_ptr": 0, "flags": 4294967295},
+    {"seq": 3, "kind": "stream_create", "stream": 95887936, "stream_ptr": 0, "flags": 4294967295},
+    {"seq": 4, "kind": "stream_create", "stream": 95883056, "stream_ptr": 0, "flags": 4294967295},
+    {"seq": 5, "kind": "stream_create", "stream": 95878176, "stream_ptr": 0, "flags": 4294967295},
+    {"seq": 6, "kind": "stream_create", "stream": 95873296, "stream_ptr": 0, "flags": 4294967295},
+    {"seq": 7, "kind": "host_alloc", "stream": 0, "stream_ptr": 0, "addr": 140682442309632, "size": 1024, "flags": 12},
+    {"seq": 8, "kind": "memset", "stream": 95897696, "stream_ptr": 0, "dst": 140682444406784, "width": 1024, "height": 1, "dst_pitch": 0, "element_size": 1, "is_async": 0},
+    {"seq": 9, "kind": "ctx_sync", "stream": 0, "stream_ptr": 0},
+    {"seq": 10, "kind": "stream_create", "stream": 105349792, "stream_ptr": 105106960, "flags": 1},
+    {"seq": 11, "kind": "stream_create", "stream": 105344912, "stream_ptr": 105354832, "flags": 1},
+    {"seq": 12, "kind": "launch", "stream": 105349792, "stream_ptr": 105106960, "monitored": true, "kernel_id": 0, "kernel": "touch(int*, int*, int)"},
+    {"seq": 13, "kind": "event_record", "stream": 105349792, "stream_ptr": 105106960, "event": 105355024},
+    {"seq": 14, "kind": "stream_wait", "stream": 105344912, "stream_ptr": 105354832, "event": 105355024},
+    {"seq": 15, "kind": "memcpy", "stream": 105344912, "stream_ptr": 105354832, "src": 140682444406784, "dst": 140682442309632, "size": 1024, "width": 1024, "height": 1, "depth": 1, "src_pitch": 1024, "dst_pitch": 1024, "is_async": 1, "direction": 3},
+    {"seq": 16, "kind": "ctx_sync", "stream": 0, "stream_ptr": 0}
+  ]
+}
