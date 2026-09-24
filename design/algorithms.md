@@ -333,8 +333,13 @@ Consequences: `thm:complete` **holds** for the implementation (a subset of true 
 `thm:sound` **fails** on `R_miss`; `cor:causal` and hence the practical reading of the
 certificate ("a race-free trace certifies") fail for the implementation until the order is
 restored. The fix is the reordering in T9 Part 3; after it, `lem:vc`(c) holds as proved.
-*To test:* `test_write_after_unlock_other_schedule` (block 0 first) must report in
-`hb_races`.
+*Tested 2026-09-24* on the real `hb_oracle.py` (3331d35) with a hand-made seven-record
+dump of the rtraw pattern (`design/proof/check_e1_e2.py`, no GPU): block 0 first, the
+checked-in oracle reports nothing; with the three lines reordered (publish, record, tick)
+it reports the RAW `(t: 0x28 write, u: 0x18 read)`; with u's read before t's write in
+`seq` both report the WAR; block 1 first, both report nothing (the hand-off orders the
+pair). Still to write: `test_write_after_unlock_other_schedule` on the real kernel, and
+the corpus re-score.
 
 ### 5.3 E2 — the `coherent()` filter with a single `last_write` is unsound
 
@@ -357,7 +362,11 @@ v3's definition and a **DR** by v4's; nothing at `x` is reported. Policy `none` 
 soundness (then `(w0, w1)` is reported) at the cost of the RC1 precision. This is
 precisely v4's remark "Why v3's last-write bookkeeping is unsound here", and v4's buckets
 `B_x[u, (kind, str, scope)]` (obligation O4) are the fix; v4's litmus O6 (vi) is the test.
-*To test:* the kernel above should be a strict xfail on the current code.
+*Tested 2026-09-24* the same way (`design/proof/check_e1_e2.py`, five records, block 0 =
+A, block 1 = B and C with a 64-thread `__syncthreads`): policy `generic` reports nothing
+— and `races_sync_only` is empty too, so the filter hides the pair from the second clock
+as well; policy `none` reports the WAW `(w0, w1)`, the location-level witness. Still to
+write: the real-kernel strict xfail.
 
 The same filter also changes what "race" means for RMW pairs: two non-successive RMWs on a
 location with covering scopes are not reported by the code even when no (ATOM) chain
@@ -501,4 +510,6 @@ renders §2–§4 as `algorithm2e` environments (labels `alg:vc-helpers`, `alg:v
 (all macros are `\providecommand`-guarded). T6's remaining work is the fresh-context
 review of §2–§3 against the code, the simulator `design/algorithms_check.py` against
 the 33 litmus traces, and the walk-through of the two-modes examples; T9 starts from
-§5. Every *to test* item above is a test that does not exist yet.
+§5. E1 and E2 were exercised on the real oracle with synthetic dumps
+(`design/proof/check_e1_e2.py`); every other *to test* item is a test that does not exist
+yet, and no claim here has been checked against a real trace.
