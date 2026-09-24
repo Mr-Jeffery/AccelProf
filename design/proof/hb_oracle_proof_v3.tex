@@ -1,0 +1,931 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[ruled,vlined,linesnumbered]{algorithm2e}
+\usepackage{mathtools}
+\usepackage{xcolor}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{axiom}[theorem]{Axiom}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\DeclareMathOperator{\tid}{tid}
+\DeclareMathOperator{\addr}{addr}
+\DeclareMathOperator{\kind}{kind}
+\DeclareMathOperator{\pc}{pc}
+\DeclareMathOperator{\seq}{seq}
+\DeclareMathOperator{\loc}{loc}
+\DeclareMathOperator{\blk}{block}
+\DeclareMathOperator{\scope}{scope}
+\DeclareMathOperator{\epoch}{epoch}
+\DeclareMathOperator{\Races}{Races}
+\DeclareMathOperator{\Writers}{Writers}
+\DeclareMathOperator{\Exec}{Exec}
+\DeclareMathOperator{\covers}{covers}
+\DeclareMathOperator{\val}{val}
+\DeclareMathOperator{\rf}{rf}
+\DeclareMathOperator{\lab}{lab}
+
+\newcommand{\HB}{\to_{\mathrm{HB}}}
+\newcommand{\HBr}{\trianglelefteq_{\mathrm{HB}}}
+\newcommand{\CO}{\to_{\mathrm{CO}}}
+\newcommand{\PO}{<_{\mathrm{PO}}}
+\newcommand{\arr}[2]{\mathrm{arr}^{#2}_{#1}}
+\newcommand{\dep}[2]{\mathrm{dep}^{#2}_{#1}}
+\newcommand{\ext}[1]{\mathrm{exit}_{#1}}
+\newcommand{\tick}[2]{\tau^{#2}_{#1}}
+\newcommand{\Fr}{\mathcal{F}}
+\newcommand{\Eplus}{E^{+}}
+
+\SetKwSwitch{Switch}{Case}{Other}{switch}{do}{case}{otherwise}{endcase}{endsw}
+
+\title{Happens-Before Data-Race Detection for GPU Kernels:\\
+Algorithm and Correctness Proof (v3)}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent\textbf{Changes from v2.}
+(1)~Trace validity is no longer an axiom. Well-formedness
+(Definition~\ref{def:wf}) is a decidable predicate on traces, stated
+declaratively; the implementation's runtime checks are collected in a
+separate monitor (Definition~\ref{def:monitor}), and Lemma~\ref{lem:monitor}
+proves it rejects exactly the traces that are not well-formed. The single-trace theorems quantify over well-formed traces and assume
+nothing about the collector. What the collector must be trusted for is
+isolated in Assumptions A1--A3 and used only in
+Proposition~\ref{prop:fidelity}, which relates the trace-defined relation to
+the execution.
+(2)~Barrier records are per-warp arrivals (as emitted); instances are
+assembled, not assumed. The clock lemma is restated with tick processing
+positions so that it holds in the window between a warp's arrival and its
+instance's completion.
+(3)~Terminology now follows the verification convention: \emph{sound} = misses
+no race, \emph{complete} = reports only races. Theorem~\ref{thm:sound}
+(formerly ``completeness'') and Theorem~\ref{thm:complete} (formerly
+``soundness'') are renamed accordingly; their content is unchanged.
+(4)~\S\ref{sec:cert} is unchanged except for wording and a remark that MM1--MM3
+are obligations against the PTX formalisation of Lustig et al., not axioms.
+(5)~\S\ref{sec:impl} is updated to the merged state of \texttt{cuVein}.
+
+\paragraph{Terminology.}
+Throughout, an analysis is \emph{sound} if it reports a race whenever one
+exists (no false negatives) and \emph{complete} if every report is a race (no
+false positives).
+
+%=============================================================================
+\section{Trace model}\label{sec:model}
+%=============================================================================
+
+\begin{definition}[Program, input, execution]
+A \emph{program} $P$ is a deterministic kernel: a finite set of threads $t$,
+each with a block $\blk(t)$ and a control-flow graph, with no source of
+nondeterminism other than memory (randomisation is added in
+\S\ref{sec:rand}). An \emph{input} $I$ fixes the initial memory, kernel
+parameters and launch configuration, including the block size $N_\beta$ of
+each block $\beta$. An \emph{execution} $E$ of $(P,I)$ is one complete run on
+the platform; $\Exec(P,I)$ is the set of executions the platform can produce.
+\end{definition}
+
+\begin{definition}[Trace records]\label{def:trace}
+A trace $T$ is a finite sequence of records; $\seq(e)$ is the position of
+record $e$. Records are of three kinds.
+\begin{itemize}
+\item \emph{Memory records} $e$: $\tid(e)$, $\pc(e)$, $\addr(e)$, a space
+      $\in\{\texttt{global},\texttt{shared},\texttt{local}\}$, and
+      $\kind(e)\in\{\texttt{read},\texttt{write},\texttt{atomic}\}$. An atomic
+      carries $\scope(e)=\mathit{AtomScope}[\pc(e)]\in
+      \{\textsc{None},\textsc{Block},\textsc{Grid}\}$,
+      $\textsc{None}<\textsc{Block}<\textsc{Grid}$; every atomic PC is in
+      $\mathrm{dom}(\mathit{AtomScope})$.
+\item \emph{Arrival records} $A$: $\kind(A)\in\{\texttt{barrier},\texttt{syncwarp}\}$,
+      a block $\beta(A)$, a warp $\omega(A)$, a lane mask $m(A)$ (the lanes of
+      $\omega(A)$ arriving), a barrier index $\mathit{bar}(A)$, and a count
+      $n(A)\in\mathbb{N}$ ($0$ meaning ``the whole block''). One record per
+      warp per arrival, as emitted by the collector.
+\item \emph{Exit records} $\ext{t}$.
+\end{itemize}
+The \emph{location} of a memory record is
+$\loc(e)=(\texttt{shared},\blk(\tid(e)),\addr(e))$,
+$(\texttt{local},\tid(e),\addr(e))$ or $(\texttt{global},\addr(e))$.
+\end{definition}
+
+\begin{definition}[Expected count, instances]\label{def:instance}
+For a \texttt{barrier} arrival $A$ let $\exp(A)=n(A)$ if $n(A)>0$ and
+$\exp(A)=N_{\beta(A)}$ otherwise (undefined if $N_{\beta(A)}$ is unknown).
+Fix a key $k=(\beta,\mathit{bar})$ and let $A_1,A_2,\ldots$ be the
+\texttt{barrier} arrivals with that key in $\seq$ order, with cumulative lane
+counts $c_j=\sum_{l\le j}|m(A_l)|$. Provided all $\exp(A_j)$ equal a common
+value $x_k$, the $q$-th \emph{segment} of $k$ is
+$\{A_j:(q-1)x_k<c_j\le qx_k\}$. A segment whose last element $A_j$ has
+$c_j=qx_k$ is \emph{complete} and forms an \emph{instance} $B$ with
+participant set $S(B)$ the union (as thread ids) of its lanes and completion
+position $\mathrm{cpl}(B)=\seq(A_j)$. A trailing incomplete segment forms no
+instance; its arrivals are \emph{unmatched}, with $\mathrm{cpl}=+\infty$.
+A \texttt{syncwarp} arrival is an instance by itself, $S(B)$ its masked lanes,
+$\mathrm{cpl}(B)$ its own position.
+\end{definition}
+
+\begin{definition}[Ghost events, program order]\label{def:ghost}
+For each instance $B$ and $t\in S(B)$ introduce an \emph{arrival event}
+$\arr{t}{B}$ at the position of the arrival record that covers $t$, and a
+\emph{departure event} $\dep{t}{B}$ at position $\mathrm{cpl}(B)^{+}$
+(immediately after the completing record; departures of one instance in any
+fixed order among themselves). Let $\Eplus$ be the set of memory records,
+ghost events and exit records, totally ordered by $\seq$ (extended to ghost
+positions). The \emph{program order} $\PO$ of thread $t$ is $\seq$ restricted
+to the events of $t$ in $\Eplus$. This is a definition over the trace; it
+asserts nothing about the execution.
+\end{definition}
+
+\begin{definition}[Atomic successor, scope cover]
+For atomics $r,q$ on one address with $\seq(r)<\seq(q)$, $q$ is the
+\emph{successor} of $r$ if no atomic on that address lies strictly between
+them. With $s=\min(\scope(r),\scope(q))$, $\covers(r,q)$ iff
+$s=\textsc{Grid}$, or $s=\textsc{Block}$ and $\blk(\tid(r))=\blk(\tid(q))$.
+\end{definition}
+
+\begin{definition}[Happens-before]\label{def:hb}
+$\HB$ is the least transitive relation on $\Eplus$ containing
+\begin{enumerate}
+\item[\textbf{(PO)}] $a\PO b\Rightarrow a\HB b$;
+\item[\textbf{(SYNC)}] for every instance $B$ and all $s,t\in S(B)$:
+      $\arr{s}{B}\HB\dep{t}{B}$;
+\item[\textbf{(ATOM)}] for atomics $r,q$ with $q$ the successor of $r$ and
+      $\covers(r,q)$: $r\HB q$.
+\end{enumerate}
+$a\HBr b$ abbreviates $a\HB b\vee a=b$; $\mathrm{HB}_T$ names the relation.
+\end{definition}
+
+\begin{definition}[Conflict, race]\label{def:race}
+Memory records $a,b$ \emph{conflict} iff $\loc(a)=\loc(b)$,
+$\tid(a)\ne\tid(b)$, and at least one is a \texttt{write} or \texttt{atomic}.
+They \emph{race} iff they conflict and neither $a\HB b$ nor $b\HB a$.
+$\Races(T)$ is the set of racing pairs.
+\end{definition}
+
+\begin{definition}[Well-formed trace]\label{def:wf}
+$T$ is \emph{well-formed} iff
+\begin{enumerate}
+\item[(W0)] the $\seq$ fields of $T$ are strictly increasing along the record
+      sequence;
+\item[(W1)] for every key $k$, $\exp(A)$ is defined and equal for all
+      arrivals $A$ with key $k$; no segment of $k$ overshoots, i.e.\ no $j$
+      has $c_{j-1}<qx_k<c_j$ for any $q$; and no thread id occurs twice in one
+      segment;
+\item[(W2)] for every \texttt{barrier} arrival $A$ and every thread $t$ in
+      its lanes, no memory record or arrival record of $t$ lies strictly
+      between $A$ and $\mathrm{cpl}(B)$, where $B$ is the instance (or
+      unmatched segment, $\mathrm{cpl}=+\infty$) containing $A$.
+\end{enumerate}
+\end{definition}
+
+W0--W2 are properties of the record sequence alone, decidable in one pass.
+(W1) says the instance construction of Definition~\ref{def:instance} closes
+exactly; (W2) says a thread does not proceed past a barrier before the
+barrier completes. Both are exactly the properties the SYNC rule needs; they
+are stated here so that the theorems have a readable hypothesis; a monitor
+that decides them is given after Algorithm~\ref{alg:hb}
+(Definition~\ref{def:monitor}, Lemma~\ref{lem:monitor}).
+
+\begin{lemma}[HB is a strict partial order below $\seq$]\label{lem:seq}
+If $T$ is well-formed, then $a\HB b\Rightarrow\seq(a)<\seq(b)$; in particular
+$\HB$ is irreflexive.
+\end{lemma}
+\begin{proof}
+Each generating edge is $\seq$-forward. (PO): by definition of $\PO$ as
+$\seq$ restricted to a thread; for the edge $\dep{t}{B}\PO e$ this needs
+$\seq(e)>\mathrm{cpl}(B)$, which is (W2). (SYNC):
+$\arr{s}{B}$ is at or before $\mathrm{cpl}(B)$, $\dep{t}{B}$ is after it.
+(ATOM): by definition of successor. Transitive closure preserves
+forwardness.
+\end{proof}
+
+\paragraph{Trusted base.}
+Nothing above refers to the execution $E$ that produced $T$. The connection is
+made once, in Proposition~\ref{prop:fidelity}, under the following assumptions
+about the collector. They are the trusted computing base of the tool and are
+not checkable from $T$.
+\begin{enumerate}
+\item[(A1)] \emph{Fidelity.} Every memory access, barrier arrival and thread
+      exit of $E$ produces exactly one record, with correct thread, PC,
+      address, kind and lane mask, and each thread's records appear in $\seq$
+      in its dynamic instruction order.
+\item[(A2)] \emph{Coherence order.} For every address, the $\seq$ order of its
+      atomics is their coherence order in $E$. (A2 becomes checkable if the
+      collector records each RMW's read and written value: the value chain
+      determines the coherence order; see \S\ref{sec:impl}.)
+\item[(A3)] \emph{Barrier count.} $\exp(B)$ as computed in
+      Definition~\ref{def:instance} is the number of threads the hardware
+      barrier waits for, and a thread that exits is not among them.
+\end{enumerate}
+
+%=============================================================================
+\section{Algorithm}\label{sec:alg}
+%=============================================================================
+
+\SetKwFunction{Sync}{Sync}
+\SetKwFunction{Check}{Check}
+\SetKwFunction{Covers}{covers}
+\newcommand{\clk}{\mathit{clock}}
+\newcommand{\lastR}{\mathit{lastRelease}}
+\newcommand{\lastW}{\mathit{lastWrite}}
+\newcommand{\rdrs}{\mathit{readers}}
+\newcommand{\arrv}{\mathit{arrived}}
+
+\paragraph{State.}
+A \emph{clock} is a map from threads to $\mathbb{N}$; a missing entry reads
+$0$, and $\sqcup$ is the pointwise maximum. Algorithm~\ref{alg:hb} keeps:
+\begin{itemize}
+\item $\clk[t]$ --- the vector clock of thread $t$; initially $\clk[t][t]=1$
+      and every other entry $0$;
+\item $\lastR[x]$ --- for address $x$, the last atomic $r$ on $x$ together
+      with the clock $r$ published;
+\item $\lastW[\ell]$ --- for location $\ell$, the last write or atomic, as
+      (thread, epoch, pc);
+\item $\rdrs[\ell]$ --- for location $\ell$, for each thread its latest read
+      since $\lastW[\ell]$, as (epoch, pc);
+\item $\arrv[k]$ --- the threads arrived so far at the open barrier segment
+      of key $k$; initially empty.
+\end{itemize}
+
+\begin{algorithm}[H]
+\caption{Happens-before oracle with instance assembly}\label{alg:hb}
+\KwIn{well-formed trace $T$; $\mathit{AtomScope}$; block sizes $N_\beta$}
+\KwOut{set of race reports}
+\BlankLine
+\SetKwProg{Fn}{function}{:}{}
+\Fn{\Sync{$S$}}{
+  \tcp{join all participants, then each starts a new epoch}
+  $\mathit{joined}\gets$ pointwise maximum of $\clk[t]$ over $t\in S$\;
+  \ForEach{$t\in S$}{$\clk[t]\gets\mathit{joined}$;\quad $\clk[t][t]\gets\clk[t][t]+1$\;}
+}
+\Fn{\Check{$e$}}{
+  \tcp{report earlier accesses at $\loc(e)$ not ordered before $e$}
+  $t\gets\tid(e)$;\quad $\ell\gets\loc(e)$\;
+  \If{$\lastW[\ell]=(w,\mathit{epoch}_w,\mathit{pc}_w)$ \textbf{and} $w\ne t$ \textbf{and} $\mathit{epoch}_w>\clk[t][w]$}{
+    report race between $(w,\mathit{pc}_w)$ and $e$\;
+  }
+  \If{$e$ is a write or an atomic}{
+    \ForEach{$(r,(\mathit{epoch}_r,\mathit{pc}_r))\in\rdrs[\ell]$ \textbf{with} $r\ne t$ \textbf{and} $\mathit{epoch}_r>\clk[t][r]$}{
+      report race between $(r,\mathit{pc}_r)$ and $e$\;
+    }
+  }
+}
+\BlankLine
+\ForEach{record $e$ of $T$ in $\seq$ order}{
+  \Switch{kind of $e$}{
+    \lCase{exit}{do nothing}
+    \Case{\texttt{syncwarp} arrival}{
+      \Sync{lanes of $e$ as thread ids}\;
+    }
+    \Case{\texttt{barrier} arrival}{
+      $k\gets(\beta(e),\mathit{bar}(e))$;\quad $\arrv[k]\gets\arrv[k]\cup\{\text{lanes of }e\}$\;
+      \If{$|\arrv[k]|=\exp(e)$}{
+        \Sync{$\arrv[k]$};\quad $\arrv[k]\gets\emptyset$ \tcp*{instance complete}
+      }
+    }
+    \Case{memory access by thread $t$ at location $\ell$}{
+      $\mathit{epoch}\gets\clk[t][t]$\;
+      \uIf{$e$ is an atomic on address $x$}{
+        \tcp{acquire}
+        \If{$\lastR[x]=(r,\mathbf{c}_r)$ \textbf{and} \Covers{$r$, $e$}}{
+          $\clk[t]\gets\clk[t]\sqcup\mathbf{c}_r$\;
+        }
+        \Check{$e$}\;
+        \tcp{release: publish, then tick}
+        $\lastR[x]\gets(e,\clk[t])$\;
+        $\lastW[\ell]\gets(t,\mathit{epoch},\pc(e))$;\quad $\rdrs[\ell]\gets\emptyset$\;
+        $\clk[t][t]\gets\mathit{epoch}+1$\;
+      }
+      \uElseIf{$e$ is a write}{
+        \Check{$e$};\quad
+        $\lastW[\ell]\gets(t,\mathit{epoch},\pc(e))$;\quad $\rdrs[\ell]\gets\emptyset$\;
+      }
+      \Else{
+        \Check{$e$};\quad $\rdrs[\ell][t]\gets(\mathit{epoch},\pc(e))$ \tcp*{read}
+      }
+    }
+  }
+}
+\Return the reported races\;
+\end{algorithm}
+
+\noindent Here \Covers{$r$,$e$} is $\covers(r,e)$ of Definition~\ref{def:hb}.
+A race report is the tuple
+$(w,\mathit{pc}_w,\tid(e),\pc(e),\loc(e))$. The correspondence with
+\texttt{hb\_oracle.py} is: $\clk$ = \texttt{vc}, $\lastR$ = \texttt{released},
+$\lastW$ = \texttt{last\_write}, $\rdrs$ = \texttt{last\_reads},
+\Sync{} = \texttt{sync\_group}, $\arrv$ = \texttt{pending\_bar}.
+
+\begin{lemma}[Assembly]\label{lem:assembly}
+On a well-formed $T$, \Sync{} is invoked exactly once per instance $B$
+of Definition~\ref{def:instance}, at position $\mathrm{cpl}(B)$, with
+argument $S(B)$, and for no other \texttt{barrier} record.
+\end{lemma}
+\begin{proof}
+For a key $k$, $\arrv[k]$ accumulates the lanes of the open segment
+in $\seq$ order and is emptied when $|\arrv[k]|=\exp$. By (W1),
+$\exp$ is constant along $k$, no segment overshoots and no thread id repeats
+within a segment, so $|\arrv[k]|$ equals the cumulative lane count
+$c_j$ modulo $x_k$ and hits $x_k$ exactly at the last arrival of each complete
+segment, where $\arrv[k]=S(B)$. A trailing incomplete segment never
+triggers the call.
+\end{proof}
+
+Algorithm~\ref{alg:hb} is stated for well-formed traces; on other inputs its
+behaviour is unspecified. The implementation decides well-formedness online
+with the following monitor, which reuses the assembly state and adds two
+flags.
+
+\begin{definition}[Well-formedness monitor]\label{def:monitor}
+The monitor runs alongside Algorithm~\ref{alg:hb} with additional state
+$\mathit{pending}[\omega]\in\{\mathbf{true},\mathbf{false}\}$ per warp
+(initially $\mathbf{false}$), $\mathit{expect}[k]$ per key (initially unset),
+and $\mathit{prev}$ (initially $-\infty$). At each record $e$ it evaluates the
+conditions below, in order, and \emph{rejects} $T$ if any holds; on a
+\texttt{barrier} arrival it then sets $\mathit{pending}[\omega(e)]\gets\mathbf{true}$,
+$\mathit{expect}[k]\gets\exp(e)$, and, if the instance completes, resets
+$\mathit{pending}[\omega]\gets\mathbf{false}$ for every warp with a lane in
+$\arrv[k]$; on every record it sets $\mathit{prev}\gets\seq(e)$.
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+Record & Reject if & Enforces \\
+\midrule
+any & $\seq(e)\le\mathit{prev}$ & (W0) \\
+\texttt{barrier} arrival & $\exp(e)$ undefined & (W1): $\exp$ defined \\
+\texttt{barrier} arrival & $\mathit{expect}[k]$ set and $\ne\exp(e)$ & (W1): $\exp$ constant on $k$ \\
+\texttt{barrier} arrival & $\mathit{pending}[\omega(e)]$ & (W1): no repeated lane; (W2) \\
+\texttt{barrier} arrival & $|\arrv[k]\cup\text{lanes}(e)|>\exp(e)$ & (W1): no overshoot \\
+memory & $\mathit{pending}[\mathrm{warp}(e)]$ & (W2) \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{definition}
+
+\begin{lemma}[Monitor]\label{lem:monitor}
+The monitor rejects $T$ iff $T$ is not well-formed.
+\end{lemma}
+\begin{proof}
+The first row rejects iff (W0) fails. Rows two to five reject iff (W1) fails:
+$\mathit{expect}[k]$ records $\exp$ of the first arrival on $k$, so row three
+fires iff $\exp$ varies along $k$; row five fires iff the running count
+crosses a multiple of $x_k$ without landing on it; and a thread id repeated
+within a segment is a second arrival of a warp that is still pending, caught
+by row four ($\mathit{pending}[\omega]$ is true exactly from a warp's arrival
+until its segment completes, by Lemma~\ref{lem:assembly}). Given (W1), rows
+four and six reject iff some record of a lane's thread lies strictly between
+its arrival and $\mathrm{cpl}(B)$, i.e.\ iff (W2) fails.
+\end{proof}
+
+The implementation's monitor differs in two places: it joins per-warp when
+$\exp(e)$ is undefined (rejecting only if a second warp arrives in that
+state) and it does not check row three. See \S\ref{sec:impl}.
+
+%=============================================================================
+\section{Single-trace correctness}\label{sec:single}
+%=============================================================================
+
+Throughout this section $T$ is a \emph{well-formed} trace
+(Definition~\ref{def:wf}); by Lemma~\ref{lem:monitor} these are exactly the
+traces the monitor of Definition~\ref{def:monitor} does not reject. No assumption about the
+collector or the platform is used.
+
+\begin{definition}[Ticks, epochs, processing positions]\label{def:epoch}
+The \emph{ticks} of thread $t$ are its arrival events and its atomic records,
+in $\PO$; $\tick{t}{k}$ is the $k$-th. The \emph{processing position} of a
+tick is its own $\seq$ for an atomic and $\mathrm{cpl}(B)$ for
+$\arr{t}{B}$. For a memory record $e$ of $t$,
+$\epoch(e)=1+\#\{\text{ticks of }t\text{ strictly }\PO e\}$; an atomic $e$
+equals $\tick{t}{\epoch(e)}$.
+\end{definition}
+
+By (W2) a thread has no memory record between an arrival
+and its instance's completion, so the processing positions of $t$'s ticks are
+in $\PO$ order and $\epoch(e)$ is also $1$ plus the number of ticks of $t$
+whose processing position precedes $\seq(e)$.
+
+\begin{definition}[Frontier]\label{def:frontier}
+After the records with $\seq\le i$ have been processed, $\mathrm{last}_t(i)$
+is the $\seq$-last event of $t$ in $\Eplus$ at a position $\le i$
+(a departure if the last processed record was the completing arrival of an
+instance containing $t$; an arrival if $t$ is pending). The \emph{frontier} is
+$\Fr_i(t)=\{f\in\Eplus:f\HBr\mathrm{last}_t(i)\}$, empty if $t$ has no event.
+For a memory record $b$, $\mathcal{P}(b)=\{f:f\HB b\}$.
+\end{definition}
+
+The immediate $\HB$-predecessors of an event are its $\PO$-predecessor; for
+$\dep{t}{B}$, the arrivals $\arr{s}{B}$, $s\in S(B)$; for an atomic $q$, its
+predecessor $r$ when $\covers(r,q)$. Hence, with $p$ the $\PO$-predecessor of
+$b$,
+\begin{equation}\label{eq:pred}
+\mathcal{P}(b)=\Fr_{\seq(b)-1}(\tid(b))\ \cup\ \{f:f\HBr r\}
+\quad(\text{second term only if $b$ acquires from $r$}),
+\end{equation}
+because $\Fr_{\seq(b)-1}(\tid(b))=\{f:f\HBr p\}$: $p$ is $t$'s last event
+before $b$, and by (W2) it is not an arrival of a pending instance.
+
+\begin{lemma}[Clock invariant]\label{lem:vc}
+After processing all records with $\seq\le i$:
+\begin{enumerate}
+\item[(a)] $\clk[t][t]=1+\#\{\text{ticks of }t\text{ with processing position}\le i\}$;
+\item[(b)] for $s\ne t$: $\clk[t][s]=\max(\{k:\tick{s}{k}\in\Fr_i(t)\}\cup\{0\})$;
+\item[(c)] if $r$ is the $\seq$-last atomic on $x$ with $\seq(r)\le i$, then
+      $\lastR[x]=(r,\mathbf{c}_r)$ with
+      $\mathbf{c}_r[s]=\max(\{k:\tick{s}{k}\HBr r\}\cup\{0\})$ for every $s$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+Induction on $i$. Initially all clocks are $\mathbf{0}$ with
+$\clk[t][t]=1$, no ticks, empty frontiers; (a)(b) hold and (c) is
+vacuous. Let $e$ be the record at position $i$ and assume the invariant at
+$i-1$. Two consequences of (a)(b) at $i-1$ are used: for $s\ne t$,
+$\clk[t][s]\le\#\{\text{processed ticks of }s\}<\clk[s][s]$, so
+$(\bigsqcup_{u\in S}\clk[u])[s]=\clk[s][s]$ whenever $s\in S$
+\textup{(\dag)}; and no join raises $\clk[t][t]$.
+
+\emph{Exit.} Nothing changes.
+
+\emph{Read or write $e$ by $t$.} No clock changes and no tick is processed.
+$\Fr_i(t)=\Fr_{i-1}(t)\cup\{e\}$ by \eqref{eq:pred}; no tick of any $s\ne t$
+is added; other frontiers are unchanged. $c=\clk[t][t]=\epoch(e)$ by
+(a) and the remark after Definition~\ref{def:epoch}.
+
+\emph{Non-completing arrival record of warp $\omega$.} No clock changes. For
+each covered lane $t$, $\mathrm{last}_t(i)=\arr{t}{B}$ and
+$\Fr_i(t)=\Fr_{i-1}(t)\cup\{\arr{t}{B}\}$: the only immediate predecessor of
+an arrival is its $\PO$-predecessor. The added event is a tick of $t$, not of
+any $s\ne t$, so (b) is unchanged for all threads; (a) is unchanged because
+the tick's processing position $\mathrm{cpl}(B)>i$. Other threads' frontiers
+are unchanged since the arrival enters no other frontier before
+$\mathrm{cpl}(B)$.
+
+\emph{Completing arrival record; instance $B$, $S=S(B)$.} For $t\in S$,
+$\mathrm{last}_t(i)=\dep{t}{B}$ and, by the predecessor structure,
+\[
+\Fr_i(t)=\{\dep{t}{B}\}\ \cup\ \bigcup_{u\in S}\bigl(\{\arr{u}{B}\}\cup\Fr_{a_u}(u)\bigr),
+\]
+where $a_u$ is the position of $u$'s arrival record; and
+$\Fr_{a_u}(u)\setminus\{\arr{u}{B}\}=\Fr_{a_u-1}(u)=\Fr_{i-1}(u)\setminus\{\arr{u}{B}\}$
+since $u$ has no event between its arrival and $i$ (W2); that \Sync{}
+runs here with exactly $S$ is Lemma~\ref{lem:assembly}. Fix $t\in S$ and $s\ne t$. If $s\notin S$, the
+ticks of $s$ in $\Fr_i(t)$ are those in some $\Fr_{i-1}(u)$, $u\in S$, whose
+maximal index is $\max_u\clk[u][s]=\mathit{joined}[s]$ by (b). If $s\in S$,
+$\arr{s}{B}=\tick{s}{k}$ with $k=\clk[s][s]$ at $i-1$: by (a),
+$\clk[s][s]$ counts $1$ plus the ticks processed before $i$, and
+$\arr{s}{B}$ is the next tick of $s$ in $\PO$ (no atomic of $s$ lies between
+its arrival and $i$); all earlier ticks of $s$ precede it. By \textup{(\dag)},
+$\mathit{joined}[s]=k$. So $\clk[t]\gets\mathit{joined}$ establishes (b) for
+$t\in S$, and $\clk[t][t]\gets\mathit{joined}[t]+1$ with
+$\mathit{joined}[t]=\clk[t][t]$ \textup{(\dag)} establishes (a): exactly one
+tick of $t$, $\arr{t}{B}$, has processing position $i$. Threads outside $S$
+and (c) are untouched.
+
+\emph{Atomic $q$ by $t$ on $x$.} By (a), $c=\epoch(q)$ and $q=\tick{t}{c}$.
+By \eqref{eq:pred}, $\Fr_i(t)=\Fr_{i-1}(t)\cup\{q\}\cup\{f:f\HBr r\}$, the
+last term present iff $r$ (the previous atomic on $x$) exists and
+$\covers(r,q)$. The algorithm joins $\mathbf{c}_r$ under exactly that
+condition, and by (c) at $i-1$, $\mathbf{c}_r[s]$ is the maximal index of a
+tick of $s$ in $\{f:f\HBr r\}$; so for $s\ne t$ the joined clock satisfies
+(b). The published clock has, for $s\ne t$, the maximal ticks of $s$ in
+$\Fr_i(t)\setminus\{q\}=\{f:f\HBr q\}\setminus\{q\}$, and $t$-component $c$,
+the index of $q$, which is the $\PO$-last tick of $t$ in $\{f:f\HBr q\}$: this
+is (c) for $q$. Then $\clk[t][t]\gets c+1$ restores (a).
+\end{proof}
+
+\begin{lemma}[HB test]\label{lem:test}
+Let $a$ be a memory record of $s$ and $b$ one of $t\ne s$, $\seq(a)<\seq(b)$.
+When \Check{} runs for $b$ (after $b$'s acquire join, if any),
+\[
+\epoch(a)\le\clk[t][s]\quad\Longleftrightarrow\quad a\HB b .
+\]
+\end{lemma}
+\begin{proof}
+By Lemma~\ref{lem:vc}(b)(c) and \eqref{eq:pred}, at that moment
+$\clk[t][s]=\max(\{k:\tick{s}{k}\in\mathcal{P}(b)\}\cup\{0\})$.
+($\Leftarrow$) On a generating path from $a$ to $b$, the first edge leaving
+thread $s$ is (SYNC) from some $\arr{s}{B}$ or (ATOM) from some atomic of
+$s$; its source is a tick $\tick{s}{k}$ with $a\HBr\tick{s}{k}$, so
+$\epoch(a)\le k$, and $\tick{s}{k}\in\mathcal{P}(b)$ gives
+$\clk[t][s]\ge k$. ($\Rightarrow$) Some $\tick{s}{k}\in\mathcal{P}(b)$
+with $k\ge\epoch(a)$; every memory record of $s$ with epoch $\le k$ is
+$\PO$-before or equal to the $k$-th tick, so $a\HBr\tick{s}{k}\HB b$.
+\end{proof}
+
+\begin{theorem}[Completeness: every report is a race]\label{thm:complete}
+Let $T$ be well-formed. Every entry $(t_a,p_a,t_b,p_b,\ell)$ that
+Algorithm~\ref{alg:hb} adds while processing record $b$ corresponds to a
+record $a$ of $t_a$ at $\ell$ with $(a,b)\in\Races(T)$; for a
+$\rdrs$ entry, $a$ ranges over the reads of $t_a$ at $\ell$ with the stored
+epoch since the last write, all of which race with $b$.
+\end{theorem}
+\begin{proof}
+An entry is added only if $t_a\ne t_b$, both records are at $\ell$, at least
+one is a write or atomic, and $\epoch(a)>\clk[t_b][t_a]$ at check
+time. By Lemma~\ref{lem:test}, $a\not\HB b$; by Lemma~\ref{lem:seq},
+$b\not\HB a$. Reads of $t_a$ at $\ell$ sharing the stored epoch share the
+same argument.
+\end{proof}
+
+\begin{theorem}[Soundness: every race is reported, location level]\label{thm:sound}
+Let $T$ be well-formed. If $(a,b)\in\Races(T)$ with $\seq(a)<\seq(b)$, then
+Algorithm~\ref{alg:hb} adds an entry at $\loc(a)$ while processing some
+record $b'$ with $\seq(b')\le\seq(b)$.
+\end{theorem}
+\begin{proof}
+Strong induction on $\seq(b)$; $\ell=\loc(a)$, $s=\tid(a)$, $t=\tid(b)$.
+
+\emph{Case A: $a$ is a write or atomic.} When $b$ is processed, \Check{}
+compares $b$ with $d=\lastW[\ell]$, present with
+$\seq(a)\le\seq(d)<\seq(b)$. If $d=a$ the test fires by
+Lemma~\ref{lem:test}. Otherwise $d$ is a write or atomic by $t_d$. If
+$t_d\ne t$ and $d\not\HB b$ the test fires for $(d,b)$. Otherwise $d\HB b$
+(by (PO) if $t_d=t$; $b\not\HB d$ by Lemma~\ref{lem:seq}). Then
+$a\not\HB d$, else $a\HB b$; and $t_d\ne s$, else $a\PO d$. Since
+$d\not\HB a$, $(a,d)$ is a race with $\seq(d)<\seq(b)$; apply the induction
+hypothesis.
+
+\emph{Case B: $a$ is a read, $b$ a write or atomic.} Let $d$ be the
+$\seq$-first write or atomic at $\ell$ with $\seq(a)<\seq(d)\le\seq(b)$
+(possibly $d=b$). Until $d$ is processed, $\rdrs[\ell][s]$
+holds the epoch of the $\PO$-last read $a_2$ of $s$ at $\ell$ before $d$, with
+$a\HBr a_2$. If $a_2\not\HB d$ and $\tid(d)\ne s$, the reader check fires for
+$(a_2,d)$ at $d$, $\seq(d)\le\seq(b)$. Otherwise $a\HB d$. If $d=b$ this
+contradicts the race. If $d\ne b$: $d\not\HB b$ (else $a\HB b$),
+$b\not\HB d$ (Lemma~\ref{lem:seq}), $\tid(d)\ne t$ (else $d\PO b$); so
+$(d,b)$ is a race with $d$ a write or atomic, and Case~A applies to it (Case~A
+does not use Case~B).
+\end{proof}
+
+\begin{remark}[Pair level]
+The oracle reports $(a,b)$ itself exactly when $a$ is the $\seq$-last write or
+atomic at $\loc(b)$ before $b$, or a $\PO$-last read of its thread at
+$\loc(b)$ since that write (the DJIT$^+$/FastTrack guarantee). A verdict
+matrix keyed by PC pair must be evaluated at location level, or the oracle run
+with full read sets.
+\end{remark}
+
+\begin{proposition}[Fidelity]\label{prop:fidelity}
+Let $T$ be a well-formed trace of execution $E$ and let $\mathrm{HB}_E$ be the
+relation obtained by applying Definition~\ref{def:hb} to the events of $E$
+(its dynamic program orders, its barrier instances with their true participant
+sets, and its per-address coherence orders). Under A1--A3,
+$\mathrm{HB}_T=\mathrm{HB}_E$ on memory records, hence
+$\Races(T)=\Races(E)$.
+\end{proposition}
+\begin{proof}
+(PO): by A1, $\seq$ restricted to a thread is its dynamic order.
+(SYNC): by A1 each arrival is recorded with its lanes; by A3 an instance
+completes exactly when the hardware barrier's participants have all arrived,
+so $S(B)$ is the true participant set; departures are placed after
+completion, matching the hardware release. (ATOM): successor and $\covers$
+depend only on coherence order (A2) and static scopes (A1). The generating
+edges coincide, hence so do the closures.
+\end{proof}
+
+Proposition~\ref{prop:fidelity} is the only place where the trusted base
+enters. Theorems~\ref{thm:complete} and~\ref{thm:sound} are statements about
+Algorithm~\ref{alg:hb}, Definition~\ref{def:wf} and $\mathrm{HB}_T$ alone.
+
+\section{From one trace to all executions}\label{sec:cert}
+%=============================================================================
+
+\subsection{Why the previous theorem was false}
+
+\begin{remark}[Counterexample]\label{ex:atomic}
+Let both atomics be grid-scoped:
+\[
+t_1:\ x\gets 1;\ \mathrm{atomic}(f)\qquad\qquad
+t_2:\ \mathrm{atomic}(f);\ r\gets x .
+\]
+If $t_1$'s atomic is the coherence predecessor, (ATOM) orders it before
+$t_2$'s, so $x\gets1\HB r\gets x$; atomic--atomic pairs are never races, and
+the execution is race-free. If $t_2$'s atomic comes first, $r\gets x$ is
+unordered with $x\gets 1$: a race. Hence a race-free trace does not certify all
+schedules once atomics from different threads meet at an address: the
+coherence order is a schedule-dependent input to $\mathrm{HB}_T$, exactly as
+the random outcome $R$ is. The certificate below is stated per
+\emph{synchronisation profile}.
+\end{remark}
+
+\subsection{Memory-model hypotheses}
+
+\begin{definition}[Values, reads-from, profile]\label{def:rf}
+Each memory record $e$ of an execution carries $\val_w(e)$ (value written,
+for writes and atomics) and $\val_r(e)$ (value read, for reads and atomics),
+and a reads-from source $\rf(e)\in\{w:\kind(w)\ne\texttt{read},\ \loc(w)=\loc(e)\}\cup\{\mathit{init}\}$
+with $\val_r(e)=\val_w(\rf(e))$ or $I(\loc(e))$.
+$\Writers(e)=\{w:\kind(w)\ne\texttt{read},\ \loc(w)=\loc(e),\ w\HB e\}$.
+The \emph{profile} $\Pi(E)$ assigns to every address $x$ the sequence of
+labels $(\tid,n)$ of the atomics on $x$ in coherence order, where $n$ is the
+index of the atomic among that thread's atomics on $x$.
+$\Exec(P,I,\Pi)=\{E\in\Exec(P,I):\Pi(E)=\Pi\}$.
+\end{definition}
+
+\begin{definition}[Causal order]
+$\CO$ is the least transitive relation containing $\HB$ and the \emph{completion
+edges} $\ext{s}\CO\dep{t}{B}$ for every barrier instance $B$ in block $\beta$,
+every $t\in S(B)$ and every thread $s$ of $\beta$ with $s\notin S(B)$.
+\end{definition}
+
+Completion edges express that a block-wide barrier cannot release before every
+non-participant of its block has exited; they carry no memory-visibility
+guarantee (\texttt{EXIT} has no fence semantics), so they are in $\CO$ and not
+in $\HB$.
+
+\begin{axiom}[MM1: causal acyclicity]\label{ax:caus}
+For every execution, $\CO\cup\{(\rf(e),e)\}$ is acyclic on $\Eplus$.
+\end{axiom}
+
+\begin{axiom}[MM2: coherence]\label{ax:coh}
+For every execution and every read or atomic $e$: if $w\HB w'\HB e$ with
+$w'\in\Writers(e)$ then $\rf(e)\ne w$; and if $\Writers(e)\ne\emptyset$ then
+$\rf(e)\ne\mathit{init}$.
+\end{axiom}
+
+\begin{axiom}[MM3: barrier completion]\label{ax:bar}
+For every execution and every barrier instance $B$ in block $\beta$, every
+thread of $\beta$ either belongs to $S(B)$ or has an exit record; every
+\texttt{syncwarp} instance has as participants exactly the lanes of its mask.
+Executions terminate.
+\end{axiom}
+
+\begin{remark}[Status of MM1--MM3]
+MM1--MM3 are not axioms of this document; they are obligations to be discharged
+against the published formalisation of the PTX memory model (Lustig,
+Sahasrabuddhe, Giroux, \emph{A Formal Analysis of the NVIDIA PTX Memory
+Consistency Model}, ASPLOS~2019). The required mapping is: (a) every edge of
+Definition~\ref{def:hb} is contained in that model's causality order, which
+holds for (SYNC) and holds for (ATOM) only under the fence-gated rule of
+\S\ref{sec:impl}, item~4; (b) MM1 and MM2 are instances of that model's
+causality and coherence axioms; (c) MM3 is the model's barrier semantics.
+Until (a)--(c) are written out, the certificate is a theorem relative to
+MM1--MM3, not a fact about hardware.
+\end{remark}
+
+\begin{remark}[Model adequacy]\label{rem:adequacy}
+The single-trace results of \S\ref{sec:single} are exact with respect to
+Definition~\ref{def:hb} and use none of MM1--MM3. The certificate below is only
+as good as MM2 is \emph{true on the platform for the edges Definition~\ref{def:hb}
+generates}: MM2 asserts that an $\HB$ edge is honoured by the hardware. Under
+PTX this holds for (SYNC) edges, but an (ATOM) edge between two
+\texttt{.STRONG} atomics is honoured only if the release side is fenced (or
+\texttt{.release}) and the acquire side likewise; an unfenced strong atomic is
+relaxed. Therefore, in certificate mode, $\mathit{AtomScope}$ must assign
+\textsc{None} to an atomic that is not release/acquire-qualified, which is
+precisely the fence condition R3 checks with \texttt{release\_scope}. With that
+restriction, (ATOM) edges are a subset of PTX synchronises-with and MM1--MM3
+are the standard PTX axioms (causality, coherence, barrier semantics). Named
+barriers with a partial count have schedule-dependent participant sets and are
+outside this section.
+\end{remark}
+
+\subsection{First-race prefix and matching}
+
+Fix $P$, $I$, a profile $\Pi$, a race-free $E\in\Exec(P,I,\Pi)$ with well-formed
+trace $T$, and any $E'\in\Exec(P,I,\Pi)$ with well-formed trace $T'$. Primed
+symbols ($\HB'$, $\CO'$, $\rf'$, $S'$, \dots) refer to $T'$.
+
+\begin{definition}[Labels and counterparts]
+Every memory or exit event of a thread $t$ is labelled by $(t,n)$, its index in
+$t$'s dynamic order; the $k$-th barrier instance of block $\beta$ is labelled
+$(\beta,k)$ (per-warp count for \texttt{syncwarp}), and its ghost events by
+$(t,\beta,k,\mathrm{arr}/\mathrm{dep})$. For $e'\in\Eplus(T')$, the
+\emph{counterpart} $\varphi(e')$ is the event of $T$ with the same label, if it
+exists.
+\end{definition}
+
+\begin{lemma}[First race]\label{lem:first}
+Suppose $\Races(T')\ne\emptyset$. Let $L'$ be a linear order on $\Eplus(T')$
+extending $\CO'\cup\{(\rf'(e),e)\}$ (it exists by MM1). Let $b$ be the
+$L'$-least event that is the $L'$-later member of a racing pair, $a$ a racing
+partner with $a<_{L'}b$, and $Q=\{e:e<_{L'}b\}$. Then no racing pair of $T'$
+has both members in $Q$, and $Q$ is closed under $\CO'$-predecessors.
+\end{lemma}
+\begin{proof}
+A racing pair inside $Q$ would have an $L'$-later member $<_{L'}b$,
+contradicting the choice of $b$. Downward closure holds because $L'$ extends
+$\CO'$.
+\end{proof}
+
+\begin{lemma}[Matching]\label{lem:match}
+With $b,Q$ as in Lemma~\ref{lem:first} (or, if $T'$ is race-free,
+$Q=\Eplus(T')$ and no $b$), every $e\in Q\cup\{b\}$ satisfies:
+\begin{enumerate}
+\item[(i)] $\varphi(e)$ exists and agrees with $e$ in kind, pc, location, scope,
+      and written value;
+\item[(ii)] if $e\in Q$ is a read or atomic, $\val_r(e)=\val_r(\varphi(e))$;
+\item[(iii)] (\emph{forward}) if $g\in Q$ and $g\HB' e$ then $\varphi(g)\HB\varphi(e)$;
+\item[(iv)] (\emph{backward}) if $g\HB\varphi(e)$ in $T$ then $g=\varphi(g')$ for
+      some $g'\in Q$ with $g'\HB' e$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+Induction along $L'$. Assume the claims for all events $<_{L'}e$; write $t=\tid(e)$.
+
+\emph{Step 1: participants.} Let $B$ be an instance with label $(\beta,k)$ and
+$\dep{u}{B}\HBr' e$ for some $u$. We show $S'(B)=S(B_{(\beta,k)})$.
+If $s\in S'(B)$ then $\arr{s}{B}<_{L'}e$, so by the induction hypothesis (i)
+every event of $s$ up to its $k$-th arrival matches $T$; hence $s$ reaches its
+$k$-th barrier in $E$ and $s\in S(B_{(\beta,k)})$. Conversely let
+$s\in S(B_{(\beta,k)})\setminus S'(B)$. By MM3 $s$ has an exit in $T'$ and
+$\ext{s}\CO'\dep{u}{B}\HBr' e$, so every event of $s$ in $T'$ is
+$<_{L'}e$ and matched by (i)(ii): $s$ executes in $T'$ exactly the events it
+executes in $T$ up to its exit, with the same read values, hence the same
+register state; but in $T$ the same thread continues to a $k$-th arrival. A
+deterministic thread cannot both exit and continue from the same state, a
+contradiction. The \texttt{syncwarp} case is immediate from MM3.
+
+\emph{Step 2: (i).} The $\PO$-predecessors of $e$ are in $Q$ (as $L'\supseteq\PO$),
+and by (i)(ii) for them, $t$ has executed in $T'$ the same events with the same
+read values as in $T$. Since $P$ is deterministic, $t$'s next instruction, its
+address and any written value are functions of that state; $T$ contains that
+next event because $t$ has not exited in $T$ (its exit would be a matched
+event). Hence $\varphi(e)$ exists with the claimed agreement. (For ghost events
+and exits, (i) is the existence of the counterpart, which follows from the same
+argument and Step~1.)
+
+\emph{Step 3: (iii).} A generating edge $g\HB' e$ with $g\in Q$ maps to a
+generating edge in $T$: (PO) by labels; (SYNC) by Step~1; (ATOM) because
+$\Pi(E)=\Pi(E')$ makes $\varphi(g)$ the coherence predecessor of $\varphi(e)$
+with the same scopes and blocks. Chains compose by the induction hypothesis
+(iii) on intermediate events, all of which are in $Q$.
+
+\emph{Step 4: (iv).} First let $g$ be an immediate predecessor of $\varphi(e)$
+in $T$. If $g$ is the $\PO$-predecessor, its label is that of $e$'s
+$\PO$-predecessor $g'\in Q$, and $g'\HB' e$. If $\varphi(e)=\dep{t}{B_{(\beta,k)}}$
+and $g=\arr{s}{B_{(\beta,k)}}$ with $s\in S(B_{(\beta,k)})=S'(B)$ (Step~1), then
+$g'=\arr{s}{B}\in Q$ and $g'\HB' e$. If $\varphi(e)$ is an atomic acquiring from
+$g$, then by equality of profiles $g$'s label is that of $e$'s coherence
+predecessor $g'$ in $T'$, which exists in $T'$, satisfies $\covers$, hence
+$g'\HB' e$ and $g'\in Q$. For a general $g\HB\varphi(e)$ take a generating path
+$g=g_0\to\dots\to g_m=\varphi(e)$; the immediate case gives $g_{m-1}=\varphi(g'_{m-1})$
+with $g'_{m-1}\in Q$, $g'_{m-1}\HB' e$; the induction hypothesis (iv) at
+$g'_{m-1}$ applied to $g\HB g_{m-1}$ yields $g'\in Q$ with $\varphi(g')=g$ and
+$g'\HB' g'_{m-1}\HB' e$.
+
+\emph{Step 5: (ii), for $e\in Q$ a read or atomic.} Let $w'=\rf'(e)$ and
+$W=\rf(\varphi(e))$. In $T$, since $E$ is race-free and, by MM1, some linear
+order extends $\CO\cup\rf$: if $W\ne\mathit{init}$ then $W$ precedes
+$\varphi(e)$ in that order, conflicts with it, and is not racing, so
+$W\HB\varphi(e)$; by MM2, $W$ is the $\HB$-maximum of $\Writers(\varphi(e))$
+(a chain, as $E$ is race-free), and if $W=\mathit{init}$ then
+$\Writers(\varphi(e))=\emptyset$. In $T'$, if $w'\ne\mathit{init}$ then
+$w'<_{L'}e$, so $w'\in Q$, $w'$ and $e$ conflict and by Lemma~\ref{lem:first}
+do not race, and $e\not\HB' w'$ since $L'$ extends $\HB'$; hence $w'\HB' e$ and,
+by MM2, no $u\in\Writers'(e)$ has $w'\HB' u$. If $w'=\mathit{init}$ then
+$\Writers'(e)=\emptyset$ by MM2.
+
+Suppose $w'\ne\mathit{init}$. By (iii), $\varphi(w')\in\Writers(\varphi(e))$, so
+$W\ne\mathit{init}$ and $\varphi(w')\HBr W$. If $\varphi(w')\ne W$ then
+$\varphi(w')\HB W\HB\varphi(e)$; by (iv) at $e$, $W=\varphi(W')$ with $W'\in Q$
+and $W'\HB' e$; by (iv) at $W'$, $\varphi(w')=\varphi(u)$ for some $u\in Q$ with
+$u\HB' W'$, and $u=w'$ by labels. Thus $w'\HB' W'\HB' e$ with
+$W'\in\Writers'(e)$, contradicting MM2 in $T'$. So $W=\varphi(w')$ and
+$\val_r(e)=\val_w(w')=\val_w(\varphi(w'))=\val_r(\varphi(e))$ by (i) at $w'$.
+Suppose $w'=\mathit{init}$. If $W\ne\mathit{init}$ then by (iv) $W=\varphi(W')$
+with $W'\HB' e$, so $\Writers'(e)\ne\emptyset$, contradiction. Hence both read
+$I(\loc(e))$.
+\end{proof}
+
+\subsection{Certificate}
+
+\begin{theorem}[Single-trace certificate, per profile]\label{thm:cert}
+Let $P$ be deterministic and $I$ fixed. If some $E\in\Exec(P,I,\Pi)$ has a
+race-free well-formed trace, then every $E'\in\Exec(P,I,\Pi)$ is race-free, and
+$T(E')$ consists of the same events as $T(E)$ (same labels, kinds, locations,
+values, instances and participants, hence the same $\HB$), up to $\seq$.
+\end{theorem}
+
+\begin{proof}
+Suppose $\Races(T')\ne\emptyset$ and take $a,b,Q$ from Lemma~\ref{lem:first}.
+By Lemma~\ref{lem:match}(i), $\varphi(a)$ and $\varphi(b)$ exist and conflict.
+If $\varphi(a)\HB\varphi(b)$, Lemma~\ref{lem:match}(iv) at $b$ gives $a'\in Q$ with
+$\varphi(a')=\varphi(a)$ and $a'\HB' b$; labels force $a'=a$, contradicting the
+race. If $\varphi(b)\HB\varphi(a)$, (iv) at $a$ gives $b'\in Q$ with
+$\varphi(b')=\varphi(b)$, so $b'=b\in Q$, contradicting $b\notin Q$. Hence
+$(\varphi(a),\varphi(b))\in\Races(T)$, contradicting race-freedom of $E$.
+So $T'$ is race-free; Lemma~\ref{lem:match} with $Q=\Eplus(T')$ gives an
+injective label-preserving $\varphi$ that preserves and reflects $\HB$, and it
+is surjective because each thread of $E'$ runs to an exit matched in $E$.
+\end{proof}
+
+\begin{corollary}[Causal visibility]\label{cor:causal}
+If some $E^*\in\Exec(P,I,\Pi)$ has a race then every $E\in\Exec(P,I,\Pi)$ has a
+race, and by Theorem~\ref{thm:sound} the oracle reports at least one on any
+well-formed trace of any such $E$.
+\end{corollary}
+
+\begin{corollary}[Atomic-free kernels]\label{cor:noatom}
+If $P$ contains no atomic instruction, $\Pi$ is empty and
+$\Exec(P,I,\Pi)=\Exec(P,I)$: a single race-free well-formed trace certifies
+race-freedom of $P(I)$ under all schedules, and any racy execution implies
+every execution is racy.
+\end{corollary}
+
+\begin{remark}
+When every address receives atomics from at most one thread, the profile is
+forced by program order and the same conclusion is expected; the proof needs an
+additional po-loc coherence axiom and is not carried out here.
+\end{remark}
+
+\begin{remark}[No iterative completeness]
+Fixing a reported race changes $P$; nothing above relates $\Races$ of the
+modified program to those of the original. The previous draft's ``iterative
+completeness'' is not a theorem.
+\end{remark}
+
+%=============================================================================
+\subsection{Randomisation}\label{sec:rand}
+%=============================================================================
+
+Let a random outcome $R$ fix, per thread, the sequence of values its random
+number generator returns. For fixed $(P,I,R)$ the program is deterministic and
+everything above holds with $\Exec(P,I,R,\Pi)$ in place of $\Exec(P,I,\Pi)$.
+Across different $R$, a branch on a random value changes control flow without
+any race, so no race under $R_1$ need have a witness under $R_2$.
+
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+Property & no atomics, no $R$ & atomics & randomisation \\
+\midrule
+No false positives on well-formed $T$ (Thm.~\ref{thm:complete}) & \checkmark & \checkmark & \checkmark \\
+No false negatives on well-formed $T$ (Thm.~\ref{thm:sound}) & \checkmark & \checkmark & \checkmark \\
+One trace certifies $P(I)$ (Thm.~\ref{thm:cert}) & \checkmark & per $\Pi$ & per $(R,\Pi)$ \\
+Causal visibility (Cor.~\ref{cor:causal}) & \checkmark & per $\Pi$ & per $(R,\Pi)$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+%=============================================================================
+%=============================================================================
+\section{State of the implementation}\label{sec:impl}
+%=============================================================================
+
+Algorithm~\ref{alg:hb} is what \texttt{hb\_oracle.py} and \texttt{HbEngine}
+implement on \texttt{cuVein} after the barrier-instance and monitor merges,
+with the following differences and open items.
+
+\begin{enumerate}
+\item \textbf{Monitor parity.} The implementation joins per-warp when
+      $n(A)=0$ and $N_\beta$ is unavailable (rejecting only if a second warp
+      arrives in that state), and it takes $\exp$ from the latest arrival
+      instead of checking consistency along a key. The monitor of
+      Definition~\ref{def:monitor} rejects in both cases, which is what makes
+      Lemma~\ref{lem:monitor} an equivalence. Adopt the formal behaviour; on
+      every launched kernel $N_\beta$ is known, so the only observable change
+      is the added consistency check.
+\item \textbf{A2 made checkable.} If the collector records each RMW's read and
+      written value, then for each address the coherence order is the unique
+      chain in which every RMW reads the value its predecessor wrote, and the
+      monitor can verify that $\seq$ agrees with it (M5). This removes A2 from
+      the trusted base and turns the emitted profile $\Pi$ into a checked
+      fact. Whether the sanitizer callback exposes the operand is to be
+      confirmed.
+\item \textbf{Profile $\Pi$.} The per-address atomic order and its hash are
+      emitted by both artifacts; verdicts are unchanged. Certificates
+      (\S\ref{sec:cert}) are per~$\Pi$ and the report should be read that way.
+\item \textbf{Fence-gated (ATOM) rule --- open, corpus-affecting.} On the
+      target architecture relaxed and release/acquire strong atomics compile to
+      the same opcode; only a MEMBAR distinguishes them, and MEMBAR has no
+      collector patch point. The implementation therefore treats every strong
+      atomic as release/acquire, which fabricates $\HB$ for unfenced atomics
+      (a missed-race defect; the discriminating test is tracked as an expected
+      failure). The intended fix keeps two separate mechanisms: (i)
+      \emph{coherence}: two atomics on one address with covering scope do not
+      conflict (a change to Definition~\ref{def:race}, not to $\HB$); (ii)
+      \emph{synchronisation}: (ATOM) edges require the releasing PC to be
+      fence-qualified before it and the acquiring PC after it, decided
+      statically per PC from MEMBAR dominance in the CFG and shipped in the
+      sidecar with the coherence scope; effective scope is the minimum of
+      atomic and fence scopes. Whether acquire-side qualification is required
+      (PTX) or waived (common CUDA practice) is a modelling decision to be
+      stated; the strict choice is what maps onto the PTX formalisation. A
+      residual window remains: writes between the fence and the atomic are
+      published as if released. Until this lands, \S\ref{sec:single} holds for
+      the implemented $\HB$ (a legitimate, stronger model) and the certificate
+      of \S\ref{sec:cert} is unsound for kernels with unfenced strong atomics.
+\item \textbf{Local memory} is keyed by \texttt{(space, addr)} in the
+      implementation; Definition~\ref{def:trace} keys it per thread. Align or
+      exclude local memory.
+\item \textbf{Scale.} The exact oracle's memory is the sum of live clock
+      entries; a per-block dense representation with a sparse cross-block
+      tail is expected to extend the verified range by an order of magnitude.
+      A compact single-epoch engine requires its own lemma (that each
+      location's writes are $\HB$-totally ordered in race-free well-formed
+      traces under scoped atomics and partial barriers) before it may replace
+      Algorithm~\ref{alg:hb} as the reference.
+\end{enumerate}
+
+\end{document}

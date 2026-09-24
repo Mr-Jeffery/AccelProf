@@ -1,0 +1,509 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,booktabs,enumitem}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{definition}{Definition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
+\newtheorem{assumption}{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+\newcommand{\Eplus}{E^{+}}
+\newcommand{\PO}{\xrightarrow{\mathrm{po}}}
+\newcommand{\HB}{\xrightarrow{\mathrm{hb}}}
+\newcommand{\HBu}{\xrightarrow{\mathrm{hb}^{+}}}
+\newcommand{\tid}{\mathrm{tid}}
+\newcommand{\loc}{\mathrm{loc}}
+\newcommand{\kind}{\mathrm{kind}}
+\newcommand{\str}{\mathrm{str}}
+\newcommand{\scope}{\mathrm{scope}}
+\newcommand{\blk}{\mathrm{blk}}
+\newcommand{\warp}{\mathrm{warp}}
+\newcommand{\grp}{\mathrm{grp}}
+\newcommand{\rel}{\mathrm{rel}}
+\newcommand{\acq}{\mathrm{acq}}
+\newcommand{\incl}{\mathrm{incl}}
+\newcommand{\ms}{\mathrm{ms}}
+\newcommand{\conf}{\mathrm{conf}}
+\newcommand{\unord}{\mathrm{unord}}
+\newcommand{\DR}{\mathrm{DR}}
+\newcommand{\SC}{\mathrm{SC}}
+\newcommand{\LS}{\mathrm{LS}}
+\newcommand{\MS}{\mathrm{MS}}
+\newcommand{\seq}{\mathrm{seq}}
+\newcommand{\epoch}{\mathrm{epoch}}
+\newcommand{\vc}{\mathit{vc}}
+\newcommand{\chain}{\rightsquigarrow}
+\newcommand{\Chain}{C}
+\newcommand{\Pub}{P}
+\newcommand{\Fences}{\mathcal{F}}
+\newcommand{\Mem}{\mathcal{M}}
+\newcommand{\bucket}{\mathrm{key}}
+
+\title{HB race detection: access model, verdicts and proofs\\
+\large Revision 4 delta against \texttt{hb\_race\_detection.tex} (v3)}
+\author{}
+\date{September 2026}
+
+\begin{document}
+\maketitle
+
+\noindent\textbf{Scope of this delta.}
+v3 classifies an access as \emph{atomic} iff its opcode is a read-modify-write,
+and defines a race as a conflicting pair unordered by $\HB$. Under the PTX
+memory model (ISA \S8.7) strength is a property of the qualifier, not the
+opcode: \texttt{ld}/\texttt{st} with \texttt{.relaxed}/\texttt{.acquire}/%
+\texttt{.release}/\texttt{.sc} (and \texttt{.volatile}, which is
+\texttt{.relaxed.sys}) are strong, and a conflicting pair that is \emph{morally
+strong} is not a data race (\S8.7.1). This delta (i) extends the record
+labels with strength and scope, (ii) replaces the single ``race'' verdict by
+two verdicts, \emph{data race} and \emph{unordered strong conflict}, exactly
+following \S8.7.1, (iii) fence-gates the (ATOM) generator so that $\HB$ is
+contained in PTX causality order, (iv) replaces the FastTrack last-write
+bookkeeping, which is unsound under (ii), by per-class buckets, and (v)
+restates the single-trace theorems and the certificate. Everything not
+mentioned (trace model, ghost events, TV1--TV3, the SYNC generator, the
+well-formedness monitor, MM1--MM3) is unchanged. Soundness and completeness
+keep v3's meaning: \emph{sound} = no missed verdict, \emph{complete} = no
+spurious verdict.
+
+\section{Access model}
+
+\begin{definition}[Record labels]\label{def:labels}
+Every memory record $e$ carries, in addition to $\tid(e)$, $\mathrm{pc}(e)$,
+$\mathrm{addr}(e)$ and $\seq(e)$:
+\begin{itemize}[nosep]
+\item $\kind(e)\in\{\mathtt{R},\mathtt{W},\mathtt{RMW}\}$;
+\item $\str(e)\in\{\mathtt{weak},\mathtt{strong}\}$, with
+      $\str(e)=\mathtt{strong}$ whenever $\kind(e)=\mathtt{RMW}$;
+\item $\scope(e)\in\{\mathtt{cta},\mathtt{gpu},\mathtt{sys}\}$, defined iff
+      $\str(e)=\mathtt{strong}$, ordered $\mathtt{cta}<\mathtt{gpu}<\mathtt{sys}$;
+\item for $\kind(e)=\mathtt{RMW}$, flags $\rel(e),\acq(e)\in\{0,1\}$
+      (Definition~\ref{def:gate});
+\item $\warp(e)$, the warp of $\tid(e)$, and $\grp(e)$, the issue group: two
+      records of one warp have the same group iff they were produced by the
+      same dynamic instruction of that warp.
+\end{itemize}
+$\kind$, $\str$, $\scope$, $\rel$, $\acq$ are functions of $\mathrm{pc}(e)$
+supplied by the static sidecar (\S\ref{sec:obl}); $\warp,\grp$ come from the
+collector. A \emph{write} is a record with $\kind\ne\mathtt{R}$.
+\end{definition}
+
+\begin{assumption}[Uniform size, generic proxy, one device]\label{as:size}
+All records on a location have the same access size, all are performed via the
+generic proxy, and all threads of an execution run on one device. Hence PTX's
+``overlap completely'' and ``same proxy'' conditions on moral strength hold
+for every pair on a location, and $\mathtt{gpu}$ scope includes every thread.
+Mixed-size and cross-proxy accesses are outside the model; the monitor rejects
+a trace that has two sizes on one location.
+\end{assumption}
+
+\begin{definition}[Scope inclusion, moral strength]\label{def:ms}
+For a strong record $e$ and thread $t$,
+\[
+\incl(e,t)\;:\Longleftrightarrow\;
+\scope(e)\in\{\mathtt{gpu},\mathtt{sys}\}\ \vee\
+\big(\scope(e)=\mathtt{cta}\wedge \blk(\tid(e))=\blk(t)\big).
+\]
+Records $a,b$ with $\tid(a)\ne\tid(b)$ are \emph{morally strong},
+$\ms(a,b)$, iff $\str(a)=\str(b)=\mathtt{strong}$, $\incl(a,\tid(b))$ and
+$\incl(b,\tid(a))$. (PTX \S8.7 also declares same-thread pairs morally
+strong; those are $\PO$-ordered and never reach a verdict.)
+\end{definition}
+
+Note that $\ms$ is symmetric, is a function of the two labels and the two
+block ids, and coincides on RMW pairs with v3's $\mathrm{covers}(r,q)$.
+
+\section{Verdicts}
+
+\begin{definition}[Conflict, unordered, verdicts]\label{def:verdict}
+For records $a,b$ with $\seq(a)<\seq(b)$:
+\begin{align*}
+\conf(a,b)  &:\Longleftrightarrow\ \loc(a)=\loc(b)\ \wedge\ \tid(a)\ne\tid(b)\
+             \wedge\ (\kind(a)\ne\mathtt{R}\vee\kind(b)\ne\mathtt{R}),\\
+\unord(a,b) &:\Longleftrightarrow\ \neg(a\HB b)\ \wedge\ \neg(b\HB a),\\
+\DR(a,b)    &:\Longleftrightarrow\ \conf(a,b)\wedge\unord(a,b)\wedge\neg\ms(a,b)
+             \quad\text{(data race, PTX \S8.7.1)},\\
+\SC(a,b)    &:\Longleftrightarrow\ \conf(a,b)\wedge\unord(a,b)\wedge\ms(a,b)
+             \wedge\neg\big(\kind(a)=\kind(b)=\mathtt{RMW}\big)
+             \quad\text{(unordered strong conflict)}.
+\end{align*}
+A pair is \emph{reportable} if $\DR(a,b)\vee\SC(a,b)$. The \emph{class} of a
+reportable pair is $\DR$ or $\SC$.
+\end{definition}
+
+\begin{remark}[Why RMW--RMW pairs are excluded from $\SC$]
+Two morally strong RMWs on a location are totally ordered by coherence and
+each is performed entirely before or after the other (PTX \S8.7.2, atomicity
+of RMWs); no update is lost and no torn value is observed. That is the
+contract programmers rely on for counters and locks, so reporting every pair of
+concurrent \texttt{atomicAdd}s would drown the signal. Every other morally
+strong unordered conflict involves a plain strong load or store, for which
+coherence gives a total order but no atomicity guarantee: a store may be
+overwritten, a load may return either coherence-order value. Those are the
+conflicts the tool reports. The exclusion is a reporting choice, not a
+semantic claim; flip it by dropping the last conjunct of $\SC$.
+\end{remark}
+
+\begin{remark}[What the verdicts do not say]
+Neither verdict claims the program is incorrect. $\DR$ says the platform gives
+no guarantee about the pair; $\SC$ says the pair's outcome is determined by a
+schedule-dependent coherence order. Whether a program tolerates either is a
+property of the algorithm, not of the trace, and is outside this document.
+\end{remark}
+
+\begin{definition}[Mechanism labels]\label{def:labels2}
+Two informational labels refine a reportable pair; they never change its class.
+\begin{itemize}[nosep]
+\item \emph{Lock-step dependent}:
+      $\LS(a,b):\Leftrightarrow \warp(a)=\warp(b)\wedge\grp(a)\ne\grp(b)$.
+      Under the pre-Volta execution model a warp issues one instruction at a
+      time for all its active lanes, so distinct issue groups of one warp are
+      totally ordered by issue order; $\LS$ marks a pair whose only ordering
+      was that model, which independent thread scheduling does not provide.
+\item \emph{Missing synchronisation}:
+      $\MS(a,b):\Leftrightarrow a\HBu b\ \vee\ b\HBu a$, where $\HBu$ is
+      Definition~\ref{def:hb} with every $\rel,\acq$ flag set to $1$. $\MS$
+      marks a pair that an unqualified atomic chain would order if the chain
+      were fenced.
+\end{itemize}
+\end{definition}
+
+\section{Happens-before with fence-gated atomics}
+
+\begin{definition}[Fence adjacency, static]\label{def:gate}
+Let $G$ be the kernel CFG over instruction pcs, $\Mem$ the set of memory-access
+pcs, and $\Fences_\sigma$ the set of fence pcs of scope $\ge\sigma$
+(\S\ref{sec:obl}, O2). For an RMW pc $r$ with $\scope(r)=\sigma$:
+\begin{itemize}[nosep]
+\item $\rel(r)=1$ iff every backward path in $G$ from $r$ meets a node of
+      $\Fences_\sigma$ before it meets a node of $\Mem\setminus\{r\}$, or
+      reaches the entry meeting neither;
+\item $\acq(r)=1$ iff every forward path in $G$ from $r$ meets a node of
+      $\Fences_\sigma$ before it meets a node of $\Mem\setminus\{r\}$, or
+      reaches an exit meeting neither.
+\end{itemize}
+Equivalently: in $G$ with $\Fences_\sigma$ deleted, no node of
+$\Mem\setminus\{r\}$ reaches $r$ (release), respectively is reachable from $r$
+(acquire).
+\end{definition}
+
+The definition is deliberately stronger than ``a fence dominates $r$''. A
+dominating fence hoisted out of a loop orders the accesses of earlier
+iterations before the release, but not those of the current iteration; PTX's
+release pattern (\S8.9) orders only the accesses that precede the fence in
+program order. Adjacency guarantees that every access of the releasing thread
+that precedes $r$ in program order also precedes a fence of adequate scope.
+The same holds on the acquire side.
+
+\begin{definition}[Release chain]\label{def:chain}
+For RMWs on one location, \emph{successor} is as in v3 (next RMW in $\seq$,
+which by TV3 is the next in coherence order). $r\chain q$ iff there are RMWs
+$r=z_0,z_1,\dots,z_k=q$, $k\ge1$, with $z_{i+1}$ the successor of $z_i$ and
+$\ms(z_i,z_{i+1})$ for every $i$.
+\end{definition}
+
+\begin{definition}[Happens-before]\label{def:hb}
+$\HB$ is the least transitive relation on $\Eplus$ containing
+\begin{itemize}[nosep]
+\item[(PO)] $a\PO b\Rightarrow a\HB b$;
+\item[(SYNC)] as in v3: $\mathrm{arr}_s^B\HB\mathrm{dep}_t^B$ for all
+      $s,t\in S(B)$;
+\item[(ATOM)] $r\HB q$ for RMWs $r,q$ with $r\chain q$, $\rel(r)=1$ and
+      $\acq(q)=1$.
+\end{itemize}
+$\HBu$ is the same relation with (ATOM) read as $r\chain q$ only.
+\end{definition}
+
+\begin{lemma}[Monotonicity]\label{lem:mono}
+If $\HB_1\subseteq\HB_2$ on the same trace then every pair reportable under
+$\HB_2$ is reportable under $\HB_1$ with the same class.
+\end{lemma}
+\begin{proof}
+$\conf$, $\ms$ and $\kind$ do not depend on $\HB$; $\unord$ is antitone.
+\end{proof}
+
+Lemma~\ref{lem:mono} is what makes conservative labelling safe: a sidecar that
+fails to recognise a fence, a scope, or a strength only removes (ATOM) edges or
+turns $\ms$ false, and can add reports but never hide one.
+
+\begin{lemma}[$\HB\subseteq\seq$]\label{lem:seq}
+For every well-formed trace and all $a,b\in\Eplus$: $a\HB b\Rightarrow
+\seq(a)<\seq(b)$.
+\end{lemma}
+\begin{proof}
+As in v3 for (PO) and (SYNC). For (ATOM), $r\chain q$ implies $r$ precedes $q$
+in coherence order, which is $\seq$ order by TV3.
+\end{proof}
+
+\begin{assumption}[Sync locations]\label{as:sync}
+If some RMW on location $x$ has $\rel=1$, then every write on $x$ is an RMW.
+The monitor checks this; on violation it clears $\rel$ on every RMW of $x$
+(Lemma~\ref{lem:mono}: conservative). The reason: a plain strong store to $x$
+between $r$ and $q$ in coherence order breaks PTX's observation-order chain
+through $x$, and the trace does not record the coherence position of stores
+(TV3 covers RMWs only).
+\end{assumption}
+
+\section{Algorithm}
+
+Ticks of a thread are its arrivals and its RMWs, in $\PO$; $\epoch(e)$ of a
+record $e$ is the number of ticks of $\tid(e)$ that precede $e$ in $\PO$
+(a tick's own record counts the ticks strictly before it). $\vc[t]$ is thread
+$t$'s vector clock; publishing happens before ticking, as in v3.
+
+\begin{definition}[Per-location state]\label{def:state}
+For each location $x$ the algorithm keeps
+\begin{itemize}[nosep]
+\item buckets $B_x[u,\kappa]$ for every thread $u$ and every
+      $\kappa\in\{\mathtt{R},\mathtt{W},\mathtt{RMW}\}\times
+      \{\mathtt{weak},\mathtt{strong}\}\times\{\mathtt{cta},\mathtt{gpu},\mathtt{sys},\bot\}$,
+      each holding the epoch (and pc) of $u$'s latest record on $x$ with that
+      key, where $\bucket(e)=(\kind(e),\str(e),\scope(e))$ and
+      $\scope=\bot$ for weak records;
+\item a chain clock $\Chain_x$ (a vector clock or $\bot$) and the label
+      $(\tid,\scope,\blk)$ of the last RMW on $x$, $\mathrm{last}_x$.
+\end{itemize}
+\end{definition}
+
+\begin{definition}[Processing a record]\label{def:alg}
+On record $a$ of thread $t$ on location $x$, in this order:
+\begin{enumerate}[nosep]
+\item[(1)] \emph{Chain step} (only if $\kind(a)=\mathtt{RMW}$). If
+      $\mathrm{last}_x$ exists and $\neg\ms(\mathrm{last}_x,a)$, set
+      $\Chain_x:=\bot$. If $\acq(a)=1$ and $\Chain_x\ne\bot$, set
+      $\vc[t]:=\vc[t]\sqcup\Chain_x$.
+\item[(2)] \emph{Checks.} For every thread $u\ne t$ and every key $\kappa$
+      with an entry $e=B_x[u,\kappa]$: if
+      $\big(\kind(e)\ne\mathtt{R}\vee\kind(a)\ne\mathtt{R}\big)$ and
+      $\epoch(e)>\vc[t][u]$, report $(e,a)$ with class $\DR$ if
+      $\neg\ms(e,a)$, class $\SC$ if $\ms(e,a)$ and not both RMW, and no
+      report otherwise.
+\item[(3)] \emph{Record.} $B_x[t,\bucket(a)]:=(\epoch(a),\mathrm{pc}(a))$.
+\item[(4)] \emph{Publish and tick} (only if $\kind(a)=\mathtt{RMW}$). If
+      $\rel(a)=1$, set $\Chain_x:=(\Chain_x\text{ or }\bot)\sqcup\vc[t]$
+      ($\bot\sqcup v=v$); set $\mathrm{last}_x:=(t,\scope(a),\blk(t))$; then
+      $\vc[t][t]:=\vc[t][t]+1$.
+\end{enumerate}
+Arrivals, departures and exits are processed as in v3. The $\HBu$ instance
+used for the $\MS$ label runs the same procedure with $\rel=\acq=1$
+everywhere, on a second copy of the clocks.
+\end{definition}
+
+The v3 state (\texttt{last\_write}, \texttt{last\_reads},
+\texttt{released[loc]}) is the special case of Definition~\ref{def:state} with
+all records weak except RMWs, one write bucket per location, and
+$\Chain_x=\texttt{released[loc]}$.
+
+\section{Single-trace results}
+
+\begin{lemma}[Chain clock]\label{lem:chain}
+After step (4) of an RMW $z$ on $x$,
+\[
+\Chain_x=\bigsqcup\{\Pub_r : r\text{ an RMW on }x,\ \rel(r)=1,\ r\chain z\}
+\ \sqcup\ (\rel(z)=1\ ?\ \Pub_z : \bot),
+\]
+where $\Pub_r$ is the value of $\vc[\tid(r)]$ published at $r$ (after $r$'s
+own step (1), before its tick).
+\end{lemma}
+\begin{proof}
+Induction over the RMWs on $x$ in $\seq$ order. For the first RMW the chain
+set is empty and the claim is step (4). For $z$ with predecessor $p$: by IH
+$\Chain_x$ before step (1) of $z$ equals
+$\bigsqcup\{\Pub_r:\rel(r),\,r\chain p\}\sqcup(\rel(p)?\Pub_p:\bot)
+=\bigsqcup\{\Pub_r:\rel(r),\,r\chain p\text{ or }r=p\}$. By
+Definition~\ref{def:chain}, $r\chain z$ iff ($r\chain p$ or $r=p$) and
+$\ms(p,z)$; step (1) resets exactly when $\neg\ms(p,z)$, and step (4) adds
+$\Pub_z$ iff $\rel(z)$.
+\end{proof}
+
+\begin{lemma}[Clock invariant]\label{lem:clock}
+For every thread $t$, after processing each event $c$ of $t$, and every thread
+$s\ne t$: $\vc[t][s]=\max\{\epoch(o): o\text{ a tick of }s,\ o\HB c\}$
+($\max\emptyset=-1$), and $\vc[t][t]$ is the number of ticks of $t$ up to and
+including $c$.
+\end{lemma}
+\begin{proof}
+Induction on $\seq$. The cases $c$ a plain record, arrival or departure are
+those of v3 (the (PO) and (SYNC) generators are unchanged). Let $c=a$ be an
+RMW of $t$ on $x$ and $a^-$ the previous event of $t$. The $\HB$-predecessors
+of $a$ are those of $a^-$ together with, for every RMW $r$ on $x$ with
+$r\chain a$, $\rel(r)=1$, $\acq(a)=1$: $r$ and every predecessor of $r$. For a
+thread $s\ne t$ the maximum tick epoch over the first part is
+$\vc[t][s]$ before the step (IH at $a^-$). Over the part contributed by $r$:
+if $s=\tid(r)$ it is $\epoch(r)$, since $r$ is itself a tick of $s$ and every
+tick of $s$ that $\HB$-precedes $r$ is $\PO$-before it; and
+$\Pub_r[s]=\epoch(r)$ because $r$ publishes before it ticks. If $s\ne\tid(r)$
+it is $\max\{\epoch(o):o\HB r\}=\vc[\tid(r)][s]$ at $r$ (IH) $=\Pub_r[s]$.
+By Lemma~\ref{lem:chain} step (1) joins exactly $\bigsqcup\Pub_r$ over the
+qualifying $r$ when $\acq(a)=1$ and the chain is intact, and joins nothing
+otherwise, which is also correct because then no (ATOM) edge enters $a$.
+Step (4) increments $\vc[t][t]$ once for the tick $a$.
+\end{proof}
+
+\begin{corollary}[HB test]\label{cor:test}
+For records $e$ of $s$ and $a$ of $t\ne s$ with $\seq(e)<\seq(a)$, evaluated
+after step (1) of $a$: $e\HB a\iff\epoch(e)\le\vc[t][s]$.
+\end{corollary}
+\begin{proof}
+$e\HB a$ iff some tick $o$ of $s$ has $e\PO o$ (or $e=o$) and $o\HB a$: the
+(SYNC) and (ATOM) edges leaving $s$ originate at arrivals and RMWs, which are
+ticks, and conversely $e\PO o\HB a$ gives $e\HB a$. And $e\PO o$ or $e=o$ iff
+$\epoch(e)\le\epoch(o)$, because $o$ itself is a tick. Combine with
+Lemma~\ref{lem:clock}.
+\end{proof}
+
+\begin{theorem}[Complete: no spurious verdict]\label{thm:complete}
+Every pair $(e,a)$ reported at step (2) is reportable, and its reported class
+is its class.
+\end{theorem}
+\begin{proof}
+$e$ lies in a bucket of $x=\loc(a)$ for a thread $u\ne t$, so $\loc(e)=\loc(a)$
+and $\tid(e)\ne\tid(a)$; the kind test gives $\conf$. $\epoch(e)>\vc[t][u]$
+gives $\neg(e\HB a)$ by Corollary~\ref{cor:test}, and $\seq(e)<\seq(a)$ gives
+$\neg(a\HB e)$ by Lemma~\ref{lem:seq}; so $\unord$. The class is decided by
+$\ms(e,a)$ and the two kinds, exactly as in Definition~\ref{def:verdict}.
+\end{proof}
+
+\begin{lemma}[Bucket representative]\label{lem:rep}
+Let $(e,a)$ be reportable with $\seq(e)<\seq(a)$, and let $e'$ be the entry
+of $B_x[\tid(e),\bucket(e)]$ when $a$ is processed. Then $(e',a)$ is
+reportable with the same class, and $(e',a)$ is reported at step (2).
+\end{lemma}
+\begin{proof}
+$e'$ is the latest record of $u=\tid(e)$ on $x$ with $\bucket(e')=\bucket(e)$,
+so $e=e'$ or $e\PO e'$. If $e'\HB a$ then $e\HB a$, contradicting $\unord(e,a)$;
+so $\neg(e'\HB a)$, and $\neg(a\HB e')$ since $\seq(e')<\seq(a)$
+(Lemma~\ref{lem:seq}): $\unord(e',a)$. $\kind(e')=\kind(e)$, so
+$\conf(e',a)$ iff $\conf(e,a)$, and both RMW-ness and $\ms$ (which depends on
+$\str$, $\scope$ and the block of $u$) agree between $e$ and $e'$; the class
+is preserved. Step (2) inspects every bucket of every other thread and, by
+Corollary~\ref{cor:test}, reports $(e',a)$.
+\end{proof}
+
+\begin{theorem}[Sound: no missed verdict]\label{thm:sound}
+For every reportable pair $(e,a)$ with $\seq(e)<\seq(a)$ the algorithm
+reports, while processing $a$, a pair $(e',a)$ of the same class with
+$e'=e$ or $e\PO e'$ and $\mathrm{pc}$ recorded. In particular every location
+with a $\DR$ pair gets a $\DR$ report, and every location with an $\SC$ pair
+gets an $\SC$ report.
+\end{theorem}
+\begin{proof}
+Lemma~\ref{lem:rep}.
+\end{proof}
+
+\begin{remark}[Why v3's last-write bookkeeping is unsound here]
+FastTrack keeps one write per location because in a race-free prefix all
+writes are $\HB$-totally ordered, so the latest write dominates every earlier
+one. Under Definition~\ref{def:verdict} two morally strong writes may be
+unordered without any $\DR$; then the latest strong write does not dominate
+the earlier one, and a later weak read ordered after the latest write but not
+after the earlier one is a missed $\DR$. Concretely: $w_0$ strong by $A$,
+$w_1$ strong by $B$, $\unord(w_0,w_1)$; a barrier joins $B$ and $C$; weak read
+$r$ by $C$. $(w_0,r)$ is a $\DR$; a last-write check against $w_1$ sees
+$w_1\HB r$ and reports nothing. Buckets keyed by $(\kind,\str,\scope)$ per
+thread avoid the problem because a representative is always $\PO$-related to
+the record it replaces. The FastTrack epoch compression remains valid for the
+weak write buckets across threads in a $\DR$-free prefix (any two writes one
+of which is weak are $\HB$-comparable), but the proof above does not use it.
+\end{remark}
+
+\section{PTX grounding and certificate}
+
+\begin{lemma}[Containment in PTX causality]\label{lem:ptx}
+Under Assumptions~\ref{as:size} and \ref{as:sync}, and with the sidecar
+obligations of \S\ref{sec:obl} met, every (ATOM) edge of
+Definition~\ref{def:hb}, extended by (PO) on both sides, is contained in the
+causality order of the PTX memory model (ISA \S8.9; Lustig, Sahasrabuddhe,
+Giroux, ASPLOS 2019).
+\end{lemma}
+\begin{proof}[Proof sketch]
+Let $a\PO r$, $r\chain q$, $q\PO b$ with $\rel(r)=\acq(q)=1$ and
+$\sigma=\min(\scope(r),\scope(q))$. By fence adjacency there is a fence $F$ of
+scope $\ge\sigma$ with $a\PO F\PO r$ and no access between $F$ and $r$, and a
+fence $F'$ with $q\PO F'\PO b$ likewise; $(F;r)$ is a release pattern and
+$(q;F')$ an acquire pattern on $\loc(r)$. Each link of $r\chain q$ is a
+morally strong RMW reading from its coherence predecessor, so $r$ precedes $q$
+in observation order. The patterns are morally strong at scope $\sigma$ because
+$\ms$ holds along the chain and the fences have scope $\ge\sigma$; hence the
+release pattern synchronises with the acquire pattern, and
+$a\ \mathrm{po}\ \mathrm{sw}\ \mathrm{po}\ b$ is a base causality edge.
+Assumption~\ref{as:sync} excludes the only way the observation chain could be
+interrupted, a non-RMW write on $\loc(r)$.
+\end{proof}
+
+This discharges obligation (a) of v3's ``Status of MM1--MM3'' remark for the
+(ATOM) generator, and retires the certificate-mode workaround that assigned
+scope \textsc{None} to unqualified atomics: gating is now part of the
+definition.
+
+\begin{theorem}[Per-profile certificate]\label{thm:cert}
+Fix $P$, $I$ and a profile $\Pi$ (coherence order of the RMWs, as in v3). If
+some $E\in\mathrm{Exec}(P,I,\Pi)$ has an accepted trace with no reportable
+pair, then no $E'\in\mathrm{Exec}(P,I,\Pi)$ has a reportable pair.
+\end{theorem}
+\begin{proof}
+v3's first-race prefix argument with ``race'' read as ``reportable pair''.
+The argument uses only that in a prefix without such pairs every read has a
+unique $\HB$-maximal writer, so that MM2 fixes its reads-from source and
+values, control flow and participant sets match event-for-event. With no
+reportable pair every two writes on a location that are not both RMWs are
+$\HB$-comparable, and RMW--RMW order is fixed by $\Pi$; so the writers of a
+read are totally ordered and the maximal one is unique. The remaining steps
+(matching, forward and backward $\HB$ preservation, barrier completion via
+MM3) do not mention the verdict classes.
+\end{proof}
+
+\begin{remark}[No $\DR$-only certificate]
+A trace with no $\DR$ but with $\SC$ pairs does not certify: the coherence
+order of unordered strong loads and stores is a schedule-dependent input to
+the execution, exactly as the RMW order is, and TV3 does not deliver it. A
+certificate over ``$\DR=\emptyset$'' would need a profile over all strong
+accesses and a collector that records their coherence positions; it is not
+claimed.
+\end{remark}
+
+\section{Implementation obligations}\label{sec:obl}
+
+\begin{enumerate}[label=O\arabic*.,nosep]
+\item \textbf{Sidecar strength and scope.} For every memory pc: $\str$ from
+      the presence of \texttt{.STRONG}; $\scope$ from \texttt{.CTA}/%
+      \texttt{.GPU}/\texttt{.SYS}; \texttt{volatile} compiles to
+      \texttt{.STRONG.SYS} and needs no special case. RMWs: bare
+      \texttt{ATOMS} is \texttt{cta}; a bare \texttt{ATOM}/\texttt{ATOMG}
+      whose scope cannot be determined is labelled with $\scope=\bot$, which
+      makes $\ms$ false (conservative, Lemma~\ref{lem:mono}).
+\item \textbf{Fence inventory for the target SM.} Determine empirically
+      (compile the PTX qualifiers, disassemble) which SASS sequences realise
+      \texttt{fence}/\texttt{membar} at each scope and the compiler's
+      \texttt{ld.acquire}/\texttt{st.release}/\texttt{atom.acq\_rel} idioms
+      on sm\_86; $\Fences_\sigma$ is that set at scope $\ge\sigma$. The
+      inventory is a table in the artifact, not an assumption of the proof.
+\item \textbf{Fence adjacency.} Compute $\rel,\acq$ per RMW pc by the
+      reachability test of Definition~\ref{def:gate} on $G$ with
+      $\Fences_\sigma$ deleted.
+\item \textbf{Engine and oracle.} Replace \texttt{last\_write}/%
+      \texttt{last\_reads} by the buckets of Definition~\ref{def:state}
+      (per thread: $3\times2\times4$ keys, most empty); implement steps
+      (1)--(4) including the chain reset; keep the second clock copy for
+      $\MS$. Parity test engine\,=\,oracle key-by-key as before.
+\item \textbf{Trace fields.} Block id per record (for $\incl$), warp id and
+      issue group per record (for $\LS$). Monitor checks: uniform size per
+      location (Assumption~\ref{as:size}); sync-location condition
+      (Assumption~\ref{as:sync}) with the conservative reaction.
+\item \textbf{Litmus additions}, one kernel each, expected verdict fixed
+      before running: (i) strong \texttt{sys} store vs strong \texttt{sys}
+      load, unordered $\to$ $\SC$ only; (ii) weak vs strong, unordered
+      $\to$ $\DR$; (iii) \texttt{cta}-scoped strong pair across blocks $\to$
+      $\DR$; (iv) fence--RMW handshake $\to$ ordered; same without the release
+      fence $\to$ $\DR$/$\SC$ with $\MS$; same with the fence hoisted before a
+      loop that stores in the body $\to$ not ordered; (v) volatile warp tail
+      without \texttt{\_\_syncwarp} $\to$ $\SC$ with $\LS$; (vi) the
+      last-write counterexample of the remark above $\to$ $\DR(w_0,r)$
+      reported; (vii) the existing 33 ScoR litmus and the canary, with any
+      changed expectation justified by Definition~\ref{def:verdict}.
+\end{enumerate}
+
+\end{document}
