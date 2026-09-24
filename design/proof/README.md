@@ -8,7 +8,7 @@ the T6/T9 deliverables live under `design/`, next to `design/host_memcpy_model.m
 |---|---|---|
 | `hb_oracle_proof_v3.tex` | The reference: trace model (memory, arrival, **exit** records; ghost arrival/departure events), well-formedness W0–W2 and the monitor, **Algorithm 1** (`alg:hb`), the clock invariant, the two single-trace theorems, the per-profile certificate, §"State of the implementation". | Authoritative for what `hb_oracle.py` / `HbEngine` are measured against. |
 | `hb_defs_v4.tex` | Revision-4 delta: strength/scope labels, the two verdicts DR / SC (PTX §8.7.1), fence-gated (ATOM) via static fence adjacency (`rel`/`acq`), release chains, per-class **buckets** replacing FastTrack last-write/readers, the four-step processing rule (Definition "Processing a record"), obligations O1–O6. | The newest algorithm. A proposal: its four modelling decisions are still Jeffery's to confirm; nothing of it is implemented. |
-| `algorithm1_reference.md` | Plain-text rendering of Algorithm 1 as the progress deck states it (same content as `alg:hb`), the v4 processing rule in the same style, and the record kinds the code has added since (async agents). | Convenience copy; the `.tex` files win on any discrepancy. |
+| `algorithm1_reference.md` | §A Algorithm 1 as the progress deck states it (same content as `alg:hb`); §B the v4 processing rule in the same style; §C the record kinds the code has added since; **§D Algorithm 1 as implemented at 3331d35**, derived from `hb_oracle.py`, with every line that differs from §A marked. | §A–C are convenience copies (the `.tex` wins); §D is the only statement of the running algorithm and is unreviewed until T6. |
 
 Terminology (v3 §Terminology, v4 keeps it): **sound** = misses no race / no missed
 verdict; **complete** = every report is a race / no spurious verdict.
@@ -16,6 +16,30 @@ Theorem `thm:sound` is location-level soundness, `thm:complete` completeness.
 
 A companion PC-level document (`hb_pc_level_v4.tex`, scalar-clock mode) is referenced in
 the project notes but is not among the project documents; if it exists, add it here.
+
+## Is the `.tex` up to date with the algorithm? No — and that is what T6 resolves
+
+`hb_oracle_proof_v3.tex` is dated 2026-09-15. Its §"State of the implementation" describes
+the code after the barrier-assembly and monitor merges of 2026-09-10 and lists six
+differences; it predates every change since, and two of its own statements are stale:
+
+| date | change to the code | in the `.tex`? |
+|---|---|---|
+| 2026-09-10 | barrier-instance assembly, TV monitor, coherence profile Π | yes (v3 §alg, §monitor, §impl 3) |
+| 2026-09-17 | F2 reader pcs in WAR records | yes (`readers[ℓ]` = (epoch, pc)) |
+| 2026-09-17 | F6 `released` keyed by location | **no** — v3 keys `lastRelease` by address (item 6 below: v3 is wrong here) |
+| 2026-09-17 | RC1 `coherent()` filter: `.STRONG` loads/stores are coherent for the conflict test (`--strong-ldst`) | no (v4 goes further with DR/SC) |
+| 2026-09-17 | RC2 second barrier-only clock `vs`, `races_sync_only` | no |
+| 2026-09-17 | engine's atomic branch checks readers | v3's `Check` already had it |
+| 2026-09-20 | event-stream candidates, CAS past-release gate (scalar-clock mode) | no proof document at all |
+| 2026-09-23 | T1a async agents: `pipeline_commit`/`pipeline_wait`, `t \| 1<<62`, same-thread copy WAW with the issuing thread as observer | no |
+| 2026-09-23 | T3 finding: exit records dropped, expected count ignores exits | v3 has exit records and A3, but "exit: do nothing" |
+| — (never) | v3's own algorithm publishes then ticks | the code has always ticked first; v3 §impl does not list it |
+
+The v4 delta (`hb_defs_v4.tex`) is newer than the code in the other direction: nothing of
+it is implemented. So there is no document today that states the algorithm as it runs;
+`algorithm1_reference.md` §D is a first such statement, derived from `hb_oracle.py` at
+3331d35, and T6's deliverable 1 is its reviewed, complete form (both modes).
 
 ## Seed for T6's deviation table — code at `cuVein` 3331d35 (2026-09-23) vs Algorithm 1
 
@@ -58,9 +82,13 @@ confirms, extends and files each one as *proof right / code right / decision nee
    is the principled version. Record as "v4 direction, partial".
 5. **RMW-vs-readers check**: the atomic branch now also checks `last_reads` (v3's
    `Check` already does this for atomics — confirm the code matches `Check`).
-6. **Release map keyed by location** (F6) — matches v3 (`lastR[x]` per address; shared
-   memory is per block in `loc`). **Reader pcs in WAR records** (F2) — matches
-   `readers[ℓ]` holding `(epoch, pc)`.
+6. **Release map keyed by location** (F6, 2026-09-17): the code keys `released` by
+   `loc` = (shared, block, addr) | (global/local, addr). v3 keys `lastRelease[x]` by
+   *address* and defines the atomic successor "on one address", which for shared memory
+   merges the blocks' distinct locations — the same clobbering F6 fixed in the code.
+   Here the code is right and v3 needs the location key (Definition "Atomic successor"
+   and the state paragraph). **Reader pcs in WAR records** (F2) — matches `readers[ℓ]`
+   holding `(epoch, pc)`.
 7. **Second, barrier-only clock** (`vs`, `hb_races_sync_only`; offline
    `barrier_only_pairs`) — not in v3; it is the verdict matrix's `barrier-ordered` /
    `latent` input. Needs its own statement (it is v4's `HB^+`-style second instance with
