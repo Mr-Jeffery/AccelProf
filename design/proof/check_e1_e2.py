@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Exercise findings E1 and E2 of design/algorithms.md section 5 on the real oracle.
+"""Exercise the I1 and I2 cases of design/proof/hb_proof.tex section 7 (findings E1 and E2
+of the removed design/algorithms.md) on the real oracle.
 
 Runs python/hb_oracle.py (unmodified, and with the atomic branch reordered to the
 proof's publish-then-tick) over hand-made `hb_events` dumps that use the oracle's real
@@ -26,8 +27,8 @@ the read in seq; the reordered oracle reports it; the genuinely ordered schedule
 silent in both.  E2: with the default policy nothing at x is reported (not even by the
 second clock); policy none reports the (w0, w1) pair, the location-level witness.
 
-T6 item (c) turns these into pytest tests on real kernels (a strict xfail each until
-T9 / D6 land); this script is the seed, not the test.
+T6 item (c) turned these into pytest tests on real kernels, a strict xfail each until T9
+lands (python/test_hb_substitutions.py); this script is the seed, not the test.
 """
 import importlib
 import json
