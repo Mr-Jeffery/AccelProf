@@ -1,0 +1,689 @@
+#!/usr/bin/env python3
+"""T14 (CLAUDE.md C/T14; design/a2_flag.md): A2 in the tables -- the offline RMW window count
+over the kept dumps and the re-score with the a2_uncertain flag. No GPU; BeeGFS is mounted on
+the compute nodes only, so `count` and `rescore` run on `normal` nodes (setup/p_t14_*.sh).
+
+An RMW's window is [its record, its thread's next record) in (seq, lane) order; a thread with no
+next record keeps it open to the end of the kernel. Two RMWs on one location overlap when the
+later one is recorded inside the earlier one's window (T13's definition, eval/NVBIT_SPIKE.md
+section 4). Local records are no records (D14); seq is not assumed contiguous (pre-T3b dumps
+have gaps where exits were dropped).
+
+  count    --shard k/n [--store evcand]: per program and mode dump (vector-clock and
+           scalar-clock where present): RMWs, same-location RMW pairs from different warps,
+           how many overlap, how many of those lie on locations whose RMWs release or acquire
+           (an RMW whose thread's previous or next record is a plain access to another
+           location), same-warp overlaps, overlaps whose earlier window is open-ended, the
+           order-uncertain successor edges of the brief, and the clusters (multi, and multi
+           with a pair of members that are not morally strong) -> OUT/count/<id>.json.
+  rescore  --shard k/n: every vector-clock kernel dump of T9's selection
+           (eval/results/t9-rescore/selection.json) through this checkout's hb_oracle ->
+           the store t14-after (hb_races with a2_uncertain, "hb_a2": 1; everything else
+           symlinked); per kernel: DR records / instances / flagged, and whether the instance
+           counts per (pc pair, kind, class, space) and the second clock equal T9's
+           re-oracled dump (t9-after, record-level; compared up to 1 GB)
+           -> OUT/rescore/<id>.json.
+  tables   (login node) the per-suite tables of both, the verdict comparison of the two
+           `parallel.py analyze` runs, -> eval/results/t14-a2/A2_TABLES.md + CSVs.
+"""
+import argparse
+import bisect
+import csv
+import glob
+import json
+import os
+import resource
+import shutil
+import sys
+import time
+from collections import Counter, defaultdict
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+APH = os.path.dirname(os.path.dirname(HERE))
+sys.path.insert(0, f"{APH}/python")
+sys.path.insert(0, HERE)
+import hb_modes  # noqa: E402
+
+VC, SC = hb_modes.VECTOR_CLOCK, hb_modes.SCALAR_CLOCK
+USER = os.environ.get("USER", "fzheng4")
+STORES = f"/mnt/beegfs/{USER}/cuvein_traces"
+OUT = f"/mnt/beegfs/{USER}/t14-a2"
+AFTER = f"{STORES}/t14-after"
+T9_AFTER = f"{STORES}/t9-after"
+T9_SELECTION = f"{APH}/eval/results/t9-rescore/selection.json"
+RES = f"{APH}/eval/results/t14-a2"
+INF = 1 << 62
+
+
+# ---------------------------------------------------------------- reading a dump
+
+def read_dump(path):
+    """-> (kernel dict, events list in seq order, marker dict). A collector dump has one
+    hb_events record per line and is read line by line; anything else is parsed whole."""
+    import orjson
+    with open(path, "rb") as f:
+        head = []
+        for line in f:
+            if line.startswith(b'  "nodes": [') or line.startswith(b'  "hb_events": ['):
+                break
+            head.append(line)
+        else:
+            line = b""
+        try:
+            header = orjson.loads(b"".join(head).rstrip().rstrip(b",") + b"}")
+        except orjson.JSONDecodeError:
+            header = None
+        if header is None or "kernel" not in header:        # not the collector's layout
+            f.seek(0)
+            t = orjson.loads(f.read())
+            ev = sorted(t.get("hb_events") or (), key=lambda e: e["seq"])
+            return t.get("kernel", {}), ev, {k: t.get(k) for k in ("hb_exits", "hb_async")}
+        while line and not line.startswith(b'  "hb_events": ['):
+            line = f.readline()
+        ev = []
+        for line in f:
+            s = line.strip()
+            if s.startswith(b"]"):
+                break
+            ev.append(orjson.loads(s.rstrip(b",")))
+        marks = {}
+        for line in f:
+            if line.startswith(b'  "hb_exits": 1'):
+                marks["hb_exits"] = 1
+            elif line.startswith(b'  "hb_async": 1'):
+                marks["hb_async"] = 1
+    if any(a["seq"] >= b["seq"] for a, b in zip(ev, ev[1:])):
+        ev.sort(key=lambda e: e["seq"])
+    return header["kernel"], ev, marks
+
+
+_DOTS = {}
+
+
+def rmw_scopes(dots, kernel_name):
+    """{pc: atomic scope} of the kernel's CFG (sd.atomic_scope, as hb_oracle classifies)."""
+    import sync_dominance as sd
+    for dot in dots:
+        if dot not in _DOTS:
+            _DOTS[dot] = sd.parse_dot(dot)
+        kernels = _DOTS[dot]
+        try:
+            m = sd.select_kernel(kernels, kernel_name)
+        except sd.AlignmentError:
+            continue
+        blocks = kernels[m][0]
+        return {pc: s for ins in blocks.values() for pc, op in ins
+                if (s := sd.atomic_scope(op)) is not None}
+    return None
+
+
+# ---------------------------------------------------------------- the window count
+
+def count_kernel(ev, scope_of):
+    """The window count of one kernel dump (see the module docstring)."""
+    import sync_dominance as sd
+    rmws = defaultdict(list)          # loc -> [[pos, nx, warp key, scope, block]]
+    open_w = {}                       # tid -> (loc, index) of its RMW with an open window
+    last = {}                         # tid -> ("rmw" | "plain", loc) of its last record
+    sync_locs = set()
+
+    def next_record(t, pos, plain_loc):
+        """t's record at pos closes t's open window; plain_loc = its location if it is a
+        plain memory access (None otherwise)."""
+        w = open_w.pop(t, None)
+        if w is not None:
+            rmws[w[0]][w[1]][1] = pos
+            if plain_loc is not None and plain_loc != w[0]:
+                sync_locs.add(w[0])
+
+    for e in ev:
+        typ, block, warp = e["type"], e["block"], e["warp"]
+        if e.get("space") == "local":
+            continue
+        base = (block << 10) | (warp << 5)
+        if "lanes" not in e:          # exit, barrier, syncwarp, cp.async commit/wait
+            m = e["sync_mask"] if typ == "syncwarp" else e.get("active_mask", 0)
+            while m:
+                k = (m & -m).bit_length() - 1
+                m &= m - 1
+                t = base | k
+                next_record(t, e["seq"] * 32 + k, None)
+                last[t] = ("sync", None)
+            continue
+        pc, space = e["pc"], e["space"]
+        sc = scope_of.get(pc)
+        for ln in e["lanes"]:
+            k, addr = ln["lane"], ln["addr"]
+            t = base | k
+            pos = e["seq"] * 32 + k
+            loc = ("shared", block, addr) if space == "shared" else (space, addr)
+            next_record(t, pos, loc if sc is None else None)
+            if sc is not None:
+                prev = last.get(t)
+                if prev is not None and prev[0] == "plain" and prev[1] != loc:
+                    sync_locs.add(loc)
+                lst = rmws[loc]
+                open_w[t] = (loc, len(lst))
+                lst.append([pos, INF, t >> 5, sc, block])
+            last[t] = ("rmw" if sc is not None else "plain", loc)
+
+    c = Counter()
+    for loc, lst in rmws.items():
+        n = len(lst)
+        c["rmw"] += n
+        c["rmw_locs"] += 1
+        sync = loc in sync_locs
+        c["sync_locs"] += sync
+        pos = [x[0] for x in lst]
+        byw = defaultdict(list)
+        for x in lst:
+            byw[x[2]].append(x)
+        pairs = n * (n - 1) // 2
+        same_pairs = sum(len(g) * (len(g) - 1) // 2 for g in byw.values())
+        ov_all = ov_open = 0
+        for i, x in enumerate(lst):
+            o = bisect.bisect_left(pos, x[1]) - (i + 1)
+            ov_all += o
+            ov_open += o if x[1] == INF else 0
+        ov_same = ov_same_open = 0
+        for g in byw.values():
+            pg = [x[0] for x in g]
+            for j, x in enumerate(g):
+                o = bisect.bisect_left(pg, x[1]) - (j + 1)
+                ov_same += o
+                ov_same_open += o if x[1] == INF else 0
+        xw_ov = ov_all - ov_same
+        c["xw_pairs"] += pairs - same_pairs
+        c["xw_overlap"] += xw_ov
+        c["xw_overlap_open"] += ov_open - ov_same_open
+        c["sw_overlap"] += ov_same
+        if sync:
+            c["xw_pairs_sync"] += pairs - same_pairs
+            c["xw_overlap_sync"] += xw_ov
+        c["succ_edges"] += n - 1
+        for a, b in zip(lst, lst[1:]):
+            if b[0] < a[1]:
+                c["succ_uncertain"] += 1
+                c["succ_uncertain_xw"] += a[2] != b[2]
+                c["succ_uncertain_xw_sync"] += a[2] != b[2] and sync
+        # clusters: a new one starts when every earlier window on loc has closed
+        start, maxnx = 0, -1
+        for i in range(n + 1):
+            if i == n or lst[i][0] >= maxnx:
+                if i > start:
+                    mem = lst[start:i]
+                    c["clusters"] += 1
+                    if len(mem) > 1:
+                        c["multi"] += 1
+                        c["multi_members"] += len(mem)
+                        blocks = {x[4] for x in mem}
+                        none = any(x[3] == sd.NONE for x in mem)
+                        blk = any(x[3] == sd.BLOCK for x in mem)
+                        c["multi_mixed"] += none or (blk and len(blocks) > 1)
+                start = i
+            if i < n:
+                maxnx = max(maxnx, lst[i][1])
+    return c
+
+
+def count_program(pdir):
+    out = {}
+    dots = sorted(glob.glob(f"{pdir}/dots/*.dot"))
+    for mode in (VC, SC):
+        mdir = hb_modes.resolve_dir(pdir, mode)
+        kjs = sorted(glob.glob(f"{mdir}/kernel_*.json"))
+        if not kjs:
+            continue
+        tot, errs, exits, nev = Counter(), [], 0, 0
+        for kj in kjs:
+            try:
+                kern, ev, marks = read_dump(kj)
+            except Exception as e:                      # noqa: BLE001 -- recorded
+                errs.append(f"{os.path.basename(kj)}: {type(e).__name__}: {e}"[:200])
+                continue
+            if not ev:
+                continue
+            sc = rmw_scopes(dots, kern.get("kernel_name", ""))
+            if sc is None:
+                errs.append(f"{os.path.basename(kj)}: no CFG aligns")
+                continue
+            tot.update(count_kernel(ev, sc))
+            tot["kernels"] += 1
+            nev += len(ev)
+            exits += bool(marks.get("hb_exits"))
+        out[mode] = {**tot, "events": nev, "kernels_with_exits": exits, "errors": errs,
+                     "kernel_files": len(kjs)}
+    return out
+
+
+def _forked(fn, arg, part, mem_gb, timeout):
+    """fn(arg) in a child under an address-space and wall-clock cap; the child writes its
+    result (a JSON dict) to `part` -> that dict, or {"error": ...}."""
+    pid = os.fork()
+    if pid == 0:
+        lim = int(mem_gb * 1e9)
+        resource.setrlimit(resource.RLIMIT_AS, (lim, lim))
+        try:
+            res = fn(arg)
+        except MemoryError:
+            res = {"error": "oom"}
+        except Exception as e:                          # noqa: BLE001 -- recorded
+            res = {"error": f"{type(e).__name__}: {e}"[:400]}
+        with open(part, "w") as f:
+            json.dump(res, f)
+        os._exit(0)
+    t0, status = time.time(), None
+    while True:
+        done, status = os.waitpid(pid, os.WNOHANG)
+        if done:
+            break
+        if time.time() - t0 > timeout:
+            os.kill(pid, 9)
+            os.waitpid(pid, 0)
+            return {"error": f"timeout({timeout}s)"}
+        time.sleep(0.5)
+    try:
+        with open(part) as f:
+            res = json.load(f)
+        os.remove(part)
+        return res
+    except (OSError, ValueError):
+        return {"error": f"died(status={status})"}
+
+
+def _shard(ids, spec):
+    k, n = (int(x) for x in spec.split("/"))
+    return [i for j, i in enumerate(sorted(ids)) if j % n == k]
+
+
+def cmd_count(a):
+    root = f"{STORES}/{a.store}"
+    ids = [d for d in os.listdir(root) if os.path.isfile(f"{root}/{d}/meta.json")]
+    if a.id:
+        ids = [i for i in ids if i in a.id.split(",")]
+    od = f"{OUT}/count-{a.store}"
+    os.makedirs(od, exist_ok=True)
+    for j, _id in enumerate(_shard(ids, a.shard), 1):
+        dst = f"{od}/{_id}.json"
+        if os.path.exists(dst) and not a.force:
+            continue
+        t0 = time.time()
+        res = _forked(count_program, f"{root}/{_id}", dst + ".part", a.mem_gb, a.timeout)
+        res = {"id": _id, "pset": _id.split("-")[0], "store": a.store,
+               "seconds": round(time.time() - t0, 1), **({"modes": res} if "error" not in res
+                                                        else res)}
+        with open(dst, "w") as f:
+            json.dump(res, f)
+        print(f"[{j}] {_id} {res.get('error', 'ok')} {res['seconds']}s", flush=True)
+
+
+# ---------------------------------------------------------------- the re-score
+
+def _pairs(races):
+    """hb_races -> {(pc_lo, pc_hi, class): [instances, flagged]} (flagged None: no field)."""
+    out = {}
+    for r in races or ():
+        a, b = r.get("a_pc"), r["b_pc"]
+        k = (min(a, b), max(a, b), r.get("class", "DR")) if a is not None else (None, b, "DR")
+        c = out.setdefault(k, [0, 0])
+        c[0] += r.get("count", 1)
+        if c[1] is not None:
+            c[1] = c[1] + r["a2_uncertain"] if "a2_uncertain" in r else None
+    return out
+
+
+def _agg(races):
+    """instances per (a_pc, b_pc, kind, class, space): T9's t9-after dumps hold record-level
+    races (written before T9's aggregation commit), this oracle aggregated ones with a count."""
+    out = Counter()
+    for r in races or ():
+        out[(r.get("a_pc"), r["b_pc"], r["kind"], r.get("class", "DR"), r["space"])] += \
+            r.get("count", 1)
+    return out
+
+
+def rescore_program(info):
+    import hb_oracle
+    import orjson
+    import sync_dominance as sd
+    _id, pdir = info["id"], info["pdir"]
+    dst = f"{AFTER}/{_id}"
+    tmp = dst + ".tmp"
+    shutil.rmtree(tmp, ignore_errors=True)
+    os.makedirs(tmp)
+    for name in os.listdir(pdir):
+        if name != VC:
+            os.symlink(f"{pdir}/{name}", f"{tmp}/{name}")
+    det = {"kernels": []}
+    vdir = hb_modes.resolve_dir(pdir, VC)
+    os.makedirs(f"{tmp}/{VC}")
+    dots = sorted(glob.glob(f"{pdir}/dots/*.dot"))
+    t9dir = f"{T9_AFTER}/{_id}/{VC}"
+    for name in sorted(os.listdir(vdir)):
+        src = f"{vdir}/{name}"
+        if not (name.startswith("kernel_") and name.endswith(".json")):
+            os.symlink(src, f"{tmp}/{VC}/{name}")
+            continue
+        t0 = time.time()
+        with open(src, "rb") as f:
+            trace = orjson.loads(f.read())
+        k = {"file": name, "events": len(trace.get("hb_events") or ())}
+        if not trace.get("hb_events"):
+            k["skip"] = "no-hb_events"
+            os.symlink(src, f"{tmp}/{VC}/{name}")
+            det["kernels"].append(k)
+            continue
+        rep = err = None
+        for strict in ("1", "0"):                      # the engine records a TV violation
+            os.environ["YOSEMITE_HB_STRICT"] = strict   # and continues: so does the re-score
+            for dot in dots:
+                try:
+                    rep = hb_oracle.analyze(dot, src)
+                    break
+                except sd.AlignmentError as e:
+                    if str(e).startswith("TV-"):
+                        err = str(e)
+                        break
+            if rep is not None or err is None:
+                break
+        os.environ.pop("YOSEMITE_HB_STRICT", None)
+        if err:
+            k["tv"] = err[:200]
+        if rep is None:
+            k["skip"] = "no-aligning-cfg"
+            os.symlink(src, f"{tmp}/{VC}/{name}")
+            det["kernels"].append(k)
+            continue
+        new = _pairs(rep["races"])
+        dr = [r for r in rep["races"] if r["class"] == "DR"]
+        k.update(kernel=trace["kernel"]["kernel_name"], records=len(rep["races"]),
+                 dr_records=len(dr), dr_instances=sum(r["count"] for r in dr),
+                 dr_flagged=sum(r["a2_uncertain"] for r in dr),
+                 pairs=sorted([list(p[:2]), p[2], c] for p, c in new.items()),
+                 seconds=round(time.time() - t0, 2))
+        k["same_as_t9"] = None        # T9's re-oracled dump, compared up to a2 (<= 1 GB only)
+        t9f = f"{t9dir}/{name}"
+        if os.path.isfile(t9f) and os.path.getsize(t9f) <= 1 << 30:
+            with open(t9f, "rb") as f:
+                t9 = orjson.loads(f.read())
+            k["same_as_t9"] = _agg(t9.get("hb_races")) == _agg(rep["races"]) and \
+                t9.get("hb_races_sync_only") == (rep["races_sync_only"]
+                                                 if trace.get("hb_races_sync_only") is not None
+                                                 else None)
+            del t9
+        trace["hb_races"] = rep["races"]
+        if trace.get("hb_races_sync_only") is not None:
+            trace["hb_races_sync_only"] = rep["races_sync_only"]
+        trace["hb_a2"] = 1
+        trace["t14_rescore"] = {"from": src, "oracle": "hb_oracle.py (T14)"}
+        with open(f"{tmp}/{VC}/{name}", "wb") as f:
+            f.write(orjson.dumps(trace))
+        det["kernels"].append(k)
+        del trace, rep
+    shutil.rmtree(dst, ignore_errors=True)
+    os.rename(tmp, dst)
+    return det
+
+
+def cmd_rescore(a):
+    sel = json.load(open(T9_SELECTION))["programs"]
+    ids = [i for i, s in sel.items() if VC in s["modes"]
+           and a.min_mb <= s["dump_mb"] < a.max_mb and (not a.id or i in a.id.split(","))]
+    od = f"{OUT}/rescore"
+    os.makedirs(od, exist_ok=True)
+    os.makedirs(AFTER, exist_ok=True)
+    for j, _id in enumerate(_shard(ids, a.shard), 1):
+        dst = f"{od}/{_id}.json"
+        if os.path.exists(dst) and not a.force:
+            continue
+        t0 = time.time()
+        res = _forked(rescore_program, {"id": _id, "pdir": sel[_id]["pdir"]}, dst + ".part",
+                      a.mem_gb, a.timeout)
+        if "error" in res:
+            shutil.rmtree(f"{AFTER}/{_id}.tmp", ignore_errors=True)
+        res.update(id=_id, pset=sel[_id]["pset"], dump_mb=sel[_id]["dump_mb"],
+                   seconds=round(time.time() - t0, 1))
+        with open(dst, "w") as f:
+            json.dump(res, f)
+        print(f"[{j}] {_id} {res.get('error', 'ok')} {res['seconds']}s", flush=True)
+
+
+# ---------------------------------------------------------------- tables (login node)
+
+PSETS = ("P1", "P2", "P3", "P4", "P5", "P6", "P7", "P9")
+
+
+def _load_csv(pattern, mode):
+    order = {"RACE": 3, "CLEAN": 2, "TIMEOUT": 1, "ERROR": 0}
+    runs = {}
+    for p in sorted(glob.glob(pattern)):
+        for r in csv.DictReader(open(p, newline="")):
+            if hb_modes.canon(r.get("mode", ""), p) != mode:
+                continue
+            prev = runs.get(r["id"])
+            if prev is None or order.get(r["verdict"], 0) > order.get(prev["verdict"], 0):
+                runs[r["id"]] = r
+    return runs
+
+
+def cmd_tables(a):
+    import make_tables as mt
+    os.makedirs(RES, exist_ok=True)
+    lines = ["# T14 -- A2 in the tables (generated by eval/baselines/a2_window_count.py tables)\n"]
+    # --- window counts
+    cnt = [json.load(open(p)) for p in sorted(glob.glob(f"{a.count_dir}/*.json"))]
+    keys = ["kernels", "rmw", "rmw_locs", "sync_locs", "xw_pairs", "xw_overlap",
+            "xw_overlap_open", "xw_pairs_sync", "xw_overlap_sync", "sw_overlap",
+            "succ_edges", "succ_uncertain", "succ_uncertain_xw", "succ_uncertain_xw_sync",
+            "clusters", "multi", "multi_members", "multi_mixed", "events", "kernels_with_exits"]
+    rows = []
+    for mode in (VC, SC):
+        per, progs, with_ov, with_ov_sync, errs = defaultdict(Counter), Counter(), Counter(), \
+            Counter(), Counter()
+        for d in cnt:
+            if "error" in d:
+                errs[d["pset"]] += mode == VC
+                continue
+            m = d["modes"].get(mode)
+            if m is None:
+                continue
+            ps = d["pset"]
+            per[ps].update({k: m.get(k, 0) for k in keys})
+            progs[ps] += 1
+            with_ov[ps] += m.get("xw_overlap", 0) > 0
+            with_ov_sync[ps] += m.get("xw_overlap_sync", 0) > 0
+            errs[ps] += bool(m.get("errors"))
+            rows.append({"id": d["id"], "pset": ps, "mode": mode,
+                         **{k: m.get(k, 0) for k in keys}, "errors": len(m.get("errors", []))})
+        lines.append(f"\n## Window count, {mode} dumps\n")
+        lines.append("| suite | programs | with an overlap | with one on a sync location | RMWs | "
+                     "cross-warp pairs | overlapping | % | of which the earlier window open-ended "
+                     "| on sync locations: pairs / overlapping | same-warp overlaps | successor "
+                     "edges: uncertain / cross-warp | multi clusters (mixed) | programs with a "
+                     "read error |")
+        lines.append("|" + "---|" * 14)
+        tot = Counter()
+        for ps in PSETS:
+            if not progs[ps]:
+                continue
+            c = per[ps]
+            tot.update(c)
+            tot["programs"] += progs[ps]
+            tot["with_ov"] += with_ov[ps]
+            tot["with_ov_sync"] += with_ov_sync[ps]
+            tot["errs"] += errs[ps]
+            lines.append(_wrow(ps, progs[ps], with_ov[ps], with_ov_sync[ps], c, errs[ps]))
+        lines.append(_wrow("**all**", tot["programs"], tot["with_ov"], tot["with_ov_sync"], tot,
+                           tot["errs"]))
+        failed = sorted(d["id"] for d in cnt if "error" in d)
+        lines.append(f"\nNot counted (error / timeout): {len(failed)}"
+                     + (": " + ", ".join(f"{i} ({next(d['error'] for d in cnt if d['id'] == i)})"
+                                         for i in failed) if failed else ""))
+    with open(f"{RES}/window_count.csv", "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=["id", "pset", "mode", *keys, "errors"])
+        w.writeheader()
+        w.writerows(rows)
+    # --- the re-score: instance level
+    rs = [json.load(open(p)) for p in sorted(glob.glob(f"{a.rescore_dir}/*.json"))]
+    lines.append("\n## Re-score with the flag (vector-clock dumps of T9's selection, the T14 "
+                 "oracle): DR instances and pc pairs\n")
+    lines.append("| suite | programs | kernels same as T9 (up to the flag) / compared | DR "
+                 "instances | flagged | % | DR pc pairs | every instance flagged | programs with "
+                 "a flagged instance | not re-scored |")
+    lines.append("|" + "---|" * 10)
+    tot = Counter()
+    prog_rows = []
+    for ps in PSETS:
+        c = Counter()
+        for d in rs:
+            if d.get("pset") != ps:
+                continue
+            if "error" in d:
+                c["err"] += 1
+                continue
+            ks = [k for k in d["kernels"] if "pairs" in k]
+            if not ks:
+                continue
+            c["programs"] += 1
+            c["same"] += sum(k.get("same_as_t9") is True for k in ks)
+            c["cmp"] += sum(k.get("same_as_t9") is not None for k in ks)
+            inst = sum(k["dr_instances"] for k in ks)
+            fl = sum(k["dr_flagged"] for k in ks)
+            c["inst"] += inst
+            c["flag"] += fl
+            pairs = defaultdict(lambda: [0, 0])
+            for k in ks:
+                for p, cls, (n, f) in k["pairs"]:
+                    if cls == "DR":
+                        pairs[tuple(p)][0] += n
+                        pairs[tuple(p)][1] += f
+            c["pairs"] += len(pairs)
+            c["pairs_all"] += sum(f >= n for n, f in pairs.values())
+            c["with_flag"] += fl > 0
+            if fl:
+                prog_rows.append((ps, d["id"], inst, fl, len(pairs),
+                                  sum(f >= n for n, f in pairs.values())))
+        if not (c["programs"] or c["err"]):
+            continue
+        tot.update(c)
+        lines.append(_rrow(ps, c))
+    lines.append(_rrow("**all**", tot))
+    lines.append("\nPrograms with a flagged DR instance (instances / flagged / DR pc pairs / "
+                 "pairs with every instance flagged):\n")
+    lines.append("| suite | program | DR instances | flagged | DR pairs | all-flagged pairs |")
+    lines.append("|---|---|---|---|---|---|")
+    for r in sorted(prog_rows):
+        lines.append("| " + " | ".join(map(str, r)) + " |")
+    errs = sorted((d["id"], d["error"]) for d in rs if "error" in d)
+    lines.append(f"\nNot re-scored: {len(errs)}" + (": " + ", ".join(f"{i} ({e})" for i, e in errs)
+                                                   if errs else ""))
+    # --- verdicts: base code on t9-after vs this checkout on t14-after (vector-clock rows)
+    base, new = _load_csv(a.base_csv, VC), _load_csv(a.new_csv, VC)
+    man = {r["id"]: r for r in csv.DictReader(open(f"{APH}/eval/results/t9-rescore/manifest.t9.csv",
+                                                     newline=""))}
+    skip = {d["id"] for d in rs if "error" in d}
+    both = sorted((set(base) & set(new)) - skip)
+    changed = [i for i in both if (base[i]["verdict"], base[i]["report_ids"],
+                                   mt.report_classes(base[i])) !=
+               (new[i]["verdict"], new[i]["report_ids"], mt.report_classes(new[i]))]
+    lines.append(f"\n## Verdicts (vector-clock rows; `parallel.py analyze`: base code on t9-after vs "
+                 f"this checkout on t14-after)\n\n{len(both)} programs compared (verdict, report ids, "
+                 f"class note), {len(changed)} changed"
+                 + (": " + ", ".join(changed) if changed else "") +
+                 f". Only in base: {len(set(base) - set(new) - skip)}; only in t14: "
+                 f"{len(set(new) - set(base) - skip)}; left out (not re-scored): {len(skip)}.\n")
+    lines.append("| suite | programs | RACE | Race alone RACE | a2-uncertain at Race alone: CLEAN "
+                 "label / RACE label | at Race u Latent: CLEAN / RACE | programs with an "
+                 "a2-uncertain report |")
+    lines.append("|---|---|---|---|---|---|---|")
+    tot = Counter()
+    a2prog = []
+    for ps in PSETS:
+        c = Counter()
+        for i in both:
+            if not i.startswith(ps + "-"):
+                continue
+            r = new[i]
+            c["n"] += 1
+            c["race"] += r["verdict"] == "RACE"
+            v1 = mt.race_alone_verdict(r)
+            c["race1"] += v1 == "RACE"
+            a2 = mt.report_a2(r)
+            cls = mt.report_classes(r) or {}
+            lab = man.get(i, {}).get("label", "")
+            if a2 is None:
+                continue
+            c["any"] += a2[0] > 0
+            if v1 == "RACE" and sum(cls.get(k, 0) for k in mt.RACE_CLASSES) <= a2[0]:
+                c["r_" + lab] += 1
+                a2prog.append((ps, i, lab, "Race alone" +
+                               (" and Race u Latent" if r["verdict"] == "RACE" and
+                                sum(n for k, n in cls.items() if k not in ("sc", "latent-sc"))
+                                <= a2[1] else ""), r["notes"].split("classes=")[-1]))
+            if r["verdict"] == "RACE" and \
+                    sum(n for k, n in cls.items() if k not in ("sc", "latent-sc")) <= a2[1]:
+                c["rl_" + lab] += 1
+        if not c["n"]:
+            continue
+        tot.update(c)
+        lines.append(f"| {ps} | {c['n']} | {c['race']} | {c['race1']} | {c['r_CLEAN']} / "
+                     f"{c['r_RACE']} | {c['rl_CLEAN']} / {c['rl_RACE']} | {c['any']} |")
+    lines.append(f"| **all** | {tot['n']} | {tot['race']} | {tot['race1']} | {tot['r_CLEAN']} / "
+                 f"{tot['r_RACE']} | {tot['rl_CLEAN']} / {tot['rl_RACE']} | {tot['any']} |")
+    lines.append("\nPrograms whose positive rests on a2-uncertain reports only:\n")
+    lines.append("| suite | program | label | at | classes |")
+    lines.append("|---|---|---|---|---|")
+    for r in a2prog:
+        lines.append("| " + " | ".join(r) + " |")
+    text = "\n".join(lines) + "\n"
+    open(f"{RES}/A2_TABLES.md", "w").write(text)
+    print(text)
+
+
+def _pct(a, b):
+    return f"{100.0 * a / b:.2f}" if b else "-"
+
+
+def _wrow(ps, n, wov, wsync, c, errs):
+    return (f"| {ps} | {n} | {wov} | {wsync} | {c['rmw']} | {c['xw_pairs']} | {c['xw_overlap']} "
+            f"| {_pct(c['xw_overlap'], c['xw_pairs'])} | {c['xw_overlap_open']} "
+            f"| {c['xw_pairs_sync']} / {c['xw_overlap_sync']} | {c['sw_overlap']} "
+            f"| {c['succ_uncertain']} / {c['succ_uncertain_xw']} of {c['succ_edges']} "
+            f"| {c['multi']} ({c['multi_mixed']}) | {errs} |")
+
+
+def _rrow(ps, c):
+    return (f"| {ps} | {c['programs']} | {c['same']} / {c['cmp']} | {c['inst']} | {c['flag']} "
+            f"| {_pct(c['flag'], c['inst'])} | {c['pairs']} | {c['pairs_all']} | {c['with_flag']} "
+            f"| {c['err']} |")
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__.strip().splitlines()[0])
+    sub = ap.add_subparsers(dest="cmd", required=True)
+    c = sub.add_parser("count")
+    c.add_argument("--store", default="evcand")
+    c.add_argument("--shard", default="0/1")
+    c.add_argument("--id", default="")
+    c.add_argument("--mem-gb", type=float, default=60)
+    c.add_argument("--timeout", type=int, default=7200)
+    c.add_argument("--force", action="store_true")
+    r = sub.add_parser("rescore")
+    r.add_argument("--shard", default="0/1")
+    r.add_argument("--id", default="")
+    r.add_argument("--min-mb", type=float, default=0)
+    r.add_argument("--max-mb", type=float, default=float("inf"))
+    r.add_argument("--mem-gb", type=float, default=60)
+    r.add_argument("--timeout", type=int, default=7200)
+    r.add_argument("--force", action="store_true")
+    t = sub.add_parser("tables")
+    t.add_argument("--count-dir", default=f"{RES}/count-evcand")
+    t.add_argument("--rescore-dir", default=f"{RES}/rescore")
+    t.add_argument("--base-csv", default=f"{APH}/eval/results/t14-base-analyze/*.csv")
+    t.add_argument("--new-csv", default=f"{APH}/eval/results/t14-after-analyze/*.csv")
+    a = ap.parse_args()
+    {"count": cmd_count, "rescore": cmd_rescore, "tables": cmd_tables}[a.cmd](a)
+
+
+if __name__ == "__main__":
+    main()
