@@ -758,13 +758,15 @@ CLASS_VERDICT = {"model_bug": "RACE", "structural": "RACE", "latent": "RACE",
 
 def _a2_flag(recs):
     """T14 (design/a2_flag.md): the pair-level a2_uncertain of a pair's hb_races records --
-    True iff every DR instance is flagged (the pair's Race verdict rests on A2 alone), False if
-    some DR instance is not, None when the pair has no DR instance or the dump carries no flag.
-    Information only: no verdict or class reads it."""
-    dr = [r for r in recs if r.get("class", "DR") == "DR"]
-    if not dr or any("a2_uncertain" not in r for r in dr):
+    True iff every instance of the pair's class is flagged (its DR instances if it has any,
+    else its SC ones: its Race or Strong-conflict verdict rests on A2 alone), False if one is
+    not, None when the pair has no instance or the dump carries no flag. Information only:
+    no verdict or class reads it."""
+    recs = list(recs)
+    cls = [r for r in recs if r.get("class", "DR") == "DR"] or recs
+    if not cls or any("a2_uncertain" not in r for r in cls):
         return None
-    return sum(r["a2_uncertain"] for r in dr) >= sum(r.get("count", 1) for r in dr)
+    return sum(r["a2_uncertain"] for r in cls) >= sum(r.get("count", 1) for r in cls)
 
 
 def _observed(dist):

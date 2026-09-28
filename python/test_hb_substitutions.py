@@ -17,11 +17,11 @@ Detect(T, vec) with the I1/I2 switches off (the proof's reference).
       out of the HB model: no local record in hb_events, none replayed from an older dump.
   D12 python/testdata/strong_store_strong_load.cu -- an unordered relaxed cuda::atomic store
       and load: an SC pair, class `sc` in vector-clock mode, never `model_bug`.
-  A2  (T14, design/a2_flag.md) python/testdata/lock_contention_a2.cu -- the rtraw lock idiom,
-      race-free, 16 contending warps: every DR the trace shows is an A2 inversion and must
-      carry a2_uncertain; the I1 kernel's genuine race (no window overlaps) must not. Plus
-      hand-made traces and a randomized check against every window-consistent coherence
-      order (no GPU).
+  A2  (T14, design/a2_flag.md) python/testdata/lock_contention_a2.cu -- the rtraw lock idiom
+      on plain data: race-free with 16 contending warps, every report the trace shows is an A2
+      inversion and must carry a2_uncertain; a control kernel's genuine race (no window
+      overlaps) must not. Plus hand-made traces and a randomized check against every
+      window-consistent coherence order (no GPU).
 
 Part of the green set (CLAUDE.md A4) since T9; the kernels need a GPU node.
     .env/bin/python -m pytest python/test_hb_substitutions.py -rxX
@@ -311,6 +311,8 @@ _A2_OPS = {   # pc: (opcode, location, record type); one location per pc
     0x18: ("LDG.E", 0x1000, "read"), 0x28: ("STG.E", 0x1000, "write"),
     0x60: ("LDG.E", 0x2000, "read"), 0x30: ("STG.E", 0x2000, "write"),
     0x68: ("LDG.E", 0x3000, "read"), 0x70: ("STG.E", 0x3000, "write"),
+    0x78: ("LD.E.STRONG.GPU", 0x3000, "read"),            # strong (every --strong-ldst policy
+    0x88: ("ST.E.STRONG.GPU", 0x3000, "write"),           # but none): SC pairs among them
 }
 _CAS, _EXCH, _ADDN, _LDX, _STX, _STF, _LDF, _LDY, _BAR = \
     0x10, 0x20, 0x38, 0x18, 0x28, 0x30, 0x60, 0x68, 0x40
@@ -342,13 +344,14 @@ def _a2_dump(tmp_path, events, block_tc=32):
 
 
 def _a2_flags(tmp_path, events, block_tc=32):
-    """{(a_pc, b_pc): [DR instances, flagged]} of the oracle on a hand-made trace."""
+    """{(a_pc, b_pc): [instances, flagged]} of the oracle on a hand-made trace (plain data and
+    RMWs only: every pair is a DR)."""
     out = {}
     for r in hb_oracle.analyze(*map(str, _a2_dump(tmp_path, events, block_tc)))["races"]:
-        if r["class"] == "DR":
-            c = out.setdefault((r["a_pc"], r["b_pc"]), [0, 0])
-            c[0] += r["count"]
-            c[1] += r["a2_uncertain"]
+        assert r["class"] == "DR"
+        c = out.setdefault((r["a_pc"], r["b_pc"]), [0, 0])
+        c[0] += r["count"]
+        c[1] += r["a2_uncertain"]
     return out
 
 
@@ -454,12 +457,13 @@ def _a2_reference(thr, order):
 
 def test_a2_only_over_flags_randomized(tmp_path):
     # 400 random traces (2-4 threads in 1-2 blocks; grid, block and none-scope RMWs on two
-    # words; plain accesses to the words and to data): no DR instance that some
-    # window-consistent coherence order orders is left unflagged (design/a2_flag.md, "Only
-    # over-flags"); the oracle's per-record counts add up to its aggregated ones
+    # words; plain accesses to the words and to data, strong ones to data): no reported
+    # instance (DR or SC) that some window-consistent coherence order orders is left
+    # unflagged (design/a2_flag.md, "Only over-flags"); the oracle's per-record counts add up
+    # to its aggregated ones
     import random
     rng = random.Random(14)
-    unflagged = flagged = over = 0
+    unflagged = flagged = over = sc = 0
     for _ in range(400):
         while True:                         # at most 6 RMWs per word: 720 orders to enumerate
             thr = [(rng.choice((0, 1)), w) for w in range(rng.choice((2, 3, 3, 4)))]
@@ -473,9 +477,11 @@ def test_a2_only_over_flags_randomized(tmp_path):
             order.append((i, left[i].pop(0)))
         d, t = _a2_dump(tmp_path, [(*thr[i], pc) for i, pc in order])
         rep = hb_oracle.analyze(str(d), str(t), records=True)
-        dr = [r for r in rep["races"] if r["class"] == "DR"]
-        assert sum(r["count"] for r in dr) == sum(x[-1] for x in rep["a2_records"])
-        assert sum(r["a2_uncertain"] for r in dr) == sum(x[-1] for x in rep["a2_records"] if x[-2])
+        races = rep["races"]
+        sc += sum(r["count"] for r in races if r["class"] == "SC")
+        assert sum(r["count"] for r in races) == sum(x[-1] for x in rep["a2_records"])
+        assert sum(r["a2_uncertain"] for r in races) == \
+            sum(x[-1] for x in rep["a2_records"] if x[-2])
         ref = _a2_reference(thr, order)
         for a_t, a_pc, a_ep, b_t, b_pc, b_ep, flag, cnt in rep["a2_records"]:
             a, b = (a_t, a_pc, a_ep), (b_t, b_pc, b_ep)
@@ -484,44 +490,60 @@ def test_a2_only_over_flags_randomized(tmp_path):
             unflagged += cnt * (not flag)
             flagged += cnt * flag
             over += cnt * (flag and not some)
-    assert unflagged and flagged and over < flagged   # both kinds occur; not all over-flags
+    assert unflagged and flagged and sc and over < flagged   # all kinds occur; not all over-flags
 
 
 @pytest.fixture(scope="module")
 def a2lock(tmp_path_factory):
-    return _trace(tmp_path_factory, "lock_contention_a2")
+    """(dots, {"kcontend": trace, "kcontrol": trace}) of one run of lock_contention_a2.cu."""
+    dots, last = _trace(tmp_path_factory, "lock_contention_a2")
+    ks = {}
+    for tr in sorted(Path(last).parent.glob("kernel_*.json")):
+        ks[_load(tr)["kernel"]["kernel_name"].split("(")[0]] = tr
+    assert set(ks) == {"kcontend", "kcontrol"}, ks
+    return dots, ks
+
+
+def _a2_verdicts(dots, trace):
+    for dot in dots:
+        try:
+            return sd.analyze(dot, trace)["verdicts"]
+        except sd.AlignmentError:
+            continue
+    raise AssertionError("no CFG aligns with the trace")
 
 
 def test_lock_contention_engine_matches_oracle(a2lock):
-    assert _engine_equals_oracle(*a2lock)
+    dots, ks = a2lock
+    assert all(_engine_equals_oracle(dots, tr) for tr in ks.values())
 
 
 def test_lock_contention_every_dr_is_a2_uncertain(a2lock):
-    # step 5 of T14: on the race-free lock with 16 contending warps every DR the trace shows
-    # is an A2 inversion -- flagged count > 0, unflagged DR count 0, and every Race verdict
-    # rests on A2 alone (pair-level a2_uncertain True)
-    dots, trace = a2lock
-    t = _load(trace)
+    # step 5 of T14: on the race-free lock with 16 contending warps every report the trace
+    # shows is an A2 inversion -- the flagged count > 0, no unflagged instance, and every Race
+    # verdict rests on A2 alone (pair-level a2_uncertain True). Plain data: the pairs are DR.
+    dots, ks = a2lock
+    t = _load(ks["kcontend"])
     assert t.get("hb_a2") == 1
-    dr = [r for r in t.get("hb_races", []) if r["class"] == "DR"]
-    flagged = sum(r["a2_uncertain"] for r in dr)
-    assert flagged > 0, "no inversion recorded in this run"
-    assert sum(r["count"] - r["a2_uncertain"] for r in dr) == 0
-    for dot in dots:
-        try:
-            vs = [v for v in sd.analyze(dot, trace)["verdicts"] if v["verdict"] == "RACE"]
-            break
-        except sd.AlignmentError:
-            continue
+    races = t.get("hb_races", [])
+    assert all(r["class"] == "DR" for r in races)
+    assert sum(r["a2_uncertain"] for r in races) > 0, "no inversion recorded in this run"
+    assert sum(r["count"] - r["a2_uncertain"] for r in races) == 0
+    vs = [v for v in _a2_verdicts(dots, ks["kcontend"]) if v["verdict"] == "RACE"]
     assert vs and all(v["matrix_class"] == "structural" and v["a2_uncertain"] is True for v in vs)
 
 
-def test_write_after_unlock_is_a2_robust(i1):
-    # the I1 kernel's race needs no A2: block 1 starts after block 0's windows all closed, so
-    # the (write after unlock, read under the lock) instance is not flagged
-    dots, trace, write, read = i1
-    recs = [r for r in _load(trace).get("hb_races", [])
-            if r["a_pc"] == write["pc"] and r["b_pc"] == read["pc"] and r["class"] == "DR"]
-    assert recs and all(r["a2_uncertain"] == 0 for r in recs)
-    [v] = _verdict(dots, trace, (write["pc"], read["pc"]))
-    assert v["verdict"] == "RACE" and v["a2_uncertain"] is False
+def test_lock_control_race_is_not_a2_uncertain(a2lock):
+    # a race of every coherence order (a write after the writer's own unlock, read by the next
+    # holder) with every window on the lock closed before the reader's CAS: reported, and not
+    # flagged -- the flag does not blanket every report of a lock program
+    dots, ks = a2lock
+    t = _load(ks["kcontrol"])
+    ev = _mem(t)
+    b0, b1 = [e for e in ev if e["block"] == 0], [e for e in ev if e["block"] == 1]
+    if not b0 or not b1 or b0[-1]["seq"] > b1[0]["seq"]:
+        pytest.skip("schedule not reached: block 0 did not finish before block 1 started")
+    races = t.get("hb_races", [])
+    assert races and all(r["class"] == "DR" and r["a2_uncertain"] == 0 for r in races)
+    vs = [v for v in _a2_verdicts(dots, ks["kcontrol"]) if v["verdict"] == "RACE"]
+    assert vs and all(v["a2_uncertain"] is False for v in vs)

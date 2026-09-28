@@ -27,7 +27,6 @@ have gaps where exits were dropped).
            `parallel.py analyze` runs, -> eval/results/t14-a2/A2_TABLES.md + CSVs.
 """
 import argparse
-import bisect
 import csv
 import glob
 import json
@@ -52,7 +51,6 @@ AFTER = f"{STORES}/t14-after"
 T9_AFTER = f"{STORES}/t9-after"
 T9_SELECTION = f"{APH}/eval/results/t9-rescore/selection.json"
 RES = f"{APH}/eval/results/t14-a2"
-INF = 1 << 62
 
 
 # ---------------------------------------------------------------- reading a dump
@@ -119,22 +117,59 @@ def rmw_scopes(dots, kernel_name):
 
 # ---------------------------------------------------------------- the window count
 
-def count_kernel(ev, scope_of):
-    """The window count of one kernel dump (see the module docstring)."""
-    import sync_dominance as sd
-    rmws = defaultdict(list)          # loc -> [[pos, nx, warp key, scope, block]]
-    open_w = {}                       # tid -> (loc, index) of its RMW with an open window
-    last = {}                         # tid -> ("rmw" | "plain", loc) of its last record
-    sync_locs = set()
+class _Loc:
+    """Per-location state of the window count (O(1) per RMW event)."""
+    __slots__ = ("n", "open", "last_n_open", "last_wk", "ov", "ov_same", "ov_open",
+                 "ov_same_open", "succ", "succ_unc", "succ_unc_xw", "sync", "size", "none",
+                 "blk", "blocks", "clusters", "multi", "multi_members", "multi_mixed")
 
-    def next_record(t, pos, plain_loc):
-        """t's record at pos closes t's open window; plain_loc = its location if it is a
-        plain memory access (None otherwise)."""
+    def __init__(self):
+        self.n = self.open = 0
+        self.last_n_open = False      # the last RMW on loc still has its window open
+        self.last_wk = None
+        self.ov = self.ov_same = self.ov_open = self.ov_same_open = 0
+        self.succ = self.succ_unc = self.succ_unc_xw = 0
+        self.sync = False
+        self.size, self.none, self.blk, self.blocks = 0, False, False, set()
+        self.clusters = self.multi = self.multi_members = self.multi_mixed = 0
+
+    def end_cluster(self):
+        if self.size:
+            self.clusters += 1
+            if self.size > 1:
+                self.multi += 1
+                self.multi_members += self.size
+                self.multi_mixed += self.none or (self.blk and len(self.blocks) > 1)
+        self.size, self.none, self.blk, self.blocks = 0, False, False, set()
+
+
+def count_kernel(ev, scope_of):
+    """The window count of one kernel dump (see the module docstring). A window's overlaps are
+    the RMWs issued on its location between its record and its thread's next record: the
+    difference of the location's issue counter (and, for same-warp ones, the (location, warp)
+    counter) between the two -- so the state is per location, per (location, warp) and per open
+    window, never per RMW."""
+    import sync_dominance as sd
+    locs = {}                         # loc -> _Loc
+    lw = defaultdict(int)             # (loc, warp key) -> RMWs issued so far
+    open_w = {}                       # tid -> (loc, loc counter, (loc, warp) counter, warp key)
+    last = {}                         # tid -> ("rmw" | "plain" | "sync", loc) of its last record
+
+    def close(t, plain_loc):
+        """t's next record closes t's open window; plain_loc = that record's location if it is
+        a plain memory access (None otherwise)."""
         w = open_w.pop(t, None)
-        if w is not None:
-            rmws[w[0]][w[1]][1] = pos
-            if plain_loc is not None and plain_loc != w[0]:
-                sync_locs.add(w[0])
+        if w is None:
+            return
+        loc, cn, cw, wk = w
+        st = locs[loc]
+        st.ov += st.n - cn
+        st.ov_same += lw[(loc, wk)] - cw
+        st.open -= 1
+        if st.n == cn:                # no RMW on loc since: the last one's window is closed
+            st.last_n_open = False
+        if plain_loc is not None and plain_loc != loc:
+            st.sync = True
 
     for e in ev:
         typ, block, warp = e["type"], e["block"], e["warp"]
@@ -147,7 +182,8 @@ def count_kernel(ev, scope_of):
                 k = (m & -m).bit_length() - 1
                 m &= m - 1
                 t = base | k
-                next_record(t, e["seq"] * 32 + k, None)
+                if t in open_w:
+                    close(t, None)
                 last[t] = ("sync", None)
             continue
         pc, space = e["pc"], e["space"]
@@ -155,74 +191,66 @@ def count_kernel(ev, scope_of):
         for ln in e["lanes"]:
             k, addr = ln["lane"], ln["addr"]
             t = base | k
-            pos = e["seq"] * 32 + k
             loc = ("shared", block, addr) if space == "shared" else (space, addr)
-            next_record(t, pos, loc if sc is None else None)
+            if t in open_w:
+                close(t, loc if sc is None else None)
             if sc is not None:
+                st = locs.get(loc)
+                if st is None:
+                    st = locs[loc] = _Loc()
                 prev = last.get(t)
                 if prev is not None and prev[0] == "plain" and prev[1] != loc:
-                    sync_locs.add(loc)
-                lst = rmws[loc]
-                open_w[t] = (loc, len(lst))
-                lst.append([pos, INF, t >> 5, sc, block])
+                    st.sync = True
+                wk = t >> 5
+                if st.n:
+                    st.succ += 1
+                    if st.last_n_open:
+                        st.succ_unc += 1
+                        st.succ_unc_xw += st.last_wk != wk
+                if st.open == 0:      # every earlier window on loc closed: a new cluster
+                    st.end_cluster()
+                st.size += 1
+                st.none = st.none or sc == sd.NONE
+                st.blk = st.blk or sc == sd.BLOCK
+                st.blocks.add(block)
+                st.n += 1
+                lw[(loc, wk)] += 1
+                open_w[t] = (loc, st.n, lw[(loc, wk)], wk)
+                st.open += 1
+                st.last_n_open, st.last_wk = True, wk
             last[t] = ("rmw" if sc is not None else "plain", loc)
-
+    for t, (loc, cn, cw, wk) in open_w.items():   # no next record: open to the end
+        st = locs[loc]
+        st.ov += st.n - cn
+        st.ov_open += st.n - cn
+        st.ov_same += lw[(loc, wk)] - cw
+        st.ov_same_open += lw[(loc, wk)] - cw
+    same = defaultdict(int)
+    for (loc, _), n in lw.items():
+        same[loc] += n * (n - 1) // 2
     c = Counter()
-    for loc, lst in rmws.items():
-        n = len(lst)
-        c["rmw"] += n
+    for loc, st in locs.items():
+        st.end_cluster()
+        pairs = st.n * (st.n - 1) // 2 - same[loc]
+        xw_ov = st.ov - st.ov_same
+        c["rmw"] += st.n
         c["rmw_locs"] += 1
-        sync = loc in sync_locs
-        c["sync_locs"] += sync
-        pos = [x[0] for x in lst]
-        byw = defaultdict(list)
-        for x in lst:
-            byw[x[2]].append(x)
-        pairs = n * (n - 1) // 2
-        same_pairs = sum(len(g) * (len(g) - 1) // 2 for g in byw.values())
-        ov_all = ov_open = 0
-        for i, x in enumerate(lst):
-            o = bisect.bisect_left(pos, x[1]) - (i + 1)
-            ov_all += o
-            ov_open += o if x[1] == INF else 0
-        ov_same = ov_same_open = 0
-        for g in byw.values():
-            pg = [x[0] for x in g]
-            for j, x in enumerate(g):
-                o = bisect.bisect_left(pg, x[1]) - (j + 1)
-                ov_same += o
-                ov_same_open += o if x[1] == INF else 0
-        xw_ov = ov_all - ov_same
-        c["xw_pairs"] += pairs - same_pairs
+        c["sync_locs"] += st.sync
+        c["xw_pairs"] += pairs
         c["xw_overlap"] += xw_ov
-        c["xw_overlap_open"] += ov_open - ov_same_open
-        c["sw_overlap"] += ov_same
-        if sync:
-            c["xw_pairs_sync"] += pairs - same_pairs
+        c["xw_overlap_open"] += st.ov_open - st.ov_same_open
+        c["sw_overlap"] += st.ov_same
+        if st.sync:
+            c["xw_pairs_sync"] += pairs
             c["xw_overlap_sync"] += xw_ov
-        c["succ_edges"] += n - 1
-        for a, b in zip(lst, lst[1:]):
-            if b[0] < a[1]:
-                c["succ_uncertain"] += 1
-                c["succ_uncertain_xw"] += a[2] != b[2]
-                c["succ_uncertain_xw_sync"] += a[2] != b[2] and sync
-        # clusters: a new one starts when every earlier window on loc has closed
-        start, maxnx = 0, -1
-        for i in range(n + 1):
-            if i == n or lst[i][0] >= maxnx:
-                if i > start:
-                    mem = lst[start:i]
-                    c["clusters"] += 1
-                    if len(mem) > 1:
-                        c["multi"] += 1
-                        c["multi_members"] += len(mem)
-                        blocks = {x[4] for x in mem}
-                        none = any(x[3] == sd.NONE for x in mem)
-                        blk = any(x[3] == sd.BLOCK for x in mem)
-                        c["multi_mixed"] += none or (blk and len(blocks) > 1)
-                start = i
-            if i < n:
-                maxnx = max(maxnx, lst[i][1])
+            c["succ_uncertain_xw_sync"] += st.succ_unc_xw
+        c["succ_edges"] += st.succ
+        c["succ_uncertain"] += st.succ_unc
+        c["succ_uncertain_xw"] += st.succ_unc_xw
+        c["clusters"] += st.clusters
+        c["multi"] += st.multi
+        c["multi_members"] += st.multi_members
+        c["multi_mixed"] += st.multi_mixed
     return c
 
 
@@ -301,7 +329,7 @@ def cmd_count(a):
     ids = [d for d in os.listdir(root) if os.path.isfile(f"{root}/{d}/meta.json")]
     if a.id:
         ids = [i for i in ids if i in a.id.split(",")]
-    od = f"{OUT}/count-{a.store}"
+    od = f"{OUT}/count-{a.tag or a.store}"
     os.makedirs(od, exist_ok=True)
     for j, _id in enumerate(_shard(ids, a.shard), 1):
         dst = f"{od}/{_id}.json"
@@ -529,8 +557,8 @@ def cmd_tables(a):
                  "oracle): DR instances and pc pairs\n")
     lines.append("| suite | programs | kernels same as T9 (up to the flag) / compared | DR "
                  "instances | flagged | % | DR pc pairs | every instance flagged | programs with "
-                 "a flagged instance | not re-scored |")
-    lines.append("|" + "---|" * 10)
+                 "a flagged DR instance | SC instances / flagged | not re-scored |")
+    lines.append("|" + "---|" * 11)
     tot = Counter()
     prog_rows = []
     for ps in PSETS:
@@ -557,6 +585,9 @@ def cmd_tables(a):
                     if cls == "DR":
                         pairs[tuple(p)][0] += n
                         pairs[tuple(p)][1] += f
+                    else:
+                        c["sc_inst"] += n
+                        c["sc_flag"] += f or 0
             c["pairs"] += len(pairs)
             c["pairs_all"] += sum(f >= n for n, f in pairs.values())
             c["with_flag"] += fl > 0
@@ -586,12 +617,20 @@ def cmd_tables(a):
     changed = [i for i in both if (base[i]["verdict"], base[i]["report_ids"],
                                    mt.report_classes(base[i])) !=
                (new[i]["verdict"], new[i]["report_ids"], mt.report_classes(new[i]))]
-    lines.append(f"\n## Verdicts (vector-clock rows; `parallel.py analyze`: base code on t9-after vs "
-                 f"this checkout on t14-after)\n\n{len(both)} programs compared (verdict, report ids, "
-                 f"class note), {len(changed)} changed"
+    t9 = _load_csv(a.t9_csv, VC)
+    both9 = sorted((set(t9) & set(new)) - skip)
+    changed9 = [i for i in both9 if (t9[i]["verdict"], t9[i]["report_ids"],
+                                     mt.report_classes(t9[i])) !=
+                (new[i]["verdict"], new[i]["report_ids"], mt.report_classes(new[i]))]
+    lines.append(f"\n## Verdicts (vector-clock rows of `parallel.py analyze` on the store t14-after)"
+                 f"\n\nBase code (f127790) vs this checkout on the same dumps: {len(both)} programs "
+                 f"compared (verdict, report ids, class note), {len(changed)} changed"
                  + (": " + ", ".join(changed) if changed else "") +
-                 f". Only in base: {len(set(base) - set(new) - skip)}; only in t14: "
-                 f"{len(set(new) - set(base) - skip)}; left out (not re-scored): {len(skip)}.\n")
+                 f"; only in base: {len(set(base) - set(new) - skip)}; only in t14: "
+                 f"{len(set(new) - set(base) - skip)}; left out (not re-scored): {len(skip)}.\n\n"
+                 f"T9's committed re-score (T9 code on t9-after) vs this checkout on t14-after: "
+                 f"{len(both9)} programs compared, {len(changed9)} changed"
+                 + (": " + ", ".join(changed9) if changed9 else "") + ".\n")
     lines.append("| suite | programs | RACE | Race alone RACE | a2-uncertain at Race alone: CLEAN "
                  "label / RACE label | at Race u Latent: CLEAN / RACE | programs with an "
                  "a2-uncertain report |")
@@ -655,7 +694,7 @@ def _wrow(ps, n, wov, wsync, c, errs):
 def _rrow(ps, c):
     return (f"| {ps} | {c['programs']} | {c['same']} / {c['cmp']} | {c['inst']} | {c['flag']} "
             f"| {_pct(c['flag'], c['inst'])} | {c['pairs']} | {c['pairs_all']} | {c['with_flag']} "
-            f"| {c['err']} |")
+            f"| {c['sc_inst']} / {c['sc_flag']} | {c['err']} |")
 
 
 def main():
@@ -663,6 +702,7 @@ def main():
     sub = ap.add_subparsers(dest="cmd", required=True)
     c = sub.add_parser("count")
     c.add_argument("--store", default="evcand")
+    c.add_argument("--tag", default="", help="output dir OUT/count-<tag> (default: the store)")
     c.add_argument("--shard", default="0/1")
     c.add_argument("--id", default="")
     c.add_argument("--mem-gb", type=float, default=60)
@@ -679,8 +719,9 @@ def main():
     t = sub.add_parser("tables")
     t.add_argument("--count-dir", default=f"{RES}/count-evcand")
     t.add_argument("--rescore-dir", default=f"{RES}/rescore")
-    t.add_argument("--base-csv", default=f"{APH}/eval/results/t14-base-analyze/*.csv")
-    t.add_argument("--new-csv", default=f"{APH}/eval/results/t14-after-analyze/*.csv")
+    t.add_argument("--base-csv", default=f"{RES}/analyze-base/*.csv")
+    t.add_argument("--new-csv", default=f"{RES}/analyze-t14/*.csv")
+    t.add_argument("--t9-csv", default=f"{APH}/eval/results/t9-rescore/after/*.csv")
     a = ap.parse_args()
     {"count": cmd_count, "rescore": cmd_rescore, "tables": cmd_tables}[a.cmd](a)
 

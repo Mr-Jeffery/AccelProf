@@ -38,9 +38,9 @@ window-consistent `co`: there A2w implies A2 and the flag is 0 (§3).
 
 ## 2. The target, and why the brief's thread-pair approximation is not enough
 
-A DR instance `(a, b)` (a record pair Check reports with class DR, `pos(a) < pos(b)`) should be
-flagged if the execution may have ordered it: **F\* = { (a, b) : a →co b or b →co a for some
-window-consistent co }**. The brief reads this as "reverse the order-uncertain edges on the
+A reported instance `(a, b)` (a record pair Check reports, class DR — or SC, §3 — with
+`pos(a) < pos(b)`) should be flagged if the execution may have ordered it: **F\* = { (a, b) :
+a →co b or b →co a for some window-consistent co }**. The brief reads this as "reverse the order-uncertain edges on the
 pair's location" and approximates it by "both threads hold RMWs on some location whose chain has
 an order-uncertain edge between them". That approximation can **under**-flag, because `→co` is
 transitive through other threads, other locations and barriers:
@@ -77,13 +77,24 @@ empty (`none`, never morally strong) contribute nothing and acquire nothing; the
 members (their order is uncertain, and they break the recorded chain). Inside a multi cluster and
 at its boundaries `ms` is not checked — the only place the flag ignores a static label.
 
-A DR instance `(a, b)` is **flagged** iff `epoch(a) ≤ poss_b[tid(a)]`, or `a` is an RMW whose window
+A reported instance `(a, b)` is **flagged** iff `epoch(a) ≤ poss_b[tid(a)]`, or `a` is an RMW whose window
 contains `pos(b)` and `epoch(b) ≤ poss_a[tid(b)]` after `a`'s late acquire. Here `poss_b` is `poss` of
 `b`'s thread at `b` if `b` is not an RMW, and after `b`'s late acquire if it is. The decision for an
 instance with an RMW endpoint whose window is still open is held on that window and taken when it
 closes (deferral as in §3 of the proof for the instance gate); all other decisions are final at
-Check. `hb_races[*].a2_uncertain` counts the flagged instances of each aggregated record (DR
-records only; SC instances are never flagged); the dump carries `"hb_a2": 1`.
+Check. `hb_races[*].a2_uncertain` counts the flagged instances of each aggregated record; the dump
+carries `"hb_a2": 1`.
+
+**DR and SC alike (revised 2026-09-28, after T10).** D15 words the flag for a DR. It is computed
+for every reported instance, DR and SC, the same way: A2 is about order, and the class is a
+static label (`ms`) that the flag does not read; an SC report rests on the recorded order exactly
+as a DR does. This matters once T10 (`fix/sidecar-strength`, policy `token`) is merged: a volatile
+`LDG/STG.E.STRONG.SYS` access becomes strong at `sys` scope, two of them form an SC pair instead
+of a DR, and that includes the four `matrix-multiplication-norace-small` pairs of T9 (volatile
+data). With T10 they leave the Race columns as SC reports (informational, neither TP nor FP,
+D2) — by T10's reclassification, not by the flag — and still carry `a2_uncertain`. The
+pair-level flag uses the instances of the pair's class: its DR instances if it has one, else its
+SC ones. The corpus numbers of `eval/A2_WINDOWS.md` are under the base's policy `generic`.
 
 **Only over-flags.** *Claim:* for every window-consistent `co` and every `x →co y` (`y` a memory
 record), `epoch(x) ≤ poss_y[tid(x)]`, with `poss_y` as above; and if `y →co x` with `pos(x) < pos(y)`,
@@ -110,11 +121,11 @@ exists — `y` itself if `y` is an RMW there, else a record reached from `y` by 
 issued at or after `pos(y)` and, being `co`-before `x`, before `nx(x)`: it is in `x`'s cluster and
 its contribution is in `J` at `nx(x)`. ∎
 
-*Consequence (the paper's statement):* under A1, **A2w** and A3, an unflagged DR instance is
+*Consequence (the paper's statement):* under A1, **A2w** and A3, an unflagged instance is
 unordered in the execution's own `→hb` (Proposition "Fidelity" with A2 weakened to A2w and the
-single `co` of the execution); a flagged one may or may not be. A Race report (pc pair) rests on
-A2 alone iff **every** DR instance of the pair is flagged; one unflagged instance makes the report
-A2-robust.
+single `co` of the execution), with the same class; a flagged one may or may not be. A Race report
+(pc pair) rests on A2 alone iff **every** DR instance of the pair is flagged; one unflagged
+instance makes the report A2-robust (likewise an SC report and its SC instances).
 
 **What over-flagging costs.** Nothing on a kernel with no multi cluster (`poss = vc`). Otherwise
 the flag may mark an instance that no single window-consistent `co` orders: `J` joins members
@@ -130,8 +141,8 @@ its location. The measured number of flagged instances and reports, per suite, i
 
 Inside a multi cluster the recorded chain can order two RMWs the other way round from the
 execution, so `→seq ⊄ →co`: a pair ordered on the trace only through such an edge is not reported
-and may be a race of the execution (D15's missed-race risk). The flag marks DR reports only and
-says nothing about these pairs. What the window count says: a kernel with no multi cluster has
+and may be a race of the execution (D15's missed-race risk). The flag marks reported instances
+only and says nothing about these unreported pairs. What the window count says: a kernel with no multi cluster has
 none (there `co = seq`); otherwise the number of overlapping cross-warp pairs on locations whose
 RMWs release or acquire (an RMW next to a plain access to another location in its thread) is the
 number of hand-offs whose direction the trace does not fix — an upper bound on the hand-offs
@@ -142,11 +153,11 @@ collector (D15, post-submission) removes the question.
 ## 5. What does not change
 
 - **No verdict.** `_hb_class`, `CLASS_VERDICT` and the class of every pair are computed as before;
-  `judge` copies a pair-level `a2_uncertain` (True: every DR instance flagged; False: some DR
-  instance unflagged; None: no flag in the dump) onto the verdict record and reads it nowhere.
+  `judge` copies a pair-level `a2_uncertain` (True: every instance of the pair's class flagged;
+  False: one unflagged; None: no flag in the dump) onto the verdict record and reads it nowhere.
 - **`barrier_only_pairs`** and the second clock (`hb_races_sync_only`): `Detect(T, sync)` has no
   (ATOM) generator, so it does not depend on coherence order; unaffected, and so is the
-  barrier-ordered row in both modes. The flag is defined on the full clock's DR instances, i.e.
+  barrier-ordered row in both modes. The flag is defined on the full clock's instances, i.e.
   in vector-clock mode. (R3 is not covered by it in either mode: its hops are observed
   atomic–atomic edges, directed, and an inversion can re-orient an instance's edge; a lock
   program observes both directions over its hand-offs, a single hand-off does not.)

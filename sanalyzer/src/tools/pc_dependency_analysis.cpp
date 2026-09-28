@@ -302,7 +302,8 @@ struct HbEngine {
     // and gets, in addition, a late acquire when an RMW's window [record, the thread's next
     // record) closes -- the join of its cluster (the RMWs on the location whose windows
     // chain-overlap), or of the multi cluster before it. No verdict reads it: it counts, per
-    // aggregated DR record, the instances a window-consistent coherence order could order.
+    // aggregated record (DR or SC), the instances a window-consistent coherence order could
+    // order.
     std::unordered_map<Tid, Clock> pd;                      // tid -> delta (absent = empty)
     struct PendKey {                                        // a decision held on a window
         size_t race; Tid other; uint64_t ep; uint8_t side;
@@ -425,7 +426,7 @@ struct HbEngine {
         for (const auto& kv : wins) ts.push_back(kv.first);
         for (Tid t : ts) a2_close(t);
     }
-    // One DR instance (u's record at epoch ue, then t's): flagged now if the possible clock
+    // One reported instance (u's record at epoch ue, then t's): flagged now if the possible clock
     // orders it; else held on an RMW endpoint's open window -- t's RMW, whose window just
     // opened, or u's RMW, whose window has not closed -- and decided when it closes.
     void a2_decide(size_t idx, Tid u, uint64_t ue, uint32_t upc, Tid t, uint32_t pc, Tid obs,
@@ -568,9 +569,8 @@ struct HbEngine {
                 idx = it->second;
                 races[idx].count += 1;
             }
-            if (!sc)                                        // T14: the a2_uncertain decision
-                a2_decide(idx, p_tid, p.clock, p.pc, t, pc, obs,
-                          Loc{space, space == 1 ? loc_block : 0, addr});
+            a2_decide(idx, p_tid, p.clock, p.pc, t, pc, obs,   // T14: DR and SC alike
+                      Loc{space, space == 1 ? loc_block : 0, addr});
         }
         if (sync_only_pass && p.sclock > vs_get(obs, p_tid))
             sync_pairs[{std::min(p.pc, pc), std::max(p.pc, pc)}] += 1;
@@ -925,8 +925,8 @@ struct HbEngine {
     void emit(std::ostream& jout) {
         check_pending_at_end();   // T3b: before tv_violation is written below
         a2_close_all();           // T14: a thread with no next record: its window ends here
-        // one record per aggregate key, with its count (see races); a DR record also carries
-        // a2_uncertain, how many of its instances the possible clock orders (T14)
+        // one record per aggregate key, with its count (see races) and a2_uncertain, how many
+        // of its instances the possible clock orders (T14; DR and SC)
         jout << ",\n  \"hb_races\": [\n";
         for (size_t i = 0; i < races.size(); ++i) {
             const Race& r = races[i];
@@ -943,8 +943,7 @@ struct HbEngine {
                  << ", \"dist\": \"" << DIST_NAME[r.dist] << "\"";
             if (r.asy)   // T1a: which side is an agent's copy
                 jout << ", \"async\": \"" << (r.asy == 3 ? "ab" : r.asy == 1 ? "a" : "b") << "\"";
-            jout << ", \"count\": " << r.count;
-            if (!r.sc) jout << ", \"a2_uncertain\": " << r.a2;
+            jout << ", \"count\": " << r.count << ", \"a2_uncertain\": " << r.a2;
             jout << "}";
             if (i + 1 < races.size()) jout << ",";
             jout << "\n";

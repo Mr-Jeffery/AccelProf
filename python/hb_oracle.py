@@ -153,7 +153,8 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False):
     # pd[t]: pd follows vc through every recorded operation and gets, in addition, a late
     # acquire when an RMW's window [record, the thread's next record) closes -- the join of
     # its cluster, or of the multi cluster before it. No verdict reads it: it counts, per
-    # aggregated DR record, the instances a window-consistent coherence order could order.
+    # aggregated record (DR or SC), the instances a window-consistent coherence order could
+    # order.
     pd = {}                           # tid -> VC (absent = empty)
     wins = {}                         # tid -> [loc, scope, epoch, {(key, u, e, side): n}, [(r, u, e)]]
     clus = {}                         # loc -> _Clu
@@ -242,8 +243,7 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False):
                 agg[key] = [ex, 1, 0]
             else:
                 g[1] += 1
-            if cls == "DR":
-                a2_decide(key, prev_tid, prev_clk, prev_pc, t, pc, o, rec)
+            a2_decide(key, prev_tid, prev_clk, prev_pc, t, pc, o, rec)   # T14: DR and SC alike
             if rec_set is not None:
                 rec_set.add((rec["addr"], a0, prev_pc, b0, pc, cls))
         if prev_sclk > vs[o].get(prev_tid, 0):
@@ -398,7 +398,7 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False):
                     close_win(tid_of(block, warp, k))
 
     def a2_decide(key, u, ue, upc, t, pc, o, rec):
-        """One DR instance (u's record at epoch ue, then t's record): flagged now if the
+        """One reported instance (u's record at epoch ue, then t's record): flagged now if the
         possible clock orders it; else held on an RMW endpoint's open window -- t's RMW, whose
         window just opened, or u's RMW, whose window has not closed -- and decided there."""
         te = vc[t][t]
@@ -601,10 +601,9 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False):
             f"of the kernel; first: {k}, arrived {len(open_segs[k])} of expected "
             f"{expected_of(k)}")
 
-    # aggregated race records, in first-report order (HbEngine emits the same); a DR record
-    # carries a2_uncertain, how many of its instances the possible clock orders (T14)
-    uniq = [dict(ex, count=n, **({"a2_uncertain": f} if ex["class"] == "DR" else {}))
-            for ex, n, f in agg.values()]
+    # aggregated race records, in first-report order (HbEngine emits the same); each carries
+    # a2_uncertain, how many of its instances the possible clock orders (T14; DR and SC)
+    uniq = [dict(ex, count=n, a2_uncertain=f) for ex, n, f in agg.values()]
 
     # Coherence profile Pi: per atomic address, the observed atomic order and its hash.
     coherence_profile = {
@@ -626,7 +625,7 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False):
         "coherence_profile": coherence_profile,
         "summary": {"races": len(uniq), "events": len(events),
                     "sc": sum(r["class"] == "SC" for r in uniq),
-                    "a2_uncertain": sum(r.get("a2_uncertain", 0) for r in uniq),
+                    "a2_uncertain": sum(r["a2_uncertain"] for r in uniq),
                     "atomic_addrs": len(coherence_profile)},
     }
 
