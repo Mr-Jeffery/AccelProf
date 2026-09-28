@@ -488,7 +488,7 @@ def thread_distance(t1, t2):
 
 
 def barrier_only_pairs(trace, rmw, coh, max_lanes=None, dist_out=None, order_out=None,
-                       async_pc=frozenset()):
+                       async_pc=frozenset(), tv_out=None):
     """Offline barrier/syncwarp-ONLY happens-before pass over a dump's `hb_events`:
     the pc pairs {(pc_lo, pc_hi): count} whose conflicts those joins leave unordered
     (the engine's `hb_races_sync_only`, same semantics as hb_oracle's second clock).
@@ -503,6 +503,11 @@ def barrier_only_pairs(trace, rmw, coh, max_lanes=None, dist_out=None, order_out
     async_pc = the cp.async (LDGSTS) pcs: their accesses belong to the issuing thread's
     async agent, completed for the thread by a covering wait_group (T1a; one-to-one with
     HbEngine::async_issue/commit/wait).
+    Exit records (T3b) take their threads out of the expected count of the block's later
+    whole-block barrier segments and re-check its open ones, as in HbEngine / hb_oracle.
+    tv_out, if given, receives the one trace-validity check this pass runs,
+    TV-barrier-pending-at-end (a segment still open at the end; only on dumps with the
+    `hb_exits` marker). The pass has no other TV checks (T11 unifies them).
     -> None if the dump has no hb_events or exceeds max_lanes."""
     events = trace.get("hb_events")
     if not events:
@@ -515,6 +520,9 @@ def barrier_only_pairs(trace, rmw, coh, max_lanes=None, dist_out=None, order_out
     tid_of = lambda b, w, l: (b << 10) | (w << 5) | l
     base, own = {}, {}                 # tid -> shared joined clock / own component
     pending = {}                       # (block, bar_index) -> arrived tids
+    pend_cnt = {}                      # (block, bar_index) -> the segment's thread_count
+    exited = {}                        # block -> number of exited threads
+    exited_lanes = {}                  # (block, warp) -> exited lane mask
     last_write, last_reads, pairs = {}, {}, {}
     groups = {}                        # T1a: t -> [its agent's clock at each commit]
 
@@ -582,8 +590,27 @@ def barrier_only_pairs(trace, rmw, coh, max_lanes=None, dist_out=None, order_out
         if order_out is not None:
             order_out.setdefault(k, (p_pc, pc))
 
+    def expected_of(key):
+        if pend_cnt.get(key):
+            return pend_cnt[key]
+        return max(block_tc - exited.get(key[0], 0), 0) if block_tc else block_tc
+
+    def complete(key, degrade=False):  # procedure Complete; degrade = the per-warp
+        exp = expected_of(key)          # fallback of an arrival with an unknown count
+        if pending[key] and ((degrade and not exp) or (exp and len(pending[key]) >= exp)):
+            sync_group(sorted(pending.pop(key)))
+            pend_cnt.pop(key, None)
+
     for e in events:
         typ = e["type"]
+        if typ == "exit":             # T3b: the exiting lanes of one warp
+            b, w = e["block"], e["warp"]
+            fresh = e["active_mask"] & ~exited_lanes.get((b, w), 0)
+            exited_lanes[(b, w)] = exited_lanes.get((b, w), 0) | e["active_mask"]
+            exited[b] = exited.get(b, 0) + bin(fresh).count("1")
+            for key in sorted(k for k in pending if k[0] == b):
+                complete(key)
+            continue
         if typ in ("pipeline_commit", "pipeline_wait"):   # T1a
             for k in range(32):
                 if (e["active_mask"] >> k) & 1:
@@ -601,10 +628,8 @@ def barrier_only_pairs(trace, rmw, coh, max_lanes=None, dist_out=None, order_out
             key, m = (e["block"], e["bar_index"]), e["active_mask"]
             arrived = pending.setdefault(key, set())
             arrived.update(tid_of(e["block"], e["warp"], k) for k in range(32) if (m >> k) & 1)
-            expected = e.get("thread_count") or block_tc
-            if not expected or len(arrived) >= expected:
-                sync_group(sorted(arrived))
-                del pending[key]
+            pend_cnt[key] = e.get("thread_count")
+            complete(key, degrade=True)
             continue
         pc, blk, space = e["pc"], e["block"], e["space"]
         is_write = typ == "write" or pc in rmw
@@ -636,6 +661,12 @@ def barrier_only_pairs(trace, rmw, coh, max_lanes=None, dist_out=None, order_out
                 last_reads[loc] = {}
             else:
                 last_reads.setdefault(loc, {})[t] = (clk, pc, my_coh, blk)
+    # TV-barrier-pending-at-end (hb_proof.tex section 1, the fifth monitor check)
+    if tv_out is not None and trace.get("hb_exits") and pending:
+        k = min(pending)
+        tv_out.append(f"TV-barrier-pending-at-end: {len(pending)} barrier segment(s) open "
+                      f"at the end of the kernel; first: {k}, arrived {len(pending[k])} of "
+                      f"expected {expected_of(k)}")
     return pairs
 
 
@@ -789,6 +820,7 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
     # $CUVEIN_BARRIER_PASS=0 disables it; dumps above $CUVEIN_BARRIER_PASS_MAX_LANES
     # lane-accesses (default 5M) stay static-only.
     offline_memo = []
+    offline_tv = []                   # T3b: the offline pass's TV-barrier-pending-at-end
 
     def offline_pass():
         """-> (pairs, dist, order) of the offline barrier-only pass, or None. Memoized."""
@@ -803,7 +835,7 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
                 pairs = barrier_only_pairs(
                     trace, rmw_all, coh_all,
                     int(os.environ.get("CUVEIN_BARRIER_PASS_MAX_LANES", "5000000")),
-                    dist, order, asy)
+                    dist, order, asy, offline_tv)
                 if pairs is not None:
                     res = (pairs, dist, order)
             offline_memo.append(res)
@@ -1009,6 +1041,11 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
                                      for pc, op in eng.unknown_syncs],
             # event-stream pairs without an edge verdict: how many, judged, unusable
             "event_candidates": cand_diag,
+            # the engine's first trace-validity violation (vector-clock dump) or, when the
+            # offline barrier pass ran, its end-of-kernel check (T3b); None = none seen.
+            # Informational: no verdict depends on it.
+            "tv_violation": trace.get("tv_violation") or
+                            (offline_tv[0] if offline_tv else None),
         },
         "summary": {"races": races, "ordered": len(verdicts) - races,
                     "skipped": len(skipped),

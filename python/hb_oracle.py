@@ -128,8 +128,14 @@ def analyze(dot_path, trace_path, strong_ldst=None):
     # plain __syncthreads means the whole block, so fall back to block_thread_count. A
     # loop reuses (block, bar_index): the barrier prevents any warp reaching instance
     # k+1 before k completes, so accumulate-then-reset segments dynamic instances.
+    # T3b (hb_proof.tex Definition "Instances"): a whole-block segment expects
+    # block_thread_count minus the block's exited threads (exit records); a counted one
+    # (bar.sync id, n) keeps n; an exit re-checks the block's open segments (Complete).
     block_tc = trace["kernel"].get("block_thread_count")
     pending_bar = defaultdict(set)    # (block, bar_index) -> set of arrived tids
+    pending_cnt = {}                  # (block, bar_index) -> the segment's thread_count
+    exited = defaultdict(set)         # block -> exited tids
+    exited_lanes = defaultdict(int)   # (block, warp) -> exited lane mask
     # --- Trace-validity (TV) invariant bookkeeping (see _strict_enabled) ---
     strict = _strict_enabled()
     bar_warps_seen = defaultdict(set)  # (block, bar_index) -> set of warp ids ever arrived
@@ -208,6 +214,26 @@ def analyze(dot_path, trace_path, strong_ldst=None):
         vs[t] = vs[t].joined(svs)
         del g[:done]
 
+    def expected_of(key):
+        if pending_cnt.get(key):
+            return pending_cnt[key]
+        return max(block_tc - len(exited[key[0]]), 0) if block_tc else block_tc
+
+    def fire(key):
+        arrived = pending_bar.pop(key)
+        pending_cnt.pop(key, None)
+        sync_group(sorted(arrived))
+        for w in {(t >> 5) & 0x1f for t in arrived}:
+            warp_waiting.pop((key[0], w), None)
+
+    def complete(key):
+        """procedure Complete: after every arrival on key and every exit in its block."""
+        exp = expected_of(key)
+        if pending_bar[key] and exp and len(pending_bar[key]) >= exp:
+            fire(key)
+            return True
+        return False
+
     def loc_of(space, block, addr):
         # shared memory is per-block; global/local keyed by absolute address.
         return (space, block, addr) if space == "shared" else (space, addr)
@@ -224,6 +250,29 @@ def analyze(dot_path, trace_path, strong_ldst=None):
         prev_seq = seq
 
         typ = e["type"]
+        if typ == "exit":             # T3b: the exiting lanes of one warp
+            block, warp, mask = e["block"], e["warp"], e["active_mask"]
+            if strict and mask & exited_lanes[(block, warp)]:
+                raise sd.AlignmentError(
+                    f"TV-record-after-exit: block {block} warp {warp} lanes mask "
+                    f"{mask & exited_lanes[(block, warp)]} exit twice (seq {seq})")
+            exited_lanes[(block, warp)] |= mask
+            gone = {tid_of(block, warp, k) for k in range(32) if (mask >> k) & 1}
+            exited[block] |= gone
+            for key in sorted(k for k in pending_bar if k[0] == block):
+                # W2: an exiting thread cannot be waiting at an open segment.
+                if strict and gone & pending_bar[key]:
+                    raise sd.AlignmentError(
+                        f"TV-barrier-completion-order: block {block} warp {warp} exits a "
+                        f"thread still pending at barrier {key} (seq {seq})")
+                complete(key)
+            continue
+        # TV-record-after-exit (W3): no record of a thread follows its exit.
+        lanes_mask = e["sync_mask"] if typ == "syncwarp" else e.get("active_mask", 0)
+        if strict and lanes_mask & exited_lanes.get((e["block"], e["warp"]), 0):
+            raise sd.AlignmentError(
+                f"TV-record-after-exit: block {e['block']} warp {e['warp']} issues a {typ} "
+                f"at pc {hex(e['pc'])} (seq {seq}) after its exit")
         if typ in ("pipeline_commit", "pipeline_wait"):   # T1a: cp.async commit / wait_group N
             for k in range(32):
                 if (e["active_mask"] >> k) & 1:
@@ -247,7 +296,8 @@ def analyze(dot_path, trace_path, strong_ldst=None):
             arrived.update(tid_of(block, warp, k)
                            for k in range(32) if (mask >> k) & 1)
             bar_warps_seen[key].add(warp)
-            expected = e["thread_count"] or block_tc
+            pending_cnt[key] = e["thread_count"]
+            expected = expected_of(key)
             # TV-barrier-overfill: arrivals must never EXCEED the expected participant
             # count. A well-formed instance lands on exactly `expected` and fires; more
             # means a stale/duplicated arrival or a wrong thread_count.
@@ -257,20 +307,17 @@ def analyze(dot_path, trace_path, strong_ldst=None):
                     f"expected {expected}")
             # fire once complete; falsy expected (unknown count, unreachable for a
             # launched kernel) degrades to per-warp so the oracle never stalls.
-            if not expected or len(arrived) >= expected:
+            if not expected:
                 # TV-expected-nonzero-multiwarp: the per-warp fallback (unknown expected)
                 # is exactly the pre-fix bug for a multi-warp block. If >1 warp has ever
                 # arrived at this static barrier, degrading to per-warp is unsound -> raise.
-                if strict and not expected and len(bar_warps_seen[key]) > 1:
+                if strict and len(bar_warps_seen[key]) > 1:
                     raise sd.AlignmentError(
                         f"TV-expected-nonzero-multiwarp: barrier {key} has "
                         f"{len(bar_warps_seen[key])} warps but expected count is "
                         "unknown (block_thread_count missing) -> per-warp degrade unsound")
-                sync_group(sorted(arrived))
-                del pending_bar[key]
-                for w in {(t >> 5) & 0x1f for t in arrived}:
-                    warp_waiting.pop((block, w), None)
-            else:
+                fire(key)
+            elif not complete(key):
                 # instance still pending: this warp is now blocked at the barrier.
                 warp_waiting[(block, warp)] = key
             continue
@@ -356,6 +403,20 @@ def analyze(dot_path, trace_path, strong_ldst=None):
                 last_reads[loc] = {}
             else:
                 last_reads[loc][t] = (clk, sclk, pc, my_coh, my_block)
+
+    # TV-barrier-pending-at-end (hb_proof.tex section 1, the fifth monitor check, the runtime
+    # form of A3): every open segment completes by the end of the kernel. Only on dumps
+    # with exit records (`hb_exits`): without them an early-exit kernel's segments stay
+    # open, which is the pre-T3b reading those dumps keep. The engine records it in
+    # tv_violation whatever YOSEMITE_HB_STRICT says; the oracle raises, so like its other
+    # checks it is off under YOSEMITE_HB_STRICT=0 (replaying a known-bad trace).
+    open_segs = {k: v for k, v in pending_bar.items() if v}
+    if strict and trace.get("hb_exits") and open_segs:
+        k = min(open_segs)
+        raise sd.AlignmentError(
+            f"TV-barrier-pending-at-end: {len(open_segs)} barrier segment(s) open at the end "
+            f"of the kernel; first: {k}, arrived {len(open_segs[k])} of expected "
+            f"{expected_of(k)}")
 
     # dedup identical race tuples (same pc pair, tid pair, addr); then report the issuing
     # thread's id for an agent's access with "async" naming the side(s) (as HbEngine emits)
