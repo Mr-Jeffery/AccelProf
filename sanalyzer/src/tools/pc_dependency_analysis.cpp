@@ -88,8 +88,15 @@ struct HbEngine {
     // per-warp arrivals per (block, bar_index) until the instance is complete.
     // block_thread_count is the expected participant count for a plain __syncthreads
     // (whose per-record thread_count is 0); set per-kernel by hb_engine_reset.
+    // T3b (hb_proof.tex Definition "Instances"): a whole-block segment expects
+    // block_thread_count minus the block's exited threads; a counted one (bar.sync id, n)
+    // keeps n. `count` is the segment's thread_count (0 = whole block), so an exit can
+    // re-check the segment (procedure Complete).
     uint64_t block_thread_count = 0;
-    std::map<std::pair<uint64_t, uint32_t>, std::set<Tid>> pending_barriers;
+    struct Pending { std::set<Tid> arrived; uint64_t count = 0; };
+    std::map<std::pair<uint64_t, uint32_t>, Pending> pending_barriers;
+    std::unordered_map<uint64_t, uint64_t> exited_count;               // block -> exited threads
+    std::map<std::pair<uint64_t, uint32_t>, uint32_t> exited_lanes;     // (block,warp) -> lane mask
 
     // --- Trace-validity (TV) invariants: 1:1 with hb_oracle. ON by default; set
     // YOSEMITE_HB_STRICT=0 to disable. A violation is a collector/trace bug: it prints
@@ -185,10 +192,80 @@ struct HbEngine {
         it->second.erase(it->second.begin(), it->second.begin() + static_cast<long>(done));
     }
 
+    // T3b: the expected participant count of an open segment (Definition "Instances"):
+    // n for a counted barrier, else the block size minus the block's exited threads.
+    uint64_t expected_of(const std::pair<uint64_t, uint32_t>& key, const Pending& p) const {
+        if (p.count != 0) return p.count;
+        const auto x = exited_count.find(key.first);
+        const uint64_t gone = (x == exited_count.end()) ? 0 : x->second;
+        return (block_thread_count > gone) ? block_thread_count - gone : 0;
+    }
+    // the instance of an open segment: join its participants and close the segment
+    void fire(std::map<std::pair<uint64_t, uint32_t>, Pending>::iterator it) {
+        std::vector<Tid> tids(it->second.arrived.begin(), it->second.arrived.end());
+        if (strict)
+            for (Tid t : tids)
+                warp_waiting.erase({it->first.first, static_cast<uint32_t>((t >> 5) & 0x1f)});
+        sync_group(tids);
+        pending_barriers.erase(it);
+    }
+    // procedure Complete (hb_proof.tex Algorithm 1): called after every arrival on the key
+    // and every exit in its block; -> true if the segment completed.
+    bool complete(std::map<std::pair<uint64_t, uint32_t>, Pending>::iterator it) {
+        const Pending& p = it->second;
+        const uint64_t expected = expected_of(it->first, p);
+        if (p.arrived.empty() || expected == 0 || p.arrived.size() < expected) return false;
+        fire(it);
+        return true;
+    }
+    // An exit record: the lanes of one warp that terminate. They leave the expected count
+    // of every later whole-block segment of their block, and the block's open segments are
+    // re-checked (the last non-arrived thread leaving is what the hardware waits for).
+    void on_exit(const MemoryAccess& a) {
+        uint32_t& gone = exited_lanes[{a.ctaId, a.warpId}];
+        const uint32_t fresh = a.active_mask & ~gone;
+        if (strict && (a.active_mask & gone))
+            tv_fail("TV-record-after-exit: block " + std::to_string(a.ctaId) + " warp "
+                    + std::to_string(a.warpId) + " lanes mask "
+                    + std::to_string(a.active_mask & gone) + " exit twice");
+        gone |= a.active_mask;
+        exited_count[a.ctaId] += static_cast<uint64_t>(__builtin_popcount(fresh));
+        auto it = pending_barriers.lower_bound({a.ctaId, 0});
+        while (it != pending_barriers.end() && it->first.first == a.ctaId) {
+            // W2: an exiting thread cannot be waiting at an open segment.
+            if (strict)
+                for (uint32_t m = fresh; m != 0; m &= (m - 1))
+                    if (it->second.arrived.count(tid_of(a.ctaId, a.warpId,
+                            static_cast<uint32_t>(__builtin_ctz(m))))) {
+                        tv_fail("TV-barrier-completion-order: block " + std::to_string(a.ctaId)
+                                + " warp " + std::to_string(a.warpId)
+                                + " exits a thread still pending at barrier "
+                                + std::to_string(it->first.second));
+                        break;
+                    }
+            auto next = std::next(it);
+            complete(it);   // erases `it` if it completes
+            it = next;
+        }
+    }
+    // TV-barrier-pending-at-end (hb_proof.tex section 1, the fifth monitor check, the runtime
+    // form of A3): every open segment is complete at the end of the kernel. Independent of
+    // YOSEMITE_HB_STRICT: pending_barriers is maintained regardless.
+    void check_pending_at_end() {
+        if (pending_barriers.empty()) return;
+        const auto& kv = *pending_barriers.begin();
+        tv_fail("TV-barrier-pending-at-end: " + std::to_string(pending_barriers.size())
+                + " barrier segment(s) open at the end of the kernel; first: block "
+                + std::to_string(kv.first.first) + ", bar " + std::to_string(kv.first.second)
+                + ", arrived " + std::to_string(kv.second.arrived.size()) + " of expected "
+                + std::to_string(expected_of(kv.first, kv.second)));
+    }
+
     void reset() {
         vc.clear(); vs.clear(); released.clear(); last_write.clear(); last_reads.clear();
         races.clear(); sync_pairs.clear();
         pending_barriers.clear();  // block_thread_count is (re)set by hb_engine_reset
+        exited_count.clear(); exited_lanes.clear();
         bar_warps_seen.clear(); warp_waiting.clear(); tv_violation.clear();
         atom_idx.clear(); coherence.clear();
         groups.clear();
@@ -341,8 +418,22 @@ struct HbEngine {
         for (uint64_t i = 0; i < size; ++i) {
             if (stats_every && ++processed >= next_snapshot) snapshot();   // T5a
             const MemoryAccess& a = buf[i];
-            if (a.type == MemoryType::BlockExit) continue;
+            if (a.type == MemoryType::BlockExit) {   // T3b: the exiting lanes of one warp
+                on_exit(a);
+                continue;
+            }
             const uint32_t pc = static_cast<uint32_t>(a.pc & 0x00FFFFFFu);
+            // TV-record-after-exit (W3): no record of a thread follows its exit.
+            if (strict && !exited_lanes.empty()) {
+                const auto xit = exited_lanes.find({a.ctaId, a.warpId});
+                const uint32_t lanes = (a.type == MemoryType::Syncwarp) ? a.accessSize
+                                                                        : a.active_mask;
+                if (xit != exited_lanes.end() && (xit->second & lanes))
+                    tv_fail("TV-record-after-exit: block " + std::to_string(a.ctaId)
+                            + " warp " + std::to_string(a.warpId) + " lanes mask "
+                            + std::to_string(xit->second & lanes) + " issue a record at pc "
+                            + std::to_string(pc) + " after their exit");
+            }
             if (a.type == MemoryType::PipelineCommit || a.type == MemoryType::PipelineWait) {
                 for (uint32_t m = a.active_mask; m != 0; m &= (m - 1)) {   // T1a
                     const Tid t = tid_of(a.ctaId, a.warpId, static_cast<uint32_t>(__builtin_ctz(m)));
@@ -372,36 +463,33 @@ struct HbEngine {
                 // segments dynamic instances. thread_count (accessSize) is the expected
                 // participant count; 0 for a plain __syncthreads means the whole block,
                 // so fall back to block_thread_count. flags carries the static bar_index.
-                const uint64_t expected = (a.accessSize != 0) ? a.accessSize : block_thread_count;
+                // T3b: a plain __syncthreads expects the block's NON-EXITED threads.
                 const std::pair<uint64_t, uint32_t> key{a.ctaId, a.flags};
-                std::set<Tid>& arrived = pending_barriers[key];
+                Pending& p = pending_barriers[key];
+                p.count = a.accessSize;
                 for (uint32_t m = a.active_mask; m != 0; m &= (m - 1))
-                    arrived.insert(tid_of(a.ctaId, a.warpId, static_cast<uint32_t>(__builtin_ctz(m))));
+                    p.arrived.insert(tid_of(a.ctaId, a.warpId, static_cast<uint32_t>(__builtin_ctz(m))));
                 if (strict) bar_warps_seen[key].insert(a.warpId);
+                const uint64_t expected = expected_of(key, p);
                 // TV-barrier-overfill: arrivals must never EXCEED the expected count.
-                if (strict && expected != 0 && arrived.size() > expected)
+                if (strict && expected != 0 && p.arrived.size() > expected)
                     tv_fail("TV-barrier-overfill: barrier (block " + std::to_string(a.ctaId)
                             + ", bar " + std::to_string(a.flags) + ") arrived "
-                            + std::to_string(arrived.size()) + " > expected "
+                            + std::to_string(p.arrived.size()) + " > expected "
                             + std::to_string(expected));
                 // fire once complete; expected==0 (unknown count, unreachable for a
                 // launched kernel) degrades to per-warp so the engine never stalls.
-                if (expected == 0 || arrived.size() >= expected) {
+                if (expected == 0) {
                     // TV-expected-nonzero-multiwarp: the per-warp fallback with an unknown
                     // count is exactly the pre-fix bug for a >1-warp block.
-                    if (strict && expected == 0 && bar_warps_seen[key].size() > 1)
+                    if (strict && bar_warps_seen[key].size() > 1)
                         tv_fail("TV-expected-nonzero-multiwarp: barrier (block "
                                 + std::to_string(a.ctaId) + ", bar " + std::to_string(a.flags)
                                 + ") has " + std::to_string(bar_warps_seen[key].size())
                                 + " warps but expected count is unknown (block_thread_count "
                                   "missing) -> per-warp degrade unsound");
-                    std::vector<Tid> tids(arrived.begin(), arrived.end());
-                    if (strict)
-                        for (Tid t : tids)
-                            warp_waiting.erase({a.ctaId, (t >> 5) & 0x1f});
-                    sync_group(tids);
-                    pending_barriers.erase(key);
-                } else if (strict) {
+                    fire(pending_barriers.find(key));
+                } else if (!complete(pending_barriers.find(key)) && strict) {
                     // instance still pending: this warp is now blocked at the barrier.
                     warp_waiting[{a.ctaId, a.warpId}] = key;
                 }
@@ -563,7 +651,7 @@ struct HbEngine {
                 vs_bytes += mchunk(16 + sizeof(Clock)) + clock_bytes(*kv.second.base);
             }
         uint64_t arrivals = 0;
-        for (const auto& kv : pending_barriers) arrivals += kv.second.size();
+        for (const auto& kv : pending_barriers) arrivals += kv.second.arrived.size();
         const uint64_t pend_bytes =
             pending_barriers.size() * mchunk(32 + sizeof(decltype(pending_barriers)::value_type))
             + arrivals * mchunk(32 + sizeof(Tid));
@@ -586,6 +674,7 @@ struct HbEngine {
     }
 
     void emit(std::ostream& jout) {
+        check_pending_at_end();   // T3b: before tv_violation is written below
         // dedup identical race tuples (addr, a_tid, a_pc, b_tid, b_pc, kind).
         std::set<std::tuple<uint64_t, Tid, long, Tid, uint32_t, std::string>> seen;
         std::vector<const Race*> uniq;
@@ -958,8 +1047,8 @@ void PcDependency::hb_collect_events(const MemoryAccess* buffer, uint64_t size) 
         } else if (a.type == MemoryType::PipelineWait) {     // T1a: wait_group N
             o << ", \"type\": \"pipeline_wait\", \"groups\": " << a.accessSize
               << ", \"active_mask\": " << a.active_mask << "}";
-        } else if (a.type == MemoryType::BlockExit) {
-            continue;  // block exit is not a happens-before event
+        } else if (a.type == MemoryType::BlockExit) {       // T3b: the exiting lanes
+            o << ", \"type\": \"exit\", \"active_mask\": " << a.active_mask << "}";
         } else {
             const char* kind = (a.flags & SANITIZER_MEMORY_DEVICE_FLAG_ATOMIC) ? "atomic"
                              : (a.flags & SANITIZER_MEMORY_DEVICE_FLAG_WRITE)  ? "write"
@@ -1330,6 +1419,10 @@ void PcDependency::kernel_trace_flush(std::shared_ptr<KernelLaunch_t> kernel) {
         // has LDGSTS accesses but no commit/wait records, so its copies would never
         // complete.
         jout << ",\n  \"hb_async\": 1";
+        // T3b: this stream carries exit records (type "exit"). Offline consumers run the
+        // end-of-kernel TV-barrier-pending-at-end check only on dumps with the marker: an
+        // older dump has no exits, so an early-exit kernel's segments stay open there.
+        jout << ",\n  \"hb_exits\": 1";
         // Phase 2 dynamic-HB engine verdicts (streaming; mirrors hb_oracle.py).
         hb_engine_emit(jout);
         if (hb_stats_enabled()) hb_stats_emit(jout, _hb_events, *kernel);

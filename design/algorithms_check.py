@@ -9,8 +9,9 @@ reference, with the implementation's substitutions I1 and I2 (section 7) as swit
 With I1 and I2 on, Detect(T, vec) must equal hb_oracle.py's `races` on every trace and
 Detect(T, sync) its `races_sync_only`; with both off it is the proof's reference, and the
 difference is what I1 and I2 cost on that trace. The other substitutions cannot differ on
-these dumps: no exit records (I3), the trusting gate on both sides (I4), local memory keyed
-as the code keys it (I5), no monitor here (I6), no cp.async records (I7, rejected).
+these dumps: exit records handled as the code handles them since T3b (I3 matched; older dumps
+have none), the trusting gate on both sides (I4), local memory keyed as the code keys it
+(I5), no monitor here (I6), no cp.async records (I7, rejected).
 
     .env/bin/python design/algorithms_check.py [ARTIFACT_DIR ...]   (default: ScoR corpus)
 """
@@ -39,6 +40,8 @@ def detect(events, block_tc, atom, coh, vec=True, i1=False, i2=False):
     Bk = defaultdict(dict)                               # loc -> {(u, kind, scope): (epoch, pc)}
     W, R = {}, defaultdict(dict)                         # I2: loc -> last write / {u: last read}
     Ch, last, arrived, rep = {}, {}, defaultdict(set), []
+    count, gone = {}, defaultdict(set)                   # segment's n; block -> exited threads
+    exp = lambda k: count.get(k) or (block_tc - len(gone[k[0]]) if block_tc else block_tc)
 
     def sync(ts):                                        # procedure Sync
         J = {}
@@ -55,19 +58,31 @@ def detect(events, block_tc, atom, coh, vec=True, i1=False, i2=False):
         return out + ([(u, "R", ep, pc, s, "r") for u, (ep, pc, s) in R[loc].items()]
                       if kind != "R" else [])
 
+    def complete(k):                                     # procedure Complete
+        if arrived[k] and len(arrived[k]) == exp(k):
+            sync(sorted(arrived.pop(k)))
+
     for e in sorted(events, key=lambda e: e["seq"]):
         typ, blk = e["type"], e["block"]
+        if typ == "exit":                                # gone_b; Complete every open key
+            gone[blk] |= {hb_oracle.tid_of(blk, e["warp"], k)
+                          for k in range(32) if (e["active_mask"] >> k) & 1}
+            for k in [k for k in arrived if k[0] == blk]:
+                complete(k)
+            continue
         if typ in ("syncwarp", "barrier"):
             m = e["sync_mask" if typ == "syncwarp" else "active_mask"]
             ts = [hb_oracle.tid_of(blk, e["warp"], k) for k in range(32) if (m >> k) & 1]
             if typ == "syncwarp":
                 sync(ts)
                 continue
-            key = (blk, e["bar_index"])                  # instance assembly; exp = n or N (I3)
+            key = (blk, e["bar_index"])                  # exp = n, or N minus the exited
             arrived[key].update(ts)
-            exp = e["thread_count"] or block_tc
-            if not exp or len(arrived[key]) >= exp:
-                sync(sorted(arrived.pop(key)))
+            count[key] = e["thread_count"]
+            if not exp(key):
+                sync(sorted(arrived.pop(key)))           # unknown count: per warp (I6)
+            else:
+                complete(key)
             continue
         if typ.startswith("pipeline"):
             raise ValueError("cp.async records are outside the model (I7)")
