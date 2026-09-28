@@ -105,7 +105,8 @@ def test_scor_microbenchmark(binary, logfile):
 
 
 def _race_key(r):
-    return (r["addr"], r["a_tid"], r.get("a_pc"), r["b_tid"], r["b_pc"], r["kind"])
+    return (r["addr"], r["a_tid"], r.get("a_pc"), r["b_tid"], r["b_pc"], r["kind"],
+            r.get("class"))
 
 
 @pytest.mark.parametrize("binary", _binaries(), ids=lambda p: p.name)

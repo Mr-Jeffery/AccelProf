@@ -472,6 +472,87 @@ def accuracy_table(runs, meta, man, cols):
     return "\n".join(out)
 
 
+# T9 (D2): report classes of a cuVein row, from the `classes=` note _analyze_reports writes
+# (run_cuvein.classes_note). RACE_CLASSES are races of this run; `latent` is the Latent tier
+# (a RACE only at the Race u Latent operating point); sc / latent-sc are unordered strong
+# conflicts, never a RACE. Rows written before T9 carry no note: their Race-alone verdict is
+# unknown (their RACE is the Race u Latent point, which is what they always counted).
+RACE_CLASSES = {"structural", "model_bug", "race", "host", "host-spec-only"}
+_CLASSES_RE = re.compile(r"classes=([A-Za-z_:,\-0-9]+)")
+
+
+def report_classes(r):
+    """{class: n} from a run's notes (max over reps), or None for a pre-T9 row."""
+    found = _CLASSES_RE.findall(r.get("notes") or "")
+    if not found:
+        return None
+    out = {}
+    for f in found:
+        for item in f.split(","):
+            c, _, n = item.rpartition(":")
+            if c and n.isdigit():
+                out[c] = max(out.get(c, 0), int(n))
+    return out
+
+
+def race_alone_verdict(r):
+    """The program verdict at the Race-alone operating point: RACE iff some report is a
+    race of this run; a row whose RACE rests on Latent reports only is CLEAN there.
+    None when unknown (pre-T9 row reporting RACE)."""
+    v = r["verdict"]
+    if v != "RACE":
+        return v
+    cls = report_classes(r)
+    if cls is None:
+        return None
+    return "RACE" if any(cls.get(c) for c in RACE_CLASSES) else "CLEAN"
+
+
+def operating_points_section(runs, meta, man):
+    """D2 (hb_proof.tex section 5, "The latent tier"): cuVein at two operating points, Race
+    alone and Race u Latent, with the Latent and SC reports as informational columns."""
+    out = ["\n### cuVein at two operating points (D2)\n",
+           "Race u Latent = the program verdict the harness records (a Latent report counts, as "
+           "it always did). Race alone = only reports that raced in the recorded run "
+           "(vector-clock: `structural`/`model_bug`; scalar-clock cannot tell Race from Latent, "
+           "so there the two points coincide). `latent` / `sc` = programs with at least one "
+           "Latent report / unordered strong conflict (SC, never a RACE; D12), counted as "
+           "neither TP nor FP. FP/TP as in the accuracy table (denominators exclude "
+           "ERROR/TIMEOUT); `n/a` = rows analysed before T9 (no class note), excluded from "
+           "the Race-alone counts.\n"]
+    hdr = ["pset", "mode", "Race u Latent FP / TP", "Race alone FP / TP", "latent", "sc", "n/a"]
+    out.append("| " + " | ".join(hdr) + " |")
+    out.append("|" + "---|" * len(hdr))
+    for ps in ("P1", "PI", "P3", "P4", "P5", "P6", "P7", "P9"):
+        for mode in (VC, SC):
+            c = dict(fp=0, tp=0, nob=0, rac=0, fp1=0, tp1=0, nob1=0, rac1=0, lat=0, sc=0, na=0)
+            seen = False
+            for _id, m in meta.items():
+                r = runs.get((_id, "cuvein", mode))
+                if not _in(m, (ps,)) or not r or r["verdict"] in ("ERROR", "TIMEOUT"):
+                    continue
+                seen = True
+                lab = man.get(_id, {}).get("label", "")
+                v1, cls = race_alone_verdict(r), report_classes(r) or {}
+                c["lat"] += bool(cls.get("latent"))
+                c["sc"] += bool(cls.get("sc") or cls.get("latent-sc"))
+                if lab not in ("RACE", "CLEAN"):
+                    continue
+                pos = lab == "RACE"
+                c["rac" if pos else "nob"] += 1
+                c["tp" if pos else "fp"] += r["verdict"] == "RACE"
+                if v1 is None:
+                    c["na"] += 1
+                    continue
+                c["rac1" if pos else "nob1"] += 1
+                c["tp1" if pos else "fp1"] += v1 == "RACE"
+            if seen:
+                out.append(f"| {ps} | {hb_modes.SHORT[mode]} | {c['fp']}/{c['nob']} / {c['tp']}/{c['rac']} "
+                           f"| {c['fp1']}/{c['nob1']} / {c['tp1']}/{c['rac1']} | {c['lat']} | {c['sc']} "
+                           f"| {c['na']} |")
+    return "\n".join(out)
+
+
 def fp_cause_table():
     """cuVein false positives split by report class and root cause, from
     classify_fp_causes.py (baselines-fp-causes.csv: one row per FP report)."""
@@ -1464,6 +1545,7 @@ def main():
     doc.append(comparison_matrix_section(runs, meta, man))
     doc.append(hirace_table1_section(runs, meta))
     doc.append(accuracy_table(runs, meta, man, cols))
+    doc.append(operating_points_section(runs, meta, man))
     doc.append(fp_cause_table())
     doc.append(bug_class_table(runs, meta, man, cols))
     doc.append(sanitizer_family_table(runs, meta))

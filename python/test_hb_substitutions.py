@@ -1,8 +1,9 @@
-"""T6 (c): three substitutions of design/proof/hb_proof.tex section 7 on real kernels, as strict
-xfails that the fixes flip (T9). Each kernel is built and traced here (getall.sh,
-vector-clock mode); pairs are asserted by role, not by pc offset. Every xfail has a passing
-control: design/algorithms_check.py's Detect(T, vec) with the switches off (the proof's
-reference) reports the pair on the same trace, so the kernel exercises the case.
+"""Three substitutions of design/proof/hb_proof.tex section 7 on real kernels -- pinned as strict
+xfails by T6 (c), fixed by T9 -- plus T9's D12 case. Each kernel is built and traced here
+(getall.sh, vector-clock mode); pairs are asserted by role, not by pc offset; the scalar-clock
+verdict is the same dump without the engine's keys (what YOSEMITE_HB_MODE=scalar-clock
+writes). Every case also asserts engine == hb_oracle == design/algorithms_check.py's
+Detect(T, vec) with the I1/I2 switches off (the proof's reference).
 
   I1  python/testdata/write_after_unlock_other_schedule.cu -- the ScoR rtraw lock pattern
       with block 0 first: block 0's write after its unlock races block 1's read under the
@@ -12,12 +13,15 @@ reference) reports the pair on the same trace, so the kernel exercises the case.
       the first store from the load, in both clocks.
   I5  python/testdata/local_mem_blocks.cu -- thread-private local arrays. The collector's
       thread-id fold of a local address is lost to a 32-bit shift, so every thread's access
-      at one offset is one location; the verdict layer drops them (the dependency side
-      records no local pcs), the race records remain.
+      at one offset was one location (8,096 spurious records). T9 (D14) takes local memory
+      out of the HB model: no local record in hb_events, none replayed from an older dump.
+  D12 python/testdata/strong_store_strong_load.cu -- an unordered relaxed cuda::atomic store
+      and load: an SC pair, class `sc` in vector-clock mode, never `model_bug`.
 
-Not part of the green set; needs a GPU node.
+Part of the green set (CLAUDE.md A4) since T9; needs a GPU node.
     .env/bin/python -m pytest python/test_hb_substitutions.py -rxX
 """
+import copy
 import json
 import shutil
 import subprocess
@@ -76,10 +80,29 @@ def _verdict(dots, trace, pcs):
 
 
 def _engine_equals_oracle(dots, trace):
-    key = lambda r: (r["addr"], r["a_tid"], r.get("a_pc"), r["b_tid"], r["b_pc"], r["kind"])
-    dot, _, _ = ac.tables(dots, _load(trace))
-    oracle = {key(r) for r in hb_oracle.analyze(dot, trace)["races"]}
-    return {key(r) for r in _load(trace).get("hb_races", [])} == oracle
+    """engine == oracle (records with class, and the second clock), and the oracle ==
+    Detect(T, vec) with the I1/I2 switches off (record pairs with DR/SC)."""
+    key = lambda r: (r["addr"], r["a_tid"], r.get("a_pc"), r["b_tid"], r["b_pc"], r["kind"],
+                     r.get("class"))
+    t = _load(trace)
+    dot, _, _ = ac.tables(dots, t)
+    rep = hb_oracle.analyze(dot, trace)
+    oracle = {key(r) for r in rep["races"]}
+    ref = set(ac.reference(dots, trace))
+    return {key(r) for r in t.get("hb_races", [])} == oracle \
+        and t.get("hb_races_sync_only") == rep["races_sync_only"] \
+        and {(r["addr"], r["a_tid"], r["a_pc"], r["b_tid"], r["b_pc"], r["class"])
+             for r in rep["races"]} == ref
+
+
+def _scalar_clock(trace, tmp_path):
+    """The dump as scalar-clock mode writes it: no engine keys."""
+    t = copy.deepcopy(_load(trace))
+    for k in ("hb_races", "hb_races_sync_only", "coherence_profile"):
+        t.pop(k, None)
+    out = Path(tmp_path) / ("sc_" + Path(trace).name)
+    out.write_text(json.dumps(t))
+    return out
 
 
 # --- I1: write after unlock, block 0 first ---------------------------------------------
@@ -110,14 +133,19 @@ def test_write_after_unlock_engine_matches_oracle(i1):
     assert _engine_equals_oracle(*i1[:2])
 
 
-@pytest.mark.xfail(strict=True, reason="I1: tick before publish hides the releaser's "
-                   "post-release write (hb_proof.tex section 7); T9 publishes then ticks")
 def test_write_after_unlock_other_schedule(i1):
+    # I1 fixed (T9): publish-then-tick reports the releaser's post-release write
     dots, trace, write, read = i1
     assert any(r["a_pc"] == write["pc"] and r["b_pc"] == read["pc"] and r["kind"] == "RAW"
-               for r in _load(trace).get("hb_races", []))
+               and r["class"] == "DR" for r in _load(trace).get("hb_races", []))
     [v] = _verdict(dots, trace, (write["pc"], read["pc"]))
     assert v["verdict"] == "RACE" and v["hb_class"] == "structural"
+
+
+def test_write_after_unlock_scalar_clock(i1, tmp_path):
+    dots, trace, write, read = i1
+    [v] = _verdict(dots, _scalar_clock(trace, tmp_path), (write["pc"], read["pc"]))
+    assert v["verdict"] == "RACE"
 
 
 # --- I2: two strong stores, a barrier, a weak load ---------------------------------------
@@ -151,12 +179,24 @@ def test_bucket_kernel_engine_matches_oracle(i2):
     assert _engine_equals_oracle(*i2[:2])
 
 
-@pytest.mark.xfail(strict=True, reason="I2: one last write per location; the barrier-ordered "
-                   "second store hides the first (Remark 'Why one bucket per key'); T9 buckets")
 def test_strong_stores_barrier_weak_load(i2):
+    # I2 fixed (T9): buckets keep A's store; (A, C) is a DR, (A, B) an SC, in both clocks
     dots, trace, a, b, c = i2
-    assert any({r["a_pc"], r["b_pc"]} == {a["pc"], c["pc"]}
-               for r in _load(trace).get("hb_races", []))
+    t = _load(trace)
+    cls = {(frozenset((r["a_pc"], r["b_pc"])), r["class"]) for r in t.get("hb_races", [])}
+    assert (frozenset((a["pc"], c["pc"])), "DR") in cls
+    assert (frozenset((a["pc"], b["pc"])), "SC") in cls
+    sync = {frozenset((x, y)) for x, y, _ in t["hb_races_sync_only"]}
+    assert frozenset((a["pc"], c["pc"])) in sync and frozenset((b["pc"], c["pc"])) not in sync
+    [v] = _verdict(dots, trace, (a["pc"], c["pc"]))
+    assert v["verdict"] == "RACE" and v["conflict_class"] == "DR"
+
+
+def test_strong_stores_barrier_weak_load_scalar_clock(i2, tmp_path):
+    # the offline barrier-only pass has the buckets too: (A, C) is a candidate and a RACE
+    dots, trace, a, b, c = i2
+    [v] = _verdict(dots, _scalar_clock(trace, tmp_path), (a["pc"], c["pc"]))
+    assert v["verdict"] == "RACE" and v["conflict_class"] == "DR"
 
 
 # --- I5: local memory ---------------------------------------------------------------------
@@ -165,10 +205,14 @@ def test_strong_stores_barrier_weak_load(i2):
 def i5(tmp_path_factory):
     dots, trace = _trace(tmp_path_factory, "local_mem_blocks")
     t = _load(trace)
-    loc = [e for e in _mem(t) if e["space"] == "local"]
-    if not loc:
-        pytest.skip("no local-memory accesses traced (the array was not placed in local memory)")
-    return dots, trace, t, loc
+    _, _, _ = ac.tables(dots, t)
+    ops = set()
+    for dot in dots:
+        for blocks, _, _ in sd.parse_dot(dot).values():
+            ops |= {op.split(".")[0] for ins in blocks.values() for _, op in ins}
+    if not {"LDL", "STL"} & ops:
+        pytest.skip("the array was not placed in local memory (no LDL/STL in the SASS)")
+    return dots, trace, t, [e for e in _mem(t) if e["space"] == "local"]
 
 
 def test_local_memory_verdict_is_clean(i5):
@@ -183,9 +227,68 @@ def test_local_memory_verdict_is_clean(i5):
     raise AssertionError("no CFG aligns with the trace")
 
 
-@pytest.mark.xfail(strict=True, reason="I5: local addresses carry no thread id (the "
-                   "collector's (flat tid << 54) fold is a 32-bit shift) and are keyed "
-                   "(local, addr); T9 keys local memory per thread")
 def test_local_memory_is_thread_private(i5):
-    _, _, t, _ = i5
+    # I5 fixed (T9, D14): local memory is outside the HB model -- the HB trace carries no
+    # local record and the engine reports no local race
+    _, _, t, loc = i5
+    assert not loc
     assert not [r for r in t.get("hb_races", []) if r["space"] == "local"]
+
+
+def test_local_records_of_an_older_dump_are_ignored(i5):
+    # an older dump carries local records: the oracle and the offline pass skip them, so it
+    # replays as a new one. Graft every global record's lanes onto a local twin at one
+    # shared offset (every thread one "location" -- what the old collector produced).
+    dots, trace, t, _ = i5
+    dot, atom, coh = ac.tables(dots, t)
+    old = copy.deepcopy(t)
+    seq = max(e["seq"] for e in old["hb_events"]) + 1
+    for e in list(old["hb_events"]):
+        if "lanes" in e:
+            twin = dict(e, seq=seq, space="local",
+                        lanes=[dict(ln, addr=0x10) for ln in e["lanes"]])
+            old["hb_events"].append(twin)
+            seq += 1
+    path = Path(trace).with_name("old_style_" + Path(trace).name)
+    path.write_text(json.dumps(old))
+    new, replay = hb_oracle.analyze(dot, trace), hb_oracle.analyze(dot, path)
+    assert replay["races"] == new["races"]
+    assert replay["races_sync_only"] == new["races_sync_only"]
+    assert sd.barrier_only_pairs(old, atom, coh) == sd.barrier_only_pairs(t, atom, coh)
+
+
+# --- D12: an unordered strong store / strong load is `sc`, never model_bug ---------------
+
+@pytest.fixture(scope="module")
+def d12(tmp_path_factory):
+    dots, trace = _trace(tmp_path_factory, "strong_store_strong_load")
+    t = _load(trace)
+    _, _, coh = ac.tables(dots, t)
+    ev = _mem(t)
+    st = next(e for e in ev if e["block"] == 1 and e["type"] == "write")
+    ld = next(e for e in ev if e["block"] == 0 and e["type"] == "read"
+              and e["lanes"][0]["addr"] == st["lanes"][0]["addr"])
+    assert st["pc"] in coh and ld["pc"] in coh, \
+        "the store and the load must be strong under --strong-ldst generic"
+    if st["seq"] > ld["seq"]:
+        pytest.skip("schedule not reached: the load ran before the store")
+    return dots, trace, st, ld
+
+
+def test_strong_store_strong_load_engine_matches_oracle(d12):
+    assert _engine_equals_oracle(*d12[:2])
+
+
+def test_strong_store_strong_load_is_sc(d12):
+    dots, trace, st, ld = d12
+    recs = [r for r in _load(trace).get("hb_races", [])
+            if {r["a_pc"], r["b_pc"]} == {st["pc"], ld["pc"]}]
+    assert recs and all(r["class"] == "SC" for r in recs)
+    [v] = _verdict(dots, trace, (st["pc"], ld["pc"]))
+    assert v["hb_class"] == "sc" and v["verdict"] == "SC" and v["conflict_class"] == "SC"
+
+
+def test_strong_store_strong_load_scalar_clock(d12, tmp_path):
+    dots, trace, st, ld = d12
+    [v] = _verdict(dots, _scalar_clock(trace, tmp_path), (st["pc"], ld["pc"]))
+    assert v["hb_class"] == "sc" and v["verdict"] == "SC"

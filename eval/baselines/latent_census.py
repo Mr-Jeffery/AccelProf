@@ -316,6 +316,9 @@ def worker(pdir, mode, variant, out):
                                          "hb_class", "benign", "verdict", "opcodes")}
             rec["kernel"] = rep["kernel"]["name"]
             rec["kfile"] = os.path.basename(kj)
+            # T9 (D12): the verdict-matrix class before judge's relabels and the DR/SC class
+            rec["matrix_class"] = v.get("matrix_class")
+            rec["conflict_class"] = v.get("conflict_class")
             rec["raced"] = None if hbr is None else k in raced
             rec["sync_raced"] = None if sync is None else k in sync
             rec["sync_count"] = None if sync is None else sync.get(k, 0)
@@ -417,7 +420,7 @@ def cmd_collect(a):
 
 RACE_CLASSES = ("structural", "model_bug", "latent", "benign")
 ALL_CLASSES = ("structural", "model_bug", "latent", "benign", "barrier-ordered", "ordered",
-               "warp-po-ordered")
+               "warp-po-ordered", "sc", "latent-sc")   # sc / latent-sc: T9 (D12), verdict SC
 
 
 def _cls(r):
@@ -497,7 +500,8 @@ def cmd_tables(a):
         census.append(row)
     cols = ["suite", "program", "mode", "variant", "label", "status", "verdict", "race_reports",
             "structural", "model_bug", "latent", "benign", "race", "barrier-ordered", "ordered",
-            "warp-po-ordered", "event_candidate", "event_candidate_race", "kernels"]
+            "warp-po-ordered", "sc", "latent-sc", "event_candidate", "event_candidate_race",
+            "kernels"]
     with open(f"{a.out}/census.csv", "w", newline="") as f:
         w = csv.DictWriter(f, cols, extrasaction="ignore")
         w.writeheader()

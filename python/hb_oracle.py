@@ -7,20 +7,24 @@ the kernel CFG (only to classify which PCs are atomics + their scope, reusing
 sync_dominance) and the pc_dependency trace JSON produced with YOSEMITE_HB_TRACE=1
 (the `hb_events` per-instance stream).
 
-Model: every thread carries a vector clock. Synchronization updates the clocks —
-a barrier / masked syncwarp joins its actual participants; an atomic acquires the
-value released to its address and republishes. A conflict (same location, >=1
-write, different threads) is a RACE iff the two accesses are not ordered by the
-resulting happens-before relation and are not both coherent accesses (atomic RMWs or
-cuda::atomic loads/stores, see sync_dominance.coherent_scope) whose .STRONG scopes
-cover the two threads. No pattern is special-cased: the canary, named barriers,
-masked syncwarps and loop-carried handshakes all fall out as a consequence of the
-clocks.
+Model (design/proof/hb_proof.tex, Algorithm 1 "Detect"): every thread carries a vector
+clock. Synchronization updates the clocks -- a barrier / masked syncwarp joins its actual
+participants; an atomic RMW acquires the clock released to its location, is checked,
+publishes its pre-tick clock and then ticks (publish-then-tick, I1). Per location, every
+thread keeps one bucket per record key (kind R/W/RMW, strong scope or weak) holding its
+latest such record (I2). A conflict (same location, >=1 write, different threads) that
+the resulting happens-before relation leaves unordered is reported with its class: "DR"
+(data race) unless the two records are morally strong -- both strong, each scope covering
+the other thread (atomic RMWs, or cuda::atomic .STRONG loads/stores per --strong-ldst) --
+then "SC" (unordered strong conflict); two morally strong RMWs are never reported.
+Local memory is outside the model (I5): `local` records are skipped. No pattern is
+special-cased: the canary, named barriers, masked syncwarps and loop-carried handshakes
+all fall out as a consequence of the clocks.
 
-A second clock per thread is advanced by barriers/syncwarps ONLY. Its races
-(`races_sync_only`, pc pairs with counts) tell the verdict matrix which dynamically
-ordered pairs owe their order to schedule-independent barrier joins alone and which
-to atomic release/acquire joins (which ignore fences -> stay latent).
+A second clock per thread is advanced by barriers/syncwarps ONLY (Detect(T, sync)). Its
+races (`races_sync_only`, pc pairs with counts, DR and SC alike) tell the verdict matrix
+which dynamically ordered pairs owe their order to schedule-independent barrier joins
+alone and which to atomic release/acquire joins (which ignore fences -> stay latent).
 
 This is the exact O(threads) reference; the analyzer's epoch engine must agree
 with it on every corpus binary. Not for large workloads.
@@ -107,8 +111,12 @@ def analyze(dot_path, trace_path, strong_ldst=None):
     vc = defaultdict(VC)              # tid -> vector clock (barriers + atomic handoffs)
     vs = defaultdict(VC)              # tid -> barrier/syncwarp-ONLY vector clock
     released = {}                     # loc -> (clock, releaser_block, scope)
-    last_write = {}                   # loc -> (tid, clock, sync_clock, pc, coh, block)
-    last_reads = defaultdict(dict)    # loc -> {tid: (clock, sync_clock, pc, coh, block)}
+    # Buckets (hb_proof.tex Algorithm 1, T9/I2): per location, per record key
+    # (kind, strong scope or None = weak), per thread: (vc epoch, vs epoch, pc) of that
+    # thread's latest record on the location with that key. Never cleared across threads
+    # (no FastTrack collapse: Theorem "Sound" needs a replaced entry PO-before its
+    # replacement). One bucket serves both clocks: both runs replace it at the same records.
+    buckets = defaultdict(dict)       # loc -> {(kind, scope): {tid: (clk, sclk, pc)}}
     races = []                        # list of race records
     sync_pairs = defaultdict(int)     # (pc_lo, pc_hi) -> conflicts unordered by vs
 
@@ -163,22 +171,37 @@ def analyze(dot_path, trace_path, strong_ldst=None):
                 nv[t] = nv.get(t, 0) + 1
                 clocks[t] = nv
 
-    def coherent(c1, b1, c2, b2):
-        """Two coherent accesses whose min .STRONG scope covers both threads."""
-        if c1 is None or c2 is None:
-            return False
-        eff = min(c1, c2)
-        return eff == sd.GRID or (eff == sd.BLOCK and b1 == b2)
-
-    def conflict(prev_tid, prev_clk, prev_sclk, prev_pc, t, pc, kind, rec, observer=None):
+    def conflict(prev_tid, prev_clk, prev_sclk, prev_pc, t, pc, kind, cls, rec, observer=None):
         """One unordered-ness test per clock for a conflicting (prev, current) pair, as
-        seen by `observer` (default t; the issuing thread for two copies of its agent)."""
+        seen by `observer` (default t; the issuing thread for two copies of its agent).
+        cls = "DR" (data race) or "SC" (unordered strong conflict, Definition "Verdicts")."""
         o = t if observer is None else observer
         if prev_clk > vc[o].get(prev_tid, 0):
             races.append({**rec, "a_tid": prev_tid, "a_pc": prev_pc,
-                          "b_tid": t, "b_pc": pc, "kind": kind})
+                          "b_tid": t, "b_pc": pc, "kind": kind, "class": cls})
         if prev_sclk > vs[o].get(prev_tid, 0):
             sync_pairs[(min(prev_pc, pc), max(prev_pc, pc))] += 1
+
+    def check(t, kind, scope, pc, loc, rec):
+        """Procedure Check: every other thread's buckets on loc that conflict with this
+        record (one of the two a write); morally strong pairs are SC unless both are RMWs,
+        which are never reportable."""
+        for (pk, ps), group in buckets[loc].items():
+            if kind == "R" and pk == "R":
+                continue
+            both_rmw = kind == "RMW" and pk == "RMW"
+            if both_rmw and ps is not None and scope is not None \
+                    and min(ps, scope) == sd.GRID:
+                continue                  # every pair of the group is morally strong
+            label = "WAR" if pk == "R" else "atomic" if kind == "RMW" else \
+                    "WAW" if kind == "W" else "RAW"
+            for u, (uc, usc, upc) in group.items():
+                if u == t:
+                    continue
+                strong = sd.morally_strong(ps, u & ~ASYNC, scope, t & ~ASYNC)
+                if strong and both_rmw:
+                    continue
+                conflict(u, uc, usc, upc, t, pc, label, "SC" if strong else "DR", rec)
 
     # T1a: the async agent (see HbEngine::async_issue/commit/wait; one-to-one)
     def async_issue(t, ag):
@@ -209,7 +232,7 @@ def analyze(dot_path, trace_path, strong_ldst=None):
         del g[:done]
 
     def loc_of(space, block, addr):
-        # shared memory is per-block; global/local keyed by absolute address.
+        # shared memory is per-block; global keyed by absolute address.
         return (space, block, addr) if space == "shared" else (space, addr)
 
     prev_seq = None
@@ -275,6 +298,12 @@ def analyze(dot_path, trace_path, strong_ldst=None):
                 warp_waiting[(block, warp)] = key
             continue
 
+        space = e["space"]
+        if space == "local":
+            # I5 (D14): local memory is outside the HB model (hb_proof.tex Definition
+            # "Records"). The T9 collector no longer serializes local records; an older dump
+            # still carries them and is replayed as if it did not.
+            continue
         # TV-barrier-completion-order: a warp blocked at a pending barrier cannot
         # execute a post-barrier memory access before its instance completes (fires).
         # This is the segmentation property the barrier-instance assembly relies on.
@@ -286,9 +315,8 @@ def analyze(dot_path, trace_path, strong_ldst=None):
 
         pc = e["pc"]
         is_atomic = pc in atom_scope
-        is_write = (typ == "write")
-        space = e["space"]
-        my_coh, my_block = coh_scope.get(pc), e["block"]
+        kind = "RMW" if is_atomic else "W" if typ == "write" else "R"
+        my_coh, my_block = coh_scope.get(pc), e["block"]   # strong scope; None = weak
         is_async = pc in async_pcs
         for lane in e["lanes"]:
             t0 = tid_of(e["block"], e["warp"], lane["lane"])
@@ -304,14 +332,13 @@ def analyze(dot_path, trace_path, strong_ldst=None):
                 # appended to the address's observed atomic order.
                 coherence[addr].append((t, atom_idx[t]))
                 atom_idx[t] += 1
-                # Scoped acquire-release. The synchronization strength is the min
-                # of the two atomics' .STRONG scopes; a release is picked up only
-                # if that strength covers the two threads (GRID = any block,
-                # BLOCK = same block, NONE = never). This is what turns a
-                # block-scoped atomic used across blocks into a caught race.
-                # Keyed by location, not raw address: shared-memory addresses are
-                # per-block offsets, so with >1 block another block's release on the
-                # same offset would clobber this block's (spurious atomic race).
+                # Scoped acquire (trusting gate, I4). The chain continues iff the previous
+                # RMW on loc is morally strong with this one (min of the two .STRONG scopes
+                # covers both threads: GRID = any block, BLOCK = same block, NONE = never);
+                # this is what turns a block-scoped atomic used across blocks into a caught
+                # race. Keyed by location, not raw address: shared-memory addresses are
+                # per-block offsets, so with >1 block another block's release on the same
+                # offset would clobber this block's (spurious atomic race).
                 my_scope = atom_scope[pc]
                 rel = released.get(loc)
                 if rel is not None:
@@ -319,44 +346,23 @@ def analyze(dot_path, trace_path, strong_ldst=None):
                     eff = min(my_scope, rscope)
                     if eff == sd.GRID or (eff == sd.BLOCK and rblock == my_block):
                         vc[t] = vc[t].joined(rclk)
-                # an atomic RMW is a write: it races a prior writer / reader that is
-                # neither HB-ordered nor coherent with it — e.g. same-address atomics
-                # at a scope too narrow for their distance, or a plain access.
-                own(t), owns(t)
-                w = last_write.get(loc)
-                if w and w[0] != t and not coherent(my_coh, my_block, w[4], w[5]):
-                    conflict(w[0], w[1], w[2], w[3], t, pc, "atomic", rec)
-                for rt, (rc, rsc, rpc, rcoh, rblk) in last_reads[loc].items():
-                    if rt != t and not coherent(my_coh, my_block, rcoh, rblk):
-                        conflict(rt, rc, rsc, rpc, t, pc, "WAR", rec)
-                vc[t][t] = own(t) + 1
-                released[loc] = (VC(vc[t]), my_block, my_scope)
-                last_write[loc] = (t, vc[t][t], owns(t), pc, my_coh, my_block)
-                last_reads[loc] = {}
-                continue
-
             clk, sclk = own(t), owns(t)
-            # conflict with the last writer / concurrent readers not HB-before t
-            w = last_write.get(loc)
-            if w and not coherent(my_coh, my_block, w[4], w[5]):
-                if w[0] != t:
-                    conflict(w[0], w[1], w[2], w[3], t, pc, "WAW" if is_write else "RAW", rec)
-                elif is_write and t & ASYNC:
-                    # two copies of one thread: PTX orders no two cp.async operations, so
-                    # they are unordered until a wait completes the first. The agent knows
-                    # its own copies; the thread knows only those a wait completed.
-                    conflict(w[0], w[1], w[2], w[3], t, pc, "WAW", rec, observer=t0)
-            if is_write:
-                # the reader pc is kept: a WAR record must name both pcs (a single-pc
-                # key mis-attributes the race to every pair sharing it).
-                for rt, (rc, rsc, rpc, rcoh, rblk) in last_reads[loc].items():
-                    if rt != t and not coherent(my_coh, my_block, rcoh, rblk):
-                        conflict(rt, rc, rsc, rpc, t, pc, "WAR", rec)
-                last_write[loc] = (t, clk, sclk, pc, my_coh, my_block)
-                last_reads[loc] = {}
-            else:
-                last_reads[loc][t] = (clk, sclk, pc, my_coh, my_block)
-
+            check(t, kind, my_coh, pc, loc, rec)
+            if kind == "W" and t & ASYNC:
+                # two copies of one thread: PTX orders no two cp.async operations, so they
+                # are unordered until a wait completes the first. The agent knows its own
+                # copies; the thread knows only those a wait completed.
+                mine = buckets[loc].get((kind, my_coh), {}).get(t)
+                if mine is not None:
+                    conflict(t, *mine, t, pc, "WAW", "DR", rec, observer=t0)
+            buckets[loc].setdefault((kind, my_coh), {})[t] = (clk, sclk, pc)
+            if is_atomic:
+                # I1 (D1): publish the pre-tick clock -- the RMW's own epoch is clk, so a
+                # later acquirer is ordered after the RMW but not after t's next accesses --
+                # then tick. Overwriting released[loc] equals Algorithm 1's join under the
+                # trusting gate (the clock already holds the chain unless it broke).
+                released[loc] = (VC(vc[t]), my_block, my_scope)
+                vc[t][t] = clk + 1
     # dedup identical race tuples (same pc pair, tid pair, addr); then report the issuing
     # thread's id for an agent's access with "async" naming the side(s) (as HbEngine emits)
     seen, uniq = set(), []
@@ -386,6 +392,7 @@ def analyze(dot_path, trace_path, strong_ldst=None):
         "races_sync_only": [[a, b, n] for (a, b), n in sorted(sync_pairs.items())],
         "coherence_profile": coherence_profile,
         "summary": {"races": len(uniq), "events": len(events),
+                    "sc": sum(r["class"] == "SC" for r in uniq),
                     "atomic_addrs": len(coherence_profile)},
     }
 
@@ -397,7 +404,8 @@ def render(report):
     for r in report["races"]:
         a = f"tid{r['a_tid']}@{hex(r['a_pc']) if r['a_pc'] is not None else 'read'}"
         b = f"tid{r['b_tid']}@{hex(r['b_pc'])}"
-        lines.append(f"RACE {r['kind']} {r['space']}[{hex(r['addr'])}]  {a}  vs  {b}")
+        tag = "RACE" if r.get("class", "DR") == "DR" else "STRONG-CONFLICT"
+        lines.append(f"{tag} {r['kind']} {r['space']}[{hex(r['addr'])}]  {a}  vs  {b}")
     lines.append(f"{report['summary']['races']} race(s) over "
                  f"{report['summary']['events']} events")
     return "\n".join(lines)

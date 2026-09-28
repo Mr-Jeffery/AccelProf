@@ -8,8 +8,8 @@ For every conflicting PC pair (u, v) observed as a trace edge, the pair RACES
 at its observed thread distance d iff u and v are NOT ordered at scope >= d, on
 the lattice  none < warp < block < grid.
 
-Ordering is one "ordered-by" relation (class HBGraph) built from three
-edge-generation rules; the pair's strength is the max scope those rules certify:
+Ordering is one "ordered-by" relation (class HBGraph) built from three rules; R1 and R3
+certify order, R2 only the pair's DR/SC class (T9, D12):
 
  R1 sync dominance (static): a qualifying sync s orders (u, v) at scope(s) iff
     s in postdom(u) & dom(v)  or  s in postdom(v) & dom(u)  — s runs after one
@@ -18,11 +18,13 @@ edge-generation rules; the pair's strength is the max scope those rules certify:
     Qualifying: BAR.SYNC*/BAR.RED* (block), WARPSYNC (warp); BAR.ARV* never orders.
     Same-PC pairs: a qualifying sync of scope >= s on every cycle through the PC's
     region.
- R2 atomic coherence (static x dynamic): two same-address atomics are ordered
-    at min of their .STRONG scopes (SM/CTA -> block, GPU/SYS -> grid); a shared-
-    memory ATOMS without a scope suffix is block-coherent by construction. A
-    cuda::atomic load()/store() is no RMW opcode but a LD|ST.*.STRONG.<scope>; per
-    the --strong-ldst policy it is a coherent access for R2 (never for R3).
+ R2 atomic coherence (static): two strong accesses whose min .STRONG scope covers
+    the observed distance are morally strong (SM/CTA -> block, GPU/SYS -> grid; a
+    shared-memory ATOMS without a scope suffix is block-coherent by construction; a
+    cuda::atomic load()/store() is no RMW opcode but a LD|ST.*.STRONG.<scope>, strong
+    per the --strong-ldst policy, never an R3 atomic). R2 decides the CLASS of a pair --
+    SC (unordered strong conflict) or DR (data race) -- never its verdict (D12,
+    hb_proof.tex section 5); two morally strong RMWs are no conflict at all.
  R3 scoped happens-before chain (static x dynamic, ScoRD model): release fence
     (MEMBAR in postdom(u) & dom(a), scope covering the hop) -> observed atomic-
     atomic sync edge(s) from the trace -> acquire (dependency order behind the
@@ -181,6 +183,17 @@ def coherent_scope(opcode, policy=None):
     return _ATOM_SCOPE.get(parts[i + 1] if i + 1 < len(parts) else None, NONE)
 
 
+def morally_strong(s1, t1, s2, t2):
+    """ms of two records of threads t1, t2 (engine tids, no async bit) from their strong
+    scopes (None = weak; hb_proof.tex Definition "Scope inclusion, moral strength"): both
+    strong and each scope covers the other thread -- GRID any block, BLOCK the same block,
+    NONE (an atomic whose SASS names no scope) nothing."""
+    if s1 is None or s2 is None:
+        return False
+    eff = min(s1, s2)
+    return eff == GRID or (eff == BLOCK and t1 >> 10 == t2 >> 10)
+
+
 def parse_flags(flags):
     """Trace access flags string -> (space, access)."""
     f = flags.upper()
@@ -249,7 +262,7 @@ class HBGraph:
       R1 dominance() / loop_scope()  — static barriers/warpsync,
       R2 coherence()                 — same-address atomics,
       R3 chain()                     — release -> observed sync -> acquire.
-    ordered() runs the single query max(R1, R2) then R3, per roadmap Phase 1."""
+    ordered() runs R1 then R3 and reports R2's scope alongside (class, not order)."""
 
     def __init__(self, blocks, edges, entry):
         self.G = nx.DiGraph()
@@ -455,20 +468,20 @@ class HBGraph:
     # -- the single ordered-by query ------------------------------------------
     def ordered(self, cur, anc, d, cur_read, anc_read, static=True):
         """Is the conflicting pair ordered at scope >= d? Returns a dict with the
-        certified strength, the R1 sync pcs, the R2 coherence scope and the R3
-        chain — the fields the report needs. verdict = strength >= d or chain.
+        certified R1 strength and sync pcs, the R2 coherence scope and the R3 chain --
+        the fields the report needs. ordered = strength >= d or chain. The R2 scope is
+        not an ordering (D12): it says whether the two accesses are morally strong at
+        distance d, i.e. the pair's DR/SC class.
 
         static=False for a warp-same-instruction multi-lane write: no static sync
-        (R1) or chain (R3) can intervene within one instruction, only R2 applies."""
+        (R1) or chain (R3) can intervene within one instruction."""
         if not static:
             strength, syncs = NONE, []
         elif cur == anc:
             strength, syncs = self.loop_scope(cur)              # R1 (cycle form)
         else:
             strength, syncs = self.dominance(cur, anc)          # R1
-        coherence = self.coherence(cur, anc)                    # R2
-        if coherence > strength:
-            strength, syncs = coherence, []
+        coherence = self.coherence(cur, anc)                    # R2 (class only)
         chain = None
         if static and strength < d:                             # R3
             ok = lambda x, rd: x in self.atom or rd or self._cs_fenced(x, d)
@@ -491,18 +504,21 @@ def barrier_only_pairs(trace, rmw, coh, max_lanes=None, dist_out=None, order_out
                        async_pc=frozenset()):
     """Offline barrier/syncwarp-ONLY happens-before pass over a dump's `hb_events`:
     the pc pairs {(pc_lo, pc_hi): count} whose conflicts those joins leave unordered
-    (the engine's `hb_races_sync_only`, same semantics as hb_oracle's second clock).
+    (the engine's `hb_races_sync_only`, same semantics as hb_oracle's second clock) --
+    Detect(T, sync) of hb_proof.tex Algorithm 1, DR and SC pairs alike.
 
     It needs no atomic release/acquire joins, so it is cheap enough for the scalar-clock
     mode: the clock changes only at a sync group, where every participant ends with
     the same joined clock plus its own tick -> one shared base per group, O(threads)
     per barrier. rmw = {pc: scope} atomic RMWs (write semantics), coh = {pc: scope}
-    coherent accesses. dist_out, if given, receives {(pc_lo, pc_hi): widest thread
-    distance (WARP/BLOCK/GRID) among the pair's unordered conflicts}; order_out
-    {(pc_lo, pc_hi): (earlier_pc, later_pc)} of the pair's first conflict in event order.
-    async_pc = the cp.async (LDGSTS) pcs: their accesses belong to the issuing thread's
-    async agent, completed for the thread by a covering wait_group (T1a; one-to-one with
-    HbEngine::async_issue/commit/wait).
+    strong accesses (the RMWs plus .STRONG loads/stores per policy). State per location:
+    one bucket per (kind, strong scope) and thread, as in the engine (T9, I2); `local`
+    records are outside the model and skipped (I5). dist_out, if given, receives
+    {(pc_lo, pc_hi): widest thread distance (WARP/BLOCK/GRID) among the pair's unordered
+    conflicts}; order_out {(pc_lo, pc_hi): (earlier_pc, later_pc)} of the pair's first
+    conflict in event order. async_pc = the cp.async (LDGSTS) pcs: their accesses belong
+    to the issuing thread's async agent, completed for the thread by a covering wait_group
+    (T1a; one-to-one with HbEngine::async_issue/commit/wait).
     -> None if the dump has no hb_events or exceeds max_lanes."""
     events = trace.get("hb_events")
     if not events:
@@ -515,7 +531,7 @@ def barrier_only_pairs(trace, rmw, coh, max_lanes=None, dist_out=None, order_out
     tid_of = lambda b, w, l: (b << 10) | (w << 5) | l
     base, own = {}, {}                 # tid -> shared joined clock / own component
     pending = {}                       # (block, bar_index) -> arrived tids
-    last_write, last_reads, pairs = {}, {}, {}
+    buckets, pairs = {}, {}            # loc -> {(kind, scope): {tid: (epoch, pc)}}
     groups = {}                        # T1a: t -> [its agent's clock at each commit]
 
     def full(t):                       # t's clock as one dict (base + own component)
@@ -567,12 +583,6 @@ def barrier_only_pairs(trace, rmw, coh, max_lanes=None, dist_out=None, order_out
         b = base.get(t)
         return p_clk > (b.get(p_tid, 0) if b is not None else 0)
 
-    def coherent(c1, b1, c2, b2):
-        if c1 is None or c2 is None:
-            return False
-        eff = min(c1, c2)
-        return eff == GRID or (eff == BLOCK and b1 == b2)
-
     def hit(p_pc, pc, p_tid, t):
         k = (min(p_pc, pc), max(p_pc, pc))
         pairs[k] = pairs.get(k, 0) + 1
@@ -607,7 +617,9 @@ def barrier_only_pairs(trace, rmw, coh, max_lanes=None, dist_out=None, order_out
                 del pending[key]
             continue
         pc, blk, space = e["pc"], e["block"], e["space"]
-        is_write = typ == "write" or pc in rmw
+        if space == "local":          # I5 (D14): local memory is outside the model
+            continue
+        kind = "RMW" if pc in rmw else "W" if typ == "write" else "R"
         my_coh = coh.get(pc)
         is_async = pc in async_pc
         for lane in e["lanes"]:
@@ -617,25 +629,28 @@ def barrier_only_pairs(trace, rmw, coh, max_lanes=None, dist_out=None, order_out
                 async_issue(t0, t)
             loc = (space, blk, lane["addr"]) if space == "shared" else (space, lane["addr"])
             clk = own.setdefault(t, 1)
-            w = last_write.get(loc)
-            if w and not coherent(my_coh, blk, w[3], w[4]):
-                if w[0] != t:
-                    if unordered(t, w[0], w[1]):
-                        hit(w[2], pc, w[0], t)
-                elif is_write and t & ASYNC_BIT and unordered(t0, t, w[1]):
-                    # two copies of one thread: PTX orders no two cp.async operations, so
-                    # they are unordered until a wait completes the first. The agent knows
-                    # its own copies; the thread knows only those a wait completed.
-                    hit(w[2], pc, t, t)
-            if is_write:
-                for rt, (rc, rpc, rcoh, rblk) in last_reads.get(loc, {}).items():
-                    if rt != t and not coherent(my_coh, blk, rcoh, rblk) \
-                            and unordered(t, rt, rc):
-                        hit(rpc, pc, rt, t)
-                last_write[loc] = (t, clk, pc, my_coh, blk)
-                last_reads[loc] = {}
-            else:
-                last_reads.setdefault(loc, {})[t] = (clk, pc, my_coh, blk)
+            bl = buckets.setdefault(loc, {})
+            for (pk, ps), grp in bl.items():                  # procedure Check
+                if kind == "R" and pk == "R":
+                    continue
+                both_rmw = kind == "RMW" and pk == "RMW"
+                if both_rmw and ps is not None and my_coh is not None \
+                        and min(ps, my_coh) == GRID:
+                    continue                  # every pair of the group is morally strong
+                for u, (uc, upc) in grp.items():
+                    if u == t or (both_rmw and morally_strong(
+                            ps, u & ~ASYNC_BIT, my_coh, t & ~ASYNC_BIT)):
+                        continue
+                    if unordered(t, u, uc):
+                        hit(upc, pc, u, t)
+            if kind == "W" and t & ASYNC_BIT:
+                # two copies of one thread: PTX orders no two cp.async operations, so
+                # they are unordered until a wait completes the first. The agent knows
+                # its own copies; the thread knows only those a wait completed.
+                mine = bl.get((kind, my_coh), {}).get(t)
+                if mine is not None and unordered(t0, t, mine[0]):
+                    hit(mine[1], pc, t, t)
+            bl.setdefault((kind, my_coh), {})[t] = (clk, pc)
     return pairs
 
 
@@ -668,32 +683,46 @@ def _race_type(cur_access, anc_access):
            "RAW" if anc_w else "RAR"
 
 
-def _hb_class(r1r2_ordered, chain_ordered, dyn_raced, sync_raced=None):
-    """Verdict-matrix cell (roadmap 4.1). Static all-schedule ordering crossed with
-    the observed-schedule dynamic HB race:
-      * R1 dominance / R2 coherence are all-schedule sound  (r1r2_ordered)
-      * R3 chain is PC-level and can over-order (the canary) (chain_ordered)
-    dyn_raced from the analyzer's C++ HB engine is the observed-schedule truth.
-      structural  raced, and no all-schedule proof orders it (chain over-ordered,
-                  or nothing did) -> a real race static missed.
-      latent      not raced this schedule, but nothing proves all-schedule ordering
-                  -> races under a different schedule.
-      model_bug   R1/R2 claim every-schedule race-freedom yet it raced -> a soundness
-                  bug in R1/R2 or a trace/CFG misalignment; investigate.
-      ordered     not raced and some all-schedule proof orders it.
-      barrier-ordered  not raced, no static proof, but barrier/syncwarp joins alone
-                  order every observed conflict of the pair (schedule-independent:
-                  the barrier-in-loop reduction the PC-level R1 cannot certify)."""
+def _hb_class(r1_ordered, chain_ordered, dyn_raced, sync_raced=None, strong=False):
+    """Verdict-matrix cell (hb_proof.tex section 5 as amended by D12). Static all-schedule
+    ordering crossed with the observed-schedule dynamic HB race:
+      * R1 dominance is all-schedule sound                       (r1_ordered)
+      * R3 chain is PC-level and can over-order (the canary)     (chain_ordered)
+    dyn_raced (the engine's hb_races) is the observed-schedule truth; `strong` is the
+    pair's class, SC (morally strong -- decided by hb_races' instances in vector-clock
+    mode, else by R2 at the widest observed distance) or DR. R2 grants no order.
+      model_bug   R1 claims every-schedule order yet it raced -> a soundness bug in R1 or
+                  a trace/CFG misalignment; investigate.
+      structural  raced (some instance a data race), and no all-schedule proof orders it
+                  (the chain over-ordered, or nothing did) -> a race static missed.
+      sc          raced, every instance an unordered strong conflict: reported,
+                  informational (D2), neither a race nor ordered.
+      ordered     not raced and R1 or R3 orders it.
+      barrier-ordered  not raced, no static proof, but barrier/syncwarp joins alone order
+                  every observed conflict of the pair (schedule-independent: the barrier-
+                  in-loop reduction the PC-level R1 cannot certify).
+      latent      not raced this schedule, nothing proves all-schedule ordering -> may race
+                  under another schedule (D8: a third verdict); latent-sc if SC."""
     if dyn_raced:
-        return "model_bug" if r1r2_ordered else "structural"
-    if r1r2_ordered or chain_ordered:
+        return "model_bug" if r1_ordered else "sc" if strong else "structural"
+    if r1_ordered or chain_ordered:
         return "ordered"
     # No static proof. sync_raced is the engine's second, barrier/syncwarp-ONLY clock
     # (hb_races_sync_only; None when the dump predates it). Barrier joins do not
     # depend on the schedule, so a pair whose every observed conflict they order is
     # not a "lucky schedule": barrier-ordered. A pair they leave unordered was ordered
     # only through atomic release/acquire joins, which ignore fences -> latent.
-    return "barrier-ordered" if sync_raced is False else "latent"
+    if sync_raced is False:
+        return "barrier-ordered"
+    return "latent-sc" if strong else "latent"
+
+
+# class -> verdict. RACE = a race of this run (structural, model_bug) or LATENT (latent),
+# the latter still counted as RACE by the program-level harness (the Race u Latent
+# operating point, D2); SC = an unordered strong conflict, informational, never RACE.
+CLASS_VERDICT = {"model_bug": "RACE", "structural": "RACE", "latent": "RACE",
+                 "sc": "SC", "latent-sc": "SC",
+                 "ordered": "ORDERED", "barrier-ordered": "ORDERED"}
 
 
 def _observed(dist):
@@ -874,6 +903,12 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
         same = observed == NONE
         if same:
             observed, weight = WARP, same_inst
+        # D12: two morally strong RMWs are no conflict (Definition "Verdicts": coherence
+        # orders them and atomicity makes both outcomes well-defined) -- as in Detect.
+        widest = max(observed, observed_dyn.get(frozenset((cur, anc)), NONE))
+        if cur in atom and anc in atom and eng.coherence(cur, anc) >= widest:
+            skipped.append({**rec, "reason": "rmw_pair_morally_strong"})
+            return
         ev = eng.ordered(cur, anc, observed, cur_access == "read",
                          anc_access == "read", static=not same)
         if cur in asy or anc in asy:
@@ -887,23 +922,35 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
             ev = dict(ev, chain=None)
             if anc in asy:
                 ev.update(strength=NONE, syncs=[])
-        r1r2_ordered = ev["strength"] >= observed        # R1 dominance / R2 coherence
+        r1_ordered = ev["strength"] >= observed          # R1 dominance
         chain_ordered = ev["chain"] is not None          # R3 PC-level handshake
+        # the pair's class (D12): DR if some engine instance is a DR, else SC; with no
+        # engine instance, R2 at the widest observed distance (never SC -> DR reversed)
+        recs = raced_records.get(frozenset((cur, anc)), [])
+        if recs:
+            strong = all(r.get("class", "DR") == "SC" for r in recs)
+        else:
+            strong = eng.coherence(cur, anc) >= widest
         if raced_pcsets is not None:
             hb_class = _hb_class(
-                r1r2_ordered, chain_ordered,
+                r1_ordered, chain_ordered,
                 hb_pair_raced(cur, anc, cur_access == "read", anc_access == "read"),
-                None if sync_pcsets is None else frozenset((cur, anc)) in sync_pcsets)
-            verdict = "ORDERED" if hb_class in ("ordered", "barrier-ordered") else "RACE"
+                None if sync_pcsets is None else frozenset((cur, anc)) in sync_pcsets,
+                strong)
+            verdict = CLASS_VERDICT[hb_class]
         else:
             # static leg only (no engine): a pair without a static proof is still
-            # ordered when barrier/syncwarp joins order every observed conflict.
-            if r1r2_ordered or chain_ordered:
+            # ordered when barrier/syncwarp joins order every observed conflict; the
+            # rest is a race of unknown kind (RACE), or `sc` if its class is SC.
+            if r1_ordered or chain_ordered:
                 hb_class, verdict = None, "ORDERED"
             elif sync_pcsets is not None and frozenset((cur, anc)) not in sync_pcsets:
                 hb_class, verdict = "barrier-ordered", "ORDERED"
+            elif strong:
+                hb_class, verdict = "sc", "SC"
             else:
                 hb_class, verdict = None, "RACE"
+        matrix_class = hb_class          # before judge's relabels (D2 counts this one)
         race_type = _race_type(cur_access, anc_access)
         benign = assumption = None
         if verdict == "RACE" and race_type in ("RAW", "WAR"):
@@ -946,6 +993,8 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
             "edge_rescued": rescued,
             "event_candidate": from_events,
             "hb_class": hb_class,
+            "matrix_class": matrix_class,
+            "conflict_class": "SC" if strong else "DR",
             "benign": benign,
             "assumption": assumption,
             "verdict": verdict,
@@ -994,6 +1043,7 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
             cand_diag["judged"] += 1
 
     races = sum(v["verdict"] == "RACE" for v in verdicts)
+    n_sc = sum(v["verdict"] == "SC" for v in verdicts)
     return {
         "inputs": {"cfg_dot": str(dot_path), "trace_json": str(trace_path)},
         "kernel": {"mangled": mangled, "name": trace["kernel"]["kernel_name"]},
@@ -1010,12 +1060,12 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
             # event-stream pairs without an edge verdict: how many, judged, unusable
             "event_candidates": cand_diag,
         },
-        "summary": {"races": races, "ordered": len(verdicts) - races,
+        "summary": {"races": races, "sc": n_sc, "ordered": len(verdicts) - races - n_sc,
                     "skipped": len(skipped),
                     "hb_classes": {c: sum(v["hb_class"] == c for v in verdicts)
                                    for c in ("structural", "latent", "model_bug",
                                              "benign", "warp-po-ordered",
-                                             "barrier-ordered")}
+                                             "barrier-ordered", "sc", "latent-sc")}
                                   if raced_pcsets is not None else None},
     }
 
@@ -1038,8 +1088,6 @@ def render(report, out):
             via = " (PC-level hb " + "->".join(v["hb_chain"]) + " refuted by dynamic HB)"
         elif v["hb_chain"]:
             via = " via hb(" + "->".join(v["hb_chain"]) + ")"
-        elif v["atomic_coherence"] != "none" and v["strength"] == v["atomic_coherence"]:
-            via = f" via atomic({v['atomic_coherence']})"
         elif v.get("hb_class") == "barrier-ordered":
             via = " via observed barrier/syncwarp joins"
         else:
@@ -1062,8 +1110,8 @@ def render(report, out):
         anc = hex(s["ancient_pc"]) if s["ancient_pc"] is not None else "-"
         lines.append(f"skipped: {anc} -> {hex(s['current_pc'])}  ({s['reason']})")
     smry = report["summary"]
-    lines.append(f"{smry['races']} race(s), {smry['ordered']} ordered, "
-                 f"{smry['skipped']} skipped   -> {out}")
+    lines.append(f"{smry['races']} race(s), {smry.get('sc', 0)} strong conflict(s), "
+                 f"{smry['ordered']} ordered, {smry['skipped']} skipped   -> {out}")
     return "\n".join(lines)
 
 
