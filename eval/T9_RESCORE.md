@@ -184,7 +184,8 @@ manifest; `detail/` gitignored), `eval/results/latent-census-t9/`, `eval/results
 * The `hb_races` aggregation was verified by the parity tests and the simulator; the re-score
   ran with record-level dumps (verdict-equivalent by construction, not re-run aggregated).
 * 4 P1 1296n programs were not re-scored (Python oracle OOM); their engine run with T9 was not
-  tried. `P9-mr-cuda` hit the 4 h analysis cap on both sides (unchanged status).
+  tried. `P9-mr-cuda` (113 GB scalar-clock dump, no vector-clock dump) is not compared: its analysis
+  was still running after 2.5 h on both sides and was cancelled.
 * The E2 `asyncmemcpy/*` programs, P7 and 8 of 9 P9 programs have no vector-clock dump (T5b).
 * Proposition "Agents" and the Part 2 superset argument are hand arguments.
 * No second architecture (sm_89 only); the engine's T9 memory at P1 scale (with aggregation)
