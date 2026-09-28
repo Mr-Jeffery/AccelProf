@@ -7,7 +7,9 @@ Detect(T, vec) with the I1/I2 switches off (the proof's reference).
 
   I1  python/testdata/write_after_unlock_other_schedule.cu -- the ScoR rtraw lock pattern
       with block 0 first: block 0's write after its unlock races block 1's read under the
-      lock. Tick-before-publish hides it (Proposition "Missed class of I1").
+      lock. Tick-before-publish hides it (Proposition "Missed class of I1"). The data is
+      volatile, so since T10 (default --strong-ldst token) both accesses are strong at sys
+      scope and the reportable pair is an SC, not a DR; the class is asserted per policy.
   I2  python/testdata/strong_stores_barrier_weak_load.cu -- Remark "Why one bucket per key":
       two unordered strong stores, a barrier, a weak load; one last write per location hides
       the first store from the load, in both clocks.
@@ -110,7 +112,7 @@ def _scalar_clock(trace, tmp_path):
 def i1(tmp_path_factory):
     dots, trace = _trace(tmp_path_factory, "write_after_unlock_other_schedule")
     t = _load(trace)
-    _, atom, _ = ac.tables(dots, t)
+    _, atom, coh = ac.tables(dots, t)
     ev = _mem(t)
     b0, b1 = [e for e in ev if e["block"] == 0], [e for e in ev if e["block"] == 1]
     if not b0 or not b1 or b0[-1]["seq"] > b1[0]["seq"]:
@@ -119,13 +121,16 @@ def i1(tmp_path_factory):
     write = next(e for e in b0 if e["seq"] > unlock["seq"] and e["pc"] not in atom)
     addr = write["lanes"][0]["addr"]
     read = next(e for e in b1 if e["type"] == "read" and e["lanes"][0]["addr"] == addr)
-    return dots, trace, write, read
+    # T10: the class of the pair under the active policy (the two blocks differ, so the
+    # pair is morally strong iff both pcs are strong at grid scope: volatile under token)
+    cls = "SC" if min(coh.get(write["pc"], -1), coh.get(read["pc"], -1)) == sd.GRID else "DR"
+    return dots, trace, write, read, cls
 
 
 def test_write_after_unlock_reference_reports_it(i1):
-    dots, trace, write, read = i1
+    dots, trace, write, read, cls = i1
     ref = {(r[2], r[1] >> 10, r[4], r[3] >> 10, r[5]) for r in ac.reference(dots, trace)}
-    assert ref == {(write["pc"], 0, read["pc"], 1, "DR")}
+    assert ref == {(write["pc"], 0, read["pc"], 1, cls)}
 
 
 def test_write_after_unlock_engine_matches_oracle(i1):
@@ -133,18 +138,20 @@ def test_write_after_unlock_engine_matches_oracle(i1):
 
 
 def test_write_after_unlock_other_schedule(i1):
-    # I1 fixed (T9): publish-then-tick reports the releaser's post-release write
-    dots, trace, write, read = i1
+    # I1 fixed (T9): publish-then-tick reports the releaser's post-release write -- a DR
+    # under the pre-T10 generic policy, an SC under token (both accesses volatile, T10)
+    dots, trace, write, read, cls = i1
     assert any(r["a_pc"] == write["pc"] and r["b_pc"] == read["pc"] and r["kind"] == "RAW"
-               and r["class"] == "DR" for r in _load(trace).get("hb_races", []))
+               and r["class"] == cls for r in _load(trace).get("hb_races", []))
     [v] = _verdict(dots, trace, (write["pc"], read["pc"]))
-    assert v["verdict"] == "RACE" and v["hb_class"] == "structural"
+    assert (v["verdict"], v["hb_class"]) == \
+        (("RACE", "structural") if cls == "DR" else ("SC", "sc"))
 
 
 def test_write_after_unlock_scalar_clock(i1, tmp_path):
-    dots, trace, write, read = i1
+    dots, trace, write, read, cls = i1
     [v] = _verdict(dots, _scalar_clock(trace, tmp_path), (write["pc"], read["pc"]))
-    assert v["verdict"] == "RACE"
+    assert v["verdict"] == ("RACE" if cls == "DR" else "SC")
 
 
 # --- I2: two strong stores, a barrier, a weak load ---------------------------------------

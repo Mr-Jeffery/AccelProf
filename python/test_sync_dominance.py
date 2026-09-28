@@ -5,8 +5,10 @@ The ScoR corpus test drives every microbenchmark binary through getall.sh
 
 Atomic coherence scope and the scoped happens-before closure are modelled, so
 the suite is asserted in both directions:
-  * `race_*`   -> at least one RACE  (a miss is a false negative = a real bug)
-  * `norace_*` -> zero RACEs         (a hit is a false positive)
+  * `race_*`   -> at least one RACE  (a miss is a false negative = a real bug); since T10
+                  the races between two strong accesses (_PTX_STRONG_RACES: volatile data)
+                  are reported as unordered strong conflicts instead -- SC, no RACE
+  * `norace_*` -> zero RACEs and zero SC (a hit is a false positive)
   * every binary -> pipeline aligns, no unknown sync opcodes
 """
 import json
@@ -25,6 +27,32 @@ _ROOT = Path(__file__).resolve().parents[1]
 _BIN = _ROOT / "ScoR/microbenchmarks/bin"
 _ART = _ROOT / "ScoR/microbenchmarks/artifacts"   # getall.sh output, moved out of bin/
 _LOG = _ART / "sync_dominance.log"
+
+# T10 (D9): the ScoR races whose two accesses are both strong. ScoR's data is `volatile`,
+# which lowers to LDG/STG.E.STRONG.SYS (PTX relaxed.sys): under the default strength policy
+# (`token`) such an access is strong, so a race between two of them -- or between one and an
+# atomic whose scope covers the other thread -- is an unordered strong conflict (hb_proof.tex
+# Definition "Verdicts"), reported as SC and never as a RACE. ScoR labels it a race: its model
+# (ScoRD) treats volatile data as ordinary data. Taken from the sources; independent of the
+# schedule, since every conflicting access of these kernels is strong at a covering scope.
+# The other two race_* kernels are scope races (a block-scope atomic or lock used across
+# blocks) and keep a DR under every policy. Under a pre-T10 policy (generic: volatile weak)
+# every race_* kernel reports a RACE.
+_PTX_STRONG_RACES = {
+    "race_interblock_blkfence_raw", "race_interblock_fence_rtraw",
+    "race_interblock_lock-blkfence_waw", "race_interblock_lock-no-stf_waw",
+    "race_interblock_lock-no-tf_waw", "race_interblock_none-atom_waw",
+    "race_interblock_none-lock_rtraw", "race_interblock_none-lock_waw",
+    "race_interwarp_blklock-no-stf_waw", "race_interwarp_blklock-no-tf_waw",
+    "race_interwarp_dev-blklock-no-stf_waw", "race_interwarp_dev-blklock-no-tf_waw",
+    "race_interwarp_none-atom_waw", "race_interwarp_none-blkatom_waw",
+    "race_interwarp_none-blklock_waw", "race_interwarp_none-lock_waw",
+}
+
+
+def _volatile_is_strong():
+    """Is a volatile (address-spaced .STRONG) access strong under the active policy?"""
+    return sd.strong_ldst_policy() in ("token", "all")
 
 
 def _binaries():
@@ -80,7 +108,7 @@ def test_scor_microbenchmark(binary, logfile):
         pytest.skip("corpus not generated (no GPU / accelprof unavailable)")
     dots, traces = art
 
-    races = 0
+    races = sc = 0
     with open(logfile, "a") as log:
         log.write(f"\n===== {binary.name} =====\n")
         for trace in traces:
@@ -97,11 +125,18 @@ def test_scor_microbenchmark(binary, logfile):
             assert report["diagnostics"]["unknown_sync_count"] == 0, \
                 f"unknown sync opcodes in {binary.name}"
             races += report["summary"]["races"]
+            sc += report["summary"]["sc"]
 
     if binary.name.startswith("race_"):
-        assert races >= 1, f"false negative: {binary.name} reported no race"
+        if _volatile_is_strong() and binary.name in _PTX_STRONG_RACES:
+            # T10: reported, as an unordered strong conflict (a miss has sc == 0 as well)
+            assert races == 0 and sc >= 1, (f"{binary.name}: expected the labelled race as SC "
+                                            f"only, got {races} race(s) and {sc} SC")
+        else:
+            assert races >= 1, f"false negative: {binary.name} reported no race"
     else:
         assert races == 0, f"false positive: {binary.name} reported {races} race(s)"
+        assert sc == 0, f"{binary.name}: {sc} unordered strong conflict(s) on a race-free kernel"
 
 
 def _race_key(r):
@@ -181,7 +216,7 @@ def test_scor_microbenchmark_scalar_clock(binary, tmp_path):
     if art is None:
         pytest.skip("corpus not generated (no GPU / accelprof unavailable)")
     dots, traces = art
-    races = engine_races = 0
+    races = engine_races = sc = 0
     for trace in traces:
         tj = json.loads(trace.read_text())
         for k in ("hb_races", "hb_races_sync_only", "coherence_profile"):
@@ -190,13 +225,19 @@ def test_scor_microbenchmark_scalar_clock(binary, tmp_path):
         stripped.write_text(json.dumps(tj))
         for dot in dots:
             try:
-                races += sd.analyze(dot, stripped)["summary"]["races"]
+                rep = sd.analyze(dot, stripped)
+                races += rep["summary"]["races"]
+                sc += rep["summary"]["sc"]
                 engine_races += sd.analyze(dot, trace)["summary"]["races"]
                 break
             except sd.AlignmentError:
                 continue
     if binary.name.startswith("norace_"):
         assert races == 0, f"scalar-clock false positive: {binary.name}"
+    elif _volatile_is_strong() and binary.name in _PTX_STRONG_RACES:
+        # T10: the class is R2's here (both pcs strong at a covering scope): SC, no RACE
+        assert races == 0 and sc >= 1, (f"scalar-clock: {binary.name}: expected SC only, got "
+                                        f"{races} race(s) and {sc} SC")
     elif binary.name not in _SCALAR_CLOCK_KNOWN_FN:
         assert races >= 1, f"scalar-clock false negative: {binary.name} " \
                            f"(vector-clock mode reports {engine_races})"
@@ -210,7 +251,9 @@ def test_write_after_unlock_is_event_candidate(tmp_path, monkeypatch):
       * R3 must not order it — the write is past its thread's own release of the
         CAS-acquired lock (the hop direction is schedule-dependent);
       * vector-clock mode classes it latent (this schedule's lock hand-off ordered it);
-      * each half alone is not enough: either knob off -> the race is missed again."""
+      * each half alone is not enough: either knob off -> the race is missed again.
+    T10: the data is volatile, so under the default policy both accesses are strong and the
+    pair is reported as an unordered strong conflict (SC; latent-sc / sc), not as a RACE."""
     binary = _BIN / "race_interblock_none-lock_rtraw"
     art = _artifacts(binary) if binary.exists() else None
     if art is None:
@@ -218,6 +261,11 @@ def test_write_after_unlock_is_event_candidate(tmp_path, monkeypatch):
     dots, traces = art
     for k in ("CUVEIN_EVENT_CANDIDATES", "CUVEIN_R3_PAST_RELEASE"):
         monkeypatch.delenv(k, raising=False)
+    strong = _volatile_is_strong()
+    want = "SC" if strong else "RACE"
+    cls = {hb_modes.VECTOR_CLOCK: "latent-sc" if strong else "latent",
+           hb_modes.SCALAR_CLOCK: "sc" if strong else None}
+    reported = lambda rep: rep["summary"]["races"] + rep["summary"]["sc"]
 
     def both_modes(trace):
         tj = json.loads(trace.read_text())
@@ -229,22 +277,23 @@ def test_write_after_unlock_is_event_candidate(tmp_path, monkeypatch):
 
     for mode, trace in both_modes(traces[-1]):
         rep = sd.analyze(dots[0], trace)
-        races = [v for v in rep["verdicts"] if v["verdict"] == "RACE"]
+        races = [v for v in rep["verdicts"] if v["verdict"] in ("RACE", "SC")]
         assert len(races) == 1, f"{mode}: {races}"
         race = races[0]
+        assert race["verdict"] == want, f"{mode}: {race['verdict']} (policy {sd.strong_ldst_policy()})"
         assert race["event_candidate"] and not race["edge_rescued"]
         assert race["race_type"] in ("WAR", "RAW") and race["space"] == "global"
         assert race["observed_distance"] == "grid" and race["hb_chain"] is None
-        assert race["hb_class"] == ("latent" if mode == hb_modes.VECTOR_CLOCK else None)
+        assert race["hb_class"] == cls[mode]
         edges = {frozenset((e["current_pc"], e.get("ancient_pc")))
                  for e in json.loads(Path(trace).read_text())["edges"]}
         assert frozenset((race["current_pc"], race["ancient_pc"])) not in edges
         # the lock-protected pairs stay ordered (R3 inside the critical section)
         assert all(v["verdict"] == "ORDERED" for v in rep["verdicts"] if v is not race)
 
-        assert sd.analyze(dots[0], trace, event_candidates=False)["summary"]["races"] == 0
+        assert reported(sd.analyze(dots[0], trace, event_candidates=False)) == 0
         monkeypatch.setenv("CUVEIN_R3_PAST_RELEASE", "0")
-        assert sd.analyze(dots[0], trace)["summary"]["races"] == 0
+        assert reported(sd.analyze(dots[0], trace)) == 0
         monkeypatch.delenv("CUVEIN_R3_PAST_RELEASE")
 
 

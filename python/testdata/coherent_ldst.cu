@@ -3,15 +3,16 @@
 // RC1: cuda::atomic<T>::load()/store() do not lower to an ATOM* RMW opcode but to an
 // ordinary load/store carrying the atomic's coherence scope: LD|ST.E.STRONG.<scope>
 // (seq_cst adds a MEMBAR fence in front). A `volatile` access lowers to the same
-// qualifier in the address-spaced form LDG/STG. The default --strong-ldst=generic
-// policy treats only the generic LD/ST form as a language-level atomic; these kernels
-// pin both the verdicts and that lowering assumption:
+// qualifier in the address-spaced form LDG/STG. The pre-T10 --strong-ldst=generic
+// policy treats only the generic LD/ST form as strong; the default since T10 (`token`)
+// reads the scope token of either form. These kernels pin the verdicts and the lowering:
 //
 //   atomic_seqcst   cuda::atomic store vs load, seq_cst               -> NORACE
 //   atomic_relaxed  Indigo-style cast + memory_order_relaxed          -> NORACE
 //   atomic_rmw_load exchange (ATOM* RMW) vs relaxed load              -> NORACE
 //   atomic_vs_plain plain store vs relaxed atomic load (Indigo RaceBug) -> RACE
-//   volatile_pair   volatile store vs volatile load, unsynchronized   -> RACE
+//   volatile_pair   volatile store vs volatile load, unsynchronized   -> SC (token; both
+//                   accesses strong at sys scope) / RACE (generic: volatile weak)
 //
 // RC2: the shared-memory tree reduction. Read and write sit in one sync region of a
 // loop; same-iteration instances are index-disjoint and cross-iteration ones are

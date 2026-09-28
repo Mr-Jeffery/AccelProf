@@ -54,6 +54,15 @@ struct HbEngine {
     std::unordered_map<std::string, PcTable> kernel_tables;
     PcTable merged;
     const PcTable* atom_scope = &merged;
+    // T10 (D9): the sidecar's strength column, `# strength <pc> <strong|weak> <scope|-> <kernel>`
+    // for every memory pc: a record's strong scope (-1 = weak), read off the SASS
+    // .STRONG.<scope> token, for its key and moral strength. Without it (a pre-T10 sidecar,
+    // or a pre-T10 --strong-ldst policy) the coherent-pc lines decide, as before.
+    using StrengthTable = std::unordered_map<uint32_t, int>;
+    std::unordered_map<std::string, StrengthTable> kernel_strength;
+    StrengthTable merged_strength, no_strength;
+    const StrengthTable* strength = &merged_strength;
+    bool has_strength = false;
 
     std::unordered_map<Tid, Clock> vc;                      // tid -> vector clock
     // second clock advanced by barriers/syncwarps ONLY (never by atomic release/
@@ -441,10 +450,13 @@ struct HbEngine {
     // sidecar lines: `<pc> <scope> <kind> <kernel>` (kind rmw|ldst, kernel = demangled
     // name without whitespace), `# kernel <kernel>` declaring a kernel (so one without
     // coherent pcs gets an empty table, not the merged one), or the legacy
-    // `<pc> <scope>` (rmw, all kernels merged).
+    // `<pc> <scope>` (rmw, all kernels merged); `# async` (T1a) and `# strength` (T10) lines
+    // as parsed below.
     void load_scopes(const char* path) {
         kernel_tables.clear(); merged.clear(); atom_scope = &merged;
         kernel_async.clear(); merged_async.clear(); async_pcs = &merged_async;
+        kernel_strength.clear(); merged_strength.clear(); strength = &merged_strength;
+        has_strength = false;
         if (path == nullptr) return;
         std::ifstream f(path);
         if (!f) return;
@@ -465,6 +477,24 @@ struct HbEngine {
                 }
                 continue;
             }
+            if (line.rfind("# strength ", 0) == 0) {   // T10: `# strength <pc> <str> <scope|-> <kernel>`
+                std::istringstream ss(line.substr(11));
+                std::string str, sc;
+                if (ss >> pc >> str >> sc) {
+                    ss >> kernel;
+                    int s = -1;
+                    if (str == "strong") {
+                        char* end = nullptr;
+                        const long v = std::strtol(sc.c_str(), &end, 10);
+                        if (end == sc.c_str() || *end != '\0') continue;   // malformed: skip
+                        s = static_cast<int>(v);
+                    }
+                    if (!kernel.empty()) kernel_strength[kernel][pc] = s;
+                    merged_strength.emplace(pc, s);
+                    has_strength = true;
+                }
+                continue;
+            }
             if (!(ls >> pc >> scope)) continue;
             ls >> kind >> kernel;
             const PcInfo info{scope, kind != "ldst"};
@@ -478,9 +508,22 @@ struct HbEngine {
         auto ait = kernel_async.find(norm_name(kernel_name));
         async_pcs = (ait != kernel_async.end()) ? &ait->second
                   : (it != kernel_tables.end()) ? &no_async : &merged_async;
+        auto sit = kernel_strength.find(norm_name(kernel_name));   // T10
+        strength = (sit != kernel_strength.end()) ? &sit->second
+                 : (it != kernel_tables.end()) ? &no_strength : &merged_strength;
         if (it == kernel_tables.end() && !kernel_tables.empty())
             std::cerr << "[HB_ENGINE] kernel '" << kernel_name << "' not in the atomic-scope "
                          "sidecar; using the merged pc table" << std::endl;
+    }
+    // T10: a record's strong scope (-1 = weak), the scope of key(e) and ms. An RMW keeps its
+    // coherent-pc line's scope (the RMW column); a load/store takes the strength column when
+    // the sidecar has one, else its `ldst` line as before. Both columns come from one table
+    // (atomic_scope_sidecar.py), so a T10 sidecar gives the same answer either way.
+    int strong_scope(uint32_t pc, PcTable::const_iterator pit) const {
+        const bool listed = pit != atom_scope->end();
+        if (!has_strength || (listed && pit->second.rmw)) return listed ? pit->second.scope : -1;
+        const auto sit = strength->find(pc);
+        return (sit != strength->end()) ? sit->second : -1;
     }
 
     void process(const MemoryAccess* buf, uint64_t size) {
@@ -571,7 +614,7 @@ struct HbEngine {
 
             const auto pit = atom_scope->find(pc);
             const bool is_atomic = pit != atom_scope->end() && pit->second.rmw;
-            const int my_coh = (pit != atom_scope->end()) ? pit->second.scope : -1;
+            const int my_coh = strong_scope(pc, pit);          // T10: the strength column
             const bool is_write = (a.flags & SANITIZER_MEMORY_DEVICE_FLAG_WRITE) != 0;
             const bool is_async = async_pcs->count(pc) != 0;   // T1a: the agent's access
             const int space = (a.type == MemoryType::Shared) ? 1 : 0;

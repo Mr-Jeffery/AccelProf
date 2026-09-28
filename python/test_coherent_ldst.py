@@ -4,8 +4,10 @@ testdata/coherent_ldst.cu holds one kernel per case. Verdicts come from the full
 pipeline (sync_dominance.analyze over the vector-clock dump produced by getall.sh:
 static R1/R2/R3 crossed with the C++ engine's hb_races / hb_races_sync_only), and the
 engine must equal the Python oracle on both race sets. Also pins the toolchain
-lowering the default --strong-ldst=generic policy relies on: cuda::atomic load/store
--> generic LD/ST.*.STRONG, volatile -> address-spaced LDG/STG.*.STRONG.
+lowering the pre-T10 --strong-ldst=generic policy relied on: cuda::atomic load/store
+-> generic LD/ST.*.STRONG, volatile -> address-spaced LDG/STG.*.STRONG. Since T10 the
+default policy (`token`) reads the scope token of either form, so volatile_pair -- two
+volatile accesses, strong at sys scope -- is an unordered strong conflict (SC), not a RACE.
 
 Builds on demand; skips without GPU / nvcc, mirroring test_atomic_memory_model.
 """
@@ -24,6 +26,15 @@ _KERNELS = ("atomic_seqcst", "atomic_relaxed", "atomic_rmw_load", "atomic_vs_pla
             "volatile_pair", "reduce_barrier", "reduce_nobarrier")
 _NORACE = ("atomic_seqcst", "atomic_relaxed", "atomic_rmw_load", "reduce_barrier")
 _RACE = ("atomic_vs_plain", "volatile_pair", "reduce_nobarrier")
+# T10: kernels whose unsynchronized pair is between two volatile accesses -- strong under
+# the default policy (token), weak under the pre-T10 generic one
+_VOLATILE = ("volatile_pair",)
+
+
+def _sc_not_race(kernel):
+    """T10: is this kernel's unsynchronized pair an unordered strong conflict (SC, not a
+    RACE) under the active --strong-ldst policy?"""
+    return kernel in _VOLATILE and sd.strong_ldst_policy() in ("token", "all")
 
 
 def _artifacts():
@@ -82,6 +93,10 @@ def _races(report):
     return [v for v in report["verdicts"] if v["verdict"] == "RACE"]
 
 
+def _scs(report):
+    return [v for v in report["verdicts"] if v["verdict"] == "SC"]
+
+
 @pytest.mark.parametrize("kernel", _NORACE)
 def test_norace(kernel):
     dots, by = _art_or_skip()
@@ -93,7 +108,14 @@ def test_norace(kernel):
 def test_race(kernel):
     dots, by = _art_or_skip()
     report = _try_dots(sd.analyze, dots, by[kernel])
-    assert _races(report), f"{kernel}: expected >=1 race, got none"
+    if _sc_not_race(kernel):
+        # T10: reported as an unordered strong conflict, with the engine's class SC
+        assert not _races(report) and _scs(report), \
+            f"{kernel}: expected SC and no RACE, got {_races(report)} / {_scs(report)}"
+        assert all(v["conflict_class"] == "SC" and v["matrix_class"] == "sc"
+                   for v in _scs(report)), _scs(report)
+    else:
+        assert _races(report), f"{kernel}: expected >=1 race, got none"
 
 
 def test_reduction_is_barrier_ordered_not_static():
@@ -107,8 +129,10 @@ def test_reduction_is_barrier_ordered_not_static():
 
 
 def test_lowering_assumption():
-    """generic policy rests on: cuda::atomic load/store -> LD/ST.*.STRONG (generic
-    form), volatile -> LDG/STG.*.STRONG. If the toolchain changes this, fail loudly."""
+    """The pre-T10 generic policy rests on: cuda::atomic load/store -> LD/ST.*.STRONG
+    (generic form), volatile -> LDG/STG.*.STRONG. The default token policy (T10) does not
+    depend on the form; the pin stays so the generic ablation keeps its meaning. If the
+    toolchain changes this, fail loudly."""
     dots, by = _art_or_skip()
 
     def traced_ops(kernel):
@@ -181,7 +205,10 @@ def test_scalar_clock_verdict(kernel, tmp_path):
     dots, by = _art_or_skip()
     trace = _scalar_clock_copy(by[kernel], tmp_path)
     report = _try_dots(sd.analyze, dots, trace)
-    assert bool(_races(report)) == (kernel in _RACE), (kernel, _races(report))
+    assert bool(_races(report)) == (kernel in _RACE and not _sc_not_race(kernel)), \
+        (kernel, _races(report))
+    if _sc_not_race(kernel):      # T10: the class is R2's here -- both pcs strong at sys scope
+        assert _scs(report), (kernel, report["verdicts"])
     if kernel == "reduce_barrier":
         static_only = _try_dots(lambda d, t: sd.analyze(d, t, barrier_pass=False), dots, trace)
         assert _races(static_only), "static leg alone cannot prove the in-loop reduction"
