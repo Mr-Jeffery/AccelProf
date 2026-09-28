@@ -490,7 +490,10 @@ struct HbEngine {
                         s = static_cast<int>(v);
                     }
                     if (!kernel.empty()) kernel_strength[kernel][pc] = s;
-                    merged_strength.emplace(pc, s);
+                    // the merged fallback lists a pc strong if some kernel has it strong (the
+                    // first such, in file order), as the merged coherent-pc table does
+                    auto mit = merged_strength.emplace(pc, s).first;
+                    if (mit->second < 0 && s >= 0) mit->second = s;
                     has_strength = true;
                 }
                 continue;
