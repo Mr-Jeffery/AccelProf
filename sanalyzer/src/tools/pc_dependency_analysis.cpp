@@ -25,13 +25,12 @@ using namespace yosemite;
 namespace yosemite {
 
 // Streaming scoped vector-clock happens-before: a 1:1 port of the reference
-// spec python/hb_oracle.py (analyze()). Runs over the raw MemoryAccess buffer in
-// temporal order (-n 1); every verdict falls out of the clocks with no pattern
-// special-cased. Exact for the corpus; the FastTrack epoch collapse and bounded
-// per-thread clocks are the scale knobs, not needed here.
-// ponytail: full sparse VCs + full reader sets, O(threads) memory. Collapse
-// last_reads to a single read-epoch (FastTrack) and cap the per-thread clock only
-// when the eval workloads need it — the corpus is tiny.
+// spec python/hb_oracle.py (analyze()), which is Algorithm 1 "Detect" of
+// design/proof/hb_proof.tex with the trusting gate (I4). Runs over the raw MemoryAccess
+// buffer in temporal order (-n 1); every verdict falls out of the clocks with no pattern
+// special-cased. Per location it keeps one bucket per (thread, record key) -- never a
+// FastTrack collapse across threads, which Theorem "Sound" does not survive (T9, I2).
+// ponytail: full sparse VCs, O(threads) per clock; bounded clocks are T5b's job.
 struct HbEngine {
     // sync scopes match sync_dominance.SCOPES: NONE=0, (WARP=1), BLOCK=2, GRID=3.
     static constexpr int SCOPE_NONE = 0;
@@ -71,17 +70,52 @@ struct HbEngine {
     // offsets, so with >1 block another block's release on the same offset would
     // clobber this block's and its next acquire would miss it (spurious atomic race).
     std::map<Loc, Released> released;                       // loc -> release record
-    // coh = coherent-access scope of the recorded access (-1 = plain), block = its block.
-    struct Writer { Tid tid; uint64_t clock; uint64_t sclock; uint32_t pc; int coh; uint64_t block; };
-    std::map<Loc, Writer> last_write;                       // loc -> last writer epoch
-    // reader pc is kept so a WAR race names both pcs: a single-pc record is
-    // mis-attributed by sync_dominance to every pair containing that pc.
-    struct Reader { uint64_t clock; uint64_t sclock; uint32_t pc; int coh; uint64_t block; };
-    std::map<Loc, std::unordered_map<Tid, Reader>> last_reads;  // loc -> {tid -> read}
+    // Buckets (T9, I2; hb_proof.tex Algorithm 1): per location, per record key (kind,
+    // strong scope; -1 = weak), per thread: the (vc epoch, vs epoch, pc) of that thread's
+    // latest record on the location with that key. A replaced entry is PO-before its
+    // replacement, which is what Theorem "Sound" needs; both clocks share the bucket
+    // because both runs of Detect replace it at the same records.
+    static constexpr uint8_t KIND_R = 0, KIND_W = 1, KIND_RMW = 2;
+    struct Entry { uint64_t clock; uint64_t sclock; uint32_t pc; };
+    struct KeyGroup { uint8_t kind; int scope; std::unordered_map<Tid, Entry> by_tid; };
+    std::map<Loc, std::vector<KeyGroup>> buckets;           // loc -> its key groups
 
+    // race kind labels (the report's orientation) and DR/SC class (Definition "Verdicts")
+    static constexpr uint8_t RK_ATOMIC = 0, RK_WAW = 1, RK_RAW = 2, RK_WAR = 3;
+    static constexpr const char* RACE_KIND[] = {"atomic", "WAW", "RAW", "WAR"};
+    // hb_races is aggregated per (a_pc, b_pc, kind, class, space, thread distance, async
+    // side): one example record (the first) and the number of conflicting record pairs
+    // Check found. Without the FastTrack collapse the record pairs are O(threads^2) per
+    // location (T9 re-score: 1.66e9 on P1); every consumer works on pc pairs, their class,
+    // widest distance, warp and async side. hb_oracle.py aggregates identically.
+    static constexpr const char* DIST_NAME[] = {"none", "warp", "block", "grid"};
     struct Race { uint64_t addr; int space; uint64_t loc_block;
-                  Tid a_tid; long a_pc; Tid b_tid; uint32_t b_pc; const char* kind; };
-    std::vector<Race> races;
+                  Tid a_tid; long a_pc; Tid b_tid; uint32_t b_pc; uint8_t kind; bool sc;
+                  uint8_t dist; uint8_t asy; uint64_t count; };
+    std::vector<Race> races;                                // one per key, first-report order
+    struct RaceKey {
+        long a_pc; uint32_t b_pc; uint8_t kind; bool sc; int space; uint8_t dist; uint8_t asy;
+        bool operator==(const RaceKey& o) const {
+            return a_pc == o.a_pc && b_pc == o.b_pc && kind == o.kind && sc == o.sc
+                && space == o.space && dist == o.dist && asy == o.asy;
+        }
+    };
+    struct RaceKeyHash {
+        size_t operator()(const RaceKey& k) const {
+            uint64_t h = static_cast<uint64_t>(k.a_pc) * 0x9e3779b97f4a7c15ULL;
+            for (uint64_t v : {static_cast<uint64_t>(k.b_pc), static_cast<uint64_t>(k.kind),
+                               static_cast<uint64_t>(k.sc), static_cast<uint64_t>(k.space),
+                               static_cast<uint64_t>(k.dist), static_cast<uint64_t>(k.asy)})
+                h = (h ^ v) * 0x100000001b3ULL;
+            return static_cast<size_t>(h ^ (h >> 29));
+        }
+    };
+    std::unordered_map<RaceKey, size_t, RaceKeyHash> race_index;   // key -> index in races
+    // sync_dominance.thread_distance of two tids (async bit cleared)
+    static uint8_t thread_distance(Tid a, Tid b) {
+        if ((a >> 10) != (b >> 10)) return 3;
+        return ((a >> 5) != (b >> 5)) ? 2 : 1;
+    }
     std::map<std::pair<uint32_t, uint32_t>, uint64_t> sync_pairs;  // (pc_lo, pc_hi) -> count
 
     // Block-barrier instance assembly (see the barrier branch in process): buffer
@@ -262,8 +296,8 @@ struct HbEngine {
     }
 
     void reset() {
-        vc.clear(); vs.clear(); released.clear(); last_write.clear(); last_reads.clear();
-        races.clear(); sync_pairs.clear();
+        vc.clear(); vs.clear(); released.clear(); buckets.clear();
+        races.clear(); race_index.clear(); sync_pairs.clear();
         pending_barriers.clear();  // block_thread_count is (re)set by hb_engine_reset
         exited_count.clear(); exited_lanes.clear();
         bar_warps_seen.clear(); warp_waiting.clear(); tv_violation.clear();
@@ -337,31 +371,66 @@ struct HbEngine {
         if (u == t) return c.own;
         return c.base ? clk_get(*c.base, u) : 0;
     }
-    // two coherent accesses whose min .STRONG scope covers both threads
-    static bool coherent(int c1, uint64_t b1, int c2, uint64_t b2) {
-        if (c1 < 0 || c2 < 0) return false;
-        const int eff = std::min(c1, c2);
+    // ms of two records from their strong scopes (-1 = weak) and their threads' blocks:
+    // both strong and each scope covers the other thread (sync_dominance.morally_strong)
+    static bool morally_strong(int s1, uint64_t b1, int s2, uint64_t b2) {
+        if (s1 < 0 || s2 < 0) return false;
+        const int eff = std::min(s1, s2);
         return eff == SCOPE_GRID || (eff == SCOPE_BLOCK && b1 == b2);
     }
+    static uint64_t block_of(Tid t) { return (t & ~ASYNC_BIT) >> 10; }
     // one unordered-ness test per clock for a conflicting (prev, current) pair
     // the pair as seen by `obs`: t itself, or for two copies of one agent the issuing
     // thread (the agent always knows its own copies; the thread only those a wait completed)
-    void conflict(uint64_t addr, int space, uint64_t loc_block,
-                  Tid p_tid, uint64_t p_clk, uint64_t p_sclk, uint32_t p_pc,
-                  Tid t, uint32_t pc, const char* kind, Tid obs) {
-        if (p_clk > clk_get(vc[obs], p_tid))
-            add_race(addr, space, loc_block, p_tid, static_cast<long>(p_pc), t, pc, kind);
-        if (sync_only_pass && p_sclk > vs_get(obs, p_tid))
-            sync_pairs[{std::min(p_pc, pc), std::max(p_pc, pc)}] += 1;
+    void conflict(uint64_t addr, int space, uint64_t loc_block, Tid p_tid, const Entry& p,
+                  Tid t, uint32_t pc, uint8_t kind, bool sc, Tid obs) {
+        if (p.clock > clk_get(vc[obs], p_tid)) {
+            const Tid a0 = p_tid & ~ASYNC_BIT, b0 = t & ~ASYNC_BIT;
+            const uint8_t asy = static_cast<uint8_t>(((p_tid & ASYNC_BIT) ? 1 : 0)
+                                                   | ((t & ASYNC_BIT) ? 2 : 0));
+            const uint8_t dist = thread_distance(a0, b0);
+            const RaceKey k{static_cast<long>(p.pc), pc, kind, sc, space, dist, asy};
+            auto it = race_index.find(k);
+            if (it == race_index.end()) {
+                race_index.emplace(k, races.size());
+                races.push_back(Race{addr, space, loc_block, a0, static_cast<long>(p.pc),
+                                     b0, pc, kind, sc, dist, asy, 1});
+            } else {
+                races[it->second].count += 1;
+            }
+        }
+        if (sync_only_pass && p.sclock > vs_get(obs, p_tid))
+            sync_pairs[{std::min(p.pc, pc), std::max(p.pc, pc)}] += 1;
     }
-    void conflict(uint64_t addr, int space, uint64_t loc_block,
-                  Tid p_tid, uint64_t p_clk, uint64_t p_sclk, uint32_t p_pc,
-                  Tid t, uint32_t pc, const char* kind) {
-        conflict(addr, space, loc_block, p_tid, p_clk, p_sclk, p_pc, t, pc, kind, t);
+    // Procedure Check: every other thread's buckets on loc that conflict with this record
+    // (one of the two a write). Morally strong pairs are SC unless both are RMWs, which are
+    // never reportable (a whole key group is skipped when its scope makes that certain).
+    void check(uint64_t addr, int space, uint64_t loc_block, const Loc& loc, Tid t,
+               uint8_t kind, int scope, uint32_t pc) {
+        auto bit = buckets.find(loc);
+        if (bit == buckets.end()) return;
+        const uint64_t tb = block_of(t);
+        for (const KeyGroup& g : bit->second) {
+            if (kind == KIND_R && g.kind == KIND_R) continue;
+            const bool both_rmw = kind == KIND_RMW && g.kind == KIND_RMW;
+            if (both_rmw && g.scope >= 0 && scope >= 0 && std::min(g.scope, scope) == SCOPE_GRID)
+                continue;
+            const uint8_t label = g.kind == KIND_R ? RK_WAR : kind == KIND_RMW ? RK_ATOMIC
+                                : kind == KIND_W ? RK_WAW : RK_RAW;
+            for (const auto& kv : g.by_tid) {
+                if (kv.first == t) continue;
+                const bool strong = morally_strong(g.scope, block_of(kv.first), scope, tb);
+                if (strong && both_rmw) continue;
+                conflict(addr, space, loc_block, kv.first, kv.second, t, pc, label, strong, t);
+            }
+        }
     }
-    void add_race(uint64_t addr, int space, uint64_t loc_block,
-                  Tid a_tid, long a_pc, Tid b_tid, uint32_t b_pc, const char* kind) {
-        races.push_back(Race{addr, space, loc_block, a_tid, a_pc, b_tid, b_pc, kind});
+    KeyGroup& group_of(const Loc& loc, uint8_t kind, int scope) {
+        std::vector<KeyGroup>& gs = buckets[loc];
+        for (KeyGroup& g : gs)
+            if (g.kind == kind && g.scope == scope) return g;
+        gs.push_back(KeyGroup{kind, scope, {}});
+        return gs.back();
     }
 
     static std::string norm_name(const std::string& n) {
@@ -496,13 +565,17 @@ struct HbEngine {
                 continue;
             }
 
+            // I5 (D14): local memory is outside the HB model (hb_proof.tex Definition
+            // "Records"); skipped before the monitor, as the oracle skips an older dump's
+            // local records (the HB trace no longer carries them, hb_collect_events).
+            if (a.type == MemoryType::Local) continue;
             const auto pit = atom_scope->find(pc);
             const bool is_atomic = pit != atom_scope->end() && pit->second.rmw;
             const int my_coh = (pit != atom_scope->end()) ? pit->second.scope : -1;
             const bool is_write = (a.flags & SANITIZER_MEMORY_DEVICE_FLAG_WRITE) != 0;
             const bool is_async = async_pcs->count(pc) != 0;   // T1a: the agent's access
-            const int space = (a.type == MemoryType::Shared) ? 1
-                            : (a.type == MemoryType::Local)  ? 2 : 0;
+            const int space = (a.type == MemoryType::Shared) ? 1 : 0;
+            const uint8_t kind = is_atomic ? KIND_RMW : is_write ? KIND_W : KIND_R;
 
             // TV-barrier-completion-order: a warp blocked at a pending barrier cannot
             // execute a post-barrier memory access before its instance fires. This is the
@@ -530,66 +603,33 @@ struct HbEngine {
                     // atomic index to the address's observed atomic order.
                     coherence[addr].push_back({t, atom_idx[t]});
                     atom_idx[t] += 1;
-                    // scoped acquire-release: pick up a's release only if the min of
-                    // the two atomics' .STRONG scopes covers both threads.
-                    const int my_scope = pit->second.scope;
+                    // scoped acquire (trusting gate, I4): pick up the release only if the
+                    // min of the two atomics' .STRONG scopes covers both threads.
                     auto rit = released.find(loc);
                     if (rit != released.end()) {
-                        const int eff = std::min(my_scope, rit->second.scope);
+                        const int eff = std::min(pit->second.scope, rit->second.scope);
                         if (eff == SCOPE_GRID || (eff == SCOPE_BLOCK && rit->second.block == a.ctaId))
                             join_into(vc[t], rit->second.clk);
                     }
-                    // an atomic RMW is a write: it races a prior writer / reader that is
-                    // neither HB-ordered nor coherent with it (same-address atomics at a
-                    // scope too narrow for their distance, or a plain access).
-                    own(t);
-                    const uint64_t sclk = sync_only_pass ? owns(t) : 0;
-                    auto wit = last_write.find(loc);
-                    if (wit != last_write.end() && wit->second.tid != t
-                        && !coherent(my_coh, a.ctaId, wit->second.coh, wit->second.block))
-                        conflict(addr, space, a.ctaId, wit->second.tid, wit->second.clock,
-                                 wit->second.sclock, wit->second.pc, t, pc, "atomic");
-                    auto arit = last_reads.find(loc);
-                    if (arit != last_reads.end())
-                        for (const auto& kv : arit->second)
-                            if (kv.first != t
-                                && !coherent(my_coh, a.ctaId, kv.second.coh, kv.second.block))
-                                conflict(addr, space, a.ctaId, kv.first, kv.second.clock,
-                                         kv.second.sclock, kv.second.pc, t, pc, "WAR");
-                    const uint64_t nc = own(t) + 1;
-                    vc[t][t] = nc;
-                    released[loc] = Released{vc[t], a.ctaId, my_scope};
-                    last_write[loc] = Writer{t, nc, sclk, pc, my_coh, a.ctaId};
-                    last_reads[loc].clear();
-                    continue;
                 }
-
                 const uint64_t clk = own(t);
                 const uint64_t sclk = sync_only_pass ? owns(t) : 0;
-                auto wit = last_write.find(loc);
-                if (wit != last_write.end()
-                    && !coherent(my_coh, a.ctaId, wit->second.coh, wit->second.block)) {
-                    if (wit->second.tid != t)
-                        conflict(addr, space, a.ctaId, wit->second.tid, wit->second.clock,
-                                 wit->second.sclock, wit->second.pc, t, pc, is_write ? "WAW" : "RAW");
-                    else if (is_write && is_async)
-                        // two copies of one thread: PTX orders no two cp.async operations,
-                        // so they are unordered until a wait completes the first
-                        conflict(addr, space, a.ctaId, wit->second.tid, wit->second.clock,
-                                 wit->second.sclock, wit->second.pc, t, pc, "WAW", t0);
+                check(addr, space, a.ctaId, loc, t, kind, my_coh, pc);
+                KeyGroup& g = group_of(loc, kind, my_coh);
+                if (kind == KIND_W && is_async) {
+                    // two copies of one thread: PTX orders no two cp.async operations, so
+                    // they are unordered until a wait completes the first
+                    auto mit = g.by_tid.find(t);
+                    if (mit != g.by_tid.end())
+                        conflict(addr, space, a.ctaId, t, mit->second, t, pc, RK_WAW, false, t0);
                 }
-                if (is_write) {
-                    auto lrit = last_reads.find(loc);
-                    if (lrit != last_reads.end())
-                        for (const auto& kv : lrit->second)
-                            if (kv.first != t
-                                && !coherent(my_coh, a.ctaId, kv.second.coh, kv.second.block))
-                                conflict(addr, space, a.ctaId, kv.first, kv.second.clock,
-                                         kv.second.sclock, kv.second.pc, t, pc, "WAR");
-                    last_write[loc] = Writer{t, clk, sclk, pc, my_coh, a.ctaId};
-                    last_reads[loc].clear();
-                } else {
-                    last_reads[loc][t] = Reader{clk, sclk, pc, my_coh, a.ctaId};
+                g.by_tid[t] = Entry{clk, sclk, pc};
+                if (is_atomic) {
+                    // I1 (D1): publish the pre-tick clock -- the RMW's own epoch is clk, so a
+                    // later acquirer is ordered after the RMW, not after t's next accesses --
+                    // then tick. Overwriting equals Algorithm 1's join under the trusting gate.
+                    released[loc] = Released{vc[t], a.ctaId, pit->second.scope};
+                    vc[t][t] = clk + 1;
                 }
             }
         }
@@ -610,16 +650,16 @@ struct HbEngine {
         const uint64_t c = (n + 8 + 15) & ~uint64_t(15);
         return c < 32 ? 32 : c;
     }
-    template <class M> static uint64_t buckets(const M& m) {  // 1 bucket = inline, no alloc
+    template <class M> static uint64_t hash_buckets(const M& m) {  // 1 bucket = inline, no alloc
         return m.bucket_count() > 1 ? m.bucket_count() * sizeof(void*) : 0;
     }
     static uint64_t clock_bytes(const Clock& c) {
-        return c.size() * mchunk(sizeof(void*) + sizeof(Clock::value_type)) + buckets(c);
+        return c.size() * mchunk(sizeof(void*) + sizeof(Clock::value_type)) + hash_buckets(c);
     }
     void stats(std::ostream& o) const {
         uint64_t vc_entries = 0, vc_max = 0;
         uint64_t vc_bytes = vc.size() * mchunk(sizeof(void*) + sizeof(decltype(vc)::value_type))
-                          + buckets(vc);
+                          + hash_buckets(vc);
         for (const auto& kv : vc) {
             vc_entries += kv.second.size();
             vc_max = std::max<uint64_t>(vc_max, kv.second.size());
@@ -631,20 +671,22 @@ struct HbEngine {
             rel_entries += kv.second.clk.size();
             rel_bytes += clock_bytes(kv.second.clk);
         }
-        const uint64_t lw_bytes =
-            last_write.size() * mchunk(32 + sizeof(decltype(last_write)::value_type));
-        uint64_t lr_readers = 0;
-        uint64_t lr_bytes = last_reads.size() * mchunk(32 + sizeof(decltype(last_reads)::value_type));
-        for (const auto& kv : last_reads) {
-            lr_readers += kv.second.size();
-            lr_bytes += kv.second.size() *
-                        mchunk(sizeof(void*) + sizeof(std::pair<const Tid, Reader>))
-                      + buckets(kv.second);
+        uint64_t bk_groups = 0, bk_entries = 0;
+        uint64_t bk_bytes = buckets.size() * mchunk(32 + sizeof(decltype(buckets)::value_type));
+        for (const auto& kv : buckets) {
+            bk_groups += kv.second.size();
+            bk_bytes += mchunk(kv.second.capacity() * sizeof(KeyGroup));
+            for (const KeyGroup& g : kv.second) {
+                bk_entries += g.by_tid.size();
+                bk_bytes += g.by_tid.size() *
+                            mchunk(sizeof(void*) + sizeof(std::pair<const Tid, Entry>))
+                          + hash_buckets(g.by_tid);
+            }
         }
         std::set<const Clock*> bases;
         uint64_t vs_base_entries = 0;
         uint64_t vs_bytes = vs.size() * mchunk(sizeof(void*) + sizeof(decltype(vs)::value_type))
-                          + buckets(vs);
+                          + hash_buckets(vs);
         for (const auto& kv : vs)
             if (kv.second.base && bases.insert(kv.second.base.get()).second) {
                 vs_base_entries += kv.second.base->size();
@@ -659,45 +701,41 @@ struct HbEngine {
           << ", \"max_entries\": " << vc_max << ", \"bytes_est\": " << vc_bytes << "}"
           << ", \"released\": {\"records\": " << released.size() << ", \"entries\": "
           << rel_entries << ", \"bytes_est\": " << rel_bytes << "}"
-          << ", \"last_write\": {\"locations\": " << last_write.size()
-          << ", \"bytes_est\": " << lw_bytes << "}"
-          << ", \"last_reads\": {\"locations\": " << last_reads.size() << ", \"readers\": "
-          << lr_readers << ", \"bytes_est\": " << lr_bytes << "}"
+          << ", \"buckets\": {\"locations\": " << buckets.size() << ", \"groups\": "
+          << bk_groups << ", \"entries\": " << bk_entries << ", \"bytes_est\": " << bk_bytes << "}"
           << ", \"pending_barriers\": {\"instances\": " << pending_barriers.size()
           << ", \"arrivals\": " << arrivals << ", \"bytes_est\": " << pend_bytes << "}"
           << ", \"vs\": {\"threads\": " << vs.size() << ", \"unique_bases\": " << bases.size()
           << ", \"base_entries\": " << vs_base_entries << ", \"bytes_est\": " << vs_bytes << "}"
           << ", \"races\": {\"records\": " << races.size() << ", \"bytes_est\": "
-          << races.capacity() * sizeof(Race) << "}"
+          << races.capacity() * sizeof(Race) + race_index.size() * mchunk(8 + sizeof(RaceKey) + 8)
+             + hash_buckets(race_index) << "}"
           << ", \"sync_pairs\": " << sync_pairs.size()
           << ", \"coherence_addrs\": " << coherence.size();
     }
 
     void emit(std::ostream& jout) {
         check_pending_at_end();   // T3b: before tv_violation is written below
-        // dedup identical race tuples (addr, a_tid, a_pc, b_tid, b_pc, kind).
-        std::set<std::tuple<uint64_t, Tid, long, Tid, uint32_t, std::string>> seen;
-        std::vector<const Race*> uniq;
-        for (const auto& r : races) {
-            auto key = std::make_tuple(r.addr, r.a_tid, r.a_pc, r.b_tid, r.b_pc, std::string(r.kind));
-            if (seen.insert(key).second) uniq.push_back(&r);
-        }
+        // one record per aggregate key, with its count (see races)
         jout << ",\n  \"hb_races\": [\n";
-        for (size_t i = 0; i < uniq.size(); ++i) {
-            const Race& r = *uniq[i];
-            const char* sp = (r.space == 1) ? "shared" : (r.space == 2) ? "local" : "global";
+        for (size_t i = 0; i < races.size(); ++i) {
+            const Race& r = races[i];
+            const char* sp = (r.space == 1) ? "shared" : "global";
             jout << "    {\"addr\": " << r.addr
                  << ", \"space\": \"" << sp << "\""
                  << ", \"loc_block\": " << r.loc_block
-                 << ", \"a_tid\": " << (r.a_tid & ~ASYNC_BIT)
+                 << ", \"a_tid\": " << r.a_tid
                  << ", \"a_pc\": " << r.a_pc
-                 << ", \"b_tid\": " << (r.b_tid & ~ASYNC_BIT)
+                 << ", \"b_tid\": " << r.b_tid
                  << ", \"b_pc\": " << r.b_pc
-                 << ", \"kind\": \"" << r.kind << "\"";
-            const bool aa = r.a_tid & ASYNC_BIT, ba = r.b_tid & ASYNC_BIT;   // T1a
-            if (aa || ba) jout << ", \"async\": \"" << (aa ? (ba ? "ab" : "a") : "b") << "\"";
+                 << ", \"kind\": \"" << RACE_KIND[r.kind] << "\""
+                 << ", \"class\": \"" << (r.sc ? "SC" : "DR") << "\""
+                 << ", \"dist\": \"" << DIST_NAME[r.dist] << "\"";
+            if (r.asy)   // T1a: which side is an agent's copy
+                jout << ", \"async\": \"" << (r.asy == 3 ? "ab" : r.asy == 1 ? "a" : "b") << "\"";
+            jout << ", \"count\": " << r.count;
             jout << "}";
-            if (i + 1 < uniq.size()) jout << ",";
+            if (i + 1 < races.size()) jout << ",";
             jout << "\n";
         }
         jout << "  ]";
@@ -1029,6 +1067,9 @@ void PcDependency::hb_collect_events(const MemoryAccess* buffer, uint64_t size) 
     // participation (barrier threadCount / syncwarp mask).
     for (uint64_t i = 0; i < size; ++i) {
         const MemoryAccess& a = buffer[i];
+        // I5 (D14): local memory is outside the HB model; the collector's default path and
+        // its local-address tag are untouched, only the HB trace drops the record.
+        if (a.type == MemoryType::Local) continue;
         std::ostringstream o;
         const uint64_t seq = _hb_seq++;
         o << "{\"seq\": " << seq
@@ -1053,8 +1094,7 @@ void PcDependency::hb_collect_events(const MemoryAccess* buffer, uint64_t size) 
             const char* kind = (a.flags & SANITIZER_MEMORY_DEVICE_FLAG_ATOMIC) ? "atomic"
                              : (a.flags & SANITIZER_MEMORY_DEVICE_FLAG_WRITE)  ? "write"
                              : "read";
-            const char* space = (a.type == MemoryType::Shared) ? "shared"
-                              : (a.type == MemoryType::Local)  ? "local" : "global";
+            const char* space = (a.type == MemoryType::Shared) ? "shared" : "global";
             o << ", \"type\": \"" << kind << "\", \"space\": \"" << space
               << "\", \"size\": " << a.accessSize
               << ", \"active_mask\": " << a.active_mask << ", \"lanes\": [";

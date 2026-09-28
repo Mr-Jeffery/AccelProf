@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
 """T6 (c): Algorithm 1 of design/proof/hb_proof.tex, Detect(T, M), as an executable
-reference, with the implementation's substitutions I1 and I2 (section 7) as switches.
+reference, with the substitutions I1 and I2 of the code at 3331d35 (section 7) as switches.
 
   I1: tick before publish; the RMW's own entry carries the post-tick epoch.
   I2: one last write per location plus each thread's last read since that write, in place
       of the per-(thread, key) buckets; morally strong pairs are skipped (SC dropped).
 
-With I1 and I2 on, Detect(T, vec) must equal hb_oracle.py's `races` on every trace and
-Detect(T, sync) its `races_sync_only`; with both off it is the proof's reference, and the
-difference is what I1 and I2 cost on that trace. The other substitutions cannot differ on
-these dumps: exit records handled as the code handles them since T3b (I3 matched; older dumps
-have none), the trusting gate on both sides (I4), local memory keyed as the code keys it
-(I5), no monitor here (I6), no cp.async records (I7, rejected).
+Since T9 the code is Detect with I1 and I2 fixed: with both switches OFF, Detect(T, vec)
+must equal hb_oracle.py's `races` (record pairs with their DR/SC class) on every trace and
+Detect(T, sync) its `races_sync_only`; the switched-on runs show what I1 and I2 used to
+cost on that trace. The other substitutions cannot differ on these dumps: exit records
+handled as the code handles them since T3b (I3 matched; older dumps have none), the
+trusting gate on both sides (I4), local records skipped on both sides (I5, D14), no
+monitor here (I6), no cp.async records (I7, rejected).
 
     .env/bin/python design/algorithms_check.py [ARTIFACT_DIR ...]   (default: ScoR corpus)
 """
@@ -70,6 +71,8 @@ def detect(events, block_tc, atom, coh, vec=True, i1=False, i2=False):
             for k in [k for k in arrived if k[0] == blk]:
                 complete(k)
             continue
+        if e.get("space") == "local":
+            continue                                     # I5 (D14): outside the model
         if typ in ("syncwarp", "barrier"):
             m = e["sync_mask" if typ == "syncwarp" else "active_mask"]
             ts = [hb_oracle.tid_of(blk, e["warp"], k) for k in range(32) if (m >> k) & 1]
@@ -164,22 +167,20 @@ def check(dots, trace_path):
     """One kernel dump -> dict of the comparisons (see the module docstring)."""
     trace = json.loads(Path(trace_path).read_text())
     dot, atom, coh = tables(dots, trace)
-    oracle = hb_oracle.analyze(dot, trace_path)
+    oracle = hb_oracle.analyze(dot, trace_path, records=True)
     ev, tc = trace["hb_events"], trace["kernel"].get("block_thread_count")
     run = lambda **kw: detect(ev, tc, atom, coh, **kw)
-    code_vec, code_sync = set(run(i1=True, i2=True)), pcs(run(vec=False, i2=True))
     ref, ref_sync = run(), run(vec=False)
-    o_vec = {(r["addr"], r["a_tid"], r["a_pc"], r["b_tid"], r["b_pc"], r["kind"])
-             for r in oracle["races"]}
+    o_vec = {tuple(r) for r in oracle["race_records"]}
     o_sync = Counter({(a, b): n for a, b, n in oracle["races_sync_only"]})
     pairs = lambda rep: {(r[0], r[1], r[2], r[3], r[4]) for r in rep}
     return {"events": len(ev), "oracle": len(o_vec),
-            "vec_equal": code_vec == o_vec, "sync_equal": code_sync == o_sync,
+            "vec_equal": set(ref) == o_vec, "sync_equal": pcs(ref_sync) == o_sync,
             "ref_pairs": len(pairs(ref)), "ref_sc": sum(r[5] == "SC" for r in set(ref)),
             "missed": sorted(set(pcs(ref)) - {(min(r[2], r[4]), max(r[2], r[4])) for r in o_vec}),
             "missed_i1": sorted(set(pcs(ref)) - set(pcs(run(i1=True)))),
             "missed_i2": sorted(set(pcs(ref)) - set(pcs(run(i2=True)))),
-            "code_not_ref": sorted(pairs(code_vec) - pairs(ref)),
+            "code_not_ref": sorted(pairs(o_vec) - pairs(ref)),
             "sync_missed": sorted(set(pcs(ref_sync)) - set(o_sync))}
 
 
@@ -193,7 +194,8 @@ def main(argv):
             r = check(dots, tr)
             bad += not (r["vec_equal"] and r["sync_equal"] and not r["code_not_ref"])
             rows.append((d.name + ("" if tr.name == "kernel_0.json" else "/" + tr.name), r))
-    print(f"{'program':52} ev  orc ref  sc  I1I2==oracle  sync==  reference-only pc pairs")
+    print(f"{'program':52} ev  orc ref  sc   oracle==ref  sync==  reference-only pc pairs "
+          "(and which switch would lose them)")
     for name, r in rows:
         miss = ", ".join(f"{hex(a)}/{hex(b)}" for a, b in r["missed"])
         why = "".join(k[-2:] for k in ("missed_i1", "missed_i2") if r[k])
@@ -202,7 +204,7 @@ def main(argv):
               f"  {miss or '-'}{' (' + why + ')' if why else ''}"
               f"{' SYNC-MISS ' + str(r['sync_missed']) if r['sync_missed'] else ''}"
               f"{' CODE-NOT-REF ' + str(r['code_not_ref']) if r['code_not_ref'] else ''}")
-    print(f"{len(rows)} traces; {len(rows) - bad} with the code substitutions equal to hb_oracle")
+    print(f"{len(rows)} traces; {len(rows) - bad} with hb_oracle equal to Detect (switches off)")
     return 1 if bad else 0
 
 

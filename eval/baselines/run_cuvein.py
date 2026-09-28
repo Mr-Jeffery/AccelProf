@@ -49,12 +49,18 @@ def _analyze_reports(depdir, cubindir):
     barrier-only pass) and misses it. That is exactly the vector-clock vs
     scalar-clock surface the task compares.
 
-    -> (ids, pcs_set, raw_verdicts). This branch's analyze(dot, trace) takes no
+    -> (ids, pcs_set, raw_verdicts). ids/pcs are the RACE reports (a latent pair is a
+    RACE: the Race u Latent operating point, D2). raw holds them with their
+    `matrix_class` (the verdict-matrix class before judge's relabels, of the pair's
+    strongest RACE verdict over the kernels: model_bug > structural > race (scalar-clock,
+    no class) > latent) and, after them, the SC reports (`"verdict": "SC"`: unordered
+    strong conflicts, informational, never in ids; T9/D12) -- split_raw() separates them,
+    classes_note() counts them. This branch's analyze(dot, trace) takes no
     assume_warp_lockstep kwarg (that lives only on the eval branch). Only
     AlignmentError is swallowed (wrong dot -> next); other exceptions propagate so
     a real failure is an ERROR row, not a silent CLEAN."""
     dots = sorted(glob.glob(f"{cubindir}/*.dot"))
-    ded = {}
+    ded, cls, ded_sc = {}, {}, {}
     for kj in sorted(glob.glob(f"{depdir}/kernel_*.json")):
         rep = None
         for dot in dots:
@@ -66,8 +72,14 @@ def _analyze_reports(depdir, cubindir):
         if rep is None:
             continue
         for v in rep["verdicts"]:
+            k = agg._dedup_key(v)
             if v["verdict"] == "RACE":
-                ded.setdefault(agg._dedup_key(v), v)
+                ded.setdefault(k, v)
+                c = v.get("matrix_class", v.get("hb_class")) or "race"
+                if _CLASS_RANK.get(c, 2) > _CLASS_RANK.get(cls.get(k), -1):
+                    cls[k] = c
+            elif v["verdict"] == "SC":
+                ded_sc.setdefault(k, v)
     ids, pcs_all, raw = [], set(), []
     for k, v in sorted(ded.items(), key=lambda kv: kv[0]):
         a, b, space = k
@@ -75,10 +87,40 @@ def _analyze_reports(depdir, cubindir):
         pcs_all.update((a, b))
         raw.append({"a_pc": a, "b_pc": b, "space": space,
                     "race_type": v.get("race_type"), "strength": v.get("strength"),
-                    "hb_class": v.get("hb_class"), "hb_chain": v.get("hb_chain")})
+                    "hb_class": v.get("hb_class"), "hb_chain": v.get("hb_chain"),
+                    "matrix_class": cls[k], "conflict_class": v.get("conflict_class")})
+    for k, v in sorted((k, v) for k, v in ded_sc.items() if k not in ded):
+        a, b, space = k
+        raw.append({"a_pc": a, "b_pc": b, "space": space, "verdict": "SC",
+                    "race_type": v.get("race_type"), "strength": v.get("strength"),
+                    "hb_class": v.get("hb_class"), "hb_chain": v.get("hb_chain"),
+                    "matrix_class": v.get("matrix_class"), "conflict_class": "SC"})
     ids_h, raw_h = _host_reports(depdir)
     return ids + ids_h, pcs_all | {r[p] for r in raw_h for p in ("a_pc", "b_pc") if r[p] is not None}, \
         raw + raw_h
+
+
+# strength of a RACE report's class for the per-pair dedup (the pair counts as a race of
+# this run if any of its verdicts is one)
+_CLASS_RANK = {"latent": 0, "race": 1, "structural": 2, "model_bug": 3}
+
+
+def split_raw(raw):
+    """_analyze_reports' raw -> (RACE reports, SC reports)."""
+    return ([r for r in raw if r.get("verdict") != "SC"],
+            [r for r in raw if r.get("verdict") == "SC"])
+
+
+def classes_note(raw):
+    """`classes=<class>:<n>,...` over the deduped reports (D2): the RACE reports by their
+    pre-relabel matrix class (latent = the Latent tier; race = scalar-clock, which cannot
+    tell Race from Latent; host = T2 host reports), the SC reports as sc / latent-sc.
+    make_tables derives the Race-alone operating point from it. '' if there are none."""
+    n = {}
+    for r in raw:
+        c = r.get("matrix_class") or ("host" if r.get("host") else "race")
+        n[c] = n.get(c, 0) + 1
+    return "classes=" + ",".join(f"{c}:{k}" for c, k in sorted(n.items())) if n else ""
 
 
 def _host_label(d, pc):
@@ -168,7 +210,7 @@ def run_one(mrow, modes, cuda, writer, confirm_dir):
             depdir = deps[-1] if deps else ""
             kjs = glob.glob(f"{depdir}/kernel_*.json") if depdir else []
             notes = ""
-            raw = []
+            raw, raw_sc = [], []
             if to:
                 verdict, ids, pcs = "TIMEOUT", [], set()
             elif not kjs:
@@ -186,8 +228,12 @@ def run_one(mrow, modes, cuda, writer, confirm_dir):
                         raise
                     ids, pcs, raw = [], set(), []
                 verdict = "RACE" if ids else "CLEAN"
+                cnote = classes_note(raw)
+                raw, raw_sc = split_raw(raw)
+                if cnote:
+                    notes = cnote
                 if not complete:
-                    notes = f"partial(rc={rc};nkernels={len(kjs)})"
+                    notes = f"partial(rc={rc};nkernels={len(kjs)})" + (f";{cnote}" if cnote else "")
                     if not ids:
                         verdict = "ERROR"
                         notes = f"incomplete-trace(rc={rc};nkernels={len(kjs)})"
@@ -204,7 +250,7 @@ def run_one(mrow, modes, cuda, writer, confirm_dir):
                     json.dumps({"id": mrow["id"], "tool": "cuvein", "mode": mode,
                                 "verdict": verdict, "report_ids": ids,
                                 "pcs": sorted(pcs), "lines": lines_for(pcs),
-                                "raw": raw, "scope_file": scope,
+                                "raw": raw, "raw_sc": raw_sc, "scope_file": scope,
                                 "pc_lines": {str(k): v for k, v in pcmap.items()
                                              if k in pcs}}, indent=2))
     # tidy trace dirs (bulky)

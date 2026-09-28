@@ -71,7 +71,11 @@ description, the code's relabels and facts (ii), (iii) in \S\ref{sec:verdict}; t
 I5, I6 and I7 rows with their notes and the labeling paragraph; the monitor and size
 sentences of \S\ref{sec:model}--\S\ref{sec:hb}; Lemma~\ref{lem:vc}(c). Open findings are the
 referee notes closing \S\ref{sec:single} and \S\ref{sec:cert}. Details, commands and what
-remains unverified: \texttt{design/T6\_REVIEW.md}.
+remains unverified: \texttt{design/T6\_REVIEW.md}. \emph{T9} (2026-09-28; Claude Opus 5.5):
+I1, I2 and I5 fixed in the code (\S\ref{sec:impl}), \S\ref{sec:verdict}'s matrix amended by
+D12 (R2 decides the class, not the verdict) and implemented; the asynchronous copies (I7)
+added to \S\ref{sec:model}--\S\ref{sec:alg} and re-checked (Proposition~\ref{prop:agents});
+details: \texttt{design/soundness\_event\_candidates.md}.
 
 %=============================================================================
 \section{Trace model}\label{sec:model}
@@ -99,6 +103,20 @@ $(\mathtt{shared},\beta,a)$, $(\mathtt{local},t,a)$ or $(\mathtt{global},a)$; $N
 block size.
 \end{definition}
 
+\begin{definition}[Asynchronous copies]\label{def:async}
+For dumps that carry them (the \texttt{hb\_async} marker; I7), every thread $t$ has a virtual
+\emph{agent} $\alpha(t)$, a thread id of its own ($t\,|\,2^{62}$ in the code) in $t$'s block.
+A \texttt{cp.async} copy issued by $t$ is a pair of memory records of $\alpha(t)$ (a weak read
+of its source, a weak write of its destination) at the issue position; $t$'s own
+records are unaffected. A \emph{commit} record of $t$ closes $t$'s open group of copies and is a
+tick of $\alpha(t)$: the copies of group $j$ are those issued between the $(j{-}1)$-th and the
+$j$-th commit. A \emph{wait} record $w$ of $t$ with argument $n$ completes every group of $t$
+except the $n$ most recent committed ones; it completes groups oldest first, so it completes
+groups $1..g(w)$ for some $g(w)$. The records of $\alpha(t)$ are not ordered among
+themselves by $\PO$ (PTX orders no two copies); the program order of $\alpha(t)$ is the order
+of its ticks, the commits. Copies are never RMWs and never strong.
+\end{definition}
+
 \begin{definition}[Instances]\label{def:instance}
 Fix a key $k=(\beta,\mathit{bar})$ and process the records of $T$ in $\seq$ order keeping
 $\arrv_k$ (thread ids) and $\gone_\beta$ (threads of $\beta$ with an exit record so far). A
@@ -122,7 +140,10 @@ thread $t$ is $\seq$ restricted to $t$'s events. The \emph{ticks} of $t$ are its
 events and its RMWs, in $\PO$; $\tau^k_t$ is the $k$-th; $\epoch(e)=1+\#\{$ticks of $t$
 strictly $\PO$-before $e\}$, so an RMW $e$ equals $\tau^{\epoch(e)}_t$. The
 \emph{processing position} of a tick is its own $\seq$ for an RMW and $\cpl(B)$ for
-$\arr{t}{B}$.
+$\arr{t}{B}$. For an agent $\alpha$ (Definition~\ref{def:async}) the ticks are its commits
+$c_1,c_2,\dots$ (processing position = the commit's $\seq$), and a copy $x$ of group $j$ has
+$\epoch(x)=j$, i.e.\ $1+\#\{$commits of $\alpha$ before $x$'s issue$\}$; so $x$ precedes
+$\tau^{\epoch(x)}_\alpha=c_j$ exactly as a record precedes the next arrival of its thread.
 \end{definition}
 
 \begin{definition}[Well-formed trace]\label{def:wf}
@@ -215,9 +236,23 @@ hand-off and is what \S\ref{sec:cert} declines to place inside PTX causality.
 Given a gate, $\HB$ is the least transitive relation on $\Eplus$ containing
 (PO) $a\PO b\Rightarrow a\HB b$;
 (SYNC) $\arr{s}{B}\HB\dep{t}{B}$ for every instance $B$ and $s,t\in S(B)$;
-(ATOM) $r\HB q$ for RMWs with $r\chain q$, $\rel(r)=\acq(q)=1$.
+(ATOM) $r\HB q$ for RMWs with $r\chain q$, $\rel(r)=\acq(q)=1$;
+and for agents (Definition~\ref{def:async}):
+(ISSUE) $e\HB x$ for a copy $x$ issued by $t$ and every event $e$ of $t$ $\PO$-before $x$'s
+issue;
+(GROUP) $x\HB c_j$ for a copy $x$ of group $j$ and $c_j\HB c_{j+1}$ (the agent's program order);
+(WAIT) $c_{g(w)}\HB w$ for a wait record $w$ of $t$, and $w\PO e$ for $t$'s later events as for
+any record of $t$.
 $a\HBr b$ means $a\HB b$ or $a=b$. $\HB^{\mathrm{sync}}$ is the relation without (ATOM).
 \end{definition}
+The agent generators are part of $\HB^{\mathrm{sync}}$: a wait is a thread-local completion
+(no other thread's schedule is involved). A copy is ordered before another thread's access
+only through its issuing thread, after a wait that completed its group; two copies of one
+agent are unordered unless a wait completing the first precedes the issue of the second.
+For conflicts, the agent $\alpha(t)$ counts as a thread different from $t$, and two copies of
+one agent count as records of different threads (Definition~\ref{def:verdict}'s
+$\tid(a)\ne\tid(b)$ is read as ``not two records of one thread, and not one agent's copy
+against itself'').
 
 \begin{definition}[Verdicts]\label{def:verdict}
 For memory records with $\seq(a)<\seq(b)$: $\conf(a,b)$ iff $\loc(a)=\loc(b)$,
@@ -295,15 +330,27 @@ needs one shared base per instance plus one scalar per thread.}\label{alg:detect
 \endgroup
 
 \medskip\noindent
+\emph{Agents} (Definition~\ref{def:async}; both instances). At a copy $x$ issued by $t$:
+$\clk[\alpha(t)]\gets\clk[\alpha(t)]\sqcup\clk[t]$, then $x$ is processed as a record of
+$\alpha(t)$ (\textsc{Check}, bucket), and in addition \textsc{Check} tests $x$ against
+$\alpha(t)$'s own bucket of its key, with $\clk[t]$ in place of $\clk[\alpha(t)]$ (two copies
+of one agent are ordered only through a wait of $t$). At the $j$-th commit of $t$:
+$S_{t,j}\gets\clk[\alpha(t)]$, then $\clk[\alpha(t)][\alpha(t)]\gets j+1$. At a wait $w$ of $t$:
+$\clk[t]\gets\clk[t]\sqcup S_{t,g(w)}$. (\texttt{hb\_oracle.py}: \texttt{async\_issue},
+\texttt{async\_commit}, \texttt{async\_wait} and the same-agent \texttt{WAW} test; the engine
+and \texttt{barrier\_only\_pairs} likewise.)
+
+\medskip\noindent
 Under $\M=\mathsf{sync}$ an RMW is an ordinary strong write: no chain, no acquire, no
-publish, no tick, and the ticks of Definition~\ref{def:po} are arrivals only. The
+publish, no tick, and the ticks of Definition~\ref{def:po} are arrivals (and commits) only. The
 trusting gate makes lines~\ref{ln:acquire}--\ref{ln:tick} unconditional in $\rel,\acq$.
 The correspondence with \texttt{hb\_oracle.py}: $\clk$ = \texttt{vc} ($\mathsf{vec}$) and
 \texttt{vs} ($\mathsf{sync}$), $\Ch_\ell$ = \texttt{released[loc]} (overwritten with the
 releaser's post-acquire clock rather than joined; under the trusting gate the two agree,
 since that clock already contains $\Ch_\ell$ unless the chain broke), \textsc{Sync} =
 \texttt{sync\_group}, \textsc{Check} = the loop over \texttt{last\_write}/\texttt{last\_reads}
-with \texttt{conflict} as its test, $\Rep$ = \texttt{hb\_races} (record pairs) or
+with \texttt{conflict} as its test, $\Rep$ = \texttt{hb\_races} (since T9 aggregated per pc pair, kind, class, space, thread
+distance and async side, with one example record pair and a count) or
 \texttt{hb\_races\_sync\_only} (their pc pairs, with counts); and \texttt{barrier\_only\_pairs} is
 $\textsc{Detect}(T,\mathsf{sync})$ computed offline with $\clk[u]$ stored as a pointer to
 $J$ plus the scalar $\clk[u][u]$ (after \textsc{Sync} no participant's map is ever
@@ -459,6 +506,41 @@ nothing. A bucket representative is always $\PO$-related to the record it replac
 is what the proof of Theorem~\ref{thm:sound} uses.
 \end{remark}
 
+\begin{proposition}[Agents]\label{prop:agents}
+With the agent records, generators (ISSUE), (GROUP), (WAIT) and the operations of
+Section~\ref{sec:alg}, Lemmas~\ref{lem:seq}--\ref{lem:test}, Theorems~\ref{thm:complete}
+and~\ref{thm:sound} and Corollary~\ref{cor:sync} hold, with $\alpha(t)$ a thread whose
+ticks are its commits, and in Theorem~\ref{thm:sound} ``$e\PO e'$'' read for an agent as
+``$e$'s group precedes $e'$'s''.
+\end{proposition}
+\begin{proof}
+\emph{Lemma~\ref{lem:seq}}: an issue is at its copies' position, a copy precedes its
+group's commit, commits are in $\seq$ order, and a wait follows the commits it completes.
+\emph{Lemma~\ref{lem:vc}}, three new cases, with $\Fr(\alpha)$ the events $\HBr$-below a
+processed copy or commit of $\alpha$. \emph{Issue}: by (ISSUE) $\Fr(\alpha)$ gains
+$\Fr(t)\cup\{x\}$, which the join gives for (b); $\clk[t][\alpha]\le\#$processed commits
+$<\clk[\alpha][\alpha]$ by (a),(b), so (a) survives the join. \emph{Commit} $c_j$: by
+(GROUP) $\Pred(c_j)=\Fr(\alpha)$, so the snapshot $S_{t,j}$ satisfies the analogue of (c) with
+$S_{t,j}[\alpha]=j=\epoch(c_j)$ --- the publish-then-tick order of an RMW --- and the tick
+restores (a). \emph{Wait} $w$: by (WAIT) $\Fr(t)$ gains $\{f:f\HBr c_{g(w)}\}$, which is
+$S_{t,g(w)}$ by the (c) analogue; $t$'s own entry is unchanged. \emph{Lemma~\ref{lem:test}}
+for $s=\alpha$: a generating path from a copy $e$ leaves the agent only by (WAIT) from some
+$c_k$, and reaches $c_k$ only by (GROUP) from $c_{\epoch(e)}$, so $\epoch(e)\le k\le\clk[t][\alpha]$;
+conversely $c_k\in\Pred(a)$ with $k\ge\epoch(e)$ gives $e\HB c_{\epoch(e)}\HBr c_k\HB a$. For
+$a$ a copy of $\alpha(t)$ and $e$ of $s\notin\{t,\alpha(t)\}$: $\clk[\alpha]$ after the issue
+join agrees with $\clk[t]$ on $s$ (every earlier join was with an older, smaller $\clk[t]$),
+and $\Pred(a)$ is $\Fr(t)$ by (ISSUE). For two copies $e,a$ of one agent the added test with
+$\clk[t]$ is the same argument with $t$'s frontier at $a$'s issue. \emph{Sound}: an agent's
+bucket keeps its latest copy of the key; if $e'$ replaced $e$ then $e$'s group is not later
+than $e'$'s, so $e'\HB a$ (a wait completing $e'$'s group, then $\PO$, (ISSUE) or $t$'s
+synchronizations) implies $e\HB a$ --- the property the proof uses of $\PO$.
+\emph{Corollary~\ref{cor:sync}}: the agent generators are in $\HB^{\mathrm{sync}}$ and the
+operations are applied in both instances.
+\end{proof}
+\noindent The proposition covers only what the code models (I7): completion by
+\texttt{commit\_group}/\texttt{wait\_group}; copies completed through an mbarrier
+(\texttt{ARRIVES.LDGSTSBAR}) stay their thread's own records, and bulk copies are T1b.
+
 \paragraph{Referee notes (T6).} (1) The RMW case of Lemma~\ref{lem:vc} applies (c) to every
 $r\chain q$, which need not be $\chain$-maximal; (c) is therefore stated for every published
 RMW (the induction proves it at each publish, and $P_r$ never changes afterwards). (2)
@@ -479,13 +561,17 @@ $\Rep$ is a set of pairs of records; cuVein reports per \emph{pc pair}
 $\{u,v\}$ and asks a second question: is the pair ordered in \emph{every} schedule? A
 static certificate $\textsc{Static}(u,v,d)$, from the CFG region graph and the observed
 thread distance $d$, returns $\rho$ (R1: every path between the two regions crosses a
-qualifying barrier of scope $\ge d$, with loops handled by cutting; R2: both pcs coherent
-at scope $\ge d$ --- the $\ms$ exception in certificate form, not an ordering) and $\chi$
+qualifying barrier of scope $\ge d$, with loops handled by cutting) and $\chi$
 (R3: a chain of atomic pcs from $u$ to $v$ over observed atomic--atomic edges --- each at a
 distance its two atomics' scopes cover, the first within the scope of a fence after $u$, none
 needed when $u$ is atomic --- and program-order steps between atomics, ending in a pc that
 dominates $v$ and whose critical section $v$ has not left; $d$ itself is checked only by the
-fence a store inside a CAS critical section needs).
+fence a store inside a CAS critical section needs). R2 --- both pcs strong at scope $\ge d$,
+the $\ms$ exception in pc form --- is no ordering and grants no verdict (D12): it gives the
+pair's \emph{class} when no dynamic instance does, $\SC$ if both pcs are strong at a scope
+covering the widest observed distance of the pair and $\DR$ otherwise (so it can demote an
+$\SC$ pair to $\DR$, never the reverse); two pcs that are both RMWs and $\ms$ at that distance
+are no conflict at all (Definition~\ref{def:verdict}) and are not judged.
 
 Two amendments to R3 follow from the census. Its \emph{release point} is taken from the
 trace, not from region dominance (today \texttt{release\_scope}: a \texttt{MEMBAR} in
@@ -504,45 +590,54 @@ one, i.e.\ when $u$ precedes in its own thread an acquire on the chain's locatio
 to pc pairs, the verdict for a candidate pair is
 \[
 \begin{array}{ll}
+\{u,v\}\in\Rep_{\mathsf{vec}},\ \rho: & \textsc{Race},\ \cls{model\_bug}\\
+\{u,v\}\in\Rep_{\mathsf{vec}}\text{, some instance }\DR: & \textsc{Race},\ \cls{structural}\\
 \{u,v\}\in\Rep_{\mathsf{vec}}\text{, every instance }\SC: & \textsc{Strong conflict},\ \cls{sc}\\
-\{u,v\}\in\Rep_{\mathsf{vec}}\text{, some instance }\DR: & \textsc{Race},\ \text{class \cls{model\_bug} if }\rho\text{ else \cls{structural}}\\
 \rho\vee\chi: & \textsc{Ordered},\ \cls{ordered}\\
 \{u,v\}\notin\Rep_{\mathsf{sync}}: & \textsc{Ordered},\ \cls{barrier-ordered}\\
-\text{otherwise}: & \textsc{Latent},\ \cls{latent}
+\text{otherwise}: & \textsc{Latent},\ \cls{latent}\ (\cls{latent-sc}\text{ if the class is }\SC)
 \end{array}
 \]
-and scalar-clock mode is the same without the first two rows and with \textsc{Race} in
-the last: it has no $\Rep_{\mathsf{vec}}$ and cannot tell a race of this run from a latent
-pair. The first row exists because R2 certifies exactly the morally strong pairs: once
-I2 reports $\SC$, every $\SC$ pair would otherwise land in \cls{model\_bug}. \textsc{Latent}
+and scalar-clock mode is the same without the first three rows and with \textsc{Race}
+(\cls{sc} if the class is $\SC$) in the last: it has no $\Rep_{\mathsf{vec}}$ and cannot tell a
+race of this run from a latent pair; its class is R2's. In scalar-clock mode \cls{sc}
+therefore also holds strong--strong pairs that an atomic hand-off ordered in the run (D2).
+Since R2 grants no order (D12), \cls{model\_bug} is raised by R1 alone and stays a defect
+detector: an unordered strong conflict certified by R2 is \cls{sc}, not a model bug. \textsc{Latent}
 is a third verdict, not a race: the pair is ordered in this execution, necessarily
 through an atomic hand-off, and no schedule-independent evidence orders it. It is
 reported, counted as neither true nor false positive in the precision tables, and
 evaluated on its own (D8, below). A pc pair collects the classes of its dynamic instances:
 one $\DR$ instance makes it a \textsc{Race} whatever the others are (a \texttt{cta}-scope
-atomic meets a strong store in its own block as $\SC$ and in another block as $\DR$). The
-code's \texttt{\_hb\_class} is rows two to five, row one dormant until I2 reports $\SC$; a
+atomic meets a strong store in its own block as $\SC$ and in another block as $\DR$). Since
+T9 the code's \texttt{\_hb\_class} is this matrix (\texttt{sync\_dominance.py}; the pair's
+class from the \texttt{class} field of its \texttt{hb\_races} records, else from R2); a
 pair judged with no $\Rep_{\mathsf{sync}}$ at all (no \texttt{hb\_races\_sync\_only}, no
 offline pass) falls to \textsc{Latent}; and \texttt{judge} relabels after the matrix ---
 \cls{benign} (every writer of the read pc is an atomic; still \textsc{Race}) and, opt-in,
 \cls{warp-po-ordered} (\textsc{Ordered}) --- so the three-verdict counts (D2) are taken from
-the class before these labels.
+the class before these labels (the verdict's \texttt{matrix\_class}; the harness writes the
+per-program counts into its \texttt{classes=} note, \texttt{make\_tables.py} reads them).
 
 Four facts follow from \S\ref{sec:single}. (i) The full clock never grants
-\textsc{Ordered}: it vetoes a certificate (row two) or separates \textsc{Race} from
+\textsc{Ordered}: it vetoes a certificate (rows one to three) or separates \textsc{Race} from
 \textsc{Latent}, so scalar-clock's \textsc{Race} set is vector-clock's
-$\textsc{Race}\cup\textsc{Latent}$ minus the vetoes. The census confirmed this on the same
+$\textsc{Race}\cup\textsc{Latent}$ minus the vetoes (with the classes: scalar-clock's
+$\textsc{Race}\cup\cls{sc}$ is vector-clock's $\textsc{Race}\cup\textsc{Latent}\cup\cls{sc}\cup\cls{latent-sc}$
+minus the vetoes; a pair that vector-clock mode calls \cls{sc} from its instances can be a
+\textsc{Race} in scalar-clock mode, when R2 at the widest observed distance says $\DR$). The census confirmed this on the same
 trace for 557 of 558 programs; the exception is \texttt{crs-cuda}, where the scalar-clock
 offline pass is skipped above \texttt{CUVEIN\_BARRIER\_PASS\_MAX\_LANES} (26 kernels above
 $5\cdot10^{6}$ lane-accesses) and six vector-clock pairs are never judged. (ii)
 \cls{barrier-ordered} is justified by Corollary~\ref{cor:sync}: absence from
 $\Rep_{\mathsf{sync}}$ is schedule-independent ordering (with the caveat of the referee
-note (2) of \S\ref{sec:single}). This holds for $\textsc{Detect}(T,\mathsf{sync})$; the code's
-second clock shares I2's state, under which a barrier-unordered pair can be absent ---
-\texttt{design/algorithms\_check.py} finds 8 such pc pairs on 3 of the 33 litmus traces,
-none of them judged there (no dependency edge, no candidate). (iii) \textsc{Race} in
-vector-clock mode is exactly $\Rep_{\mathsf{vec}}$ projected to pc pairs (those whose pcs the
-dependency side records; it records no purely local pc, I5), so
+note (2) of \S\ref{sec:single}). This holds for $\textsc{Detect}(T,\mathsf{sync})$, which
+since T9 is what the code's second clock and \texttt{barrier\_only\_pairs} compute (buckets in
+both; at 3331d35 they shared I2's state and \texttt{design/algorithms\_check.py} found 8
+barrier-unordered pc pairs missing on 3 of the 33 litmus traces). (iii) \textsc{Race} and \cls{sc} in
+vector-clock mode are exactly $\Rep_{\mathsf{vec}}$ projected to pc pairs, by class (every
+$\Rep_{\mathsf{vec}}$ pair is an event-stream candidate, so the verdict layer judges it
+whether or not the dependency side recorded an edge for it), so
 Theorems~\ref{thm:complete} and~\ref{thm:sound} apply to that verdict as stated and
 Theorem~\ref{thm:cert} lifts it to every execution with the same profile; no theorem
 speaks about \textsc{Latent}. (iv) \cls{model\_bug} is the disagreement of two
@@ -707,6 +802,17 @@ written.
 \section{The implementation at 3331d35}\label{sec:impl}
 %=============================================================================
 
+\emph{Since T9} (branch \texttt{fix/publish-then-tick}, commits b87adbb, 2494aa3): I1, I2 and I5 are
+matched --- publish then tick, per-(thread, key) buckets in both clocks and in
+\texttt{barrier\_only\_pairs} with $\SC$ reported (class \texttt{"SC"} on an
+\texttt{hb\_races} record), local records out of the HB trace and skipped on replay --- and
+\S\ref{sec:verdict}'s matrix is the code's (D12). Checked: \texttt{hb\_oracle.py} equals
+\texttt{design/algorithms\_check.py}'s Algorithm~\ref{alg:detect} with the switches off, record
+pairs with their class and the second clock with its counts, on the 32 ScoR litmus traces
+re-recorded with the T9 runtime (and \texttt{barrier\_only\_pairs} equals the second clock);
+engine $=$ oracle on the green set; the three T6 strict xfails pass. The rows below keep the
+3331d35 substitutions for the record.
+
 \texttt{hb\_oracle.py} (= \texttt{HbEngine} on the corpus; the engine takes its labels from
 the sidecar, merged over a binary's CFGs, where the oracle reads the one CFG it is given, and
 on a trace-validity violation it records and continues where the oracle raises),
@@ -718,11 +824,11 @@ substitutions below. Each is stated with what it costs against \S\ref{sec:single
 \toprule
 & implementation & consequence \\
 \midrule
-I1 & \emph{tick before publish}: line~\ref{ln:tick} before line~\ref{ln:publish}; the RMW's bucket entry carries the post-tick epoch & Theorem~\ref{thm:sound} fails on $R_{\mathrm{miss}}$ (Proposition~\ref{prop:rmiss}); Theorem~\ref{thm:complete} holds; Corollary~\ref{cor:causal}(a) void. Corpus instance: \texttt{race\_interblock\_fence\_rtraw} (evcand vector-clock dump; the verdict survived only as \cls{latent}) \\
-I2 & \emph{one last write per location and, per thread, its last read since that write} in place of buckets, shared by both clocks; $\SC$ dropped (\texttt{--strong-ldst generic}: coherent pairs never conflict) & Theorem~\ref{thm:sound} fails for $\DR$ in both clocks (Remark~\ref{rem:buckets}), and \S\ref{sec:verdict}~(ii) with it; policy \texttt{none} does not repair it (note (a)) \\
+I1 & \textbf{matched (T9).} Was: \emph{tick before publish}: line~\ref{ln:tick} before line~\ref{ln:publish}; the RMW's bucket entry carries the post-tick epoch & Theorem~\ref{thm:sound} fails on $R_{\mathrm{miss}}$ (Proposition~\ref{prop:rmiss}); Theorem~\ref{thm:complete} holds; Corollary~\ref{cor:causal}(a) void. Corpus instance: \texttt{race\_interblock\_fence\_rtraw} (evcand vector-clock dump; the verdict survived only as \cls{latent}) \\
+I2 & \textbf{matched (T9).} Was: \emph{one last write per location and, per thread, its last read since that write} in place of buckets, shared by both clocks; $\SC$ dropped (\texttt{--strong-ldst generic}: coherent pairs never conflict) & Theorem~\ref{thm:sound} fails for $\DR$ in both clocks (Remark~\ref{rem:buckets}), and \S\ref{sec:verdict}~(ii) with it; policy \texttt{none} does not repair it (note (a)) \\
 I3 & \emph{matched} for exits (T3b, \texttt{aab77ca}): exit records in the dump (marker \texttt{hb\_exits}), $\exp_k=N_\beta-|\gone_\beta|$ for whole-block segments and $n$ for counted ones, \textsc{Complete} on exit, the end-of-kernel check, in engine, oracle and \texttt{barrier\_only\_pairs}; remaining: \texttt{bar.arrive} recorded as blocking (note (b)) & dumps recorded before T3b keep the old reading ($\exp_k=N_\beta$: A3 false for early-exit kernels there, crs-cuda 155/7 spurious); re-recorded crs-cuda (50 launches, 247,587 exit records): CLEAN in both modes, no trace-validity violation; the evcand store (597 programs, no exit records) re-scores to identical verdicts \\
 I4 & \emph{trusting gate} & $\HB$ is a superset of the instance-gated one; Lemma~\ref{lem:mono}: reports are a subset; the certificate is not inside PTX causality (\texttt{test\_relaxed\_handoff\_should\_race}, strict xfail). Corpus: 8 of the 10 latent-only ScoR races (\S\ref{sec:verdict}) are unordered under PTX and ordered by this gate; only R3's fence check kept their verdicts. Implement the instance gate of Definition~\ref{def:gate}, not the per-pc one \\
-I5 & local memory keyed by $(\mathtt{local},a)$, $a$ the local-window offset with no thread id (note (c)) & every thread's access at one offset is one location: 8,096 spurious race records on a 2$\times$32-thread kernel with no sharing; no verdict there (note (c)) \\
+I5 & \textbf{matched (T9, D14): local memory is outside the model} --- the HB trace carries no local record, and engine, oracle and \texttt{barrier\_only\_pairs} skip those of an older dump. Was: local memory keyed by $(\mathtt{local},a)$, $a$ the local-window offset with no thread id (note (c)) & every thread's access at one offset is one location: 8,096 spurious race records on a 2$\times$32-thread kernel with no sharing; no verdict there (note (c)) \\
 I6 & monitor: the completion-order check per warp, not per lane, on memory records only; per-warp degrade when the count is unknown; no size or overlap check (a location is the start address); scalar-clock mode: the degrade, no check & over-rejects under independent thread scheduling (predicted from the code, not observed: 0 violations on ScoR 32/32, \texttt{HARDENING\_REPORT.md}); the degrade path is unreachable on launched kernels and unsound without the monitor, so T11 deletes it \\
 I7 & cp.async copies as accesses of a virtual agent $t\,|\,2^{62}$, joined at issue, completed by commit/wait (note (d)) & outside the model; needs generators (ISSUE), (WAIT) and a re-proof of \S\ref{sec:single} \\
 \bottomrule
@@ -787,8 +893,16 @@ block~0 first (I1), Remark~\ref{rem:buckets}'s kernel (I2) and a local-memory ke
 the ScoR kernel \texttt{race\_interblock\_fence\_rtraw} has block~0 releasing at seq~5
 with \texttt{atomicExch(\&flag,1)}, block~1's spin succeeding at seq~6, block~0 reading
 \texttt{data} at seq~7 after its own release and block~1 writing it at seq~8, with
-\texttt{hb\_races} empty --- $R_{\mathrm{miss}}$ on a real trace, proved-in-effect on
-this one dump, not re-run with a publish-then-tick oracle. \emph{Monitor}: one unit test
+\texttt{hb\_races} empty --- $R_{\mathrm{miss}}$ on a real trace. Re-run with the T9
+oracle (\texttt{eval/baselines/t9\_rescore.py}): the pair $\mathtt{0x100}/\mathtt{0x1f0}$ is a
+$\DR$ in $\Rep_{\mathsf{vec}}$, and the verdict moves from \cls{latent} to \cls{structural}.
+\emph{A2 observed to fail} (T9 re-score, \texttt{eval/T9\_RESCORE.md} \S2.3): in the evcand dump
+of \texttt{matrix-multiplication-norace-small} a warp's successful lock CAS is recorded
+five records before the unlocking EXCH whose value it read, so $\seq$ order is not coherence
+order there; under publish-then-tick the (ATOM) edge then comes from the wrong RMW and
+four $\DR$ pairs are reported on a race-free program (before T9, I1 hid them). A2 is a
+collector obligation (record an RMW when it executes, or with the value it read); not yet
+discharged. \emph{Monitor}: one unit test
 per check that must raise plus a valid multi-warp control that must not (five of the seven
 tests of \texttt{test\_barrier\_soundness.py}, passing; they exercise \texttt{hb\_oracle.py},
 not the engine's \texttt{tv\_fail}); zero violations on the ScoR corpus; the
@@ -799,9 +913,8 @@ head-to-head suites are not yet counted.
 $\SC$ row. (2) I3: exit records in the dump, \textsc{Complete} on exit, the fifth
 monitor check of \S\ref{sec:model}; A3 becomes PTX semantics (D7, route (a)) --- done
 (T3b, \texttt{aab77ca}). (3) I1, I2
-(buckets, D6) and I5 in one change to oracle and engine, with the offline re-score;
-\texttt{race\_interblock\_fence\_rtraw} is the corpus regression test for I1, litmus
-O6(vi) for I2. (4) Sidecar strength and scope (O1): \texttt{.STRONG} loads and stores
+(buckets, D6) and I5 in one change to oracle and engine, with the offline re-score ---
+done (T9; \texttt{design/soundness\_event\_candidates.md}, \texttt{eval/T9\_RESCORE.md}). (4) Sidecar strength and scope (O1): \texttt{.STRONG} loads and stores
 and \texttt{volatile} classed strong with their scope, atomicity no longer decided by
 the RMW opcode alone --- the DR/SC split is wrong in both modes until then, and the
 scope label must err narrow (Lemma~\ref{lem:mono}, converse). (5) I4 as the instance

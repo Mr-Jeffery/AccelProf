@@ -73,14 +73,13 @@ def _dump(tmp_path, events, exits_marker=True, name="trace.json"):
 
 def _all_three(path):
     """(oracle races, oracle sync pairs, offline sync pairs, offline tv) of one dump; the
-    simulator's Detect with I1/I2 on must give the oracle's race set on it."""
-    rep = hb_oracle.analyze(_DOT, path)
+    simulator's Detect (I1/I2 off since T9) must give the oracle's race records on it."""
+    rep = hb_oracle.analyze(_DOT, path, records=True)
     trace = json.loads(Path(path).read_text())
     tv = []
     off = sd.barrier_only_pairs(trace, {}, {}, tv_out=tv)
-    sim = ac.detect(trace["hb_events"], 64, {}, {}, i1=True, i2=True)
-    key = lambda r: (r["addr"], r["a_tid"], r["a_pc"], r["b_tid"], r["b_pc"], r["kind"])
-    assert {key(r) for r in rep["races"]} == set(sim)
+    sim = ac.detect(trace["hb_events"], 64, {}, {})      # since T9: the switches off
+    assert {tuple(r) for r in rep["race_records"]} == set(sim)
     osync = {(a, b): n for a, b, n in rep["races_sync_only"]}
     assert osync == off, "offline barrier-only pass != the oracle's second clock"
     return rep["races"], osync, tv
@@ -122,7 +121,7 @@ def test_pre_exit_write_is_not_released_by_the_barrier(tmp_path):
     races, sync, tv = _all_three(_dump(tmp_path, ev))
     assert {r["kind"] for r in races} == {"RAW"}
     assert {(r["a_tid"] >> 5, r["b_tid"] >> 5) for r in races} == {(1, 0)}
-    assert sync == {(0x50, 0x80): len(races)} and tv == []
+    assert sync == {(0x50, 0x80): sum(r["count"] for r in races)} and tv == []
 
 
 def test_counted_barrier_keeps_its_count(tmp_path):
@@ -158,7 +157,7 @@ def test_old_dump_without_exit_records_keeps_its_verdict(tmp_path, monkeypatch):
         hb_oracle.analyze(_DOT, p)
     monkeypatch.setenv("YOSEMITE_HB_STRICT", "0")
     races, sync, tv = _all_three(p)
-    assert len(races) == 29 and sync == {(0x50, 0x80): 29} and tv == []
+    assert sum(r["count"] for r in races) == 29 and sync == {(0x50, 0x80): 29} and tv == []
 
 
 def test_tv_record_after_exit(tmp_path):
@@ -227,8 +226,9 @@ def _first(fn, dots, trace):
     raise AssertionError("no CFG aligns with the trace")
 
 
-def _key(r):
-    return (r["addr"], r["a_tid"], r.get("a_pc"), r["b_tid"], r["b_pc"], r["kind"])
+def _key(r):   # hb_races is aggregated (T9): addr and tids name one example instance
+    return (r.get("a_pc"), r["b_pc"], r["kind"], r.get("class"), r["space"], r.get("dist"),
+            r.get("async"), r.get("count"))
 
 
 def _threads(t, pred):

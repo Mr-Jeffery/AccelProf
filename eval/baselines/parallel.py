@@ -519,7 +519,7 @@ def analyze_one(idir, writer, confirm_dir, analysis_cap=0, analysis_mem=-1):
                 verdicts[mode] = "ERROR"
             continue
         # analyze the saved trace once (deterministic verdict), reuse across reps
-        ids_, pcs, raw = [], set(), []
+        ids_, pcs, raw, raw_sc, cnote = [], set(), [], [], ""
         analyzed, reason = False, ""
         partial = bool(mm.get("partial"))
         mode_dir = blib.hb_modes.resolve_dir(idir, mode)   # pre-T8 store: <id>/engine|trace-only
@@ -528,6 +528,8 @@ def analyze_one(idir, writer, confirm_dir, analysis_cap=0, analysis_mem=-1):
                 (ids_, pcs, raw), reason = _analyze_capped(mode_dir, dots_dir,
                                                            analysis_cap, analysis_mem)
                 analyzed = not reason
+                cnote = rc.classes_note(raw)             # T9 (D2): report classes
+                raw, raw_sc = rc.split_raw(raw)
             except ValueError:
                 if not partial:     # a killed run's last kernel JSON may be truncated
                     raise
@@ -567,7 +569,8 @@ def analyze_one(idir, writer, confirm_dir, analysis_cap=0, analysis_mem=-1):
                 verdict = "RACE" if ids_ else "CLEAN"
                 notes = (f"node={meta.get('node')};arch={meta.get('arch')};"
                          f"events={mode_events};nkernels={rm.get('nkernels')}"
-                         + ("" if complete else f";partial(rc={rm.get('rc')})"))
+                         + ("" if complete else f";partial(rc={rm.get('rc')})")
+                         + (f";{cnote}" if cnote else ""))
                 ri, rl, nd = " ".join(ids_), lines_for(pcs), len(ids_)
             verdicts[mode] = verdict if mode not in verdicts or verdict == "RACE" else verdicts[mode]
             writer.writerow(blib.row(
@@ -580,6 +583,7 @@ def analyze_one(idir, writer, confirm_dir, analysis_cap=0, analysis_mem=-1):
                 json.dumps({"id": meta["id"], "tool": "cuvein", "mode": mode,
                             "verdict": "RACE" if ids_ else "CLEAN", "report_ids": ids_,
                             "pcs": sorted(pcs), "lines": lines_for(pcs), "raw": raw,
+                            "raw_sc": raw_sc,
                             "scope_file": "", "pc_lines": {str(k): pcmap[k]
                                                            for k in pcs if k in pcmap}},
                            indent=2))
