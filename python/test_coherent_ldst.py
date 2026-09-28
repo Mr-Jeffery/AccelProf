@@ -126,8 +126,8 @@ def test_lowering_assumption():
 
 
 def _race_key(r):
-    return (r["addr"], r["a_tid"], r.get("a_pc"), r["b_tid"], r["b_pc"], r["kind"],
-            r.get("class"))
+    return (r.get("a_pc"), r["b_pc"], r["kind"], r.get("class"), r["space"], r.get("dist"),
+            r.get("async"), r.get("count"))
 
 
 @pytest.mark.parametrize("kernel", _KERNELS)

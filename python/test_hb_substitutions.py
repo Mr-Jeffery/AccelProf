@@ -82,17 +82,16 @@ def _verdict(dots, trace, pcs):
 def _engine_equals_oracle(dots, trace):
     """engine == oracle (records with class, and the second clock), and the oracle ==
     Detect(T, vec) with the I1/I2 switches off (record pairs with DR/SC)."""
-    key = lambda r: (r["addr"], r["a_tid"], r.get("a_pc"), r["b_tid"], r["b_pc"], r["kind"],
-                     r.get("class"))
+    key = lambda r: (r.get("a_pc"), r["b_pc"], r["kind"], r.get("class"), r["space"], r.get("dist"),
+                     r.get("async"), r.get("count"))
     t = _load(trace)
     dot, _, _ = ac.tables(dots, t)
-    rep = hb_oracle.analyze(dot, trace)
+    rep = hb_oracle.analyze(dot, trace, records=True)
     oracle = {key(r) for r in rep["races"]}
     ref = set(ac.reference(dots, trace))
     return {key(r) for r in t.get("hb_races", [])} == oracle \
         and t.get("hb_races_sync_only") == rep["races_sync_only"] \
-        and {(r["addr"], r["a_tid"], r["a_pc"], r["b_tid"], r["b_pc"], r["class"])
-             for r in rep["races"]} == ref
+        and {tuple(r) for r in rep["race_records"]} == ref
 
 
 def _scalar_clock(trace, tmp_path):

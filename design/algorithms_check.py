@@ -152,12 +152,11 @@ def check(dots, trace_path):
     """One kernel dump -> dict of the comparisons (see the module docstring)."""
     trace = json.loads(Path(trace_path).read_text())
     dot, atom, coh = tables(dots, trace)
-    oracle = hb_oracle.analyze(dot, trace_path)
+    oracle = hb_oracle.analyze(dot, trace_path, records=True)
     ev, tc = trace["hb_events"], trace["kernel"].get("block_thread_count")
     run = lambda **kw: detect(ev, tc, atom, coh, **kw)
     ref, ref_sync = run(), run(vec=False)
-    o_vec = {(r["addr"], r["a_tid"], r["a_pc"], r["b_tid"], r["b_pc"], r["class"])
-             for r in oracle["races"]}
+    o_vec = {tuple(r) for r in oracle["race_records"]}
     o_sync = Counter({(a, b): n for a, b, n in oracle["races_sync_only"]})
     pairs = lambda rep: {(r[0], r[1], r[2], r[3], r[4]) for r in rep}
     return {"events": len(ev), "oracle": len(o_vec),

@@ -120,7 +120,7 @@ def test_oracle_agrees_with_the_engine(artifacts, monkeypatch):
     # TV checks off (YOSEMITE_HB_STRICT=0) the oracle replays the trace like the engine does.
     monkeypatch.setenv("YOSEMITE_HB_STRICT", "0")
     dots, trace = artifacts
-    key = lambda r: (r["addr"], r["a_tid"], r.get("a_pc"), r["b_tid"], r["b_pc"], r["kind"])
+    key = lambda r: (r.get("a_pc"), r["b_pc"], r["kind"], r.get("class"), r["space"], r.get("dist"), r.get("async"), r.get("count"))   # hb_races is aggregated (T9)
     engine = {key(r) for r in json.loads(Path(trace).read_text()).get("hb_races", [])}
     oracle = {key(r) for r in _oracle(dots, trace)["races"]}
     assert engine == oracle

@@ -83,27 +83,39 @@ struct HbEngine {
     // race kind labels (the report's orientation) and DR/SC class (Definition "Verdicts")
     static constexpr uint8_t RK_ATOMIC = 0, RK_WAW = 1, RK_RAW = 2, RK_WAR = 3;
     static constexpr const char* RACE_KIND[] = {"atomic", "WAW", "RAW", "WAR"};
+    // hb_races is aggregated per (a_pc, b_pc, kind, class, space, thread distance, async
+    // side): one example record (the first) and the number of conflicting record pairs
+    // Check found. Without the FastTrack collapse the record pairs are O(threads^2) per
+    // location (T9 re-score: 1.66e9 on P1); every consumer works on pc pairs, their class,
+    // widest distance, warp and async side. hb_oracle.py aggregates identically.
+    static constexpr const char* DIST_NAME[] = {"none", "warp", "block", "grid"};
     struct Race { uint64_t addr; int space; uint64_t loc_block;
-                  Tid a_tid; long a_pc; Tid b_tid; uint32_t b_pc; uint8_t kind; bool sc; };
-    std::vector<Race> races;                                // unique, in first-report order
+                  Tid a_tid; long a_pc; Tid b_tid; uint32_t b_pc; uint8_t kind; bool sc;
+                  uint8_t dist; uint8_t asy; uint64_t count; };
+    std::vector<Race> races;                                // one per key, first-report order
     struct RaceKey {
-        uint64_t addr; Tid a_tid; long a_pc; Tid b_tid; uint32_t b_pc; uint8_t kind;
+        long a_pc; uint32_t b_pc; uint8_t kind; bool sc; int space; uint8_t dist; uint8_t asy;
         bool operator==(const RaceKey& o) const {
-            return addr == o.addr && a_tid == o.a_tid && a_pc == o.a_pc && b_tid == o.b_tid
-                && b_pc == o.b_pc && kind == o.kind;
+            return a_pc == o.a_pc && b_pc == o.b_pc && kind == o.kind && sc == o.sc
+                && space == o.space && dist == o.dist && asy == o.asy;
         }
     };
     struct RaceKeyHash {
         size_t operator()(const RaceKey& k) const {
-            uint64_t h = k.addr * 0x9e3779b97f4a7c15ULL;
-            for (uint64_t v : {static_cast<uint64_t>(k.a_tid), static_cast<uint64_t>(k.a_pc),
-                               static_cast<uint64_t>(k.b_tid), static_cast<uint64_t>(k.b_pc),
-                               static_cast<uint64_t>(k.kind)})
+            uint64_t h = static_cast<uint64_t>(k.a_pc) * 0x9e3779b97f4a7c15ULL;
+            for (uint64_t v : {static_cast<uint64_t>(k.b_pc), static_cast<uint64_t>(k.kind),
+                               static_cast<uint64_t>(k.sc), static_cast<uint64_t>(k.space),
+                               static_cast<uint64_t>(k.dist), static_cast<uint64_t>(k.asy)})
                 h = (h ^ v) * 0x100000001b3ULL;
             return static_cast<size_t>(h ^ (h >> 29));
         }
     };
-    std::unordered_set<RaceKey, RaceKeyHash> race_seen;     // dedup at insertion
+    std::unordered_map<RaceKey, size_t, RaceKeyHash> race_index;   // key -> index in races
+    // sync_dominance.thread_distance of two tids (async bit cleared)
+    static uint8_t thread_distance(Tid a, Tid b) {
+        if ((a >> 10) != (b >> 10)) return 3;
+        return ((a >> 5) != (b >> 5)) ? 2 : 1;
+    }
     std::map<std::pair<uint32_t, uint32_t>, uint64_t> sync_pairs;  // (pc_lo, pc_hi) -> count
 
     // Block-barrier instance assembly (see the barrier branch in process): buffer
@@ -209,7 +221,7 @@ struct HbEngine {
 
     void reset() {
         vc.clear(); vs.clear(); released.clear(); buckets.clear();
-        races.clear(); race_seen.clear(); sync_pairs.clear();
+        races.clear(); race_index.clear(); sync_pairs.clear();
         pending_barriers.clear();  // block_thread_count is (re)set by hb_engine_reset
         bar_warps_seen.clear(); warp_waiting.clear(); tv_violation.clear();
         atom_idx.clear(); coherence.clear();
@@ -296,10 +308,19 @@ struct HbEngine {
     void conflict(uint64_t addr, int space, uint64_t loc_block, Tid p_tid, const Entry& p,
                   Tid t, uint32_t pc, uint8_t kind, bool sc, Tid obs) {
         if (p.clock > clk_get(vc[obs], p_tid)) {
-            const RaceKey k{addr, p_tid, static_cast<long>(p.pc), t, pc, kind};
-            if (race_seen.insert(k).second)
-                races.push_back(Race{addr, space, loc_block, p_tid, static_cast<long>(p.pc),
-                                     t, pc, kind, sc});
+            const Tid a0 = p_tid & ~ASYNC_BIT, b0 = t & ~ASYNC_BIT;
+            const uint8_t asy = static_cast<uint8_t>(((p_tid & ASYNC_BIT) ? 1 : 0)
+                                                   | ((t & ASYNC_BIT) ? 2 : 0));
+            const uint8_t dist = thread_distance(a0, b0);
+            const RaceKey k{static_cast<long>(p.pc), pc, kind, sc, space, dist, asy};
+            auto it = race_index.find(k);
+            if (it == race_index.end()) {
+                race_index.emplace(k, races.size());
+                races.push_back(Race{addr, space, loc_block, a0, static_cast<long>(p.pc),
+                                     b0, pc, kind, sc, dist, asy, 1});
+            } else {
+                races[it->second].count += 1;
+            }
         }
         if (sync_only_pass && p.sclock > vs_get(obs, p_tid))
             sync_pairs[{std::min(p.pc, pc), std::max(p.pc, pc)}] += 1;
@@ -599,14 +620,14 @@ struct HbEngine {
           << ", \"vs\": {\"threads\": " << vs.size() << ", \"unique_bases\": " << bases.size()
           << ", \"base_entries\": " << vs_base_entries << ", \"bytes_est\": " << vs_bytes << "}"
           << ", \"races\": {\"records\": " << races.size() << ", \"bytes_est\": "
-          << races.capacity() * sizeof(Race) + race_seen.size() * mchunk(8 + sizeof(RaceKey))
-             + hash_buckets(race_seen) << "}"
+          << races.capacity() * sizeof(Race) + race_index.size() * mchunk(8 + sizeof(RaceKey) + 8)
+             + hash_buckets(race_index) << "}"
           << ", \"sync_pairs\": " << sync_pairs.size()
           << ", \"coherence_addrs\": " << coherence.size();
     }
 
     void emit(std::ostream& jout) {
-        // races are unique by (addr, a_tid, a_pc, b_tid, b_pc, kind) (deduped at insertion)
+        // one record per aggregate key, with its count (see races)
         jout << ",\n  \"hb_races\": [\n";
         for (size_t i = 0; i < races.size(); ++i) {
             const Race& r = races[i];
@@ -614,14 +635,16 @@ struct HbEngine {
             jout << "    {\"addr\": " << r.addr
                  << ", \"space\": \"" << sp << "\""
                  << ", \"loc_block\": " << r.loc_block
-                 << ", \"a_tid\": " << (r.a_tid & ~ASYNC_BIT)
+                 << ", \"a_tid\": " << r.a_tid
                  << ", \"a_pc\": " << r.a_pc
-                 << ", \"b_tid\": " << (r.b_tid & ~ASYNC_BIT)
+                 << ", \"b_tid\": " << r.b_tid
                  << ", \"b_pc\": " << r.b_pc
                  << ", \"kind\": \"" << RACE_KIND[r.kind] << "\""
-                 << ", \"class\": \"" << (r.sc ? "SC" : "DR") << "\"";
-            const bool aa = r.a_tid & ASYNC_BIT, ba = r.b_tid & ASYNC_BIT;   // T1a
-            if (aa || ba) jout << ", \"async\": \"" << (aa ? (ba ? "ab" : "a") : "b") << "\"";
+                 << ", \"class\": \"" << (r.sc ? "SC" : "DR") << "\""
+                 << ", \"dist\": \"" << DIST_NAME[r.dist] << "\"";
+            if (r.asy)   // T1a: which side is an agent's copy
+                jout << ", \"async\": \"" << (r.asy == 3 ? "ab" : r.asy == 1 ? "a" : "b") << "\"";
+            jout << ", \"count\": " << r.count;
             jout << "}";
             if (i + 1 < races.size()) jout << ",";
             jout << "\n";

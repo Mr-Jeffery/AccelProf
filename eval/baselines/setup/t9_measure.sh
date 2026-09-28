@@ -39,17 +39,18 @@ count() {   # dump dir -> per kernel: bytes, events, local records (text counts,
     echo "  $(basename $f) bytes=$(stat -c %s $f) events=$(grep -o '"seq": ' $f | wc -l) local=$(grep -o '"space": "local"' $f | wc -l)"
   done
 }
-run() {   # runtime-root mode workdir exe args... -> dump under workdir/dump
-  local R=$1 mode=$2 D=$3; shift 3
-  mkdir -p $D; cd $D
+run() {   # runtime-root mode workdir exe args... -> dump under workdir/dump (run as ./exe, as the harness does)
+  local R=$1 mode=$2 D=$3 exe=$4; shift 4
+  mkdir -p $D; cd $D; ln -sf $exe $D/$(basename $exe)
   local scope; scope=$(ls $D/../cubins/atomic_scope.txt 2>/dev/null)
   timeout -s KILL ${CAP:-600} env ACCEL_PROF_HOME=$R PATH=$R/bin:$PATH YOSEMITE_HB_TRACE=1 YOSEMITE_HB_MODE=$mode \
-      ${scope:+YOSEMITE_ATOMIC_SCOPE_FILE=$scope} accelprof -t pc_dependency_analysis -n 1 "$@" < /dev/null > run.log 2>&1
+      ${scope:+YOSEMITE_ATOMIC_SCOPE_FILE=$scope} accelprof -v -t pc_dependency_analysis -n 1 ./$(basename $exe) "$@" < /dev/null > run.log 2>&1
   echo "  rc=$? $(du -sh $D 2>/dev/null | cut -f1)"
   d=$(ls -d $D/dependency_* 2>/dev/null | head -1); [ -n "$d" ] && mv "$d" $D/dump
   cd $W
 }
 OUT=/mnt/beegfs/$USER/t9_local; rm -rf $OUT; mkdir -p $OUT/local_mem_blocks/cubins
+cd $W
 nvcc -arch=sm_89 -lineinfo --cudart shared -o $OUT/local_mem_blocks/local_mem_blocks python/testdata/local_mem_blocks.cu
 ( cd $OUT/local_mem_blocks/cubins && cuobjdump -xelf all ../local_mem_blocks > /dev/null && for c in *.cubin; do nvdisasm -bbcfg -poff $c > ${c%.cubin}.dot; done \
   && $PY $W/python/atomic_scope_sidecar.py *.dot -o atomic_scope.txt > /dev/null )

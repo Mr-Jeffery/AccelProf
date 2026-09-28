@@ -102,7 +102,7 @@ def _pairs(races):
     for r in races or ():
         a, b = r.get("a_pc"), r["b_pc"]
         k = (min(a, b), max(a, b)) if a is not None else (None, b)
-        out[k][r.get("class", "DR")] += 1
+        out[k][r.get("class", "DR")] += r.get("count", 1)
     return out
 
 
@@ -324,7 +324,14 @@ def cmd_tables(a):
                  "recorded dumps, AFTER = T9 code on the re-scored dumps)\n")
     moves = Counter()
     rows = []
+    unscored = sorted(i for i, d in dets.items() if "error" in d)
+    lines.append("Not re-scored (the T9 oracle did not finish; their AFTER rows are the "
+                 "harness's no-trace-collected ERROR and are left out below): "
+                 + (", ".join(f"{i} ({dets[i]['error']}, {dets[i].get('dump_mb')} MB)"
+                              for i in unscored) or "none") + "\n")
     for key in sorted(set(before) | set(after)):
+        if key[0] in unscored:
+            continue
         b, f = before.get(key), after.get(key)
         vb, vf = (b or {}).get("verdict", "-"), (f or {}).get("verdict", "-")
         lab = man.get(key[0], {}).get("label", "")

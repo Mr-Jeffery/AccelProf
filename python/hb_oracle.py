@@ -82,7 +82,15 @@ class VC(dict):
 
 
 
-def analyze(dot_path, trace_path, strong_ldst=None):
+def analyze(dot_path, trace_path, strong_ldst=None, records=False):
+    """-> the report dict. `races` is aggregated per (a_pc, b_pc, kind, class, space, thread
+    distance, async side): one example record plus `count`, the number of conflicting
+    record pairs Check found (with repeats) -- a race set without the FastTrack collapse is
+    O(threads^2) record pairs per location, which no consumer needs (the verdict layer works
+    on pc pairs, their class, widest distance, warp and async). records=True also returns
+    `race_records`, the set of record pairs (addr, a_tid, a_pc, b_tid, b_pc, class) with the
+    issuing thread's id for an agent's access (design/algorithms_check.py compares it with
+    Detect)."""
     trace = json.loads(Path(trace_path).read_text())
     events = sorted(trace.get("hb_events", []), key=lambda e: e["seq"])
     if not events:
@@ -117,7 +125,8 @@ def analyze(dot_path, trace_path, strong_ldst=None):
     # (no FastTrack collapse: Theorem "Sound" needs a replaced entry PO-before its
     # replacement). One bucket serves both clocks: both runs replace it at the same records.
     buckets = defaultdict(dict)       # loc -> {(kind, scope): {tid: (clk, sclk, pc)}}
-    races = []                        # list of race records
+    agg = {}                          # aggregate key -> [example record, count]
+    rec_set = set() if records else None
     sync_pairs = defaultdict(int)     # (pc_lo, pc_hi) -> conflicts unordered by vs
 
     # Coherence profile Pi (Phase 3, observational — never affects a verdict). The
@@ -177,8 +186,22 @@ def analyze(dot_path, trace_path, strong_ldst=None):
         cls = "DR" (data race) or "SC" (unordered strong conflict, Definition "Verdicts")."""
         o = t if observer is None else observer
         if prev_clk > vc[o].get(prev_tid, 0):
-            races.append({**rec, "a_tid": prev_tid, "a_pc": prev_pc,
-                          "b_tid": t, "b_pc": pc, "kind": kind, "class": cls})
+            a0, b0 = prev_tid & ~ASYNC, t & ~ASYNC
+            asy = "ab" if prev_tid & t & ASYNC else "a" if prev_tid & ASYNC else \
+                  "b" if t & ASYNC else ""
+            dist = sd.thread_distance(a0, b0)
+            key = (prev_pc, pc, kind, cls, rec["space"], dist, asy)
+            g = agg.get(key)
+            if g is None:
+                ex = {**rec, "a_tid": a0, "a_pc": prev_pc, "b_tid": b0, "b_pc": pc,
+                      "kind": kind, "class": cls, "dist": sd.SCOPES[dist]}
+                if asy:
+                    ex["async"] = asy
+                agg[key] = [ex, 1]
+            else:
+                g[1] += 1
+            if rec_set is not None:
+                rec_set.add((rec["addr"], a0, prev_pc, b0, pc, cls))
         if prev_sclk > vs[o].get(prev_tid, 0):
             sync_pairs[(min(prev_pc, pc), max(prev_pc, pc))] += 1
 
@@ -363,18 +386,8 @@ def analyze(dot_path, trace_path, strong_ldst=None):
                 # trusting gate (the clock already holds the chain unless it broke).
                 released[loc] = (VC(vc[t]), my_block, my_scope)
                 vc[t][t] = clk + 1
-    # dedup identical race tuples (same pc pair, tid pair, addr); then report the issuing
-    # thread's id for an agent's access with "async" naming the side(s) (as HbEngine emits)
-    seen, uniq = set(), []
-    for r in races:
-        key = (r["addr"], r["a_tid"], r["a_pc"], r["b_tid"], r["b_pc"], r["kind"])
-        if key not in seen:
-            seen.add(key)
-            a, b = r["a_tid"] & ASYNC, r["b_tid"] & ASYNC
-            r = dict(r, a_tid=r["a_tid"] & ~ASYNC, b_tid=r["b_tid"] & ~ASYNC)
-            if a or b:
-                r["async"] = "ab" if a and b else "a" if a else "b"
-            uniq.append(r)
+    # aggregated race records, in first-report order (HbEngine emits the same)
+    uniq = [dict(ex, count=n) for ex, n in agg.values()]
 
     # Coherence profile Pi: per atomic address, the observed atomic order and its hash.
     coherence_profile = {
@@ -389,6 +402,7 @@ def analyze(dot_path, trace_path, strong_ldst=None):
         "kernel": {"mangled": mangled, "name": trace["kernel"]["kernel_name"]},
         "atomic_pcs": {hex(pc): sd.SCOPES[s] for pc, s in sorted(atom_scope.items())},
         "races": uniq,
+        **({"race_records": sorted(rec_set)} if rec_set is not None else {}),
         "races_sync_only": [[a, b, n] for (a, b), n in sorted(sync_pairs.items())],
         "coherence_profile": coherence_profile,
         "summary": {"races": len(uniq), "events": len(events),
@@ -405,7 +419,8 @@ def render(report):
         a = f"tid{r['a_tid']}@{hex(r['a_pc']) if r['a_pc'] is not None else 'read'}"
         b = f"tid{r['b_tid']}@{hex(r['b_pc'])}"
         tag = "RACE" if r.get("class", "DR") == "DR" else "STRONG-CONFLICT"
-        lines.append(f"{tag} {r['kind']} {r['space']}[{hex(r['addr'])}]  {a}  vs  {b}")
+        lines.append(f"{tag} {r['kind']} {r['space']}[{hex(r['addr'])}]  {a}  vs  {b}"
+                     f"  ({r['dist']}, x{r['count']})")
     lines.append(f"{report['summary']['races']} race(s) over "
                  f"{report['summary']['events']} events")
     return "\n".join(lines)

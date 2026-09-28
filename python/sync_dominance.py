@@ -1027,7 +1027,7 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
         for k, recs in raced_records.items():       # engine race records carry tids
             if recs[0].get("a_pc") is not None:
                 ev_info[k] = (recs[0]["a_pc"], recs[0]["b_pc"], observed_dyn.get(k, NONE),
-                              len(recs))
+                              sum(r.get("count", 1) for r in recs))
         off = offline_pass()    # lazy in vector-clock mode: distance + orientation of the rest
         if off is not None:
             for k2, n in off[0].items():
