@@ -13,6 +13,10 @@ its offline barrier pass never do. The label stands (no footnote hook needed). T
 proposed in §6, together with an offline check of its effect: every report of the 8 re-scored
 launches disappears in both modes. A failing test is in `python/test_barrier_exit.py`.
 
+**Fixed by T3b (2026-09-28, §11):** exit-aware barrier assembly on branch
+`fix/barrier-exit-count` (`aab77ca`). crs-cuda recorded afresh: CLEAN in both modes, 0
+reports, no trace-validity violation.
+
 Legend: **measured** = a command ran and its output is quoted or saved; **read from the
 code/source**; **unverified**.
 
@@ -322,3 +326,110 @@ green set (its four strict xfails document the bug).
   empty dots (14 bytes each) that sort before `main.sm_89.dot`, so each of its 100 kernel
   JSONs (both modes) was parsed six times: the harness re-score took 4267 s (job 287909).
   `t3_crs_triage.py` tries dots largest first. The harness itself is unchanged (a T7 item).
+
+## 11. Fix (T3b, 2026-09-28)
+
+Branch `fix/barrier-exit-count` (worktree `/home/fzheng4/wt-T3b`), based on `cuVein` @ `e50c509`
+with `origin/cuVein` (PR #4, the reviewed `hb_proof.tex`) merged in (`0251780`); the
+implementation is `aab77ca`. Route (a) of D7, as `hb_proof.tex` Definition "Instances" and
+Algorithm 1 (`Complete`) state it. Legend as in the header.
+
+### 11.1 What changed (read from the code)
+
+* **Collector serialization** (`hb_collect_events`): the per-warp `MemoryType::BlockExit`
+  records that `BlockExitCallback` already writes (exiting lanes in `active_mask`) are no longer
+  dropped. They appear as `{"seq", "block", "warp", "pc", "type": "exit", "active_mask"}`, and
+  every HB dump carries `"hb_exits": 1` next to `hb_async`. No device code changed. The default
+  (non-`YOSEMITE_HB_TRACE`) path is untouched. A detail: the old collector already numbered
+  each exit record's `seq` and then dropped the record, so pre-T3b dumps have a `seq` gap at
+  every exit position.
+* **Instance assembly** (`HbEngine`, `hb_oracle.py`, `sync_dominance.barrier_only_pairs`,
+  `design/algorithms_check.py`, all identical). Per block, the set of exited threads. A
+  whole-block segment (`thread_count` 0) expects `block_thread_count − |exited(block)|`; a
+  counted one (`bar.sync id, n`) keeps `n`. `Complete` runs after every arrival on the key and
+  after every exit, for each open segment of the exit's block. The per-warp degrade for an
+  unknown count stays as it was (arrivals only; T11 deletes it).
+* **Monitor.**
+  * `TV-barrier-pending-at-end` (the fifth check, proof §1). In the engine it runs at the top of
+    `HbEngine::emit`, before `tv_violation` is written, whatever `YOSEMITE_HB_STRICT` says. In
+    the oracle it raises under strict, like the other checks. In `barrier_only_pairs`, the only
+    TV check there, it is reported through a new `tv_out` argument and surfaced by
+    `sync_dominance.analyze` as `diagnostics.tv_violation`, together with the engine's
+    `tv_violation`; no verdict reads it. Offline it runs only on dumps with `hb_exits`, so a
+    pre-T3b dump keeps its reading.
+  * W3 (`TV-record-after-exit`: no record of a thread after its exit) and the exit half of W2
+    (an exiting thread may not be pending at an open segment, reported as
+    `TV-barrier-completion-order`), per lane, in engine and oracle under strict.
+  * Exit records are not memory records, so the per-warp completion-order row never fires on
+    them. A warp whose other lanes wait at the barrier may exit its remaining lanes.
+* **Step 2 pre-check** (the brief's question): the kept crs-cuda vector-clock dumps did carry
+  `TV-barrier-completion-order`, on 46 of 50 kernels (§7, `setup/t3_crs/tv_scan.tsv`, measured
+  by T3). The per-warp W2 row caught this violation, so there is no finding for T11 here.
+
+### 11.2 Verification
+
+| what | where / job | result |
+|---|---|---|
+| synthetic cases, no GPU: exit before / after the barrier, exit completing a pending instance, pre-exit write stays unordered (RAW reported), counted barrier keeps `n`, pending-at-end only with the marker, dump without exit records keeps the old reading, W3, exit while pending. Each case: oracle races = simulator (`algorithms_check.detect`, I1/I2 on), oracle second clock = offline pass | login node | 9 passed (with `test_barrier_soundness.py`: 16) |
+| mutation check: the "exit completes a pending instance" trace without its exit record | login node | simulator reports 29 races (0 with it) |
+| private runtime: libsanalyzer `b2de8af41d1e2e82`, collector `2c76c07ae134a0ae` relinked from the installed collector's objects (`wt-T1a-review/install_stage/obj`, live `7bafac9f`); NEEDED list and exported collector symbols identical | 292386, c3 | built |
+| default tool path: `race_interblock_none-lock_rtraw`, `norace_interblock_atom`, installed vs T3b | 292392, c53, RTX 4060 Ti sm_89 | IDENTICAL up to device addresses (`dump_compare.py`) |
+| vector-clock and scalar-clock dumps of the same two programs, exit records and marker removed (`t3b_filter_exits.py`) | 292392 | IDENTICAL, all four |
+| `python/test_barrier_exit.py` on the GPU: the crs-cuda reproducer (T3's 4 strict xfails now pass), the positive control `testdata/barrier_exit_after.cu` (threads 60..63 exit after barrier 1; barrier 2 completes with 60), and "drop the exit records, the races return" for both kernels | 292392 | 21 passed |
+| green set + `test_barrier_exit.py` + `test_hb_substitutions.py` + `test_cp_async.py`, T3b runtime | 292392 | 229 passed, 4 xfailed |
+| the same files before: base worktree `0251780`, installed runtime | 292399, c53 | 211 passed, 8 xfailed |
+| **crs-cuda recorded afresh**, both modes, `parallel.py run --id P9-crs-cuda --timeout-floor 1200`, store `/mnt/beegfs/fzheng4/cuvein_traces/t3b-crs-2026-09-28` (20.5 GB) | 292393, c24, sm_89 | **vector-clock CLEAN, 0 reports** (486 s, 2.7 GB peak); **scalar-clock CLEAN, 0 reports** (68 s); both previously RACE 155 / 7 |
+| per kernel (`t3b_crs_summary.py` → `setup/t3b_crs/summary.tsv`), 50 kernels × 2 modes | 292393 | `hb_exits` on all 100 dumps. 0 `tv_violation`, so `TV-barrier-pending-at-end` is silent. 0 `hb_races`. The offline pass (rmw/coh tables empty) has 0 barrier-unordered pairs and 0 TV. 247,587 exit records for 6,920,448 threads. Events 9,864,919 = the kept dump's 9,617,332 + 247,587, exactly |
+| kept stores without exit records: `parallel.py analyze` of `evcand` (597 programs, P1–P6, both modes, 3 reps), base vs T3b detector (`t3b_oldstore.sh`, 32 shards; `t3b_oldstore_cmp.py`) | 292400, `normal` | 3,739 (id, mode, rep) rows, **0 differ** (verdict, report ids, reports) |
+| the kept pre-T3b crs-cuda dump (`full-2026-09-22`), base vs T3b | 292401, c72 | base RACE 155 / RACE 7; T3b RACE 155 / RACE 7, same report ids (as expected: that dump has no exit records, so no re-score can reach CLEAN) |
+
+The 229 − 211 = 18 extra passes are T3's four flipped xfails plus the 14 new tests: the file
+had 7 tests and has 21. The other four xfails are unchanged: the green set's
+`test_relaxed_handoff_should_race` and T6's I1/I2/I5 strict xfails, which belong to T9.
+
+**Proved-in-effect**: on the 100 fresh crs-cuda dumps, every barrier segment completes and no
+TV check fires (W2 by exits, W3, pending-at-end). **Tested**: the 21 cases of
+`test_barrier_exit.py`, with engine = oracle = offline pass on the two real kernels.
+
+### 11.3 Commands
+
+```
+sbatch -p rtx4060ti16g -x c54,c2 eval/baselines/setup/t3b_build.sh        # private runtime
+sbatch -p rtx4060ti16g -x c54,c2 eval/baselines/setup/t3b_check.sh        # (1) identity, (2) tests, (3) green set
+sbatch -p rtx4060ti16g -x c54,c2 eval/baselines/setup/t3b_green_before.sh # green set before (wt-T3b-base)
+sbatch -p rtx4060ti16g -x c54,c2 eval/baselines/setup/t3b_crs.sh          # crs-cuda afresh + per-kernel summary
+TAG=evcand MANIFEST=eval/baselines/setup/manifest.evcand.csv sbatch --array=0-31 eval/baselines/setup/t3b_oldstore.sh
+TAG=full-2026-09-22 ID=P9-crs-cuda sbatch eval/baselines/setup/t3b_oldstore.sh
+.env/bin/python eval/baselines/setup/t3b_oldstore_cmp.py evcand            # login node
+```
+
+Results: `eval/results/t3b-crs/` (the regenerated P9 crs-cuda rows), `eval/results/t3b-oldstore-*`,
+`eval/baselines/confirm_t3b-*`, `eval/baselines/setup/t3b_crs/summary.tsv`, logs in
+`eval/baselines/setup/build_logs/t3b-*`.
+
+### 11.4 What remains unverified
+
+* **The runtime is not installed.** The live `build/sanalyzer/lib/libsanalyzer.so` is still the
+  3331d35 build. Every GPU result above used the private runtime. Installing needs the user
+  (the permission policy refuses live-lib writes): copy `sanalyzer/wt_install/lib/libsanalyzer.so`
+  over `build/sanalyzer/lib/libsanalyzer.so`. The installed collector (`7bafac9f`) already links
+  it by RPATH, and no collector or fatbin change is needed. Until then, new recordings have no
+  exit records, the GPU half of `test_barrier_exit.py` skips ("runtime predates T3b"), and
+  early-exit kernels keep the old reading.
+* `eval/BASELINES.md` / `BASELINES_SUMMARY.md` were not regenerated. The fresh P9 row lives in
+  `eval/results/t3b-crs/` and is not merged into `eval/results/baselines-*.csv` (A2.3: never
+  overwrite). It enters the tables with the next baseline re-run.
+* Only crs-cuda was re-recorded. Programs outside the kept stores, or kernels whose exit records
+  land in an order this corpus did not show, are covered only by the synthetic cases. Examples
+  are an exit recorded after a post-barrier record of another warp, which A1/W2 exclude and
+  `TV-barrier-completion-order` would flag.
+* Tests are sm_89 only (RTX 4060 Ti). Whether `BlockExitCallback` fires per lane with the same
+  masks on other architectures was not checked.
+* `P4-graph-coloring-racy-small` (§7, barrier divergence in the racy build) was not re-recorded.
+  With exit records it should now also carry `TV-barrier-pending-at-end` if a segment stays
+  open. Its verdict is RACE either way.
+* The Opus review the brief assigns was a self-review in this session (the diff read against
+  proof §1/§3 for engine/oracle/offline parity), not a fresh context.
+* `YOSEMITE_HB_STATS` does not count the two new per-block maps (at most one entry per block
+  and per warp).
+* `bar.arrive` is still recorded as blocking (proof §7 I3 note (b)); deferred past the submission.
