@@ -90,15 +90,59 @@ def _join_into(dst, src):
 class _Clu:
     """T14 (design/a2_flag.md): one location's current RMW cluster -- the RMWs whose windows
     [record, the thread's next record) chain-overlap. `inflow` is what the cluster before it
-    hands on: its join if it was multi (else None, and `prev` is its single RMW's publish)."""
-    __slots__ = ("open", "members", "J", "inflow", "prev")
+    hands on: its components if it was multi (else None, and `prev` is its single RMW's
+    publish); `comps` the cluster's own, once it needs them."""
+    __slots__ = ("open", "members", "comps", "inflow", "prev")
 
     def __init__(self):
         self.open = 0          # members whose window is still open
         self.members = 0       # RMWs in the cluster; >= 2 = multi
-        self.J = None          # multi: inflow + every non-none member's contribution so far
+        self.comps = None      # [_Comp]: after a multi cluster, or once this one is multi
         self.inflow = None
         self.prev = None
+
+
+class _Comp:
+    """T14: an ms-connectivity component of a cluster's RMWs (plus what the cluster before it
+    handed on): the blocks of its grid-scope and block-scope members (g, b; ag, ab only the
+    cluster's own members, which is what it hands on) and the join J of their contributions.
+    A grid-scope member is morally strong with every grid-scope member and with the
+    block-scope members of its block; a block-scope one with its block's; a none-scope one
+    with nothing."""
+    __slots__ = ("g", "b", "ag", "ab", "J")
+
+    def __init__(self, g=(), b=(), J=None):
+        self.g, self.b, self.ag, self.ab = set(g), set(b), set(), set()
+        self.J = VC() if J is None else VC(J)
+
+    def links(self, s, blk):
+        return (bool(self.g) or blk in self.b) if s == sd.GRID else (blk in self.g or blk in self.b)
+
+
+def _comp_add(comps, s, blk, actual):
+    """a member of scope s in block blk joins the components it links (merging them) -> its own"""
+    linked = [c for c in comps if c.links(s, blk)]
+    if not linked:
+        linked = [_Comp()]
+        comps.append(linked[0])
+    c = linked[0]
+    for o in linked[1:]:
+        c.g |= o.g
+        c.b |= o.b
+        c.ag |= o.ag
+        c.ab |= o.ab
+        _join_into(c.J, o.J)
+        comps.remove(o)
+    (c.g if s == sd.GRID else c.b).add(blk)
+    if actual:
+        (c.ag if s == sd.GRID else c.ab).add(blk)
+    return c
+
+
+def _comp_of(comps, s, blk):
+    """the component of a member (unique: grid-scope members are all linked, and so are the
+    block-scope members of one block)"""
+    return next(c for c in comps if blk in (c.g if s == sd.GRID else c.b))
 
 
 
@@ -340,32 +384,40 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False):
                     d = pd[t] = VC()
                 d[u] = c
 
-    def a2_open(t, loc, scope):
-        """An RMW of t on loc opens its window [this record, t's next record): it joins loc's
-        open cluster or starts one."""
+    def a2_open(t, loc, scope, blk):
+        """An RMW of t (block blk) on loc opens its window [this record, t's next record): it
+        joins loc's open cluster or starts one. Components are built once the cluster is multi,
+        or at once when the cluster before it was (its inflow); two singletons in a row need
+        none -- the recorded chain is then exact."""
         st = clus.get(loc)
         if st is None:
             st = clus[loc] = _Clu()
         if st.open == 0:              # every earlier window on loc closed: a new cluster
-            st.members, st.J = 0, None
+            st.members, st.comps = 0, None
             st.prev = released.get(loc) if st.inflow is None else None
         st.members += 1
         st.open += 1
-        if st.members == 2:           # multi: J = inflow + the first member's contribution
-            st.J = VC(st.inflow) if st.inflow is not None else VC()
-            for r in ((released[loc],) if st.inflow is not None else (st.prev, released[loc])):
-                if r is not None and r[2] != sd.NONE:
-                    _join_into(st.J, r[0])
-                    _join_into(st.J, r[3])
-        wins[t] = [loc, scope, own(t), {}, []]
+        if st.comps is None and (st.inflow is not None or st.members == 2):
+            if st.inflow is not None:     # what the multi cluster before hands on
+                st.comps = [_Comp(c.ag, c.ab, c.J) for c in st.inflow]
+            else:
+                st.comps = []
+                for r, actual in ((st.prev, False), (released[loc], True)):
+                    if r is not None and r[2] != sd.NONE:   # the single RMW before; the first
+                        c = _comp_add(st.comps, r[2], r[1], actual)   # member, as published
+                        _join_into(c.J, r[0])
+                        _join_into(c.J, r[3])
+        if st.comps is not None and scope != sd.NONE:
+            _comp_add(st.comps, scope, blk, True)
+        wins[t] = [loc, scope, own(t), {}, [], blk]
 
     def close_win(t):
         """t's next record (or the end of the kernel) closes its RMW window: the late acquire,
         then the decisions held on the window."""
-        loc, scope, w_ep, pend, shared = wins.pop(t)
+        loc, scope, w_ep, pend, shared, blk = wins.pop(t)
         st = clus[loc]
-        if scope != sd.NONE:
-            a = st.J if st.members >= 2 else st.inflow
+        if st.comps is not None and scope != sd.NONE:
+            a = _comp_of(st.comps, scope, blk).J
             if a:
                 pd_join(t, a)
                 if st.members == 1:   # a single RMW after a multi cluster: what it hands on
@@ -387,9 +439,10 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False):
                 if a2_log is not None:
                     a2_log[rec2[4] + (rec2[3],)] += rec2[1]
         st.open -= 1
-        if st.open == 0:              # the cluster is complete; hand on its join if multi
-            st.inflow = st.J if st.members >= 2 else None
-            st.J, st.prev, st.members = None, None, 0
+        if st.open == 0:              # complete; a multi one hands on its members' components
+            st.inflow = [c for c in st.comps if c.ag or c.ab] \
+                if st.comps is not None and st.members >= 2 else None
+            st.comps, st.prev, st.members = None, None, 0
 
     def close_lanes(block, warp, mask):
         if wins:
@@ -554,7 +607,7 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False):
                 # per-block offsets, so with >1 block another block's release on the same
                 # offset would clobber this block's (spurious atomic race).
                 my_scope = atom_scope[pc]
-                a2_open(t, loc, my_scope)                     # T14
+                a2_open(t, loc, my_scope, my_block)           # T14
                 rel = released.get(loc)
                 if rel is not None:
                     rclk, rblock, rscope, rpd = rel
@@ -579,9 +632,10 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False):
                 # trusting gate (the clock already holds the chain unless it broke).
                 released[loc] = (VC(vc[t]), my_block, my_scope, VC(pd.get(t, ())))
                 st = clus[loc]
-                if st.J is not None and my_scope != sd.NONE:  # T14: a multi cluster's join
-                    _join_into(st.J, vc[t])
-                    _join_into(st.J, pd.get(t, {}))
+                if st.comps is not None and my_scope != sd.NONE:   # T14: its component's join
+                    c = _comp_of(st.comps, my_scope, my_block)
+                    _join_into(c.J, vc[t])
+                    _join_into(c.J, pd.get(t, {}))
                 vc[t][t] = clk + 1
 
     for t in sorted(wins):            # T14: no next record -- the window ends with the kernel

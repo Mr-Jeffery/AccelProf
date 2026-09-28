@@ -321,16 +321,54 @@ struct HbEngine {
     };
     struct Held { size_t race; uint64_t count; int remaining; bool flagged; };  // on two windows
     struct Win {                                            // a thread's open RMW window
-        Loc loc; int scope = SCOPE_NONE; uint64_t ep = 0;
+        Loc loc; int scope = SCOPE_NONE; uint64_t ep = 0; uint64_t blk = 0;
         std::unordered_map<PendKey, uint64_t, PendKeyHash> pend;
         std::vector<std::tuple<std::shared_ptr<Held>, Tid, uint64_t>> held;
     };
     std::unordered_map<Tid, Win> wins;
     std::unordered_map<uint64_t, uint32_t> win_lanes;       // (block << 5 | warp) -> lanes with one
+    // An ms-connectivity component of a cluster's RMWs (plus what the cluster before handed
+    // on): blocks of its grid- and block-scope members (g, b; ag, ab only the cluster's own,
+    // which is what it hands on) and the join J of their contributions. A grid-scope member is
+    // morally strong with every grid-scope one and the block-scope ones of its block; a
+    // block-scope one with its block's; a none-scope one with nothing.
+    struct Comp {
+        std::set<uint64_t> g, b, ag, ab;
+        Clock J;
+        bool links(int s, uint64_t blk) const {
+            return s == SCOPE_GRID ? (!g.empty() || b.count(blk) != 0)
+                                   : (g.count(blk) != 0 || b.count(blk) != 0);
+        }
+    };
+    // a member of scope s in block blk joins the components it links (merging them) -> index
+    static size_t comp_add(std::vector<Comp>& cs, int s, uint64_t blk, bool actual) {
+        std::vector<size_t> linked;
+        for (size_t i = 0; i < cs.size(); ++i)
+            if (cs[i].links(s, blk)) linked.push_back(i);
+        if (linked.empty()) { cs.emplace_back(); linked.push_back(cs.size() - 1); }
+        const size_t k = linked[0];
+        for (size_t j = linked.size(); j-- > 1;) {          // merge, erasing from the back
+            Comp& o = cs[linked[j]];
+            cs[k].g.insert(o.g.begin(), o.g.end()); cs[k].b.insert(o.b.begin(), o.b.end());
+            cs[k].ag.insert(o.ag.begin(), o.ag.end()); cs[k].ab.insert(o.ab.begin(), o.ab.end());
+            join_into(cs[k].J, o.J);
+            cs.erase(cs.begin() + static_cast<long>(linked[j]));
+        }
+        (s == SCOPE_GRID ? cs[k].g : cs[k].b).insert(blk);
+        if (actual) (s == SCOPE_GRID ? cs[k].ag : cs[k].ab).insert(blk);
+        return k;
+    }
+    // the component of a member (unique: grid-scope members are all linked, and so are the
+    // block-scope members of one block)
+    static Comp* comp_of(std::vector<Comp>& cs, int s, uint64_t blk) {
+        for (Comp& c : cs)
+            if ((s == SCOPE_GRID ? c.g : c.b).count(blk) != 0) return &c;
+        return nullptr;
+    }
     struct Clu {                                            // a location's current RMW cluster
         uint32_t open = 0, members = 0;                     // open windows; RMWs (>= 2: multi)
-        bool has_J = false, has_inflow = false, need_prev = false, has_prev = false;
-        Clock J, inflow;                                    // multi: inflow + contributions
+        bool has_comps = false, has_inflow = false, need_prev = false, has_prev = false;
+        std::vector<Comp> comps, inflow;                    // its components; the multi one's before
         Released prev;                                      // the single RMW before, if no inflow
     };
     std::map<Loc, Clu> clus;
@@ -359,29 +397,39 @@ struct HbEngine {
         const auto it = atom_scope->find(pc);
         return it != atom_scope->end() && it->second.rmw;
     }
-    // An RMW of t on loc opens its window: it joins loc's open cluster or starts one.
-    void a2_open(Tid t, const Loc& loc, int scope) {
+    // An RMW of t (block blk) on loc opens its window: it joins loc's open cluster or starts
+    // one. Components are built once the cluster is multi, or at once when the cluster before
+    // it was (its inflow); two singletons in a row need none -- the recorded chain is exact.
+    void a2_open(Tid t, const Loc& loc, int scope, uint64_t blk) {
         Clu& st = clus[loc];
         if (st.open == 0) {                                 // every earlier window closed: new
-            st.members = 0; st.J.clear(); st.has_J = false;
+            st.members = 0; st.comps.clear(); st.has_comps = false;
             st.need_prev = !st.has_inflow; st.has_prev = false;
         }
         st.members += 1; st.open += 1;
-        if (st.members == 2) {                              // multi: inflow + the first member
-            Clock j;
-            if (st.has_inflow) {
-                j = st.inflow;
-            } else if (st.has_prev && st.prev.scope != SCOPE_NONE) {
-                join_into(j, st.prev.clk); join_into(j, st.prev.pd);
+        if (!st.has_comps && (st.has_inflow || st.members == 2)) {
+            st.comps.clear();
+            if (st.has_inflow) {                            // what the multi cluster before hands on
+                for (const Comp& c : st.inflow) {
+                    Comp v; v.g = c.ag; v.b = c.ab; v.J = c.J;
+                    st.comps.push_back(std::move(v));
+                }
+            } else {
+                if (st.has_prev && st.prev.scope != SCOPE_NONE) {   // the single RMW before
+                    Comp& c = st.comps[comp_add(st.comps, st.prev.scope, st.prev.block, false)];
+                    join_into(c.J, st.prev.clk); join_into(c.J, st.prev.pd);
+                }
+                const auto rit = released.find(loc);        // the first member, as published
+                if (rit != released.end() && rit->second.scope != SCOPE_NONE) {
+                    Comp& c = st.comps[comp_add(st.comps, rit->second.scope, rit->second.block, true)];
+                    join_into(c.J, rit->second.clk); join_into(c.J, rit->second.pd);
+                }
             }
-            const auto rit = released.find(loc);
-            if (rit != released.end() && rit->second.scope != SCOPE_NONE) {
-                join_into(j, rit->second.clk); join_into(j, rit->second.pd);
-            }
-            st.J = std::move(j); st.has_J = true;
+            st.has_comps = true;
         }
+        if (st.has_comps && scope != SCOPE_NONE) comp_add(st.comps, scope, blk, true);
         Win& w = wins[t];
-        w.loc = loc; w.scope = scope; w.ep = own(t); w.pend.clear(); w.held.clear();
+        w.loc = loc; w.scope = scope; w.ep = own(t); w.blk = blk; w.pend.clear(); w.held.clear();
         win_lanes[((t >> 10) << 5) | ((t >> 5) & 31)] |= 1u << (t & 31);
     }
     // t's next record (or the end of the kernel) closes its window: the late acquire, then
@@ -393,12 +441,11 @@ struct HbEngine {
         const auto lit = win_lanes.find(((t >> 10) << 5) | ((t >> 5) & 31));
         if (lit != win_lanes.end() && (lit->second &= ~(1u << (t & 31))) == 0) win_lanes.erase(lit);
         Clu& st = clus[w.loc];
-        if (w.scope != SCOPE_NONE) {
-            const Clock* a = (st.members >= 2) ? (st.has_J ? &st.J : nullptr)
-                                               : (st.has_inflow ? &st.inflow : nullptr);
-            if (a != nullptr && !a->empty()) {
-                pd_join(t, *a);
-                if (st.members == 1) join_into(released[w.loc].pd, *a);   // what it hands on
+        if (st.has_comps && w.scope != SCOPE_NONE) {
+            const Comp* c = comp_of(st.comps, w.scope, w.blk);
+            if (c != nullptr && !c->J.empty()) {
+                pd_join(t, c->J);
+                if (st.members == 1) join_into(released[w.loc].pd, c->J);   // what it hands on
             }
         }
         for (const auto& kv : w.pend)
@@ -408,10 +455,14 @@ struct HbEngine {
             x.flagged = x.flagged || std::get<2>(h) <= poss(t, std::get<1>(h));
             if (--x.remaining == 0 && x.flagged) races[x.race].a2 += x.count;
         }
-        if (--st.open == 0) {                               // complete: hand on J if multi
-            if (st.members >= 2) { st.inflow = std::move(st.J); st.has_inflow = true; }
-            else { st.inflow.clear(); st.has_inflow = false; }
-            st.J.clear(); st.has_J = false; st.has_prev = false; st.prev = Released{};
+        if (--st.open == 0) {                               // complete; a multi one hands on
+            st.inflow.clear(); st.has_inflow = false;       // its members' components
+            if (st.has_comps && st.members >= 2) {
+                for (Comp& c : st.comps)
+                    if (!c.ag.empty() || !c.ab.empty()) st.inflow.push_back(std::move(c));
+                st.has_inflow = true;
+            }
+            st.comps.clear(); st.has_comps = false; st.has_prev = false; st.prev = Released{};
             st.members = 0;
         }
     }
@@ -781,7 +832,7 @@ struct HbEngine {
                     // atomic index to the address's observed atomic order.
                     coherence[addr].push_back({t, atom_idx[t]});
                     atom_idx[t] += 1;
-                    a2_open(t, loc, pit->second.scope);             // T14
+                    a2_open(t, loc, pit->second.scope, a.ctaId);    // T14
                     // scoped acquire (trusting gate, I4): pick up the release only if the
                     // min of the two atomics' .STRONG scopes covers both threads.
                     auto rit = released.find(loc);
@@ -820,9 +871,9 @@ struct HbEngine {
                         }
                         rit2->second = Released{vc[t], a.ctaId, pit->second.scope, pd_of(t)};
                     }
-                    if (st.has_J && pit->second.scope != SCOPE_NONE) {   // a multi cluster's join
-                        join_into(st.J, vc[t]);
-                        join_into(st.J, pd_of(t));
+                    if (st.has_comps && pit->second.scope != SCOPE_NONE) {   // its component's join
+                        Comp* c = comp_of(st.comps, pit->second.scope, a.ctaId);
+                        if (c != nullptr) { join_into(c->J, vc[t]); join_into(c->J, pd_of(t)); }
                     }
                     vc[t][t] = clk + 1;
                 }
@@ -912,8 +963,10 @@ struct HbEngine {
         for (const auto& kv : pd) pd_entries += kv.second.size();
         for (const auto& kv : wins) held += kv.second.pend.size() + kv.second.held.size();
         for (const auto& kv : clus) {
-            multi += kv.second.has_J;
-            clu_entries += kv.second.J.size() + kv.second.inflow.size() + kv.second.prev.clk.size();
+            multi += kv.second.has_comps && kv.second.members >= 2;
+            for (const auto* cs : {&kv.second.comps, &kv.second.inflow})
+                for (const Comp& c : *cs) clu_entries += c.J.size();
+            clu_entries += kv.second.prev.clk.size();
         }
         for (const auto& kv : released) rel_pd += kv.second.pd.size();
         o << ", \"a2\": {\"pd_threads\": " << pd.size() << ", \"pd_entries\": " << pd_entries

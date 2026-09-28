@@ -25,6 +25,8 @@ have gaps where exits were dropped).
            -> OUT/rescore/<id>.json.
   tables   (login node) the per-suite tables of both, the verdict comparison of the two
            `parallel.py analyze` runs, -> eval/results/t14-a2/A2_TABLES.md + CSVs.
+  handoffs --dots D.. -- K..: the Sanitizer's own inversion rate on the race-free lock of
+           python/testdata/lock_contention_a2.cu (setup/t14_handoffs.sh runs it on a GPU node).
 """
 import argparse
 import csv
@@ -476,6 +478,79 @@ def cmd_rescore(a):
         print(f"[{j}] {_id} {res.get('error', 'ok')} {res['seconds']}s", flush=True)
 
 
+def cmd_t9keys(a):
+    """For every re-scored kernel whose instance counts differ from T9's re-oracled dump
+    (same_as_t9 False): are the (a_pc, b_pc, kind, class, space) key sets and the second clock
+    the same, and is T9's count never above this one? T9's t9-after dumps are record-level and
+    hold each distinct record tuple once, the aggregated count counts repeats."""
+    import orjson
+    n = keys = sync = le = 0
+    for p in sorted(glob.glob(f"{OUT}/rescore/*.json")):
+        d = json.load(open(p))
+        for k in d.get("kernels", []):
+            if k.get("same_as_t9") is not False:
+                continue
+            f = k["file"]
+            with open(f"{AFTER}/{d['id']}/{VC}/{f}", "rb") as fa:
+                x = orjson.loads(fa.read())
+            with open(f"{T9_AFTER}/{d['id']}/{VC}/{f}", "rb") as fb:
+                y = orjson.loads(fb.read())
+            kx, ky = _agg(x["hb_races"]), _agg(y["hb_races"])
+            n += 1
+            keys += set(kx) == set(ky)
+            sync += x.get("hb_races_sync_only") == y.get("hb_races_sync_only")
+            le += all(ky[q] <= kx[q] for q in ky)
+            del x, y
+    print(f"{n} kernels with differing instance counts: same key set {keys}, same second clock "
+          f"{sync}, T9 count <= T14 count on every key {le}")
+
+
+# ---------------------------------------------------------------- the Sanitizer's inversions
+
+def cmd_handoffs(a):
+    """python/testdata/lock_contention_a2.cu, kernel kcontend (race-free): every critical section
+    (CS) is one plain read of data[0] after a successful CAS, and the sections run one at a time,
+    so the order of their read records is the CS order (A2w). A hand-off CS_k -> CS_k+1 between
+    two threads is recorded inverted -- the successful CAS before the unlock it read from --
+    exactly when the two sections are unordered on the trace (T13's "S_k+1 recorded before E_k",
+    measured without the values); the oracle's instances name the sections by (thread, epoch)."""
+    import hb_oracle
+    import sync_dominance as sd
+    tot = Counter()
+    for kj in a.traces:
+        t = json.load(open(kj))
+        if not t["kernel"]["kernel_name"].startswith("kcontend"):
+            continue
+        rep = None
+        for dot in a.dots:
+            try:
+                rep = hb_oracle.analyze(dot, kj, records=True)
+                break
+            except sd.AlignmentError:
+                continue
+        rmw = {int(x, 16) for x in rep["atomic_pcs"]}
+        ep, cs = defaultdict(lambda: 1), []
+        for e in sorted(t["hb_events"], key=lambda e: e["seq"]):
+            for ln in e.get("lanes", ()):
+                tid = (e["block"] << 10) | (e["warp"] << 5) | ln["lane"]
+                if e["pc"] in rmw:
+                    ep[tid] += 1
+                elif e["type"] == "read":
+                    cs.append((tid, ep[tid]))
+        recs = rep["a2_records"]      # [a_tid, a_pc, a_ep, b_tid, b_pc, b_ep, flagged, n]
+        unordered = {(r[0], r[2], r[3], r[5]) for r in recs}
+        unordered |= {(r[3], r[5], r[0], r[2]) for r in recs}
+        c = Counter(sections=len(cs), adjacent=max(len(cs) - 1, 0),
+                    instances=sum(r[7] for r in recs), flagged=sum(r[7] for r in recs if r[6]))
+        for x, y in zip(cs, cs[1:]):
+            if x[0] != y[0]:
+                c["cross_thread"] += 1
+                c["inverted"] += (x[0], x[1], y[0], y[1]) in unordered
+        print(f"{kj}: {dict(c)}", flush=True)
+        tot.update(c)
+    print("total", dict(tot))
+
+
 # ---------------------------------------------------------------- tables (login node)
 
 PSETS = ("P1", "P2", "P3", "P4", "P5", "P6", "P7", "P9")
@@ -555,12 +630,13 @@ def cmd_tables(a):
     rs = [json.load(open(p)) for p in sorted(glob.glob(f"{a.rescore_dir}/*.json"))]
     lines.append("\n## Re-score with the flag (vector-clock dumps of T9's selection, the T14 "
                  "oracle): DR instances and pc pairs\n")
-    lines.append("| suite | programs | kernels same as T9 (up to the flag) / compared | DR "
+    lines.append("| suite | programs | kernels with T9's instance counts / compared (`t9keys`: the "
+                 "others) | DR "
                  "instances | flagged | % | DR pc pairs | every instance flagged | programs with "
                  "a flagged DR instance | SC instances / flagged | not re-scored |")
     lines.append("|" + "---|" * 11)
     tot = Counter()
-    prog_rows = []
+    prog_rows, rs_rows = [], []
     for ps in PSETS:
         c = Counter()
         for d in rs:
@@ -594,6 +670,12 @@ def cmd_tables(a):
             if fl:
                 prog_rows.append((ps, d["id"], inst, fl, len(pairs),
                                   sum(f >= n for n, f in pairs.values())))
+            rs_rows.append({"id": d["id"], "pset": ps, "kernels": len(ks), "dr_instances": inst,
+                            "dr_flagged": fl, "dr_pairs": len(pairs),
+                            "dr_pairs_all_flagged": sum(f >= n for n, f in pairs.values()),
+                            "same_as_t9": sum(k.get("same_as_t9") is True for k in ks),
+                            "compared_with_t9": sum(k.get("same_as_t9") is not None for k in ks),
+                            "seconds": d.get("seconds")})
         if not (c["programs"] or c["err"]):
             continue
         tot.update(c)
@@ -608,6 +690,22 @@ def cmd_tables(a):
     errs = sorted((d["id"], d["error"]) for d in rs if "error" in d)
     lines.append(f"\nNot re-scored: {len(errs)}" + (": " + ", ".join(f"{i} ({e})" for i, e in errs)
                                                    if errs else ""))
+    with open(f"{RES}/rescore.csv", "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=list(rs_rows[0]) if rs_rows else ["id"])
+        w.writeheader()
+        w.writerows(sorted(rs_rows, key=lambda r: r["id"]))
+    # --- the oracle's cost: T9's re-score of the same dumps vs this one (wall seconds per program)
+    t9d = {os.path.basename(p)[:-5]: json.load(open(p))
+           for p in glob.glob(f"{a.t9_detail}/*.json")} if os.path.isdir(a.t9_detail) else {}
+    pairs_s = [(t9d[r["id"]]["seconds"], r["seconds"]) for r in rs_rows
+               if r["id"] in t9d and "error" not in t9d[r["id"]] and r["seconds"]]
+    if pairs_s:
+        s9, s14 = sum(x for x, _ in pairs_s), sum(y for _, y in pairs_s)
+        big = [(x, y) for x, y in pairs_s if x >= 60]
+        lines.append(f"\nOracle wall time, same dumps, programs both re-scores finished ({len(pairs_s)}): "
+                     f"T9 {s9:.0f} s, T14 {s14:.0f} s (x{s14 / s9:.2f}); over the {len(big)} programs "
+                     f"T9 needed >= 60 s for: x{sum(y for _, y in big) / max(sum(x for x, _ in big), 1):.2f} "
+                     f"(max x{max((y / x for x, y in big), default=0):.2f}). Different nodes, one run each.")
     # --- verdicts: base code on t9-after vs this checkout on t14-after (vector-clock rows)
     base, new = _load_csv(a.base_csv, VC), _load_csv(a.new_csv, VC)
     man = {r["id"]: r for r in csv.DictReader(open(f"{APH}/eval/results/t9-rescore/manifest.t9.csv",
@@ -717,13 +815,19 @@ def main():
     r.add_argument("--timeout", type=int, default=7200)
     r.add_argument("--force", action="store_true")
     t = sub.add_parser("tables")
-    t.add_argument("--count-dir", default=f"{RES}/count-evcand")
-    t.add_argument("--rescore-dir", default=f"{RES}/rescore")
+    t.add_argument("--count-dir", default=f"{RES}/detail/count-evcand")   # copies of OUT/..
+    t.add_argument("--rescore-dir", default=f"{RES}/detail/rescore")      # (detail/: gitignored)
     t.add_argument("--base-csv", default=f"{RES}/analyze-base/*.csv")
     t.add_argument("--new-csv", default=f"{RES}/analyze-t14/*.csv")
     t.add_argument("--t9-csv", default=f"{APH}/eval/results/t9-rescore/after/*.csv")
+    t.add_argument("--t9-detail", default="/home/fzheng4/wt-T9/eval/results/t9-rescore/detail")
+    h = sub.add_parser("handoffs")
+    h.add_argument("--dots", nargs="+", required=True)
+    h.add_argument("traces", nargs="+")
     a = ap.parse_args()
-    {"count": cmd_count, "rescore": cmd_rescore, "tables": cmd_tables}[a.cmd](a)
+    sub.add_parser("t9keys")
+    {"count": cmd_count, "rescore": cmd_rescore, "tables": cmd_tables,
+     "handoffs": cmd_handoffs, "t9keys": cmd_t9keys}[a.cmd](a)
 
 
 if __name__ == "__main__":

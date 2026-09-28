@@ -65,17 +65,22 @@ and receives, in addition, **late acquires**: when the window of an RMW `v` (thr
 at `V`'s next record, before that record is processed, or at the end of the kernel —
 `pd[V] ⊔= A(v)` with
 
-- `A(v)` = the join `J_K` of the cluster `K` of `v` if `K` is multi: the *contribution* of every member
-  `u` of `K` issued so far (`u`'s `poss` at issue, pre-tick: what `u` publishes) plus the cluster's
-  inflow;
-- `A(v)` = the inflow of `K` if `K` is a singleton after a multi cluster;
+- `A(v)` = the join `J_C` of `v`'s **component** `C` in its cluster `K`, if `K` is multi or follows a
+  multi cluster: the *contribution* of every member `u` of `C` issued so far (`u`'s `poss` at
+  issue, pre-tick: what `u` publishes) plus the inflow components linked to `C`;
 - nothing if `K` and the cluster before it are singletons (then the recorded chain is exact).
 
-The **inflow** of `K` is the previous cluster's final `J` if that one was multi, else its single
-RMW's final contribution (what it published, plus its own late acquire). RMWs whose scope is
-empty (`none`, never morally strong) contribute nothing and acquire nothing; they still count as
-members (their order is uncertain, and they break the recorded chain). Inside a multi cluster and
-at its boundaries `ms` is not checked — the only place the flag ignores a static label.
+**Components** are the classes of the moral-strength graph on the cluster's RMWs together with
+the inflow: a `grid`-scope RMW is morally strong with every `grid`-scope one and with the
+`block`-scope ones of its block, a `block`-scope one with those of its block, a `none`-scope one
+with nothing. A chain only steps between morally strong RMWs, so it never leaves a component;
+two `block`-scope RMWs of different blocks (a scope bug) are never joined, whatever their windows.
+The **inflow** of `K` is the previous cluster's components if that one was multi (keyed by its
+own members), else its single RMW, as one component, with its final contribution (what it
+published, plus its own late acquire). RMWs of scope `none` contribute nothing and acquire
+nothing; they still count as members (their order is uncertain, and they break the recorded
+chain). (Revised 2026-09-28 after the first re-score: a join of the whole cluster, ignoring
+`ms`, flagged the scope races of `race_interblock_blkatom` and `1dconv-racy`.)
 
 A reported instance `(a, b)` is **flagged** iff `epoch(a) ≤ poss_b[tid(a)]`, or `a` is an RMW whose window
 contains `pos(b)` and `epoch(b) ≤ poss_a[tid(b)]` after `a`'s late acquire. Here `poss_b` is `poss` of
@@ -101,14 +106,16 @@ record), `epoch(x) ≤ poss_y[tid(x)]`, with `poss_y` as above; and if `y →co 
 then `x` is an RMW whose window contains `pos(y)` and `epoch(y) ≤ poss_x[tid(y)]`. Hence `F\* ⊆ flagged`.
 *Sketch.* Generators (PO), (SYNC) and the agent ones are the same for every `co` and `pd` follows
 `vc` through them. An (ATOM) edge of `→co` is a chain of `co`-consecutive, morally strong RMWs on one
-location; take one step `z → z'`. Both are non-`none`. If they lie in one cluster, `z` was issued
-before `nx(z')` (window-consistency: `z` before `z'` in `co` forces `pos(z) < nx(z')`), so `J_K` at
-`nx(z')` holds `z`'s contribution; `z`'s `→co`-past through its own `co`-predecessors on ℓ consists
-of members `co`-before `z`, hence `co`-before `z'`, hence issued before `nx(z')` and in `J_K`
-directly, or comes through the inflow, which is in `J_K`. If they lie in different clusters, the clusters are
-adjacent (a whole cluster between them would be `co`-between), `z` is a member of the previous
-cluster and its final contribution is in the inflow of `z'`'s cluster; between two singletons the
-recorded chain is the edge itself, under the same `ms` test. Knowledge that reaches `z` from
+location; take one step `z → z'`. Both are non-`none` and morally strong, so they lie in one
+component. If they lie in one cluster, `z` was issued before `nx(z')` (window-consistency: `z`
+before `z'` in `co` forces `pos(z) < nx(z')`), so `J_C` at `nx(z')` holds `z`'s contribution;
+`z`'s `→co`-past through its own `co`-predecessors on ℓ consists of members `co`-before `z`, hence
+`co`-before `z'`, hence issued before `nx(z')`, and linked to `z` by morally strong steps, so in
+`J_C` directly, or comes through the inflow, whose linked components are in `J_C`. If they lie
+in different clusters, the clusters are adjacent (a whole cluster between them would be
+`co`-between), `z` is a member of the previous cluster and its final contribution is in the
+inflow component linked to `z'`; between two singletons the recorded chain is the edge itself,
+under the same `ms` test. Knowledge that reaches `z` from
 elsewhere reached `z`'s thread before `pos(z)` (its earlier windows closed before its next record)
 and is in `z`'s contribution. `z'`'s thread and `z'` itself (for the flag) read `A(z')` at `nx(z')`,
 and every later record of the thread comes after. Induction along the `→co` path gives the first
@@ -128,10 +135,10 @@ single `co` of the execution), with the same class; a flagged one may or may not
 instance makes the report A2-robust (likewise an SC report and its SC instances).
 
 **What over-flagging costs.** Nothing on a kernel with no multi cluster (`poss = vc`). Otherwise
-the flag may mark an instance that no single window-consistent `co` orders: `J` joins members
-whose orders no single `co` realises together; `ms` is ignored inside multi clusters (a
-scope-mismatched chain inside a multi cluster counts as possible); the lanes of one warp
-instruction always overlap (lane order is part of A2, and the flag treats it as uncertain); and
+the flag may mark an instance that no single window-consistent `co` orders: a component joins
+members whose orders no single `co` realises together, and links two RMWs through a third even
+when no order puts the third between them; the lanes of one warp instruction always overlap
+(lane order is part of A2, and the flag treats it as uncertain); and
 a thread with no next record keeps its window open to the end of the kernel — every dump in the
 evcand store predates exit records (T3b), so there a thread's last RMW overlaps every later RMW on
 its location. The measured number of flagged instances and reports, per suite, is in

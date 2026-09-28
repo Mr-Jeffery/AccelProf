@@ -395,6 +395,15 @@ def test_a2_held_on_the_earlier_rmw(tmp_path, closed):
     assert _a2_flags(tmp_path, ev) == {(_CAS, _LDF): [1, 0 if closed else 1]}
 
 
+def test_a2_scope_mismatch_is_not_flagged(tmp_path):
+    # block-scope RMWs of two blocks on one word (ScoR race_interblock_blkatom): never morally
+    # strong, so no coherence order chains them -- their DR stays unflagged although the
+    # windows overlap (the flag joins only along ms-connectivity inside a cluster)
+    blk = 0x58                              # ATOMG.E.ADD.STRONG.SM
+    ev = [(_A, 0, blk), (_B, 0, blk), (_A, 0, _LDX), (_B, 0, _LDX)]
+    assert _a2_flags(tmp_path, ev) == {(blk, blk): [1, 0]}
+
+
 def test_a2_block_leader_lock_through_barriers(tmp_path):
     # thread 0 of each block takes the lock, __syncthreads, a worker (warp 1) touches x,
     # __syncthreads, thread 0 unlocks; B's CAS recorded before X's unlock. The workers hold

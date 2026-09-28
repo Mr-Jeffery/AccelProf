@@ -2,8 +2,8 @@
 // rtraw lock: device-scope CAS / EXCH, fenced critical section) in two kernels. The data is
 // plain (not volatile), so every pair is a data race under each --strong-ldst policy (T10's
 // `token` policy makes volatile LDG/STG .STRONG.SYS accesses strong: those pairs are SC).
-//   kcontend -- race-free, contention forced: lane 0 of 16 warps (4 blocks x 4 warps) takes the
-//               lock ITERS times each and increments data[0] inside. A report between two
+//   kcontend -- race-free, contention forced: lane 0 of 16 warps (NB=4 blocks x NW=4 warps) takes
+//               the lock ITERS times each and increments data[0] inside. A report between two
 //               critical sections can only come from an A2 inversion on the trace (the
 //               successful CAS recorded before the unlock it read from; T9's
 //               matrix-multiplication case, T13's 4 % of hand-offs at 16 warps under NVBit),
@@ -16,6 +16,12 @@
 
 #ifndef ITERS
 #define ITERS 32
+#endif
+#ifndef NB                  // kcontend: NB blocks x NW warps contend (eval/A2_WINDOWS.md uses
+#define NB 4                // 1x2, 1x4 and 4x4, T13's contention levels)
+#endif
+#ifndef NW
+#define NW 4
 #endif
 
 __device__ int lock = 0;
@@ -54,11 +60,11 @@ int main() {
     unsigned int *d, h = 0;
     cudaMalloc(&d, 3 * sizeof(unsigned int));
     cudaMemset(d, 0, 3 * sizeof(unsigned int));
-    kcontend<<<4, 128>>>(d);
+    kcontend<<<NB, 32 * NW>>>(d);
     kcontrol<<<2, 32>>>(d);
     cudaError_t e = cudaDeviceSynchronize();
     if (e != cudaSuccess) { printf("CUDA error: %s\n", cudaGetErrorString(e)); return 1; }
     cudaMemcpy(&h, d, sizeof(unsigned int), cudaMemcpyDeviceToHost);
-    printf("data %u (expected %d)\n", h, 16 * ITERS);
-    return h == 16u * ITERS ? 0 : 2;
+    printf("data %u (expected %d)\n", h, NB * NW * ITERS);
+    return h == unsigned(NB * NW * ITERS) ? 0 : 2;
 }
