@@ -1,0 +1,816 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs,enumitem}
+\usepackage{algorithm,algpseudocode,caption}
+\usepackage[hidelinks]{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\DeclareMathOperator{\tid}{tid}\DeclareMathOperator{\pc}{pc}\DeclareMathOperator{\seq}{seq}
+\DeclareMathOperator{\loc}{loc}\DeclareMathOperator{\blk}{blk}\DeclareMathOperator{\kind}{kind}
+\DeclareMathOperator{\str}{str}\DeclareMathOperator{\scope}{scope}\DeclareMathOperator{\epoch}{epoch}
+\DeclareMathOperator{\conf}{conf}\DeclareMathOperator{\ms}{ms}\DeclareMathOperator{\incl}{incl}
+\DeclareMathOperator{\rel}{rel}\DeclareMathOperator{\acq}{acq}\DeclareMathOperator{\key}{key}
+\DeclareMathOperator{\cpl}{cpl}\DeclareMathOperator{\Exec}{Exec}\DeclareMathOperator{\rf}{rf}
+\DeclareMathOperator{\val}{val}\DeclareMathOperator{\Writers}{Writers}\DeclareMathOperator{\DR}{DR}
+\DeclareMathOperator{\SC}{SC}
+\newcommand{\PO}{<_{\mathrm{po}}}\newcommand{\HB}{\to_{\mathrm{hb}}}\newcommand{\HBr}{\trianglelefteq_{\mathrm{hb}}}
+\newcommand{\CO}{\to_{\mathrm{co}}}\newcommand{\chain}{\rightsquigarrow}
+\newcommand{\arr}[2]{\mathrm{arr}^{#2}_{#1}}\newcommand{\dep}[2]{\mathrm{dep}^{#2}_{#1}}\newcommand{\ext}[1]{\mathrm{exit}_{#1}}
+\newcommand{\Eplus}{E^{+}}\newcommand{\Fr}{\mathcal{F}}\newcommand{\Pred}{\mathcal{P}}
+\newcommand{\clk}{\mathit{clk}}\newcommand{\Bk}{B}\newcommand{\Ch}{\mathit{Ch}}\newcommand{\lastr}{\mathit{last}}
+\newcommand{\arrv}{\mathit{arrived}}\newcommand{\gone}{\mathit{exited}}\newcommand{\Rep}{\mathit{Rep}}
+\newcommand{\cls}[1]{\texttt{#1}}\newcommand{\M}{\mathsf{M}}
+\algnewcommand{\algorithmicreport}{\textbf{report}}\algnewcommand{\Report}{\algorithmicreport{} }
+
+\title{Happens-Before Data-Race Detection for GPU Kernels:\\ Model, Algorithm, Proofs}
+\date{2026-09-26 --- against \texttt{cuVein} 3331d35; revised after the latent census (T9-0); reviewed (T6)}
+
+\emergencystretch=2em
+\begin{document}
+\maketitle
+
+\noindent This document replaces the v3 proof, the v4 delta and the 2026-09-24 pseudo-code
+notes. It states one trace model, one happens-before relation (with the fence gate as a
+parameter), one verdict definition, and one algorithm of which cuVein's two modes are the
+two instances; proves the single-trace theorems and the per-profile certificate for it;
+and lists, as corollaries, exactly where the code at 3331d35 departs from it and what
+each departure costs. \emph{Sound} means no missed verdict; \emph{complete} means no
+spurious verdict. \S\ref{sec:impl} was checked by hand and, for two items, on the real
+oracle; the latent census (\texttt{eval/LATENT\_CENSUS.md}, 2026-09-26: the verdict layer
+replayed over the kept traces of 558 programs with the detector unchanged) supplied the
+corpus evidence cited in \S\ref{sec:verdict} and \S\ref{sec:impl}.
+
+\paragraph{Status and scope (PLDI 2027).} The theorems of \S\ref{sec:single} are stated
+relative to the relation of Definition~\ref{def:hb} under whichever gate the code runs:
+the trusting gate at 3331d35, the instance gate of Definition~\ref{def:gate} once I4 is
+implemented. The document is frozen except for the items under ``Order of work''; the
+cp.async extension (I7) and the discharge of MM1--MM3 are stated as limitations, not
+obligations, for the submission. Checked so far: by hand (all sections); on the real
+oracle with hand-made dumps (\S\ref{sec:impl}, I1 and I2); on kept traces (the census:
+\S\ref{sec:verdict} fact~(i), the latent tier, the corpus instance of $R_{\mathrm{miss}}$).
+\emph{T6} (2026-09-26; Claude Opus 5.5 in a fresh context; the code of \texttt{cuVein}
+3331d35, unchanged at 3ed5c9c): \S\ref{sec:alg}, \S\ref{sec:verdict} and \S\ref{sec:impl}
+read against \texttt{hb\_oracle.py}, \texttt{HbEngine}, \texttt{barrier\_only\_pairs},
+\texttt{\_hb\_class}, \texttt{judge} and \texttt{HBGraph.chain}; the referee reading of
+\S\ref{sec:single} and \S\ref{sec:cert}, time-boxed; \texttt{design/algorithms\_check.py} on
+the 33 litmus traces; the I1, I2 and I5 cases traced as strict xfails on one RTX 4060 Ti
+(sm\_89); then a second fresh context read only \S\ref{sec:alg} and \S\ref{sec:impl}
+against the code (11 contradictions in its first pass, none left in its second). Corrected:
+the deferred acquire of \S\ref{sec:alg} (it must cover \textsc{Check}($r$)); the engine/oracle
+and cutoff remarks of \S\ref{sec:alg} and \S\ref{sec:impl}; DR over SC in the matrix; R3's
+description, the code's relabels and facts (ii), (iii) in \S\ref{sec:verdict}; the I2, I3,
+I5, I6 and I7 rows with their notes and the labeling paragraph; the monitor and size
+sentences of \S\ref{sec:model}--\S\ref{sec:hb}; Lemma~\ref{lem:vc}(c). Open findings are the
+referee notes closing \S\ref{sec:single} and \S\ref{sec:cert}. Details, commands and what
+remains unverified: \texttt{design/T6\_REVIEW.md}.
+
+%=============================================================================
+\section{Trace model}\label{sec:model}
+%=============================================================================
+
+\begin{definition}[Records]\label{def:records}
+A trace $T$ is a finite sequence of records; $\seq(e)$ is the position of $e$. Records are:
+\begin{itemize}[nosep]
+\item \emph{memory records} $e$ with $\tid(e)$, $\pc(e)$, a location $\loc(e)$,
+      $\kind(e)\in\{\mathtt{R},\mathtt{W},\mathtt{RMW}\}$,
+      $\str(e)\in\{\mathtt{weak},\mathtt{strong}\}$ (an RMW is strong), and for strong records
+      $\scope(e)\in\{\mathtt{cta},\mathtt{gpu},\mathtt{sys}\}$ with $\mathtt{cta}<\mathtt{gpu}<\mathtt{sys}$;
+      $\kind$, $\str$ and $\scope$ are functions of $\pc(e)$ (the sidecar). A \emph{write} is a record with
+      $\kind\ne\mathtt{R}$;
+\item \emph{arrival records} $A$: $\kind(A)\in\{\mathtt{barrier},\mathtt{syncwarp}\}$, a block
+      $\beta(A)$, a warp, a lane mask $m(A)$, a barrier index $\mathit{bar}(A)$, a count $n(A)$
+      ($0$ = the whole block);
+\item \emph{exit records} $\ext{t}$, one per thread that terminates.
+\end{itemize}
+A dump record names a warp and a lane mask (a memory record also one address per lane); it
+stands for one record per lane, taken in lane order at its position, and W0 below is read
+over (position, lane). The collector's exit record is of this kind too.
+A thread id is $(\beta,\omega,l)$; $\blk(t)$ is its block. A location is
+$(\mathtt{shared},\beta,a)$, $(\mathtt{local},t,a)$ or $(\mathtt{global},a)$; $N_\beta$ is the
+block size.
+\end{definition}
+
+\begin{definition}[Instances]\label{def:instance}
+Fix a key $k=(\beta,\mathit{bar})$ and process the records of $T$ in $\seq$ order keeping
+$\arrv_k$ (thread ids) and $\gone_\beta$ (threads of $\beta$ with an exit record so far). A
+\texttt{barrier} arrival with key $k$ adds its lanes to $\arrv_k$; an exit adds its thread to
+$\gone_\beta$. The open \emph{segment} of $k$ \emph{completes} at the first record after
+which $|\arrv_k|=\exp_k$, where $\exp_k=n$ if the segment's arrivals carry a count $n>0$
+and $\exp_k=N_\beta-|\gone_\beta|$ otherwise; then it forms an \emph{instance} $B$ with
+participants $S(B)=\arrv_k$ and completion position $\cpl(B)$ = that record's $\seq$, and
+$\arrv_k$ is emptied. A trailing incomplete segment forms no instance ($\cpl=+\infty$). A
+\texttt{syncwarp} arrival is an instance by itself: $S(B)$ its masked lanes, $\cpl(B)$ its
+position. (An exit can complete an instance: the last non-arrived thread of the block
+leaving is what the hardware waits for.)
+\end{definition}
+
+\begin{definition}[Ghost events, program order]\label{def:po}
+For each instance $B$ and $t\in S(B)$: an \emph{arrival event} $\arr{t}{B}$ at the position
+of the arrival record covering $t$ and a \emph{departure event} $\dep{t}{B}$ at
+$\cpl(B)^{+}$ (departures of one instance in any fixed order). $\Eplus$ is the set of memory
+records, ghost events and exits, totally ordered by $\seq$. The program order $\PO$ of
+thread $t$ is $\seq$ restricted to $t$'s events. The \emph{ticks} of $t$ are its arrival
+events and its RMWs, in $\PO$; $\tau^k_t$ is the $k$-th; $\epoch(e)=1+\#\{$ticks of $t$
+strictly $\PO$-before $e\}$, so an RMW $e$ equals $\tau^{\epoch(e)}_t$. The
+\emph{processing position} of a tick is its own $\seq$ for an RMW and $\cpl(B)$ for
+$\arr{t}{B}$.
+\end{definition}
+
+\begin{definition}[Well-formed trace]\label{def:wf}
+$T$ is well-formed iff (W0) $\seq$ is strictly increasing; (W1) for every key, all
+arrivals of a segment agree on $n$, no segment overshoots $\exp_k$, and no thread id occurs
+twice in a segment; (W2) no memory, arrival or exit record of a thread lies strictly between
+its arrival and the completion of that segment; (W3) no record of a thread follows its exit.
+\end{definition}
+W0--W3 are decidable in one pass over the records and use no clock, so the checks may
+run online in the engine or offline over the dump with the same result. The
+implementation's four trace-validity checks (\texttt{TV-seq-monotonic},
+\texttt{TV-barrier-overfill}, \texttt{TV-barrier-completion-order},
+\texttt{TV-expected-nonzero-multiwarp}) decide W0 (in the oracle; the engine consumes its
+buffer in order), the overshoot part of W1, and W2 for memory records, per warp rather than
+per lane (I6). An arrival, syncwarp or cp.async record of a waiting warp is not checked, nor
+are the count-agreement and duplicate-thread parts of W1, nor W3 (which cannot be until exit
+records exist). The checks run in the engine (vector-clock mode) and in
+\texttt{hb\_oracle.py}; \texttt{barrier\_only\_pairs}, hence scalar-clock mode, runs none. A fifth check is required once exit records exist: every open
+segment is complete at the last record of the kernel ($\arrv_k=\emptyset$ for every $k$ at
+the end of $T$). It is the runtime form of A3 --- a segment still open at the end means
+the hardware waited for a thread the model did not, or the collector lost an arrival ---
+and it would have flagged the crs-cuda kernels of I3 directly.
+
+\begin{lemma}[$\seq$-forwardness]\label{lem:seq}
+On a well-formed trace, every generator of Definition~\ref{def:hb} is $\seq$-forward; hence
+$a\HB b\Rightarrow\seq(a)<\seq(b)$ and $\HB$ is a strict partial order.
+\end{lemma}
+\begin{proof}
+(PO) by definition, using (W2) for the edge $\dep{t}{B}\PO e$. (SYNC): an arrival is at or
+before $\cpl(B)$, a departure after it. (ATOM): the successor relation is $\seq$-order.
+\end{proof}
+
+\paragraph{Trusted base.} Nothing above refers to the execution. The connection is
+Proposition~\ref{prop:fidelity}, under: (A1) every memory access, barrier arrival and exit
+of the execution yields exactly one record with correct fields and lane mask, in each
+thread's dynamic order; (A2) for every location, the $\seq$ order of its RMWs is their
+coherence order; (A3) a barrier instance of Definition~\ref{def:instance} completes exactly
+when the hardware barrier releases, i.e.\ the hardware waits for the non-exited threads
+of the block (PTX \texttt{bar.sync} semantics) and for $n$ threads when a count is given.
+Under exit records, A3 is a statement about the hardware, no longer about the collector.
+
+%=============================================================================
+\section{Happens-before and verdicts}\label{sec:hb}
+%=============================================================================
+
+\begin{definition}[Scope inclusion, moral strength]\label{def:ms}
+For a strong $e$ and thread $t$: $\incl(e,t)$ iff $\scope(e)\ge\mathtt{gpu}$, or
+$\scope(e)=\mathtt{cta}$ and $\blk(\tid(e))=\blk(t)$. Records $a,b$ of different threads
+are \emph{morally strong}, $\ms(a,b)$, iff both are strong, $\incl(a,\tid(b))$ and
+$\incl(b,\tid(a))$. (All records on a location are assumed to have one size and to use the
+generic proxy. Nothing checks this today: the implementation keys a location by the access's
+start address, so partially overlapping accesses are different locations; see I6.)
+\end{definition}
+
+\begin{definition}[Gate, chain]\label{def:gate}
+A \emph{gate} is a pair of predicates $\rel,\acq$ on RMW records. It governs the (ATOM)
+generator only, never $\ms$: the two-RMW exception of Definition~\ref{def:verdict} does
+not depend on it. The \emph{trusting} gate sets both to $1$ everywhere. The
+\emph{instance} gate uses one static predicate on the kernel CFG,
+$\mathrm{fenced}(p,p',s)$: every CFG path from pc $p$ to pc $p'$ crosses a fence of
+scope $\ge s$ (a \texttt{MEMBAR} of that scope; a \texttt{bar.sync} counts as a fence of
+scope \texttt{cta}). For an RMW record $r$ of thread $t$ with $\PO$-previous record $p$
+and $\PO$-next record $q$ (records of any kind): $\rel(r)=1$ iff $p$ does not exist or
+$\mathrm{fenced}(\pc(p),\pc(r),\scope(r))$; $\acq(r)=1$ iff $q$ does not exist or
+$\mathrm{fenced}(\pc(r),\pc(q),\scope(r))$. Because the paths are taken between the two
+pcs the thread actually executed, a fence that lies only on the success edge of a CAS
+loop qualifies for the successful CAS, a fence hoisted before a loop qualifies for the
+first iteration only, and a failed CAS acquires nothing. The per-pc variant ($\acq(r)=1$
+iff no memory pc is reachable from $\pc(r)$ without crossing a fence, and dually for
+$\rel$) is \emph{not} used: it rejects the success-edge idiom because the failure edge is
+a fenceless path in the CFG, and the latent census found exactly that on
+\texttt{matrix-multiplication}'s block lock and on the ticket \texttt{atomicInc} of
+\texttt{reduction}. For RMWs on one location, $q$ is the \emph{successor} of $r$ if it is
+the next RMW on that location in $\seq$; $r\chain q$ iff there are RMWs
+$r=z_0,\dots,z_k=q$, $k\ge1$, each the successor of the previous with
+$\ms(z_i,z_{i+1})$.
+\end{definition}
+The instance gate admits only PTX release and acquire patterns (a fence followed in
+program order by a strong write; a strong read followed by a fence) and is still
+conservative --- a fence separated from the RMW by an unrelated access of the same thread
+is not counted --- which is what \S\ref{sec:cert} needs. The trusting gate admits every
+hand-off and is what \S\ref{sec:cert} declines to place inside PTX causality.
+
+\begin{definition}[Happens-before]\label{def:hb}
+Given a gate, $\HB$ is the least transitive relation on $\Eplus$ containing
+(PO) $a\PO b\Rightarrow a\HB b$;
+(SYNC) $\arr{s}{B}\HB\dep{t}{B}$ for every instance $B$ and $s,t\in S(B)$;
+(ATOM) $r\HB q$ for RMWs with $r\chain q$, $\rel(r)=\acq(q)=1$.
+$a\HBr b$ means $a\HB b$ or $a=b$. $\HB^{\mathrm{sync}}$ is the relation without (ATOM).
+\end{definition}
+
+\begin{definition}[Verdicts]\label{def:verdict}
+For memory records with $\seq(a)<\seq(b)$: $\conf(a,b)$ iff $\loc(a)=\loc(b)$,
+$\tid(a)\ne\tid(b)$ and one is a write; $\mathrm{unord}(a,b)$ iff neither $a\HB b$ nor
+$b\HB a$. $\DR(a,b)$ (data race) iff $\conf\wedge\mathrm{unord}\wedge\neg\ms(a,b)$;
+$\SC(a,b)$ (unordered strong conflict) iff $\conf\wedge\mathrm{unord}\wedge\ms(a,b)$ and
+not both RMW. A pair is \emph{reportable} iff $\DR\vee\SC$; $\Rep(T)$ is the set of
+reportable pairs with their class. Two morally strong RMWs are never reportable:
+coherence orders them and atomicity makes both outcomes well-defined.
+\end{definition}
+
+\begin{lemma}[Monotonicity]\label{lem:mono}
+If $\mathrel{\to_{\mathrm{hb}_1}}\subseteq\mathrel{\to_{\mathrm{hb}_2}}$ on one trace, every pair reportable under $\to_{\mathrm{hb}_2}$ is
+reportable under $\to_{\mathrm{hb}_1}$ with the same class. In particular the trusting gate yields a
+subset of the instance gate's reports: a sidecar that misses a fence, a scope or a strength
+can add reports, never hide one. The converse does not hold for $\ms$, which the gate does
+not touch: a sidecar that \emph{widens} a scope can hide a report through the two-RMW
+exception, so scope is the one static label that must be conservative.
+\end{lemma}
+\begin{proof}
+$\conf$, $\ms$, $\kind$ do not depend on $\HB$; unord is antitone.
+\end{proof}
+
+%=============================================================================
+\section{The algorithm}\label{sec:alg}
+%=============================================================================
+
+One procedure, $\M\in\{\mathsf{vec},\mathsf{sync}\}$ selecting whether (ATOM) is
+tracked. \emph{State}: $\clk[t]$, a clock (map thread $\to\mathbb{N}$, missing entry $0$,
+$\sqcup$ pointwise max), initially $\{t\!:\!1\}$; per location $\ell$: buckets
+$\Bk_\ell[u,\kappa]$ for every thread $u$ and key
+$\kappa=(\kind,\str,\scope)$, each holding (epoch, pc) of $u$'s latest record on $\ell$ with
+$\key(e)=\kappa$; a chain clock $\Ch_\ell$ (a clock or $\bot$) and $\lastr_\ell$, the label
+$(\tid,\scope,\blk)$ of the last RMW on $\ell$; per key $k$: $\arrv_k$; per block:
+$\gone_\beta$. The output $\Rep$ is a set of (record, record, class).
+
+\begingroup\small
+\noindent\rule{\textwidth}{0.6pt}
+\captionof{algorithm}{$\textsc{Detect}(T,\M)$. cuVein's vector-clock mode runs
+$\textsc{Detect}(T,\mathsf{vec})$ and $\textsc{Detect}(T,\mathsf{sync})$ side by side
+(two clocks); scalar-clock mode runs $\textsc{Detect}(T,\mathsf{sync})$ only, whose clock
+needs one shared base per instance plus one scalar per thread.}\label{alg:detect}
+\noindent\rule{\textwidth}{0.4pt}
+\begin{algorithmic}[1]
+\Procedure{Sync}{$A$}\label{ln:sync}
+  \State $J\gets\bigsqcup_{u\in A}\clk[u]$;\ \textbf{for} $u\in A$: $\clk[u]\gets J$,\ $\clk[u][u]\gets J[u]+1$
+\EndProcedure
+\Procedure{Complete}{$k$}\Comment{called after every arrival on $k$ and every exit in $k$'s block}
+  \If{$|\arrv_k|=\exp_k$ \textbf{and} $\arrv_k\ne\emptyset$}\ \Call{Sync}{$\arrv_k$};\ $\arrv_k\gets\emptyset$\EndIf
+\EndProcedure
+\Procedure{Check}{$a$}\Comment{$a$ by $t$ on $\ell$; every other thread's buckets on $\ell$}\label{ln:check}
+  \ForAll{$u\ne t$, $\kappa$ with $e=\Bk_\ell[u,\kappa]$ defined, $\conf(e,a)$, and $e.\epoch>\clk[t][u]$}
+    \State \textbf{if} $\neg\ms(e,a)$: $\Rep\gets\Rep\cup\{(e,a,\DR)\}$;\ \textbf{else if} not both RMW: $\Rep\gets\Rep\cup\{(e,a,\SC)\}$
+  \EndFor
+\EndProcedure
+\ForAll{records $e$ of $T$ in $\seq$ order}
+  \If{$e=\ext{t}$}\ $\gone_{\blk(t)}\gets\gone_{\blk(t)}\cup\{t\}$;\ \Call{Complete}{$k$} for every open key $k$ of $\blk(t)$\label{ln:exit}
+  \ElsIf{$e$ is a \texttt{barrier} arrival with key $k$}\ $\arrv_k\gets\arrv_k\cup\mathrm{lanes}(e)$;\ \Call{Complete}{$k$}\label{ln:barrier}
+  \ElsIf{$e$ is a \texttt{syncwarp}}\ \Call{Sync}{masked lanes of $e$}
+  \Else\Comment{memory record $a=e$ by $t$ on $\ell$}
+    \If{$\M=\mathsf{vec}$ \textbf{and} $\kind(a)=\mathtt{RMW}$}\label{ln:acquire}
+      \State \textbf{if} $\lastr_\ell$ defined \textbf{and} $\neg\ms(\lastr_\ell,a)$: $\Ch_\ell\gets\bot$\Comment{chain broken}
+      \State \textbf{if} $\acq(a)=1$ \textbf{and} $\Ch_\ell\ne\bot$: $\clk[t]\gets\clk[t]\sqcup\Ch_\ell$\Comment{acquire}
+    \EndIf
+    \State \Call{Check}{$a$};\quad $\Bk_\ell[t,\key(a)]\gets(\clk[t][t],\pc(a))$\label{ln:record}
+    \If{$\M=\mathsf{vec}$ \textbf{and} $\kind(a)=\mathtt{RMW}$}
+      \State \textbf{if} $\rel(a)=1$: $\Ch_\ell\gets(\Ch_\ell\text{ or }\bot)\sqcup\clk[t]$\Comment{publish, with the pre-tick clock}\label{ln:publish}
+      \State $\lastr_\ell\gets(t,\scope(a),\blk(t))$;\quad $\clk[t][t]\gets\clk[t][t]+1$\Comment{then tick}\label{ln:tick}
+    \EndIf
+  \EndIf
+\EndFor
+\State \Return $\Rep$
+\end{algorithmic}
+\noindent\rule{\textwidth}{0.6pt}
+\endgroup
+
+\medskip\noindent
+Under $\M=\mathsf{sync}$ an RMW is an ordinary strong write: no chain, no acquire, no
+publish, no tick, and the ticks of Definition~\ref{def:po} are arrivals only. The
+trusting gate makes lines~\ref{ln:acquire}--\ref{ln:tick} unconditional in $\rel,\acq$.
+The correspondence with \texttt{hb\_oracle.py}: $\clk$ = \texttt{vc} ($\mathsf{vec}$) and
+\texttt{vs} ($\mathsf{sync}$), $\Ch_\ell$ = \texttt{released[loc]} (overwritten with the
+releaser's post-acquire clock rather than joined; under the trusting gate the two agree,
+since that clock already contains $\Ch_\ell$ unless the chain broke), \textsc{Sync} =
+\texttt{sync\_group}, \textsc{Check} = the loop over \texttt{last\_write}/\texttt{last\_reads}
+with \texttt{conflict} as its test, $\Rep$ = \texttt{hb\_races} (record pairs) or
+\texttt{hb\_races\_sync\_only} (their pc pairs, with counts); and \texttt{barrier\_only\_pairs} is
+$\textsc{Detect}(T,\mathsf{sync})$ computed offline with $\clk[u]$ stored as a pointer to
+$J$ plus the scalar $\clk[u][u]$ (after \textsc{Sync} no participant's map is ever
+mutated again, so the sharing is exact); above \texttt{CUVEIN\_BARRIER\_PASS\_MAX\_LANES}
+lane-accesses, or with \texttt{CUVEIN\_BARRIER\_PASS=0}, it is skipped and scalar-clock mode
+has the static rules only (\S\ref{sec:verdict}, (c)). Under the instance gate the online engine does
+not know $\pc(q)$ when it processes $r$. It records a pending acquire $J=\Ch_\ell$ and
+applies the join of line~\ref{ln:acquire} when $t$'s next record arrives, before that
+record is processed. One reader of $\clk[t]$ lies in between: \textsc{Check}($r$) itself,
+which Algorithm~\ref{alg:detect} runs after the acquire. It is evaluated against
+$\clk[t]\sqcup J$, and the pairs that $\clk[t]$ alone would add (a spinner's plain read of
+the lock word against the next owner's CAS, say) are held and reported iff $\acq(r)=0$ (if
+$r$ is $t$'s last record, $q$ does not exist and $\acq(r)=1$).
+Nothing else reads $\clk[t]$ before $t$'s next record --- the publish at $r$ yields
+$\Ch_\ell\sqcup\clk[t]$ either way, other threads see $t$ only through $\Ch_\ell$ and
+through barrier instances that $t$ enters with a later record, and $\clk[t][t]$ is
+unchanged by the join --- so the deferred and the immediate join produce the same $\Rep$;
+the offline oracle, which has the whole trace, evaluates $\acq$ directly.
+
+%=============================================================================
+\section{Single-trace correctness}\label{sec:single}
+%=============================================================================
+
+Throughout, $T$ is well-formed and $\M=\mathsf{vec}$; the $\mathsf{sync}$ case is
+Corollary~\ref{cor:sync}. After the records with $\seq\le i$ are processed let
+$\mathrm{last}_t(i)$ be $t$'s $\seq$-last event at a position $\le i$ (a departure if the
+record at $i$ completed an instance containing $t$; an arrival if $t$ is pending), and the
+\emph{frontier} $\Fr_i(t)=\{f:f\HBr\mathrm{last}_t(i)\}$. For a record $b$,
+$\Pred(b)=\{f:f\HB b\}$. The immediate $\HB$-predecessors of an event are its
+$\PO$-predecessor; for $\dep{t}{B}$ the arrivals $\arr{s}{B}$, $s\in S(B)$; for an RMW $q$
+the RMWs $r$ with $r\chain q$, $\rel(r)=\acq(q)=1$. Hence, with $p$ the $\PO$-predecessor of
+a record $b$ of $t$ and (W2),
+\begin{equation}\label{eq:pred}
+\Pred(b)=\Fr_{\seq(b)-1}(t)\ \cup\ \textstyle\bigcup\{\,\{f:f\HBr r\}: r\chain b,\ \rel(r)=\acq(b)=1\,\}.
+\end{equation}
+
+\begin{lemma}[Assembly]\label{lem:assembly}
+\textsc{Sync} is invoked exactly once per instance $B$, at position $\cpl(B)$, with
+argument $S(B)$, and never otherwise for a \texttt{barrier} key.
+\end{lemma}
+\begin{proof}
+$\arrv_k$ and $\gone_\beta$ evolve exactly as in Definition~\ref{def:instance};
+\textsc{Complete} is evaluated after every record that changes either, and (W1) makes the
+count hit $\exp_k$ exactly at the segment's completing record.
+\end{proof}
+
+\begin{lemma}[Chain clock]\label{lem:chain}
+After line~\ref{ln:tick} of an RMW $z$ on $\ell$,
+$\Ch_\ell=\bigsqcup\{P_r: r\chain z,\ \rel(r)=1\}\sqcup(\rel(z)=1\,?\,P_z:\bot)$, where
+$P_r$ is the clock published at $r$ (line~\ref{ln:publish}, before $r$'s tick).
+\end{lemma}
+\begin{proof}
+Induction over the RMWs on $\ell$ in $\seq$ order. For the first, the chain set is empty
+and the claim is line~\ref{ln:publish}. For $z$ with predecessor $p$: by IH
+$\Ch_\ell=\bigsqcup\{P_r:\rel(r),\ r\chain p\text{ or }r=p\}$ before $z$'s
+line~\ref{ln:acquire}. Now $r\chain z$ iff ($r\chain p$ or $r=p$) and $\ms(p,z)$; the
+reset fires exactly when $\neg\ms(p,z)$; and line~\ref{ln:publish} adds $P_z$ iff
+$\rel(z)$.
+\end{proof}
+
+\begin{lemma}[Clock invariant]\label{lem:vc}
+After processing the records with $\seq\le i$: (a) $\clk[t][t]=1+\#\{$ticks of $t$ with
+processing position $\le i\}$; (b) for $s\ne t$, $\clk[t][s]=\max(\{k:\tau^k_s\in\Fr_i(t)\}\cup\{0\})$;
+(c) for every RMW $r$ published so far, $P_r[s]=\max(\{k:\tau^k_s\HBr r\}\cup\{0\})$
+for $s\ne\tid(r)$ and $P_r[\tid(r)]=\epoch(r)$.
+\end{lemma}
+\begin{proof}
+Induction on $i$; initially trivial. Two consequences of (a),(b) are used: for $s\ne t$,
+$\clk[t][s]\le\#\{$processed ticks of $s\}<\clk[s][s]$, so $(\bigsqcup_{u\in S}\clk[u])[s]=\clk[s][s]$
+whenever $s\in S$ (\dag), and no join raises $\clk[t][t]$. Let $e$ be the record at $i$.
+
+\emph{Exit.} No clock changes; if it completes an instance, the next case applies.
+
+\emph{Read or write.} No clock changes, no tick; $\Fr_i(t)=\Fr_{i-1}(t)\cup\{e\}$ by
+\eqref{eq:pred} adds no tick of an $s\ne t$.
+
+\emph{Non-completing arrival.} No clock changes; $\Fr_i(t)=\Fr_{i-1}(t)\cup\{\arr{t}{B}\}$
+adds a tick of $t$ whose processing position is $\cpl(B)>i$; other frontiers unchanged.
+
+\emph{Completing arrival or exit, instance $B$, $S=S(B)$.} For $t\in S$,
+$\mathrm{last}_t(i)=\dep{t}{B}$ and $\Fr_i(t)=\{\dep{t}{B}\}\cup\bigcup_{u\in S}(\{\arr{u}{B}\}\cup\Fr_{i-1}(u))$
+(by (W2), $u$ has no event between its arrival and $i$); \textsc{Sync} runs with exactly
+$S$ (Lemma~\ref{lem:assembly}). For $s\notin S$ the maximal tick of $s$ in $\Fr_i(t)$ is
+$\max_u\clk[u][s]=J[s]$ by (b). For $s\in S$, $\arr{s}{B}=\tau^k_s$ with $k=\clk[s][s]$
+before $i$ by (a), and all earlier ticks of $s$ precede it; by (\dag) $J[s]=k$. So
+$\clk[t]\gets J$ gives (b), and $\clk[t][t]\gets J[t]+1$ gives (a): exactly one tick of $t$
+has processing position $i$. (c) is untouched.
+
+\emph{RMW $q$ by $t$ on $\ell$.} By (a), $c:=\clk[t][t]=\epoch(q)$ and $q=\tau^c_t$. By
+\eqref{eq:pred}, $\Fr_i(t)=\Fr_{i-1}(t)\cup\{q\}\cup\bigcup_r\{f:f\HBr r\}$ over the $r$ with
+$r\chain q$, $\rel(r)=\acq(q)=1$. By Lemma~\ref{lem:chain} the acquire joins exactly
+$\bigsqcup_r P_r$ over those $r$ when $\acq(q)=1$ and the chain is intact (if the chain is
+broken at $p$ then $\neg\ms(p,q)$ and no $r\chain q$ exists), and by (c) $P_r[s]$ is the
+maximal tick of $s$ in $\{f:f\HBr r\}$ --- for $s=\tid(r)$ this is $\epoch(r)$, as $r$ is
+itself a tick of $s$ and every tick of $s$ before $r$ is $\PO$-before it. So the joined
+clock satisfies (b). The clock published at $q$ has, for $s\ne t$, the maximal ticks of $s$
+in $\Pred(q)=\{f:f\HBr q\}\setminus\{q\}$, and $t$-component $c=\epoch(q)$, the index of $q$
+itself: this is (c) for $q$. Then $\clk[t][t]\gets c+1$ restores (a).
+\end{proof}
+
+\begin{lemma}[HB test]\label{lem:test}
+Let $e$ be a record of $s$ and $a$ one of $t\ne s$ with $\seq(e)<\seq(a)$. When
+\textsc{Check}($a$) runs, $\epoch(e)\le\clk[t][s]\iff e\HB a$.
+\end{lemma}
+\begin{proof}
+At that moment $\clk[t][s]=\max\{k:\tau^k_s\in\Pred(a)\}$ by Lemma~\ref{lem:vc}(b),(c) and
+\eqref{eq:pred}. ($\Leftarrow$) On a generating path from $e$ to $a$ the first edge leaving
+thread $s$ is (SYNC) from an arrival or (ATOM) from an RMW of $s$, i.e.\ from a tick
+$\tau^k_s$ with $e\HBr\tau^k_s$, so $\epoch(e)\le k\le\clk[t][s]$. ($\Rightarrow$) Some
+$\tau^k_s\in\Pred(a)$ has $k\ge\epoch(e)$; every record of $s$ with epoch $\le k$ is
+$\PO$-before-or-equal $\tau^k_s$, so $e\HBr\tau^k_s\HB a$.
+\end{proof}
+
+\begin{theorem}[Complete]\label{thm:complete}
+Every triple $(e,a,c)$ added to $\Rep$ is a reportable pair of class $c$.
+\end{theorem}
+\begin{proof}
+$e$ is in a bucket of $\loc(a)$ of a thread $u\ne t$ and $\conf(e,a)$ was tested;
+$e.\epoch>\clk[t][u]$ gives $\neg(e\HB a)$ by Lemma~\ref{lem:test} and
+$\seq(e)<\seq(a)$ gives $\neg(a\HB e)$ by Lemma~\ref{lem:seq}; the class is
+Definition~\ref{def:verdict}'s.
+\end{proof}
+
+\begin{theorem}[Sound]\label{thm:sound}
+For every reportable $(e,a)$ with $\seq(e)<\seq(a)$, \textsc{Check}($a$) adds $(e',a)$ of
+the same class, where $e'=e$ or $e\PO e'$ and $\key(e')=\key(e)$.
+\end{theorem}
+\begin{proof}
+Let $e'=\Bk_{\loc(a)}[\tid(e),\key(e)]$ when $a$ is processed: the latest record of
+$u=\tid(e)$ on $\loc(a)$ with that key, so $e=e'$ or $e\PO e'$. If $e'\HB a$ then $e\HB a$,
+contradiction; so $\neg(e'\HB a)$, and $\neg(a\HB e')$ by Lemma~\ref{lem:seq}. $\kind$,
+$\str$, $\scope$ and the block agree between $e$ and $e'$, so $\conf$, $\ms$ and the class
+agree. \textsc{Check} inspects that bucket and, by Lemma~\ref{lem:test}, reports.
+\end{proof}
+
+\begin{corollary}[The $\mathsf{sync}$ instance]\label{cor:sync}
+$\textsc{Detect}(T,\mathsf{sync})$ satisfies Lemmas~\ref{lem:vc} and~\ref{lem:test} and
+Theorems~\ref{thm:complete} and~\ref{thm:sound} with $\HB^{\mathrm{sync}}$ in place of
+$\HB$ and ticks = arrivals. Hence a pair is $\HB^{\mathrm{sync}}$-ordered iff it is
+ordered by barrier and syncwarp joins alone, which are schedule-independent.
+\end{corollary}
+\begin{proof}
+Delete the RMW case of Lemma~\ref{lem:vc} and the (ATOM) term of \eqref{eq:pred}; nothing
+else in the proofs mentions them.
+\end{proof}
+
+\begin{remark}[Why one bucket per key]\label{rem:buckets}
+With a single ``last write'' per location the theorem fails: $w_0$ strong by $A$, $w_1$
+strong by $B$, unordered (so no report: $\ms$, both writes, not both RMW would give $\SC$ ---
+which the implementation drops, \S\ref{sec:impl}); a barrier joins $B$ and $C$; a weak read
+$r$ by $C$. $(w_0,r)$ is a $\DR$; a check against $w_1$ alone sees $w_1\HB r$ and reports
+nothing. A bucket representative is always $\PO$-related to the record it replaced, which
+is what the proof of Theorem~\ref{thm:sound} uses.
+\end{remark}
+
+\paragraph{Referee notes (T6).} (1) The RMW case of Lemma~\ref{lem:vc} applies (c) to every
+$r\chain q$, which need not be $\chain$-maximal; (c) is therefore stated for every published
+RMW (the induction proves it at each publish, and $P_r$ never changes afterwards). (2)
+Corollary~\ref{cor:sync} shows that $\HB^{\mathrm{sync}}$ is the order of this trace's barrier
+and syncwarp instances. That the order is schedule-independent needs, in addition, that the
+two threads reach the same instances in the other execution; Lemma~\ref{lem:match}'s
+participant step gives this up to that execution's first reportable pair, not in general (a
+barrier reached under a condition on a racy value). \S\ref{sec:verdict}~(ii) inherits the
+caveat. (3) Everything else in this section follows as written, including every use of
+$\rel,\acq$ under the instance gate: each is evaluated at the RMW in question, and on a
+trace the gate is a fixed predicate of that record.
+
+%=============================================================================
+\section{The verdict layer}\label{sec:verdict}
+%=============================================================================
+
+$\Rep$ is a set of pairs of records; cuVein reports per \emph{pc pair}
+$\{u,v\}$ and asks a second question: is the pair ordered in \emph{every} schedule? A
+static certificate $\textsc{Static}(u,v,d)$, from the CFG region graph and the observed
+thread distance $d$, returns $\rho$ (R1: every path between the two regions crosses a
+qualifying barrier of scope $\ge d$, with loops handled by cutting; R2: both pcs coherent
+at scope $\ge d$ --- the $\ms$ exception in certificate form, not an ordering) and $\chi$
+(R3: a chain of atomic pcs from $u$ to $v$ over observed atomic--atomic edges --- each at a
+distance its two atomics' scopes cover, the first within the scope of a fence after $u$, none
+needed when $u$ is atomic --- and program-order steps between atomics, ending in a pc that
+dominates $v$ and whose critical section $v$ has not left; $d$ itself is checked only by the
+fence a store inside a CAS critical section needs).
+
+Two amendments to R3 follow from the census. Its \emph{release point} is taken from the
+trace, not from region dominance (today \texttt{release\_scope}: a \texttt{MEMBAR} in
+postdom$(u)\cap{}$dom$(a)$): in every observed instance of $u$, the first RMW $r$ of the
+chain is the $\PO$-next RMW of $u$'s thread after $u$, and ``release-fenced'' is $\mathrm{fenced}(\pc(u),\pc(r),d)$ of
+Definition~\ref{def:gate}. The region test declined 23 of the census's 25 race-free
+latent pairs (\texttt{rule-110}, \texttt{reduction}) because the protected access sat in
+a loop or branch whose region dominates no atomic, although the release followed it in
+program order and 21 of the hand-offs were fully fenced; the trace has the program order
+exactly, and only the fence question is static. And R3 is made symmetric in the two
+accesses: it declines when $v$ has left its critical section (\texttt{\_past\_release},
+which is what catches \texttt{rtraw}) and must equally decline when $u$ has not entered
+one, i.e.\ when $u$ precedes in its own thread an acquire on the chain's location
+(write-before-lock, the mirror of rtraw; not exercised by the census, and absent from
+\texttt{HBGraph.chain} today, as \texttt{\_past\_release} notes). With $\Rep_{\mathsf{vec}}$ and $\Rep_{\mathsf{sync}}$ projected
+to pc pairs, the verdict for a candidate pair is
+\[
+\begin{array}{ll}
+\{u,v\}\in\Rep_{\mathsf{vec}}\text{, every instance }\SC: & \textsc{Strong conflict},\ \cls{sc}\\
+\{u,v\}\in\Rep_{\mathsf{vec}}\text{, some instance }\DR: & \textsc{Race},\ \text{class \cls{model\_bug} if }\rho\text{ else \cls{structural}}\\
+\rho\vee\chi: & \textsc{Ordered},\ \cls{ordered}\\
+\{u,v\}\notin\Rep_{\mathsf{sync}}: & \textsc{Ordered},\ \cls{barrier-ordered}\\
+\text{otherwise}: & \textsc{Latent},\ \cls{latent}
+\end{array}
+\]
+and scalar-clock mode is the same without the first two rows and with \textsc{Race} in
+the last: it has no $\Rep_{\mathsf{vec}}$ and cannot tell a race of this run from a latent
+pair. The first row exists because R2 certifies exactly the morally strong pairs: once
+I2 reports $\SC$, every $\SC$ pair would otherwise land in \cls{model\_bug}. \textsc{Latent}
+is a third verdict, not a race: the pair is ordered in this execution, necessarily
+through an atomic hand-off, and no schedule-independent evidence orders it. It is
+reported, counted as neither true nor false positive in the precision tables, and
+evaluated on its own (D8, below). A pc pair collects the classes of its dynamic instances:
+one $\DR$ instance makes it a \textsc{Race} whatever the others are (a \texttt{cta}-scope
+atomic meets a strong store in its own block as $\SC$ and in another block as $\DR$). The
+code's \texttt{\_hb\_class} is rows two to five, row one dormant until I2 reports $\SC$; a
+pair judged with no $\Rep_{\mathsf{sync}}$ at all (no \texttt{hb\_races\_sync\_only}, no
+offline pass) falls to \textsc{Latent}; and \texttt{judge} relabels after the matrix ---
+\cls{benign} (every writer of the read pc is an atomic; still \textsc{Race}) and, opt-in,
+\cls{warp-po-ordered} (\textsc{Ordered}) --- so the three-verdict counts (D2) are taken from
+the class before these labels.
+
+Four facts follow from \S\ref{sec:single}. (i) The full clock never grants
+\textsc{Ordered}: it vetoes a certificate (row two) or separates \textsc{Race} from
+\textsc{Latent}, so scalar-clock's \textsc{Race} set is vector-clock's
+$\textsc{Race}\cup\textsc{Latent}$ minus the vetoes. The census confirmed this on the same
+trace for 557 of 558 programs; the exception is \texttt{crs-cuda}, where the scalar-clock
+offline pass is skipped above \texttt{CUVEIN\_BARRIER\_PASS\_MAX\_LANES} (26 kernels above
+$5\cdot10^{6}$ lane-accesses) and six vector-clock pairs are never judged. (ii)
+\cls{barrier-ordered} is justified by Corollary~\ref{cor:sync}: absence from
+$\Rep_{\mathsf{sync}}$ is schedule-independent ordering (with the caveat of the referee
+note (2) of \S\ref{sec:single}). This holds for $\textsc{Detect}(T,\mathsf{sync})$; the code's
+second clock shares I2's state, under which a barrier-unordered pair can be absent ---
+\texttt{design/algorithms\_check.py} finds 8 such pc pairs on 3 of the 33 litmus traces,
+none of them judged there (no dependency edge, no candidate). (iii) \textsc{Race} in
+vector-clock mode is exactly $\Rep_{\mathsf{vec}}$ projected to pc pairs (those whose pcs the
+dependency side records; it records no purely local pc, I5), so
+Theorems~\ref{thm:complete} and~\ref{thm:sound} apply to that verdict as stated and
+Theorem~\ref{thm:cert} lifts it to every execution with the same profile; no theorem
+speaks about \textsc{Latent}. (iv) \cls{model\_bug} is the disagreement of two
+evaluations of the same (SYNC) generator: on a faithful trace, if R1 certifies $\{u,v\}$
+then every dynamic instance of the pair is $\HB^{\mathrm{sync}}$-ordered (each thread of
+the block passes the certified barrier between the two regions, and block-wide instances
+are totally ordered), so the cell is empty; it has fired only on defects (F2, F6, and
+crs-cuda's exit-unaware assembly, all fixed or covered by \S\ref{sec:impl}).
+
+\paragraph{What scalar-clock mode misses.} By Lemma~\ref{lem:mono},
+$\Rep_{\mathsf{sync}}\supseteq\Rep_{\mathsf{vec}}$ on every trace: scalar-clock mode
+misses no record-level race. Its misses are in the verdict layer, and they are exactly
+three. (a) R3 grants \textsc{Ordered} at pc level to a pair some dynamic instance of
+which is unordered --- the $\exists$-as-$\forall$ flaw of pc granularity; vector-clock
+mode vetoes it through row two, scalar-clock cannot. The P5 canary is the corpus
+instance, and the only program of the census's 558 whose verdict differs between the
+modes. (b) Candidate generation: a conflicting pair with no dependency edge and no
+event-stream candidate is never judged, whereas the engine checks every location. (c) The
+\texttt{CUVEIN\_BARRIER\_PASS\_MAX\_LANES} cutoff, under which the offline pass and its
+event-stream candidates are skipped (crs-cuda). Everything else the two modes report
+identically.
+
+\paragraph{The latent tier (D8, resolved).} \textsc{Ordered} keeps its meaning ``in
+every schedule''; \textsc{Race} means ``unordered in this execution''; what lies between
+is \textsc{Latent}. The census measured the tier on the detector at 3331d35: it alone
+reports 10 of the 236 labelled races vector-clock mode finds, all ScoR litmus kernels,
+and 25 pairs on 5 race-free ScoR applications. Of the 10, eight are fence and scope bugs
+that the run did \emph{not} order under PTX --- the trusting gate (I4) joined the hand-off
+regardless, and R3's fence check is what kept the verdict; one
+(\texttt{race\_interblock\_fence\_rtraw}) is a race of the recorded run missed through I1,
+the first corpus instance of $R_{\mathrm{miss}}$; one
+(\texttt{race\_interblock\_none-lock\_rtraw}) is genuinely ordered by the recorded
+acquisition order and is a race only under the other one. Of the 25, 23 are the R3
+release-point defect above and 2 the success-edge idiom that the per-pc gate rejects. So
+after I1, I4 and the R3 amendments, the tier's own content is the rtraw kind: a pair
+ordered in this run only through a fenced lock hand-off whose order the program does not
+force. That class is real (neither racecheck nor iGUARD reports it; the other baselines
+were not run on P5), and it cannot be given a witness from the trace: values are not
+recorded, so a reordering of the critical sections cannot be checked to preserve
+reads-from, which is what a predictive analysis would need. It is therefore reported as a
+warning with its own precision, confirmed where possible by re-recording in the other
+acquisition order, and the paper's numbers are given at two operating points,
+\textsc{Race} alone and $\textsc{Race}\cup\textsc{Latent}$ (the latter is what today's
+tables count).
+
+%=============================================================================
+\section{From one trace to all executions}\label{sec:cert}
+%=============================================================================
+
+\begin{proposition}[Fidelity]\label{prop:fidelity}
+Let $T$ be a well-formed trace of execution $E$ and $\to_{\mathrm{hb},E}$ the relation of
+Definition~\ref{def:hb} over $E$'s own events, barrier instances and coherence orders.
+Under A1--A3, $\to_{\mathrm{hb},T}=\to_{\mathrm{hb},E}$ on memory records and $\Rep(T)=\Rep(E)$.
+\end{proposition}
+\begin{proof}
+(PO) by A1. (SYNC): by A1 each arrival and exit is recorded; by A3 an instance completes
+exactly when the hardware releases, so $S(B)$ is the true participant set. (ATOM): successor
+and $\ms$ depend only on coherence order (A2) and static labels.
+\end{proof}
+
+The single-trace theorems use nothing about the platform. The certificate below is
+relative to three memory-model obligations, to be discharged against the PTX
+formalisation (Lustig et al., ASPLOS 2019) with the instance gate: (MM1) $\CO\cup\rf$ is
+acyclic, where $\CO$ is $\HB$ plus the completion edges $\ext{s}\CO\dep{t}{B}$ for every
+non-participant $s$ of $B$'s block; (MM2) coherence: a read or RMW $e$ does not read from a
+$w$ with $w\HB w'\HB e$ for some write $w'$, and reads from a write if some write
+$\HB$-precedes it; (MM3) every thread of a block either participates in each of the block's
+instances or exits, and executions terminate. Under the instance gate every (ATOM)
+edge, extended by (PO) on both sides, is a release/acquire pattern on a morally strong
+chain, hence inside PTX causality ($\mathrm{fenced}$ on the thread's own path supplies the
+release and acquire patterns, $\ms$ along the chain the observation order); under the
+trusting gate this containment is not claimed, and the certificate is then a statement
+about the implemented, stronger $\HB$. The containment is argued in one paragraph once
+the gate is implemented (I4); it is not a separate proof obligation for the submission.
+
+Fix $P$ deterministic, $I$, and a \emph{profile} $\Pi$ (for each location, the sequence
+of (thread, per-thread index) of its RMWs in coherence order); $\Exec(P,I,\Pi)$ are the
+executions with that profile. Label every event by its thread and index in the thread's
+order, and instances by (block, count); the \emph{counterpart} $\varphi(e')$ of an event of
+$T'$ is the event of $T$ with the same label.
+
+\begin{lemma}[First reportable prefix]\label{lem:first}
+If $\Rep(T')\ne\emptyset$, let $L'$ linearise $\CO'\cup\rf'$ (MM1), $b$ the $L'$-least later
+member of a reportable pair, $Q=\{e:e<_{L'}b\}$. Then $Q$ contains no reportable pair and
+is closed under $\CO'$-predecessors.
+\end{lemma}
+
+\begin{lemma}[Matching]\label{lem:match}
+Let $E\in\Exec(P,I,\Pi)$ have a well-formed trace $T$ with $\Rep(T)=\emptyset$, and
+$E'\in\Exec(P,I,\Pi)$ a well-formed $T'$. With $Q,b$ as above (or $Q=\Eplus(T')$ if
+$\Rep(T')=\emptyset$), every $e\in Q\cup\{b\}$ has a counterpart agreeing in kind, pc,
+location, labels and written value; if $e\in Q$ is a read or RMW, $\val_r(e)=\val_r(\varphi e)$;
+$g\in Q$, $g\HB' e\Rightarrow\varphi g\HB\varphi e$; and $g\HB\varphi e\Rightarrow g=\varphi g'$
+for some $g'\in Q$ with $g'\HB' e$.
+\end{lemma}
+\begin{proof}
+Induction along $L'$; let $t=\tid(e)$. \emph{Participants.} If $\dep{u}{B}\HBr' e$ for an
+instance labelled $(\beta,k)$, then $S'(B)=S(B_{(\beta,k)})$: a participant $s$ of $B$ has
+all events up to its $k$-th arrival matched (IH), so it reaches that barrier in $E$; a
+participant of $B_{(\beta,k)}$ absent from $S'(B)$ has, by MM3, an exit in $T'$ with
+$\ext{s}\CO'\dep{u}{B}\HBr' e$, so all its events are in $Q$ and matched with the same read
+values, hence the same state --- and a deterministic thread cannot both exit and continue
+from one state. \emph{Existence.} $e$'s $\PO$-predecessors are in $Q$ and matched with equal
+read values; determinism fixes the next instruction, address and written value, and $T$
+contains it since $t$ has not exited in $T$. \emph{Forward.} Each generator maps: (PO) by
+labels, (SYNC) by the participant step, (ATOM) because equal profiles make $\varphi g$ the
+coherence predecessor of $\varphi e$ with the same labels and blocks. \emph{Backward.} An
+immediate predecessor of $\varphi e$ is the image of the corresponding $\PO$-predecessor,
+arrival (participant step) or coherence predecessor (equal profiles) of $e$, each in $Q$;
+chains compose by IH. \emph{Values.} Let $w'=\rf'(e)$, $W=\rf(\varphi e)$. In $T$, no
+reportable pair and MM1 make the writers of $\varphi e$ an $\HB$-chain --- two writes on a
+location not both RMW are $\HB$-comparable, and RMW order is fixed by $\Pi$ --- whose
+maximum is $W$ by MM2; in $T'$, $w'\in Q$, $(w',e)$ not reportable and $L'\supseteq\HB'$ give
+$w'\HB' e$ and, by MM2, no writer of $e$ above $w'$. If $\varphi w'\ne W$ then
+$\varphi w'\HB W\HB\varphi e$; backward preservation at $e$ and at the preimage of $W$
+yields $w'\HB' W'\HB' e$ with $W'$ a writer of $e$, contradicting MM2. So $W=\varphi w'$ and
+the read values agree (the init case is the same with $\Writers=\emptyset$).
+\end{proof}
+
+\begin{theorem}[Per-profile certificate]\label{thm:cert}
+If some $E\in\Exec(P,I,\Pi)$ has a well-formed trace with $\Rep(T)=\emptyset$, then every
+$E'\in\Exec(P,I,\Pi)$ has $\Rep(T')=\emptyset$, and $T'$ consists of the same events as $T$
+up to $\seq$ (same labels, values, instances, participants, hence the same $\HB$).
+\end{theorem}
+\begin{proof}
+Suppose $\Rep(T')\ne\emptyset$ and take $a,b,Q$ from Lemma~\ref{lem:first}. By
+Lemma~\ref{lem:match}, $\varphi a,\varphi b$ exist and conflict with the same labels. If
+$\varphi a\HB\varphi b$, backward preservation at $b$ gives $a'\in Q$ with $\varphi a'=\varphi a$
+and $a'\HB' b$, and labels force $a'=a$, contradicting the pair; if $\varphi b\HB\varphi a$,
+backward preservation at $a$ puts $b\in Q$, contradiction. So $(\varphi a,\varphi b)\in\Rep(T)$,
+contradiction. With $Q=\Eplus(T')$, Lemma~\ref{lem:match} gives a label-preserving
+bijection that preserves and reflects $\HB$.
+\end{proof}
+
+\begin{corollary}\label{cor:causal}
+(a) If some execution in $\Exec(P,I,\Pi)$ has a reportable pair, every execution in it has
+one, and by Theorem~\ref{thm:sound} the algorithm reports on any of their well-formed
+traces. (b) If $P$ has no RMW, $\Pi$ is empty and one clean trace certifies $P(I)$ under all
+schedules. (c) A trace with no $\DR$ but with $\SC$ pairs certifies nothing: the coherence
+order of unordered strong loads and stores is a schedule input the profile does not fix.
+(d) With a per-thread random outcome $R$ fixed, everything holds per $(R,\Pi)$; across
+different $R$ nothing transfers.
+\end{corollary}
+
+\paragraph{Referee notes (T6).} (1) The \emph{Values} step of Lemma~\ref{lem:match} uses that
+the writers of a location form an $\HB$-chain on a trace with $\Rep(T)=\emptyset$, in
+particular that two RMWs are $\HB$-comparable. Under the trusting gate they are (consecutive
+RMWs are either $\ms$ and joined by (ATOM), or not $\ms$ and then ordered or reportable).
+Under the instance gate two consecutive $\ms$ RMWs with $\rel=0$ or $\acq=0$ are neither;
+MM2 must then be read with coherence order: $e$ does not read from $w$ if some write $w'$
+has $w\,(\HB\cup\mathrm{coh}_\ell)\,w'\HB e$, where $\mathrm{coh}_\ell$ is the coherence order of $\ell$'s RMWs,
+fixed by $\Pi$. (2) MM3 fails for a counted barrier used by part of a block
+(\texttt{bar.sync} with a thread count): a thread outside it neither participates nor
+exits. Instance labels must carry the barrier index, (block, bar, count), and counted
+instances need their own participant argument (which threads fill a count can depend on
+arrival order). (3) The last sentence of Theorem~\ref{thm:cert} applies
+Lemma~\ref{lem:match} in both directions: once $\Rep(T')=\emptyset$ is shown, the lemma with
+$E$ and $E'$ exchanged gives the inverse injection. (4) The rest of this section follows as
+written.
+
+%=============================================================================
+\section{The implementation at 3331d35}\label{sec:impl}
+%=============================================================================
+
+\texttt{hb\_oracle.py} (= \texttt{HbEngine} on the corpus; the engine takes its labels from
+the sidecar, merged over a binary's CFGs, where the oracle reads the one CFG it is given, and
+on a trace-validity violation it records and continues where the oracle raises),
+\texttt{barrier\_only\_pairs} and the verdict layer of \texttt{sync\_dominance.py} implement \S\ref{sec:alg}--\ref{sec:verdict} with the
+substitutions below. Each is stated with what it costs against \S\ref{sec:single}.
+
+\begin{table}[!htbp]\centering\small
+\begin{tabular}{@{}lp{6.4cm}p{6.2cm}@{}}
+\toprule
+& implementation & consequence \\
+\midrule
+I1 & \emph{tick before publish}: line~\ref{ln:tick} before line~\ref{ln:publish}; the RMW's bucket entry carries the post-tick epoch & Theorem~\ref{thm:sound} fails on $R_{\mathrm{miss}}$ (Proposition~\ref{prop:rmiss}); Theorem~\ref{thm:complete} holds; Corollary~\ref{cor:causal}(a) void. Corpus instance: \texttt{race\_interblock\_fence\_rtraw} (evcand vector-clock dump; the verdict survived only as \cls{latent}) \\
+I2 & \emph{one last write per location and, per thread, its last read since that write} in place of buckets, shared by both clocks; $\SC$ dropped (\texttt{--strong-ldst generic}: coherent pairs never conflict) & Theorem~\ref{thm:sound} fails for $\DR$ in both clocks (Remark~\ref{rem:buckets}), and \S\ref{sec:verdict}~(ii) with it; policy \texttt{none} does not repair it (note (a)) \\
+I3 & \emph{exits ignored}: no exit records in the dump, $\exp_k=N_\beta$; no end-of-kernel completeness check; \texttt{bar.arrive} recorded as blocking (note (b)) & A3 false for early-exit kernels; instances never complete; every store--barrier--load pair reported (crs-cuda: 155/7 spurious), flagged only indirectly (note (b)) \\
+I4 & \emph{trusting gate} & $\HB$ is a superset of the instance-gated one; Lemma~\ref{lem:mono}: reports are a subset; the certificate is not inside PTX causality (\texttt{test\_relaxed\_handoff\_should\_race}, strict xfail). Corpus: 8 of the 10 latent-only ScoR races (\S\ref{sec:verdict}) are unordered under PTX and ordered by this gate; only R3's fence check kept their verdicts. Implement the instance gate of Definition~\ref{def:gate}, not the per-pc one \\
+I5 & local memory keyed by $(\mathtt{local},a)$, $a$ the local-window offset with no thread id (note (c)) & every thread's access at one offset is one location: 8,096 spurious race records on a 2$\times$32-thread kernel with no sharing; no verdict there (note (c)) \\
+I6 & monitor: the completion-order check per warp, not per lane, on memory records only; per-warp degrade when the count is unknown; no size or overlap check (a location is the start address); scalar-clock mode: the degrade, no check & over-rejects under independent thread scheduling (predicted from the code, not observed: 0 violations on ScoR 32/32, \texttt{HARDENING\_REPORT.md}); the degrade path is unreachable on launched kernels and unsound without the monitor, so T11 deletes it \\
+I7 & cp.async copies as accesses of a virtual agent $t\,|\,2^{62}$, joined at issue, completed by commit/wait (note (d)) & outside the model; needs generators (ISSUE), (WAIT) and a re-proof of \S\ref{sec:single} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent\emph{Notes to the table.} (a) Policy \texttt{none} (every strong load/store weak)
+gives only FastTrack's guarantee, a report at the first reportable access of each location,
+not Theorem~\ref{thm:sound}: E2 under \texttt{none} reports $(w_0,w_1)$ but not $(w_0,r)$.
+(b) Vector-clock mode flags an I3 dump only indirectly: \texttt{TV-barrier-completion-order}
+fires when a released warp runs on (the engine writes \texttt{tv\_violation}, which no verdict
+reads; the oracle raises); scalar-clock mode not at all; the fifth check of
+\S\ref{sec:model} flags it directly. The collector drops the barrier callback's
+\texttt{IS\_SYNCHRONIZING} flag, so a \texttt{bar.arrive} is a blocking arrival to the model:
+the thread's accesses before the completion keep the pre-arrival epoch, which the instance
+hands to every participant (missed races), and later ones are ordered as if it had waited;
+none in the 293 kept sm\_89 CFGs. (c) The collector folds the thread id into bits 54--63 of a
+local address with a 32-bit shift, which yields 0 (\texttt{local\_mem\_blocks}). No verdict
+follows there because the dependency side records no pc whose accesses are all local; a
+generic pc that also reaches global or shared memory is recorded, and its spurious local
+records would reach one. (d) Only in dumps carrying the \texttt{hb\_async} marker, and not in
+kernels whose copies complete through an mbarrier (\texttt{ARRIVES.LDGSTSBAR}), where a copy
+stays its thread's own access (T1b).
+
+\noindent Two labeling details of the sidecar are not substitutions of the algorithm: an
+atomic whose SASS names no scope gets \texttt{cta} if it is a shared-memory \texttt{ATOMS}
+(shared memory is per block) and the empty scope otherwise (never morally strong, so it
+breaks every chain; conservative by Lemma~\ref{lem:mono}), and a \texttt{.STRONG} load or store
+counts as strong only in its generic \texttt{LD}/\texttt{ST} form (policy \texttt{generic};
+O1).
+
+\begin{proposition}[Missed class of I1]\label{prop:rmiss}
+With I1 alone, the reports are a subset of $\textsc{Detect}$'s and the omitted pairs are
+exactly $R_{\mathrm{miss}}=\{(a,b): a$ a non-RMW record of $t$ whose $\PO$-last preceding
+tick is an RMW $r$ with $r\HBr b$, no later tick of $t$ in $\Pred(b)$, $\seq(a)<\seq(b)\}$.
+\end{proposition}
+\begin{proof}
+Let $c=\epoch(r)$. I1 publishes $\{t:c{+}1\}$ where line~\ref{ln:publish} publishes
+$\{t:c\}$; arrivals publish the same in both; joins propagate. So for $u\ne t$,
+$\clk_{\mathrm{I1}}[u][t]=\clk[u][t]+\delta$ with $\delta=1$ iff the maximal tick of $t$ in
+$u$'s frontier is an RMW reached through (ATOM). For a non-RMW $a$ of $t$ and $\delta=1$
+the tests $\epoch(a)>c$ and $\epoch(a)>c{+}1$ differ exactly at $\epoch(a)=c{+}1$: the
+records of $t$ between $r$ and its next tick, unordered with $b$ --- $R_{\mathrm{miss}}$.
+For an RMW $a$ at tick $c'$ the test $c'{+}1>\clk+\delta$ equals $c'>\clk$ in both cases
+($\delta=0$ forces $\clk\ne c'$). In the opposite $\seq$ order $a$'s own check uses $t$'s
+clock of $u$, which is unaffected.
+\end{proof}
+\noindent\emph{Tested} (\texttt{check\_e1\_e2.py}, real oracle, hand-made dumps): the
+\texttt{rtraw} lock pattern with block~0 first --- I1 reports nothing, the reordered oracle
+reports the RAW; with the read before the write in $\seq$ (same lock order) both report
+the WAR, and with block~1 first neither reports. Remark~\ref{rem:buckets}'s kernel:
+policy \texttt{generic} reports nothing (in both clocks), policy \texttt{none} reports
+$(w_0,w_1)$. \texttt{design/algorithms\_check.py} (Algorithm~\ref{alg:detect} with I1 and I2
+as switches) equals \texttt{hb\_oracle.py} in both clocks on the 33 litmus traces with the
+switches on; with them off it adds exactly the \texttt{race\_interblock\_fence\_rtraw} pair
+(I1) and one pair of \texttt{race\_interblock\_blklock\_waw} (I2). On real kernels, as strict
+xfails (\texttt{python/test\_hb\_substitutions.py}, one RTX 4060 Ti): the rtraw lock with
+block~0 first (I1), Remark~\ref{rem:buckets}'s kernel (I2) and a local-memory kernel (I5).
+
+\noindent\emph{Observed on a kept trace} (latent census). The evcand vector-clock dump of
+the ScoR kernel \texttt{race\_interblock\_fence\_rtraw} has block~0 releasing at seq~5
+with \texttt{atomicExch(\&flag,1)}, block~1's spin succeeding at seq~6, block~0 reading
+\texttt{data} at seq~7 after its own release and block~1 writing it at seq~8, with
+\texttt{hb\_races} empty --- $R_{\mathrm{miss}}$ on a real trace, proved-in-effect on
+this one dump, not re-run with a publish-then-tick oracle. \emph{Monitor}: one unit test
+per check that must raise plus a valid multi-warp control that must not (five of the seven
+tests of \texttt{test\_barrier\_soundness.py}, passing; they exercise \texttt{hb\_oracle.py},
+not the engine's \texttt{tv\_fail}); zero violations on the ScoR corpus; the
+head-to-head suites are not yet counted.
+
+\paragraph{Order of work (PLDI 2027).}
+(1) D8 as resolved in \S\ref{sec:verdict}: three verdicts, two operating points, the
+$\SC$ row. (2) I3: exit records in the dump, \textsc{Complete} on exit, the fifth
+monitor check of \S\ref{sec:model}; A3 becomes PTX semantics (D7, route (a)). (3) I1, I2
+(buckets, D6) and I5 in one change to oracle and engine, with the offline re-score;
+\texttt{race\_interblock\_fence\_rtraw} is the corpus regression test for I1, litmus
+O6(vi) for I2. (4) Sidecar strength and scope (O1): \texttt{.STRONG} loads and stores
+and \texttt{volatile} classed strong with their scope, atomicity no longer decided by
+the RMW opcode alone --- the DR/SC split is wrong in both modes until then, and the
+scope label must err narrow (Lemma~\ref{lem:mono}, converse). (5) I4 as the instance
+gate of Definition~\ref{def:gate}: the fence inventory per SM (O2) and the
+$\mathrm{fenced}$ predicate from the CFG dots (O3), shared with R3's release-point test;
+the engine defers the acquire join (\S\ref{sec:alg}). The gate is measured before it is
+wired: the census's fence classification is the before; the expected after is the eight
+ScoR fence races moving from \textsc{Latent} to \textsc{Race}, \texttt{matrix-multiplication}
+staying clean, and the ticket idiom of \texttt{reduction} reported (a PTX race by the
+letter, which iGUARD also reports; a labelled-clean program, to be footnoted, not
+suppressed). (6) The vector clock's memory (T5b): the reference mode has no dump for the
+realistic suites, which bounds the mode comparison to litmus and micro-benchmarks until
+it runs there. Deferred past the submission: I6, I7 (model and re-proof; stated as a
+limitation), the discharge of MM1--MM3. Obligations kept from v4: uniform access size and
+generic proxy per location (monitor), and ``if some RMW on $\ell$ releases, every write
+on $\ell$ is an RMW'' (else clear $\rel$ on $\ell$; conservative by
+Lemma~\ref{lem:mono}).
+
+\end{document}
