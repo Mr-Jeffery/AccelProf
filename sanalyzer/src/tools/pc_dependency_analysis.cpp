@@ -491,6 +491,10 @@ struct HbEngine {
                 on_exit(a);
                 continue;
             }
+            // I5 (D14): local memory is outside the HB model (hb_proof.tex Definition
+            // "Records"); skipped before the monitor, as the oracle skips an older dump's
+            // local records (the HB trace no longer carries them, hb_collect_events).
+            if (a.type == MemoryType::Local) continue;
             const uint32_t pc = static_cast<uint32_t>(a.pc & 0x00FFFFFFu);
             // TV-record-after-exit (W3): no record of a thread follows its exit.
             if (strict && !exited_lanes.empty()) {
@@ -565,10 +569,6 @@ struct HbEngine {
                 continue;
             }
 
-            // I5 (D14): local memory is outside the HB model (hb_proof.tex Definition
-            // "Records"); skipped before the monitor, as the oracle skips an older dump's
-            // local records (the HB trace no longer carries them, hb_collect_events).
-            if (a.type == MemoryType::Local) continue;
             const auto pit = atom_scope->find(pc);
             const bool is_atomic = pit != atom_scope->end() && pit->second.rmw;
             const int my_coh = (pit != atom_scope->end()) ? pit->second.scope : -1;

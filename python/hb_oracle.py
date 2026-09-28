@@ -313,6 +313,11 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False):
                         f"thread still pending at barrier {key} (seq {seq})")
                 complete(key)
             continue
+        if e.get("space") == "local":
+            # I5 (D14): local memory is outside the HB model (hb_proof.tex Definition
+            # "Records"). The T9 collector no longer serializes local records; an older dump
+            # still carries them and is replayed as if it did not -- before any monitor check.
+            continue
         # TV-record-after-exit (W3): no record of a thread follows its exit.
         lanes_mask = e["sync_mask"] if typ == "syncwarp" else e.get("active_mask", 0)
         if strict and lanes_mask & exited_lanes.get((e["block"], e["warp"]), 0):
@@ -369,11 +374,6 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False):
             continue
 
         space = e["space"]
-        if space == "local":
-            # I5 (D14): local memory is outside the HB model (hb_proof.tex Definition
-            # "Records"). The T9 collector no longer serializes local records; an older dump
-            # still carries them and is replayed as if it did not.
-            continue
         # TV-barrier-completion-order: a warp blocked at a pending barrier cannot
         # execute a post-barrier memory access before its instance completes (fires).
         # This is the segmentation property the barrier-instance assembly relies on.
