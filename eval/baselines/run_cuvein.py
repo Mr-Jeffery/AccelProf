@@ -61,6 +61,7 @@ def _analyze_reports(depdir, cubindir):
     a real failure is an ERROR row, not a silent CLEAN."""
     dots = sorted(glob.glob(f"{cubindir}/*.dot"))
     ded, cls, ded_sc = {}, {}, {}
+    a2s = {}   # T14: key -> [race of this run, some unflagged, latent, flagged without R3, flag seen]
     for kj in sorted(glob.glob(f"{depdir}/kernel_*.json")):
         rep = None
         for dot in dots:
@@ -78,6 +79,15 @@ def _analyze_reports(depdir, cubindir):
                 c = v.get("matrix_class", v.get("hb_class")) or "race"
                 if _CLASS_RANK.get(c, 2) > _CLASS_RANK.get(cls.get(k), -1):
                     cls[k] = c
+                s = a2s.setdefault(k, [False, False, False, False, False])
+                f = v.get("a2_uncertain")
+                s[4] = s[4] or f is not None
+                if c in ("structural", "model_bug"):
+                    s[0] = True
+                    s[1] = s[1] or f is not True
+                    s[3] = s[3] or (f is True and c == "structural" and not v.get("hb_chain"))
+                elif c == "latent":
+                    s[2] = True
             elif v["verdict"] == "SC":
                 ded_sc.setdefault(k, v)
     ids, pcs_all, raw = [], set(), []
@@ -88,7 +98,8 @@ def _analyze_reports(depdir, cubindir):
         raw.append({"a_pc": a, "b_pc": b, "space": space,
                     "race_type": v.get("race_type"), "strength": v.get("strength"),
                     "hb_class": v.get("hb_class"), "hb_chain": v.get("hb_chain"),
-                    "matrix_class": cls[k], "conflict_class": v.get("conflict_class")})
+                    "matrix_class": cls[k], "conflict_class": v.get("conflict_class"),
+                    "a2": _a2_status(a2s[k])})
     for k, v in sorted((k, v) for k, v in ded_sc.items() if k not in ded):
         a, b, space = k
         raw.append({"a_pc": a, "b_pc": b, "space": space, "verdict": "SC",
@@ -103,6 +114,20 @@ def _analyze_reports(depdir, cubindir):
 # strength of a RACE report's class for the per-pair dedup (the pair counts as a race of
 # this run if any of its verdicts is one)
 _CLASS_RANK = {"latent": 0, "race": 1, "structural": 2, "model_bug": 3}
+
+
+def _a2_status(s):
+    """T14 (design/a2_flag.md): one deduped RACE report's A2 exposure from its verdicts'
+    pair-level flags -- None (no flag in the dumps, or no race of this run), 'robust' (some DR
+    instance unflagged), 'race' (A2-uncertain at the Race-alone point only: at Race u Latent
+    it stays a positive -- it also has a latent verdict, or a flagged pair no R1/R3
+    certificate orders, which reordered would be Latent), 'both' (uncertain at both points)."""
+    race, some_unflagged, latent, alt_latent, seen = s
+    if not seen or not race:
+        return None
+    if some_unflagged:
+        return "robust"
+    return "race" if latent or alt_latent else "both"
 
 
 def split_raw(raw):
@@ -120,7 +145,14 @@ def classes_note(raw):
     for r in raw:
         c = r.get("matrix_class") or ("host" if r.get("host") else "race")
         n[c] = n.get(c, 0) + 1
-    return "classes=" + ",".join(f"{c}:{k}" for c, k in sorted(n.items())) if n else ""
+    note = "classes=" + ",".join(f"{c}:{k}" for c, k in sorted(n.items())) if n else ""
+    # T14: `;a2_uncertain=<k>:<m>` -- k RACE reports A2-uncertain at Race alone, m of them at
+    # Race u Latent too (_a2_status); only when the dumps carry the flag (vector-clock, T14+)
+    a2 = [r.get("a2") for r in raw if r.get("verdict") != "SC"]
+    if note and any(x is not None for x in a2):
+        note += (f";a2_uncertain={sum(x in ('race', 'both') for x in a2)}"
+                 f":{sum(x == 'both' for x in a2)}")
+    return note
 
 
 def _host_label(d, pc):

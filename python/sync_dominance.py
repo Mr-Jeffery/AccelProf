@@ -756,6 +756,17 @@ CLASS_VERDICT = {"model_bug": "RACE", "structural": "RACE", "latent": "RACE",
                  "ordered": "ORDERED", "barrier-ordered": "ORDERED"}
 
 
+def _a2_flag(recs):
+    """T14 (design/a2_flag.md): the pair-level a2_uncertain of a pair's hb_races records --
+    True iff every DR instance is flagged (the pair's Race verdict rests on A2 alone), False if
+    some DR instance is not, None when the pair has no DR instance or the dump carries no flag.
+    Information only: no verdict or class reads it."""
+    dr = [r for r in recs if r.get("class", "DR") == "DR"]
+    if not dr or any("a2_uncertain" not in r for r in dr):
+        return None
+    return sum(r["a2_uncertain"] for r in dr) >= sum(r.get("count", 1) for r in dr)
+
+
 def _observed(dist):
     """Highest inter-thread distance bucket of a trace edge -> (scope, count)."""
     for sc, key in ((GRID, "intra_grid"), (BLOCK, "intra_block"),
@@ -1008,6 +1019,7 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
             if recs and in_order and not any(r.get("async") for r in recs) \
                     and all((r["a_tid"] >> 5) == (r["b_tid"] >> 5) for r in recs):
                 hb_class, verdict, assumption = "warp-po-ordered", "ORDERED", "warp-lockstep"
+        a2 = _a2_flag(raced_records.get(frozenset((cur, anc)), ()))   # T14: read by no verdict
         verdicts.append({
             "current_pc": cur, "current_pc_hex": hex(cur),
             "ancient_pc": anc, "ancient_pc_hex": hex(anc),
@@ -1026,6 +1038,7 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
             "event_candidate": from_events,
             "hb_class": hb_class,
             "matrix_class": matrix_class,
+            "a2_uncertain": a2,
             "conflict_class": "SC" if strong else "DR",
             "benign": benign,
             "assumption": assumption,

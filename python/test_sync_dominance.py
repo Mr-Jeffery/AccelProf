@@ -108,7 +108,7 @@ def _race_key(r):
     # hb_races is aggregated per (pc pair, kind, class, space, distance, async) with a count
     # (T9); the example record's addr/tids depend on iteration order and are not compared
     return (r.get("a_pc"), r["b_pc"], r["kind"], r.get("class"), r["space"], r.get("dist"),
-            r.get("async"), r.get("count"))
+            r.get("async"), r.get("count"), r.get("a2_uncertain"))   # a2_uncertain: T14
 
 
 @pytest.mark.parametrize("binary", _binaries(), ids=lambda p: p.name)

@@ -65,7 +65,7 @@ struct HbEngine {
     struct SyncClock { std::shared_ptr<const Clock> base; uint64_t own = 0; };
     std::unordered_map<Tid, SyncClock> vs;
     bool sync_only_pass = true;                             // YOSEMITE_HB_NO_SYNC_ONLY=1 disables
-    struct Released { Clock clk; uint64_t block; int scope; };
+    struct Released { Clock clk; uint64_t block; int scope; Clock pd; };   // pd: T14
     // keyed by location, not raw address: shared-memory addresses are per-block
     // offsets, so with >1 block another block's release on the same offset would
     // clobber this block's and its next acquire would miss it (spurious atomic race).
@@ -91,7 +91,7 @@ struct HbEngine {
     static constexpr const char* DIST_NAME[] = {"none", "warp", "block", "grid"};
     struct Race { uint64_t addr; int space; uint64_t loc_block;
                   Tid a_tid; long a_pc; Tid b_tid; uint32_t b_pc; uint8_t kind; bool sc;
-                  uint8_t dist; uint8_t asy; uint64_t count; };
+                  uint8_t dist; uint8_t asy; uint64_t count; uint64_t a2; };   // a2: T14
     std::vector<Race> races;                                // one per key, first-report order
     struct RaceKey {
         long a_pc; uint32_t b_pc; uint8_t kind; bool sc; int space; uint8_t dist; uint8_t asy;
@@ -178,7 +178,7 @@ struct HbEngine {
     std::unordered_map<std::string, std::unordered_set<uint32_t>> kernel_async;
     std::unordered_set<uint32_t> merged_async, no_async;
     const std::unordered_set<uint32_t>* async_pcs = &merged_async;
-    struct Group { Clock vc; Clock vs; };                   // an agent's clocks at a commit
+    struct Group { Clock vc; Clock vs; Clock pd; };         // an agent's clocks at a commit
     std::unordered_map<Tid, std::vector<Group>> groups;     // t -> committed groups, oldest first
 
     // the sync-only clock of u as one full clock (base + own component)
@@ -192,6 +192,7 @@ struct HbEngine {
     void async_issue(Tid t, Tid ag) {
         own(t);
         join_into(vc[ag], vc[t]);
+        pd_join(ag, pd_of(t));                              // T14
         own(ag);
         if (!sync_only_pass) return;
         owns(t);
@@ -205,7 +206,7 @@ struct HbEngine {
         const Tid ag = agent_of(t);
         own(ag);
         if (sync_only_pass) owns(ag);
-        groups[t].push_back(Group{vc[ag], sync_only_pass ? vs_full(ag) : Clock()});
+        groups[t].push_back(Group{vc[ag], sync_only_pass ? vs_full(ag) : Clock(), pd_of(ag)});
         vc[ag][ag] += 1;
         if (sync_only_pass) vs[ag].own += 1;
     }
@@ -216,6 +217,7 @@ struct HbEngine {
         const Group& g = it->second[done - 1];                           // snapshots only grow
         own(t);
         join_into(vc[t], g.vc);
+        pd_join(t, g.pd);                                   // T14
         if (sync_only_pass) {
             owns(t);
             SyncClock& c = vs[t];
@@ -295,7 +297,164 @@ struct HbEngine {
                 + std::to_string(expected_of(kv.first, kv.second)));
     }
 
+    // --- T14 (design/a2_flag.md): the a2_uncertain flag, 1:1 with hb_oracle.py. The
+    // "possible" clock poss[t] = vc[t] ⊔ pd[t]: pd follows vc through every recorded operation
+    // and gets, in addition, a late acquire when an RMW's window [record, the thread's next
+    // record) closes -- the join of its cluster (the RMWs on the location whose windows
+    // chain-overlap), or of the multi cluster before it. No verdict reads it: it counts, per
+    // aggregated DR record, the instances a window-consistent coherence order could order.
+    std::unordered_map<Tid, Clock> pd;                      // tid -> delta (absent = empty)
+    struct PendKey {                                        // a decision held on a window
+        size_t race; Tid other; uint64_t ep; uint8_t side;
+        bool operator==(const PendKey& o) const {
+            return race == o.race && other == o.other && ep == o.ep && side == o.side;
+        }
+    };
+    struct PendKeyHash {
+        size_t operator()(const PendKey& k) const {
+            uint64_t h = static_cast<uint64_t>(k.race) * 0x9e3779b97f4a7c15ULL;
+            for (uint64_t v : {static_cast<uint64_t>(k.other), k.ep, static_cast<uint64_t>(k.side)})
+                h = (h ^ v) * 0x100000001b3ULL;
+            return static_cast<size_t>(h ^ (h >> 29));
+        }
+    };
+    struct Held { size_t race; uint64_t count; int remaining; bool flagged; };  // on two windows
+    struct Win {                                            // a thread's open RMW window
+        Loc loc; int scope = SCOPE_NONE; uint64_t ep = 0;
+        std::unordered_map<PendKey, uint64_t, PendKeyHash> pend;
+        std::vector<std::tuple<std::shared_ptr<Held>, Tid, uint64_t>> held;
+    };
+    std::unordered_map<Tid, Win> wins;
+    std::unordered_map<uint64_t, uint32_t> win_lanes;       // (block << 5 | warp) -> lanes with one
+    struct Clu {                                            // a location's current RMW cluster
+        uint32_t open = 0, members = 0;                     // open windows; RMWs (>= 2: multi)
+        bool has_J = false, has_inflow = false, need_prev = false, has_prev = false;
+        Clock J, inflow;                                    // multi: inflow + contributions
+        Released prev;                                      // the single RMW before, if no inflow
+    };
+    std::map<Loc, Clu> clus;
+    static const Clock& empty_clock() { static const Clock e; return e; }
+    const Clock& pd_of(Tid t) const {
+        auto it = pd.find(t);
+        return it == pd.end() ? empty_clock() : it->second;
+    }
+    uint64_t poss(Tid t, Tid u) {
+        auto it = pd.find(t);
+        return std::max(clk_get(vc[t], u), it == pd.end() ? uint64_t(0) : clk_get(it->second, u));
+    }
+    void pd_join(Tid t, const Clock& src) {                 // pd[t] ⊔= src, beyond what vc[t] knows
+        if (src.empty()) return;
+        const Clock& cur = vc[t];
+        auto it = pd.find(t);
+        Clock* d = (it == pd.end()) ? nullptr : &it->second;
+        for (const auto& kv : src) {
+            if (kv.second <= clk_get(cur, kv.first)) continue;
+            if (d == nullptr) d = &pd[t];
+            uint64_t& x = (*d)[kv.first];
+            if (kv.second > x) x = kv.second;
+        }
+    }
+    bool rmw_pc(uint32_t pc) const {
+        const auto it = atom_scope->find(pc);
+        return it != atom_scope->end() && it->second.rmw;
+    }
+    // An RMW of t on loc opens its window: it joins loc's open cluster or starts one.
+    void a2_open(Tid t, const Loc& loc, int scope) {
+        Clu& st = clus[loc];
+        if (st.open == 0) {                                 // every earlier window closed: new
+            st.members = 0; st.J.clear(); st.has_J = false;
+            st.need_prev = !st.has_inflow; st.has_prev = false;
+        }
+        st.members += 1; st.open += 1;
+        if (st.members == 2) {                              // multi: inflow + the first member
+            Clock j;
+            if (st.has_inflow) {
+                j = st.inflow;
+            } else if (st.has_prev && st.prev.scope != SCOPE_NONE) {
+                join_into(j, st.prev.clk); join_into(j, st.prev.pd);
+            }
+            const auto rit = released.find(loc);
+            if (rit != released.end() && rit->second.scope != SCOPE_NONE) {
+                join_into(j, rit->second.clk); join_into(j, rit->second.pd);
+            }
+            st.J = std::move(j); st.has_J = true;
+        }
+        Win& w = wins[t];
+        w.loc = loc; w.scope = scope; w.ep = own(t); w.pend.clear(); w.held.clear();
+        win_lanes[((t >> 10) << 5) | ((t >> 5) & 31)] |= 1u << (t & 31);
+    }
+    // t's next record (or the end of the kernel) closes its window: the late acquire, then
+    // the decisions held on the window.
+    void a2_close(Tid t) {
+        auto wit = wins.find(t);
+        Win w = std::move(wit->second);
+        wins.erase(wit);
+        const auto lit = win_lanes.find(((t >> 10) << 5) | ((t >> 5) & 31));
+        if (lit != win_lanes.end() && (lit->second &= ~(1u << (t & 31))) == 0) win_lanes.erase(lit);
+        Clu& st = clus[w.loc];
+        if (w.scope != SCOPE_NONE) {
+            const Clock* a = (st.members >= 2) ? (st.has_J ? &st.J : nullptr)
+                                               : (st.has_inflow ? &st.inflow : nullptr);
+            if (a != nullptr && !a->empty()) {
+                pd_join(t, *a);
+                if (st.members == 1) join_into(released[w.loc].pd, *a);   // what it hands on
+            }
+        }
+        for (const auto& kv : w.pend)
+            if (kv.first.ep <= poss(t, kv.first.other)) races[kv.first.race].a2 += kv.second;
+        for (const auto& h : w.held) {                      // flagged if either window orders it
+            Held& x = *std::get<0>(h);
+            x.flagged = x.flagged || std::get<2>(h) <= poss(t, std::get<1>(h));
+            if (--x.remaining == 0 && x.flagged) races[x.race].a2 += x.count;
+        }
+        if (--st.open == 0) {                               // complete: hand on J if multi
+            if (st.members >= 2) { st.inflow = std::move(st.J); st.has_inflow = true; }
+            else { st.inflow.clear(); st.has_inflow = false; }
+            st.J.clear(); st.has_J = false; st.has_prev = false; st.prev = Released{};
+            st.members = 0;
+        }
+    }
+    void a2_close_lanes(uint64_t block, uint32_t warp, uint32_t mask) {
+        const auto it = win_lanes.find((block << 5) | warp);
+        if (it == win_lanes.end()) return;
+        for (uint32_t m = it->second & mask; m != 0; m &= (m - 1))
+            a2_close(tid_of(block, warp, static_cast<uint32_t>(__builtin_ctz(m))));
+    }
+    void a2_close_all() {                                   // order-independent
+        std::vector<Tid> ts;
+        for (const auto& kv : wins) ts.push_back(kv.first);
+        for (Tid t : ts) a2_close(t);
+    }
+    // One DR instance (u's record at epoch ue, then t's): flagged now if the possible clock
+    // orders it; else held on an RMW endpoint's open window -- t's RMW, whose window just
+    // opened, or u's RMW, whose window has not closed -- and decided when it closes.
+    void a2_decide(size_t idx, Tid u, uint64_t ue, uint32_t upc, Tid t, uint32_t pc, Tid obs,
+                   const Loc& loc) {
+        const uint64_t te = clk_get(vc[t], t);
+        if (ue <= poss(obs, u)) { races[idx].a2 += 1; return; }
+        Win* w1 = nullptr;
+        Win* w2 = nullptr;
+        if (rmw_pc(pc)) {
+            const auto i = wins.find(t);
+            if (i != wins.end()) w1 = &i->second;
+        }
+        if (rmw_pc(upc)) {
+            const auto i = wins.find(u);
+            if (i != wins.end() && i->second.ep == ue && i->second.loc == loc) w2 = &i->second;
+        }
+        if (w1 != nullptr && w2 != nullptr) {
+            auto h = std::make_shared<Held>(Held{idx, 1, 2, false});
+            w1->held.emplace_back(h, u, ue);
+            w2->held.emplace_back(h, t, te);
+        } else if (w1 != nullptr) {
+            w1->pend[PendKey{idx, u, ue, 1}] += 1;
+        } else if (w2 != nullptr) {
+            w2->pend[PendKey{idx, t, te, 2}] += 1;
+        }
+    }
+
     void reset() {
+        pd.clear(); wins.clear(); win_lanes.clear(); clus.clear();   // T14
         vc.clear(); vs.clear(); released.clear(); buckets.clear();
         races.clear(); race_index.clear(); sync_pairs.clear();
         pending_barriers.clear();  // block_thread_count is (re)set by hb_engine_reset
@@ -345,10 +504,18 @@ struct HbEngine {
     // each other).
     // Applied to both clocks; it is the ONLY thing that advances vs.
     void sync_group(const std::vector<Tid>& tids) {
+        Clock pj;                                           // T14: the possible deltas join too
+        if (!pd.empty())
+            for (Tid t : tids) {
+                const auto it = pd.find(t);
+                if (it != pd.end()) { join_into(pj, it->second); pd.erase(it); }
+            }
         for (Tid t : tids) own(t);
         Clock j;
         for (Tid t : tids) join_into(j, vc[t]);
         for (Tid t : tids) { Clock nv = j; nv[t] += 1; vc[t] = std::move(nv); }
+        if (!pj.empty())
+            for (Tid t : tids) pd_join(t, pj);
         if (!sync_only_pass) return;
         for (Tid t : tids) owns(t);
         auto js = std::make_shared<Clock>();
@@ -391,13 +558,19 @@ struct HbEngine {
             const uint8_t dist = thread_distance(a0, b0);
             const RaceKey k{static_cast<long>(p.pc), pc, kind, sc, space, dist, asy};
             auto it = race_index.find(k);
+            size_t idx;
             if (it == race_index.end()) {
-                race_index.emplace(k, races.size());
+                idx = races.size();
+                race_index.emplace(k, idx);
                 races.push_back(Race{addr, space, loc_block, a0, static_cast<long>(p.pc),
-                                     b0, pc, kind, sc, dist, asy, 1});
+                                     b0, pc, kind, sc, dist, asy, 1, 0});
             } else {
-                races[it->second].count += 1;
+                idx = it->second;
+                races[idx].count += 1;
             }
+            if (!sc)                                        // T14: the a2_uncertain decision
+                a2_decide(idx, p_tid, p.clock, p.pc, t, pc, obs,
+                          Loc{space, space == 1 ? loc_block : 0, addr});
         }
         if (sync_only_pass && p.sclock > vs_get(obs, p_tid))
             sync_pairs[{std::min(p.pc, pc), std::max(p.pc, pc)}] += 1;
@@ -488,6 +661,7 @@ struct HbEngine {
             if (stats_every && ++processed >= next_snapshot) snapshot();   // T5a
             const MemoryAccess& a = buf[i];
             if (a.type == MemoryType::BlockExit) {   // T3b: the exiting lanes of one warp
+                if (!wins.empty()) a2_close_lanes(a.ctaId, a.warpId, a.active_mask);   // T14
                 on_exit(a);
                 continue;
             }
@@ -507,6 +681,9 @@ struct HbEngine {
                             + std::to_string(xit->second & lanes) + " issue a record at pc "
                             + std::to_string(pc) + " after their exit");
             }
+            if (!wins.empty() && a.type != MemoryType::Global && a.type != MemoryType::Shared)
+                a2_close_lanes(a.ctaId, a.warpId,   // T14: a sync record is its lanes' next record
+                               a.type == MemoryType::Syncwarp ? a.accessSize : a.active_mask);
             if (a.type == MemoryType::PipelineCommit || a.type == MemoryType::PipelineWait) {
                 for (uint32_t m = a.active_mask; m != 0; m &= (m - 1)) {   // T1a
                     const Tid t = tid_of(a.ctaId, a.warpId, static_cast<uint32_t>(__builtin_ctz(m)));
@@ -591,6 +768,7 @@ struct HbEngine {
 
             for (uint32_t lm = a.active_mask; lm != 0; lm &= (lm - 1)) {
                 const uint32_t lane = static_cast<uint32_t>(__builtin_ctz(lm));
+                if (!wins.empty()) a2_close_lanes(a.ctaId, a.warpId, 1u << lane);   // T14
                 const Tid t0 = tid_of(a.ctaId, a.warpId, lane);
                 const Tid t = is_async ? agent_of(t0) : t0;
                 if (is_async) async_issue(t0, t);
@@ -603,13 +781,16 @@ struct HbEngine {
                     // atomic index to the address's observed atomic order.
                     coherence[addr].push_back({t, atom_idx[t]});
                     atom_idx[t] += 1;
+                    a2_open(t, loc, pit->second.scope);             // T14
                     // scoped acquire (trusting gate, I4): pick up the release only if the
                     // min of the two atomics' .STRONG scopes covers both threads.
                     auto rit = released.find(loc);
                     if (rit != released.end()) {
                         const int eff = std::min(pit->second.scope, rit->second.scope);
-                        if (eff == SCOPE_GRID || (eff == SCOPE_BLOCK && rit->second.block == a.ctaId))
+                        if (eff == SCOPE_GRID || (eff == SCOPE_BLOCK && rit->second.block == a.ctaId)) {
                             join_into(vc[t], rit->second.clk);
+                            pd_join(t, rit->second.pd);             // T14
+                        }
                     }
                 }
                 const uint64_t clk = own(t);
@@ -628,7 +809,21 @@ struct HbEngine {
                     // I1 (D1): publish the pre-tick clock -- the RMW's own epoch is clk, so a
                     // later acquirer is ordered after the RMW, not after t's next accesses --
                     // then tick. Overwriting equals Algorithm 1's join under the trusting gate.
-                    released[loc] = Released{vc[t], a.ctaId, pit->second.scope};
+                    Clu& st = clus[loc];                            // T14
+                    const auto rit2 = released.find(loc);
+                    if (rit2 == released.end()) {
+                        released.emplace(loc, Released{vc[t], a.ctaId, pit->second.scope, pd_of(t)});
+                    } else {
+                        if (st.members == 1 && st.need_prev) {      // a new cluster keeps the
+                            st.prev = std::move(rit2->second);      // single RMW before it
+                            st.has_prev = true;
+                        }
+                        rit2->second = Released{vc[t], a.ctaId, pit->second.scope, pd_of(t)};
+                    }
+                    if (st.has_J && pit->second.scope != SCOPE_NONE) {   // a multi cluster's join
+                        join_into(st.J, vc[t]);
+                        join_into(st.J, pd_of(t));
+                    }
                     vc[t][t] = clk + 1;
                 }
             }
@@ -712,11 +907,26 @@ struct HbEngine {
              + hash_buckets(race_index) << "}"
           << ", \"sync_pairs\": " << sync_pairs.size()
           << ", \"coherence_addrs\": " << coherence.size();
+        // T14: the possible clock's state (entry counts; no verdict reads it)
+        uint64_t pd_entries = 0, held = 0, multi = 0, clu_entries = 0, rel_pd = 0;
+        for (const auto& kv : pd) pd_entries += kv.second.size();
+        for (const auto& kv : wins) held += kv.second.pend.size() + kv.second.held.size();
+        for (const auto& kv : clus) {
+            multi += kv.second.has_J;
+            clu_entries += kv.second.J.size() + kv.second.inflow.size() + kv.second.prev.clk.size();
+        }
+        for (const auto& kv : released) rel_pd += kv.second.pd.size();
+        o << ", \"a2\": {\"pd_threads\": " << pd.size() << ", \"pd_entries\": " << pd_entries
+          << ", \"released_pd_entries\": " << rel_pd << ", \"windows\": " << wins.size()
+          << ", \"held\": " << held << ", \"clusters\": " << clus.size() << ", \"multi\": " << multi
+          << ", \"cluster_clock_entries\": " << clu_entries << "}";
     }
 
     void emit(std::ostream& jout) {
         check_pending_at_end();   // T3b: before tv_violation is written below
-        // one record per aggregate key, with its count (see races)
+        a2_close_all();           // T14: a thread with no next record: its window ends here
+        // one record per aggregate key, with its count (see races); a DR record also carries
+        // a2_uncertain, how many of its instances the possible clock orders (T14)
         jout << ",\n  \"hb_races\": [\n";
         for (size_t i = 0; i < races.size(); ++i) {
             const Race& r = races[i];
@@ -734,11 +944,13 @@ struct HbEngine {
             if (r.asy)   // T1a: which side is an agent's copy
                 jout << ", \"async\": \"" << (r.asy == 3 ? "ab" : r.asy == 1 ? "a" : "b") << "\"";
             jout << ", \"count\": " << r.count;
+            if (!r.sc) jout << ", \"a2_uncertain\": " << r.a2;
             jout << "}";
             if (i + 1 < races.size()) jout << ",";
             jout << "\n";
         }
         jout << "  ]";
+        jout << ",\n  \"hb_a2\": 1";   // T14: hb_races carry a2_uncertain (design/a2_flag.md)
         // barrier/syncwarp-only race pairs [pc_lo, pc_hi, count]; key absent when the
         // second pass is disabled so sync_dominance falls back to plain `latent`.
         if (sync_only_pass) {

@@ -130,7 +130,7 @@ def test_engine_matches_oracle(built, v):
     dots, trace = built[v]
     tj = json.loads(Path(trace).read_text())
     rep = _try(ho.analyze, dots, trace)
-    key = lambda r: (r.get("a_pc"), r["b_pc"], r["kind"], r.get("class"), r["space"], r.get("dist"), r.get("async"), r.get("count"))   # hb_races is aggregated (T9)
+    key = lambda r: (r.get("a_pc"), r["b_pc"], r["kind"], r.get("class"), r["space"], r.get("dist"), r.get("async"), r.get("count"), r.get("a2_uncertain"))   # aggregated (T9); a2: T14
     assert sorted(map(key, tj["hb_races"])) == sorted(map(key, rep["races"]))
     assert tj["hb_races_sync_only"] == rep["races_sync_only"]
 
