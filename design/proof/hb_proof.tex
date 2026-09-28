@@ -32,7 +32,7 @@
 \algnewcommand{\algorithmicreport}{\textbf{report}}\algnewcommand{\Report}{\algorithmicreport{} }
 
 \title{Happens-Before Data-Race Detection for GPU Kernels:\\ Model, Algorithm, Proofs}
-\date{2026-09-26 --- against \texttt{cuVein} 3331d35; revised after the latent census (T9-0); reviewed (T6)}
+\date{2026-09-28 --- against \texttt{cuVein} 6c34736 (T3b, T9 and T13 merged); revised after the latent census (T9-0), reviewed (T6), revised on T6's and T13's findings}
 
 \emergencystretch=2em
 \begin{document}
@@ -75,7 +75,15 @@ remains unverified: \texttt{design/T6\_REVIEW.md}. \emph{T9} (2026-09-28; Claude
 I1, I2 and I5 fixed in the code (\S\ref{sec:impl}), \S\ref{sec:verdict}'s matrix amended by
 D12 (R2 decides the class, not the verdict) and implemented; the asynchronous copies (I7)
 added to \S\ref{sec:model}--\S\ref{sec:alg} and re-checked (Proposition~\ref{prop:agents});
-details: \texttt{design/soundness\_event\_candidates.md}.
+details: \texttt{design/soundness\_event\_candidates.md}. \emph{T3b} (2026-09-28): I3
+fixed in the code, crs-cuda clean on a fresh recording. \emph{T13} (2026-09-28, the NVBit
+spike, \texttt{eval/NVBIT\_SPIKE.md}): A2 measured against the values an after-execution
+instrumentation reads (\S\ref{sec:impl}). \emph{2026-09-28, by decision}: local memory
+leaves the model (Definition~\ref{def:records}; I5 by exclusion, D14); the fence
+instructions of Definition~\ref{def:gate} come from the per-architecture inventory,
+which on sm\_89 is not \texttt{MEMBAR} alone (T6, T13); the vector clock's memory fix
+precedes the gate in the order of work; A2 stays an assumption with a measured rate and
+a report flag (D15).
 
 %=============================================================================
 \section{Trace model}\label{sec:model}
@@ -99,8 +107,11 @@ A dump record names a warp and a lane mask (a memory record also one address per
 stands for one record per lane, taken in lane order at its position, and W0 below is read
 over (position, lane). The collector's exit record is of this kind too.
 A thread id is $(\beta,\omega,l)$; $\blk(t)$ is its block. A location is
-$(\mathtt{shared},\beta,a)$, $(\mathtt{local},t,a)$ or $(\mathtt{global},a)$; $N_\beta$ is the
-block size.
+$(\mathtt{shared},\beta,a)$ or $(\mathtt{global},a)$; $N_\beta$ is the block size. Local
+memory is outside the model: it is thread-private by construction, so no conflict is
+definable on it, and a local access is not a record (the collector's HB path does not emit
+it, and every consumer skips a \texttt{local} record of an older dump; \S\ref{sec:impl},
+I5, D14).
 \end{definition}
 
 \begin{definition}[Asynchronous copies]\label{def:async}
@@ -182,10 +193,12 @@ before $\cpl(B)$, a departure after it. (ATOM): the successor relation is $\seq$
 \end{proof}
 
 \paragraph{Trusted base.} Nothing above refers to the execution. The connection is
-Proposition~\ref{prop:fidelity}, under: (A1) every memory access, barrier arrival and exit
-of the execution yields exactly one record with correct fields and lane mask, in each
-thread's dynamic order; (A2) for every location, the $\seq$ order of its RMWs is their
-coherence order; (A3) a barrier instance of Definition~\ref{def:instance} completes exactly
+Proposition~\ref{prop:fidelity}, under: (A1) every global or shared memory access, barrier
+arrival and exit of the execution yields exactly one record with correct fields and lane
+mask, in each thread's dynamic order; (A2) for every location, the $\seq$ order of its
+RMWs is their coherence order --- the collector records an RMW at issue, so this holds
+when the issue windows of a location's RMWs do not overlap, and is violated at a measured
+rate when they do (\S\ref{sec:impl}, ``A2 observed to fail''); (A3) a barrier instance of Definition~\ref{def:instance} completes exactly
 when the hardware barrier releases, i.e.\ the hardware waits for the non-exited threads
 of the block (PTX \texttt{bar.sync} semantics) and for $n$ threads when a count is given.
 Under exit records, A3 is a statement about the hardware, no longer about the collector.
@@ -209,8 +222,14 @@ generator only, never $\ms$: the two-RMW exception of Definition~\ref{def:verdic
 not depend on it. The \emph{trusting} gate sets both to $1$ everywhere. The
 \emph{instance} gate uses one static predicate on the kernel CFG,
 $\mathrm{fenced}(p,p',s)$: every CFG path from pc $p$ to pc $p'$ crosses a fence of
-scope $\ge s$ (a \texttt{MEMBAR} of that scope; a \texttt{bar.sync} counts as a fence of
-scope \texttt{cta}). For an RMW record $r$ of thread $t$ with $\PO$-previous record $p$
+scope $\ge s$. Which instructions are fences, per side and scope, is the per-architecture
+inventory (O2), not a fixed opcode: on sm\_89, from the 293 kept CFGs (T6) and the
+instrumented litmus of T13, a release fence is a \texttt{MEMBAR.SC.\{CTA,GPU,SYS\}}, an
+acquire is lowered to the access followed by \texttt{CCTL.IVALL} with no \texttt{MEMBAR}
+at all, a seq\_cst fence is \texttt{MEMBAR.SC; ERRBAR; CCTL.IVALL}, and a \texttt{BAR.SYNC}
+counts as a fence of scope \texttt{cta} on both sides (none of the 461 barriers has an
+adjacent \texttt{MEMBAR}; the barrier itself is the ordering). Whether a \texttt{cta}-scope
+acquire emits any instruction is open (O2). For an RMW record $r$ of thread $t$ with $\PO$-previous record $p$
 and $\PO$-next record $q$ (records of any kind): $\rel(r)=1$ iff $p$ does not exist or
 $\mathrm{fenced}(\pc(p),\pc(r),\scope(r))$; $\acq(r)=1$ iff $q$ does not exist or
 $\mathrm{fenced}(\pc(r),\pc(q),\scope(r))$. Because the paths are taken between the two
@@ -847,10 +866,16 @@ flagged directly by the fifth check of \S\ref{sec:model}, in both modes. The col
 the thread's accesses before the completion keep the pre-arrival epoch, which the instance
 hands to every participant (missed races), and later ones are ordered as if it had waited;
 none in the 293 kept sm\_89 CFGs. (c) The collector folds the thread id into bits 54--63 of a
-local address with a 32-bit shift, which yields 0 (\texttt{local\_mem\_blocks}). No verdict
-follows there because the dependency side records no pc whose accesses are all local; a
+local address with a 32-bit shift, which yields 0 (\texttt{local\_mem\_blocks}). The line
+predates this project: FlagZhao's \texttt{nv-compute}, branch \texttt{cuVein}, commit
+\texttt{ccefba0} of 2026-02-11 dropped the \texttt{(uint64\_t)} cast that
+\texttt{AccelProf/nv-compute} \texttt{main} still has; and even with the cast the tag is
+the in-block thread id, so threads of different blocks would still share a location. No
+verdict followed because the dependency side records no pc whose accesses are all local; a
 generic pc that also reaches global or shared memory is recorded, and its spurious local
-records would reach one. (d) Only in dumps carrying the \texttt{hb\_async} marker, and not in
+records would reach one. Local memory is thread-private, so the fix is not a key but an
+exclusion (Definition~\ref{def:records}, D14); the collector's default path, which the
+dependency side reads, is not touched. (d) Only in dumps carrying the \texttt{hb\_async} marker, and not in
 kernels whose copies complete through an mbarrier (\texttt{ARRIVES.LDGSTSBAR}), where a copy
 stays its thread's own access (T1b).
 
@@ -900,9 +925,23 @@ $\DR$ in $\Rep_{\mathsf{vec}}$, and the verdict moves from \cls{latent} to \cls{
 of \texttt{matrix-multiplication-norace-small} a warp's successful lock CAS is recorded
 five records before the unlocking EXCH whose value it read, so $\seq$ order is not coherence
 order there; under publish-then-tick the (ATOM) edge then comes from the wrong RMW and
-four $\DR$ pairs are reported on a race-free program (before T9, I1 hid them). A2 is a
-collector obligation (record an RMW when it executes, or with the value it read); not yet
-discharged. \emph{Monitor}: one unit test
+four $\DR$ pairs are reported on a race-free program (before T9, I1 hid them). The
+inversion is not one-directional: the chain runs lock $\to$ unlock, so the true edge is
+missing (the false positive) and a false edge orders the acquirer's pre-lock accesses
+before the releaser's post-unlock ones (a possible missed race, not measured). \emph{A2
+measured} (T13, \texttt{eval/NVBIT\_SPIKE.md}): with NVBit 1.8 on sm\_89 an after-execution
+instrumentation reads every RMW's old value correctly (8/8, 256/256, 1,760 lock critical
+sections), which fixes coherence order; against it, the issue-point order the Sanitizer
+records inverted the hand-off (the successful CAS recorded before the unlock it read
+from) in 0 of 155 hand-offs at 2 contending warps, 4 of 315 at 4, 52 of 1,275 at 16,
+every inversion inside overlapping issue windows and none outside. The Sanitizer patching
+API has no after-instruction hook and passes no value for atomics
+(\texttt{sanitizer\_patching.h}, 2026.2.1.0), so A2 cannot be discharged on it. D15: for
+the submission A2 stays in the trusted base with this rate, the affected verdict is
+footnoted, and a report whose only missing ordering is a chain edge between two RMWs
+with overlapping windows carries an \texttt{a2\_uncertain} flag in its own column; the
+value-recording collector (NVBit, one tool per process, a full re-evaluation) is after
+the submission. \emph{Monitor}: one unit test
 per check that must raise plus a valid multi-warp control that must not (five of the seven
 tests of \texttt{test\_barrier\_soundness.py}, passing; they exercise \texttt{hb\_oracle.py},
 not the engine's \texttt{tv\_fail}); zero violations on the ScoR corpus; the
@@ -910,27 +949,40 @@ head-to-head suites are not yet counted.
 
 \paragraph{Order of work (PLDI 2027).}
 (1) D8 as resolved in \S\ref{sec:verdict}: three verdicts, two operating points, the
-$\SC$ row. (2) I3: exit records in the dump, \textsc{Complete} on exit, the fifth
-monitor check of \S\ref{sec:model}; A3 becomes PTX semantics (D7, route (a)) --- done
-(T3b, \texttt{aab77ca}). (3) I1, I2
-(buckets, D6) and I5 in one change to oracle and engine, with the offline re-score ---
-done (T9; \texttt{design/soundness\_event\_candidates.md}, \texttt{eval/T9\_RESCORE.md}). (4) Sidecar strength and scope (O1): \texttt{.STRONG} loads and stores
-and \texttt{volatile} classed strong with their scope, atomicity no longer decided by
-the RMW opcode alone --- the DR/SC split is wrong in both modes until then, and the
-scope label must err narrow (Lemma~\ref{lem:mono}, converse). (5) I4 as the instance
-gate of Definition~\ref{def:gate}: the fence inventory per SM (O2) and the
+$\SC$ class decided by R2 and by nothing else (D12) --- done (T9). (2) I3: exit records
+in the dump, \textsc{Complete} on exit, the fifth monitor check of \S\ref{sec:model}; A3
+becomes PTX semantics (D7, route (a)) --- done (T3b, \texttt{aab77ca}; crs-cuda clean on
+a fresh recording). (3) I1, I2 (buckets, in both clocks, D6) and I5 (exclusion of local
+memory, D14) in one change to oracle, engine and offline pass, with the offline re-score
+--- done (T9; \texttt{design/soundness\_event\_candidates.md},
+\texttt{eval/T9\_RESCORE.md}; merged at 6c34736, library 75f46012, green set 238 passed
+and the one expected failure, evcand re-score 3,621 rows unchanged). (4) Sidecar strength
+and scope (O1): \texttt{.STRONG} loads and stores and \texttt{volatile} classed strong
+with their scope, atomicity no longer decided by the RMW opcode alone --- the DR/SC split
+is wrong in both modes until then, and the scope label must err narrow
+(Lemma~\ref{lem:mono}, converse). (4$'$) In parallel with (4): the \texttt{a2\_uncertain}
+flag of D15 and the offline window count over the kept dumps (the rate the paper
+cites for its own corpus; T13's rates are for one lock under NVBit's timing). (5) The
+vector clock's memory (T5b), directly after (4): ten of the 58 engine-timeout programs
+have barriers and no atomics (mostly HeCBench, the suite with no vector-clock dump), and
+the gate cannot touch a barrier join, so nothing is gained by waiting for it; the
+reference mode has no dump for the realistic suites, which bounds the mode comparison to
+litmus and micro-benchmarks until it runs there. (6) I4 as the instance gate of
+Definition~\ref{def:gate}, in parallel with (5): the fence inventory per SM (O2: on
+sm\_89 \texttt{CCTL.IVALL} on the acquire side and the barrier on both) and the
 $\mathrm{fenced}$ predicate from the CFG dots (O3), shared with R3's release-point test;
-the engine defers the acquire join (\S\ref{sec:alg}). The gate is measured before it is
-wired: the census's fence classification is the before; the expected after is the eight
-ScoR fence races moving from \textsc{Latent} to \textsc{Race}, \texttt{matrix-multiplication}
-staying clean, and the ticket idiom of \texttt{reduction} reported (a PTX race by the
-letter, which iGUARD also reports; a labelled-clean program, to be footnoted, not
-suppressed). (6) The vector clock's memory (T5b): the reference mode has no dump for the
-realistic suites, which bounds the mode comparison to litmus and micro-benchmarks until
-it runs there. Deferred past the submission: I6, I7 (model and re-proof; stated as a
-limitation), the discharge of MM1--MM3. Obligations kept from v4: uniform access size and
-generic proxy per location (monitor), and ``if some RMW on $\ell$ releases, every write
-on $\ell$ is an RMW'' (else clear $\rel$ on $\ell$; conservative by
-Lemma~\ref{lem:mono}).
+the engine defers the acquire join with \textsc{Check}($r$) evaluated as \S\ref{sec:alg}
+says, turns the publish into a join, publishes nothing when $\rel(r)=0$, and resolves
+held pairs at the end of the kernel. The gate is measured before it is wired: the
+census's fence classification is the before; the expected after is the eight ScoR fence
+races moving from \textsc{Latent} to \textsc{Race}, \texttt{matrix-multiplication} staying
+clean, and the ticket idiom of \texttt{reduction} reported (a PTX race by the letter,
+which iGUARD also reports; a labelled-clean program, to be footnoted, not suppressed).
+Deferred past the submission: the value-recording collector (A2), I6, I7 (model and
+re-proof; stated as a limitation), the \texttt{bar.arrive} and access-size deviations
+(none in the corpus), the discharge of MM1--MM3 and the referee notes of
+\S\ref{sec:cert}. Obligations kept from v4: uniform access size and generic proxy per
+location (monitor), and ``if some RMW on $\ell$ releases, every write on $\ell$ is an
+RMW'' (else clear $\rel$ on $\ell$; conservative by Lemma~\ref{lem:mono}).
 
 \end{document}

@@ -18,7 +18,10 @@ column), T5b moved ahead of T12, T12's design note extended with T6's findings, 
 and the access-size gap recorded as deferred deviations; and on 2026-09-28 after T3b and T9
 finished (both on their branches, unmerged): the green set extended, the merge and
 install procedure written into the status paragraph, A2 (RMW coherence order) recorded
-as a fidelity finding with decision D15, T13 (the NVBit spike) added. If HEAD has moved, re-read `eval/BASELINES_SUMMARY.md`,
+as a fidelity finding with decision D15, T13 (the NVBit spike) added; and on 2026-09-28
+evening after the merge (`cuVein` 6c34736: T3b + T9 + T13 in, library 75f46012 installed)
+with T13's result — A2 inverts 1–4 % of contended hand-offs, so D15's flag is built as
+T14 — and the proof's 09-27/28 edits re-applied on the merged file. If HEAD has moved, re-read `eval/BASELINES_SUMMARY.md`,
 `eval/FIX_REPORT.md`, `eval/FP_DIAGNOSIS.md` and `git log` before starting.
 
 ---
@@ -54,8 +57,8 @@ submission, the last three weeks of which are writing. The proof document
 (`design/proof/hb_proof.tex`, revision 2026-09-26) is frozen except for the items its
 "Order of work" lists; agents do not extend it (no I7 re-proof, no discharge of MM1–MM3,
 no separate PTX-bridge proof) unless a brief says so. Code lands in this order: T6 (doc
-review, done) → T3b and T9 in parallel → T10 → T5b and T12 in parallel → the mode
-comparison and one baseline re-run. T1b, T4, T7, I6, the `bar.arrive` flag and the
+review, done) → T3b and T9 (done, merged) → T10 and T14 in parallel → T5b and T12 in
+parallel → the mode comparison and one baseline re-run. T1b, T4, T7, I6, the `bar.arrive` flag and the
 access-size check are after the submission. When a task can finish without a GPU
 (re-scores, census-style measurements), it does.
 
@@ -280,17 +283,18 @@ Two things surfaced while reading the code that the plan has to carry:
 | T8 | 8 | rename the modes to scalar-clock / vector-clock, **including persisted strings** (converter over CSVs, kept stores, confirm files) | Sonnet · implementer; Sonnet subagent runs the green set + `make_tables.py` on migrated data | no | T0 (store inventory) | `rename/clock-modes` ✓ merged 1a45653 + 81b4262 |
 | T6 | 6 | review of `design/proof/hb_proof.tex` against the code: deviation table, simulator, strict xfails for I1/I2/I5, referee reading, SASS scan for O2 | Opus · reviewer/verifier (fresh context) | one node | T8 ✓ | `design/algorithms` ✓ 8d1e36e, report `design/T6_REVIEW.md`; PR #4 merged |
 | T3 | 3 | crs-cuda: the HeCBench program cuVein reports and SuperCollider calls race-free | Opus · investigator (+ Explore subagents); GPU for the reproducer and cross-checks | yes | T8 | `triage/crs-cuda` ✓ merged d8eb112 — false positive, cause below (T3b) |
-| T3b | 3 | exit-aware `__syncthreads` instance assembly (route (a), D7 decided): exit records in `hb_events`, exited threads subtracted from the expected count of whole-block instances (counted barriers keep `n`), `Complete` on exit — in `HbEngine`, `hb_oracle.py`, `barrier_only_pairs`; the end-of-kernel `pending_barriers` check in the engine and offline; crs-cuda needs a fresh recording (kept dumps have no exit records) | Sonnet · implementer, Opus · reviewer | yes (crs-cuda fresh trace + green set) | D7 ✓, T6 ✓ | `fix/barrier-exit-count` ✓ done 2026-09-28 (aab77ca, 0e4e061; crs-cuda CLEAN 50/50 both modes; report `eval/CRS_CUDA_TRIAGE.md` §11) — **unmerged** |
+| T3b | 3 | exit-aware `__syncthreads` instance assembly (route (a), D7 decided): exit records in `hb_events`, exited threads subtracted from the expected count of whole-block instances (counted barriers keep `n`), `Complete` on exit — in `HbEngine`, `hb_oracle.py`, `barrier_only_pairs`; the end-of-kernel `pending_barriers` check in the engine and offline; crs-cuda needs a fresh recording (kept dumps have no exit records) | Sonnet · implementer, Opus · reviewer | yes (crs-cuda fresh trace + green set) | D7 ✓, T6 ✓ | `fix/barrier-exit-count` ✓ done 2026-09-28 (aab77ca, 0e4e061; crs-cuda CLEAN 50/50 both modes; report `eval/CRS_CUDA_TRIAGE.md` §11) — merged 0b64d34 → `cuVein` 6c34736 |
 | T2 | 2 | host-memcpy (`cudaMemcpyAsync`) races: evidence, stream-agent model, prototype behind a flag | Sonnet · investigator, Opus · model review | small | T8 | `feat/host-memcpy` ✓ merged 07d2798 (`YOSEMITE_HB_HOST_MEMCPY`, `python/host_hb.py`; D5 open) |
 | T1a | 1 | apply the designed cp.async fix (F4: PIPELINE_WAIT + virtual async agent) | Opus · design check, Sonnet · implementer, Opus · verifier | yes (rebuild) | T8, T2 | `feat/cp-async-wait` ✓ merged bc32a1f + review 3331d35 (F4 fixed; runtime install pending) |
 | T5a | 5 | memory-footprint table from existing CSVs + engine state attribution | Sonnet · analyst | 3 runs | T8 | `study/memory-footprint` ✓ merged 6d843e3 (`YOSEMITE_HB_STATS`, `eval/MEMORY_FOOTPRINT.md`) |
 | T9-0 | 9 | latent census: what the `latent` tier catches and costs, fact (i) checked on the kept stores | Sonnet · analyst | no | — | `study/latent-census` ✓ report `eval/LATENT_CENSUS.md` 2026-09-26 (merge pending) |
-| T9 | 9 | vector-clock soundness: I1 (publish-then-tick) + I2 (buckets in **both** clocks, SC reported) + I5 (local memory excluded) in one change to oracle, engine and `barrier_only_pairs`; R2 moved from verdict to class, the `sc` column, `make_tables.py` for D2; the T6 strict xfails and `fence_rtraw` as regression tests | Opus · prover; Sonnet · implementer; Sonnet subagent for the re-score | re-score only + one P5 sweep | T6 ✓; D1/D6 ✓ | `fix/publish-then-tick` ✓ done 2026-09-28 (b1a6408; 554 programs re-scored, no verdict moved at Race ∪ Latent; report `eval/T9_RESCORE.md`) — **unmerged**; one new FP at Race alone (A2, D15) |
+| T9 | 9 | vector-clock soundness: I1 (publish-then-tick) + I2 (buckets in **both** clocks, SC reported) + I5 (local memory excluded) in one change to oracle, engine and `barrier_only_pairs`; R2 moved from verdict to class, the `sc` column, `make_tables.py` for D2; the T6 strict xfails and `fence_rtraw` as regression tests | Opus · prover; Sonnet · implementer; Sonnet subagent for the re-score | re-score only + one P5 sweep | T6 ✓; D1/D6 ✓ | `fix/publish-then-tick` ✓ done 2026-09-28 (b1a6408; 554 programs re-scored, no verdict moved at Race ∪ Latent; report `eval/T9_RESCORE.md`) — merged ebc464f → `cuVein` 6c34736; library 75f46012 installed; green set 238 passed + the one expected failure; evcand 3,621 rows unchanged; one new FP at Race alone (A2, D15 → T14) |
 | T10 | — | sidecar strength and scope (O1): `.STRONG` loads/stores and `volatile` classed strong with their scope; atomicity no longer decided by RMW opcode alone; re-score E0/E1/E3 | Sonnet · implementer, Opus · review | re-score only | T9 (SC row exists) | `fix/sidecar-strength` |
 | T11 | — | monitor: TV checks in one Python module shared by oracle, `barrier_only_pairs` and a standalone `tv_check` CLI; engine keeps them behind `YOSEMITE_HB_STRICT`; delete the `expected == 0` degrade path; per-lane W2 row (I6) only if cheap | Sonnet · implementer | no | T3b (fifth check) | `fix/tv-monitor` |
 | T12 | — | I4: the instance gate (`fenced(p, p', s)` from the CFG dots with the O2 inventory — `MEMBAR.SC`, `CCTL.IVALL`, `BAR.SYNC` — two sidecar columns, the deferred acquire join with `Check(r)` against the joined clock) and R3's release point from the trace, sharing the predicate; measured on the kept stores before wiring; **in parallel with T5b** | Opus · design + review, Sonnet · implementer | re-score only + one P4/P5 sweep | T9, T10 | `feat/instance-gate` |
 | T1b | 1 | cp.async.bulk / TMA / dsmem model, validated on the H100 node with the 8 cuHadron sm_90 targets — **after the submission** | **Fable** · design + implementation (the hardest task in the queue); fresh Fable context as verifier | yes (`h100`, c29) | T1a ✓ | `feat/cp-async-bulk` |
-| T13 | — | NVBit feasibility spike: can atomics be recorded after execution with the value read; A2 inversion rate in vivo; overhead ratio — one day, report only, no detector change | Sonnet · analyst | yes (one `salloc`, `rtx4060ti16g`) | none — runs in parallel with the merge | `study/nvbit-spike` |
+| T13 | — | NVBit feasibility spike: after-execution atomics with the value read; A2 inversion rate in vivo; overhead — report only | Sonnet · analyst | yes (one `salloc`) | none | `study/nvbit-spike` ✓ done 2026-09-28 (0a444e9, merged into 6c34736; `eval/NVBIT_SPIKE.md`): NVBit 1.8 loads on driver 580 (README says ≤ 575; the submodule's 1.7.1 does not load); old values correct in every test; Sanitizer-order inversions 0/155, 4/315, 52/1,275 hand-offs at 2/4/16 warps; cost 427× native unoptimised vs 134× for the Sanitizer HB path on the one kernel-dominated input |
+| T14 | — | A2 in the tables: the `a2_uncertain` report flag (D15) and the offline RMW window count over the kept dumps; no verdict change | Sonnet · implementer, Opus · review of the flag's definition | no (kept dumps) | T9 ✓ (buckets, aggregated `hb_races`) | `feat/a2-flag` — parallel with T10 |
 | T5b | 5 | shared-base main clock (the planned engine memory fix) — **on the critical path**: vector-clock mode has no dump for P7, 8 of 9 P9 programs, 10 of 28 P4 apps and 23 P1 programs (T9-0 §1); 10 of the 58 timeout programs have barriers and no atomics (T6), which no gate can help — they are T5b's acceptance set | Sonnet · implementer, Opus · reviewer | yes (`engine_timeout_ids.txt`) | T1a ✓, T9 (directly after; parallel with T12) | `perf/shared-base-clock` |
 | T4 | 4 | smaller `hb_events`: lossless compact encoding first, lossy summary only if still needed — after the submission | design: Opus (short) · impl: Sonnet | measure only | T1b, T9, T5b merged | `perf/hb-events-format` |
 | T7 | 7 (opt.) | profile `sync_dominance.py` on the P9-mr trace; port the hot pass only if profiling says so — after the submission | Sonnet · profiler; Opus if a C++ port is warranted | no | T4 | `perf/analysis-hotpath` |
@@ -389,27 +393,36 @@ recorded five records before the unlock it read from); the inversion also manufa
 an edge in the other direction (a missed-race risk, unmeasured). Decision D15 below;
 T13 measures the rate and tests the fix's feasibility.
 
-**Merge and install (do this before T10; T13 runs in parallel).** From the main
-checkout on `cuVein`: commit this file first (neither branch touches it); then
-`git merge --no-ff origin/fix/barrier-exit-count`, then `git merge --no-ff
-origin/fix/publish-then-tick`. Expect conflicts in `pc_dependency_analysis.cpp`,
-`hb_oracle.py`, `sync_dominance.py` (`barrier_only_pairs`), `test_barrier_exit.py` and
-`design/proof/hb_proof.tex` (T3b edited §1 and the I3 row; T9 the async-copy
-extension, the §5 matrix, the I1/I2/I5 rows and the A2 finding). Both branches
-implement exit-aware counting — keep one copy. Then **rebuild `libsanalyzer` from the
-merged tree** and install that; do not copy either worktree's `wt_install/lib/`, each
-was built without the other's change. Then the green set as extended above (expect
-≈230 passed, 1 xfail), a fresh crs-cuda recording with the merged library (CLEAN, 0 TV
-violations), and one re-score of the evcand store (0 rows changed). The 09-27 proof
-edits that T9 did not already make (Definition "Records" local exclusion, A1 wording,
-the fence-inventory sentence in Definition "Gate", the order of work) are re-applied on
-the merged `.tex` afterwards; T9's §5 matrix is the D12 one and stands.
+**Merged 2026-09-28 (`cuVein` 6c34736).** T3b (0b64d34) and T9 (ebc464f) merged with the
+conflicts resolved as ebc464f's message records (exit counting kept from T3b, aggregated
+`hb_races` from T9, `check_pending_at_end()` before `tv_violation` is written);
+`libsanalyzer` 75f46012 built from the merged tree and installed (the collector needed
+no change); green set 238 passed + the one expected failure
+(`test_relaxed_handoff_should_race`); crs-cuda clean on a fresh recording; evcand
+re-score 3,621 rows unchanged. T13 merged (0a444e9). The proof's 09-27/28 edits that T9
+had not already made (Definition "Records" local exclusion, A1's A2 caveat, the fence
+inventory in Definition "Gate", note (c)'s attribution, the measured A2 rate and D15,
+the order of work) are re-applied on the merged `.tex` (16 pages).
 
-Remaining order: the merge and install; T13 in parallel now; then T10; then T5b and T12 in parallel
-(T12's gate measured on the kept stores before it is wired; T5b's acceptance is the
-barrier-only timeout set); then the mode comparison on every suite where both modes
-have dumps and one baseline re-run. After the submission: T1b on `h100`, T4, T7, I6,
-the `bar.arrive` flag, the access-size check, the §6 referee notes.
+**T13's result, and what it decides.** Recording atomics after execution with the value
+read is feasible on this toolchain (NVBit 1.8, sm_89, driver 580), and against those
+values the Sanitizer's issue-point order inverted the lock hand-off in 0/155, 4/315
+(1.3 %) and 52/1,275 (4.1 %) cases at 2, 4 and 16 contending warps — every inversion
+inside overlapping windows, none outside. So A2 is violated at a rate that grows with
+contention and is not negligible: D15's second clause applies, the `a2_uncertain` flag
+is built (T14), and the offline window count over the kept dumps is the number the
+paper cites for its own corpus (T13's rates are one lock under NVBit's timing). Two
+T13 findings for later: `ptxas` warp-aggregates `atomicAdd` on a constant address into
+one leader RMW plus shuffles (per-lane attribution must recognise the idiom); `RED` has
+no destination register, so a release through an unused `atomicAdd` result stays at its
+issue position even under NVBit. The value-recording collector is post-submission
+(one tool per process; a full re-evaluation).
+
+Remaining order: T10 and T14 in parallel now; then T5b and T12 in parallel (T12's gate
+measured on the kept stores before it is wired; T5b's acceptance is the barrier-only
+timeout set); then the mode comparison on every suite where both modes have dumps and
+one baseline re-run. After the submission: the NVBit collector (A2), T1b on `h100`, T4,
+T7, I6, the `bar.arrive` flag, the access-size check, the §6 referee notes.
 
 ### B3. Decisions Jeffery must make (blocking)
 - **D1** (T9) — **decided 2026-09-26: apply publish-then-tick** in oracle + engine.
@@ -500,7 +513,9 @@ the `bar.arrive` flag, the access-size check, the §6 referee notes.
   and `sc`. The real fix — atomics recorded after execution with the value read, which
   pins coherence order — needs an after-instruction hook the Sanitizer patching API
   does not have; T13 tests it on NVBit; a collector on it is post-submission (it would
-  force a full re-evaluation).
+  force a full re-evaluation). **T13 (2026-09-28): feasible; inversion rate 1–4 % on a
+  contended lock — the flag is built as T14; the count over the kept dumps is T14's
+  second deliverable.**
 - **D11** (T12, tables): a labelled-clean program the gated detector reports because one
   side of a hand-off has no fence of sufficient scope (T9-0: the ticket `atomicInc` of
   `reduction-norace`, which iGUARD also reports) is a PTX race by the letter. Policy:
@@ -1283,6 +1298,59 @@ outside that directory and `eval/NVBIT_SPIKE.md` changes.
 Report: `eval/NVBIT_SPIKE.md` — one paragraph the paper can cite ("recording atomics after
 execution with the value read is / is not feasible on this toolchain; observed inversion
 rate; overhead ratio"), then the details. No `Co-Authored-By` trailer.
+
+### T14 — A2 in the tables: the `a2_uncertain` flag and the offline window count
+Branch `feat/a2-flag`. Models: Sonnet (implementation), Opus (review of the flag's
+definition against the proof). No GPU: kept dumps only. After T9 (merged); in parallel
+with T10 (it touches `_hb_class`, `make_tables.py` and a new offline script, not the
+sidecar). Decision D15.
+
+Context. The collector records an atomic at its callback, before the instruction
+executes; an RMW's *window* is [its record, its thread's next record). When two RMWs on
+one location from different warps have overlapping windows, trace order may invert
+coherence order (A2), and a chain edge between them can run the wrong way: the true
+edge missing (a false DR, T9's `matrix-multiplication-norace-small`) and a false edge
+manufactured (a possible missed race). T13 measured the inversion rate at 1.3 % / 4.1 %
+of hand-offs at 4 / 16 contending warps on the lock idiom (`eval/NVBIT_SPIKE.md` §4).
+Nothing here changes a verdict: the flag is information on a report, and the count is
+a number for the paper.
+
+Steps
+1. Definition, Opus first (half a page in `design/a2_flag.md`): a chain edge $r \to q$
+   (successor RMWs on one location, `hb_proof.tex` Definition "Gate") is
+   *order-uncertain* iff the two windows intersect, i.e. `seq(q) < seq(next record of
+   r's thread)`. A reported DR pair is `a2_uncertain` iff, in the vector clock, the
+   pair would be HB-ordered had every order-uncertain edge on the pair's location
+   been reversed — approximate this conservatively as: the pair is unordered, and the
+   two accesses' threads both hold RMWs on some location whose chain contains an
+   order-uncertain edge between them, in either direction. State why the
+   approximation can only over-flag, never under-flag, and what it costs.
+2. Oracle and engine (same commit): record per RMW its window end when the thread's
+   next record arrives; mark chain edges whose windows intersect; carry the flag on
+   the aggregated race record (`hb_races[*].a2_uncertain`, a count of flagged
+   instances alongside `count`). `barrier_only_pairs` unaffected (no ATOM edges).
+3. Verdict layer: `_hb_class` passes the flag through; `judge` never changes a verdict
+   on it; `make_tables.py` gives `a2_uncertain` its own column, counted as neither TP
+   nor FP, at both operating points (D2's convention for `latent` and `sc`).
+4. Offline window count, `eval/baselines/a2_window_count.py` over the kept dumps
+   (evcand store, both modes' dumps where present): per program, the number of
+   same-location cross-warp RMW pairs, the number with overlapping windows, and the
+   number of those on locations whose RMWs release or acquire (an RMW followed in its
+   thread by a plain access to another location, or preceded by one). Group by suite.
+   This is the paper's number.
+5. Re-score the evcand store with the flag: expected `matrix-multiplication-norace-small`'s
+   four DR pairs flagged, no verdict moved, the flag rate per suite reported next to the
+   window count. Test: the T9 kernel of `test_hb_substitutions.py` for the lock idiom,
+   run with contention forced (16 warps), asserting the flagged count is > 0 and the
+   unflagged DR count is 0 on the race-free variant.
+
+Acceptance: no verdict changes on the evcand re-score; green set unchanged plus the new
+test; the two numbers per suite (window overlap rate; flagged reports) in the report.
+
+Report: `eval/A2_WINDOWS.md` — the definition, the corpus table, and the paragraph the
+paper cites (A2's measured exposure on this corpus, with T13's in-vivo rates as the
+calibration). Update `hb_proof.tex` §7's A2 paragraph with the corpus numbers. No
+`Co-Authored-By` trailer.
 
 ### T5b — Shared-base main clock (todo 5, the fix)
 Branch `perf/shared-base-clock`. Models: Sonnet (implementation), Opus (review). GPU:
