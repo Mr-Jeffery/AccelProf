@@ -14,6 +14,8 @@
 # tree, so python/ (sync_dominance, hb_oracle) is its own.
 #   W=<wt> CODE=<tree> WHICH=base sbatch --array=0-15 -o <W>/build_logs/t14-analyze-%A_%a.log \
 #       eval/baselines/setup/p_t14_analyze.sh
+# IDS=<absolute id file> TAG=<suffix>: only those programs (re-scores that finished after the
+# arrays), rows in their own shard CSV next to the arrays' (the tables keep the best row per id).
 set -u
 W=${W:-/home/fzheng4/AccelProf/.claude/worktrees/agent-a132f9279c0d8edd0}
 case ${WHICH:?WHICH=base|t14} in
@@ -28,6 +30,6 @@ N=${SLURM_ARRAY_TASK_COUNT:-1}; K=${SLURM_ARRAY_TASK_ID:-0}
 OUT=$W/eval/results/t14-a2/analyze-$WHICH
 echo "host=$(hostname) which=$WHICH code=$CV store=$BASELINE_TRACE_DIR shard=$K/$N"
 $W/.env/bin/python eval/baselines/parallel.py analyze --manifest $W/eval/results/t9-rescore/manifest.t9.csv \
-    --shard $K/$N --confirm --tag "t14$WHICH" --results-dir "$OUT" \
+    --shard $K/$N --confirm --tag "t14$WHICH${TAG:-}" --results-dir "$OUT" ${IDS:+--id-file "$IDS"} \
     --confirm-dir "/mnt/beegfs/$USER/t14-a2/confirm-$WHICH" --analysis-timeout ${ATMO:-14400}
 echo "== done $(date -Is)"

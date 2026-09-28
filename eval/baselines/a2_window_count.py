@@ -23,16 +23,21 @@ have gaps where exits were dropped).
            counts per (pc pair, kind, class, space) and the second clock equal T9's
            re-oracled dump (t9-after, record-level; compared up to 1 GB)
            -> OUT/rescore/<id>.json.
+  t9keys   (normal node) for the re-scored kernels whose instance counts differ from T9's
+           dump: same keys, same second clock, T9's count never above this one?
   tables   (login node) the per-suite tables of both, the verdict comparison of the two
-           `parallel.py analyze` runs, -> eval/results/t14-a2/A2_TABLES.md + CSVs.
+           `parallel.py analyze` runs (per program and per row), -> eval/results/t14-a2/
+           A2_TABLES.md + CSVs.
   handoffs --dots D.. -- K..: the Sanitizer's own inversion rate on the race-free lock of
-           python/testdata/lock_contention_a2.cu (setup/t14_handoffs.sh runs it on a GPU node).
+           python/testdata/lock_contention_a2.cu, and engine == oracle on those traces
+           (setup/t14_handoffs.sh runs it on a GPU node).
 """
 import argparse
 import csv
 import glob
 import json
 import os
+import re
 import resource
 import shutil
 import sys
@@ -542,6 +547,14 @@ def cmd_handoffs(a):
         unordered |= {(r[3], r[5], r[0], r[2]) for r in recs}
         c = Counter(sections=len(cs), adjacent=max(len(cs) - 1, 0),
                     instances=sum(r[7] for r in recs), flagged=sum(r[7] for r in recs if r[6]))
+        if "hb_races" in t:           # vector-clock dump: the engine's records, the new field too
+            key = lambda r: (r.get("a_pc"), r["b_pc"], r["kind"], r.get("class"), r["space"],
+                             r.get("dist"), r.get("async"), r.get("count"), r.get("a2_uncertain"))
+            c["engine_traces"] += 1
+            c["engine_eq_oracle"] += {key(r) for r in t["hb_races"]} == \
+                {key(r) for r in rep["races"]} and \
+                t.get("hb_races_sync_only") == rep["races_sync_only"]
+            c["engine_flagged"] += sum(r.get("a2_uncertain") or 0 for r in t["hb_races"])
         for x, y in zip(cs, cs[1:]):
             if x[0] != y[0]:
                 c["cross_thread"] += 1
@@ -711,12 +724,31 @@ def cmd_tables(a):
     man = {r["id"]: r for r in csv.DictReader(open(f"{APH}/eval/results/t9-rescore/manifest.t9.csv",
                                                      newline=""))}
     skip = {d["id"] for d in rs if "error" in d}
-    both = sorted((set(base) & set(new)) - skip)
+    scored = {d["id"] for d in rs if "error" not in d}   # programs with a re-scored VC dump
+    both = sorted(set(base) & set(new) & scored)
     changed = [i for i in both if (base[i]["verdict"], base[i]["report_ids"],
                                    mt.report_classes(base[i])) !=
                (new[i]["verdict"], new[i]["report_ids"], mt.report_classes(new[i]))]
     t9 = _load_csv(a.t9_csv, VC)
-    both9 = sorted((set(t9) & set(new)) - skip)
+    both9 = sorted(set(t9) & set(new) & scored)
+
+    def rows(pattern, strict):            # per (id, rep): every row, not the best per program
+        out = {}
+        for p in sorted(glob.glob(pattern)):
+            for r in csv.DictReader(open(p, newline="")):
+                if hb_modes.canon(r.get("mode", ""), p) != VC or r["id"] not in scored or \
+                        (r["verdict"] == "ERROR" and (r["id"], r["rep"]) in out):
+                    continue
+                note = re.sub(r";a2_uncertain=\d+:\d+", "", r["notes"] or "") if strict else \
+                    mt.report_classes(r)
+                out[(r["id"], r["rep"])] = (r["verdict"], r["reports_dedup"], r["report_ids"], note)
+        return out
+    rb, rn, r9 = rows(a.base_csv, True), rows(a.new_csv, True), rows(a.t9_csv, False)
+    rn9 = {k: v[:3] + (mt.report_classes({"notes": v[3]}),) for k, v in rn.items()}
+    rows_b = sorted(rb.keys() & rn.keys())
+    rows_9 = sorted(r9.keys() & rn9.keys())
+    rch_b = sorted({k[0] for k in rows_b if rb[k] != rn[k]})
+    rch_9 = sorted({k[0] for k in rows_9 if r9[k] != rn9[k]})
     changed9 = [i for i in both9 if (t9[i]["verdict"], t9[i]["report_ids"],
                                      mt.report_classes(t9[i])) !=
                 (new[i]["verdict"], new[i]["report_ids"], mt.report_classes(new[i]))]
@@ -724,11 +756,17 @@ def cmd_tables(a):
                  f"\n\nBase code (f127790) vs this checkout on the same dumps: {len(both)} programs "
                  f"compared (verdict, report ids, class note), {len(changed)} changed"
                  + (": " + ", ".join(changed) if changed else "") +
-                 f"; only in base: {len(set(base) - set(new) - skip)}; only in t14: "
-                 f"{len(set(new) - set(base) - skip)}; left out (not re-scored): {len(skip)}.\n\n"
+                 f"; left out: {len(set(new) - scored)} programs without a re-scored vector-clock "
+                 f"dump ({len(skip)} of them re-scoring failed). Per row (id, rep; verdict, "
+                 f"reports, report ids, notes without the a2 token): {len(rows_b)} rows compared, "
+                 f"{sum(rb[k] != rn[k] for k in rows_b)} changed"
+                 + (" (" + ", ".join(rch_b) + ")" if rch_b else "") + ".\n\n"
                  f"T9's committed re-score (T9 code on t9-after) vs this checkout on t14-after: "
                  f"{len(both9)} programs compared, {len(changed9)} changed"
-                 + (": " + ", ".join(changed9) if changed9 else "") + ".\n")
+                 + (": " + ", ".join(changed9) if changed9 else "") +
+                 f"; per row (verdict, reports, report ids, class note): {len(rows_9)} rows "
+                 f"compared, {sum(r9[k] != rn9[k] for k in rows_9)} changed"
+                 + (" (" + ", ".join(rch_9) + ")" if rch_9 else "") + ".\n")
     lines.append("| suite | programs | RACE | Race alone RACE | a2-uncertain at Race alone: CLEAN "
                  "label / RACE label | at Race u Latent: CLEAN / RACE | programs with an "
                  "a2-uncertain report |")
@@ -824,8 +862,8 @@ def main():
     h = sub.add_parser("handoffs")
     h.add_argument("--dots", nargs="+", required=True)
     h.add_argument("traces", nargs="+")
-    a = ap.parse_args()
     sub.add_parser("t9keys")
+    a = ap.parse_args()
     {"count": cmd_count, "rescore": cmd_rescore, "tables": cmd_tables,
      "handoffs": cmd_handoffs, "t9keys": cmd_t9keys}[a.cmd](a)
 
