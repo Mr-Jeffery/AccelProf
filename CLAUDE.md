@@ -11,7 +11,11 @@ B2) and for the consolidated proof document on PR #4
 (`design/proof/hb_proof.tex`: T6 becomes a review task, decisions D6/D7/D8 added), and on
 2026-09-26 after the latent census (T9-0, `eval/LATENT_CENSUS.md`): D1/D6/D7/D8 resolved,
 the instance gate and the three-verdict matrix in the proof, tasks T10–T12 added, T5b on
-the critical path, the deadline rule in A1. If HEAD has moved, re-read `eval/BASELINES_SUMMARY.md`,
+the critical path, the deadline rule in A1; and on 2026-09-27 after T6's review
+(`design/T6_REVIEW.md`, PR #4 merged): T3b's brief corrected on four points, T9 widened
+(buckets in both clocks, local memory excluded, R2 decides class not verdict, the `sc`
+column), T5b moved ahead of T12, T12's design note extended with T6's findings, `bar.arrive`
+and the access-size gap recorded as deferred deviations. If HEAD has moved, re-read `eval/BASELINES_SUMMARY.md`,
 `eval/FIX_REPORT.md`, `eval/FP_DIAGNOSIS.md` and `git log` before starting.
 
 ---
@@ -47,8 +51,9 @@ submission, the last three weeks of which are writing. The proof document
 (`design/proof/hb_proof.tex`, revision 2026-09-26) is frozen except for the items its
 "Order of work" lists; agents do not extend it (no I7 re-proof, no discharge of MM1–MM3,
 no separate PTX-bridge proof) unless a brief says so. Code lands in this order: T6 (doc
-review) → T3b and T9 in parallel → T10 → T12 → T5b → the mode comparison and one baseline
-re-run. T1b, T4, T7 and I6 are after the submission. When a task can finish without a GPU
+review, done) → T3b and T9 in parallel → T10 → T5b and T12 in parallel → the mode
+comparison and one baseline re-run. T1b, T4, T7, I6, the `bar.arrive` flag and the
+access-size check are after the submission. When a task can finish without a GPU
 (re-scores, census-style measurements), it does.
 
 ### A2. Environment (NCSU ARC SLURM cluster)
@@ -168,6 +173,17 @@ see T0 for why the previous "keep every trace" attempt lost data and for the pol
 - The fence gate governs (ATOM) edges only, never `ms` (`hb_proof.tex` Definition
   "Gate"). Scope is the one static label that must err narrow: a widened scope hides a
   report through the two-RMW exception (Lemma "Monotonicity", converse).
+- R2 (both pcs coherent at scope ≥ d) decides the DR/SC class of a pair and never its
+  verdict; ORDERED comes only from R1, R3, the barrier-only clock, and `hb_races` vetoes
+  them. `model_bug` is raised by R1 alone (`hb_proof.tex` §5, 2026-09-27).
+- Local memory is outside the HB model (`hb_proof.tex` Definition "Records"): the HB
+  trace path does not emit `MemoryType::Local` records, and engine, oracle and
+  `barrier_only_pairs` skip any `local` record of an older dump. The collector's
+  default path and its local-address tag are not touched.
+- The fence instructions of `fenced(p, p', s)` come from the per-architecture inventory
+  (T12 step 1), never from a hard-coded `MEMBAR`: on sm_89 an acquire lowers to the
+  access plus `CCTL.IVALL` with no `MEMBAR`, and `BAR.SYNC` carries the ordering with no
+  adjacent fence (T6, 293 CFGs).
 - `hb_events` stays lossless until the submission: offline trace-validity checking, the
   census scripts and every re-score replay it (supersedes T4 step 4 for now).
 - A labelled-clean program the detector reports under PTX §8.7.1 semantics (fence
@@ -255,19 +271,19 @@ Two things surfaced while reading the code that the plan has to carry:
 |---|---|---|---|---|---|---|
 | T0 | — | storage: BeeGFS as the only trace store; inventory of what the earlier "keep all" run dropped; no caps | Sonnet · infra | one node of each kind | — | `infra/beegfs-store` ✓ merged |
 | T8 | 8 | rename the modes to scalar-clock / vector-clock, **including persisted strings** (converter over CSVs, kept stores, confirm files) | Sonnet · implementer; Sonnet subagent runs the green set + `make_tables.py` on migrated data | no | T0 (store inventory) | `rename/clock-modes` ✓ merged 1a45653 + 81b4262 |
-| T6 | 6 | the model, the algorithm and the proof are one document on PR #4 (`design/proof/hb_proof.tex`, revision 2026-09-26: instance gate, three-verdict matrix, R3 release point, fifth monitor check); remaining: fresh-context review of §3/§5/§7 against the code, simulator, I1/I2/I5 test files; step (b) time-boxed | Opus · reviewer/verifier (fresh context) | no | T8 ✓, PR #4 | `design/algorithms` |
+| T6 | 6 | review of `design/proof/hb_proof.tex` against the code: deviation table, simulator, strict xfails for I1/I2/I5, referee reading, SASS scan for O2 | Opus · reviewer/verifier (fresh context) | one node | T8 ✓ | `design/algorithms` ✓ 8d1e36e, report `design/T6_REVIEW.md`; PR #4 merged |
 | T3 | 3 | crs-cuda: the HeCBench program cuVein reports and SuperCollider calls race-free | Opus · investigator (+ Explore subagents); GPU for the reproducer and cross-checks | yes | T8 | `triage/crs-cuda` ✓ merged d8eb112 — false positive, cause below (T3b) |
-| T3b | 3 | exit-aware `__syncthreads` instance assembly (route (a), D7 decided): exit records in `hb_events`, exited threads subtracted from the expected count, `Complete` on exit — in `HbEngine`, `hb_oracle.py`, `barrier_only_pairs`; plus the end-of-kernel `pending_barriers` TV check (proof §1) | Sonnet · implementer, Opus · reviewer | yes (crs-cuda re-run + green set) | D7 ✓; T6 only for the A3 wording | `fix/barrier-exit-count` |
+| T3b | 3 | exit-aware `__syncthreads` instance assembly (route (a), D7 decided): exit records in `hb_events`, exited threads subtracted from the expected count of whole-block instances (counted barriers keep `n`), `Complete` on exit — in `HbEngine`, `hb_oracle.py`, `barrier_only_pairs`; the end-of-kernel `pending_barriers` check in the engine and offline; crs-cuda needs a fresh recording (kept dumps have no exit records) | Sonnet · implementer, Opus · reviewer | yes (crs-cuda fresh trace + green set) | D7 ✓, T6 ✓ | `fix/barrier-exit-count` |
 | T2 | 2 | host-memcpy (`cudaMemcpyAsync`) races: evidence, stream-agent model, prototype behind a flag | Sonnet · investigator, Opus · model review | small | T8 | `feat/host-memcpy` ✓ merged 07d2798 (`YOSEMITE_HB_HOST_MEMCPY`, `python/host_hb.py`; D5 open) |
 | T1a | 1 | apply the designed cp.async fix (F4: PIPELINE_WAIT + virtual async agent) | Opus · design check, Sonnet · implementer, Opus · verifier | yes (rebuild) | T8, T2 | `feat/cp-async-wait` ✓ merged bc32a1f + review 3331d35 (F4 fixed; runtime install pending) |
 | T5a | 5 | memory-footprint table from existing CSVs + engine state attribution | Sonnet · analyst | 3 runs | T8 | `study/memory-footprint` ✓ merged 6d843e3 (`YOSEMITE_HB_STATS`, `eval/MEMORY_FOOTPRINT.md`) |
 | T9-0 | 9 | latent census: what the `latent` tier catches and costs, fact (i) checked on the kept stores | Sonnet · analyst | no | — | `study/latent-census` ✓ report `eval/LATENT_CENSUS.md` 2026-09-26 (merge pending) |
-| T9 | 9 | vector-clock soundness: I1 (publish-then-tick) + I2 (buckets, SC reported) + I5 (local memory per thread) in one change to oracle and engine, offline re-score; the SC verdict row; `fence_rtraw` as the corpus regression test | Opus · prover; Sonnet · implementer; Sonnet subagent for the re-score | re-score only + one P5 sweep | T6; D1/D6 ✓ | `fix/publish-then-tick` |
+| T9 | 9 | vector-clock soundness: I1 (publish-then-tick) + I2 (buckets in **both** clocks, SC reported) + I5 (local memory excluded) in one change to oracle, engine and `barrier_only_pairs`; R2 moved from verdict to class, the `sc` column, `make_tables.py` for D2; the T6 strict xfails and `fence_rtraw` as regression tests | Opus · prover; Sonnet · implementer; Sonnet subagent for the re-score | re-score only + one P5 sweep | T6 ✓; D1/D6 ✓ | `fix/publish-then-tick` |
 | T10 | — | sidecar strength and scope (O1): `.STRONG` loads/stores and `volatile` classed strong with their scope; atomicity no longer decided by RMW opcode alone; re-score E0/E1/E3 | Sonnet · implementer, Opus · review | re-score only | T9 (SC row exists) | `fix/sidecar-strength` |
 | T11 | — | monitor: TV checks in one Python module shared by oracle, `barrier_only_pairs` and a standalone `tv_check` CLI; engine keeps them behind `YOSEMITE_HB_STRICT`; delete the `expected == 0` degrade path; per-lane W2 row (I6) only if cheap | Sonnet · implementer | no | T3b (fifth check) | `fix/tv-monitor` |
-| T12 | — | I4: the instance gate (`fenced(p, p', s)` from the CFG dots, two sidecar columns, deferred acquire join in the engine) and R3's release point from the trace, sharing the predicate; measured on the kept stores before wiring | Opus · design + review, Sonnet · implementer | re-score only + one P4/P5 sweep | T9, T10 | `feat/instance-gate` |
+| T12 | — | I4: the instance gate (`fenced(p, p', s)` from the CFG dots with the O2 inventory — `MEMBAR.SC`, `CCTL.IVALL`, `BAR.SYNC` — two sidecar columns, the deferred acquire join with `Check(r)` against the joined clock) and R3's release point from the trace, sharing the predicate; measured on the kept stores before wiring; **in parallel with T5b** | Opus · design + review, Sonnet · implementer | re-score only + one P4/P5 sweep | T9, T10 | `feat/instance-gate` |
 | T1b | 1 | cp.async.bulk / TMA / dsmem model, validated on the H100 node with the 8 cuHadron sm_90 targets — **after the submission** | **Fable** · design + implementation (the hardest task in the queue); fresh Fable context as verifier | yes (`h100`, c29) | T1a ✓ | `feat/cp-async-bulk` |
-| T5b | 5 | shared-base main clock (the planned engine memory fix) — **on the critical path**: vector-clock mode has no dump for P7, 8 of 9 P9 programs, 10 of 28 P4 apps and 23 P1 programs (T9-0 §1), so the mode comparison is bounded to litmus/micro until it runs there | Sonnet · implementer, Opus · reviewer | yes (`engine_timeout_ids.txt`) | T1a ✓, T9, T12 (the gate removes joins — measure before refactoring) | `perf/shared-base-clock` |
+| T5b | 5 | shared-base main clock (the planned engine memory fix) — **on the critical path**: vector-clock mode has no dump for P7, 8 of 9 P9 programs, 10 of 28 P4 apps and 23 P1 programs (T9-0 §1); 10 of the 58 timeout programs have barriers and no atomics (T6), which no gate can help — they are T5b's acceptance set | Sonnet · implementer, Opus · reviewer | yes (`engine_timeout_ids.txt`) | T1a ✓, T9 (directly after; parallel with T12) | `perf/shared-base-clock` |
 | T4 | 4 | smaller `hb_events`: lossless compact encoding first, lossy summary only if still needed — after the submission | design: Opus (short) · impl: Sonnet | measure only | T1b, T9, T5b merged | `perf/hb-events-format` |
 | T7 | 7 (opt.) | profile `sync_dominance.py` on the P9-mr trace; port the hot pass only if profiling says so — after the submission | Sonnet · profiler; Opus if a C++ port is warranted | no | T4 | `perf/analysis-hotpath` |
 
@@ -318,12 +334,33 @@ gate (proof Definition "Gate", T12). (5) Vector-clock mode has no dump for P7, 8
 suites, which is why T5b is on the critical path. Decisions taken on this evidence: D1,
 D6, D7, D8 (see B3); D2 follows from D8.
 
-Remaining order: T6 next (review; the document is on PR #4 — merge it or branch from it;
-the 09-26 edits are part of what it reviews), then in parallel {T9}, {T3b}; then T10;
-then T12 (gate measured on the kept stores before it is wired; R3 release point in the
-same branch); then T5b (after T12, so the clock refactor sees the gate's reduced joins);
-then the mode comparison on every suite where both modes have dumps and one baseline
-re-run. After the submission: T1b on `h100`, T4, T7, I6.
+**Status 2026-09-27** (T6 done; `cuVein` at e50c509 locally, 3ed5c9c merged the
+census; PR #4 merged with the reviewed proof, 14 pages). What T6 established beyond the
+09-26 state (`design/T6_REVIEW.md`): (1) the code is `Detect` with I1–I7 plus three
+unlisted deviations — `bar.arrive` recorded as blocking (the collector drops the
+Sanitizer's `IS_SYNCHRONIZING` flag), no access-size/overlap check, no trace-validity
+check in scalar-clock mode; none exercised by the corpus (no `BAR.ARV` in 293 CFGs),
+all deferred. (2) I5 is worse than stated: the local-address tag is a 32-bit shift
+(FlagZhao `nv-compute`, branch `cuVein`, commit `ccefba0`, 2026-02-11 — predates the
+project; `AccelProf/nv-compute` `main` has the cast), 8,096 spurious race records on a
+64-thread kernel, no verdict only because purely local pcs are not dependency nodes;
+resolved by excluding local memory from the HB model (Yanbo's advice), not by keying.
+(3) I2 also corrupts the barrier-only clock (8 barrier-unordered pairs missing on 3
+litmus traces), so buckets go into `barrier_only_pairs` too and §5 fact (ii) holds for
+the code only after T9. (4) Policy `none` never repaired soundness (FastTrack's
+first-race guarantee only). (5) The §3 deferred acquire needed `Check(r)` against the
+joined clock; the §5 matrix needed DR over SC per pc pair — both fixed in the document.
+(6) O2 evidence: acquires lower to `CCTL.IVALL` with no `MEMBAR`; no `BAR.SYNC` has an
+adjacent fence. (7) 10 of 58 engine-timeout programs are barrier-only. Decisions taken:
+R2 decides class, not verdict (A4); T5b before/parallel with T12; local memory excluded.
+Housekeeping: delete the untracked `hb_proof.tex` in the checkout root (the tracked copy
+is `design/proof/hb_proof.tex`); the T9-0 branch is merged (3ed5c9c), not pending.
+
+Remaining order: T3b and T9 in parallel now; then T10; then T5b and T12 in parallel
+(T12's gate measured on the kept stores before it is wired; T5b's acceptance is the
+barrier-only timeout set); then the mode comparison on every suite where both modes
+have dumps and one baseline re-run. After the submission: T1b on `h100`, T4, T7, I6,
+the `bar.arrive` flag, the access-size check, the §6 referee notes.
 
 ### B3. Decisions Jeffery must make (blocking)
 - **D1** (T9) — **decided 2026-09-26: apply publish-then-tick** in oracle + engine.
@@ -331,10 +368,13 @@ re-run. After the submission: T1b on `h100`, T4, T7, I6.
   *after* its release); T9-0 found it on a kept trace (`race_interblock_fence_rtraw`,
   reported today only as `latent`). The change adds reports wherever a thread touches
   shared data after a release without another synchronization; T9 reports the deltas.
-- **D2** (T9, tables) — **follows from D8**: `latent` is no longer a positive. Tables
-  are given at two operating points, Race alone and Race ∪ Latent (the latter equals
-  today's counting); `sc` reports are a separate column, never a positive. `make_tables.py`
-  changes accordingly in T9.
+- **D2** (T9, tables) — **follows from D8, extended 2026-09-27**: `latent` is no longer a
+  positive, and neither is `sc`. Tables are given at two operating points, Race alone and
+  Race ∪ Latent (the latter equals today's counting); `latent` and `sc` are informational
+  columns, counted as neither TP nor FP; in scalar-clock mode the `sc` column also holds
+  strong–strong pairs an atomic hand-off ordered (it cannot tell), which is one more named
+  class of the mode comparison. Counts are taken from the class before `judge`'s
+  `benign`/`warp-po-ordered` relabels. `make_tables.py` changes accordingly in T9.
 - **D3** (T8) — **decided 2026-09-22: migrate the persisted strings as well.** T8 ships
   the converter and runs it over every result CSV, confirm file and kept-trace store
   (home and BeeGFS); readers keep a one-release compatibility path that warns.
@@ -391,6 +431,16 @@ re-run. After the submission: T1b on `h100`, T4, T7, I6.
 - **D10** (T11): default of `YOSEMITE_HB_STRICT` in the engine once the TV checks also
   run offline. Recommended: keep strict on by default unless T11's measurement shows it
   above a few percent of engine time. Default if unanswered: keep on.
+- **D12** (T9, decided 2026-09-27): R2 decides the DR/SC class of a candidate pair and
+  grants no verdict; ORDERED comes from R1, R3 and the barrier-only clock only, vetoed by
+  `hb_races`; `model_bug` from R1 alone. Traded: scalar-clock mode reports every
+  barrier-unordered strong–strong pair R3 cannot certify as `sc` (informational), in
+  exchange for `sc` existing at all, `model_bug` staying a defect detector, and one
+  semantics for both modes (`hb_proof.tex` §5).
+- **D13** (T5b/T12, decided 2026-09-27): T5b directly after T9, T12 in parallel — the
+  barrier-only timeout programs need T5b regardless of the gate.
+- **D14** (T9, decided 2026-09-27, with Yanbo Zhao): local memory is excluded from the HB
+  trace and the model rather than keyed per thread; the collector's tag stays as is.
 - **D11** (T12, tables): a labelled-clean program the gated detector reports because one
   side of a hand-off has no fence of sufficient scope (T9-0: the ticket `atomicInc` of
   `reduction-norace`, which iGUARD also reports) is a PTX race by the letter. Policy:
@@ -520,7 +570,9 @@ returns only the compatibility shim and its deprecation notes; the migrated tabl
 identical up to labels; a fresh five-program run writes only the new names. Report: the
 converter's log summary and the table diff in the merge commit body.
 
-### T6 — The model, the algorithm and the proof: review and verification (todo 6)
+### T6 — The model, the algorithm and the proof: review and verification (todo 6) — done
+**Done 2026-09-26/27** (8d1e36e on `design/algorithms`, `design/T6_REVIEW.md`, PR #4
+merged). Kept for reference; the brief below is what was run.
 Branch `design/algorithms`. Model: Opus, in a fresh context. No GPU except for the test
 kernels of step (c). T8 is merged (use the names vector-clock / scalar-clock).
 
@@ -644,27 +696,32 @@ verdict depends on it. The fix is T3b.
 
 ### T3b — Exit-aware barrier instance assembly (todo 3, the fix)
 Branch `fix/barrier-exit-count`. Models: Sonnet (implementation), Opus (review). GPU:
-crs-cuda re-run on `rtx4060ti16g` + the green set. After T6 has confirmed which side the
-fix belongs to (decision D7; `hb_proof.tex` §1/§7 take route (a) below): the
-proof's A3 puts the count on the collector ("a thread that exits is not among them"),
-Definition "Expected count" does not subtract exits, and the collector's `BlockExit`
-records are dropped from `hb_events` (`hb_collect_events`).
+crs-cuda fresh trace on `rtx4060ti16g` + the green set. Route (a) is decided (D7) and
+the proof already contains it (revision 09-26/27, confirmed by T6 step (d)): Definition
+"Instances" subtracts exited threads for whole-block instances, Lemma "Assembly" has
+`exited_β`, A3 is a statement about the hardware. The code at 3331d35 drops the
+collector's `BlockExit` records from `hb_events` (`hb_collect_events`,
+`pc_dependency_analysis.cpp:961-962`) and uses `expected = thread_count or block_tc`.
 
 Steps
-1. Decide with T6's statement: either (a) emit exit records into `hb_events` (the
-   collector already produces `MemoryType::BlockExit`; give them `type: "exit"` with
-   block/warp/lane mask) and let the model subtract exited threads from the expected
-   count of every later instance of that block, or (b) take the count from the hardware.
-   (a) is what the proof's trace model already contains (exit records, "exit: do
-   nothing" becomes "exit: retire the lanes") and is the recommended route; write down
-   why if (b) is chosen.
+1. Emit exit records into `hb_events`: the collector already produces
+   `MemoryType::BlockExit` per warp with the exiting lanes (`BlockExitCallback`,
+   `gpu_patch_pc_dependency.cu:215-249`, the same shape as an arrival — no new device
+   code, only serialization); give them `type: "exit"` with block/warp/lane mask. The
+   model subtracts exited threads from the expected count of every later **whole-block**
+   instance of that block (count 0); a counted barrier keeps `expected = n`.
 2. Implement identically in `HbEngine`, `python/hb_oracle.py` and
    `sync_dominance.barrier_only_pairs`; keep the TV monitor consistent (an exited thread
    arriving later is a TV violation; `TV-barrier-completion-order` must not fire for
-   exited warps). Add the fifth check of the proof's §1: at `kernel_trace_flush` (engine)
-   and at the end of the replay (oracle, `barrier_only_pairs`), a non-empty
-   `pending_barriers` is a `tv_violation` (`TV-barrier-pending-at-end`). Old dumps without
-   exit records keep today's behaviour (a dump-level marker, as T1a did with `hb_async`).
+   exited warps). Add the fifth check of the proof's §1, `TV-barrier-pending-at-end`
+   (non-empty `pending_barriers` at the end of the kernel): in the engine it runs before
+   `HbEngine::emit`, which is where `tv_violation` is written (`kernel_trace_flush` calls
+   it through `hb_engine_emit`, `.cpp:1334`); `pending_barriers` is maintained regardless
+   of `YOSEMITE_HB_STRICT`, so the check does not depend on strict. In scalar-clock mode
+   the engine never runs (`.cpp:1036,1875`), so the check exists only offline: add it to
+   `barrier_only_pairs` (which has no TV code today — the minimal form here; T11
+   unifies). Old dumps without exit records keep today's behaviour (a dump-level marker,
+   as T1a did with `hb_async`).
    Before changing anything, grep the kept crs-cuda `kernel_*.json` for `tv_violation` and
    say whether `TV-barrier-completion-order` fired there today — by W2 it should have
    (released warps issue post-barrier loads while the modelled instance is pending); if
@@ -672,11 +729,13 @@ Steps
    finding for T11.
 3. Turn the strict xfails of `python/test_barrier_exit.py` into passing tests; add the
    positive control (a thread that exits *after* the barrier still counts).
-4. Re-score crs-cuda from the T0 store (`parallel.py analyze`) and re-run it on a GPU:
-   expected CLEAN in both modes, 0 TV violations; green set unchanged; re-score the evcand
-   store and report any other verdict that moves (the TV scan says none should).
-5. Hand the proof change to T6/T9: Definition "Expected count" gains the exit
-   subtraction, Lemma "Assembly" and the monitor rows are re-checked.
+4. Record crs-cuda afresh on a GPU with the new collector (a kept dump has no exit
+   records, so no re-score can reach CLEAN): expected CLEAN in both modes, 0 TV
+   violations, and `TV-barrier-pending-at-end` silent; then re-score the kept stores with
+   the new oracle to confirm that dumps without exit records keep their verdicts (none
+   should move). Green set unchanged.
+5. Proof: nothing to add — update §7's I3 row to "matched" with the commit, and the
+   monitor sentence of §1 if the offline placement differs from what it says.
 
 Deliverable: `eval/CRS_CUDA_TRIAGE.md` §"Fix"; the P9 crs-cuda row regenerated.
 
@@ -863,12 +922,12 @@ Branch `study/latent-census`, report `eval/LATENT_CENSUS.md`, script
 `eval/baselines/latent_census.py` (`collect` from the BeeGFS stores on `normal` nodes,
 `tables` on the login node). Measurement only; the detector was not changed. Its numbers
 are cited in `hb_proof.tex` §5/§7, B2's status paragraph and D8; re-run `tables` after
-T9 and T12 to report the moves. The merge of the branch is pending Jeffery's read.
+T9 and T12 to report the moves. Merged (3ed5c9c).
 
-### T9 — Vector-clock soundness: I1 + I2 + I5 in one change, and the SC row (todo 9)
+### T9 — Vector-clock soundness: I1 + I2 (both clocks) + I5 (exclusion), R2 as class, the `sc` column (todo 9)
 Branch `fix/publish-then-tick`. Model: Opus (Parts 1–2, review), Sonnet (Part 3
-implementation), Sonnet subagent for the re-score script. Depends on T6 (deviation
-table); D1 and D6 are decided. Part 4 of the earlier brief is done: `eval/LATENT_CENSUS.md`
+implementation), Sonnet subagent for the re-score script. T6 is done
+(`design/T6_REVIEW.md` is the deviation table); D1, D6, D12 and D14 are decided. Part 4 of the earlier brief is done: `eval/LATENT_CENSUS.md`
 (T9-0) is its result and is cited, not redone.
 
 Terminology, as fixed in `hb_proof.tex` (the verification
@@ -934,16 +993,36 @@ Part 3 — publish-then-tick (needs D1)
      suppressing). No FastTrack-style collapse across threads (the soundness proof needs
      the replaced entry PO-related to its replacement); measure the bucket term with
      `HB_STATS` on T5a's three programs before/after.
-   - I5: local memory keyed `(local, tid, addr)`; first check whether the collector's
-     address already folds in the per-thread window offset (T6 step (c)) — if it does,
-     only the proof text changes.
-   - Verdict layer: the SC row of the §5 matrix in `_hb_class` (SC → `sc`, never
-     `model_bug` from R2); `make_tables.py`: `latent` no longer a positive, `sc` its own
-     column, two operating points (D2).
-   Tests: `test_write_after_unlock_other_schedule` (I1; the rtraw pattern with block 0
-   first, forced with a spin on a flag) expecting the race in `hb_races` as `structural`;
-   the kernel of Remark "Why one bucket per key" (I2, litmus O6(vi)); the existing
-   `test_write_after_unlock_is_event_candidate` kept. Both modes; engine == oracle.
+   - I2, second clock: the barrier-only clock shares the last-write state
+     (`design/algorithms_check.py` "SYNC-MISS": 8 barrier-unordered pairs absent on 3
+     litmus traces), so the buckets go into `hb_races_sync_only` and
+     `sync_dominance.barrier_only_pairs` as well; §5 fact (ii) holds for the code only
+     after this.
+   - I5 (D14): local memory leaves the model. In the HB trace path
+     (`hb_collect_events`, gated by `YOSEMITE_HB_TRACE`) stop serializing
+     `MemoryType::Local` records; in engine, oracle and `barrier_only_pairs` skip any
+     `local` record before `Check`/bucketing, so kept dumps replay identically to new
+     ones. Do not touch the collector's default path or the local-address tag at
+     `gpu_patch_pc_dependency.cu:89` (it predates the project — FlagZhao `nv-compute`
+     `cuVein` commit `ccefba0`; the dependency side reads it). Measure `hb_events` size
+     before/after on `local_mem_blocks.cu` and on one P7 program whose vector-clock dump
+     never finished — spills go through local memory.
+   - Verdict layer (D12): R2 leaves ρ. In `_hb_class` the class of a candidate pair is
+     DR if some instance is DR, else SC — from `hb_races` instances in vector-clock mode,
+     from R2 at pc level with the largest observed distance otherwise (may demote SC → DR,
+     never the reverse); the verdict rows are `hb_races` (Race/Strong conflict;
+     `model_bug` only if R1), R1 ∨ χ (Ordered), ∉ barrier-only set (barrier-ordered),
+     otherwise Latent (vector) / Race (scalar), each with its `sc` variant.
+     `make_tables.py`: `latent` and `sc` informational columns, two operating points,
+     counts from the class before `judge`'s relabels (D2).
+   Tests already exist from T6 in `python/test_hb_substitutions.py` as strict xfails —
+   `test_write_after_unlock_other_schedule` (I1: the pair in `hb_races`, class
+   `structural`), `test_strong_stores_barrier_weak_load` (I2: (A, C) in `hb_races`),
+   `test_local_memory_is_thread_private` (I5) — turn all three green and add the
+   test file to the green set; keep `test_write_after_unlock_is_event_candidate`. Add one
+   test for D12: a strong store meeting a strong load unordered in the run is `sc` in
+   vector-clock mode and never `model_bug`. Both modes; engine == oracle ==
+   `algorithms_check.py` with the I1/I2 switches off.
 6. Re-score, no GPU: `hb_oracle.py` over every kept vector-clock `kernel_*.json` before
    and after, diff the race sets, `parallel.py analyze` with the new oracle output for
    the verdict deltas per program, then `latent_census.py tables`; then one GPU sweep of
@@ -952,7 +1031,8 @@ Part 3 — publish-then-tick (needs D1)
 
 Deliverable: `design/soundness_event_candidates.md` (Parts 1–2, citing T9-0), the
 I1/I2/I5 diff with the before/after table; update the table of §7 in `hb_proof.tex`
-(I1, I2, I5 rows → "matched", with the commit).
+(I1, I2, I5 rows → "matched", with the commit) and the "code's `_hb_class`" sentence of
+§5.
 
 ### T10 — Sidecar strength and scope (O1)
 Branch `fix/sidecar-strength`. Model: Sonnet (implementer), Opus (review). No GPU:
@@ -1003,7 +1083,8 @@ Report: `HARDENING_REPORT.md` §"Offline checking".
 
 ### T12 — I4: the instance gate, and R3's release point from the trace
 Branch `feat/instance-gate`. Models: Opus (design and review), Sonnet (implementation).
-No GPU for the measurement; one P4/P5 sweep at the end. After T9 and T10. Decision D11.
+No GPU for the measurement; one P4/P5 sweep at the end. After T9 and T10; in parallel
+with T5b (D13). Decisions D11, D13.
 
 Context: the engine's trusting gate treats every RMW as release and acquire, which
 manufactures ordering that PTX does not give. T9-0 showed the cost: 8 of the 10
@@ -1017,18 +1098,27 @@ Finding 1). The proof's Definition "Gate" (revision 09-26) is the instance gate,
 
 Steps
 1. Predicate: `fenced(p, p', s)` on the kernel CFG from the dots — every path from pc `p`
-   to pc `p'` crosses a `MEMBAR` of scope ≥ `s` (`bar.sync` counts as scope `cta`).
-   Compute per SM from `nvdisasm`; O2 = the fence inventory (which SASS instructions an
-   acquire or release lowers to on sm_86/89 — check whether anything besides `MEMBAR`
-   carries acquire semantics before trusting `acq = 0`). Emit into the sidecar the data
-   the engine needs to evaluate it online: per RMW pc, the set of (previous-pc,
-   next-pc) → fence-scope entries reachable within the kernel, or a compact reachability
-   table — design note first (`design/instance_gate.md`), Opus.
+   to pc `p'` crosses a fence of scope ≥ `s`, where "fence" is the per-architecture
+   inventory O2, with separate release-side and acquire-side sets. T6's scan of 293 sm_89
+   CFGs is the starting point: release side `MEMBAR.SC.{CTA,GPU,SYS}`; acquire side
+   `CCTL.IVALL` (an acquire load or RMW lowers to the access followed by `CCTL.IVALL`,
+   **no** `MEMBAR` — a `MEMBAR`-only predicate sets `acq = 0` on every PTX acquire); a
+   seq_cst fence is `MEMBAR.SC; ERRBAR; CCTL.IVALL`; `BAR.SYNC` counts as scope `cta` on
+   both sides (none of the 461 barriers has an adjacent `MEMBAR`). Open: what, if
+   anything, a `cta`-scope acquire emits; whether a path that starts or ends *at* a fence
+   or barrier arrival "crosses" it (say yes, and say why). Emit into the sidecar the data
+   the engine needs online: per RMW pc, the (previous-pc, next-pc) → fence-scope entries
+   reachable within the kernel, or a compact reachability table — design note first
+   (`design/instance_gate.md`), Opus.
 2. Engine and oracle: `rel(r)` from the thread's previous record's pc; `acq(r)` from the
-   thread's next record's pc — the oracle has the trace; the engine records a pending
-   acquire (a reference to the chain clock, not a copy) and applies the join when the
-   thread's next record arrives, before processing it. The proof's §3 says why this is
-   exact. Gate (ATOM) only; `ms` untouched (A4).
+   thread's next record's pc — the oracle has the trace and evaluates directly. The
+   engine defers, and the design note must carry T6's four points for it to be exact
+   (proof §3, corrected): `Check(r)` is evaluated against `clk[t] ⊔ Ch_ℓ` with the
+   difference held until `acq(r)` is known (a spinner's plain read of the lock word
+   against the next owner's CAS must not become a spurious DR); `released[loc] = vc[t]`
+   (`hb_oracle.py:333`, `.cpp:473`) becomes a join; no publish when `rel(r) = 0`; held
+   pairs are resolved at kernel end (`acq(r) = 1` for a thread's last record). Gate
+   (ATOM) only; `ms` untouched (A4).
 3. R3 (`sync_dominance.py`, `HBGraph.chain`): the release point is the `PO`-next RMW of
    `u`'s thread after `u` from the trace, and "release-fenced" is `fenced(pc(u), pc(r), d)`;
    add the write-before-lock decline (u precedes, in its own thread, an acquire on the
@@ -1051,11 +1141,15 @@ release/acquire patterns).
 
 ### T5b — Shared-base main clock (todo 5, the fix)
 Branch `perf/shared-base-clock`. Models: Sonnet (implementation), Opus (review). GPU:
-the programs in `eval/baselines/setup/engine_timeout_ids.txt`. After T9 and T12 (the
-gate removes the joins of unfenced hand-offs; T12 step 4 says how much is left). **On
-the critical path**: T9-0 §1 found no vector-clock dump for P7, 8 of 9 P9 programs,
-10 of 28 P4 apps and 23 P1 programs, so the reference mode does not run on the realistic
-suites and the mode comparison is bounded until it does.
+the programs in `eval/baselines/setup/engine_timeout_ids.txt`. Directly after T9, in
+parallel with T12 (D13). **On the critical path**: T9-0 §1 found no vector-clock dump
+for P7, 8 of 9 P9 programs, 10 of 28 P4 apps and 23 P1 programs, so the reference mode
+does not run on the realistic suites and the mode comparison is bounded until it does.
+T6 classified the 58 timeout programs by SASS: 30 atomics + barriers, 8 atomics only,
+10 barriers and no atomics (P7 heartwall, hotspot, lavaMD, particlefilter, pathfinder,
+srad, stencil1d, P9 dxtc2, …), 10 neither; T5a measured the barrier-only regime
+(tiled_gemm: all of `vc`'s 2.73 GB from `sync_group` copies). The 10 barrier-only
+programs are the acceptance set — no gate can touch a barrier join.
 
 The sync-only clock already uses a shared immutable base per sync group plus a scalar
 own component (`pc_dependency_analysis.cpp:56-63,159-168`). Do the same for the main
@@ -1068,8 +1162,9 @@ spec, not the product; but its results must stay identical).
 
 Acceptance: engine == oracle on the green set and on 10 kept traces of each pset via the
 re-score path from T9; `HB_STATS` (T5a) shows `vc` bytes ≈ O(threads) after a barrier;
-at least half of `engine_timeout_ids.txt` finishes under the 120 s cap; `tv_violation`
-still 0. Report `eval/MEMORY_FOOTPRINT.md` §"After the fix".
+all 10 barrier-only programs of `engine_timeout_ids.txt` and at least half of the rest
+finish under the 120 s cap; `tv_violation` still 0. Report `eval/MEMORY_FOOTPRINT.md`
+§"After the fix".
 
 ### T4 — Smaller `hb_events` (todo 4)
 Branch `perf/hb-events-format`. Design: Opus (short). Implementation: Sonnet. Only after
