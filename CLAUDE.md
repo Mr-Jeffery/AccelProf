@@ -15,7 +15,10 @@ the critical path, the deadline rule in A1; and on 2026-09-27 after T6's review
 (`design/T6_REVIEW.md`, PR #4 merged): T3b's brief corrected on four points, T9 widened
 (buckets in both clocks, local memory excluded, R2 decides class not verdict, the `sc`
 column), T5b moved ahead of T12, T12's design note extended with T6's findings, `bar.arrive`
-and the access-size gap recorded as deferred deviations. If HEAD has moved, re-read `eval/BASELINES_SUMMARY.md`,
+and the access-size gap recorded as deferred deviations; and on 2026-09-28 after T3b and T9
+finished (both on their branches, unmerged): the green set extended, the merge and
+install procedure written into the status paragraph, A2 (RMW coherence order) recorded
+as a fidelity finding with decision D15, T13 (the NVBit spike) added. If HEAD has moved, re-read `eval/BASELINES_SUMMARY.md`,
 `eval/FIX_REPORT.md`, `eval/FP_DIAGNOSIS.md` and `git log` before starting.
 
 ---
@@ -160,10 +163,14 @@ see T0 for why the previous "keep every trace" attempt lost data and for the pol
   ```
   rm -rf ScoR/microbenchmarks/artifacts/*
   .env/bin/python -m pytest python/test_sync_dominance.py python/test_barrier_soundness.py \
-      python/test_coherent_ldst.py python/test_atomic_memory_model.py
+      python/test_coherent_ldst.py python/test_atomic_memory_model.py \
+      python/test_barrier_exit.py python/test_hb_substitutions.py python/test_cp_async.py
   ```
-  Expected: everything passes, exactly one xfail (`test_relaxed_handoff_should_race`, the
-  documented Phase-2 relaxed-atomic unsoundness). A new failure is never "unrelated".
+  Expected (after the T3b + T9 merge): everything passes, exactly one xfail
+  (`test_relaxed_handoff_should_race`, the documented I4 case, until T12). A new failure
+  is never "unrelated". The GPU halves of `test_barrier_exit.py` and `test_cp_async.py`
+  skip on a runtime built before their change — a skip there means the installed
+  `libsanalyzer.so` is stale, not that the test is fine.
 - Verdict deltas are reported, never hidden: for any change that can flip a verdict,
   produce a before/after table over the kept traces (`compare_fpfix.py --before … --after-glob …`)
   and list every true positive lost and every new false positive by program.
@@ -273,16 +280,17 @@ Two things surfaced while reading the code that the plan has to carry:
 | T8 | 8 | rename the modes to scalar-clock / vector-clock, **including persisted strings** (converter over CSVs, kept stores, confirm files) | Sonnet · implementer; Sonnet subagent runs the green set + `make_tables.py` on migrated data | no | T0 (store inventory) | `rename/clock-modes` ✓ merged 1a45653 + 81b4262 |
 | T6 | 6 | review of `design/proof/hb_proof.tex` against the code: deviation table, simulator, strict xfails for I1/I2/I5, referee reading, SASS scan for O2 | Opus · reviewer/verifier (fresh context) | one node | T8 ✓ | `design/algorithms` ✓ 8d1e36e, report `design/T6_REVIEW.md`; PR #4 merged |
 | T3 | 3 | crs-cuda: the HeCBench program cuVein reports and SuperCollider calls race-free | Opus · investigator (+ Explore subagents); GPU for the reproducer and cross-checks | yes | T8 | `triage/crs-cuda` ✓ merged d8eb112 — false positive, cause below (T3b) |
-| T3b | 3 | exit-aware `__syncthreads` instance assembly (route (a), D7 decided): exit records in `hb_events`, exited threads subtracted from the expected count of whole-block instances (counted barriers keep `n`), `Complete` on exit — in `HbEngine`, `hb_oracle.py`, `barrier_only_pairs`; the end-of-kernel `pending_barriers` check in the engine and offline; crs-cuda needs a fresh recording (kept dumps have no exit records) | Sonnet · implementer, Opus · reviewer | yes (crs-cuda fresh trace + green set) | D7 ✓, T6 ✓ | `fix/barrier-exit-count` |
+| T3b | 3 | exit-aware `__syncthreads` instance assembly (route (a), D7 decided): exit records in `hb_events`, exited threads subtracted from the expected count of whole-block instances (counted barriers keep `n`), `Complete` on exit — in `HbEngine`, `hb_oracle.py`, `barrier_only_pairs`; the end-of-kernel `pending_barriers` check in the engine and offline; crs-cuda needs a fresh recording (kept dumps have no exit records) | Sonnet · implementer, Opus · reviewer | yes (crs-cuda fresh trace + green set) | D7 ✓, T6 ✓ | `fix/barrier-exit-count` ✓ done 2026-09-28 (aab77ca, 0e4e061; crs-cuda CLEAN 50/50 both modes; report `eval/CRS_CUDA_TRIAGE.md` §11) — **unmerged** |
 | T2 | 2 | host-memcpy (`cudaMemcpyAsync`) races: evidence, stream-agent model, prototype behind a flag | Sonnet · investigator, Opus · model review | small | T8 | `feat/host-memcpy` ✓ merged 07d2798 (`YOSEMITE_HB_HOST_MEMCPY`, `python/host_hb.py`; D5 open) |
 | T1a | 1 | apply the designed cp.async fix (F4: PIPELINE_WAIT + virtual async agent) | Opus · design check, Sonnet · implementer, Opus · verifier | yes (rebuild) | T8, T2 | `feat/cp-async-wait` ✓ merged bc32a1f + review 3331d35 (F4 fixed; runtime install pending) |
 | T5a | 5 | memory-footprint table from existing CSVs + engine state attribution | Sonnet · analyst | 3 runs | T8 | `study/memory-footprint` ✓ merged 6d843e3 (`YOSEMITE_HB_STATS`, `eval/MEMORY_FOOTPRINT.md`) |
 | T9-0 | 9 | latent census: what the `latent` tier catches and costs, fact (i) checked on the kept stores | Sonnet · analyst | no | — | `study/latent-census` ✓ report `eval/LATENT_CENSUS.md` 2026-09-26 (merge pending) |
-| T9 | 9 | vector-clock soundness: I1 (publish-then-tick) + I2 (buckets in **both** clocks, SC reported) + I5 (local memory excluded) in one change to oracle, engine and `barrier_only_pairs`; R2 moved from verdict to class, the `sc` column, `make_tables.py` for D2; the T6 strict xfails and `fence_rtraw` as regression tests | Opus · prover; Sonnet · implementer; Sonnet subagent for the re-score | re-score only + one P5 sweep | T6 ✓; D1/D6 ✓ | `fix/publish-then-tick` |
+| T9 | 9 | vector-clock soundness: I1 (publish-then-tick) + I2 (buckets in **both** clocks, SC reported) + I5 (local memory excluded) in one change to oracle, engine and `barrier_only_pairs`; R2 moved from verdict to class, the `sc` column, `make_tables.py` for D2; the T6 strict xfails and `fence_rtraw` as regression tests | Opus · prover; Sonnet · implementer; Sonnet subagent for the re-score | re-score only + one P5 sweep | T6 ✓; D1/D6 ✓ | `fix/publish-then-tick` ✓ done 2026-09-28 (b1a6408; 554 programs re-scored, no verdict moved at Race ∪ Latent; report `eval/T9_RESCORE.md`) — **unmerged**; one new FP at Race alone (A2, D15) |
 | T10 | — | sidecar strength and scope (O1): `.STRONG` loads/stores and `volatile` classed strong with their scope; atomicity no longer decided by RMW opcode alone; re-score E0/E1/E3 | Sonnet · implementer, Opus · review | re-score only | T9 (SC row exists) | `fix/sidecar-strength` |
 | T11 | — | monitor: TV checks in one Python module shared by oracle, `barrier_only_pairs` and a standalone `tv_check` CLI; engine keeps them behind `YOSEMITE_HB_STRICT`; delete the `expected == 0` degrade path; per-lane W2 row (I6) only if cheap | Sonnet · implementer | no | T3b (fifth check) | `fix/tv-monitor` |
 | T12 | — | I4: the instance gate (`fenced(p, p', s)` from the CFG dots with the O2 inventory — `MEMBAR.SC`, `CCTL.IVALL`, `BAR.SYNC` — two sidecar columns, the deferred acquire join with `Check(r)` against the joined clock) and R3's release point from the trace, sharing the predicate; measured on the kept stores before wiring; **in parallel with T5b** | Opus · design + review, Sonnet · implementer | re-score only + one P4/P5 sweep | T9, T10 | `feat/instance-gate` |
 | T1b | 1 | cp.async.bulk / TMA / dsmem model, validated on the H100 node with the 8 cuHadron sm_90 targets — **after the submission** | **Fable** · design + implementation (the hardest task in the queue); fresh Fable context as verifier | yes (`h100`, c29) | T1a ✓ | `feat/cp-async-bulk` |
+| T13 | — | NVBit feasibility spike: can atomics be recorded after execution with the value read; A2 inversion rate in vivo; overhead ratio — one day, report only, no detector change | Sonnet · analyst | yes (one `salloc`, `rtx4060ti16g`) | none — runs in parallel with the merge | `study/nvbit-spike` |
 | T5b | 5 | shared-base main clock (the planned engine memory fix) — **on the critical path**: vector-clock mode has no dump for P7, 8 of 9 P9 programs, 10 of 28 P4 apps and 23 P1 programs (T9-0 §1); 10 of the 58 timeout programs have barriers and no atomics (T6), which no gate can help — they are T5b's acceptance set | Sonnet · implementer, Opus · reviewer | yes (`engine_timeout_ids.txt`) | T1a ✓, T9 (directly after; parallel with T12) | `perf/shared-base-clock` |
 | T4 | 4 | smaller `hb_events`: lossless compact encoding first, lossy summary only if still needed — after the submission | design: Opus (short) · impl: Sonnet | measure only | T1b, T9, T5b merged | `perf/hb-events-format` |
 | T7 | 7 (opt.) | profile `sync_dominance.py` on the P9-mr trace; port the hot pass only if profiling says so — after the submission | Sonnet · profiler; Opus if a C++ port is warranted | no | T4 | `perf/analysis-hotpath` |
@@ -356,7 +364,48 @@ R2 decides class, not verdict (A4); T5b before/parallel with T12; local memory e
 Housekeeping: delete the untracked `hb_proof.tex` in the checkout root (the tracked copy
 is `design/proof/hb_proof.tex`); the T9-0 branch is merged (3ed5c9c), not pending.
 
-Remaining order: T3b and T9 in parallel now; then T10; then T5b and T12 in parallel
+**Status 2026-09-28** (T3b and T9 done on their branches; `origin/cuVein` at 1a3aea5 =
+PR #4 merged; this file's 09-27/28 revision is local until committed). T3b: crs-cuda
+recorded afresh is CLEAN in both modes (was RACE 155/7), 247,587 exit records, old
+dumps keep every verdict (3,739 rows, 0 changed); `TV-barrier-completion-order` had
+fired on 46 of 50 kept crs-cuda kernels, so the per-warp monitor did catch the case —
+nothing for T11 there; two further checks added (`TV-record-after-exit`, no exit while
+waiting: W3 and the exit half of W2, previously unchecked). T9: I1, I2 in both clocks,
+I5 by exclusion, D12 and the `sc` column; T6's three strict xfails pass; oracle equals
+the `Detect` reference on 32/32 re-recorded ScoR traces; 554 programs re-scored, no
+pair lost, 26 new DR pairs on 15 programs (`fence_rtraw`, `blklock_waw` among them), 200
+SC pairs on Indigo `CudaAtomic`, no program verdict moved at Race ∪ Latent; the bucket
+state is ±40 MB and the O(threads²) clocks are untouched (T5b). `hb_races` is now
+aggregated per (pc pair, kind, class, space, distance, async) with a count — the
+unmerged buckets produced 1.7·10⁹ records; no verdict depends on it, but
+`latent_census.py` and the engine==oracle comparison read the aggregated form. Not
+covered by the re-score: 4 P1 1296n programs (Python oracle out of memory) and
+P9-mr-cuda (>2.5 h) — T7's profiling of `sync_dominance.py`/the oracle moves forward if
+either matters for the tables. **New fidelity finding (A2):** the Sanitizer callback
+runs before the instruction, so an atomic's record is its issue point; when two RMW
+windows on one location overlap, trace order can invert coherence order. Effect at
+Race alone: `matrix-multiplication-norace-small` becomes an FP (a successful lock CAS
+recorded five records before the unlock it read from); the inversion also manufactures
+an edge in the other direction (a missed-race risk, unmeasured). Decision D15 below;
+T13 measures the rate and tests the fix's feasibility.
+
+**Merge and install (do this before T10; T13 runs in parallel).** From the main
+checkout on `cuVein`: commit this file first (neither branch touches it); then
+`git merge --no-ff origin/fix/barrier-exit-count`, then `git merge --no-ff
+origin/fix/publish-then-tick`. Expect conflicts in `pc_dependency_analysis.cpp`,
+`hb_oracle.py`, `sync_dominance.py` (`barrier_only_pairs`), `test_barrier_exit.py` and
+`design/proof/hb_proof.tex` (T3b edited §1 and the I3 row; T9 the async-copy
+extension, the §5 matrix, the I1/I2/I5 rows and the A2 finding). Both branches
+implement exit-aware counting — keep one copy. Then **rebuild `libsanalyzer` from the
+merged tree** and install that; do not copy either worktree's `wt_install/lib/`, each
+was built without the other's change. Then the green set as extended above (expect
+≈230 passed, 1 xfail), a fresh crs-cuda recording with the merged library (CLEAN, 0 TV
+violations), and one re-score of the evcand store (0 rows changed). The 09-27 proof
+edits that T9 did not already make (Definition "Records" local exclusion, A1 wording,
+the fence-inventory sentence in Definition "Gate", the order of work) are re-applied on
+the merged `.tex` afterwards; T9's §5 matrix is the D12 one and stands.
+
+Remaining order: the merge and install; T13 in parallel now; then T10; then T5b and T12 in parallel
 (T12's gate measured on the kept stores before it is wired; T5b's acceptance is the
 barrier-only timeout set); then the mode comparison on every suite where both modes
 have dumps and one baseline re-run. After the submission: T1b on `h100`, T4, T7, I6,
@@ -441,6 +490,17 @@ the `bar.arrive` flag, the access-size check, the §6 referee notes.
   barrier-only timeout programs need T5b regardless of the gate.
 - **D14** (T9, decided 2026-09-27, with Yanbo Zhao): local memory is excluded from the HB
   trace and the model rather than keyed per thread; the collector's tag stays as is.
+- **D15** (A2, decided 2026-09-28): for the submission, A2 stays an assumption of the
+  trusted base, stated as "the collector records at issue; A2 holds when RMW windows on a
+  location do not overlap", with the measured rate (T13 step 4 on the litmus; an offline
+  window count over the kept dumps if T13 finds the rate is not negligible) and the one
+  affected verdict footnoted. If the count is material, a report-level flag
+  (`a2_uncertain`: a DR whose only missing ordering is a chain edge between two RMWs
+  with overlapping windows) is added as its own informational column, like `latent`
+  and `sc`. The real fix — atomics recorded after execution with the value read, which
+  pins coherence order — needs an after-instruction hook the Sanitizer patching API
+  does not have; T13 tests it on NVBit; a collector on it is post-submission (it would
+  force a full re-evaluation).
 - **D11** (T12, tables): a labelled-clean program the gated detector reports because one
   side of a hand-off has no fence of sufficient scope (T9-0: the ticket `atomicInc` of
   `reduction-norace`, which iGUARD also reports) is a PTX race by the letter. Policy:
@@ -1138,6 +1198,91 @@ Steps
 Report: `eval/INSTANCE_GATE.md`; update §7's I4 row in `hb_proof.tex` to "matched" and
 write the one-paragraph containment argument in §6 (the gate admits only PTX
 release/acquire patterns).
+
+### T13 — NVBit feasibility spike: can atomics be recorded after execution, with the value read? (one day)
+Branch `study/nvbit-spike`. Model: Sonnet. GPU: one `rtx4060ti16g` node (sm_89, CUDA 13.3,
+driver 580.82). **Time-boxed to one day. Measurement and report only: nothing in the
+detector, the collector or the proof changes, and nothing is merged.** Independent of the
+T3b/T9 merge; runs in parallel with it.
+
+Context. The Sanitizer collector records a memory access at the callback, which runs
+*before* the instruction, so a record's position is the issue point and an atomic
+executes somewhere before the thread's next record. When two RMWs on one location from
+different warps have overlapping windows, trace order and coherence order come apart
+and assumption A2 of `hb_proof.tex` fails (T9: `matrix-multiplication-norace-small`, a
+successful lock CAS recorded five records before the unlock it read from; D15). The
+Sanitizer patching API has no after-instruction hook (verify in `sanitizer_patching.h`
+and say so). NVBit has `IPOINT_AFTER` and can pass register values to the
+instrumentation call. This spike answers three questions the paper's limitations
+paragraph depends on, and nothing more: does NVBit run on this toolchain; does the
+after-point yield an atomic's old value correctly; what does it cost. Do not build a
+collector.
+
+Environment. The compute nodes have no route to GitHub; the login node does. Download
+on the login node, build and run on an allocated node:
+- login node: fetch the newest NVBit release tarball from
+  `https://github.com/NVlabs/NVBit/releases` (the Linux x86_64 build) into
+  `~/incoming/nvbit/`, record the version and the CUDA/driver support stated in its
+  README, and do the same for the release the `nv-nvbit` submodule pins if it differs.
+  Nothing else runs here.
+- compute node: `salloc -p rtx4060ti16g -x c54,c2 --time=8:00:00 --gres=gpu:1`, then
+  every build and run through `srun` inside that allocation (the allocation is the whole
+  day's budget; do not sbatch one job per step). Extract the tarball under
+  `~/incoming/nvbit/<version>/` there, build `tools/mem_trace` and `atom_after` with the
+  node's `nvcc` (CUDA 13.3), and keep the allocation until step 5 is done. Never load
+  NVBit and the Sanitizer collector in the same process: run each measurement in a clean
+  environment (no `YOSEMITE_*`, no `LD_PRELOAD` of `libsanalyzer`).
+
+Steps
+1. Inventory. Look at the `nv-nvbit` submodule (`.gitmodules` → `AccelProf/nv-nvbit`):
+   what it contains, which NVBit release it pins, whether anything in it already traces
+   memory. Compare that release with the newest one downloaded above; use the newest
+   unless its README excludes driver 580 / CUDA 13.3, in which case try both and report
+   which loads. If neither loads on the node, that is the blocker: stop after step 2's
+   evidence and write the report.
+2. Load test. Build NVBit's `tools/mem_trace` unchanged and run it on
+   `ScoR/microbenchmarks/artifacts/race_interblock_fence_rtraw` (the binary the litmus
+   suite already builds). Record: NVBit version, whether the tool loads under driver
+   580.82 / CUDA 13.3, whether a trace is produced, and any warning it prints.
+3. Value test. Write a small tool `atom_after` (copy `mem_trace`, ~100 lines changed):
+   for every `ATOM*`/`ATOMS*`/`ATOMG*` (not `RED`, which returns nothing) insert a call
+   at `IPOINT_BEFORE` with pc, lane mask and the memory address
+   (`nvbit_add_call_arg_mref_addr64`) and a call at `IPOINT_AFTER` with pc and the
+   **destination register's value** (`nvbit_add_call_arg_reg_val` on the instruction's
+   destination operand). Emit one line per lane per call to the host channel with a
+   sequence number taken by `atomicAdd` on a global counter, so before/after positions
+   are comparable with the Sanitizer's. Test kernel `python/testdata/atom_values.cu`,
+   three parts on one GPU run:
+   - one warp, lane 0 only: `atomicAdd(&x, 1)` eight times — the after-values must be
+     exactly 0..7 in order;
+   - eight warps, all lanes: `atomicAdd(&x, 1)` once each — the after-values must be a
+     permutation of 0..255 with no repeats (this is the coherence order, read off
+     directly);
+   - the matrix-multiplication lock idiom, 4 blocks × 4 warps contending one
+     `atomicCAS(&lock, 0, 1)` / `atomicExch(&lock, 0)` with a fenced critical section:
+     old values must alternate correctly (a successful CAS reads 0, the next successful
+     CAS reads 0 only after an Exch), and every failed CAS reads 1.
+   If the after-value is wrong or stale on the long-latency global atomics — the known
+   risk with reading a destination register right after a memory instruction — try the
+   same read at the next instruction's `IPOINT_BEFORE` and report which works.
+4. A2 in vivo. On part three, using only the before-positions (the Sanitizer's view),
+   count the same-location RMW pairs whose windows overlap, and how many of those the
+   values show to be inverted relative to trace order. This is the first measured rate
+   of A2 violations; report it per contention level (2, 4, 16 warps).
+5. Cost. Wall-clock of `race_interblock_fence_rtraw` and one P4 app (`bfs`, or the
+   smallest that traces quickly) under: native, the Sanitizer HB path
+   (`YOSEMITE_HB_TRACE=1`, scalar-clock mode), `mem_trace`, and `atom_after`. One run
+   each is enough for an order of magnitude; say if it isn't.
+
+Acceptance: a yes/no for each of the three questions with the evidence; the numbers of
+steps 4 and 5; the list of blockers; the source of `atom_after` and the test kernel
+committed on the branch under `eval/nvbit_spike/`; the exact `salloc`/`srun` commands
+and the NVBit version, so the result is reproducible from the login node. No file
+outside that directory and `eval/NVBIT_SPIKE.md` changes.
+
+Report: `eval/NVBIT_SPIKE.md` — one paragraph the paper can cite ("recording atomics after
+execution with the value read is / is not feasible on this toolchain; observed inversion
+rate; overhead ratio"), then the details. No `Co-Authored-By` trailer.
 
 ### T5b — Shared-base main clock (todo 5, the fix)
 Branch `perf/shared-base-clock`. Models: Sonnet (implementation), Opus (review). GPU:
