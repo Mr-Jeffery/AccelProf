@@ -81,27 +81,29 @@ struct HbEngine {
             [](const std::pair<Tid, uint64_t>& e, Tid x) { return e.first < x; });
         return (it != b.end() && it->first == u) ? it->second : 0;
     }
-    static Base base_merge(const Base& a, const Base& b) {        // pointwise max
+    // pointwise max; a_has_all / b_has_all: the result equals a / b (then a caller may keep it)
+    static Base base_merge(const Base& a, const Base& b, bool* a_has_all = nullptr,
+                           bool* b_has_all = nullptr) {
         Base out;
         out.reserve(a.size() + b.size());
+        bool ga = true, gb = true;                          // a ⊒ b, b ⊒ a so far
         auto i = a.begin(), j = b.begin();
         while (i != a.end() && j != b.end()) {
-            if (i->first < j->first) out.push_back(*i++);
-            else if (j->first < i->first) out.push_back(*j++);
-            else { out.emplace_back(i->first, std::max(i->second, j->second)); ++i; ++j; }
+            if (i->first < j->first) { out.push_back(*i++); gb = false; }
+            else if (j->first < i->first) { out.push_back(*j++); ga = false; }
+            else {
+                if (i->second < j->second) ga = false;
+                if (j->second < i->second) gb = false;
+                out.emplace_back(i->first, std::max(i->second, j->second)); ++i; ++j;
+            }
         }
+        if (i != a.end()) gb = false;
+        if (j != b.end()) ga = false;
         out.insert(out.end(), i, a.end());
         out.insert(out.end(), j, b.end());
+        if (a_has_all) *a_has_all = ga;
+        if (b_has_all) *b_has_all = gb;
         return out;
-    }
-    static bool base_covers(const Base& big, const Base& small) {  // small ⊑ big
-        if (small.size() > big.size()) return false;
-        auto i = big.begin();
-        for (const auto& e : small) {
-            while (i != big.end() && i->first < e.first) ++i;
-            if (i == big.end() || i->first != e.first || i->second < e.second) return false;
-        }
-        return true;
     }
     static Base base_sorted(std::vector<std::pair<Tid, uint64_t>> v) {   // sort, max per tid
         std::sort(v.begin(), v.end());
@@ -143,8 +145,8 @@ struct HbEngine {
     }
     // Joining another base: a small one goes into the delta; a large one is merged with ours
     // into a new base, memoised on the pair, so the threads of one sync group acquiring from
-    // releases of one other group share the merged base. A delta that has grown past an
-    // eighth of its base (and 64 entries) is folded into a private base, so a release keeps
+    // releases of one other group share the merged base. A delta that has grown past a
+    // 32nd of its base (and 64 entries) is folded into a private base, so a release keeps
     // copying O(delta) and the fold's O(base) cost is amortised over the entries it absorbs.
     static constexpr size_t DELTA_JOIN_MAX = 64, FOLD_MIN = 64;
     struct MergeKey {
@@ -167,9 +169,9 @@ struct HbEngine {
         if (it != merge_memo.end() && !it->second.a.expired() && !it->second.b.expired())
             if (auto o = it->second.out.lock()) return o;
         BaseP out;
-        if (base_covers(*a, *b)) out = a;
-        else if (base_covers(*b, *a)) out = b;
-        else out = std::make_shared<const Base>(base_merge(*a, *b));
+        bool ga = false, gb = false;
+        Base m = base_merge(*a, *b, &ga, &gb);
+        out = ga ? a : gb ? b : std::make_shared<const Base>(std::move(m));
         if (merge_memo.size() >= MERGE_MEMO_MAX) merge_memo.clear();
         merge_memo[k] = Merged{a, b, out};
         return out;
@@ -197,7 +199,7 @@ struct HbEngine {
         for (const auto& kv : s.delta) put(kv.first, kv.second);
         if (s.own != 0) put(s.self, s.own);
         const size_t bsz = d.base ? d.base->size() : 0;
-        if (d.delta.size() > FOLD_MIN && d.delta.size() * 8 > bsz) {
+        if (d.delta.size() > FOLD_MIN && d.delta.size() * 32 > bsz) {
             const Base dl = base_of(d.delta);
             d.base = std::make_shared<const Base>(d.base ? base_merge(*d.base, dl) : dl);
             d.delta.clear();
@@ -719,13 +721,17 @@ struct HbEngine {
     // Applied to both clocks; it is the ONLY thing that advances vs.
     // T5b: the join of a group's clocks as one base: each distinct input base once, plus the
     // loose entries (deltas, own components)
-    static BaseP join_group(const std::vector<BaseP>& bs, std::vector<std::pair<Tid, uint64_t>> loose) {
-        if (bs.size() == 1) return std::make_shared<const Base>(base_merge(*bs[0], base_sorted(std::move(loose))));
-        size_t n = loose.size();
-        for (const BaseP& b : bs) n += b->size();
-        loose.reserve(n);
-        for (const BaseP& b : bs) loose.insert(loose.end(), b->begin(), b->end());
-        return std::make_shared<const Base>(base_sorted(std::move(loose)));
+    // (largest first, pairwise linear merges; a base the running join covers costs one scan)
+    static BaseP join_group(std::vector<BaseP> bs, std::vector<std::pair<Tid, uint64_t>> loose) {
+        Base acc = base_sorted(std::move(loose));
+        std::sort(bs.begin(), bs.end(), [](const BaseP& x, const BaseP& y) { return x->size() > y->size(); });
+        for (const BaseP& b : bs) {
+            if (acc.empty()) { acc = *b; continue; }
+            bool ga = false;
+            Base m = base_merge(acc, *b, &ga);
+            if (!ga) acc = std::move(m);
+        }
+        return std::make_shared<const Base>(std::move(acc));
     }
     void sync_group(const std::vector<Tid>& tids) {
         std::vector<BaseP> pbs;                             // T14: the possible deltas join too
