@@ -31,6 +31,20 @@ and moral strength from these lines; an older engine skips them as comments and 
 engines compute the same races from one sidecar. Under a pre-T10 policy (generic, all,
 none) no strength line is written and the file is the pre-T10 sidecar.
 
+The gate table (T12, hb_proof.tex Definition "Gate", design/instance_gate.md section 4):
+
+    # gate-kernel <kernel>
+    # gate <rmw pc> rel <kernel> <pc> <pc> ...
+    # gate <rmw pc> acq <kernel> <pc> <pc> ...
+
+for every RMW pc of scope block/grid: the record pcs p with fenced(p, r, scope(r), release)
+(`rel`) and q with fenced(r, q, scope(r), acquire) (`acq`), from sync_dominance.gate_table --
+the same table hb_oracle.py evaluates. The FENCED pcs are listed, so a pc the table does not
+know is unfenced (the gate errs toward reporting). A kernel in several cubins gets the
+intersection. An engine older than T12 skips the lines; an engine since T12 uses the instance
+gate for a kernel with a `# gate-kernel` line (unless YOSEMITE_HB_GATE=trusting) and the
+trusting gate otherwise. --gate trusting writes no gate lines.
+
 Usage:  python atomic_scope_sidecar.py <dot> [<dot> ...] -o atomic_scope.txt
 """
 import argparse
@@ -46,11 +60,13 @@ def kernel_key(mangled):
     return re.sub(r"\s+", "", sd._demangle(mangled) or mangled)
 
 
-def collect(dot_paths, policy=None, asyncs=None, mem=None):
+def collect(dot_paths, policy=None, asyncs=None, mem=None, gates=None):
     """-> ({(kernel_key, pc): (scope, kind)}, [kernel_key, ...]); asyncs (a dict, if given)
     receives {kernel_key: {cp.async (LDGSTS) pcs}} (T1a), the union over the dots like the
     coherent-pc table (a multi-arch binary has one cubin per arch); mem (a dict, if given)
-    receives {kernel_key: {memory pcs}}, the domain of the strength column (T10)."""
+    receives {kernel_key: {memory pcs}}, the domain of the strength column (T10); gates (a
+    dict, if given) receives {kernel_key: {rmw pc: (rel-fenced, acq-fenced)}} (T12),
+    intersected over the dots that hold the kernel."""
     policy = sd.strong_ldst_policy(policy)
     scopes, names = {}, []
     for dp in dot_paths:
@@ -64,6 +80,13 @@ def collect(dot_paths, policy=None, asyncs=None, mem=None):
             key = kernel_key(mangled)
             names.append(key)
             g = sd.HBGraph(*kern)
+            if gates is not None:
+                tab = {r: (rel, acq) for r, (sc, rel, acq) in g.gate_table().items()
+                       if sc > sd.NONE}
+                old = gates.get(key)
+                gates[key] = tab if old is None else \
+                    {r: (old[r][0] & v[0], old[r][1] & v[1]) if r in old else (frozenset(),) * 2
+                     for r, v in tab.items()}
             if asyncs is not None and sd.async_pcs(g):
                 asyncs.setdefault(key, set()).update(sd.async_pcs(g))
             for pc, op in g.pc_opcode.items():
@@ -88,6 +111,16 @@ def strength_lines(scopes, mem):
     return out
 
 
+def gate_lines(gates):
+    """T12: the gate table as sidecar comment lines."""
+    out = [f"# gate-kernel {key}" for key in sorted(gates)]
+    for key in sorted(gates):
+        for r, (rel, acq) in sorted(gates[key].items()):
+            for side, pcs in (("rel", rel), ("acq", acq)):
+                out.append(" ".join([f"# gate {r} {side} {key}", *map(str, sorted(pcs))]))
+    return out
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.strip().splitlines()[0])
     ap.add_argument("dots", nargs="+", type=Path)
@@ -96,10 +129,14 @@ def main(argv=None):
                     help="which .STRONG loads/stores are strong: 'token' (every one with a "
                          "known scope, T10; writes the strength column) or a pre-T10 "
                          "ablation (default: $CUVEIN_STRONG_LDST or 'token')")
+    ap.add_argument("--gate", choices=("instance", "trusting"),
+                    help="write the instance gate's table (T12) or none "
+                         "(default: $CUVEIN_GATE or 'instance')")
     args = ap.parse_args(argv)
     policy = sd.strong_ldst_policy(args.strong_ldst)
     asyncs, mem = {}, {}
-    scopes, names = collect(args.dots, policy, asyncs, mem)
+    gates = {} if sd.gate_mode(args.gate) == "instance" else None
+    scopes, names = collect(args.dots, policy, asyncs, mem, gates)
     lines = [f"# kernel {key}" for key in names]
     lines += [f"{pc} {s} {kind} {key}" for (key, pc), (s, kind) in sorted(scopes.items())]
     # T1a: cp.async (LDGSTS) pcs as comment lines -- an engine older than T1a skips them
@@ -108,10 +145,13 @@ def main(argv=None):
     # T10: the strength column, comment lines as well (an engine older than T10 skips them)
     strength = strength_lines(scopes, mem) if policy == "token" else []
     lines += strength
+    glines = gate_lines(gates) if gates is not None else []   # T12
+    lines += glines
     args.output.write_text("\n".join(lines) + ("\n" if lines else ""))
     print(f"[atomic_scope_sidecar] {len(scopes)} coherent pc(s), "
           f"{sum(len(v) for v in asyncs.values())} cp.async pc(s), "
-          f"{len(strength)} strength line(s) ({policy}) -> {args.output}")
+          f"{len(strength)} strength line(s) ({policy}), "
+          f"{len(glines)} gate line(s) -> {args.output}")
     return 0
 
 
