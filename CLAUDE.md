@@ -21,7 +21,10 @@ install procedure written into the status paragraph, A2 (RMW coherence order) re
 as a fidelity finding with decision D15, T13 (the NVBit spike) added; and on 2026-09-28
 evening after the merge (`cuVein` 6c34736: T3b + T9 + T13 in, library 75f46012 installed)
 with T13's result — A2 inverts 1–4 % of contended hand-offs, so D15's flag is built as
-T14 — and the proof's 09-27/28 edits re-applied on the merged file. If HEAD has moved, re-read `eval/BASELINES_SUMMARY.md`,
+T14 — and the proof's 09-27/28 edits re-applied on the merged file; and on 2026-09-29 after
+T10 and T14 finished: D9 adopted, D2 amended (PTX primary, ScoRD's notion as a second column
+for ScoR), D15's rate corrected to the Sanitizer's own (11–32 %) with the explanation of the
+gap to NVBit, T15 (late ordering key) added, the T11 lead from ECL-GC recorded. If HEAD has moved, re-read `eval/BASELINES_SUMMARY.md`,
 `eval/FIX_REPORT.md`, `eval/FP_DIAGNOSIS.md` and `git log` before starting.
 
 ---
@@ -289,12 +292,13 @@ Two things surfaced while reading the code that the plan has to carry:
 | T5a | 5 | memory-footprint table from existing CSVs + engine state attribution | Sonnet · analyst | 3 runs | T8 | `study/memory-footprint` ✓ merged 6d843e3 (`YOSEMITE_HB_STATS`, `eval/MEMORY_FOOTPRINT.md`) |
 | T9-0 | 9 | latent census: what the `latent` tier catches and costs, fact (i) checked on the kept stores | Sonnet · analyst | no | — | `study/latent-census` ✓ report `eval/LATENT_CENSUS.md` 2026-09-26 (merge pending) |
 | T9 | 9 | vector-clock soundness: I1 (publish-then-tick) + I2 (buckets in **both** clocks, SC reported) + I5 (local memory excluded) in one change to oracle, engine and `barrier_only_pairs`; R2 moved from verdict to class, the `sc` column, `make_tables.py` for D2; the T6 strict xfails and `fence_rtraw` as regression tests | Opus · prover; Sonnet · implementer; Sonnet subagent for the re-score | re-score only + one P5 sweep | T6 ✓; D1/D6 ✓ | `fix/publish-then-tick` ✓ done 2026-09-28 (b1a6408; 554 programs re-scored, no verdict moved at Race ∪ Latent; report `eval/T9_RESCORE.md`) — merged ebc464f → `cuVein` 6c34736; library 75f46012 installed; green set 238 passed + the one expected failure; evcand 3,621 rows unchanged; one new FP at Race alone (A2, D15 → T14) |
-| T10 | — | sidecar strength and scope (O1): `.STRONG` loads/stores and `volatile` classed strong with their scope; atomicity no longer decided by RMW opcode alone; re-score E0/E1/E3 | Sonnet · implementer, Opus · review | re-score only | T9 (SC row exists) | `fix/sidecar-strength` |
+| T10 | — | sidecar strength and scope (O1): a load/store is strong at the scope its `.STRONG.<scope>` token names, generic and address-spaced alike (`volatile` included); default policy `token`, the old ones ablations | Sonnet · implementer, Opus · review | re-score only | T9 ✓ | `fix/sidecar-strength` ✓ done 2026-09-29 (f2a5bde; `eval/SIDECAR_STRENGTH.md`): 1,141 of 1,306 DR instances on the 43 ScoR programs with `volatile` become SC, no other program moves (545 × 2), 5 FPs removed, none added, green set 275 + 1; D9 adopted — **merge pending** |
 | T11 | — | monitor: TV checks in one Python module shared by oracle, `barrier_only_pairs` and a standalone `tv_check` CLI; engine keeps them behind `YOSEMITE_HB_STRICT`; delete the `expected == 0` degrade path; per-lane W2 row (I6) only if cheap | Sonnet · implementer | no | T3b (fifth check) | `fix/tv-monitor` |
 | T12 | — | I4: the instance gate (`fenced(p, p', s)` from the CFG dots with the O2 inventory — `MEMBAR.SC`, `CCTL.IVALL`, `BAR.SYNC` — two sidecar columns, the deferred acquire join with `Check(r)` against the joined clock) and R3's release point from the trace, sharing the predicate; measured on the kept stores before wiring; **in parallel with T5b** | Opus · design + review, Sonnet · implementer | re-score only + one P4/P5 sweep | T9, T10 | `feat/instance-gate` |
 | T1b | 1 | cp.async.bulk / TMA / dsmem model, validated on the H100 node with the 8 cuHadron sm_90 targets — **after the submission** | **Fable** · design + implementation (the hardest task in the queue); fresh Fable context as verifier | yes (`h100`, c29) | T1a ✓ | `feat/cp-async-bulk` |
 | T13 | — | NVBit feasibility spike: after-execution atomics with the value read; A2 inversion rate in vivo; overhead — report only | Sonnet · analyst | yes (one `salloc`) | none | `study/nvbit-spike` ✓ done 2026-09-28 (0a444e9, merged into 6c34736; `eval/NVBIT_SPIKE.md`): NVBit 1.8 loads on driver 580 (README says ≤ 575; the submodule's 1.7.1 does not load); old values correct in every test; Sanitizer-order inversions 0/155, 4/315, 52/1,275 hand-offs at 2/4/16 warps; cost 427× native unoptimised vs 134× for the Sanitizer HB path on the one kernel-dominated input |
-| T14 | — | A2 in the tables: the `a2_uncertain` report flag (D15) and the offline RMW window count over the kept dumps; no verdict change | Sonnet · implementer, Opus · review of the flag's definition | no (kept dumps) | T9 ✓ (buckets, aggregated `hb_races`) | `feat/a2-flag` — parallel with T10 |
+| T14 | — | A2 in the tables: the `a2_uncertain` report flag (D15) and the offline RMW window count over the kept dumps; no verdict change | Sonnet · implementer, Opus · review of the flag's definition | no (kept dumps) | T9 ✓ | `feat/a2-flag` ✓ done 2026-09-29 (2c979fd; `design/a2_flag.md`, `eval/A2_WINDOWS.md`): flag moves 0 of 558 verdicts; 397/397 programs with cross-warp RMWs have overlapping windows; 432,810 DR instances flagged in 34 programs; 3 race-free ScoR programs' Race-alone verdicts rest on flagged reports only; Sanitizer's own inversion rate 11 / 32 / 28 % at 2 / 4 / 16 warps; green set 250 + 1 — **merge pending** |
+| T15 | — | late ordering key: draw a second monotonic key (`atomicAdd` on a separate counter, or `%globaltimer`) as the last action of the HB-path callback, carry it in the HB record, order `hb_events` by it on the host; measure with T14's `handoffs` harness before adopting | Sonnet · implementer | yes (one node, the lock litmus) | T14 ✓ merged | `perf/late-seq` — small; parallel with T5b/T12 |
 | T5b | 5 | shared-base main clock (the planned engine memory fix) — **on the critical path**: vector-clock mode has no dump for P7, 8 of 9 P9 programs, 10 of 28 P4 apps and 23 P1 programs (T9-0 §1); 10 of the 58 timeout programs have barriers and no atomics (T6), which no gate can help — they are T5b's acceptance set | Sonnet · implementer, Opus · reviewer | yes (`engine_timeout_ids.txt`) | T1a ✓, T9 (directly after; parallel with T12) | `perf/shared-base-clock` |
 | T4 | 4 | smaller `hb_events`: lossless compact encoding first, lossy summary only if still needed — after the submission | design: Opus (short) · impl: Sonnet | measure only | T1b, T9, T5b merged | `perf/hb-events-format` |
 | T7 | 7 (opt.) | profile `sync_dominance.py` on the P9-mr trace; port the hot pass only if profiling says so — after the submission | Sonnet · profiler; Opus if a C++ port is warranted | no | T4 | `perf/analysis-hotpath` |
@@ -418,7 +422,38 @@ no destination register, so a release through an unused `atomicAdd` result stays
 issue position even under NVBit. The value-recording collector is post-submission
 (one tool per process; a full re-evaluation).
 
-Remaining order: T10 and T14 in parallel now; then T5b and T12 in parallel (T12's gate
+**Status 2026-09-29** (T10 and T14 done on their branches; Jeffery merges by hand — the
+permission classifier flags agent pushes to `cuVein`). **Merge:** `git merge --ff-only
+origin/cuVein`, then `git merge --no-ff origin/feat/a2-flag`, then `git merge --no-ff
+origin/fix/sidecar-strength` (D9 adopted); `git merge-tree` reported no conflict between
+the two; rebuild `libsanalyzer` from the merged tree and install that file (the collector
+is unchanged; neither worktree's `wt_install` has the other's change); green set expected
+287 passed + the one xfail. Then delete the agent worktrees (`.claude/worktrees/agent-*`,
+`docs-0928-evening`) — home is at 38.0 of 39.9 GB. **Docs on merge:** `eval/README.md`
+§"False-positive diagnosis": `--strong-ldst {token,generic,all,none}`, default `token`,
+and the `hb_a2`/`a2_uncertain` field; `hb_proof.tex` §7 carries T10's labeling text, item
+(4) done, and the A2 gap explanation (this revision).
+
+**What T10 and T14 established.** The strength rule never changes whether a pair is
+reported, only its class (strength enters `ms` only), so T10's 1,141 DR → SC moves lose
+nothing; what moves is how ScoR reads against its labels (D2, amended). T14's flag is
+concentrated where the windows matter: in the ScoR applications 57 % of DR instances are
+flagged and 26 pc pairs entirely; in P1/P2/P3/P5/P6/P9 no reported pair has every instance
+flagged — every report there is A2-robust, which is the sentence the paper needs. The
+Sanitizer's own inversion rate on the lock litmus is 11 / 32 / 28 % at 2 / 4 / 16 warps,
+7–25× NVBit's — the number D15 and the paper must quote; NVBit's 0–4 % is a different
+instrumentation's window. The gap is not the hardware: the Sanitizer callback draws its
+buffer index first and then writes, fences and increments the entry count, so the window
+between the ordering key and the instruction holds a fence and a second global atomic;
+NVBit's tool drew its key last. T15 tests the cheap mitigation (a late key) before anyone
+relies on it. Open on A2w (an RMW has taken effect by its thread's next record): the
+Sanitizer callback does not wait for the atomic's result; not measured for `RED`.
+**T11 lead** (from T10): `TV-record-after-exit` fires on ECL-GC — either the exit callback's
+lane mask over-reports the exiting lanes under ITS, or exit and memory records reach the
+dump through paths whose relative order is not the warp's; T11 decides which before
+touching the check.
+
+Remaining order: the merge above; then T5b and T12 in parallel, T15 alongside (T12's gate
 measured on the kept stores before it is wired; T5b's acceptance is the barrier-only
 timeout set); then the mode comparison on every suite where both modes have dumps and
 one baseline re-run. After the submission: the NVBit collector (A2), T1b on `h100`, T4,
@@ -437,6 +472,16 @@ T7, I6, the `bar.arrive` flag, the access-size check, the §6 referee notes.
   strong–strong pairs an atomic hand-off ordered (it cannot tell), which is one more named
   class of the mode comparison. Counts are taken from the class before `judge`'s
   `benign`/`warp-po-ordered` relabels. `make_tables.py` changes accordingly in T9.
+  **Amended 2026-09-29 (after T10):** the primary counting is PTX's for every suite — DR
+  counts, `sc` and `latent` informational, both operating points. ScoR (P4 applications,
+  P5 litmus) is additionally shown under ScoRD's own notion — DR ∪ SC as reports, TP and
+  FP alike, symmetric — for comparability with prior work; the report set is
+  policy-independent, so this column costs nothing. The stale-label cases are named, not
+  absorbed: labels ITS invalidates (F1's volatile warp-tail; iGUARD agrees on the reduction
+  programs), labels the PTX model reclassifies (16 of 18 litmus races: reported, as SC),
+  labels PTX contradicts (the reduction ticket idiom, under T12's gate). One paragraph in
+  the paper and a per-kernel table in the supplement; ScoR predates Volta and the PTX
+  memory model, and the paper says so.
 - **D3** (T8) — **decided 2026-09-22: migrate the persisted strings as well.** T8 ships
   the converter and runs it over every result CSV, confirm file and kept-trace store
   (home and BeeGFS); readers keep a one-release compatibility path that warns.
@@ -484,12 +529,12 @@ T7, I6, the `bar.arrive` flag, the access-size check, the §6 referee notes.
   the paper, confirmed by re-recording in the other acquisition order where possible;
   not a headline. Rationale and numbers: `hb_proof.tex` §5 "The latent tier",
   `eval/LATENT_CENSUS.md` §8.
-- **D9** (T10): sidecar policy for strength. A `LD/ST` with a `.STRONG.<scope>` token
-  (`cuda::atomic` relaxed loads/stores, `volatile`) is strong at that scope for `ms`;
-  atomicity is no longer decided by the RMW opcode alone; a load/store without the token
-  is weak. Scope errs narrow (A4). Recommended: yes — the graph-code false results
-  (E0/E1/E3, `learnings`) are exactly this. Default if unanswered: implement and re-score
-  E0/E1/E3, report, do not merge.
+- **D9** (T10) — **decided 2026-09-29: adopt the token rule.** A load or store is strong
+  at the scope its `.STRONG.<scope>` token names, generic and address-spaced alike; the
+  compiler emits the same instruction for `volatile` and `ld/st.relaxed.sys.global`, so no
+  sidecar can separate them on facts. Atomicity stays the opcode's. `generic` remains as the
+  code path for pre-T10 sidecars, not as a paper configuration (its numbers under ScoRD's
+  notion equal `token`'s by construction).
 - **D10** (T11): default of `YOSEMITE_HB_STRICT` in the engine once the TV checks also
   run offline. Recommended: keep strict on by default unless T11's measurement shows it
   above a few percent of engine time. Default if unanswered: keep on.
@@ -513,9 +558,11 @@ T7, I6, the `bar.arrive` flag, the access-size check, the §6 referee notes.
   and `sc`. The real fix — atomics recorded after execution with the value read, which
   pins coherence order — needs an after-instruction hook the Sanitizer patching API
   does not have; T13 tests it on NVBit; a collector on it is post-submission (it would
-  force a full re-evaluation). **T13 (2026-09-28): feasible; inversion rate 1–4 % on a
-  contended lock — the flag is built as T14; the count over the kept dumps is T14's
-  second deliverable.**
+  force a full re-evaluation). **T13 (2026-09-28): feasible; NVBit saw 0–4 % inversions.
+  T14 (2026-09-29): the Sanitizer's own rate on the same lock is 11 / 32 / 28 % at
+  2 / 4 / 16 warps — this is the rate to quote; the flag is built and moves no verdict;
+  outside the ScoR applications no reported pair depends on A2. T15 measures the late
+  ordering key as a mitigation.**
 - **D11** (T12, tables): a labelled-clean program the gated detector reports because one
   side of a hand-off has no fence of sufficient scope (T9-0: the ticket `atomicInc` of
   `reduction-norace`, which iGUARD also reports) is a PTX race by the letter. Policy:
@@ -1351,6 +1398,39 @@ Report: `eval/A2_WINDOWS.md` — the definition, the corpus table, and the parag
 paper cites (A2's measured exposure on this corpus, with T13's in-vivo rates as the
 calibration). Update `hb_proof.tex` §7's A2 paragraph with the corpus numbers. No
 `Co-Authored-By` trailer.
+
+### T15 — Late ordering key for the HB records (A2 mitigation, measured first)
+Branch `perf/late-seq`. Model: Sonnet. GPU: one `rtx4060ti16g` node, the lock litmus only.
+After T14 (merged). Small; parallel with T5b and T12. Nothing is adopted until step 3 says so.
+
+Context. T14 measured the Sanitizer collector inverting a lock hand-off in 11–32 % of cases
+where T13's NVBit tool saw 0–4 %. The likely cause is where the ordering key is drawn: the
+collector's callback takes its buffer index at the start (`GetBufferIndex`), then writes the
+record, `__threadfence`s and increments the entry count (`IncrementNumEntries`, with the
+doorbell wait), so the window between the key and the instruction contains a fence and a
+second global atomic; a key drawn as the callback's last action leaves only the return and
+the scheduling gap. HB-path only (`YOSEMITE_HB_TRACE`); the default collector path stays
+byte-identical.
+
+Steps
+1. In the HB path, as the callback's last action before returning, draw a second key — an
+   `atomicAdd` on a separate global counter, and, as a variant, `%globaltimer` — and store it
+   in the record (a field the default path never reads; say which). Host side: order
+   `hb_events` by the late key instead of the buffer index (stable; ties by buffer index),
+   and mark the dump `hb_late_seq: 1`. Engine, oracle and `barrier_only_pairs` are unchanged
+   (they consume `seq`).
+2. Trace-validity: W0 (seq monotonic per thread) must still hold under the late key — a
+   thread's own callbacks are sequential, so it does; assert it in `tv_check` on every dump
+   of step 3.
+3. Measure with T14's harness (`a2_window_count.py handoffs`, `lock_contention_a2.cu`, 5 runs
+   × 3 levels, both key variants): inversion rate against the buffer-index key on the same
+   runs (both keys are recorded, so one run gives both). Also the verdicts and `a2_uncertain`
+   counts of the three ScoR programs that rest on flagged reports only, re-recorded once.
+4. Adopt only if the rate drops by an order of magnitude at 4 and 16 warps and no TV check
+   fires; otherwise report and leave the default off (`YOSEMITE_HB_LATE_SEQ=0`).
+
+Report: `eval/LATE_SEQ.md`: the rates side by side, the ScoR re-recordings, the cost per
+record, and the sentence for D15. No `Co-Authored-By` trailer.
 
 ### T5b — Shared-base main clock (todo 5, the fix)
 Branch `perf/shared-base-clock`. Models: Sonnet (implementation), Opus (review). GPU:

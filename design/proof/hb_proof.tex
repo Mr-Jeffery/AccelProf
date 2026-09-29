@@ -882,9 +882,19 @@ stays its thread's own access (T1b).
 \noindent Two labeling details of the sidecar are not substitutions of the algorithm: an
 atomic whose SASS names no scope gets \texttt{cta} if it is a shared-memory \texttt{ATOMS}
 (shared memory is per block) and the empty scope otherwise (never morally strong, so it
-breaks every chain; conservative by Lemma~\ref{lem:mono}), and a \texttt{.STRONG} load or store
-counts as strong only in its generic \texttt{LD}/\texttt{ST} form (policy \texttt{generic};
-O1).
+breaks every chain; conservative by Lemma~\ref{lem:mono}), and a load or store is strong at
+the scope its \texttt{.STRONG.<scope>} token names, in the generic \texttt{LD}/\texttt{ST} and
+the address-spaced \texttt{LDG}/\texttt{STG} form alike (O1, T10, D9; \texttt{volatile}
+included, since it lowers to \texttt{LDG/STG.E.STRONG.SYS} exactly as
+\texttt{ld/st.relaxed.sys.global} does). A strong shared-memory access lowers without a token
+on sm\_89 and is weak (conservative by Lemma~\ref{lem:mono}). The strength rule moves no pair
+in or out of $\Rep$ --- strength enters only $\ms$, hence the $\DR$/$\SC$ class and the two-RMW
+exception --- so on the corpus it changes classes only: 1,141 of 1,306 $\DR$ instances on 43
+ScoR programs (the only ones with \texttt{volatile} data) become $\SC$, and 16 of the 18 ScoR
+litmus races are unordered strong conflicts under PTX. The pre-T10 policy \texttt{generic}
+remains as the code path for older sidecars, not as a configuration of the paper; ScoR's
+labels, written to ScoRD's model, are counted under PTX and, for comparability, in a second
+column under their own notion (D2, amended).
 
 \begin{proposition}[Missed class of I1]\label{prop:rmiss}
 With I1 alone, the reports are a subset of $\textsc{Detect}$'s and the omitted pairs are
@@ -959,7 +969,13 @@ windows a later record of the same thread closes. On the re-oracled vector-clock
 558 programs the flag marks 432,810 of $8.58\cdot 10^{9}$ $\DR$ instances in 34 programs, no
 verdict moves, and three race-free programs (\texttt{matrix-multiplication-norace-small} and
 both inputs of \texttt{rule-110-norace}) have a Race-alone verdict resting on flagged reports
-only; the tables count them in their own column. \emph{Monitor}: one unit test
+only; the tables count them in their own column. The gap to NVBit's rates is not a property
+of the hardware but of where the ordering key is drawn: the Sanitizer callback takes its
+buffer index first and then writes the record, fences and increments the entry count, so
+the window between the key and the instruction contains a fence and a second global atomic;
+an instrumentation that draws its key last has a window of the return alone. Drawing a
+second key as the callback's last action and ordering the HB records by it is the
+cheapest mitigation and is measured before it is adopted (T15). \emph{Monitor}: one unit test
 per check that must raise plus a valid multi-warp control that must not (five of the seven
 tests of \texttt{test\_barrier\_soundness.py}, passing; they exercise \texttt{hb\_oracle.py},
 not the engine's \texttt{tv\_fail}); zero violations on the ScoR corpus; the
@@ -978,7 +994,9 @@ and the one expected failure, evcand re-score 3,621 rows unchanged). (4) Sidecar
 and scope (O1): \texttt{.STRONG} loads and stores and \texttt{volatile} classed strong
 with their scope, atomicity no longer decided by the RMW opcode alone --- the DR/SC split
 is wrong in both modes until then, and the scope label must err narrow
-(Lemma~\ref{lem:mono}, converse). (4$'$) In parallel with (4): the \texttt{a2\_uncertain}
+(Lemma~\ref{lem:mono}, converse) --- done (T10, \texttt{fix/sidecar-strength}, D9 adopted;
+\texttt{eval/SIDECAR\_STRENGTH.md}: no verdict moves outside the 43 ScoR programs, five
+false positives removed, none added). (4$'$) In parallel with (4): the \texttt{a2\_uncertain}
 flag of D15 and the offline window count over the kept dumps (the rate the paper
 cites for its own corpus; T13's rates are for one lock under NVBit's timing) --- done
 (T14, branch \texttt{feat/a2-flag}, unmerged; \texttt{eval/A2\_WINDOWS.md}). (5) The

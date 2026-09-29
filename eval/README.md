@@ -115,10 +115,11 @@ accepts `engine` / `trace-only` / `no-engine` with one deprecation line per file
 - `eval/FP_DIAGNOSIS.md` explains the head-to-head false positives; regenerate the attribution with
   `python3 eval/baselines/classify_fp_causes.py` (→ `eval/results/baselines-fp-causes.csv`, rendered by
   `make_tables.py` as "false positives by report class and root cause").
-- Detector knobs introduced by the fixes: `--strong-ldst {generic,all,none}` / `$CUVEIN_STRONG_LDST`
-  (which `.STRONG` loads/stores are language-level atomics; read by `sync_dominance.py`,
+- Detector knobs introduced by the fixes: `--strong-ldst {token,generic,all,none}` (default `token`, D9) / `$CUVEIN_STRONG_LDST`
+  (how a load/store is classed strong — `token`: at the scope its `.STRONG` token names; read by `sync_dominance.py`,
   `hb_oracle.py`, `atomic_scope_sidecar.py`), `YOSEMITE_HB_NO_SYNC_ONLY=1` (disable the engine's
   barrier-only second clock; `barrier-ordered` then degrades to `latent`).
+- `hb_races[*].a2_uncertain` (T14; dumps marked `hb_a2: 1`): the number of a report's instances that some coherence order consistent with the RMW windows would order — informational, never a verdict (D15, `design/a2_flag.md`).
 - `sbatch eval/baselines/setup/p_fpfix.sh` re-runs P1–P6 with the current detector into
   `eval/results/fpfix/`, `eval/baselines/confirm_fpfix/`, `eval/baselines/traces_keep_fpfix/` (the merged
   baseline is untouched); `python3 eval/baselines/compare_fpfix.py` prints before/after FP/TP and
