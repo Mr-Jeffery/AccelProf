@@ -14,6 +14,12 @@ handled as the code handles them since T3b (I3 matched; older dumps have none), 
 trusting gate on both sides (I4), local records skipped on both sides (I5, D14), no
 monitor here (I6), no cp.async records (I7, rejected).
 
+T12: `gate` is the instance gate of Definition "Gate" evaluated DIRECTLY -- rel(r) and acq(r)
+read off the thread's previous and next record in the trace (look-ahead), no deferral. The
+oracle (and HbEngine) defer the acquire to the thread's next record (hb_proof.tex section 3);
+Detect(T, vec) under the instance gate equal to the oracle's `race_records` under it is the
+check of that deferral.
+
     .env/bin/python design/algorithms_check.py [ARTIFACT_DIR ...]   (default: ScoR corpus)
 """
 import json
@@ -33,9 +39,31 @@ def ms(s1, b1, s2, b2):
         min(s1, s2) == sd.GRID or (min(s1, s2) == sd.BLOCK and b1 == b2))
 
 
-def detect(events, block_tc, atom, coh, vec=True, i1=False, i2=False):
+def neighbours(events):
+    """{(seq, tid): (pc of tid's previous record, pc of its next record)} for every lane of
+    every record (None where there is none); local records are outside the model (D14)."""
+    last, out = {}, {}
+    for e in sorted(events, key=lambda e: e["seq"]):
+        if e.get("space") == "local":
+            continue
+        m = e["sync_mask"] if e["type"] == "syncwarp" else e.get("active_mask", 0)
+        lanes = [ln["lane"] for ln in e["lanes"]] if "lanes" in e else \
+                [k for k in range(32) if (m >> k) & 1]
+        for k in lanes:
+            t = hb_oracle.tid_of(e["block"], e["warp"], k)
+            prev = last.get(t)                           # (seq, pc) of t's previous record
+            if prev is not None:
+                out[(prev[0], t)] = (out[(prev[0], t)][0], e["pc"])
+            out[(e["seq"], t)] = (prev[1] if prev else None, None)
+            last[t] = (e["seq"], e["pc"])
+    return out
+
+
+def detect(events, block_tc, atom, coh, vec=True, i1=False, i2=False, gate=None):
     """Detect(T, vec|sync) -> [(addr, prev_tid, prev_pc, tid, pc, class)]; class is DR/SC,
-    or under I2 the oracle's kind label (atomic/WAW/RAW/WAR)."""
+    or under I2 the oracle's kind label (atomic/WAW/RAW/WAR). gate = None (trusting) or an
+    HBGraph.gate_table() (the instance gate, evaluated directly)."""
+    nb = neighbours(events) if gate is not None else {}
     clk = defaultdict(dict)                              # thread -> clock; own entry starts at 1
     get = lambda t, u: clk[t].get(u, 1 if u == t else 0)
     Bk = defaultdict(dict)                               # loc -> {(u, kind, scope): (epoch, pc)}
@@ -95,10 +123,15 @@ def detect(events, block_tc, atom, coh, vec=True, i1=False, i2=False):
             t, a = hb_oracle.tid_of(blk, e["warp"], ln["lane"]), ln["addr"]
             loc = (e["space"], blk if e["space"] == "shared" else None, a)
             rmw = vec and kind == "RMW"
+            rel_ok = acq_ok = True
+            if rmw and gate is not None and atom[pc] > sd.NONE:   # Definition "Gate"
+                p, q = nb[(e["seq"], t)]
+                rel_ok = p is None or p in gate[pc][1]
+                acq_ok = q is None or q in gate[pc][2]
             if rmw:
                 if loc in last and not ms(*last[loc], s, blk):
                     Ch.pop(loc, None)                    # chain broken
-                for u, c in Ch.get(loc, {}).items():     # acquire (trusting gate, I4)
+                for u, c in (Ch.get(loc, {}) if acq_ok else {}).items():   # acquire
                     clk[t][u] = max(get(t, u), c)
             for u, pk, ep, ppc, ps, src in entries(loc, kind):   # procedure Check
                 if u == t or (kind == "R" and pk == "R") or ep <= get(t, u):
@@ -123,9 +156,10 @@ def detect(events, block_tc, atom, coh, vec=True, i1=False, i2=False):
             else:
                 W[loc], R[loc] = (t, ep, pc, s), {}
             if rmw:
-                pub = Ch.setdefault(loc, {})             # publish ...
-                for u in set(clk[t]) | {t}:
-                    pub[u] = max(pub.get(u, 0), get(t, u))
+                if rel_ok:
+                    pub = Ch.setdefault(loc, {})         # publish ...
+                    for u in set(clk[t]) | {t}:
+                        pub[u] = max(pub.get(u, 0), get(t, u))
                 last[loc] = (s, blk)
                 if not i1:
                     clk[t][t] = get(t, t) + 1            # ... then tick
@@ -152,24 +186,25 @@ def tables(dots, trace):
     atom = {pc: sc for pc, op in eng.pc_opcode.items() if (sc := sd.atomic_scope(op)) is not None}
     coh = {pc: sc for pc, op in eng.pc_opcode.items()
            if (sc := sd.coherent_scope(op, policy)) is not None}
-    return dot, atom, coh
+    return dot, atom, coh, eng
 
 
 def reference(dots, trace_path, **switches):
     """Detect(T, vec) (switches off: the proof's reference) over one kernel dump."""
     trace = json.loads(Path(trace_path).read_text())
-    _, atom, coh = tables(dots, trace)
+    _, atom, coh, _ = tables(dots, trace)
     return detect(trace["hb_events"], trace["kernel"].get("block_thread_count"), atom, coh,
                   **switches)
 
 
-def check(dots, trace_path):
+def check(dots, trace_path, gate=None):
     """One kernel dump -> dict of the comparisons (see the module docstring)."""
     trace = json.loads(Path(trace_path).read_text())
-    dot, atom, coh = tables(dots, trace)
-    oracle = hb_oracle.analyze(dot, trace_path, records=True)
+    dot, atom, coh, eng = tables(dots, trace)
+    oracle = hb_oracle.analyze(dot, trace_path, records=True, gate=gate)
     ev, tc = trace["hb_events"], trace["kernel"].get("block_thread_count")
-    run = lambda **kw: detect(ev, tc, atom, coh, **kw)
+    gt = eng.gate_table() if oracle["gate"] == "instance" else None
+    run = lambda **kw: detect(ev, tc, atom, coh, **{"gate": gt, **kw})
     ref, ref_sync = run(), run(vec=False)
     o_vec = {tuple(r) for r in oracle["race_records"]}
     o_sync = Counter({(a, b): n for a, b, n in oracle["races_sync_only"]})
@@ -185,13 +220,16 @@ def check(dots, trace_path):
 
 
 def main(argv):
+    gate = None
+    if argv and argv[0].startswith("--gate="):
+        gate, argv = argv[0].split("=", 1)[1], argv[1:]
     dirs = [Path(a) for a in argv] or sorted(
         p for p in (ROOT / "ScoR/microbenchmarks/artifacts").iterdir() if p.is_dir())
     rows, bad = [], 0
     for d in dirs:
         dots = sorted(d.glob("**/*.dot"))
         for tr in sorted(d.glob("dependency_*/kernel_*.json")):
-            r = check(dots, tr)
+            r = check(dots, tr, gate)
             bad += not (r["vec_equal"] and r["sync_equal"] and not r["code_not_ref"])
             rows.append((d.name + ("" if tr.name == "kernel_0.json" else "/" + tr.name), r))
     print(f"{'program':52} ev  orc ref  sc   oracle==ref  sync==  reference-only pc pairs "
