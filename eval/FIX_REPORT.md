@@ -135,6 +135,21 @@ fresh trace), racy still TP.
 instrumentation order; a `%globaltimer` stamp would narrow but not close the window; a
 "spun-then-released" pattern match is the kind of case-specific heuristic the project rejects.
 
+**Correction (T10, 2026-09-28; `eval/SIDECAR_STRENGTH.md` §6).** The class of these reports was
+wrong, and so was calling the 13 latent ones benign races. Every report above is a pair of two
+`volatile` global accesses, `LDG/STG.E.STRONG.SYS`: under PTX a volatile access is a strong
+(relaxed, sys-scope) operation, so each pair is morally strong — an unordered strong conflict
+(SC, well-defined behaviour), not a data race. Lock-step execution and the record-order
+inversion explain why the pairs are unordered in the trace; they never made them races. The
+detector called them races only because it treated every load/store as weak (before RC1) and then
+only the generic `LD/ST` form as strong (RC1's `generic` policy). With the strength read off
+the token (T10), every `volatile` pair of the reduction is SC in both builds (10–12 pc pairs per
+program in the kept dumps, all DR → SC). One report is left per build, the retirement ticket:
+`ATOMG.E.INC.STRONG.GPU` against the plain `STG.E` that resets the counter — a strong RMW against
+a weak store, a data race by PTX's letter (D11's ticket idiom, `latent` in the kept runs), and
+the same in the race-free and the racy build. The racy build's planted race is `volatile` as well,
+so it is SC too; the verdict moves are in the report.
+
 ## F4 — `cp.async` read-before-wait false negative (fixed in T1a)
 
 **Symptom.** `cuHadron/memcpy/shared_readwrite_race` racy: cuVein clean, Compute-Sanitizer
@@ -223,6 +238,22 @@ nobug (plain-vs-plain) untouched.
 shadow (+ oracle mirror). Tier 3: same-value WAW — capture the written value from `pData`
 into a `values[32]` field of `MemoryAccess` (layout change, ~+40% trace), carry it through
 `hb_collect_events` `lanes[]`, compare in the WAW branch.
+
+**Correction (T10, 2026-09-28; `eval/SIDECAR_STRENGTH.md` §6).** "Benign races" was the wrong
+explanation for most of these reports. `LD.E.STRONG.SYS` is not a plain read: it is a
+`cuda::atomic` relaxed load (Indigo3 `CudaAtomic` variants; the ECL codes' `atomicRead` /
+`atomicWrite`, `library/ECLatomic.h`), strong at sys scope. Against an
+`ATOMG.E.CAS.STRONG.GPU` writer, or another such load/store, the pair is morally strong — under
+PTX an unordered strong conflict (SC), defined behaviour, not a data race, benign or otherwise.
+RC1 (2026-09-17) made these accesses strong; T9 (D12) reports them as `sc` instead of ordering
+them. Re-recorded on the same torus-100 graph (T10, both modes, both strength policies), the four
+ECL race-free codes report **no race** — only SC reports (CC 25, GC 1, MIS 12, MST 6 / 7 in
+vector- / scalar-clock mode) — where this section counted 40 structural. What stays a data race
+is weak on at least one side: the same-pc plain WAW of a shared flag (in the kept stores, the one
+report of each of the 30 RACE rows of the Indigo3 race-free CC programs of P3 is such a same-pc
+shared-memory WAW; the values are not recorded) and a plain read of an atomically updated
+location (the case the `benign` tag marks); both are data races under PTX that the algorithms
+tolerate, so `benign` stays the right name for the second kind.
 
 ## TC RaceBug miss — input too small (resolved)
 

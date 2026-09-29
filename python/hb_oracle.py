@@ -15,8 +15,10 @@ thread keeps one bucket per record key (kind R/W/RMW, strong scope or weak) hold
 latest such record (I2). A conflict (same location, >=1 write, different threads) that
 the resulting happens-before relation leaves unordered is reported with its class: "DR"
 (data race) unless the two records are morally strong -- both strong, each scope covering
-the other thread (atomic RMWs, or cuda::atomic .STRONG loads/stores per --strong-ldst) --
-then "SC" (unordered strong conflict); two morally strong RMWs are never reported.
+the other thread (atomic RMWs, or loads/stores whose SASS carries .STRONG.<scope>: the
+strength column of the atomic-scope sidecar, sd.coherent_scope, T10; --strong-ldst keeps
+the pre-T10 policies as ablations) -- then "SC" (unordered strong conflict); two morally
+strong RMWs are never reported.
 Local memory is outside the model (I5): `local` records are skipped. No pattern is
 special-cased: the canary, named barriers, masked syncwarps and loop-carried handshakes
 all fall out as a consequence of the clocks.
@@ -705,8 +707,9 @@ def main(argv=None):
     ap.add_argument("trace_json", type=Path)
     ap.add_argument("-o", "--output", type=Path)
     ap.add_argument("--strong-ldst", choices=sd.STRONG_LDST_POLICIES,
-                    help="which .STRONG loads/stores are coherent accesses "
-                         "(default: $CUVEIN_STRONG_LDST or 'generic')")
+                    help="which .STRONG loads/stores are strong: 'token' (every one with a "
+                         "known scope, T10) or a pre-T10 ablation "
+                         "(default: $CUVEIN_STRONG_LDST or 'token')")
     args = ap.parse_args(argv)
     try:
         report = analyze(args.cfg_dot, args.trace_json, strong_ldst=args.strong_ldst)

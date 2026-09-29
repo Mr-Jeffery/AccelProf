@@ -21,8 +21,9 @@ certify order, R2 only the pair's DR/SC class (T9, D12):
  R2 atomic coherence (static): two strong accesses whose min .STRONG scope covers
     the observed distance are morally strong (SM/CTA -> block, GPU/SYS -> grid; a
     shared-memory ATOMS without a scope suffix is block-coherent by construction; a
-    cuda::atomic load()/store() is no RMW opcode but a LD|ST.*.STRONG.<scope>, strong
-    per the --strong-ldst policy, never an R3 atomic). R2 decides the CLASS of a pair --
+    cuda::atomic load()/store() or a volatile access is no RMW opcode but a load/store
+    with .STRONG.<scope>, strong by that token since T10 (--strong-ldst keeps the older
+    policies as ablations), never an R3 atomic). R2 decides the CLASS of a pair --
     SC (unordered strong conflict) or DR (data race) -- never its verdict (D12,
     hb_proof.tex section 5); two morally strong RMWs are no conflict at all.
  R3 scoped happens-before chain (static x dynamic, ScoRD model): release fence
@@ -119,15 +120,21 @@ def atomic_scope(opcode):
 # MEMBAR fence in front, relaxed does not): LD|ST.E.STRONG.<scope>. A `volatile`
 # access lowers to the SAME qualifier; the only binary-level difference is the opcode
 # form -- the cuda::atomic builtins emit the generic LD/ST, a volatile pointer access
-# the address-spaced LDG/STG/LDS/STS. Which of them count as language-level atomics
-# is therefore a policy:
-#   generic  LD/ST.*.STRONG only (default: Indigo/ECL-style atomics are coherent,
-#            ScoR-style volatile data stays plain and keeps racing)
-#   all      every .STRONG load/store (volatile too; hides ScoR's volatile races)
-#   none     RMW atomics only (the pre-existing model)
-STRONG_LDST_POLICIES = ("generic", "all", "none")
+# the address-spaced LDG/STG/LDS/STS. Under PTX both are strong operations (volatile is
+# relaxed.sys), so since T10 (D9) a load/store's strength is a fact read off its token:
+#   token    (default) every load/store (LD/LDG/LDS/LDL, ST/STG/STS/STL) whose SASS
+#            carries .STRONG.<scope> with a known scope (SM/CTA -> block, GPU/SYS ->
+#            grid) is strong at that scope; no token, or an unknown scope, is weak
+#            (scope errs narrow: hb_proof.tex Lemma "Monotonicity", converse)
+# The pre-T10 policies stay, as ablations (the sidecar then has no strength column):
+#   generic  LD/ST.*.STRONG only (the default until T10: volatile data stays weak)
+#   all      every .STRONG load/store (= token on every opcode of the kept corpus; an
+#            unknown scope token is strong at the empty scope instead of weak)
+#   none     RMW atomics only (the pre-RC1 model)
+STRONG_LDST_POLICIES = ("token", "generic", "all", "none")
 _STRONG_GENERIC = {"LD", "ST"}
 _STRONG_ALL = {"LD", "LDG", "LDS", "LDL", "LDSM", "ST", "STG", "STS", "STL"}
+_STRONG_TOKEN = {"LD", "LDG", "LDS", "LDL", "ST", "STG", "STS", "STL"}
 
 
 # T1a: a cp.async copy (LDGSTS) is performed by the issuing thread's async agent, whose
@@ -155,21 +162,23 @@ def dump_async_pcs(eng, trace):
 
 
 def strong_ldst_policy(policy=None):
-    """Resolve the policy: explicit arg > $CUVEIN_STRONG_LDST > 'generic'."""
-    policy = policy or os.environ.get("CUVEIN_STRONG_LDST") or "generic"
+    """Resolve the policy: explicit arg > $CUVEIN_STRONG_LDST > 'token' (T10)."""
+    policy = policy or os.environ.get("CUVEIN_STRONG_LDST") or "token"
     if policy not in STRONG_LDST_POLICIES:
         raise ValueError(f"strong-ldst policy '{policy}' not in {STRONG_LDST_POLICIES}")
     return policy
 
 
 def coherent_scope(opcode, policy=None):
-    """Coherence scope of a language-level atomic ACCESS: an atomic RMW, or (per
-    policy) a .STRONG load/store; None if the access is plain.
+    """Strong scope of an access (hb_proof.tex Definition "Records": str and scope): an
+    atomic RMW, or (per policy; since T10 by its .STRONG.<scope> token) a strong load/
+    store; None if the access is weak. This is the sidecar's strength column.
 
-    Used ONLY for pairwise same-address coherence (R2 and the engine's conflict
-    check). A coherent load/store is never a release/acquire point: it joins no
-    clocks and takes no part in the R3 chain, so it cannot order surrounding
-    non-atomic accesses (that would widen the relaxed-atomic unsoundness)."""
+    Used ONLY for the key and moral strength of a record (the engine's and oracle's
+    buckets, Check's DR/SC class) and for R2's class. A strong load/store is never a
+    release/acquire point: it joins no clocks and takes no part in the R3 chain, so it
+    cannot order surrounding non-atomic accesses (that would widen the relaxed-atomic
+    unsoundness)."""
     s = atomic_scope(opcode)
     if s is not None:
         return s
@@ -177,10 +186,13 @@ def coherent_scope(opcode, policy=None):
     parts = opcode.split(".")
     if policy == "none" or "STRONG" not in parts:
         return None
+    i = parts.index("STRONG")
+    tok = parts[i + 1] if i + 1 < len(parts) else None
+    if policy == "token":          # T10 (D9): the token is the fact; unknown scope -> weak
+        return _ATOM_SCOPE.get(tok) if parts[0] in _STRONG_TOKEN else None
     if parts[0] not in (_STRONG_GENERIC if policy == "generic" else _STRONG_ALL):
         return None
-    i = parts.index("STRONG")
-    return _ATOM_SCOPE.get(parts[i + 1] if i + 1 < len(parts) else None, NONE)
+    return _ATOM_SCOPE.get(tok, NONE)
 
 
 def morally_strong(s1, t1, s2, t2):
@@ -1174,8 +1186,9 @@ def main(argv=None):
     ap.add_argument("-o", "--output", type=Path,
                     help="output JSON (default: <trace-stem>.races.json)")
     ap.add_argument("--strong-ldst", choices=STRONG_LDST_POLICIES,
-                    help="which .STRONG loads/stores are language-level atomics "
-                         "(default: $CUVEIN_STRONG_LDST or 'generic')")
+                    help="which .STRONG loads/stores are strong: 'token' (every one with a "
+                         "known scope, T10) or a pre-T10 ablation "
+                         "(default: $CUVEIN_STRONG_LDST or 'token')")
     ap.add_argument("--no-event-candidates", action="store_true",
                     help="judge trace edges only; do not add the conflicting pairs only "
                          "the hb_events stream shows (also $CUVEIN_EVENT_CANDIDATES=0)")
