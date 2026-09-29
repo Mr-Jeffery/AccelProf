@@ -30,7 +30,7 @@ namespace yosemite {
 // buffer in temporal order (-n 1); every verdict falls out of the clocks with no pattern
 // special-cased. Per location it keeps one bucket per (thread, record key) -- never a
 // FastTrack collapse across threads, which Theorem "Sound" does not survive (T9, I2).
-// ponytail: full sparse VCs, O(threads) per clock; bounded clocks are T5b's job.
+// ponytail: sparse VCs over shared bases (T5b); a clock is O(threads) only in what it knows.
 struct HbEngine {
     // sync scopes match sync_dominance.SCOPES: NONE=0, (WARP=1), BLOCK=2, GRID=3.
     static constexpr int SCOPE_NONE = 0;
@@ -64,7 +64,109 @@ struct HbEngine {
     const StrengthTable* strength = &merged_strength;
     bool has_strength = false;
 
-    std::unordered_map<Tid, Clock> vc;                      // tid -> vector clock
+    // T5b: the main clock in the sync-only clock's representation (eval/MEMORY_FOOTPRINT.md
+    // "After the fix"). A thread's clock is the pointwise max of an immutable base, shared by
+    // every clock that holds it (a sync group's joined clock, a release's snapshot), a delta
+    // of the entries above it (acquires since then), and its own component, which lives only
+    // in `own`. A barrier allocates one base for its participants, not one clock each, and a
+    // release stores a pointer + the delta. The values are those of the full clocks, so the
+    // representation is invisible to every test on them; hb_oracle.py keeps full clocks.
+    struct VClock {
+        std::shared_ptr<const Clock> base;
+        Clock delta;                                        // never holds `self`
+        uint64_t own = 0;
+        Tid self = 0;
+        uint64_t get(Tid u) const {
+            if (u == self) return own;
+            uint64_t v = 0;
+            if (base) { const auto it = base->find(u); if (it != base->end()) v = it->second; }
+            const auto it = delta.find(u);
+            return (it != delta.end() && it->second > v) ? it->second : v;
+        }
+    };
+    std::unordered_map<Tid, VClock> vc;                     // tid -> vector clock
+    VClock& V(Tid t) {
+        auto r = vc.try_emplace(t);
+        if (r.second) r.first->second.self = t;
+        return r.first->second;
+    }
+    // d ⊔= (u: v), keeping the representation's invariants (self in own, delta above base)
+    static void raise(VClock& d, Tid u, uint64_t v) {
+        if (u == d.self) { if (v > d.own) d.own = v; return; }
+        if (d.base) {
+            const auto it = d.base->find(u);
+            if (it != d.base->end() && it->second >= v) return;
+        }
+        uint64_t& x = d.delta[u];
+        if (v > x) x = v;
+    }
+    // Joining another base: a small one goes into the delta; a large one is merged with ours
+    // into a new base, memoised on the pair, so the threads of one sync group acquiring from
+    // releases of one other group share the merged base. A delta that has grown past an
+    // eighth of its base (and 64 entries) is folded into a private base, so a release keeps
+    // copying O(delta) and the fold's O(base) cost is amortised over the entries it absorbs.
+    static constexpr size_t DELTA_JOIN_MAX = 64, FOLD_MIN = 64;
+    struct MergeKey {
+        const Clock* a; const Clock* b;
+        bool operator==(const MergeKey& o) const { return a == o.a && b == o.b; }
+    };
+    struct MergeKeyHash {
+        size_t operator()(const MergeKey& k) const {
+            return std::hash<const void*>()(k.a) * 0x9e3779b97f4a7c15ULL ^ std::hash<const void*>()(k.b);
+        }
+    };
+    // the inputs are held too, so a key's pointers cannot be reused while it is cached
+    struct Merged { std::shared_ptr<const Clock> a, b, out; };
+    std::unordered_map<MergeKey, Merged, MergeKeyHash> merge_memo;
+    static constexpr size_t MERGE_MEMO_MAX = 4096;
+    static bool covers(const Clock& big, const Clock& small) {
+        if (small.size() > big.size()) return false;
+        for (const auto& kv : small) {
+            const auto it = big.find(kv.first);
+            if (it == big.end() || it->second < kv.second) return false;
+        }
+        return true;
+    }
+    std::shared_ptr<const Clock> merge_bases(const std::shared_ptr<const Clock>& a,
+                                             const std::shared_ptr<const Clock>& b) {
+        const MergeKey k = a.get() < b.get() ? MergeKey{a.get(), b.get()} : MergeKey{b.get(), a.get()};
+        const auto it = merge_memo.find(k);
+        if (it != merge_memo.end()) return it->second.out;
+        std::shared_ptr<const Clock> out;
+        if (covers(*a, *b)) out = a;
+        else if (covers(*b, *a)) out = b;
+        else {
+            const bool ab = a->size() >= b->size();
+            auto m = std::make_shared<Clock>(ab ? *a : *b);
+            join_into(*m, ab ? *b : *a);
+            out = std::move(m);
+        }
+        if (merge_memo.size() >= MERGE_MEMO_MAX) merge_memo.clear();
+        merge_memo.emplace(k, Merged{a, b, out});
+        return out;
+    }
+    void join_vc(VClock& d, const VClock& s) {
+        if (s.base && s.base != d.base) {
+            if (!d.base) {
+                d.base = s.base;
+            } else if (s.base->size() <= DELTA_JOIN_MAX) {
+                for (const auto& kv : *s.base) raise(d, kv.first, kv.second);
+            } else {
+                d.base = merge_bases(d.base, s.base);
+            }
+            const auto it = d.base->find(d.self);           // own holds self's whole value
+            if (it != d.base->end() && it->second > d.own) d.own = it->second;
+        }
+        for (const auto& kv : s.delta) raise(d, kv.first, kv.second);
+        if (s.own != 0) raise(d, s.self, s.own);
+        const size_t bsz = d.base ? d.base->size() : 0;
+        if (d.delta.size() > FOLD_MIN && d.delta.size() * 8 > bsz) {
+            auto nb = d.base ? std::make_shared<Clock>(*d.base) : std::make_shared<Clock>();
+            join_into(*nb, d.delta);
+            d.base = std::move(nb);
+            d.delta.clear();
+        }
+    }
     // second clock advanced by barriers/syncwarps ONLY (never by atomic release/
     // acquire): its races (hb_races_sync_only) tell the verdict matrix which dynamically
     // ordered pairs rest on schedule-independent barrier joins alone. It changes only
@@ -74,7 +176,7 @@ struct HbEngine {
     struct SyncClock { std::shared_ptr<const Clock> base; uint64_t own = 0; };
     std::unordered_map<Tid, SyncClock> vs;
     bool sync_only_pass = true;                             // YOSEMITE_HB_NO_SYNC_ONLY=1 disables
-    struct Released { Clock clk; uint64_t block; int scope; Clock pd; };   // pd: T14
+    struct Released { VClock clk; uint64_t block; int scope; Clock pd; };  // pd: T14
     // keyed by location, not raw address: shared-memory addresses are per-block
     // offsets, so with >1 block another block's release on the same offset would
     // clobber this block's and its next acquire would miss it (spurious atomic race).
@@ -187,7 +289,7 @@ struct HbEngine {
     std::unordered_map<std::string, std::unordered_set<uint32_t>> kernel_async;
     std::unordered_set<uint32_t> merged_async, no_async;
     const std::unordered_set<uint32_t>* async_pcs = &merged_async;
-    struct Group { Clock vc; Clock vs; Clock pd; };         // an agent's clocks at a commit
+    struct Group { VClock vc; Clock vs; Clock pd; };        // an agent's clocks at a commit
     std::unordered_map<Tid, std::vector<Group>> groups;     // t -> committed groups, oldest first
 
     // the sync-only clock of u as one full clock (base + own component)
@@ -200,7 +302,7 @@ struct HbEngine {
     }
     void async_issue(Tid t, Tid ag) {
         own(t);
-        join_into(vc[ag], vc[t]);
+        join_vc(V(ag), V(t));
         pd_join(ag, pd_of(t));                              // T14
         own(ag);
         if (!sync_only_pass) return;
@@ -215,8 +317,8 @@ struct HbEngine {
         const Tid ag = agent_of(t);
         own(ag);
         if (sync_only_pass) owns(ag);
-        groups[t].push_back(Group{vc[ag], sync_only_pass ? vs_full(ag) : Clock(), pd_of(ag)});
-        vc[ag][ag] += 1;
+        groups[t].push_back(Group{V(ag), sync_only_pass ? vs_full(ag) : Clock(), pd_of(ag)});
+        V(ag).own += 1;
         if (sync_only_pass) vs[ag].own += 1;
     }
     void async_wait(Tid t, uint64_t n) {
@@ -225,7 +327,7 @@ struct HbEngine {
         const size_t done = it->second.size() - static_cast<size_t>(n);  // groups [0, done)
         const Group& g = it->second[done - 1];                           // snapshots only grow
         own(t);
-        join_into(vc[t], g.vc);
+        join_vc(V(t), g.vc);
         pd_join(t, g.pd);                                   // T14
         if (sync_only_pass) {
             owns(t);
@@ -388,15 +490,15 @@ struct HbEngine {
     }
     uint64_t poss(Tid t, Tid u) {
         auto it = pd.find(t);
-        return std::max(clk_get(vc[t], u), it == pd.end() ? uint64_t(0) : clk_get(it->second, u));
+        return std::max(V(t).get(u), it == pd.end() ? uint64_t(0) : clk_get(it->second, u));
     }
     void pd_join(Tid t, const Clock& src) {                 // pd[t] ⊔= src, beyond what vc[t] knows
         if (src.empty()) return;
-        const Clock& cur = vc[t];
+        const VClock& cur = V(t);
         auto it = pd.find(t);
         Clock* d = (it == pd.end()) ? nullptr : &it->second;
         for (const auto& kv : src) {
-            if (kv.second <= clk_get(cur, kv.first)) continue;
+            if (kv.second <= cur.get(kv.first)) continue;
             if (d == nullptr) d = &pd[t];
             uint64_t& x = (*d)[kv.first];
             if (kv.second > x) x = kv.second;
@@ -491,7 +593,7 @@ struct HbEngine {
     // opened, or u's RMW, whose window has not closed -- and decided when it closes.
     void a2_decide(size_t idx, Tid u, uint64_t ue, uint32_t upc, Tid t, uint32_t pc, Tid obs,
                    const Loc& loc) {
-        const uint64_t te = clk_get(vc[t], t);
+        const uint64_t te = V(t).own;
         if (ue <= poss(obs, u)) { races[idx].a2 += 1; return; }
         Win* w1 = nullptr;
         Win* w2 = nullptr;
@@ -516,7 +618,7 @@ struct HbEngine {
 
     void reset() {
         pd.clear(); wins.clear(); win_lanes.clear(); clus.clear();   // T14
-        vc.clear(); vs.clear(); released.clear(); buckets.clear();
+        vc.clear(); vs.clear(); released.clear(); buckets.clear(); merge_memo.clear();
         races.clear(); race_index.clear(); sync_pairs.clear();
         pending_barriers.clear();  // block_thread_count is (re)set by hb_engine_reset
         exited_count.clear(); exited_lanes.clear();
@@ -553,12 +655,17 @@ struct HbEngine {
     // a thread's own clock starts at 1: an unsynced peer knows it only as 0, so a
     // write (t@>=1) vs 0 is caught as a race.
     uint64_t own(Tid t) {
-        uint64_t& v = vc[t][t];
+        uint64_t& v = V(t).own;
         if (v == 0) v = 1;
         return v;
     }
     static void join_into(Clock& dst, const Clock& src) {
         for (const auto& kv : src) { uint64_t& d = dst[kv.first]; if (kv.second > d) d = kv.second; }
+    }
+    static void join_into(Clock& dst, const VClock& src) {   // a main clock, flattened (T14)
+        if (src.base) join_into(dst, *src.base);
+        join_into(dst, src.delta);
+        if (src.own != 0) { uint64_t& d = dst[src.self]; if (src.own > d) d = src.own; }
     }
     // barrier/syncwarp: everyone joins everyone's pre-sync clock, then each ticks
     // its own component (post-sync accesses ordered after the join, concurrent with
@@ -572,9 +679,25 @@ struct HbEngine {
                 if (it != pd.end()) { join_into(pj, it->second); pd.erase(it); }
             }
         for (Tid t : tids) own(t);
-        Clock j;
-        for (Tid t : tids) join_into(j, vc[t]);
-        for (Tid t : tids) { Clock nv = j; nv[t] += 1; vc[t] = std::move(nv); }
+        if (!tids.empty()) {
+            // T5b: one base for the group (each distinct input base joined once); each
+            // participant keeps it plus its tick -- the values of `nv = j; nv[t] += 1`
+            std::vector<VClock*> cs;
+            cs.reserve(tids.size());
+            for (Tid t : tids) cs.push_back(&V(t));
+            std::shared_ptr<const Clock> only = cs[0]->base;   // one shared base, no deltas:
+            bool same = true;                                   // copy it, don't re-join it
+            for (const VClock* c : cs) same = same && c->base == only && c->delta.empty();
+            auto j = (same && only) ? std::make_shared<Clock>(*only) : std::make_shared<Clock>();
+            if (!same) {
+                std::set<const Clock*> joined;
+                for (const VClock* c : cs)
+                    if (c->base && joined.insert(c->base.get()).second) join_into(*j, *c->base);
+                for (const VClock* c : cs) join_into(*j, c->delta);
+            }
+            for (const VClock* c : cs) { uint64_t& d = (*j)[c->self]; if (c->own > d) d = c->own; }
+            for (VClock* c : cs) { c->own = (*j)[c->self] + 1; c->delta.clear(); c->base = j; }
+        }
         if (!pj.empty())
             for (Tid t : tids) pd_join(t, pj);
         if (!sync_only_pass) return;
@@ -612,7 +735,7 @@ struct HbEngine {
     // thread (the agent always knows its own copies; the thread only those a wait completed)
     void conflict(uint64_t addr, int space, uint64_t loc_block, Tid p_tid, const Entry& p,
                   Tid t, uint32_t pc, uint8_t kind, bool sc, Tid obs) {
-        if (p.clock > clk_get(vc[obs], p_tid)) {
+        if (p.clock > V(obs).get(p_tid)) {
             const Tid a0 = p_tid & ~ASYNC_BIT, b0 = t & ~ASYNC_BIT;
             const uint8_t asy = static_cast<uint8_t>(((p_tid & ASYNC_BIT) ? 1 : 0)
                                                    | ((t & ASYNC_BIT) ? 2 : 0));
@@ -885,7 +1008,7 @@ struct HbEngine {
                     if (rit != released.end()) {
                         const int eff = std::min(pit->second.scope, rit->second.scope);
                         if (eff == SCOPE_GRID || (eff == SCOPE_BLOCK && rit->second.block == a.ctaId)) {
-                            join_into(vc[t], rit->second.clk);
+                            join_vc(V(t), rit->second.clk);
                             pd_join(t, rit->second.pd);             // T14
                         }
                     }
@@ -909,19 +1032,19 @@ struct HbEngine {
                     Clu& st = clus[loc];                            // T14
                     const auto rit2 = released.find(loc);
                     if (rit2 == released.end()) {
-                        released.emplace(loc, Released{vc[t], a.ctaId, pit->second.scope, pd_of(t)});
+                        released.emplace(loc, Released{V(t), a.ctaId, pit->second.scope, pd_of(t)});
                     } else {
                         if (st.members == 1 && st.need_prev) {      // a new cluster keeps the
                             st.prev = std::move(rit2->second);      // single RMW before it
                             st.has_prev = true;
                         }
-                        rit2->second = Released{vc[t], a.ctaId, pit->second.scope, pd_of(t)};
+                        rit2->second = Released{V(t), a.ctaId, pit->second.scope, pd_of(t)};
                     }
                     if (st.has_comps && pit->second.scope != SCOPE_NONE) {   // its component's join
                         Comp* c = comp_of(st.comps, pit->second.scope, a.ctaId);
-                        if (c != nullptr) { join_into(c->J, vc[t]); join_into(c->J, pd_of(t)); }
+                        if (c != nullptr) { join_into(c->J, V(t)); join_into(c->J, pd_of(t)); }
                     }
-                    vc[t][t] = clk + 1;
+                    V(t).own = clk + 1;
                 }
             }
         }
@@ -949,20 +1072,37 @@ struct HbEngine {
         return c.size() * mchunk(sizeof(void*) + sizeof(Clock::value_type)) + hash_buckets(c);
     }
     void stats(std::ostream& o) const {
-        uint64_t vc_entries = 0, vc_max = 0;
+        // T5b: a main clock = a shared base + a delta + own. `entries` counts what is stored
+        // (each distinct base once, plus the deltas and the own components); a base is
+        // attributed to vc if some thread holds it, else to the releases that do.
+        std::set<const Clock*> mbases;
+        uint64_t vc_base_entries = 0, vc_delta_entries = 0, vc_max_delta = 0, vc_max_base = 0;
         uint64_t vc_bytes = vc.size() * mchunk(sizeof(void*) + sizeof(decltype(vc)::value_type))
                           + hash_buckets(vc);
+        auto add_base = [&](const std::shared_ptr<const Clock>& b, uint64_t& entries,
+                            uint64_t& bytes) {
+            if (!b || !mbases.insert(b.get()).second) return;
+            entries += b->size();
+            bytes += mchunk(16 + sizeof(Clock)) + clock_bytes(*b);
+        };
         for (const auto& kv : vc) {
-            vc_entries += kv.second.size();
-            vc_max = std::max<uint64_t>(vc_max, kv.second.size());
-            vc_bytes += clock_bytes(kv.second);
+            vc_delta_entries += kv.second.delta.size();
+            vc_max_delta = std::max<uint64_t>(vc_max_delta, kv.second.delta.size());
+            if (kv.second.base) vc_max_base = std::max<uint64_t>(vc_max_base, kv.second.base->size());
+            vc_bytes += clock_bytes(kv.second.delta);
+            add_base(kv.second.base, vc_base_entries, vc_bytes);
         }
-        uint64_t rel_entries = 0;
+        const uint64_t vc_bases = mbases.size();
+        const uint64_t vc_entries = vc_base_entries + vc_delta_entries + vc.size();
+        uint64_t rel_base_entries = 0, rel_delta_entries = 0;
         uint64_t rel_bytes = released.size() * mchunk(32 + sizeof(decltype(released)::value_type));
         for (const auto& kv : released) {
-            rel_entries += kv.second.clk.size();
-            rel_bytes += clock_bytes(kv.second.clk);
+            rel_delta_entries += kv.second.clk.delta.size();
+            rel_bytes += clock_bytes(kv.second.clk.delta);
+            add_base(kv.second.clk.base, rel_base_entries, rel_bytes);
         }
+        const uint64_t rel_bases = mbases.size() - vc_bases;
+        const uint64_t rel_entries = rel_base_entries + rel_delta_entries + released.size();
         uint64_t bk_groups = 0, bk_entries = 0;
         uint64_t bk_bytes = buckets.size() * mchunk(32 + sizeof(decltype(buckets)::value_type));
         for (const auto& kv : buckets) {
@@ -990,9 +1130,13 @@ struct HbEngine {
             pending_barriers.size() * mchunk(32 + sizeof(decltype(pending_barriers)::value_type))
             + arrivals * mchunk(32 + sizeof(Tid));
         o << "\"vc\": {\"threads\": " << vc.size() << ", \"entries\": " << vc_entries
-          << ", \"max_entries\": " << vc_max << ", \"bytes_est\": " << vc_bytes << "}"
+          << ", \"bases\": " << vc_bases << ", \"base_entries\": " << vc_base_entries
+          << ", \"max_base\": " << vc_max_base << ", \"delta_entries\": " << vc_delta_entries
+          << ", \"max_delta\": " << vc_max_delta << ", \"bytes_est\": " << vc_bytes << "}"
           << ", \"released\": {\"records\": " << released.size() << ", \"entries\": "
-          << rel_entries << ", \"bytes_est\": " << rel_bytes << "}"
+          << rel_entries << ", \"own_bases\": " << rel_bases << ", \"delta_entries\": "
+          << rel_delta_entries << ", \"bytes_est\": " << rel_bytes << "}"
+          << ", \"merge_memo\": " << merge_memo.size()
           << ", \"buckets\": {\"locations\": " << buckets.size() << ", \"groups\": "
           << bk_groups << ", \"entries\": " << bk_entries << ", \"bytes_est\": " << bk_bytes << "}"
           << ", \"pending_barriers\": {\"instances\": " << pending_barriers.size()
@@ -1012,7 +1156,7 @@ struct HbEngine {
             multi += kv.second.has_comps && kv.second.members >= 2;
             for (const auto* cs : {&kv.second.comps, &kv.second.inflow})
                 for (const Comp& c : *cs) clu_entries += c.J.size();
-            clu_entries += kv.second.prev.clk.size();
+            clu_entries += kv.second.prev.clk.delta.size();
         }
         for (const auto& kv : released) rel_pd += kv.second.pd.size();
         o << ", \"a2\": {\"pd_threads\": " << pd.size() << ", \"pd_entries\": " << pd_entries
