@@ -941,7 +941,25 @@ the submission A2 stays in the trusted base with this rate, the affected verdict
 footnoted, and a report whose only missing ordering is a chain edge between two RMWs
 with overlapping windows carries an \texttt{a2\_uncertain} flag in its own column; the
 value-recording collector (NVBit, one tool per process, a full re-evaluation) is after
-the submission. \emph{Monitor}: one unit test
+the submission. \emph{A2 on the corpus} (T14, \texttt{design/a2\_flag.md},
+\texttt{eval/A2\_WINDOWS.md}): the flag rests on the weaker A2w --- an RMW has taken effect by
+its thread's next record, which T13 never saw violated --- and is computed by a second,
+``possible'' clock: when an RMW's window closes, its thread joins what the RMWs of its
+location publish whose windows chain-overlap with its own and which are linked to it by
+morally strong RMWs of that run (the multi run before included); an instance, $\DR$ or $\SC$,
+is flagged iff that clock orders it. The flag covers every instance some coherence order
+consistent with the windows orders (proof sketch there; on 10,000 random traces, checked
+against every such order, none is left unflagged) and changes no verdict. On the Sanitizer's
+own traces of T13's lock a hand-off is recorded inverted --- two adjacent critical sections
+left unordered --- in 53 of 465 hand-offs at 2 contending warps, 306 of 945 at 4 and 1,054 of
+3,825 at 16 (11--32\,\%, against the 0--4\,\% T13 measured under NVBit's timing). Over the
+kept dumps of P1--P6 (evcand), each of the 397 programs whose vector-clock trace has RMWs of
+two warps on one location (432 scalar-clock traces) has overlapping windows, 359 (394) inside
+windows a later record of the same thread closes. On the re-oracled vector-clock traces of
+558 programs the flag marks 432,810 of $8.58\cdot 10^{9}$ $\DR$ instances in 34 programs, no
+verdict moves, and three race-free programs (\texttt{matrix-multiplication-norace-small} and
+both inputs of \texttt{rule-110-norace}) have a Race-alone verdict resting on flagged reports
+only; the tables count them in their own column. \emph{Monitor}: one unit test
 per check that must raise plus a valid multi-warp control that must not (five of the seven
 tests of \texttt{test\_barrier\_soundness.py}, passing; they exercise \texttt{hb\_oracle.py},
 not the engine's \texttt{tv\_fail}); zero violations on the ScoR corpus; the
@@ -962,7 +980,8 @@ with their scope, atomicity no longer decided by the RMW opcode alone --- the DR
 is wrong in both modes until then, and the scope label must err narrow
 (Lemma~\ref{lem:mono}, converse). (4$'$) In parallel with (4): the \texttt{a2\_uncertain}
 flag of D15 and the offline window count over the kept dumps (the rate the paper
-cites for its own corpus; T13's rates are for one lock under NVBit's timing). (5) The
+cites for its own corpus; T13's rates are for one lock under NVBit's timing) --- done
+(T14, branch \texttt{feat/a2-flag}, unmerged; \texttt{eval/A2\_WINDOWS.md}). (5) The
 vector clock's memory (T5b), directly after (4): ten of the 58 engine-timeout programs
 have barriers and no atomics (mostly HeCBench, the suite with no vector-clock dump), and
 the gate cannot touch a barrier join, so nothing is gained by waiting for it; the
