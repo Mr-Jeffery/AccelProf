@@ -110,4 +110,12 @@ struct MemoryAccessTracker
     MemoryAccess* access_buffer;
     MemoryAccessState* access_state;
     TensorAccessState* tensor_access_state;
+    // T15 (eval/LATE_SEQ.md): late ordering key of the HB trace, pc_dependency patch only.
+    // nullptr = off (the default and every other tool). When set, the committing lane of each
+    // record writes late_keys[slot] as its last action -- an atomicAdd on *late_counter
+    // (late_mode 1) or %globaltimer (late_mode 2) -- and the host drains a buffer only once
+    // every slot's key has landed. Appended last: the other tools' offsets are unchanged.
+    uint64_t* late_keys;
+    uint64_t* late_counter;
+    uint32_t late_mode;
 };
