@@ -145,20 +145,28 @@ struct HbEngine {
         merge_memo.emplace(k, Merged{a, b, out});
         return out;
     }
-    void join_vc(VClock& d, const VClock& s) {
+    // `skip` (T14's pd): entries it already covers need not be stored -- only the join
+    // skip ⊔ d is ever read -- so they are dropped where it is cheap (delta, own, a small
+    // base); a large base is shared as it is.
+    void join_vc(VClock& d, const VClock& s, const VClock* skip = nullptr) {
+        auto put = [&](Tid u, uint64_t v) {
+            if (skip == nullptr || v > skip->get(u)) raise(d, u, v);
+        };
         if (s.base && s.base != d.base) {
-            if (!d.base) {
+            if (s.base->size() <= DELTA_JOIN_MAX && (d.base || skip != nullptr)) {
+                for (const auto& kv : *s.base) put(kv.first, kv.second);
+            } else if (!d.base) {
                 d.base = s.base;
-            } else if (s.base->size() <= DELTA_JOIN_MAX) {
-                for (const auto& kv : *s.base) raise(d, kv.first, kv.second);
             } else {
                 d.base = merge_bases(d.base, s.base);
             }
-            const auto it = d.base->find(d.self);           // own holds self's whole value
-            if (it != d.base->end() && it->second > d.own) d.own = it->second;
+            if (d.base) {                                   // own holds self's whole value
+                const auto it = d.base->find(d.self);
+                if (it != d.base->end() && it->second > d.own) d.own = it->second;
+            }
         }
-        for (const auto& kv : s.delta) raise(d, kv.first, kv.second);
-        if (s.own != 0) raise(d, s.self, s.own);
+        for (const auto& kv : s.delta) put(kv.first, kv.second);
+        if (s.own != 0) put(s.self, s.own);
         const size_t bsz = d.base ? d.base->size() : 0;
         if (d.delta.size() > FOLD_MIN && d.delta.size() * 8 > bsz) {
             auto nb = d.base ? std::make_shared<Clock>(*d.base) : std::make_shared<Clock>();
@@ -176,7 +184,7 @@ struct HbEngine {
     struct SyncClock { std::shared_ptr<const Clock> base; uint64_t own = 0; };
     std::unordered_map<Tid, SyncClock> vs;
     bool sync_only_pass = true;                             // YOSEMITE_HB_NO_SYNC_ONLY=1 disables
-    struct Released { VClock clk; uint64_t block; int scope; Clock pd; };  // pd: T14
+    struct Released { VClock clk; uint64_t block; int scope; VClock pd; }; // pd: T14
     // keyed by location, not raw address: shared-memory addresses are per-block
     // offsets, so with >1 block another block's release on the same offset would
     // clobber this block's and its next acquire would miss it (spurious atomic race).
@@ -289,7 +297,7 @@ struct HbEngine {
     std::unordered_map<std::string, std::unordered_set<uint32_t>> kernel_async;
     std::unordered_set<uint32_t> merged_async, no_async;
     const std::unordered_set<uint32_t>* async_pcs = &merged_async;
-    struct Group { VClock vc; Clock vs; Clock pd; };        // an agent's clocks at a commit
+    struct Group { VClock vc; Clock vs; VClock pd; };       // an agent's clocks at a commit
     std::unordered_map<Tid, std::vector<Group>> groups;     // t -> committed groups, oldest first
 
     // the sync-only clock of u as one full clock (base + own component)
@@ -415,7 +423,8 @@ struct HbEngine {
     // chain-overlap), or of the multi cluster before it. No verdict reads it: it counts, per
     // aggregated record (DR or SC), the instances a window-consistent coherence order could
     // order.
-    std::unordered_map<Tid, Clock> pd;                      // tid -> delta (absent = empty)
+    // T5b: in the main clock's representation, so a barrier's joined pd is one shared base
+    std::unordered_map<Tid, VClock> pd;                     // tid -> delta (absent = empty)
     struct PendKey {                                        // a decision held on a window
         size_t race; Tid other; uint64_t ep; uint8_t side;
         bool operator==(const PendKey& o) const {
@@ -484,25 +493,39 @@ struct HbEngine {
     };
     std::map<Loc, Clu> clus;
     static const Clock& empty_clock() { static const Clock e; return e; }
-    const Clock& pd_of(Tid t) const {
+    static const VClock& empty_vclock() { static const VClock e; return e; }
+    static bool vc_empty(const VClock& c) { return !c.base && c.delta.empty() && c.own == 0; }
+    const VClock& pd_of(Tid t) const {
         auto it = pd.find(t);
-        return it == pd.end() ? empty_clock() : it->second;
+        return it == pd.end() ? empty_vclock() : it->second;
     }
     uint64_t poss(Tid t, Tid u) {
         auto it = pd.find(t);
-        return std::max(V(t).get(u), it == pd.end() ? uint64_t(0) : clk_get(it->second, u));
+        return std::max(V(t).get(u), it == pd.end() ? uint64_t(0) : it->second.get(u));
+    }
+    VClock& pd_ref(Tid t) {
+        auto r = pd.try_emplace(t);
+        if (r.second) r.first->second.self = t;
+        return r.first->second;
+    }
+    void pd_drop_if_empty(Tid t) {
+        auto it = pd.find(t);
+        if (it != pd.end() && vc_empty(it->second)) pd.erase(it);
     }
     void pd_join(Tid t, const Clock& src) {                 // pd[t] ⊔= src, beyond what vc[t] knows
         if (src.empty()) return;
         const VClock& cur = V(t);
-        auto it = pd.find(t);
-        Clock* d = (it == pd.end()) ? nullptr : &it->second;
+        VClock* d = nullptr;
         for (const auto& kv : src) {
             if (kv.second <= cur.get(kv.first)) continue;
-            if (d == nullptr) d = &pd[t];
-            uint64_t& x = (*d)[kv.first];
-            if (kv.second > x) x = kv.second;
+            if (d == nullptr) d = &pd_ref(t);
+            raise(*d, kv.first, kv.second);
         }
+    }
+    void pd_join(Tid t, const VClock& src) {
+        if (vc_empty(src)) return;
+        join_vc(pd_ref(t), src, &V(t));
+        pd_drop_if_empty(t);
     }
     bool rmw_pc(uint32_t pc) const {
         const auto it = atom_scope->find(pc);
@@ -556,7 +579,8 @@ struct HbEngine {
             const Comp* c = comp_of(st.comps, w.scope, w.blk);
             if (c != nullptr && !c->J.empty()) {
                 pd_join(t, c->J);
-                if (st.members == 1) join_into(released[w.loc].pd, c->J);   // what it hands on
+                if (st.members == 1)                        // what it hands on
+                    for (const auto& kv : c->J) raise(released[w.loc].pd, kv.first, kv.second);
             }
         }
         for (const auto& kv : w.pend)
@@ -672,12 +696,20 @@ struct HbEngine {
     // each other).
     // Applied to both clocks; it is the ONLY thing that advances vs.
     void sync_group(const std::vector<Tid>& tids) {
-        Clock pj;                                           // T14: the possible deltas join too
-        if (!pd.empty())
+        std::shared_ptr<Clock> pj;                          // T14: the possible deltas join too
+        if (!pd.empty()) {                                  // (T5b: into one shared base)
+            std::set<const Clock*> seen;
             for (Tid t : tids) {
                 const auto it = pd.find(t);
-                if (it != pd.end()) { join_into(pj, it->second); pd.erase(it); }
+                if (it == pd.end()) continue;
+                const VClock& c = it->second;
+                if (!pj) pj = std::make_shared<Clock>();
+                if (c.base && seen.insert(c.base.get()).second) join_into(*pj, *c.base);
+                join_into(*pj, c.delta);
+                if (c.own != 0) { uint64_t& x = (*pj)[c.self]; if (c.own > x) x = c.own; }
+                pd.erase(it);
             }
+        }
         for (Tid t : tids) own(t);
         if (!tids.empty()) {
             // T5b: one base for the group (each distinct input base joined once); each
@@ -698,8 +730,15 @@ struct HbEngine {
             for (const VClock* c : cs) { uint64_t& d = (*j)[c->self]; if (c->own > d) d = c->own; }
             for (VClock* c : cs) { c->own = (*j)[c->self] + 1; c->delta.clear(); c->base = j; }
         }
-        if (!pj.empty())
-            for (Tid t : tids) pd_join(t, pj);
+        if (pj && !pj->empty()) {                           // each participant shares it;
+            std::shared_ptr<const Clock> pb = std::move(pj);   // what vc now covers is kept,
+            for (Tid t : tids) {                                // which no poss() can tell
+                VClock& d = pd_ref(t);
+                d.base = pb;
+                const auto it = pb->find(t);
+                if (it != pb->end()) d.own = it->second;
+            }
+        }
         if (!sync_only_pass) return;
         for (Tid t : tids) owns(t);
         auto js = std::make_shared<Clock>();
@@ -1149,8 +1188,14 @@ struct HbEngine {
           << ", \"sync_pairs\": " << sync_pairs.size()
           << ", \"coherence_addrs\": " << coherence.size();
         // T14: the possible clock's state (entry counts; no verdict reads it)
-        uint64_t pd_entries = 0, held = 0, multi = 0, clu_entries = 0, rel_pd = 0;
-        for (const auto& kv : pd) pd_entries += kv.second.size();
+        // T5b: pd entries = deltas + own components + each distinct pd base once
+        uint64_t pd_entries = 0, held = 0, multi = 0, clu_entries = 0, rel_pd = 0, pd_bases = 0;
+        std::set<const Clock*> pbs;
+        for (const auto& kv : pd) {
+            pd_entries += kv.second.delta.size() + (kv.second.own != 0);
+            if (kv.second.base && pbs.insert(kv.second.base.get()).second)
+                pd_entries += kv.second.base->size(), pd_bases += 1;
+        }
         for (const auto& kv : wins) held += kv.second.pend.size() + kv.second.held.size();
         for (const auto& kv : clus) {
             multi += kv.second.has_comps && kv.second.members >= 2;
@@ -1158,8 +1203,9 @@ struct HbEngine {
                 for (const Comp& c : *cs) clu_entries += c.J.size();
             clu_entries += kv.second.prev.clk.delta.size();
         }
-        for (const auto& kv : released) rel_pd += kv.second.pd.size();
+        for (const auto& kv : released) rel_pd += kv.second.pd.delta.size();
         o << ", \"a2\": {\"pd_threads\": " << pd.size() << ", \"pd_entries\": " << pd_entries
+          << ", \"pd_bases\": " << pd_bases
           << ", \"released_pd_entries\": " << rel_pd << ", \"windows\": " << wins.size()
           << ", \"held\": " << held << ", \"clusters\": " << clus.size() << ", \"multi\": " << multi
           << ", \"cluster_clock_entries\": " << clu_entries << "}";
