@@ -127,7 +127,7 @@ def test_lowering_assumption():
 
 def _race_key(r):
     return (r.get("a_pc"), r["b_pc"], r["kind"], r.get("class"), r["space"], r.get("dist"),
-            r.get("async"), r.get("count"))
+            r.get("async"), r.get("count"), r.get("a2_uncertain"))   # a2_uncertain: T14
 
 
 @pytest.mark.parametrize("kernel", _KERNELS)

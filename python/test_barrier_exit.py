@@ -228,7 +228,7 @@ def _first(fn, dots, trace):
 
 def _key(r):   # hb_races is aggregated (T9): addr and tids name one example instance
     return (r.get("a_pc"), r["b_pc"], r["kind"], r.get("class"), r["space"], r.get("dist"),
-            r.get("async"), r.get("count"))
+            r.get("async"), r.get("count"), r.get("a2_uncertain"))   # a2_uncertain: T14
 
 
 def _threads(t, pred):

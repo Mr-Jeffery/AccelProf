@@ -1,0 +1,44 @@
+host=c51 NVIDIA GeForce RTX 4060 Ti, 8.9, 580.95.05 HEAD=34acb00 dirty=5
+runtime /home/fzheng4/AccelProf collector 7bafac9fbac26efd -> /home/fzheng4/AccelProf/build/sanalyzer/lib/libsanalyzer.so
+/home/fzheng4/AccelProf/build/sanalyzer/cpp_trace/lib/libcpp_trace.so
+/home/fzheng4/AccelProf/build/sanalyzer/py_frame/lib/libpy_frame.so
+runtime /home/fzheng4/AccelProf/.claude/worktrees/agent-a132f9279c0d8edd0 collector c91568838f133228 -> /home/fzheng4/AccelProf/.claude/worktrees/agent-a132f9279c0d8edd0/sanalyzer/wt_install/lib/libsanalyzer.so
+/home/fzheng4/AccelProf/build/sanalyzer/cpp_trace/lib/libcpp_trace.so
+/home/fzheng4/AccelProf/build/sanalyzer/py_frame/lib/libpy_frame.so
+t14 libsanalyzer d0a611d29766cce4
+== (1) default path, main vs t14
+norace_interblock_atom default: main vs t14: IDENTICAL up to device addresses and dist (1 files)
+race_interblock_none-lock_rtraw default: main vs t14: IDENTICAL up to device addresses and dist (1 files)
+ALL IDENTICAL
+== (2) green set (worktree runtime)
+    a_list.setParseAction(push_attr_list)
+
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+  /home/fzheng4/AccelProf/.claude/worktrees/agent-a132f9279c0d8edd0/.env/lib/python3.14/site-packages/pydot/dot_parser.py:375: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    edge_stmt.setParseAction(push_edge_stmt)
+
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+  /home/fzheng4/AccelProf/.claude/worktrees/agent-a132f9279c0d8edd0/.env/lib/python3.14/site-packages/pydot/dot_parser.py:376: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    node_stmt.setParseAction(push_node_stmt)
+
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+  /home/fzheng4/AccelProf/.claude/worktrees/agent-a132f9279c0d8edd0/.env/lib/python3.14/site-packages/pydot/dot_parser.py:377: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    default_stmt.setParseAction(push_default_stmt)
+
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+  /home/fzheng4/AccelProf/.claude/worktrees/agent-a132f9279c0d8edd0/.env/lib/python3.14/site-packages/pydot/dot_parser.py:379: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    subgraph.setParseAction(push_subgraph_stmt)
+
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+  /home/fzheng4/AccelProf/.claude/worktrees/agent-a132f9279c0d8edd0/.env/lib/python3.14/site-packages/pydot/dot_parser.py:380: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    graph_stmt.setParseAction(push_graph_stmt)
+
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+  /home/fzheng4/AccelProf/.claude/worktrees/agent-a132f9279c0d8edd0/.env/lib/python3.14/site-packages/pydot/dot_parser.py:381: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    parser.setParseAction(push_top_graph_stmt)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+[36m[1m=========================== short test summary info ============================[0m
+[33mXFAIL[0m python/test_atomic_memory_model.py::[1mtest_relaxed_handoff_should_race[0m - KNOWN UNSOUND (Phase 2): .STRONG is a coherence-scope marker present on relaxed atomics too; atomic_scope treats the unfenced relaxed flag as synchronizing, hiding this real race. Remove this xfail when the fence-aware scope fix lands.
+[33m============ [32m250 passed[0m, [33m[1m1 xfailed[0m, [33m[1m8 warnings[0m[33m in 174.09s (0:02:54)[0m[33m ============[0m
+== done 2026-09-28T18:20:11-04:00

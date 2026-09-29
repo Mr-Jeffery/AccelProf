@@ -495,6 +495,21 @@ def report_classes(r):
     return out
 
 
+# T14 (design/a2_flag.md): `a2_uncertain=<k>:<m>` next to the class note -- k RACE reports every
+# DR instance of which a window-consistent coherence order could have ordered (A2-uncertain at
+# Race alone), m of them uncertain at Race u Latent as well. Only vector-clock rows analysed
+# from dumps that carry the flag have it.
+_A2_RE = re.compile(r"a2_uncertain=(\d+):(\d+)")
+
+
+def report_a2(r):
+    """(k, m) from a run's notes (max over reps), or None when the row has no flag."""
+    found = _A2_RE.findall(r.get("notes") or "")
+    if not found:
+        return None
+    return max(int(k) for k, _ in found), max(int(m) for _, m in found)
+
+
 def race_alone_verdict(r):
     """The program verdict at the Race-alone operating point: RACE iff some report is a
     race of this run; a row whose RACE rests on Latent reports only is CLEAN there.
@@ -519,13 +534,19 @@ def operating_points_section(runs, meta, man):
            "Latent report / unordered strong conflict (SC, never a RACE; D12), counted as "
            "neither TP nor FP. FP/TP as in the accuracy table (denominators exclude "
            "ERROR/TIMEOUT); `n/a` = rows analysed before T9 (no class note), excluded from "
-           "the Race-alone counts.\n"]
-    hdr = ["pset", "mode", "Race u Latent FP / TP", "Race alone FP / TP", "latent", "sc", "n/a"]
+           "the Race-alone counts. `a2` (T14, `design/a2_flag.md`) = programs whose positive at "
+           "that point rests only on reports every DR instance of which a window-consistent "
+           "coherence order could have ordered (A2 not assumed), as FP / TP by label: counted "
+           "there and as neither TP nor FP in the point's own column; only rows whose dumps carry "
+           "the flag.\n"]
+    hdr = ["pset", "mode", "Race u Latent FP / TP", "a2 (R u L) FP / TP", "Race alone FP / TP",
+           "a2 (R) FP / TP", "latent", "sc", "n/a"]
     out.append("| " + " | ".join(hdr) + " |")
     out.append("|" + "---|" * len(hdr))
     for ps in ("P1", "PI", "P3", "P4", "P5", "P6", "P7", "P9"):
         for mode in (VC, SC):
-            c = dict(fp=0, tp=0, nob=0, rac=0, fp1=0, tp1=0, nob1=0, rac1=0, lat=0, sc=0, na=0)
+            c = dict(fp=0, tp=0, nob=0, rac=0, fp1=0, tp1=0, nob1=0, rac1=0, lat=0, sc=0, na=0,
+                     a2fp=0, a2tp=0, a2fp1=0, a2tp1=0)
             seen = False
             for _id, m in meta.items():
                 r = runs.get((_id, "cuvein", mode))
@@ -539,16 +560,29 @@ def operating_points_section(runs, meta, man):
                 if lab not in ("RACE", "CLEAN"):
                     continue
                 pos = lab == "RACE"
+                a2 = report_a2(r)       # T14: a positive resting on A2-uncertain reports only
+                a2_rl = a2 is not None and r["verdict"] == "RACE" and \
+                    sum(n for k, n in cls.items() if k not in ("sc", "latent-sc")) <= a2[1]
+                a2_r = a2 is not None and v1 == "RACE" and \
+                    sum(cls.get(k, 0) for k in RACE_CLASSES) <= a2[0]
                 c["rac" if pos else "nob"] += 1
-                c["tp" if pos else "fp"] += r["verdict"] == "RACE"
+                if a2_rl:
+                    c["a2tp" if pos else "a2fp"] += 1
+                else:
+                    c["tp" if pos else "fp"] += r["verdict"] == "RACE"
                 if v1 is None:
                     c["na"] += 1
                     continue
                 c["rac1" if pos else "nob1"] += 1
-                c["tp1" if pos else "fp1"] += v1 == "RACE"
+                if a2_r:
+                    c["a2tp1" if pos else "a2fp1"] += 1
+                else:
+                    c["tp1" if pos else "fp1"] += v1 == "RACE"
             if seen:
                 out.append(f"| {ps} | {hb_modes.SHORT[mode]} | {c['fp']}/{c['nob']} / {c['tp']}/{c['rac']} "
-                           f"| {c['fp1']}/{c['nob1']} / {c['tp1']}/{c['rac1']} | {c['lat']} | {c['sc']} "
+                           f"| {c['a2fp']} / {c['a2tp']} "
+                           f"| {c['fp1']}/{c['nob1']} / {c['tp1']}/{c['rac1']} "
+                           f"| {c['a2fp1']} / {c['a2tp1']} | {c['lat']} | {c['sc']} "
                            f"| {c['na']} |")
     return "\n".join(out)
 

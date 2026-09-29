@@ -17,8 +17,13 @@ Detect(T, vec) with the I1/I2 switches off (the proof's reference).
       out of the HB model: no local record in hb_events, none replayed from an older dump.
   D12 python/testdata/strong_store_strong_load.cu -- an unordered relaxed cuda::atomic store
       and load: an SC pair, class `sc` in vector-clock mode, never `model_bug`.
+  A2  (T14, design/a2_flag.md) python/testdata/lock_contention_a2.cu -- the rtraw lock idiom
+      on plain data: race-free with 16 contending warps, every report the trace shows is an A2
+      inversion and must carry a2_uncertain; a control kernel's genuine race (no window
+      overlaps) must not. Plus hand-made traces and a randomized check against every
+      window-consistent coherence order (no GPU).
 
-Part of the green set (CLAUDE.md A4) since T9; needs a GPU node.
+Part of the green set (CLAUDE.md A4) since T9; the kernels need a GPU node.
     .env/bin/python -m pytest python/test_hb_substitutions.py -rxX
 """
 import copy
@@ -83,7 +88,7 @@ def _engine_equals_oracle(dots, trace):
     """engine == oracle (records with class, and the second clock), and the oracle ==
     Detect(T, vec) with the I1/I2 switches off (record pairs with DR/SC)."""
     key = lambda r: (r.get("a_pc"), r["b_pc"], r["kind"], r.get("class"), r["space"], r.get("dist"),
-                     r.get("async"), r.get("count"))
+                     r.get("async"), r.get("count"), r.get("a2_uncertain"))
     t = _load(trace)
     dot, _, _ = ac.tables(dots, t)
     rep = hb_oracle.analyze(dot, trace, records=True)
@@ -291,3 +296,263 @@ def test_strong_store_strong_load_scalar_clock(d12, tmp_path):
     dots, trace, st, ld = d12
     [v] = _verdict(dots, _scalar_clock(trace, tmp_path), (st["pc"], ld["pc"]))
     assert v["hb_class"] == "sc" and v["verdict"] == "SC"
+
+
+# --- T14: the a2_uncertain flag (design/a2_flag.md) ---------------------------------------
+# Hand-made traces in the oracle's real record format (no GPU). One thread per (block, warp),
+# lane 0, unless a lane mask is given; pc 0x40 is a block barrier.
+
+_A2_OPS = {   # pc: (opcode, location, record type); one location per pc
+    0x10: ("ATOMG.E.CAS.STRONG.GPU", 0x2000, "write"),
+    0x20: ("ATOMG.E.EXCH.STRONG.GPU", 0x2000, "write"),
+    0x38: ("ATOMG.E.ADD", 0x2000, "write"),               # scope none: never morally strong
+    0x58: ("ATOMG.E.ADD.STRONG.SM", 0x2000, "write"),     # block scope
+    0x50: ("ATOMG.E.CAS.STRONG.GPU", 0x2100, "write"),
+    0x18: ("LDG.E", 0x1000, "read"), 0x28: ("STG.E", 0x1000, "write"),
+    0x60: ("LDG.E", 0x2000, "read"), 0x30: ("STG.E", 0x2000, "write"),
+    0x68: ("LDG.E", 0x3000, "read"), 0x70: ("STG.E", 0x3000, "write"),
+    0x78: ("LD.E.STRONG.GPU", 0x3000, "read"),            # strong (every --strong-ldst policy
+    0x88: ("ST.E.STRONG.GPU", 0x3000, "write"),           # but none): SC pairs among them
+}
+_CAS, _EXCH, _ADDN, _LDX, _STX, _STF, _LDF, _LDY, _BAR = \
+    0x10, 0x20, 0x38, 0x18, 0x28, 0x30, 0x60, 0x68, 0x40
+
+
+def _a2_dump(tmp_path, events, block_tc=32):
+    """events: (block, warp, pc[, lane mask]) in seq order -> (dot, dump) paths."""
+    ins = sorted((pc, op) for pc, (op, _, _) in _A2_OPS.items()) + \
+        [(_BAR, "BAR.SYNC.DEFER_BLOCKING"), (0x80, "EXIT")]
+    body = "\\l".join(f"{pc:04x}: {op} ;" for pc, op in ins) + "\\l"
+    ev = []
+    for s, (block, warp, pc, *m) in enumerate(events, 1):
+        mask = m[0] if m else 1
+        if pc == _BAR:
+            ev.append({"seq": s, "type": "barrier", "block": block, "warp": warp, "pc": pc,
+                       "bar_index": 0, "thread_count": 0, "active_mask": mask})
+            continue
+        _, addr, typ = _A2_OPS[pc]
+        ev.append({"seq": s, "type": typ, "block": block, "warp": warp, "pc": pc,
+                   "space": "global", "size": 4, "active_mask": mask,
+                   "lanes": [{"lane": k, "addr": addr} for k in range(32) if mask >> k & 1]})
+    d, t = Path(tmp_path) / "a2.dot", Path(tmp_path) / "a2.json"
+    if not d.exists():                      # once: sd.parse_dot caches by file
+        d.write_text('digraph "x" {\n subgraph "cluster_k" {\n'
+                     f'  "k" [shape=Mrecord, label="{{{body}}}"];\n }}\n}}\n')
+    t.write_text(json.dumps({"kernel": {"kernel_name": "k", "block_thread_count": block_tc},
+                             "hb_events": ev}))
+    return d, t
+
+
+def _a2_flags(tmp_path, events, block_tc=32):
+    """{(a_pc, b_pc): [instances, flagged]} of the oracle on a hand-made trace (plain data and
+    RMWs only: every pair is a DR)."""
+    out = {}
+    for r in hb_oracle.analyze(*map(str, _a2_dump(tmp_path, events, block_tc)))["races"]:
+        assert r["class"] == "DR"
+        c = out.setdefault((r["a_pc"], r["b_pc"]), [0, 0])
+        c[0] += r["count"]
+        c[1] += r["a2_uncertain"]
+    return out
+
+
+_A, _B = 0, 1   # blocks; warp 0
+
+
+def test_a2_inverted_handoff_is_flagged(tmp_path):
+    # T9's matrix-multiplication shape: B's CAS is recorded before A's unlock it read from;
+    # the critical sections are unordered on the trace, and every instance is flagged
+    got = _a2_flags(tmp_path, [(_A, 0, _CAS), (_A, 0, _LDX), (_A, 0, _STX), (_B, 0, _CAS),
+                               (_A, 0, _EXCH), (_B, 0, _LDX), (_B, 0, _STX), (_B, 0, _EXCH)])
+    assert got and all(n == f > 0 for n, f in got.values()), got
+
+
+def test_a2_no_overlap_is_exact(tmp_path):
+    # no two windows on the lock overlap: the flag is 0 -- here on the rtraw race (a write
+    # after its own unlock against the next holder's read), a race of every schedule order
+    got = _a2_flags(tmp_path, [(_A, 0, _CAS), (_A, 0, _LDX), (_A, 0, _EXCH), (_A, 0, _STX),
+                               (_B, 0, _CAS), (_B, 0, _LDX), (_B, 0, _EXCH)])
+    assert got == {(_STX, _LDX): [1, 0]}
+
+
+@pytest.mark.parametrize("closed", [False, True])
+def test_a2_held_on_the_later_rmw(tmp_path, closed):
+    # (A's plain store to the lock word, B's CAS) is a DR; A's own CAS inside B's window can
+    # precede B's CAS in coherence order, which orders the pair -- decided when B's window
+    # closes (flagged), and not if A's CAS comes after it (not flagged)
+    ev = [(_A, 0, _STF), (_B, 0, _CAS), (_A, 0, _CAS), (_B, 0, _LDX)]
+    if closed:
+        ev = [ev[0], ev[1], ev[3], ev[2]]
+    assert _a2_flags(tmp_path, ev) == {(_STF, _CAS): [1, 0 if closed else 1]}
+
+
+@pytest.mark.parametrize("closed", [False, True])
+def test_a2_held_on_the_earlier_rmw(tmp_path, closed):
+    # (A's CAS, B's plain read of the lock word) is a DR while A's window is open; B's CAS
+    # inside that window can precede A's in coherence order (flagged when A's window closes)
+    ev = [(_A, 0, _CAS), (_B, 0, _LDF), (_B, 0, _CAS), (_A, 0, _LDX)]
+    if closed:
+        ev = [ev[0], ev[1], ev[3], ev[2]]
+    assert _a2_flags(tmp_path, ev) == {(_CAS, _LDF): [1, 0 if closed else 1]}
+
+
+def test_a2_scope_mismatch_is_not_flagged(tmp_path):
+    # block-scope RMWs of two blocks on one word (ScoR race_interblock_blkatom): never morally
+    # strong, so no coherence order chains them -- their DR stays unflagged although the
+    # windows overlap (the flag joins only along ms-connectivity inside a cluster)
+    blk = 0x58                              # ATOMG.E.ADD.STRONG.SM
+    ev = [(_A, 0, blk), (_B, 0, blk), (_A, 0, _LDX), (_B, 0, _LDX)]
+    assert _a2_flags(tmp_path, ev) == {(blk, blk): [1, 0]}
+
+
+def test_a2_block_leader_lock_through_barriers(tmp_path):
+    # thread 0 of each block takes the lock, __syncthreads, a worker (warp 1) touches x,
+    # __syncthreads, thread 0 unlocks; B's CAS recorded before X's unlock. The workers hold
+    # no RMW -- the brief's thread-pair rule would miss them (design/a2_flag.md section 2)
+    full = 0xffffffff
+    ev = [(_A, 0, _CAS), (_A, 0, _BAR, full), (_A, 1, _BAR, full), (_A, 1, _STX),
+          (_A, 0, _BAR, full), (_A, 1, _BAR, full), (_B, 0, _CAS), (_A, 0, _EXCH),
+          (_B, 0, _BAR, full), (_B, 1, _BAR, full), (_B, 1, _LDX),
+          (_B, 0, _BAR, full), (_B, 1, _BAR, full), (_B, 0, _EXCH)]
+    assert _a2_flags(tmp_path, ev, block_tc=64) == {(_STX, _LDX): [1, 1]}
+    ev[6], ev[7] = ev[7], ev[6]             # the unlock recorded first: ordered, no report
+    assert _a2_flags(tmp_path, ev, block_tc=64) == {}
+
+
+def _a2_reference(thr, order):
+    """Brute force: {(record, record)} ordered by ->hb for SOME window-consistent coherence
+    order (every permutation of each location's RMWs that puts r before q whenever r's window
+    closed before q was recorded); records as (tid, pc, epoch), which fixes their HB relation
+    to other threads. Trusting gate, no barriers."""
+    import itertools
+    from collections import defaultdict
+    n = len(order)
+    tid = [hb_oracle.tid_of(*thr[i], 0) for i, _ in order]
+    scope = {pc: sd.atomic_scope(op) for pc, (op, _, _) in _A2_OPS.items()}
+    ep, cur = [], defaultdict(lambda: 1)
+    for k, (_, pc) in enumerate(order):
+        ep.append(cur[tid[k]])
+        cur[tid[k]] += scope[pc] is not None
+    nxt = [next((j for j in range(k + 1, n) if tid[j] == tid[k]), n + 1) for k in range(n)]
+    locs = defaultdict(list)
+    for k, (_, pc) in enumerate(order):
+        if scope[pc] is not None:
+            locs[_A2_OPS[pc][1]].append(k)
+
+    def ms(a, b):
+        s = min(scope[order[a][1]], scope[order[b][1]])
+        return s == sd.GRID or (s == sd.BLOCK and thr[order[a][0]][0] == thr[order[b][0]][0])
+    cos = [[p for p in itertools.permutations(ks)
+            if not any(nxt[p[j]] <= p[i] for i in range(len(p)) for j in range(i + 1, len(p)))]
+           for ks in locs.values()]
+    ordered = set()
+    for combo in itertools.product(*cos):
+        succ = defaultdict(set)
+        for k in range(n):
+            if nxt[k] < n:
+                succ[k].add(nxt[k])
+        for co in combo:
+            for a, b in zip(co, co[1:]):
+                if ms(a, b):
+                    succ[a].add(b)
+        for s in range(n):
+            seen, st = set(), [s]
+            while st:
+                for y in succ[st.pop()] - seen:
+                    seen.add(y)
+                    st.append(y)
+            ordered |= {((tid[s], order[s][1], ep[s]), (tid[y], order[y][1], ep[y])) for y in seen}
+    return ordered
+
+
+def test_a2_only_over_flags_randomized(tmp_path):
+    # 400 random traces (2-4 threads in 1-2 blocks; grid, block and none-scope RMWs on two
+    # words; plain accesses to the words and to data, strong ones to data): no reported
+    # instance (DR or SC) that some window-consistent coherence order orders is left
+    # unflagged (design/a2_flag.md, "Only over-flags"); the oracle's per-record counts add up
+    # to its aggregated ones
+    import random
+    rng = random.Random(14)
+    unflagged = flagged = over = sc = 0
+    for _ in range(400):
+        while True:                         # at most 6 RMWs per word: 720 orders to enumerate
+            thr = [(rng.choice((0, 1)), w) for w in range(rng.choice((2, 3, 3, 4)))]
+            left = [[rng.choice(list(_A2_OPS)) for _ in range(rng.randint(2, 5))] for _ in thr]
+            per = [_A2_OPS[pc][1] for p in left for pc in p if sd.atomic_scope(_A2_OPS[pc][0]) is not None]
+            if max((per.count(x) for x in per), default=0) <= 6:
+                break
+        order = []
+        while any(left):
+            i = rng.choice([k for k in range(len(thr)) if left[k]])
+            order.append((i, left[i].pop(0)))
+        d, t = _a2_dump(tmp_path, [(*thr[i], pc) for i, pc in order])
+        rep = hb_oracle.analyze(str(d), str(t), records=True)
+        races = rep["races"]
+        sc += sum(r["count"] for r in races if r["class"] == "SC")
+        assert sum(r["count"] for r in races) == sum(x[-1] for x in rep["a2_records"])
+        assert sum(r["a2_uncertain"] for r in races) == \
+            sum(x[-1] for x in rep["a2_records"] if x[-2])
+        ref = _a2_reference(thr, order)
+        for a_t, a_pc, a_ep, b_t, b_pc, b_ep, flag, cnt in rep["a2_records"]:
+            a, b = (a_t, a_pc, a_ep), (b_t, b_pc, b_ep)
+            some = (a, b) in ref or (b, a) in ref
+            assert flag or not some, (thr, order, a, b)
+            unflagged += cnt * (not flag)
+            flagged += cnt * flag
+            over += cnt * (flag and not some)
+    assert unflagged and flagged and sc and over < flagged   # all kinds occur; not all over-flags
+
+
+@pytest.fixture(scope="module")
+def a2lock(tmp_path_factory):
+    """(dots, {"kcontend": trace, "kcontrol": trace}) of one run of lock_contention_a2.cu."""
+    dots, last = _trace(tmp_path_factory, "lock_contention_a2")
+    ks = {}
+    for tr in sorted(Path(last).parent.glob("kernel_*.json")):
+        ks[_load(tr)["kernel"]["kernel_name"].split("(")[0]] = tr
+    assert set(ks) == {"kcontend", "kcontrol"}, ks
+    return dots, ks
+
+
+def _a2_verdicts(dots, trace):
+    for dot in dots:
+        try:
+            return sd.analyze(dot, trace)["verdicts"]
+        except sd.AlignmentError:
+            continue
+    raise AssertionError("no CFG aligns with the trace")
+
+
+def test_lock_contention_engine_matches_oracle(a2lock):
+    dots, ks = a2lock
+    assert all(_engine_equals_oracle(dots, tr) for tr in ks.values())
+
+
+def test_lock_contention_every_dr_is_a2_uncertain(a2lock):
+    # step 5 of T14: on the race-free lock with 16 contending warps every report the trace
+    # shows is an A2 inversion -- the flagged count > 0, no unflagged instance, and every Race
+    # verdict rests on A2 alone (pair-level a2_uncertain True). Plain data: the pairs are DR.
+    dots, ks = a2lock
+    t = _load(ks["kcontend"])
+    assert t.get("hb_a2") == 1
+    races = t.get("hb_races", [])
+    assert all(r["class"] == "DR" for r in races)
+    assert sum(r["a2_uncertain"] for r in races) > 0, "no inversion recorded in this run"
+    assert sum(r["count"] - r["a2_uncertain"] for r in races) == 0
+    vs = [v for v in _a2_verdicts(dots, ks["kcontend"]) if v["verdict"] == "RACE"]
+    assert vs and all(v["matrix_class"] == "structural" and v["a2_uncertain"] is True for v in vs)
+
+
+def test_lock_control_race_is_not_a2_uncertain(a2lock):
+    # a race of every coherence order (a write after the writer's own unlock, read by the next
+    # holder) with every window on the lock closed before the reader's CAS: reported, and not
+    # flagged -- the flag does not blanket every report of a lock program
+    dots, ks = a2lock
+    t = _load(ks["kcontrol"])
+    ev = _mem(t)
+    b0, b1 = [e for e in ev if e["block"] == 0], [e for e in ev if e["block"] == 1]
+    if not b0 or not b1 or b0[-1]["seq"] > b1[0]["seq"]:
+        pytest.skip("schedule not reached: block 0 did not finish before block 1 started")
+    races = t.get("hb_races", [])
+    assert races and all(r["class"] == "DR" and r["a2_uncertain"] == 0 for r in races)
+    vs = [v for v in _a2_verdicts(dots, ks["kcontrol"]) if v["verdict"] == "RACE"]
+    assert vs and all(v["a2_uncertain"] is False for v in vs)
