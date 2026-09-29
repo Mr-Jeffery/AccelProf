@@ -211,7 +211,7 @@ struct HbEngine {
     // in sync_group, where every participant ends with the same joined clock plus its
     // own tick, so a sync group SHARES one immutable base and each thread keeps just
     // its own component: a barrier costs O(threads), not O(threads^2) like vc.
-    struct SyncClock { std::shared_ptr<const Clock> base; uint64_t own = 0; };
+    struct SyncClock { BaseP base; uint64_t own = 0; };   // T5b: a flat base, like vc's
     std::unordered_map<Tid, SyncClock> vs;
     bool sync_only_pass = true;                             // YOSEMITE_HB_NO_SYNC_ONLY=1 disables
     struct Released { VClock clk; uint64_t block; int scope; VClock pd; }; // pd: T14
@@ -327,16 +327,14 @@ struct HbEngine {
     std::unordered_map<std::string, std::unordered_set<uint32_t>> kernel_async;
     std::unordered_set<uint32_t> merged_async, no_async;
     const std::unordered_set<uint32_t>* async_pcs = &merged_async;
-    struct Group { VClock vc; Clock vs; VClock pd; };       // an agent's clocks at a commit
+    struct Group { VClock vc; Base vs; VClock pd; };        // an agent's clocks at a commit
     std::unordered_map<Tid, std::vector<Group>> groups;     // t -> committed groups, oldest first
 
     // the sync-only clock of u as one full clock (base + own component)
-    Clock vs_full(Tid u) {
+    Base vs_full(Tid u) {
         const SyncClock& c = vs[u];
-        Clock out = c.base ? *c.base : Clock();
-        uint64_t& d = out[u];
-        if (c.own > d) d = c.own;
-        return out;
+        const Base me{{u, c.own}};
+        return c.base ? base_merge(*c.base, me) : me;
     }
     void async_issue(Tid t, Tid ag) {
         own(t);
@@ -346,16 +344,15 @@ struct HbEngine {
         if (!sync_only_pass) return;
         owns(t);
         SyncClock& a = vs[ag];
-        auto nb = std::make_shared<Clock>(a.base ? *a.base : Clock());
-        join_into(*nb, vs_full(t));
-        a.base = nb;
+        const Base ft = vs_full(t);
+        a.base = std::make_shared<const Base>(a.base ? base_merge(*a.base, ft) : ft);
         owns(ag);
     }
     void async_commit(Tid t) {
         const Tid ag = agent_of(t);
         own(ag);
         if (sync_only_pass) owns(ag);
-        groups[t].push_back(Group{V(ag), sync_only_pass ? vs_full(ag) : Clock(), pd_of(ag)});
+        groups[t].push_back(Group{V(ag), sync_only_pass ? vs_full(ag) : Base(), pd_of(ag)});
         V(ag).own += 1;
         if (sync_only_pass) vs[ag].own += 1;
     }
@@ -370,9 +367,7 @@ struct HbEngine {
         if (sync_only_pass) {
             owns(t);
             SyncClock& c = vs[t];
-            auto nb = std::make_shared<Clock>(c.base ? *c.base : Clock());
-            join_into(*nb, g.vs);
-            c.base = nb;
+            c.base = std::make_shared<const Base>(c.base ? base_merge(*c.base, g.vs) : g.vs);
         }
         it->second.erase(it->second.begin(), it->second.begin() + static_cast<long>(done));
     }
@@ -780,14 +775,17 @@ struct HbEngine {
         }
         if (!sync_only_pass) return;
         for (Tid t : tids) owns(t);
-        auto js = std::make_shared<Clock>();
-        std::set<const Clock*> joined;                      // each shared base once
+        std::vector<BaseP> sbs;                             // each shared base once
+        std::vector<std::pair<Tid, uint64_t>> sloose;
+        sloose.reserve(tids.size());
+        seen.clear();
         for (Tid t : tids) {
             const SyncClock& c = vs[t];
-            if (c.base && joined.insert(c.base.get()).second) join_into(*js, *c.base);
+            if (c.base && seen.insert(c.base.get()).second) sbs.push_back(c.base);
+            sloose.emplace_back(t, c.own);
         }
-        for (Tid t : tids) { uint64_t& d = (*js)[t]; if (vs[t].own > d) d = vs[t].own; }
-        for (Tid t : tids) { SyncClock& c = vs[t]; c.own = (*js)[t] + 1; c.base = js; }
+        const BaseP js = join_group(sbs, std::move(sloose));
+        for (Tid t : tids) { SyncClock& c = vs[t]; c.own = base_get(*js, t) + 1; c.base = js; }
     }
     uint64_t owns(Tid t) {
         uint64_t& v = vs[t].own;
@@ -798,7 +796,7 @@ struct HbEngine {
     uint64_t vs_get(Tid t, Tid u) {
         const SyncClock& c = vs[t];
         if (u == t) return c.own;
-        return c.base ? clk_get(*c.base, u) : 0;
+        return c.base ? base_get(*c.base, u) : 0;
     }
     // ms of two records from their strong scopes (-1 = weak) and their threads' blocks:
     // both strong and each scope covers the other thread (sync_dominance.morally_strong)
@@ -1192,14 +1190,15 @@ struct HbEngine {
                           + hash_buckets(g.by_tid);
             }
         }
-        std::set<const Clock*> bases;
+        std::set<const Base*> bases;
         uint64_t vs_base_entries = 0;
         uint64_t vs_bytes = vs.size() * mchunk(sizeof(void*) + sizeof(decltype(vs)::value_type))
                           + hash_buckets(vs);
         for (const auto& kv : vs)
             if (kv.second.base && bases.insert(kv.second.base.get()).second) {
                 vs_base_entries += kv.second.base->size();
-                vs_bytes += mchunk(16 + sizeof(Clock)) + clock_bytes(*kv.second.base);
+                vs_bytes += mchunk(16 + sizeof(Base))
+                          + mchunk(kv.second.base->capacity() * sizeof(Base::value_type));
             }
         uint64_t arrivals = 0;
         for (const auto& kv : pending_barriers) arrivals += kv.second.arrived.size();

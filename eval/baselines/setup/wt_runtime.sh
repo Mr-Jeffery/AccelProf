@@ -20,6 +20,10 @@ set -e
 W=${W:?set W=<task worktree>}
 A=/home/fzheng4/AccelProf
 OBJ=${OBJ:-/home/fzheng4/wt-T1a-review/install_stage/obj}
+# INSTALL / RTLIB: build beside a runtime that jobs are still using (T5b); <W>/lib is repointed
+# only for the default RTLIB
+INSTALL=${INSTALL:-$W/sanalyzer/wt_install}
+RTLIB=${RTLIB:-$W/wt_rt_lib}
 GXX=/opt/ohpc/pub/compiler/gcc/12.4.0/bin/g++
 CUDA=/usr/local/cuda
 echo "host=$(hostname) W=$W OBJ=$OBJ HEAD=$(git -C $W rev-parse --short HEAD) $($GXX --version | head -1)"
@@ -27,16 +31,16 @@ cd "$W/sanalyzer"
 make -j16 install DEBUG=0 EXTRA_CXX_FLAGS="-g -mtune=znver4" CXX=$GXX \
     SANITIZER_TOOL_DIR=$A/nv-compute NV_NVBIT_DIR=$A/nv-nvbit \
     CPP_TRACE_DIR=$A/build/sanalyzer/cpp_trace PY_FRAME_DIR=$A/build/sanalyzer/py_frame \
-    INSTALL_DIR=$W/sanalyzer/wt_install 2>&1 | tail -5
-mkdir -p "$W/wt_rt_lib"
+    INSTALL_DIR=$INSTALL 2>&1 | tail -5
+mkdir -p "$RTLIB"
 cd "$A/nv-compute"
 $GXX -L$CUDA/compute-sanitizer \
-    -L$W/sanalyzer/wt_install/lib -Wl,-rpath=$W/sanalyzer/wt_install/lib \
+    -L$INSTALL/lib -Wl,-rpath=$INSTALL/lib \
     -L$A/build/tensor_scope/lib -Wl,-rpath=$A/build/tensor_scope/lib \
-    -fPIC -shared -o $W/wt_rt_lib/libcompute_sanitizer.so $OBJ/compute_sanitizer.o $OBJ/sanitizer_helper.o \
+    -fPIC -shared -o $RTLIB/libcompute_sanitizer.so $OBJ/compute_sanitizer.o $OBJ/sanitizer_helper.o \
     -lsanitizer-public -lsanalyzer -ltorch_scope
-[ -L "$W/lib" ] && ln -sfn "$W/wt_rt_lib" "$W/lib"
+[ "$RTLIB" = "$W/wt_rt_lib" ] && [ -L "$W/lib" ] && ln -sfn "$W/wt_rt_lib" "$W/lib"
 echo "lib -> $(readlink $W/lib)"
-readelf -d $W/wt_rt_lib/libcompute_sanitizer.so | grep -i "rpath"
-readelf -d $W/sanalyzer/wt_install/lib/libsanalyzer.so | grep -i "rpath"
-echo "libsanalyzer sha256[:16] $(sha256sum $W/sanalyzer/wt_install/lib/libsanalyzer.so | cut -c1-16)  live: $(sha256sum $A/build/sanalyzer/lib/libsanalyzer.so | cut -c1-16)"
+readelf -d $RTLIB/libcompute_sanitizer.so | grep -i "rpath"
+readelf -d $INSTALL/lib/libsanalyzer.so | grep -i "rpath"
+echo "libsanalyzer sha256[:16] $(sha256sum $INSTALL/lib/libsanalyzer.so | cut -c1-16)  live: $(sha256sum $A/build/sanalyzer/lib/libsanalyzer.so | cut -c1-16)"

@@ -19,10 +19,12 @@ set -u
 W=${W:-/home/fzheng4/AccelProf/.claude/worktrees/t5b-shared-base-clock}
 TAG=${TAG:-t5b-timeout}
 cd $W || exit 1
-export ACCEL_PROF_HOME=$W
+# RT=<checkout> runs another runtime with this worktree's harness (the before/after pair:
+# RT=/home/fzheng4/AccelProf is the live runtime, cuVein without T5b)
+export ACCEL_PROF_HOME=${RT:-$W}
 source eval/baselines/gpu_env.sh
 export LD_LIBRARY_PATH=/opt/ohpc/pub/compiler/gcc/12.4.0/lib64:$LD_LIBRARY_PATH
-echo "host=$(hostname) $(nvidia-smi --query-gpu=name,compute_cap --format=csv,noheader) mem=$(free -g | awk '/Mem:/{print $2}')G HEAD=$(git -C $W rev-parse --short HEAD) libsanalyzer $(sha256sum $W/sanalyzer/wt_install/lib/libsanalyzer.so | cut -c1-16)"
+echo "host=$(hostname) $(nvidia-smi --query-gpu=name,compute_cap --format=csv,noheader) mem=$(free -g | awk '/Mem:/{print $2}')G HEAD=$(git -C $W rev-parse --short HEAD) runtime $ACCEL_PROF_HOME libsanalyzer $(sha256sum $(ldd $ACCEL_PROF_HOME/lib/libcompute_sanitizer.so | awk '/sanalyzer/{print $3}') | cut -c1-16)"
 mkdir -p eval/results/$TAG eval/baselines/confirm_$TAG /mnt/beegfs/$USER/cuvein_traces/$TAG
 export BASELINE_TRACE_DIR=/mnt/beegfs/$USER/cuvein_traces/$TAG
 $PY eval/baselines/parallel.py run --id-file ${IDS:-eval/baselines/setup/engine_timeout_ids.txt} \

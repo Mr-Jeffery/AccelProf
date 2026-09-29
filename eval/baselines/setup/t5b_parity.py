@@ -108,6 +108,9 @@ def one(idir, q):
 
 def compare(a):
     ids = [ln.strip() for ln in open(a.ids) if ln.strip()]
+    if a.shard:
+        k, n = map(int, a.shard.split("/"))
+        ids = ids[k::n]
     out, bad = {}, 0
     for i in ids:
         idir = f"{a.store}/{i}"
@@ -148,6 +151,7 @@ def main():
     c.add_argument("--ids", default=f"{HERE}/t5b_parity_ids.txt")
     c.add_argument("--out", required=True)
     c.add_argument("--cap", type=int, default=3600)
+    c.add_argument("--shard", default="", help="k/N: every N-th id from the k-th")
     a = ap.parse_args()
     {"select": select, "compare": compare}[a.cmd](a)
 

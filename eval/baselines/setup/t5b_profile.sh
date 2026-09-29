@@ -6,8 +6,8 @@
 #   ID=<manifest id> sbatch -p rtx4060ti16g -x c54,c2 -o <W>/build_logs/t5b-profile-%j.log eval/baselines/setup/t5b_profile.sh
 W=${W:-/home/fzheng4/AccelProf/.claude/worktrees/t5b-shared-base-clock}
 cd $W || exit 1
-export ACCEL_PROF_HOME=$W
+export ACCEL_PROF_HOME=${RT:-$W}
 source eval/baselines/gpu_env.sh
 export LD_LIBRARY_PATH=/opt/ohpc/pub/compiler/gcc/12.4.0/lib64:$LD_LIBRARY_PATH
-echo "host=$(hostname) libsanalyzer $(sha256sum $W/sanalyzer/wt_install/lib/libsanalyzer.so | cut -c1-16)"
+echo "host=$(hostname) runtime $ACCEL_PROF_HOME libsanalyzer $(sha256sum $(ldd $ACCEL_PROF_HOME/lib/libcompute_sanitizer.so | awk '/sanalyzer/{print $3}') | cut -c1-16)"
 time $PY eval/baselines/setup/t5b_profile.py --id ${ID:-P4-graph-coloring-norace-large} --cap ${CAP:-1200} --freq ${FREQ:-29} ${DWARF---dwarf} 2>&1 | head -${LINES_OUT:-60}

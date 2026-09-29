@@ -27,9 +27,21 @@ def main():
     ap.add_argument("--work", default=f"/mnt/beegfs/{os.environ['USER']}/t5b_profile")
     a = ap.parse_args()
     row = next(r for r in csv.DictReader(open(f"{os.path.dirname(HERE)}/manifest.csv")) if r["id"] == a.id)
-    work = f"{a.work}/{a.id}-{a.mode}"
-    shutil.rmtree(work, ignore_errors=True)
+    idir = f"{a.work}/{a.id}-{a.mode}"
+    work = f"{idir}/work"
+    shutil.rmtree(idir, ignore_errors=True)
     os.makedirs(work)
+    if row["pset"] in ("P7", "P9"):   # the input layout parallel.collect_one mirrors
+        hec = f"{os.path.dirname(HERE)}/corpora/HeCBench/src"
+        app = f"{hec}/{row['program']}"
+        for lnk, tgt in ((f"{idir}/data", f"{hec}/data"), (f"{work}/input", f"{app}/input"),
+                         (f"{work}/data", f"{app}/data")):
+            if os.path.isdir(tgt) and not os.path.lexists(lnk):
+                os.symlink(tgt, lnk)
+        for x in row["args"].split():
+            if x.startswith("../") and os.path.isdir(f"{hec}/{x.split('/')[1]}") \
+                    and not os.path.lexists(f"{idir}/{x.split('/')[1]}"):
+                os.symlink(f"{hec}/{x.split('/')[1]}", f"{idir}/{x.split('/')[1]}")
     exe = os.path.realpath(row["exe"])
     base = os.path.basename(exe)
     os.symlink(exe, f"{work}/{base}")
