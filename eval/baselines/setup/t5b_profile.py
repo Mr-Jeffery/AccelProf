@@ -22,6 +22,8 @@ def main():
     ap.add_argument("--id", required=True)
     ap.add_argument("--mode", default="vector-clock")
     ap.add_argument("--cap", type=int, default=900)
+    ap.add_argument("--freq", type=int, default=199)
+    ap.add_argument("--dwarf", action="store_true")
     ap.add_argument("--work", default=f"/mnt/beegfs/{os.environ['USER']}/t5b_profile")
     a = ap.parse_args()
     row = next(r for r in csv.DictReader(open(f"{os.path.dirname(HERE)}/manifest.csv")) if r["id"] == a.id)
@@ -36,7 +38,7 @@ def main():
     env = blib.base_env(hb_trace=True, hb_mode=a.mode, scope_file=scope or None)
     env["YOSEMITE_HB_STATS"] = "1"
     args = [x for x in row["args"].split() if x] if row["args"] else []
-    cmd = ["timeout", str(a.cap), "perf", "record", "-F", "199", "-g", "-o", f"{work}/perf.data",
+    cmd = ["timeout", str(a.cap), "perf", "record", "-F", str(a.freq), *(["--call-graph", "dwarf,16384"] if a.dwarf else ["-g"]), "-o", f"{work}/perf.data",
            "--", "accelprof", "-v", "-t", "pc_dependency_analysis", "-n", "1", f"./{base}", *args]
     stdin = open(row["stdin"]) if row["stdin"] else subprocess.DEVNULL
     print(" ".join(cmd), flush=True)
@@ -44,7 +46,7 @@ def main():
                        stderr=open(f"{work}/stderr.txt", "w"))
     print(f"rc={r.returncode}", flush=True)
     rep = subprocess.run(["perf", "report", "-i", f"{work}/perf.data", "--no-children", "--stdio",
-                          "--sort", "dso,symbol", "-g", "none", "--percent-limit", "0.5"],
+                          "--sort", "dso,symbol", "-g", "caller,0.5,callee,function,percent" if a.dwarf else "none", "--percent-limit", "2"],
                          capture_output=True, text=True, cwd=work)
     print("\n".join(ln for ln in rep.stdout.splitlines() if ln.strip() and not ln.startswith("#"))[:6000])
     print(rep.stderr[-1500:])

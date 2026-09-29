@@ -1,6 +1,7 @@
 #include "tools/pc_dependency_analysis.h"
 #include "utils/helper.h"
 
+#include <algorithm>
 #include <cctype>
 #include <cstdint>
 #include <cstdlib>
@@ -71,15 +72,58 @@ struct HbEngine {
     // in `own`. A barrier allocates one base for its participants, not one clock each, and a
     // release stores a pointer + the delta. The values are those of the full clocks, so the
     // representation is invisible to every test on them; hb_oracle.py keeps full clocks.
+    // A base is immutable, so it is a flat vector sorted by tid (one allocation; a merge is one
+    // linear pass; lookup by binary search) rather than a node-based map.
+    using Base = std::vector<std::pair<Tid, uint64_t>>;
+    using BaseP = std::shared_ptr<const Base>;
+    static uint64_t base_get(const Base& b, Tid u) {
+        const auto it = std::lower_bound(b.begin(), b.end(), u,
+            [](const std::pair<Tid, uint64_t>& e, Tid x) { return e.first < x; });
+        return (it != b.end() && it->first == u) ? it->second : 0;
+    }
+    static Base base_merge(const Base& a, const Base& b) {        // pointwise max
+        Base out;
+        out.reserve(a.size() + b.size());
+        auto i = a.begin(), j = b.begin();
+        while (i != a.end() && j != b.end()) {
+            if (i->first < j->first) out.push_back(*i++);
+            else if (j->first < i->first) out.push_back(*j++);
+            else { out.emplace_back(i->first, std::max(i->second, j->second)); ++i; ++j; }
+        }
+        out.insert(out.end(), i, a.end());
+        out.insert(out.end(), j, b.end());
+        return out;
+    }
+    static bool base_covers(const Base& big, const Base& small) {  // small ⊑ big
+        if (small.size() > big.size()) return false;
+        auto i = big.begin();
+        for (const auto& e : small) {
+            while (i != big.end() && i->first < e.first) ++i;
+            if (i == big.end() || i->first != e.first || i->second < e.second) return false;
+        }
+        return true;
+    }
+    static Base base_sorted(std::vector<std::pair<Tid, uint64_t>> v) {   // sort, max per tid
+        std::sort(v.begin(), v.end());
+        Base out;
+        out.reserve(v.size());
+        for (const auto& e : v) {
+            if (!out.empty() && out.back().first == e.first) out.back().second = e.second;  // sorted: last is max
+            else out.push_back(e);
+        }
+        return out;
+    }
+    static Base base_of(const Clock& c) { return base_sorted(Base(c.begin(), c.end())); }
+
     struct VClock {
-        std::shared_ptr<const Clock> base;
+        BaseP base;
         Clock delta;                                        // never holds `self`
         uint64_t own = 0;
         Tid self = 0;
         uint64_t get(Tid u) const {
             if (u == self) return own;
-            uint64_t v = 0;
-            if (base) { const auto it = base->find(u); if (it != base->end()) v = it->second; }
+            const uint64_t v = base ? base_get(*base, u) : 0;
+            if (delta.empty()) return v;
             const auto it = delta.find(u);
             return (it != delta.end() && it->second > v) ? it->second : v;
         }
@@ -93,10 +137,7 @@ struct HbEngine {
     // d ⊔= (u: v), keeping the representation's invariants (self in own, delta above base)
     static void raise(VClock& d, Tid u, uint64_t v) {
         if (u == d.self) { if (v > d.own) d.own = v; return; }
-        if (d.base) {
-            const auto it = d.base->find(u);
-            if (it != d.base->end() && it->second >= v) return;
-        }
+        if (d.base && base_get(*d.base, u) >= v) return;
         uint64_t& x = d.delta[u];
         if (v > x) x = v;
     }
@@ -107,7 +148,7 @@ struct HbEngine {
     // copying O(delta) and the fold's O(base) cost is amortised over the entries it absorbs.
     static constexpr size_t DELTA_JOIN_MAX = 64, FOLD_MIN = 64;
     struct MergeKey {
-        const Clock* a; const Clock* b;
+        const Base* a; const Base* b;
         bool operator==(const MergeKey& o) const { return a == o.a && b == o.b; }
     };
     struct MergeKeyHash {
@@ -115,34 +156,22 @@ struct HbEngine {
             return std::hash<const void*>()(k.a) * 0x9e3779b97f4a7c15ULL ^ std::hash<const void*>()(k.b);
         }
     };
-    // the inputs are held too, so a key's pointers cannot be reused while it is cached
-    struct Merged { std::shared_ptr<const Clock> a, b, out; };
+    // weak references: an entry pins no base, and one whose input or result was freed (its
+    // address may since be reused) is a miss, so a key's pointers name live bases only
+    struct Merged { std::weak_ptr<const Base> a, b, out; };
     std::unordered_map<MergeKey, Merged, MergeKeyHash> merge_memo;
-    static constexpr size_t MERGE_MEMO_MAX = 4096;
-    static bool covers(const Clock& big, const Clock& small) {
-        if (small.size() > big.size()) return false;
-        for (const auto& kv : small) {
-            const auto it = big.find(kv.first);
-            if (it == big.end() || it->second < kv.second) return false;
-        }
-        return true;
-    }
-    std::shared_ptr<const Clock> merge_bases(const std::shared_ptr<const Clock>& a,
-                                             const std::shared_ptr<const Clock>& b) {
+    static constexpr size_t MERGE_MEMO_MAX = size_t(1) << 20;
+    BaseP merge_bases(const BaseP& a, const BaseP& b) {
         const MergeKey k = a.get() < b.get() ? MergeKey{a.get(), b.get()} : MergeKey{b.get(), a.get()};
         const auto it = merge_memo.find(k);
-        if (it != merge_memo.end()) return it->second.out;
-        std::shared_ptr<const Clock> out;
-        if (covers(*a, *b)) out = a;
-        else if (covers(*b, *a)) out = b;
-        else {
-            const bool ab = a->size() >= b->size();
-            auto m = std::make_shared<Clock>(ab ? *a : *b);
-            join_into(*m, ab ? *b : *a);
-            out = std::move(m);
-        }
+        if (it != merge_memo.end() && !it->second.a.expired() && !it->second.b.expired())
+            if (auto o = it->second.out.lock()) return o;
+        BaseP out;
+        if (base_covers(*a, *b)) out = a;
+        else if (base_covers(*b, *a)) out = b;
+        else out = std::make_shared<const Base>(base_merge(*a, *b));
         if (merge_memo.size() >= MERGE_MEMO_MAX) merge_memo.clear();
-        merge_memo.emplace(k, Merged{a, b, out});
+        merge_memo[k] = Merged{a, b, out};
         return out;
     }
     // `skip` (T14's pd): entries it already covers need not be stored -- only the join
@@ -161,17 +190,16 @@ struct HbEngine {
                 d.base = merge_bases(d.base, s.base);
             }
             if (d.base) {                                   // own holds self's whole value
-                const auto it = d.base->find(d.self);
-                if (it != d.base->end() && it->second > d.own) d.own = it->second;
+                const uint64_t v = base_get(*d.base, d.self);
+                if (v > d.own) d.own = v;
             }
         }
         for (const auto& kv : s.delta) put(kv.first, kv.second);
         if (s.own != 0) put(s.self, s.own);
         const size_t bsz = d.base ? d.base->size() : 0;
         if (d.delta.size() > FOLD_MIN && d.delta.size() * 8 > bsz) {
-            auto nb = d.base ? std::make_shared<Clock>(*d.base) : std::make_shared<Clock>();
-            join_into(*nb, d.delta);
-            d.base = std::move(nb);
+            const Base dl = base_of(d.delta);
+            d.base = std::make_shared<const Base>(d.base ? base_merge(*d.base, dl) : dl);
             d.delta.clear();
         }
     }
@@ -454,14 +482,14 @@ struct HbEngine {
     // block-scope one with its block's; a none-scope one with nothing.
     struct Comp {
         std::set<uint64_t> g, b, ag, ab;
-        Clock J;
+        VClock J;                                           // T5b: shares bases like vc
         bool links(int s, uint64_t blk) const {
             return s == SCOPE_GRID ? (!g.empty() || b.count(blk) != 0)
                                    : (g.count(blk) != 0 || b.count(blk) != 0);
         }
     };
     // a member of scope s in block blk joins the components it links (merging them) -> index
-    static size_t comp_add(std::vector<Comp>& cs, int s, uint64_t blk, bool actual) {
+    size_t comp_add(std::vector<Comp>& cs, int s, uint64_t blk, bool actual) {
         std::vector<size_t> linked;
         for (size_t i = 0; i < cs.size(); ++i)
             if (cs[i].links(s, blk)) linked.push_back(i);
@@ -471,7 +499,7 @@ struct HbEngine {
             Comp& o = cs[linked[j]];
             cs[k].g.insert(o.g.begin(), o.g.end()); cs[k].b.insert(o.b.begin(), o.b.end());
             cs[k].ag.insert(o.ag.begin(), o.ag.end()); cs[k].ab.insert(o.ab.begin(), o.ab.end());
-            join_into(cs[k].J, o.J);
+            join_vc(cs[k].J, o.J);
             cs.erase(cs.begin() + static_cast<long>(linked[j]));
         }
         (s == SCOPE_GRID ? cs[k].g : cs[k].b).insert(blk);
@@ -551,12 +579,12 @@ struct HbEngine {
             } else {
                 if (st.has_prev && st.prev.scope != SCOPE_NONE) {   // the single RMW before
                     Comp& c = st.comps[comp_add(st.comps, st.prev.scope, st.prev.block, false)];
-                    join_into(c.J, st.prev.clk); join_into(c.J, st.prev.pd);
+                    join_vc(c.J, st.prev.clk); join_vc(c.J, st.prev.pd);
                 }
                 const auto rit = released.find(loc);        // the first member, as published
                 if (rit != released.end() && rit->second.scope != SCOPE_NONE) {
                     Comp& c = st.comps[comp_add(st.comps, rit->second.scope, rit->second.block, true)];
-                    join_into(c.J, rit->second.clk); join_into(c.J, rit->second.pd);
+                    join_vc(c.J, rit->second.clk); join_vc(c.J, rit->second.pd);
                 }
             }
             st.has_comps = true;
@@ -577,10 +605,9 @@ struct HbEngine {
         Clu& st = clus[w.loc];
         if (st.has_comps && w.scope != SCOPE_NONE) {
             const Comp* c = comp_of(st.comps, w.scope, w.blk);
-            if (c != nullptr && !c->J.empty()) {
+            if (c != nullptr && !vc_empty(c->J)) {
                 pd_join(t, c->J);
-                if (st.members == 1)                        // what it hands on
-                    for (const auto& kv : c->J) raise(released[w.loc].pd, kv.first, kv.second);
+                if (st.members == 1) join_vc(released[w.loc].pd, c->J);   // what it hands on
             }
         }
         for (const auto& kv : w.pend)
@@ -686,58 +713,64 @@ struct HbEngine {
     static void join_into(Clock& dst, const Clock& src) {
         for (const auto& kv : src) { uint64_t& d = dst[kv.first]; if (kv.second > d) d = kv.second; }
     }
-    static void join_into(Clock& dst, const VClock& src) {   // a main clock, flattened (T14)
-        if (src.base) join_into(dst, *src.base);
-        join_into(dst, src.delta);
-        if (src.own != 0) { uint64_t& d = dst[src.self]; if (src.own > d) d = src.own; }
-    }
     // barrier/syncwarp: everyone joins everyone's pre-sync clock, then each ticks
     // its own component (post-sync accesses ordered after the join, concurrent with
     // each other).
     // Applied to both clocks; it is the ONLY thing that advances vs.
+    // T5b: the join of a group's clocks as one base: each distinct input base once, plus the
+    // loose entries (deltas, own components)
+    static BaseP join_group(const std::vector<BaseP>& bs, std::vector<std::pair<Tid, uint64_t>> loose) {
+        if (bs.size() == 1) return std::make_shared<const Base>(base_merge(*bs[0], base_sorted(std::move(loose))));
+        size_t n = loose.size();
+        for (const BaseP& b : bs) n += b->size();
+        loose.reserve(n);
+        for (const BaseP& b : bs) loose.insert(loose.end(), b->begin(), b->end());
+        return std::make_shared<const Base>(base_sorted(std::move(loose)));
+    }
     void sync_group(const std::vector<Tid>& tids) {
-        std::shared_ptr<Clock> pj;                          // T14: the possible deltas join too
-        if (!pd.empty()) {                                  // (T5b: into one shared base)
-            std::set<const Clock*> seen;
+        std::vector<BaseP> pbs;                             // T14: the possible deltas join too
+        std::vector<std::pair<Tid, uint64_t>> ploose;       // (T5b: into one shared base)
+        bool any_pd = false;
+        std::unordered_set<const Base*> seen;
+        if (!pd.empty()) {
             for (Tid t : tids) {
                 const auto it = pd.find(t);
                 if (it == pd.end()) continue;
                 const VClock& c = it->second;
-                if (!pj) pj = std::make_shared<Clock>();
-                if (c.base && seen.insert(c.base.get()).second) join_into(*pj, *c.base);
-                join_into(*pj, c.delta);
-                if (c.own != 0) { uint64_t& x = (*pj)[c.self]; if (c.own > x) x = c.own; }
+                any_pd = true;
+                if (c.base && seen.insert(c.base.get()).second) pbs.push_back(c.base);
+                ploose.insert(ploose.end(), c.delta.begin(), c.delta.end());
+                if (c.own != 0) ploose.emplace_back(c.self, c.own);
                 pd.erase(it);
             }
         }
         for (Tid t : tids) own(t);
         if (!tids.empty()) {
-            // T5b: one base for the group (each distinct input base joined once); each
-            // participant keeps it plus its tick -- the values of `nv = j; nv[t] += 1`
+            // T5b: one base for the group; each participant keeps it plus its tick -- the
+            // values of `nv = j; nv[t] += 1`
             std::vector<VClock*> cs;
             cs.reserve(tids.size());
             for (Tid t : tids) cs.push_back(&V(t));
-            std::shared_ptr<const Clock> only = cs[0]->base;   // one shared base, no deltas:
-            bool same = true;                                   // copy it, don't re-join it
-            for (const VClock* c : cs) same = same && c->base == only && c->delta.empty();
-            auto j = (same && only) ? std::make_shared<Clock>(*only) : std::make_shared<Clock>();
-            if (!same) {
-                std::set<const Clock*> joined;
-                for (const VClock* c : cs)
-                    if (c->base && joined.insert(c->base.get()).second) join_into(*j, *c->base);
-                for (const VClock* c : cs) join_into(*j, c->delta);
+            std::vector<BaseP> bs;
+            std::vector<std::pair<Tid, uint64_t>> loose;
+            loose.reserve(cs.size());
+            seen.clear();
+            for (const VClock* c : cs) {
+                if (c->base && seen.insert(c->base.get()).second) bs.push_back(c->base);
+                loose.insert(loose.end(), c->delta.begin(), c->delta.end());
+                loose.emplace_back(c->self, c->own);
             }
-            for (const VClock* c : cs) { uint64_t& d = (*j)[c->self]; if (c->own > d) d = c->own; }
-            for (VClock* c : cs) { c->own = (*j)[c->self] + 1; c->delta.clear(); c->base = j; }
+            const BaseP j = join_group(bs, std::move(loose));
+            for (VClock* c : cs) { c->own = base_get(*j, c->self) + 1; c->delta.clear(); c->base = j; }
         }
-        if (pj && !pj->empty()) {                           // each participant shares it;
-            std::shared_ptr<const Clock> pb = std::move(pj);   // what vc now covers is kept,
-            for (Tid t : tids) {                                // which no poss() can tell
-                VClock& d = pd_ref(t);
-                d.base = pb;
-                const auto it = pb->find(t);
-                if (it != pb->end()) d.own = it->second;
-            }
+        if (any_pd) {                                       // each participant shares it; what
+            const BaseP pb = join_group(pbs, std::move(ploose));   // vc now covers is kept,
+            if (!pb->empty())                                   // which no poss() can tell
+                for (Tid t : tids) {
+                    VClock& d = pd_ref(t);
+                    d.base = pb;
+                    d.own = base_get(*pb, t);
+                }
         }
         if (!sync_only_pass) return;
         for (Tid t : tids) owns(t);
@@ -1081,7 +1114,7 @@ struct HbEngine {
                     }
                     if (st.has_comps && pit->second.scope != SCOPE_NONE) {   // its component's join
                         Comp* c = comp_of(st.comps, pit->second.scope, a.ctaId);
-                        if (c != nullptr) { join_into(c->J, V(t)); join_into(c->J, pd_of(t)); }
+                        if (c != nullptr) { join_vc(c->J, V(t)); join_vc(c->J, pd_of(t)); }
                     }
                     V(t).own = clk + 1;
                 }
@@ -1114,15 +1147,14 @@ struct HbEngine {
         // T5b: a main clock = a shared base + a delta + own. `entries` counts what is stored
         // (each distinct base once, plus the deltas and the own components); a base is
         // attributed to vc if some thread holds it, else to the releases that do.
-        std::set<const Clock*> mbases;
+        std::set<const Base*> mbases;
         uint64_t vc_base_entries = 0, vc_delta_entries = 0, vc_max_delta = 0, vc_max_base = 0;
         uint64_t vc_bytes = vc.size() * mchunk(sizeof(void*) + sizeof(decltype(vc)::value_type))
                           + hash_buckets(vc);
-        auto add_base = [&](const std::shared_ptr<const Clock>& b, uint64_t& entries,
-                            uint64_t& bytes) {
+        auto add_base = [&](const BaseP& b, uint64_t& entries, uint64_t& bytes) {
             if (!b || !mbases.insert(b.get()).second) return;
             entries += b->size();
-            bytes += mchunk(16 + sizeof(Clock)) + clock_bytes(*b);
+            bytes += mchunk(16 + sizeof(Base)) + mchunk(b->capacity() * sizeof(Base::value_type));
         };
         for (const auto& kv : vc) {
             vc_delta_entries += kv.second.delta.size();
@@ -1190,7 +1222,7 @@ struct HbEngine {
         // T14: the possible clock's state (entry counts; no verdict reads it)
         // T5b: pd entries = deltas + own components + each distinct pd base once
         uint64_t pd_entries = 0, held = 0, multi = 0, clu_entries = 0, rel_pd = 0, pd_bases = 0;
-        std::set<const Clock*> pbs;
+        std::set<const Base*> pbs;
         for (const auto& kv : pd) {
             pd_entries += kv.second.delta.size() + (kv.second.own != 0);
             if (kv.second.base && pbs.insert(kv.second.base.get()).second)
@@ -1200,7 +1232,7 @@ struct HbEngine {
         for (const auto& kv : clus) {
             multi += kv.second.has_comps && kv.second.members >= 2;
             for (const auto* cs : {&kv.second.comps, &kv.second.inflow})
-                for (const Comp& c : *cs) clu_entries += c.J.size();
+                for (const Comp& c : *cs) clu_entries += c.J.delta.size() + (c.J.base ? c.J.base->size() : 0);
             clu_entries += kv.second.prev.clk.delta.size();
         }
         for (const auto& kv : released) rel_pd += kv.second.pd.delta.size();
