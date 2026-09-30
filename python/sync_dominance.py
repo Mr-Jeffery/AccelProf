@@ -334,6 +334,7 @@ class HBGraph:
         self.coh = {}         # pc -> coherent-access scope (atom + .STRONG ld/st); R2 only
         self.sync_edges = []  # (anc, cur, d) observed atomic sync hops
         self.release_points = None  # T12: u -> PO-next RMW pcs from the trace
+        self.acquire_points = None  # T12: v -> PO-previous RMW pcs from the trace
         self.pc_opcode = {}   # every parsed pc -> opcode (alignment check)
         self.pc_node = {}     # pc -> its region node
         self.syncs = {}       # sync node id -> (pc, opcode, scope, qualifying)
@@ -491,7 +492,8 @@ class HBGraph:
             out.setdefault(cur, {cur})
         return out
 
-    def attach_trace(self, atom, sync_edges, coh=None, same_loc=None, release_points=None):
+    def attach_trace(self, atom, sync_edges, coh=None, same_loc=None, release_points=None,
+                     acquire_points=None):
         """Bind the dynamic facts: atom = {pc -> atomic RMW scope} (the release/
         acquire atomics R3 chains over), sync_edges = validated observed atomic-atomic
         hops (anc, cur, d), coh = {pc -> coherent-access scope} for R2 (atom plus the
@@ -500,12 +502,15 @@ class HBGraph:
         (the evidence that an EXCH rewrites the word a CAS acquired). release_points (T12)
         = {non-atomic pc u: frozenset of the pcs of the PO-next RMW of u's thread after each
         observed instance of u, or None if some instance has none} from the trace; None
-        keeps the region-dominance release point (release_scope)."""
+        keeps the region-dominance release point (release_scope). acquire_points (T12) = the
+        same with the PO-previous RMW before each instance: the atomics the chain must land on
+        (None: region dominance, po(n, cur))."""
         self.atom = atom
         self.sync_edges = sync_edges
         self.coh = atom if coh is None else coh
         self.same_loc = same_loc or set()
         self.release_points = release_points
+        self.acquire_points = acquire_points
 
     # -- R1: sync dominance (static) ------------------------------------------
     def dominance(self, u, v):
@@ -654,26 +659,58 @@ class HBGraph:
         else:  # fence scope gates the first sync hop's distance (region release point)
             starts = [(a, s) for a in self.atom
                       if (s := self.release_scope(anc, a)) > NONE]
-        found = None
-        for a0, first_scope in starts:
-            path = self._chain_from(a0, first_scope, anc, cur, anc_atomic, hops, every)
-            if path is not None and not every:
-                return path
-            if path is None and every:
+        # T12, the acquire side from the trace: every observed instance of cur must be
+        # preceded in its thread by an atomic the chain lands on (its PO-previous RMW) --
+        # symmetric to the release point; region dominance (po(n, cur)) otherwise.
+        # $CUVEIN_R3_TRACE_ACQUIRE=0 keeps region dominance (ablation).
+        need = None
+        if self.acquire_points is not None and cur not in self.atom and \
+                cur in self.acquire_points and \
+                os.environ.get("CUVEIN_R3_TRACE_ACQUIRE", "1") != "0":
+            need = self.acquire_points[cur]
+            if not need:
                 return None
-            found = found or path
-        return found
+        if need is None:
+            found = None
+            for a0, first_scope in starts:
+                path = self._chain_from(a0, first_scope, anc, cur, anc_atomic, hops, every)
+                if path is not None and not every:
+                    return path
+                if path is None and every:
+                    return None
+                found = found or path
+            return found
+        # With trace points the chain must COVER both sides: every release start (when they
+        # come from the trace) reaches some acquire point, and every acquire point is reached
+        # from some start -- the instances of anc released at different RMWs (a border and an
+        # inner thread, say) may pair with different acquires of cur's instances; a pc-level
+        # rule cannot tell which, and assumes the observed hand-offs are the ones used.
+        covered, first = set(), None
+        for a0, first_scope in starts:
+            hit = False
+            for q in sorted(need):
+                path = self._chain_from(a0, first_scope, anc, cur, anc_atomic, hops, every,
+                                        land=q)
+                if path is not None:
+                    covered.add(q)
+                    hit = True
+                    first = first or path
+            if every and not hit:
+                return None
+        return first if covered == set(need) else None
 
-    def _chain_from(self, a0, first_scope, anc, cur, anc_atomic, hops, traced=False):
+    def _chain_from(self, a0, first_scope, anc, cur, anc_atomic, hops, traced=False, land=None):
         """One chain search from start a0. traced (T12): a0 is anc's trace release point;
         before the first sync hop the chain may take program-order steps to later atomics b
-        of anc's thread, the release scope narrowing to release_fence(anc, b)."""
+        of anc's thread, the release scope narrowing to release_fence(anc, b). land (T12):
+        the acquire must be exactly this atomic (cur's trace acquire point) instead of one
+        whose region dominates cur's."""
         # acq = the atomic the latest sync hop landed on (the acquire in force); fs = the
         # release scope gating the first hop
         stack, seen = [(a0, False, [a0], None, first_scope)], set()
         while stack:
             n, synced, path, acq, fs = stack.pop()
-            if synced and n != cur and self.po(n, cur) \
+            if synced and n != cur and (self.po(n, cur) if land is None else n == land) \
                     and not self._past_release(acq, cur):  # acquire: dependency
                 return path
             if (n, synced, acq, fs) in seen:
@@ -733,20 +770,22 @@ def thread_distance(t1, t2):
     return BLOCK if (t1 >> 5) != (t2 >> 5) else WARP
 
 
-def trace_release_points(trace, rmw, max_lanes=None):
-    """T12 (hb_proof.tex section 5, R3's release point from the trace): {non-RMW memory pc u:
-    frozenset of the pcs of the PO-next RMW of u's thread after each observed instance of u,
-    empty if some instance has none}. rmw = the kernel's RMW pcs. Local records are outside
-    the model (D14). -> None if the dump has no hb_events or exceeds max_lanes lane-accesses
-    (R3 then keeps the region-dominance release point)."""
+def trace_rmw_points(trace, rmw, max_lanes=None):
+    """T12 (hb_proof.tex section 5, R3's release point from the trace) -> (release, acquire):
+    release = {non-RMW memory pc u: frozenset of the pcs of the PO-next RMW of u's thread after
+    each observed instance of u, empty if some instance has none}; acquire = the same with the
+    PO-previous RMW before each instance. rmw = the kernel's RMW pcs. Local records are outside
+    the model (D14). -> (None, None) if the dump has no hb_events or exceeds max_lanes
+    lane-accesses (R3 then keeps region dominance)."""
     events = trace.get("hb_events")
     if not events:
-        return None
+        return None, None
     if max_lanes is not None and \
             sum(len(e.get("lanes", ())) for e in events) > max_lanes:
-        return None
+        return None, None
     pending = {}                       # tid -> non-RMW pcs since its last RMW
-    out = {}
+    last = {}                          # tid -> its last RMW pc
+    out, back, orphan = {}, {}, set()
     for e in sorted(events, key=lambda e: e["seq"]):
         if "lanes" not in e or e.get("space") == "local":
             continue
@@ -756,11 +795,19 @@ def trace_release_points(trace, rmw, max_lanes=None):
             if is_rmw:
                 for u in pending.pop(t, ()):
                     out.setdefault(u, set()).add(pc)
+                last[t] = pc
             else:
                 pending.setdefault(t, set()).add(pc)
+                if t in last:
+                    back.setdefault(pc, set()).add(last[t])
+                else:
+                    orphan.add(pc)
     stranded = {u for us in pending.values() for u in us}
-    return {u: (frozenset() if u in stranded else frozenset(out.get(u, ())))
-            for u in set(out) | stranded}
+    rel = {u: (frozenset() if u in stranded else frozenset(out.get(u, ())))
+           for u in set(out) | stranded}
+    acq = {v: (frozenset() if v in orphan else frozenset(back.get(v, ())))
+           for v in set(back) | orphan}
+    return rel, acq
 
 
 def barrier_only_pairs(trace, rmw, coh, max_lanes=None, dist_out=None, order_out=None,
@@ -1083,10 +1130,10 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
            if (sc := coherent_scope(eng.pc_opcode[pc], policy)) is not None}
     # T12: R3's release point from the trace (the PO-next RMW of each instance's thread)
     rmw_pcs = {pc for pc, op in eng.pc_opcode.items() if atomic_scope(op) is not None}
-    rpoints = trace_release_points(
+    rpoints, apoints = trace_rmw_points(
         trace, rmw_pcs, int(os.environ.get("CUVEIN_BARRIER_PASS_MAX_LANES", "5000000"))) \
-        if atom else None
-    eng.attach_trace(atom, sync_edges, coh, same_loc, rpoints)
+        if atom else (None, None)
+    eng.attach_trace(atom, sync_edges, coh, same_loc, rpoints, apoints)
 
     # Dynamic happens-before ground truth (the analyzer's C++ HB engine, present when
     # the trace was taken with YOSEMITE_HB_TRACE=1). Crossed with the static legs below
