@@ -19,6 +19,16 @@
 #include <limits>
 #include <tuple>
 #include <unordered_set>
+#include <algorithm>
+#include <numeric>
+
+// T15: see pc_dependency_set_late_keys.
+namespace {
+std::vector<uint64_t> g_late_keys;      // keys of the next drain, empty = none handed over
+uint32_t g_late_mode = 0;               // 1 atomic counter, 2 %globaltimer
+uint32_t g_late_kernel_mode = 0;        // the mode this kernel's dump was ordered by
+uint64_t g_hb_bpos_base = 0;            // buffer slots drained so far in this kernel
+}  // namespace
 
 
 using namespace yosemite;
@@ -1060,10 +1070,11 @@ struct HbEngine {
         return (sit != strength->end()) ? sit->second : -1;
     }
 
-    void process(const MemoryAccess* buf, uint64_t size) {
+    // order (T15): the drain's record order when the late key is on, else buffer order.
+    void process(const MemoryAccess* buf, uint64_t size, const uint32_t* order = nullptr) {
         for (uint64_t i = 0; i < size; ++i) {
             if (stats_every && ++processed >= next_snapshot) snapshot();   // T5a
-            const MemoryAccess& a = buf[i];
+            const MemoryAccess& a = buf[order ? order[i] : i];
             if (a.type == MemoryType::BlockExit) {   // T3b: the exiting lanes of one warp
                 if (!wins.empty())                   // T14; T12: the exit's pc is q
                     a2_close_lanes(a.ctaId, a.warpId, a.active_mask,
@@ -1724,6 +1735,8 @@ void PcDependency::kernel_start_callback(std::shared_ptr<KernelLaunch_t> kernel)
     _unknown_region_shadow.clear();
     _hb_events.clear();
     _hb_seq = 0;
+    g_hb_bpos_base = 0;        // T15
+    g_late_kernel_mode = 0;
     hb_engine_reset();
     hb_engine_select_kernel(kernel->kernel_name);
     for (uint64_t worker_idx = 0; worker_idx < _worker_count; ++worker_idx) {
@@ -1749,20 +1762,38 @@ void PcDependency::kernel_start_callback(std::shared_ptr<KernelLaunch_t> kernel)
 }
 
 
-void PcDependency::hb_collect_events(const MemoryAccess* buffer, uint64_t size) {
+// T15 (eval/LATE_SEQ.md): the late ordering key. With YOSEMITE_HB_LATE_SEQ the collector
+// hands over, before each drain, one key per buffer slot drawn as the last action of the
+// record's callback (yosemite_gpu_data_late_keys). The drain is then consumed -- by the dump
+// and by the engine alike -- in (key, slot) order; a buffer's keys all precede the next
+// buffer's (the collector drains only after every key of the buffer has landed), so sorting
+// within a drain orders the kernel. Each event carries both keys: "bpos" (its slot position
+// in the kernel's buffer stream, the old order) and "lkey"; seq follows the late order.
+// File statics, not PcDependency members (the header's latent-UB note).
+
+void pc_dependency_set_late_keys(const uint64_t* keys, uint64_t size, uint32_t mode) {
+    g_late_keys.assign(keys, keys + size);
+    g_late_mode = mode;
+}
+
+void PcDependency::hb_collect_events(const MemoryAccess* buffer, uint64_t size,
+                                     const uint32_t* order) {
     // Serialize each trace record (in buffer/temporal order) to a compact JSON
     // object appended to _hb_events. Called per buffer drain so the stream spans
     // the whole kernel. Memory records expand to active lanes; sync records carry
     // participation (barrier threadCount / syncwarp mask).
-    for (uint64_t i = 0; i < size; ++i) {
+    for (uint64_t k = 0; k < size; ++k) {
+        const uint64_t i = order ? order[k] : k;
         const MemoryAccess& a = buffer[i];
         // I5 (D14): local memory is outside the HB model; the collector's default path and
         // its local-address tag are untouched, only the HB trace drops the record.
         if (a.type == MemoryType::Local) continue;
         std::ostringstream o;
         const uint64_t seq = _hb_seq++;
-        o << "{\"seq\": " << seq
-          << ", \"block\": " << a.ctaId
+        o << "{\"seq\": " << seq;
+        if (order)   // T15: both keys, so one run measures both orders
+            o << ", \"bpos\": " << (g_hb_bpos_base + i) << ", \"lkey\": " << g_late_keys[i];
+        o << ", \"block\": " << a.ctaId
           << ", \"warp\": " << a.warpId
           << ", \"pc\": " << (a.pc & 0x00FFFFFFu);
         if (a.type == MemoryType::Barrier) {
@@ -1822,9 +1853,10 @@ static void hb_engine_select_kernel(const std::string& kernel_name) {
     if (engine) engine->select_kernel(kernel_name);
 }
 
-void PcDependency::hb_engine_process(const MemoryAccess* buffer, uint64_t size) {
+void PcDependency::hb_engine_process(const MemoryAccess* buffer, uint64_t size,
+                                     const uint32_t* order) {
     auto& engine = hb_engine_singleton();
-    if (engine) engine->process(buffer, size);
+    if (engine) engine->process(buffer, size, order);
 }
 
 void PcDependency::hb_engine_reset() {
@@ -2152,6 +2184,11 @@ void PcDependency::kernel_trace_flush(std::shared_ptr<KernelLaunch_t> kernel) {
         // end-of-kernel TV-barrier-pending-at-end check only on dumps with the marker: an
         // older dump has no exits, so an early-exit kernel's segments stay open there.
         jout << ",\n  \"hb_exits\": 1";
+        // T15: seq follows the late ordering key (events carry bpos = the buffer order and
+        // lkey); absent = buffer order, as before.
+        if (g_late_kernel_mode != 0)
+            jout << ",\n  \"hb_late_seq\": 1, \"hb_late_seq_key\": \""
+                 << (g_late_kernel_mode == 2 ? "timer" : "atomic") << "\"";
         // Phase 2 dynamic-HB engine verdicts (streaming; mirrors hb_oracle.py).
         hb_engine_emit(jout);
         if (hb_stats_enabled()) hb_stats_emit(jout, _hb_events, *kernel);
@@ -2687,14 +2724,32 @@ void PcDependency::gpu_data_analysis(void* data, uint64_t size) {
     }
 
     if (_hb_trace) {
-        hb_collect_events(accesses_buffer, size);
+        // T15: the late key's order for this drain (identity without YOSEMITE_HB_LATE_SEQ).
+        std::vector<uint32_t> late_order;
+        if (!g_late_keys.empty()) {
+            if (g_late_keys.size() != size) {
+                fprintf(stderr, "[cuVein] T15: %zu late keys for a drain of %lu records\n",
+                        g_late_keys.size(), (unsigned long)size);
+                exit(EXIT_FAILURE);
+            }
+            late_order.resize(size);
+            std::iota(late_order.begin(), late_order.end(), 0u);
+            std::stable_sort(late_order.begin(), late_order.end(), [](uint32_t x, uint32_t y) {
+                return g_late_keys[x] < g_late_keys[y];   // ties (timer) keep buffer order
+            });
+            g_late_kernel_mode = g_late_mode;
+        }
+        const uint32_t* order = late_order.empty() ? nullptr : late_order.data();
+        hb_collect_events(accesses_buffer, size, order);
         // scalar-clock mode dumps the events without running the engine, which also
         // isolates the event-dump cost from the engine cost (A/B lever for the
         // bounded-clock / FastTrack-epoch calibration). On a reduction of 4M elts
         // (136K events) the engine's exact unbounded VCs add ~4s vs ~1.3s for the
         // dump — the growing per-thread clocks under heavy __syncthreads are the
         // target of the scale knobs.
-        if (!hb_scalar_clock_mode()) hb_engine_process(accesses_buffer, size);
+        if (!hb_scalar_clock_mode()) hb_engine_process(accesses_buffer, size, order);
+        g_hb_bpos_base += size;
+        g_late_keys.clear();
     }
 
     for (uint64_t worker_idx = 0; worker_idx < _worker_count; ++worker_idx) {

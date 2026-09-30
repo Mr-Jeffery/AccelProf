@@ -18,6 +18,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <sstream>
+#include <chrono>
 #include <dlfcn.h>
 
 #define SANITIZER_VERBOSE 1
@@ -53,6 +54,11 @@ static MemoryAccessState* device_access_state = nullptr;
 static TensorAccessState* host_tensor_access_state = nullptr;
 static TensorAccessState* device_tensor_access_state = nullptr;
 static DoorBell* global_doorbell = nullptr;
+// T15 (eval/LATE_SEQ.md): the late ordering key's side array (one uint64 per buffer slot) and
+// counter; allocated and used only with late_seq_mode() != 0.
+static uint64_t* device_late_keys = nullptr;
+static uint64_t* host_late_keys = nullptr;
+static uint64_t* device_late_counter = nullptr;
 
 static AccelProfOptions_t sanitizer_options;
 // <module, is_patched>
@@ -308,6 +314,46 @@ void ModuleLoadedCallback(CUmodule module)
 }
 
 
+// T15: YOSEMITE_HB_LATE_SEQ=1|atomic -> 1 (atomicAdd on a counter), =timer -> 2
+// (%globaltimer); unset/0 -> 0 (off, the default). Effective only in HB-trace runs of the
+// pc_dependency tool; every other path is unchanged.
+static uint32_t late_seq_mode() {
+    static const uint32_t mode = [] {
+        const char* hb = std::getenv("YOSEMITE_HB_TRACE");
+        if (hb == nullptr || *hb == '\0' || std::string(hb) == "0") return 0u;
+        const char* v = std::getenv("YOSEMITE_HB_LATE_SEQ");
+        if (v == nullptr || *v == '\0' || std::string(v) == "0") return 0u;
+        const std::string m(v);
+        if (m == "1" || m == "atomic") return 1u;
+        if (m == "timer") return 2u;
+        fprintf(stderr, "[SANITIZER ERROR] YOSEMITE_HB_LATE_SEQ=%s is none of 0, 1, atomic, timer\n", v);
+        exit(EXIT_FAILURE);
+    }();
+    return mode;
+}
+
+// T15: before a drain of n slots, wait until every slot's late key has landed (the committing
+// lane stores it after its commit; the kernel is running, so re-copy until none is 0), then
+// hand the keys to the tools. A key missing after 30 s is a collector bug: fail loudly.
+static void late_keys_drain(uint64_t n, Sanitizer_StreamHandle stream) {
+    if (late_seq_mode() == 0 || n == 0) return;
+    const auto t0 = std::chrono::steady_clock::now();
+    uint64_t first_missing = 0;
+    while (true) {
+        SANITIZER_SAFECALL(
+            sanitizerMemcpyDeviceToHost(host_late_keys + first_missing, device_late_keys + first_missing,
+                                        sizeof(uint64_t) * (n - first_missing), stream));
+        while (first_missing < n && host_late_keys[first_missing] != 0) ++first_missing;
+        if (first_missing == n) break;
+        if (std::chrono::steady_clock::now() - t0 > std::chrono::seconds(30)) {
+            fprintf(stderr, "[SANITIZER ERROR] T15: late key of slot %lu of %lu never landed\n",
+                    (unsigned long)first_missing, (unsigned long)n);
+            exit(EXIT_FAILURE);
+        }
+    }
+    yosemite_gpu_data_late_keys(host_late_keys, n, late_seq_mode());
+}
+
 void buffer_init(CUcontext context) {
     if (!device_tracker_handle) {
         SANITIZER_SAFECALL(
@@ -460,6 +506,16 @@ void buffer_init(CUcontext context) {
                 sanitizerAllocHost(context, (void**)&global_doorbell, sizeof(DoorBell)));
         }
     } else if (sanitizer_options.patch_name == GPU_PATCH_PC_DEPENDENCY_ANALYSIS) {
+        if (late_seq_mode() != 0 && !device_late_keys) {   // T15
+            SANITIZER_SAFECALL(
+                sanitizerAlloc(context, (void**)&device_late_keys,
+                               sizeof(uint64_t) * MEMORY_ACCESS_BUFFER_SIZE));
+            SANITIZER_SAFECALL(
+                sanitizerAllocHost(context, (void**)&host_late_keys,
+                                   sizeof(uint64_t) * MEMORY_ACCESS_BUFFER_SIZE));
+            SANITIZER_SAFECALL(
+                sanitizerAlloc(context, (void**)&device_late_counter, sizeof(uint64_t)));
+        }
         if (!device_access_buffer) {
             SANITIZER_SAFECALL(
                 sanitizerAlloc(
@@ -710,6 +766,17 @@ bool LaunchBeginCallback(
             SANITIZER_SAFECALL(
                 sanitizerMemset(
                     device_access_buffer, 0, sizeof(MemoryAccess) * MEMORY_ACCESS_BUFFER_SIZE, hstream));
+            // T15: late keys off (nullptr) unless YOSEMITE_HB_LATE_SEQ; 0 marks an unwritten slot.
+            host_tracker_handle->late_keys = nullptr;
+            host_tracker_handle->late_counter = nullptr;
+            host_tracker_handle->late_mode = late_seq_mode();
+            if (late_seq_mode() != 0) {
+                SANITIZER_SAFECALL(
+                    sanitizerMemset(device_late_keys, 0, sizeof(uint64_t) * MEMORY_ACCESS_BUFFER_SIZE, hstream));
+                SANITIZER_SAFECALL(sanitizerMemset(device_late_counter, 0, sizeof(uint64_t), hstream));
+                host_tracker_handle->late_keys = device_late_keys;
+                host_tracker_handle->late_counter = device_late_counter;
+            }
             host_tracker_handle->currentEntry = 0;
             host_tracker_handle->numEntries = 0;
             host_tracker_handle->access_buffer = device_access_buffer;
@@ -969,6 +1036,12 @@ void LaunchEndCallback(
                     SANITIZER_SAFECALL(
                         sanitizerMemcpyDeviceToHost(host_access_buffer, device_access_buffer,
                                             sizeof(MemoryAccess) * MEMORY_ACCESS_BUFFER_SIZE, phstream));
+                    late_keys_drain(MEMORY_ACCESS_BUFFER_SIZE, phstream);   // T15
+                    if (late_seq_mode() != 0) {   // the next buffer's slots start unwritten
+                        SANITIZER_SAFECALL(sanitizerMemset(device_late_keys, 0,
+                            sizeof(uint64_t) * MEMORY_ACCESS_BUFFER_SIZE, phstream));
+                        SANITIZER_SAFECALL(sanitizerStreamSynchronize(phstream));
+                    }
                     yosemite_gpu_data_analysis(host_access_buffer, MEMORY_ACCESS_BUFFER_SIZE);
                     global_doorbell->full = 0;
                 }
@@ -982,6 +1055,7 @@ void LaunchEndCallback(
             SANITIZER_SAFECALL(
                 sanitizerMemcpyDeviceToHost(
                     host_access_buffer, device_access_buffer, sizeof(MemoryAccess) * numEntries, hstream));
+            late_keys_drain(numEntries, hstream);   // T15
 
             yosemite_gpu_data_analysis(host_access_buffer, numEntries);
         }

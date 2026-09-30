@@ -97,6 +97,11 @@ YosemiteResult_t yosemite_kernel_end_callback(std::string kernel_name, int devic
 
 YosemiteResult_t yosemite_gpu_data_analysis(void* data, uint64_t size);
 
+// T15 (eval/LATE_SEQ.md): the late ordering keys of the next yosemite_gpu_data_analysis
+// drain, one per buffer slot (mode 1 atomic counter, 2 %globaltimer). Called only with
+// YOSEMITE_HB_TRACE and YOSEMITE_HB_LATE_SEQ set; the keys are valid for that one drain.
+YosemiteResult_t yosemite_gpu_data_late_keys(const uint64_t* keys, uint64_t size, uint32_t mode);
+
 YosemiteResult_t yosemite_init(AccelProfOptions_t& options);
 
 YosemiteResult_t yosemite_terminate();

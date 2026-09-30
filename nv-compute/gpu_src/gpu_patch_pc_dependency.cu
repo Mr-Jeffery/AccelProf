@@ -44,6 +44,49 @@ void IncrementNumEntries(MemoryAccessTracker* pTracker) {
     }
 }
 
+// T15 (eval/LATE_SEQ.md): the late ordering key. The buffer index (GetBufferIndex) is drawn
+// at the start of a callback; between it and the instruction lie the record writes, two
+// __syncwarps, the address shuffle, a __threadfence and the numEntries atomic. With
+// tracker->late_keys set (YOSEMITE_HB_TRACE + YOSEMITE_HB_LATE_SEQ, pc_dependency only), the
+// committing lane draws a second key after the commit, as its last action, and stores it in
+// late_keys[slot] -- a side array parallel to the record buffer; MemoryAccess is unchanged,
+// so no reader of the record sees a new field. The host waits for every slot's key before
+// it drains a buffer. The one exception is the lane whose commit fills the buffer: it draws
+// its key before ringing the doorbell and waiting for the drain (it must: the drain needs
+// the key), so its key precedes that wait -- one record per MEMORY_ACCESS_BUFFER_SIZE.
+static __device__ __inline__
+uint64_t DrawLateKey(MemoryAccessTracker* pTracker) {
+    if (pTracker->late_mode == 2) {
+        uint64_t t;
+        asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(t));
+        return t | 1ull;          // never 0 (0 = "not yet written" for the host)
+    }
+    return atomicAdd((unsigned long long*)pTracker->late_counter, 1ull) + 1ull;
+}
+
+static __device__ __inline__
+void CommitRecord(MemoryAccessTracker* pTracker, uint32_t idx) {
+    if (pTracker->late_keys == nullptr) {
+        IncrementNumEntries(pTracker);
+        return;
+    }
+    DoorBell* doorbell = pTracker->doorBell;
+    __threadfence();
+    const uint32_t numEntries = atomicAdd((int*)&(pTracker->numEntries), 1);
+    ((volatile uint64_t*)pTracker->late_keys)[idx] = DrawLateKey(pTracker);
+
+    if (numEntries == MEMORY_ACCESS_BUFFER_SIZE - 1) {
+        __threadfence_system();
+        doorbell->full = true;
+        __threadfence_system();
+        while (doorbell->full);
+
+        atomicExch((uint32_t*)&(pTracker->numEntries), static_cast<uint32_t>(0));
+        __threadfence();
+        atomicExch((uint32_t*)&(pTracker->currentEntry), static_cast<uint32_t>(0));
+    }
+}
+
 static __device__
 SanitizerPatchResult CommonCallback(
     void* userdata,
@@ -63,12 +106,13 @@ SanitizerPatchResult CommonCallback(
     uint32_t first_laneid = __ffs(active_mask) - 1;
 
     MemoryAccess* accesses = nullptr;
+    uint32_t idx = 0;
 
     uint32_t distinct_sector_count = get_distint_sector_count((uint64_t)(uintptr_t)ptr/32, active_mask); // sector size is 32 bytes so we divide by 32 to get the sector tag
     uint32_t unique_address_mask = get_unique_address_mask((uint64_t)(uintptr_t)ptr, active_mask);
 
     if (laneid == first_laneid) {
-        uint32_t idx = GetBufferIndex(pTracker);
+        idx = GetBufferIndex(pTracker);
         accesses = &pTracker->access_buffer[idx];
         accesses->accessSize = accessSize;
         accesses->flags = flags;
@@ -95,7 +139,12 @@ SanitizerPatchResult CommonCallback(
     __syncwarp(active_mask);
 
     if (laneid == first_laneid) {
-        IncrementNumEntries(pTracker);
+        CommitRecord(pTracker, idx);
+    }
+    // T15: with the late key, no lane may leave before its record's key is drawn -- else a
+    // non-committing lane could reach its next record (and its key) first, breaking W0.
+    if (pTracker->late_keys != nullptr) {
+        __syncwarp(active_mask);
     }
 
     return SANITIZER_PATCH_SUCCESS;
@@ -174,7 +223,7 @@ void EmitSyncEvent(MemoryAccessTracker* tracker, uint64_t pc, MemoryType type,
         access->type = type;
         access->pc = pc - tracker->kernel_pc;
         access->active_mask = active_mask;
-        IncrementNumEntries(tracker);
+        CommitRecord(tracker, idx);
     }
     __syncwarp(active_mask);
 }
@@ -237,7 +286,7 @@ SanitizerPatchResult BlockExitCallback(void* userdata, uint64_t pc)
         access->type = MemoryType::BlockExit;
         access->pc = pc - tracker->kernel_pc;
         access->active_mask = active_mask;
-        IncrementNumEntries(tracker);
+        CommitRecord(tracker, idx);
         atomicSub((uint32_t*)&doorbell->num_threads, static_cast<uint32_t>(pop_count));
         // uint32_t new_num_threads = atomicSub((uint32_t*)&doorbell->num_threads, static_cast<uint32_t>(pop_count));
         // printf("BlockExitCallback:Block id %lu, warp id %d, num_threads = %d, decrement = %d\n", access->ctaId, access->warpId, new_num_threads, pop_count);
