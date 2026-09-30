@@ -235,7 +235,44 @@ removes the RMW-join growth; the barrier-only ones are untouched (tiled_gemm).
 
 ## 7. P4/P5 GPU sweep, both modes
 
-<!-- filled from job 294290 -->
+Job 294290, node c53, one rep, the harness's 120 s cap: the 61 P4/P5 programs in both modes, first
+with the main runtime (cuVein f61c389's python, installed collector 7bafac9f / libsanalyzer), then
+with the T12 runtime (collector 5c503aa1, libsanalyzer d6cb4c7b), fresh recordings
+(`eval/baselines/setup/t12_eval.sh`, results `eval/results/t12-eval-{main,t12}/`, traces on BeeGFS
+`t12-eval-{main,t12}`). 122 (id, mode) rows, **11 differ, all vector-clock; scalar-clock identical**:
+
+| program | label | main | T12 | note |
+|---|---|---|---|---|
+| graph-coloring-norace-large | CLEAN | TIMEOUT (120 s, 3.2 GB) | CLEAN (19 s, 0.9 GB) | finishes |
+| graph-coloring-racy-large | RACE | TIMEOUT | RACE (27 s), structural 14 | finishes |
+| graph-coloring-racy-small | RACE | RACE (109 s), structural 12 | RACE (15 s), structural 13 | +1 pair, faster |
+| graph-connectivity-norace-large | CLEAN | TIMEOUT (5.9 GB) | CLEAN (27 s, 1.1 GB) | finishes |
+| graph-connectivity-racy-large | RACE | TIMEOUT | RACE (27 s), structural 9 | finishes |
+| graph-connectivity-racy-small | RACE | RACE (17 s), structural 8 | RACE (2.4 s), structural 9 | +1 pair (re-score: 2 unfenced hand-offs) |
+| uts-norace-small | CLEAN | TIMEOUT (12.5 GB) | **RACE (38 s)**: model_bug 1, sc 17 | finishes; new FP, see below |
+| uts-racy-small | RACE | TIMEOUT (13.0 GB) | RACE (27 s): model_bug 2, structural 10, sc 17 | finishes |
+| matrix-multiplication-norace-small | CLEAN | CLEAN (62 s) | **TIMEOUT** | slower, see below |
+| matrix-multiplication-racy-small | RACE | RACE (65 s) | **TIMEOUT** | slower, see below |
+| norace_interwarp-block_fence-atom_hrd-indirect | CLEAN | CLEAN | RACE, structural 3 | D11, §4.3 |
+
+Every other row is identical, including all 8 ScoR fence races (`sc` 1 in both runs: the fresh
+recordings' schedules happen to leave them unordered already under the trusting gate) and the
+four SC `norace_*fence*` kernels (clean in both: in these recordings the pairs are ordered by
+the hand-off's dependency in R3 or not observed conflicting -- only the stored evcand traces of
+§4 show them).
+
+**uts-norace-small (new Race verdict).** The one `model_bug` is an SC pair: two `volatile` stores
+(`STG.E.STRONG.SYS`, pc 0x470) to one address by warps 5 and 6 of block 45, recorded at seq 4,212
+and 19,625, both before the block's first barrier arrival (the same barrier segment). The gate
+removed the ordering the unfenced `atomicAdd` hand-offs gave them; R1's cycle form
+(`loop_scope(0x470)` = block, barrier 0x3cb0 on every cycle) claims them ordered, which is false
+for two instances in one segment. So `model_bug` did its job -- it exposed a pre-existing R1
+over-claim for same-pc pairs within one segment -- but `CLASS_VERDICT` maps `model_bug` to RACE
+although the pair's class is SC. Not changed in T12 (verdict layer; a follow-up: R1's cycle form must
+not claim a same-pc pair whose instances lie in one segment, and `model_bug` on an SC pair should
+not count as a race). Under the trusting gate this program timed out, so the defect was invisible.
+
+**matrix-multiplication-small (regression).** See §7.1.
 
 ## 8. Latent census after T12
 
