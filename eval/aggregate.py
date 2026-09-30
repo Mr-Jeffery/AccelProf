@@ -161,7 +161,8 @@ def emit_row(args):
     reports_dedup = len(dedup)
     structural = sum(v.get("hb_class") == "structural" for v in verdicts)
     latent = sum(v.get("hb_class") == "latent" for v in verdicts)
-    tv_violations = sum(v.get("hb_class") == "model_bug" for v in verdicts)
+    tv_violations = sum(v.get("hb_class") == "model_bug" or bool(v.get("model_bug"))
+                        for v in verdicts)
     benign = sum(v.get("hb_class") == "benign" for v in verdicts)
     warp_po = sum(v.get("hb_class") == "warp-po-ordered" for v in verdicts)
     if benign:

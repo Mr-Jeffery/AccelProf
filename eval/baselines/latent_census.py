@@ -427,6 +427,8 @@ def _cls(r):
     """Report class. vector-clock: hb_class. scalar-clock (hb_class None): a RACE is
     `race` (no static proof, not barrier-ordered), an ORDERED `ordered`."""
     c = r.get("hb_class")
+    if c == "structural" and r.get("model_bug"):
+        return "model_bug"   # the annotation on a DR pair (an SC one stays sc: not a race)
     if c:
         return c
     return "race" if r["verdict"] == "RACE" else "ordered"

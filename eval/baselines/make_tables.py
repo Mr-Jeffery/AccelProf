@@ -496,7 +496,20 @@ def accuracy_table(runs, meta, man, cols):
 # (a RACE only at the Race u Latent operating point); sc / latent-sc are unordered strong
 # conflicts, never a RACE. Rows written before T9 carry no note: their Race-alone verdict is
 # unknown (their RACE is the Race u Latent point, which is what they always counted).
+# `model_bug` is a class only in rows written before it became an annotation (such a row cannot
+# tell a DR from an SC pair; its RACE stands); newer rows carry `model_bug=<n>` beside the
+# class note and the class decides the verdict (an SC pair with model_bug is a Strong conflict).
 RACE_CLASSES = {"structural", "model_bug", "race", "host", "host-spec-only"}
+_MBUG_RE = re.compile(r"model_bug=(\d+)")
+
+
+def report_model_bug(r):
+    """Reports carrying the model_bug annotation (max over reps): the note since the
+    annotation, the pre-annotation `model_bug` class otherwise; 0 when none."""
+    found = _MBUG_RE.findall(r.get("notes") or "")
+    if found:
+        return max(int(n) for n in found)
+    return (report_classes(r) or {}).get("model_bug", 0)
 _CLASSES_RE = re.compile(r"classes=([A-Za-z_:,\-0-9]+)")
 
 
@@ -557,15 +570,17 @@ def operating_points_section(runs, meta, man):
            "that point rests only on reports every DR instance of which a window-consistent "
            "coherence order could have ordered (A2 not assumed), as FP / TP by label: counted "
            "there and as neither TP nor FP in the point's own column; only rows whose dumps carry "
-           "the flag.\n"]
+           "the flag. `model_bug` = programs with a report R1 certifies and the engine saw racing "
+           "(an annotation on the report's verdict, informational: the verdict is its class's, so "
+           "an SC report with it is a Strong conflict).\n"]
     hdr = ["pset", "mode", "Race u Latent FP / TP", "a2 (R u L) FP / TP", "Race alone FP / TP",
-           "a2 (R) FP / TP", "latent", "sc", "n/a"]
+           "a2 (R) FP / TP", "latent", "sc", "model_bug", "n/a"]
     out.append("| " + " | ".join(hdr) + " |")
     out.append("|" + "---|" * len(hdr))
     for ps in ("P1", "PI", "P3", "P4", "P5", "P6", "P7", "P9"):
         for mode in (VC, SC):
             c = dict(fp=0, tp=0, nob=0, rac=0, fp1=0, tp1=0, nob1=0, rac1=0, lat=0, sc=0, na=0,
-                     a2fp=0, a2tp=0, a2fp1=0, a2tp1=0)
+                     a2fp=0, a2tp=0, a2fp1=0, a2tp1=0, mb=0)
             seen = False
             for _id, m in meta.items():
                 r = runs.get((_id, "cuvein", mode))
@@ -576,6 +591,7 @@ def operating_points_section(runs, meta, man):
                 v1, cls = race_alone_verdict(r), report_classes(r) or {}
                 c["lat"] += bool(cls.get("latent"))
                 c["sc"] += bool(cls.get("sc") or cls.get("latent-sc"))
+                c["mb"] += bool(report_model_bug(r))
                 if lab not in ("RACE", "CLEAN"):
                     continue
                 pos = lab == "RACE"
@@ -602,7 +618,7 @@ def operating_points_section(runs, meta, man):
                            f"| {c['a2fp']} / {c['a2tp']} "
                            f"| {c['fp1']}/{c['nob1']} / {c['tp1']}/{c['rac1']} "
                            f"| {c['a2fp1']} / {c['a2tp1']} | {c['lat']} | {c['sc']} "
-                           f"| {c['na']} |")
+                           f"| {c['mb']} | {c['na']} |")
     return "\n".join(out)
 
 

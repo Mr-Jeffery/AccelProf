@@ -132,6 +132,103 @@ def test_sidecar_gate_lines_are_the_oracle_table(d, tmp_path):
                     assert got[(r, "acq", key)] == set(acq)
 
 
+# ---- R3 (hb_proof.tex section 5, as amended by T12): hand-built lock and flag CFGs -----------
+# One lock kernel whose pcs every thread shares:
+#   0x10 x = ... ; [0x20 fence] ; do { 0x30 CAS(lock) } while (fail) ; 0x50 fence ; 0x60 CCTL ;
+#   0x70 read x ; 0x80 write x ; 0x90 fence ; 0xa0 EXCH(lock, 0) (unlock) ; 0xb0 write x ; exit
+# The trace facts R3 reads are given by hand: the observed atomic hops, the atomics seen on one
+# location, and each access's PO-next / PO-previous RMW over its observed instances.
+
+def _r3_lock(fence_before_lock=True, hops=((0xa0, 0x30), (0x30, 0x30)), rp=None, ap=None):
+    g = _graph({
+        "B0": [(0x10, "STG.E")] + ([(0x20, "MEMBAR.SC.GPU")] if fence_before_lock else []),
+        "B1": [(0x30, "ATOMG.E.CAS.STRONG.GPU"), (0x38, "ISETP.NE.AND"), (0x3c, "BRA")],
+        "B2": [(0x50, "MEMBAR.SC.GPU"), (0x60, "CCTL.IVALL"), (0x70, "LDG.E"), (0x80, "STG.E"),
+               (0x90, "MEMBAR.SC.GPU"), (0xa0, "ATOMG.E.EXCH.STRONG.GPU"), (0xb0, "STG.E"),
+               (0xc0, "EXIT")],
+    }, [("B0", "B1"), ("B1", "B1"), ("B1", "B2")])
+    atom = {0x30: sd.GRID, 0xa0: sd.GRID}
+    g.attach_trace(atom, [(a, b, sd.GRID) for a, b in hops], atom,
+                   {frozenset((0x30, 0xa0)), frozenset((0x30,))},
+                   rp if rp is not None else {0x10: frozenset({0x30}), 0x70: frozenset({0xa0}),
+                                             0x80: frozenset({0xa0}), 0xb0: frozenset()},
+                   ap if ap is not None else {0x10: frozenset(), 0x70: frozenset({0x30}),
+                                             0x80: frozenset({0x30}), 0xb0: frozenset({0xa0})})
+    return g
+
+
+def test_r3_certifies_the_lock_hand_off():
+    """x written in one thread's section, read in the next owner's: release at the unlock
+    (fenced), hop unlock -> the next owner's CAS, which is the read's PO-previous RMW."""
+    assert _r3_lock().chain(0x80, 0x70) == [0xa0, 0x30]
+
+
+def test_r3_declines_write_before_lock(monkeypatch):
+    """x = ...; lock; ... in one thread against a read inside another thread's section: the
+    observed order (writer locked first) is schedule-dependent. Without a fence before the
+    lock there is no release point; with one, the first hop leaves from the CAS the writer
+    executes after x (or from its unlock, on the CAS's location): _before_acquire."""
+    assert _r3_lock(fence_before_lock=False).chain(0x10, 0x70) is None     # no release fence
+    g = _r3_lock(fence_before_lock=True)
+    assert g.chain(0x10, 0x70) is None and g.chain(0x70, 0x10) is None
+    monkeypatch.setenv("CUVEIN_R3_BEFORE_ACQUIRE", "0")                    # the decline matters
+    assert g.chain(0x10, 0x70) is not None
+
+
+def test_r3_declines_rtraw(monkeypatch):
+    """lock; read x; unlock in one thread, lock; ...; unlock; x = ... in the other (the ScoR
+    rtraw kernel): the write after the unlock has no release point, and from the read the
+    chain lands on the writer's unlock -- its PO-previous RMW -- past the release."""
+    g = _r3_lock()
+    assert g.chain(0x70, 0xb0) is None and g.chain(0xb0, 0x70) is None
+    monkeypatch.setenv("CUVEIN_R3_PAST_RELEASE", "0")
+    assert g.chain(0x70, 0xb0) is not None                                 # the decline matters
+
+
+def test_r3_declines_rtraw_with_many_threads():
+    """With many threads on the same pcs the aggregated edges also hold a failed CAS -> another
+    thread's unlock hop, so the chain can land DIRECTLY on the writer's unlock (a non-CAS RMW
+    on the CAS's location). Before T12, _past_release ignored a non-CAS landing and R3
+    certified this race."""
+    g = _r3_lock(hops=((0xa0, 0x30), (0x30, 0x30), (0x30, 0xa0)))
+    assert g.chain(0x70, 0xb0) is None
+
+
+def test_r3_certifies_a_fenced_flag_hand_off():
+    """data = ...; fence; EXCH(flag, 1) / while (EXCH(flag, 0) == 0); CCTL; read data: a
+    location no CAS touches is a dataflow hand-off -- the spin's landing is no release."""
+    g = _graph({
+        "P": [(0x100, "STG.E"), (0x110, "MEMBAR.SC.GPU"), (0x120, "ATOMG.E.EXCH.STRONG.GPU"),
+              (0x128, "EXIT")],
+        "C0": [(0x130, "ATOMG.E.EXCH.STRONG.GPU"), (0x138, "BRA")],
+        "C1": [(0x140, "CCTL.IVALL"), (0x150, "LDG.E"), (0x160, "EXIT")],
+    }, [("P", "C0"), ("C0", "C0"), ("C0", "C1")])
+    atom = {0x120: sd.GRID, 0x130: sd.GRID}
+    g.attach_trace(atom, [(0x120, 0x130, sd.GRID)], atom, {frozenset((0x120, 0x130))},
+                   {0x100: frozenset({0x120})}, {0x150: frozenset({0x130})})
+    assert g.chain(0x100, 0x150) == [0x120, 0x130]
+
+
+def test_r1_certifies_no_same_pc_pair(monkeypatch):
+    """R1 (hb_proof.tex section 5): every path between the two regions crosses a barrier -- for
+    one region the empty path crosses none. The code's former cycle form (a barrier on every
+    cycle through the pc's region) orders instances in different iterations only, not two
+    threads in one barrier segment (P4 uts-norace-small)."""
+    g = _graph({"L": [(0x10, "STG.E"), (0x20, "BAR.SYNC.DEFER_BLOCKING"), (0x30, "BRA")],
+                "X": [(0x40, "EXIT")]}, [("L", "L"), ("L", "X")])
+    assert g.ordered(0x10, 0x10, sd.BLOCK, False, False)["strength"] == sd.NONE
+    monkeypatch.setenv("CUVEIN_R1_LOOP_SCOPE", "1")                        # the former form
+    assert g.ordered(0x10, 0x10, sd.BLOCK, False, False)["strength"] == sd.BLOCK
+
+
+def test_model_bug_is_an_annotation():
+    """A pair R1 orders and hb_races saw racing keeps its class's verdict: SC -> Strong
+    conflict, DR -> Race; the annotation is judge()'s model_bug field."""
+    assert sd._hb_class(True, False, True, True, strong=True) == "sc"
+    assert sd._hb_class(True, False, True, True, strong=False) == "structural"
+    assert sd.CLASS_VERDICT["sc"] == "SC" and sd.CLASS_VERDICT["structural"] == "RACE"
+
+
 def test_dump_gate(monkeypatch):
     """A dump without `hb_gate` (every pre-T12 dump) replays under the trusting gate unless
     told otherwise; the engine's marker selects the gate otherwise; an explicit arg wins."""
@@ -215,3 +312,85 @@ def test_held_conflict_engine_matches_oracle(variant):
         assert g.get("held_reported", 0) == 0 and not cas, (g, cas)
     else:
         assert g.get("held_reported", 0) >= 1 and cas, (g, rep["races"])
+
+
+# ---- GPU: R3's write-before-lock decline on a real trace (testdata/write_before_lock.cu) ------
+
+def _t12_trace(name):
+    """(dots, [kernel JSON]) of testdata/<name>.cu, built and traced once (vector-clock mode),
+    cached in cuHadron/_t12_<name>; None without nvcc / a GPU."""
+    import shutil
+    import subprocess
+    src = Path(__file__).resolve().parent / "testdata" / f"{name}.cu"
+    work = _ROOT / "cuHadron" / f"_t12_{name}"
+    work.mkdir(parents=True, exist_ok=True)
+    binary = work / name
+
+    def collect():
+        dots = sorted((work / f"{name}_extracted_cubins").glob("*.dot"))
+        deps = sorted(work.glob(f"dependency_{name}*"))
+        return dots, (sorted(deps[-1].glob("kernel_*.json")) if deps else [])
+
+    dots, traces = collect()
+    if dots and traces and binary.stat().st_mtime >= src.stat().st_mtime:
+        return dots, traces
+    if shutil.which("nvcc") is None:
+        return None
+    b = subprocess.run(["nvcc", "-arch=native", "-lineinfo", "--cudart", "shared", str(src),
+                        "-o", str(binary)], cwd=work, capture_output=True)
+    if b.returncode != 0:
+        return None
+    subprocess.run(["bash", str(_ROOT / "getall.sh"), str(binary.resolve())], cwd=_ROOT,
+                   capture_output=True, timeout=600)
+    dots, traces = collect()
+    return (dots, traces) if dots and traces else None
+
+
+def _pair_verdicts(dots, trace, pcs):
+    for dot in dots:
+        try:
+            rep = sd.analyze(dot, trace)
+            break
+        except sd.AlignmentError:
+            continue
+    else:
+        raise AssertionError("no CFG aligns")
+    return [v for v in rep["verdicts"] if {v["current_pc"], v["ancient_pc"]} == set(pcs)]
+
+
+def test_r3_declines_write_before_lock_on_a_real_trace(monkeypatch, tmp_path):
+    art = _t12_trace("write_before_lock")
+    if art is None:
+        pytest.skip("no GPU / nvcc / accelprof to build and trace write_before_lock")
+    dots, traces = art
+    t = json.loads(traces[0].read_text())
+    mem = [e for e in sorted(t["hb_events"], key=lambda e: e["seq"]) if "lanes" in e]
+    for dot in dots:                                        # the cubin that holds the kernel
+        kern = sd.parse_dot(dot)
+        try:
+            g = sd.HBGraph(*kern[sd.select_kernel(kern, t["kernel"]["kernel_name"])])
+            break
+        except sd.AlignmentError:
+            continue
+    else:
+        raise AssertionError("no CFG aligns")
+    rmw = {pc for pc, op in g.pc_opcode.items() if sd.atomic_scope(op) is not None}
+    b0 = [e for e in mem if e["block"] == 0]
+    b1 = [e for e in mem if e["block"] == 1]
+    if max(e["seq"] for e in b0 if e["pc"] in rmw) > min(e["seq"] for e in b1 if e["pc"] in rmw):
+        pytest.skip("schedule not reached: block 1 touched the lock before block 0 was done")
+    write = next(e for e in b0 if e["pc"] not in rmw)
+    read = next(e for e in b1 if e["type"] == "read" and e["pc"] not in rmw
+                and e["lanes"][0]["addr"] == write["lanes"][0]["addr"])
+    pair = (write["pc"], read["pc"])
+    for r in ho.analyze(dot, traces[0])["races"]:          # ordered in this run: no report
+        assert {r["a_pc"], r["b_pc"]} != set(pair), r
+    sc = tmp_path / "scalar.json"                           # the scalar-clock view of the dump
+    sc.write_text(json.dumps({k: v for k, v in t.items()
+                              if k not in ("hb_races", "hb_races_sync_only", "coherence_profile")}))
+    vv, vs = _pair_verdicts(dots, traces[0], pair), _pair_verdicts(dots, sc, pair)
+    assert vv and all(v["hb_chain"] is None and v["hb_class"] == "latent" for v in vv), vv
+    assert vs and all(v["hb_chain"] is None and v["verdict"] == "RACE" for v in vs), vs
+    monkeypatch.setenv("CUVEIN_R3_BEFORE_ACQUIRE", "0")    # without the decline R3 certifies it
+    assert all(v["verdict"] == "ORDERED" and v["hb_chain"] for v in
+               _pair_verdicts(dots, traces[0], pair) + _pair_verdicts(dots, sc, pair))

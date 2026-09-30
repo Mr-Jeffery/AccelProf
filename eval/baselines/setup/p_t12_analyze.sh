@@ -9,6 +9,8 @@
 #   WHICH=before  store t10-after, CUVEIN_R3_TRACE_{RELEASE,ACQUIRE}=0 CUVEIN_R3_BEFORE_ACQUIRE=0 (pre-T12)
 #   WHICH=r3only  store t10-after, defaults (R3 amendments; trusting-gate hb_races)
 #   WHICH=after   store t12-after, defaults (R3 amendments; instance-gate hb_races)
+#   WHICH=r1old   store t12-after, CUVEIN_R1_LOOP_SCOPE=1 CUVEIN_R3_LANDING=0 (the rebase review's before)
+#   WHICH=final   store t12-after, defaults after the rebase review (R1 same-pc fix, landing decline)
 # IDFILE restricts the ids (eval/results/t12-rescore/ids_affected.txt).
 #   W=<worktree> WHICH=... IDFILE=<ids> sbatch --array=0-31 -o <W>/build_logs/t12-analyze-%A_%a.log \
 #       <W>/eval/baselines/setup/p_t12_analyze.sh
@@ -17,11 +19,15 @@ W=${W:?W=<the T12 worktree>}
 WHICH=${WHICH:?WHICH=before|r3only|after}
 cd "$W" || exit 1
 export ACCEL_PROF_HOME=$W CUVEIN_HOME=$W
-unset CUVEIN_STRONG_LDST CUVEIN_GATE CUVEIN_R3_TRACE_RELEASE CUVEIN_R3_TRACE_ACQUIRE CUVEIN_R3_BEFORE_ACQUIRE
+unset CUVEIN_STRONG_LDST CUVEIN_GATE CUVEIN_R3_TRACE_RELEASE CUVEIN_R3_TRACE_ACQUIRE CUVEIN_R3_BEFORE_ACQUIRE \
+    CUVEIN_R1_LOOP_SCOPE CUVEIN_R3_LANDING
 case $WHICH in
   before) STORE=t10-after; export CUVEIN_R3_TRACE_RELEASE=0 CUVEIN_R3_TRACE_ACQUIRE=0 CUVEIN_R3_BEFORE_ACQUIRE=0 ;;
   r3only) STORE=t10-after ;;
   after)  STORE=t12-after ;;
+  # T12 rebase review (R1 same-pc fix, R3 landing decline, model_bug annotation), all programs:
+  r1old)  STORE=t12-after; export CUVEIN_R1_LOOP_SCOPE=1 CUVEIN_R3_LANDING=0 ;;
+  final)  STORE=t12-after ;;
   *) echo "bad WHICH=$WHICH"; exit 2 ;;
 esac
 export BASELINE_TRACE_DIR=/mnt/beegfs/$USER/cuvein_traces/$STORE

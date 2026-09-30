@@ -53,7 +53,7 @@ EOF
 fi
 
 echo "== (2) green set (worktree runtime)"
-rm -rf ScoR/microbenchmarks/artifacts/* cuHadron/_coherent_ldst cuHadron/_mm_handoff
+rm -rf ScoR/microbenchmarks/artifacts/* cuHadron/_coherent_ldst cuHadron/_mm_handoff cuHadron/_gate_held cuHadron/_t12_*
 .env/bin/python -m pytest python/test_sync_dominance.py python/test_barrier_soundness.py \
     python/test_coherent_ldst.py python/test_atomic_memory_model.py \
     python/test_barrier_exit.py python/test_hb_substitutions.py python/test_cp_async.py python/test_instance_gate.py \

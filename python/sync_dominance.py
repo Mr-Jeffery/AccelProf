@@ -16,8 +16,9 @@ certify order, R2 only the pair's DR/SC class (T9, D12):
     access and before the other on every path, and no sync-free path joins the two
     regions (a loop's wrap-around would pair instances from different iterations).
     Qualifying: BAR.SYNC*/BAR.RED* (block), WARPSYNC (warp); BAR.ARV* never orders.
-    Same-PC pairs: a qualifying sync of scope >= s on every cycle through the PC's
-    region.
+    Same-PC pairs: R1 certifies none (T12): a barrier on every cycle through the pc's region
+    separates only instances in different iterations, and two threads can execute the pc in
+    one segment; the barrier-only clock orders the cross-iteration instances it observes.
  R2 atomic coherence (static): two strong accesses whose min .STRONG scope covers
     the observed distance are morally strong (SM/CTA -> block, GPU/SYS -> grid; a
     shared-memory ATOMS without a scope suffix is block-coherent by construction; a
@@ -322,7 +323,7 @@ class HBGraph:
     Built from the sync-split region graph (dominator/post-dominator sets) plus,
     after attach_trace, the dynamic facts (atomic scopes + observed atomic-atomic
     sync edges). Three edge rules certify ordering scope for a PC pair:
-      R1 dominance() / loop_scope()  — static barriers/warpsync,
+      R1 dominance()                 — static barriers/warpsync (no same-pc form, T12),
       R2 coherence()                 — same-address atomics,
       R3 chain()                     — release -> observed sync -> acquire.
     ordered() runs R1 then R3 and reports R2's scope alongside (class, not order)."""
@@ -537,8 +538,19 @@ class HBGraph:
         return best, sorted(used)
 
     def loop_scope(self, pc):
-        """R1's cycle form for a same-PC pair: ordered at scope s iff a qualifying
-        sync of scope >= s lies on every cycle through the PC's region (1.5)."""
+        """The former cycle form of R1 for a same-PC pair: ordered at scope s iff a qualifying
+        sync of scope >= s lies on every cycle through the PC's region (1.5).
+
+        Not a certificate, and no longer used by ordered() (T12): a barrier on every cycle
+        separates the pc's instances in DIFFERENT iterations only; two threads executing the pc
+        in the same iteration -- one barrier segment -- are never separated by it, so a
+        cross-thread same-pc conflict is certified by nothing static. hb_proof.tex section 5's R1
+        says the same (every path between the two regions crosses a barrier; for one region the
+        empty path crosses none). Found on P4 uts-norace-small (two volatile stores to one
+        address by two warps of block 45, both before the block's first barrier arrival, which
+        this form had certified -- a model_bug). The cross-iteration instances are ordered by the
+        barrier-only clock where it runs (barrier-ordered). $CUVEIN_R1_LOOP_SCOPE=1 restores the
+        old use (ablation, for measuring the change)."""
         r = self.pc_node[pc]
         if not self._on_cycle(r, ()):
             return NONE, []  # no loop: distinct threads, same interval
@@ -618,11 +630,22 @@ class HBGraph:
         access after its own unlock would run concurrently with the other section
         (ScoR race_interblock_none-lock_rtraw). Non-CAS flag/spin hand-offs pin their
         direction by dataflow, so everything after the acquire stays ordered.
-        $CUVEIN_R3_PAST_RELEASE=0 disables the gate (ablation).
-        ponytail: the mirror (an access BEFORE its thread's own acquire) is not gated."""
-        if acq is None or "CAS" not in self.pc_opcode[acq].split(".") \
-                or os.environ.get("CUVEIN_R3_PAST_RELEASE", "1") == "0":
+        T12: a hop can also land DIRECTLY on the section's release -- a non-CAS RMW on a
+        location some CAS acquires (with many threads on the same pcs, a failed CAS of one
+        thread hops to another thread's unlock). cur after that RMW is past the release as
+        well, so the gate fires then too (before T12 it returned False for any non-CAS acq,
+        and a multi-thread rtraw was certified). A flag location no CAS touches is a
+        dataflow hand-off and stays ungated. $CUVEIN_R3_PAST_RELEASE=0 disables the gate
+        (ablation). The mirror (an access BEFORE its thread's own acquire) is
+        _before_acquire."""
+        if acq is None or os.environ.get("CUVEIN_R3_PAST_RELEASE", "1") == "0":
             return False
+        if "CAS" not in self.pc_opcode[acq].split("."):
+            if os.environ.get("CUVEIN_R3_LANDING", "1") == "0":   # pre-T12 (ablation)
+                return False
+            return self.po(acq, cur) and any(
+                "CAS" in self.pc_opcode[c].split(".") and frozenset((c, acq)) in self.same_loc
+                for c in self.atom)
         return any(r != acq and r != cur and frozenset((acq, r)) in self.same_loc
                    and self.po(acq, r) and self.po(r, cur) for r in self.atom)
 
@@ -748,7 +771,9 @@ class HBGraph:
         if not static:
             strength, syncs = NONE, []
         elif cur == anc:
-            strength, syncs = self.loop_scope(cur)              # R1 (cycle form)
+            # R1 certifies no same-pc pair (loop_scope's docstring; T12)
+            strength, syncs = self.loop_scope(cur) \
+                if os.environ.get("CUVEIN_R1_LOOP_SCOPE") == "1" else (NONE, [])
         else:
             strength, syncs = self.dominance(cur, anc)          # R1
         coherence = self.coherence(cur, anc)                    # R2 (class only)
@@ -1032,10 +1057,12 @@ def _hb_class(r1_ordered, chain_ordered, dyn_raced, sync_raced=None, strong=Fals
     dyn_raced (the engine's hb_races) is the observed-schedule truth; `strong` is the
     pair's class, SC (morally strong -- decided by hb_races' instances in vector-clock
     mode, else by R2 at the widest observed distance) or DR. R2 grants no order.
-      model_bug   R1 claims every-schedule order yet it raced -> a soundness bug in R1 or
-                  a trace/CFG misalignment; investigate.
       structural  raced (some instance a data race), and no all-schedule proof orders it
                   (the chain over-ordered, or nothing did) -> a race static missed.
+    `model_bug` (R1 claims every-schedule order yet the pair raced: a defect of R1 or a
+    trace/CFG misalignment -- investigate) is an ANNOTATION on the raced pair's verdict, not
+    a class: judge() sets it on the record (model_bug_of), and the verdict is the class's --
+    a model_bug on an SC pair is a Strong conflict, on a DR pair a Race.
       sc          raced, every instance an unordered strong conflict: reported,
                   informational (D2), neither a race nor ordered.
       ordered     not raced and R1 or R3 orders it.
@@ -1045,7 +1072,7 @@ def _hb_class(r1_ordered, chain_ordered, dyn_raced, sync_raced=None, strong=Fals
       latent      not raced this schedule, nothing proves all-schedule ordering -> may race
                   under another schedule (D8: a third verdict); latent-sc if SC."""
     if dyn_raced:
-        return "model_bug" if r1_ordered else "sc" if strong else "structural"
+        return "sc" if strong else "structural"
     if r1_ordered or chain_ordered:
         return "ordered"
     # No static proof. sync_raced is the engine's second, barrier/syncwarp-ONLY clock
@@ -1061,6 +1088,7 @@ def _hb_class(r1_ordered, chain_ordered, dyn_raced, sync_raced=None, strong=Fals
 # class -> verdict. RACE = a race of this run (structural, model_bug) or LATENT (latent),
 # the latter still counted as RACE by the program-level harness (the Race u Latent
 # operating point, D2); SC = an unordered strong conflict, informational, never RACE.
+# ("model_bug" stays mapped for detail files written before it became an annotation.)
 CLASS_VERDICT = {"model_bug": "RACE", "structural": "RACE", "latent": "RACE",
                  "sc": "SC", "latent-sc": "SC",
                  "ordered": "ORDERED", "barrier-ordered": "ORDERED"}
@@ -1291,13 +1319,15 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
             strong = all(r.get("class", "DR") == "SC" for r in recs)
         else:
             strong = eng.coherence(cur, anc) >= widest
+        model_bug = None                 # the annotation (vector-clock only; _hb_class)
         if raced_pcsets is not None:
+            dyn = hb_pair_raced(cur, anc, cur_access == "read", anc_access == "read")
             hb_class = _hb_class(
-                r1_ordered, chain_ordered,
-                hb_pair_raced(cur, anc, cur_access == "read", anc_access == "read"),
+                r1_ordered, chain_ordered, dyn,
                 None if sync_pcsets is None else frozenset((cur, anc)) in sync_pcsets,
                 strong)
             verdict = CLASS_VERDICT[hb_class]
+            model_bug = bool(dyn and r1_ordered)
         else:
             # static leg only (no engine): a pair without a static proof is still
             # ordered when barrier/syncwarp joins order every observed conflict; the
@@ -1355,6 +1385,7 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
             "event_candidate": from_events,
             "hb_class": hb_class,
             "matrix_class": matrix_class,
+            "model_bug": model_bug,
             "a2_uncertain": a2,
             "conflict_class": "SC" if strong else "DR",
             "benign": benign,
@@ -1430,10 +1461,12 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
         "summary": {"races": races, "sc": n_sc, "ordered": len(verdicts) - races - n_sc,
                     "skipped": len(skipped),
                     "hb_classes": {c: sum(v["hb_class"] == c for v in verdicts)
-                                   for c in ("structural", "latent", "model_bug",
+                                   for c in ("structural", "latent",
                                              "benign", "warp-po-ordered",
                                              "barrier-ordered", "sc", "latent-sc")}
-                                  if raced_pcsets is not None else None},
+                                  if raced_pcsets is not None else None,
+                    # the model_bug annotation (R1 contradicted by hb_races), on DR and SC
+                    "model_bug": sum(bool(v.get("model_bug")) for v in verdicts)},
     }
 
 
