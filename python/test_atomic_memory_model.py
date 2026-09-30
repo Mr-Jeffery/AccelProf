@@ -21,10 +21,10 @@ keys the synchronizing scope on `.STRONG.<scope>` alone, so it gives the RELAXED
 same GRID scope as the strong one, and the runtime HB model (oracle + engine) orders the
 non-atomic data access in BOTH -> handoff_relaxed is reported NORACE = a false negative.
 
-=> The model is currently UNSOUND on unfenced/relaxed atomics that publish non-atomic
-   state. The relaxed-should-race assertion is therefore marked xfail(strict) so it (a)
-   documents the known unsoundness and (b) turns into a FAILURE the moment a fix makes the
-   race visible, prompting this xfail to be removed. See the Phase 2 report.
+=> The model was UNSOUND on unfenced/relaxed atomics that publish non-atomic state (the
+   trusting gate, I4). Since T12 the instance gate reads the fences off the CFG on the
+   thread's own path (sync_dominance.HBGraph.fenced), so handoff_relaxed races; the
+   assertion is a plain test (it was a strict xfail until then).
 
 The sound control (handoff_strong -> norace) is a plain assertion and must always hold.
 Uses the Python oracle (self-contained: no atomic-scope sidecar / YOSEMITE env needed);
@@ -116,14 +116,12 @@ def test_strong_handoff_is_norace():
         f"release/acquire handoff must be race-free, got {report['races']}"
 
 
-@pytest.mark.xfail(strict=True, reason="KNOWN UNSOUND (Phase 2): .STRONG is a coherence-"
-                   "scope marker present on relaxed atomics too; atomic_scope treats the "
-                   "unfenced relaxed flag as synchronizing, hiding this real race. Remove "
-                   "this xfail when the fence-aware scope fix lands.")
 def test_relaxed_handoff_should_race():
     """A relaxed/unfenced atomic must NOT order the surrounding non-atomic access, so the
-    data read genuinely races the data write. Currently the model reports norace (unsound)
-    -> xfail. Flips to a failure (prompting xfail removal) once the model is fixed."""
+    data read genuinely races the data write. Under the trusting gate (I4) the model reported
+    norace (the Phase 2 unsoundness, a strict xfail until T12); the instance gate (T12,
+    hb_proof.tex Definition "Gate") adds no (ATOM) edge without a fence on the thread's own
+    path, so the race is reported."""
     art = _artifacts()
     if art is None:
         pytest.skip("no GPU / nvcc / source to build atomic_mm_handoff")

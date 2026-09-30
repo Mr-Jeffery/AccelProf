@@ -49,6 +49,25 @@ COLNAME = {("cuvein", VC): hb_modes.SHORT[VC], ("cuvein", SC): hb_modes.SHORT[SC
            ("memcheck", ""): "memcheck*",
            ("synccheck", ""): "synccheck*", ("initcheck", ""): "initcheck*"}
 SKIP_FILES = {"build", "disagreements", "p7-selection", "diagnose"}
+
+# T12 (D11, CLAUDE.md A4): labelled race-free programs that the instance gate reports because PTX
+# section 8.7.1 leaves them unordered (a hand-off side without a fence of sufficient scope).
+# Footnote hooks with the PTX reason (footnote (9) of the accuracy table), never a relabel.
+_SPIN = "the consumer spins on the flag with a relaxed {} and has no fence before it {}"
+PTX_UNORDERED_CLEAN = {
+    "P4-reduction-norace-small": "the ticket `atomicInc` is followed by the shared store `amLast` "
+                                 "with no fence in between (the program relies on the "
+                                 "`__syncthreads()` after it)",
+    "P4-reduction-norace-large": "the ticket `atomicInc`, as in the small input",
+    "P5-norace_interblock_fence_raw": _SPIN.format("`atomicExch`", "reads the volatile data (SC)"),
+    "P5-norace_interwarp_fence_raw": _SPIN.format("`atomicExch`", "reads the volatile data (SC)"),
+    "P5-norace_interwarp_blkfence_raw": _SPIN.format("`atomicExch`", "reads the volatile data (SC)"),
+    "P5-norace_interwarp-block_fence_hrf-indirect":
+        _SPIN.format("`atomicAdd`", "updates the volatile data (SC)"),
+    "P5-norace_interwarp-block_fence-atom_hrd-indirect":
+        _SPIN.format("`atomicAdd`", "does a block-scope `atomicExch` on data the other block writes "
+                     "with a device-scope one (not morally strong: DR)"),
+}
 PSET_LABEL = {"P1": "P1 Indigo3", "PI": "PI Indigo original (all 590 IndigoSuite codes x 7 inputs)",
               "P3": "P3 ECL race-free",
               "P4": "P4 ScoR apps", "P5": "P5 ScoR micro + canary",
@@ -477,7 +496,20 @@ def accuracy_table(runs, meta, man, cols):
 # (a RACE only at the Race u Latent operating point); sc / latent-sc are unordered strong
 # conflicts, never a RACE. Rows written before T9 carry no note: their Race-alone verdict is
 # unknown (their RACE is the Race u Latent point, which is what they always counted).
+# `model_bug` is a class only in rows written before it became an annotation (such a row cannot
+# tell a DR from an SC pair; its RACE stands); newer rows carry `model_bug=<n>` beside the
+# class note and the class decides the verdict (an SC pair with model_bug is a Strong conflict).
 RACE_CLASSES = {"structural", "model_bug", "race", "host", "host-spec-only"}
+_MBUG_RE = re.compile(r"model_bug=(\d+)")
+
+
+def report_model_bug(r):
+    """Reports carrying the model_bug annotation (max over reps): the note since the
+    annotation, the pre-annotation `model_bug` class otherwise; 0 when none."""
+    found = _MBUG_RE.findall(r.get("notes") or "")
+    if found:
+        return max(int(n) for n in found)
+    return (report_classes(r) or {}).get("model_bug", 0)
 _CLASSES_RE = re.compile(r"classes=([A-Za-z_:,\-0-9]+)")
 
 
@@ -538,15 +570,17 @@ def operating_points_section(runs, meta, man):
            "that point rests only on reports every DR instance of which a window-consistent "
            "coherence order could have ordered (A2 not assumed), as FP / TP by label: counted "
            "there and as neither TP nor FP in the point's own column; only rows whose dumps carry "
-           "the flag.\n"]
+           "the flag. `model_bug` = programs with a report R1 certifies and the engine saw racing "
+           "(an annotation on the report's verdict, informational: the verdict is its class's, so "
+           "an SC report with it is a Strong conflict).\n"]
     hdr = ["pset", "mode", "Race u Latent FP / TP", "a2 (R u L) FP / TP", "Race alone FP / TP",
-           "a2 (R) FP / TP", "latent", "sc", "n/a"]
+           "a2 (R) FP / TP", "latent", "sc", "model_bug", "n/a"]
     out.append("| " + " | ".join(hdr) + " |")
     out.append("|" + "---|" * len(hdr))
     for ps in ("P1", "PI", "P3", "P4", "P5", "P6", "P7", "P9"):
         for mode in (VC, SC):
             c = dict(fp=0, tp=0, nob=0, rac=0, fp1=0, tp1=0, nob1=0, rac1=0, lat=0, sc=0, na=0,
-                     a2fp=0, a2tp=0, a2fp1=0, a2tp1=0)
+                     a2fp=0, a2tp=0, a2fp1=0, a2tp1=0, mb=0)
             seen = False
             for _id, m in meta.items():
                 r = runs.get((_id, "cuvein", mode))
@@ -557,6 +591,7 @@ def operating_points_section(runs, meta, man):
                 v1, cls = race_alone_verdict(r), report_classes(r) or {}
                 c["lat"] += bool(cls.get("latent"))
                 c["sc"] += bool(cls.get("sc") or cls.get("latent-sc"))
+                c["mb"] += bool(report_model_bug(r))
                 if lab not in ("RACE", "CLEAN"):
                     continue
                 pos = lab == "RACE"
@@ -583,7 +618,7 @@ def operating_points_section(runs, meta, man):
                            f"| {c['a2fp']} / {c['a2tp']} "
                            f"| {c['fp1']}/{c['nob1']} / {c['tp1']}/{c['rac1']} "
                            f"| {c['a2fp1']} / {c['a2tp1']} | {c['lat']} | {c['sc']} "
-                           f"| {c['na']} |")
+                           f"| {c['mb']} | {c['na']} |")
     return "\n".join(out)
 
 
@@ -1191,6 +1226,17 @@ def comparison_matrix_section(runs, meta, man):
                     "diagnose re-runs of `kernel_memcpy_dtoh_race` (cancelled after node failures on c3, c2, c75), the "
                     "`memcpy_htod_kernel_race-fixed` row lost to a full scratch disk on c37, and the "
                     "`interkernel/global_writewrite_race-fixed` diagnose task that was OOM-killed on c53.")
+    # (9) T12 (D11): labelled race-free programs the instance gate reports, PTX section 8.7.1 by the
+    # letter -- footnoted with the reason and an agreeing baseline, never relabelled
+    ptx = [(i, why) for i, why in PTX_UNORDERED_CLEAN.items() if i in meta]
+    if ptx:
+        agree = lambda i: ", ".join(t for t in ("racecheck", "hirace", "iguard", "supercollider")
+                                    if (runs.get((i, t, "")) or {}).get("verdict") == "RACE")
+        out[-1] += (" (9) Labelled race-free, reported under the instance gate (T12, D11): PTX section 8.7.1 "
+                    "gives no ordering where one side of a hand-off has no fence of sufficient scope. "
+                    + "; ".join(f"`{i}`: {why}" + (f" (also reported by {agree(i)})" if agree(i) else
+                                                    " (no baseline reports it)")
+                                for i, why in ptx) + ".")
     orc = {k: v for k, v in pi_oracle().items() if v in ("CONFLICT", "NO-CONFLICT")}
     if orc:
         graphs = sorted({meta[i][3] for i in orc if i in meta})

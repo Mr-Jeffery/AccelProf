@@ -190,7 +190,8 @@ def main():
                 "kind_b": eb[0] + (f"/{eb[1]}" if eb[1] else ""),
                 "engine_confirmed": "" if confirmed is None else int(confirmed),
                 "cause": "unmapped" if hit is None else
-                         cause_of(ea, eb, r.get("hb_class"), r["a_pc"] == r["b_pc"],
+                         cause_of(ea, eb, "model_bug" if r.get("model_bug") else r.get("hb_class"),
+                                  r["a_pc"] == r["b_pc"],
                                   j["mode"], confirmed),
             })
 

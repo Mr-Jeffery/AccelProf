@@ -61,6 +61,7 @@ def _analyze_reports(depdir, cubindir):
     a real failure is an ERROR row, not a silent CLEAN."""
     dots = sorted(glob.glob(f"{cubindir}/*.dot"))
     ded, cls, ded_sc = {}, {}, {}
+    mbug = set()   # keys with a model_bug annotation (R1 contradicted by hb_races; DR or SC)
     a2s = {}   # T14: key -> [race of this run, some unflagged, latent, flagged without R3, flag seen]
     for kj in sorted(glob.glob(f"{depdir}/kernel_*.json")):
         rep = None
@@ -74,6 +75,8 @@ def _analyze_reports(depdir, cubindir):
             continue
         for v in rep["verdicts"]:
             k = agg._dedup_key(v)
+            if v.get("model_bug") or v.get("hb_class") == "model_bug":
+                mbug.add(k)
             if v["verdict"] == "RACE":
                 ded.setdefault(k, v)
                 c = v.get("matrix_class", v.get("hb_class")) or "race"
@@ -99,13 +102,14 @@ def _analyze_reports(depdir, cubindir):
                     "race_type": v.get("race_type"), "strength": v.get("strength"),
                     "hb_class": v.get("hb_class"), "hb_chain": v.get("hb_chain"),
                     "matrix_class": cls[k], "conflict_class": v.get("conflict_class"),
-                    "a2": _a2_status(a2s[k])})
+                    "a2": _a2_status(a2s[k]), "model_bug": k in mbug})
     for k, v in sorted((k, v) for k, v in ded_sc.items() if k not in ded):
         a, b, space = k
         raw.append({"a_pc": a, "b_pc": b, "space": space, "verdict": "SC",
                     "race_type": v.get("race_type"), "strength": v.get("strength"),
                     "hb_class": v.get("hb_class"), "hb_chain": v.get("hb_chain"),
-                    "matrix_class": v.get("matrix_class"), "conflict_class": "SC"})
+                    "matrix_class": v.get("matrix_class"), "conflict_class": "SC",
+                    "model_bug": k in mbug})
     ids_h, raw_h = _host_reports(depdir)
     return ids + ids_h, pcs_all | {r[p] for r in raw_h for p in ("a_pc", "b_pc") if r[p] is not None}, \
         raw + raw_h
@@ -152,6 +156,12 @@ def classes_note(raw):
     if note and any(x is not None for x in a2):
         note += (f";a2_uncertain={sum(x in ('race', 'both') for x in a2)}"
                  f":{sum(x == 'both' for x in a2)}")
+    # `;model_bug=<n>`: deduped reports (RACE or SC) carrying the model_bug annotation -- R1
+    # claims every-schedule order and hb_races contradicts it; the report's verdict is its
+    # class's (an SC one is a Strong conflict)
+    nb = sum(bool(r.get("model_bug")) for r in raw)
+    if note and nb:
+        note += f";model_bug={nb}"
     return note
 
 

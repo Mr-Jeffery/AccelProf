@@ -17,9 +17,9 @@ N=${SLURM_ARRAY_TASK_COUNT:-1}; K=${SLURM_ARRAY_TASK_ID:-0}
 OUT=${OUT:-$CV/eval/results/latent-census}
 echo "host=$(hostname) mem=$(free -g | awk '/Mem/{print $2}')G shard=$K/$N size=${SIZE:-small}"
 if [ "${SIZE:-small}" = big ]; then
-    .env/bin/python eval/baselines/latent_census.py collect --out "$OUT" --shard $K/$N ${FORCE:+--force} \
+    .env/bin/python eval/baselines/latent_census.py collect --out "$OUT" --shard $K/$N ${FORCE:+--force} ${STORES:+--stores $STORES} \
         --min-mb 2000 --timeout ${TMO:-14400} --mem-gb ${MEMGB:-170}
 else
-    .env/bin/python eval/baselines/latent_census.py collect --out "$OUT" --shard $K/$N ${FORCE:+--force} \
+    .env/bin/python eval/baselines/latent_census.py collect --out "$OUT" --shard $K/$N ${FORCE:+--force} ${STORES:+--stores $STORES} \
         --max-mb 2000 --timeout ${TMO:-3600} --mem-gb ${MEMGB:-60}
 fi

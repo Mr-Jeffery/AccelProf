@@ -228,8 +228,12 @@ instrumented litmus of T13, a release fence is a \texttt{MEMBAR.SC.\{CTA,GPU,SYS
 acquire is lowered to the access followed by \texttt{CCTL.IVALL} with no \texttt{MEMBAR}
 at all, a seq\_cst fence is \texttt{MEMBAR.SC; ERRBAR; CCTL.IVALL}, and a \texttt{BAR.SYNC}
 counts as a fence of scope \texttt{cta} on both sides (none of the 461 barriers has an
-adjacent \texttt{MEMBAR}; the barrier itself is the ordering). Whether a \texttt{cta}-scope
-acquire emits any instruction is open (O2). For an RMW record $r$ of thread $t$ with $\PO$-previous record $p$
+adjacent \texttt{MEMBAR}; the barrier itself is the ordering). A \texttt{cta}-scope
+acquire emits nothing: \texttt{atom.acquire.cta} and \texttt{atom.relaxed.cta} compile to the
+same instruction on sm\_89 and sm\_86 (T12 probe, \texttt{eval/instance\_gate/}), so such an
+RMW acquires only through an explicit fence after it (\texttt{MEMBAR.*.CTA}, a barrier, or a
+wider fence) --- the direction Lemma~\ref{lem:mono} allows; cta fences and a cta release lower
+to \texttt{MEMBAR.\{SC,ALL\}.CTA}. For an RMW record $r$ of thread $t$ with $\PO$-previous record $p$
 and $\PO$-next record $q$ (records of any kind): $\rel(r)=1$ iff $p$ does not exist or
 $\mathrm{fenced}(\pc(p),\pc(r),\scope(r))$; $\acq(r)=1$ iff $q$ does not exist or
 $\mathrm{fenced}(\pc(r),\pc(q),\scope(r))$. Because the paths are taken between the two
@@ -580,7 +584,8 @@ $\Rep$ is a set of pairs of records; cuVein reports per \emph{pc pair}
 $\{u,v\}$ and asks a second question: is the pair ordered in \emph{every} schedule? A
 static certificate $\textsc{Static}(u,v,d)$, from the CFG region graph and the observed
 thread distance $d$, returns $\rho$ (R1: every path between the two regions crosses a
-qualifying barrier of scope $\ge d$, with loops handled by cutting) and $\chi$
+qualifying barrier of scope $\ge d$, with loops handled by cutting; a pair at one pc has one
+region and is never certified --- the empty path crosses nothing) and $\chi$
 (R3: a chain of atomic pcs from $u$ to $v$ over observed atomic--atomic edges --- each at a
 distance its two atomics' scopes cover, the first within the scope of a fence after $u$, none
 needed when $u$ is atomic --- and program-order steps between atomics, ending in a pc that
@@ -592,24 +597,63 @@ covering the widest observed distance of the pair and $\DR$ otherwise (so it can
 $\SC$ pair to $\DR$, never the reverse); two pcs that are both RMWs and $\ms$ at that distance
 are no conflict at all (Definition~\ref{def:verdict}) and are not judged.
 
-Two amendments to R3 follow from the census. Its \emph{release point} is taken from the
-trace, not from region dominance (today \texttt{release\_scope}: a \texttt{MEMBAR} in
-postdom$(u)\cap{}$dom$(a)$): in every observed instance of $u$, the first RMW $r$ of the
-chain is the $\PO$-next RMW of $u$'s thread after $u$, and ``release-fenced'' is $\mathrm{fenced}(\pc(u),\pc(r),d)$ of
-Definition~\ref{def:gate}. The region test declined 23 of the census's 25 race-free
-latent pairs (\texttt{rule-110}, \texttt{reduction}) because the protected access sat in
-a loop or branch whose region dominates no atomic, although the release followed it in
-program order and 21 of the hand-offs were fully fenced; the trace has the program order
-exactly, and only the fence question is static. And R3 is made symmetric in the two
-accesses: it declines when $v$ has left its critical section (\texttt{\_past\_release},
-which is what catches \texttt{rtraw}) and must equally decline when $u$ has not entered
-one, i.e.\ when $u$ precedes in its own thread an acquire on the chain's location
-(write-before-lock, the mirror of rtraw; not exercised by the census, and absent from
-\texttt{HBGraph.chain} today, as \texttt{\_past\_release} notes). With $\Rep_{\mathsf{vec}}$ and $\Rep_{\mathsf{sync}}$ projected
+\paragraph{R3 as implemented (T12).} The census asked for two amendments (the release point
+from the trace instead of region dominance --- the region test declined 23 of its 25 race-free
+latent pairs, \texttt{rule-110} and \texttt{reduction}, because the protected access sat in a
+loop or branch whose region dominates no atomic --- and a write-before-lock decline symmetric
+to \texttt{\_past\_release}); the measurement required a third (the region test failed on the
+acquire side of the same pairs). \texttt{HBGraph.chain} now computes $\chi$ as follows.
+\emph{Release.} For a non-atomic $u$, in every observed instance of $u$ the chain starts at
+the $\PO$-next RMW $a$ of $u$'s thread (an instance with none has no release point: $\chi$
+fails), release-fenced at the largest scope $s$ with $\mathrm{fenced}(\pc(u),\pc(a),s)$
+(Definition~\ref{def:gate}, release side); before its first hop the chain may step in
+program order to a later atomic $b$ of that thread, the scope narrowed to that of
+$\mathrm{fenced}(\pc(u),\pc(b),\cdot)$. An atomic $u$ starts at itself. \emph{Hops} are observed
+atomic--atomic edges whose distance the two atomics' scopes cover; the first hop's distance
+must be covered by the release scope; after it the chain may step in program order between
+atomics. \emph{Acquire.} The chain must land, after a hop, on the $\PO$-previous RMW $q$ of
+$v$'s thread, in every observed instance of $v$ (an instance with none fails $\chi$); the
+acquire side is fence-agnostic (the dependency on a spin), the vector clock's gate being where
+an acquire fence is required. \emph{Covering.} With several release starts or acquire points,
+every start must reach some acquire point and every acquire point must be reached from some
+start (\texttt{rule-110}: border threads hand off through a grid-scope pair, inner threads
+through a block-scope one). \emph{Declines.} With $\alpha$ the atomic the latest hop landed on,
+\emph{past release} fails $\chi$ if $\alpha$ is a CAS and $v$'s thread rewrites $\alpha$'s
+location between $\alpha$ and $v$, or if $\alpha$ is a non-CAS RMW on a location some CAS
+acquires and precedes $v$ (the landing is the section's unlock: with many threads on the same
+pcs a failed CAS hops to another thread's unlock; the code certified rtraw that way before
+T12). \emph{Before acquire}: the first hop may not leave from an atomic $n$ on a location some
+CAS $c$ of $u$'s thread acquires with $u$ before $c$ (write-before-lock). A store inside a
+CAS-acquired section needs $\mathrm{fenced}(c,x,d)$ on the acquire side (\texttt{\_cs\_fenced};
+a fence on the success edge counts). A dump without events, or above
+\texttt{CUVEIN\_BARRIER\_PASS\_MAX\_LANES}, keeps the region tests.
+
+Both lock shapes whose order the program does not force are declined. \emph{Write-before-lock}
+($x$ written, then the lock taken, against a read inside another thread's section): with no
+fence between the write and the lock the release point has scope \texttt{none}; with one, every
+chain's first hop leaves from the writer's CAS or from an RMW after it on the CAS's location,
+which the before-acquire test rejects. \emph{rtraw} (a read inside one thread's section, the
+other thread's write after its own unlock): the write has no RMW after it, so no release point;
+from the read, every chain must land on the writer's unlock --- the write's $\PO$-previous RMW
+--- either through the writer's CAS and a program-order step (past release, CAS case) or
+directly (past release, unlock case). Both are pinned on hand-built CFGs and on real traces
+(\texttt{python/test\_instance\_gate.py}: \texttt{write\_before\_lock.cu}; the ScoR rtraw kernel
+in \texttt{test\_sync\_dominance.py}), each decline shown to matter by switching it off. What the
+rule assumes, beyond the inventory: (R3a) the instances of a pc are ordered alike --- the
+covering rule assumes the observed hand-offs are the ones the instances used, and a pair's
+instance distances meet the chain's scopes only at the first hop; (R3b) a lock is acquired by a
+CAS and released by another RMW on its location (a test-and-set lock built from \texttt{EXCH}
+alone, or a lock released by a plain or \texttt{volatile} store, is not recognised, and the
+accesses after its unlock can be over-ordered); (R3c) the RMWs that precede and
+follow the observed instances are the same in every schedule, the caveat of
+\cls{barrier-ordered} (referee note (2) of \S\ref{sec:single}). Where R3 over-orders on a trace,
+vector-clock mode vetoes it through $\Rep_{\mathsf{vec}}$ (failure mode (a) below);
+scalar-clock mode cannot.
+
+With $\Rep_{\mathsf{vec}}$ and $\Rep_{\mathsf{sync}}$ projected
 to pc pairs, the verdict for a candidate pair is
 \[
 \begin{array}{ll}
-\{u,v\}\in\Rep_{\mathsf{vec}},\ \rho: & \textsc{Race},\ \cls{model\_bug}\\
 \{u,v\}\in\Rep_{\mathsf{vec}}\text{, some instance }\DR: & \textsc{Race},\ \cls{structural}\\
 \{u,v\}\in\Rep_{\mathsf{vec}}\text{, every instance }\SC: & \textsc{Strong conflict},\ \cls{sc}\\
 \rho\vee\chi: & \textsc{Ordered},\ \cls{ordered}\\
@@ -617,19 +661,23 @@ to pc pairs, the verdict for a candidate pair is
 \text{otherwise}: & \textsc{Latent},\ \cls{latent}\ (\cls{latent-sc}\text{ if the class is }\SC)
 \end{array}
 \]
-and scalar-clock mode is the same without the first three rows and with \textsc{Race}
+and scalar-clock mode is the same without the first two rows and with \textsc{Race}
 (\cls{sc} if the class is $\SC$) in the last: it has no $\Rep_{\mathsf{vec}}$ and cannot tell a
 race of this run from a latent pair; its class is R2's. In scalar-clock mode \cls{sc}
 therefore also holds strong--strong pairs that an atomic hand-off ordered in the run (D2).
-Since R2 grants no order (D12), \cls{model\_bug} is raised by R1 alone and stays a defect
-detector: an unordered strong conflict certified by R2 is \cls{sc}, not a model bug. \textsc{Latent}
+A pair of $\Rep_{\mathsf{vec}}$ that $\rho$ certifies carries the annotation \cls{model\_bug} on
+its verdict; the verdict is the class's (an $\SC$ pair with it is a \textsc{Strong conflict},
+a $\DR$ pair a \textsc{Race}; before T12 \cls{model\_bug} was a row of its own, verdict
+\textsc{Race}). Since R2 grants no order (D12), the annotation is raised by R1 alone and stays a
+defect detector: an unordered strong conflict certified by R2 is \cls{sc}, not a model bug. \textsc{Latent}
 is a third verdict, not a race: the pair is ordered in this execution, necessarily
 through an atomic hand-off, and no schedule-independent evidence orders it. It is
 reported, counted as neither true nor false positive in the precision tables, and
 evaluated on its own (D8, below). A pc pair collects the classes of its dynamic instances:
 one $\DR$ instance makes it a \textsc{Race} whatever the others are (a \texttt{cta}-scope
 atomic meets a strong store in its own block as $\SC$ and in another block as $\DR$). Since
-T9 the code's \texttt{\_hb\_class} is this matrix (\texttt{sync\_dominance.py}; the pair's
+T9 the code's \texttt{\_hb\_class} is this matrix (since T12 without the \cls{model\_bug} row,
+which \texttt{judge} sets as the annotation) (\texttt{sync\_dominance.py}; the pair's
 class from the \texttt{class} field of its \texttt{hb\_races} records, else from R2); a
 pair judged with no $\Rep_{\mathsf{sync}}$ at all (no \texttt{hb\_races\_sync\_only}, no
 offline pass) falls to \textsc{Latent}; and \texttt{judge} relabels after the matrix ---
@@ -639,7 +687,7 @@ the class before these labels (the verdict's \texttt{matrix\_class}; the harness
 per-program counts into its \texttt{classes=} note, \texttt{make\_tables.py} reads them).
 
 Four facts follow from \S\ref{sec:single}. (i) The full clock never grants
-\textsc{Ordered}: it vetoes a certificate (rows one to three) or separates \textsc{Race} from
+\textsc{Ordered}: it vetoes a certificate (rows one and two) or separates \textsc{Race} from
 \textsc{Latent}, so scalar-clock's \textsc{Race} set is vector-clock's
 $\textsc{Race}\cup\textsc{Latent}$ minus the vetoes (with the classes: scalar-clock's
 $\textsc{Race}\cup\cls{sc}$ is vector-clock's $\textsc{Race}\cup\textsc{Latent}\cup\cls{sc}\cup\cls{latent-sc}$
@@ -663,15 +711,21 @@ speaks about \textsc{Latent}. (iv) \cls{model\_bug} is the disagreement of two
 evaluations of the same (SYNC) generator: on a faithful trace, if R1 certifies $\{u,v\}$
 then every dynamic instance of the pair is $\HB^{\mathrm{sync}}$-ordered (each thread of
 the block passes the certified barrier between the two regions, and block-wide instances
-are totally ordered), so the cell is empty; it has fired only on defects (F2, F6, and
-crs-cuda's exit-unaware assembly, all fixed or covered by \S\ref{sec:impl}).
+are totally ordered), so the annotation never applies; it has fired only on defects (F2, F6,
+and crs-cuda's exit-unaware assembly, all fixed or covered by \S\ref{sec:impl}). It also fired
+on a deviation of the code's R1 from the rule above, now closed: the code certified a same-pc
+pair by a cycle form (a barrier on every cycle through the pc's region), which separates the
+pc's instances in different iterations only, and P4 \texttt{uts-norace-small}'s two
+\texttt{volatile} stores to one address by two warps of one block in one barrier segment were
+certified and seen racing (program \textsc{Race} through the old \cls{model\_bug} row); since
+T12 R1 certifies no same-pc pair, the pair is \cls{sc} and the program \textsc{Clean}.
 
 \paragraph{What scalar-clock mode misses.} By Lemma~\ref{lem:mono},
 $\Rep_{\mathsf{sync}}\supseteq\Rep_{\mathsf{vec}}$ on every trace: scalar-clock mode
 misses no record-level race. Its misses are in the verdict layer, and they are exactly
 three. (a) R3 grants \textsc{Ordered} at pc level to a pair some dynamic instance of
 which is unordered --- the $\exists$-as-$\forall$ flaw of pc granularity; vector-clock
-mode vetoes it through row two, scalar-clock cannot. The P5 canary is the corpus
+mode vetoes it through row one, scalar-clock cannot. The P5 canary is the corpus
 instance, and the only program of the census's 558 whose verdict differs between the
 modes. (b) Candidate generation: a conflicting pair with no dependency edge and no
 event-stream candidate is never judged, whereas the engine checks every location. (c) The
@@ -729,8 +783,23 @@ edge, extended by (PO) on both sides, is a release/acquire pattern on a morally 
 chain, hence inside PTX causality ($\mathrm{fenced}$ on the thread's own path supplies the
 release and acquire patterns, $\ms$ along the chain the observation order); under the
 trusting gate this containment is not claimed, and the certificate is then a statement
-about the implemented, stronger $\HB$. The containment is argued in one paragraph once
-the gate is implemented (I4); it is not a separate proof obligation for the submission.
+about the implemented, stronger $\HB$.
+
+\emph{Containment (T12).} Let $r\chain q$ with $\rel(r)=\acq(q)=1$, $r$ by $t$ with
+$\PO$-previous record $p$, $q$ by $u$ with $\PO$-next record $q'$. The path $t$ executed from
+$p$ to $r$ is a CFG path, so it crossed a release fence $F$ of scope $\ge\scope(r)$ (or $p$ is a
+barrier arrival, which has the ordering of a \texttt{cta} fence at the arrival); every event of
+$t$ up to $p$ precedes $F$ in program order, and $F$ precedes the strong write of $r$: PTX's
+release pattern. Dually $u$'s path from $q$ to $q'$ crossed an acquire fence $F'$ (or $q'$ is a
+barrier): the strong read of $q$ followed by $F'$ is PTX's acquire pattern, and every event of
+$u$ from $q'$ on follows $F'$. Along the chain each $z_{i+1}$ reads the value of $z_i$ (RMWs on
+one location read their coherence predecessor, A2) and $\ms(z_i,z_{i+1})$, so $q$ observes $r$
+through morally strong RMWs and $F$ synchronizes with $F'$; with (PO) on both sides the edge
+lies in PTX's causality order. The \texttt{CCTL.IVALL} of a later acquire \emph{load} of $u$
+does not count for $q$: that load is itself a record, so it is $q'$ or later and its
+\texttt{CCTL.IVALL} follows it. The argument is relative to the inventory: every instruction it
+counts lowers from a PTX fence, or from the fence half of an acquire/release qualifier, of at
+least that scope (checked on the probe of Definition~\ref{def:gate}, not proved), and to A2.
 
 Fix $P$ deterministic, $I$, and a \emph{profile} $\Pi$ (for each location, the sequence
 of (thread, per-thread index) of its RMWs in coherence order); $\Exec(P,I,\Pi)$ are the
@@ -846,7 +915,7 @@ substitutions below. Each is stated with what it costs against \S\ref{sec:single
 I1 & \textbf{matched (T9).} Was: \emph{tick before publish}: line~\ref{ln:tick} before line~\ref{ln:publish}; the RMW's bucket entry carries the post-tick epoch & Theorem~\ref{thm:sound} fails on $R_{\mathrm{miss}}$ (Proposition~\ref{prop:rmiss}); Theorem~\ref{thm:complete} holds; Corollary~\ref{cor:causal}(a) void. Corpus instance: \texttt{race\_interblock\_fence\_rtraw} (evcand vector-clock dump; the verdict survived only as \cls{latent}) \\
 I2 & \textbf{matched (T9).} Was: \emph{one last write per location and, per thread, its last read since that write} in place of buckets, shared by both clocks; $\SC$ dropped (\texttt{--strong-ldst generic}: coherent pairs never conflict) & Theorem~\ref{thm:sound} fails for $\DR$ in both clocks (Remark~\ref{rem:buckets}), and \S\ref{sec:verdict}~(ii) with it; policy \texttt{none} does not repair it (note (a)) \\
 I3 & \emph{matched} for exits (T3b, \texttt{aab77ca}): exit records in the dump (marker \texttt{hb\_exits}), $\exp_k=N_\beta-|\gone_\beta|$ for whole-block segments and $n$ for counted ones, \textsc{Complete} on exit, the end-of-kernel check, in engine, oracle and \texttt{barrier\_only\_pairs}; remaining: \texttt{bar.arrive} recorded as blocking (note (b)) & dumps recorded before T3b keep the old reading ($\exp_k=N_\beta$: A3 false for early-exit kernels there, crs-cuda 155/7 spurious); re-recorded crs-cuda (50 launches, 247,587 exit records): CLEAN in both modes, no trace-validity violation; the evcand store (597 programs, no exit records) re-scores to identical verdicts \\
-I4 & \emph{trusting gate} & $\HB$ is a superset of the instance-gated one; Lemma~\ref{lem:mono}: reports are a subset; the certificate is not inside PTX causality (\texttt{test\_relaxed\_handoff\_should\_race}, strict xfail). Corpus: 8 of the 10 latent-only ScoR races (\S\ref{sec:verdict}) are unordered under PTX and ordered by this gate; only R3's fence check kept their verdicts. Implement the instance gate of Definition~\ref{def:gate}, not the per-pc one \\
+I4 & \textbf{matched (T12, branch \texttt{feat/instance-gate}: \texttt{9ea18a4} oracle, predicate and sidecar table, \texttt{02bed31} engine, rebased onto T5b; review \texttt{1445952}).} The instance gate of Definition~\ref{def:gate} in engine and oracle: $\mathrm{fenced}$ from the CFG dots with the sm\_86/89 inventory, a per-RMW table in the sidecar, $\rel$ at the RMW, the acquire deferred to the thread's next record with \textsc{Check}($r$) held as \S\ref{sec:alg} says, $\Ch_\ell$ a join (a T5b clock: shared base plus delta), no publish when $\rel=0$, held pairs resolved at the end of the kernel; the trusting gate stays selectable (\texttt{YOSEMITE\_HB\_GATE=trusting}) and pre-T12 dumps replay under it. Was: \emph{trusting gate} (every hand-off joined) & oracle $=$ \textsc{Detect} with the gate evaluated directly on 32/32 litmus traces; engine $=$ oracle on the green set (305 passed) including a kernel that exercises the held path both ways, and on T5b's 60-program parity set; \texttt{test\_relaxed\_handoff\_should\_race} passes. Re-score of 464 programs: no pair lost, 9 new $\DR$ and 377 new $\SC$ pairs; the 8 ScoR fence races are reported in their run ($\SC$: volatile data); the ticket idiom of \texttt{reduction-norace} and the five ScoR \texttt{norace\_*fence*} consumers that spin without a fence are reported (D11). Indigo3 CC push 1296n on T5b's clocks: 6.9\,GB, 9.9\,s under the trusting gate, 1.3\,GB, 5.7\,s under the instance gate (\texttt{eval/INSTANCE\_GATE.md}) \\
 I5 & \textbf{matched (T9, D14): local memory is outside the model} --- the HB trace carries no local record, and engine, oracle and \texttt{barrier\_only\_pairs} skip those of an older dump. Was: local memory keyed by $(\mathtt{local},a)$, $a$ the local-window offset with no thread id (note (c)) & every thread's access at one offset is one location: 8,096 spurious race records on a 2$\times$32-thread kernel with no sharing; no verdict there (note (c)) \\
 I6 & monitor: the completion-order check per warp, not per lane, on memory records only; per-warp degrade when the count is unknown; no size or overlap check (a location is the start address); scalar-clock mode: the degrade, no check & over-rejects under independent thread scheduling (predicted from the code, not observed: 0 violations on ScoR 32/32, \texttt{HARDENING\_REPORT.md}); the degrade path is unreachable on launched kernels and unsound without the monitor, so T11 deletes it \\
 I7 & cp.async copies as accesses of a virtual agent $t\,|\,2^{62}$, joined at issue, completed by commit/wait (note (d)) & outside the model; needs generators (ISSUE), (WAIT) and a re-proof of \S\ref{sec:single} \\
@@ -1005,7 +1074,8 @@ have barriers and no atomics (mostly HeCBench, the suite with no vector-clock du
 the gate cannot touch a barrier join, so nothing is gained by waiting for it; the
 reference mode has no dump for the realistic suites, which bounds the mode comparison to
 litmus and micro-benchmarks until it runs there. (6) I4 as the instance gate of
-Definition~\ref{def:gate}, in parallel with (5): the fence inventory per SM (O2: on
+Definition~\ref{def:gate}, in parallel with (5) --- done (T12, \texttt{feat/instance-gate},
+\texttt{eval/INSTANCE\_GATE.md}; R3's acquire point is taken from the trace as well, \S\ref{sec:verdict}): the fence inventory per SM (O2: on
 sm\_89 \texttt{CCTL.IVALL} on the acquire side and the barrier on both) and the
 $\mathrm{fenced}$ predicate from the CFG dots (O3), shared with R3's release-point test;
 the engine defers the acquire join with \textsc{Check}($r$) evaluated as \S\ref{sec:alg}

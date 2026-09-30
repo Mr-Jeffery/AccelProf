@@ -16,8 +16,9 @@ certify order, R2 only the pair's DR/SC class (T9, D12):
     access and before the other on every path, and no sync-free path joins the two
     regions (a loop's wrap-around would pair instances from different iterations).
     Qualifying: BAR.SYNC*/BAR.RED* (block), WARPSYNC (warp); BAR.ARV* never orders.
-    Same-PC pairs: a qualifying sync of scope >= s on every cycle through the PC's
-    region.
+    Same-PC pairs: R1 certifies none (T12): a barrier on every cycle through the pc's region
+    separates only instances in different iterations, and two threads can execute the pc in
+    one segment; the barrier-only clock orders the cross-iteration instances it observes.
  R2 atomic coherence (static): two strong accesses whose min .STRONG scope covers
     the observed distance are morally strong (SM/CTA -> block, GPU/SYS -> grid; a
     shared-memory ATOMS without a scope suffix is block-coherent by construction; a
@@ -65,7 +66,13 @@ _MEM_OPS = {
 }
 # "*SYNC*"-looking opcodes that are warp reconvergence/scoreboard, not data sync.
 _NOT_SYNC = {"BSSY", "BSYNC", "BMOV", "BREAK", "DEPBAR", "WARPGROUP"}
-_INSTR = re.compile(r"^\s*([0-9a-fA-F]{4,}):\s+(?:@!?U?P[T\d]+\s+)?(\S+)")
+_INSTR = re.compile(r"^\s*([0-9a-fA-F]{4,}):\s+(?:(@!?U?P[T\d]+)\s+)?(\S+)")
+
+
+class _Ins(tuple):
+    """One parsed instruction, (pc, opcode); `.pred` is True for a guarded one (@P / @!P,
+    not @PT). A tuple subclass so every caller's `for pc, op in instrs` keeps working."""
+    pred = False
 
 
 class AlignmentError(Exception):
@@ -113,6 +120,48 @@ def atomic_scope(opcode):
         # suffix; shared memory is per-CTA, so it is CTA-coherent by construction.
         return BLOCK
     return _ATOM_SCOPE.get(s, NONE)  # unknown/weak scope -> NONE (over-report, sound)
+
+
+# T12 (design/instance_gate.md section 2): the per-architecture fence inventory (O2) of the
+# instance gate, per side. Verified for sm_89 and sm_86 (identical lowering; probe
+# eval/instance_gate/o2_probe.cu): fence.{sc,acq_rel,acquire,release}.cta -> MEMBAR.{SC,ALL}.CTA;
+# the gpu/sys fences -> MEMBAR.{SC,ALL}.{GPU,SYS}; ERRBAR; CCTL.IVALL; an acquire RMW/load at
+# gpu/sys scope -> the access + CCTL.IVALL with no MEMBAR; a release RMW -> MEMBAR.ALL.<scope>
+# (+ERRBAR) before it; bar.sync -> BAR.SYNC, never with an adjacent fence. A cta-scope acquire
+# emits NOTHING (identical to relaxed), so it counts only through an explicit fence.
+GATE_SIDES = ("rel", "acq")
+_FENCE_SCOPE = {"CTA": BLOCK, "GPU": GRID, "SYS": GRID}
+
+
+def fence_scope(opcode, side):
+    """Scope of the fence an instruction is on `side` ('rel' = before a release RMW, 'acq' =
+    after an acquire RMW); NONE if it is none. MEMBAR.{SC,ALL}.<scope> both sides; CCTL.IVALL
+    (the L1 invalidation of a gpu/sys acquire) the acquire side only, at grid scope; a
+    full-block barrier (BAR.SYNC/BAR.RED) cta scope on both sides. The caller excludes a
+    guarded (@P) instruction: it may not execute."""
+    parts = opcode.split(".")
+    if parts[0] == "MEMBAR" and len(parts) >= 3 and parts[1] in ("SC", "ALL"):
+        return _FENCE_SCOPE.get(parts[2], NONE)
+    if parts[0] == "CCTL" and len(parts) >= 2 and parts[1] == "IVALL":
+        return GRID if side == "acq" else NONE
+    if parts[0] == "BAR" and len(parts) >= 2 and parts[1].startswith(("SYNC", "RED")):
+        return BLOCK
+    return NONE
+
+
+def gate_mode(gate=None):
+    """The instance gate or the trusting gate: explicit arg > $CUVEIN_GATE > 'instance'."""
+    gate = gate or os.environ.get("CUVEIN_GATE") or "instance"
+    if gate not in ("instance", "trusting"):
+        raise ValueError(f"gate '{gate}' not in ('instance', 'trusting')")
+    return gate
+
+
+def dump_gate(trace, gate=None):
+    """The gate to replay one dump with: explicit arg > $CUVEIN_GATE > the gate the engine
+    recorded it under (`hb_gate`) > 'trusting' (a pre-T12 dump: the gate it was recorded
+    under, so an old store re-scores unchanged unless asked otherwise)."""
+    return gate_mode(gate or os.environ.get("CUVEIN_GATE") or trace.get("hb_gate") or "trusting")
 
 
 # .STRONG loads/stores. cuda::atomic<T>::load()/store() do not lower to an ATOM* RMW
@@ -253,7 +302,10 @@ def parse_dot(path):
             for line in _label_lines(label.strip('"')):
                 m = _INSTR.match(line)
                 if m:
-                    instrs.append((int(m.group(1), 16), m.group(2)))
+                    ins = _Ins((int(m.group(1), 16), m.group(3)))
+                    if m.group(2) and m.group(2).lstrip("@") != "PT":
+                        ins.pred = True
+                    instrs.append(ins)
             blocks[node.get_name().strip('"')] = instrs
         edges = [(e.get_source().split(":")[0].strip('"'),
                   e.get_destination().split(":")[0].strip('"'))
@@ -271,7 +323,7 @@ class HBGraph:
     Built from the sync-split region graph (dominator/post-dominator sets) plus,
     after attach_trace, the dynamic facts (atomic scopes + observed atomic-atomic
     sync edges). Three edge rules certify ordering scope for a PC pair:
-      R1 dominance() / loop_scope()  — static barriers/warpsync,
+      R1 dominance()                 — static barriers/warpsync (no same-pc form, T12),
       R2 coherence()                 — same-address atomics,
       R3 chain()                     — release -> observed sync -> acquire.
     ordered() runs R1 then R3 and reports R2's scope alongside (class, not order)."""
@@ -282,11 +334,19 @@ class HBGraph:
         self.atom = {}        # pc -> atomic RMW scope (after attach_trace); R3's atomics
         self.coh = {}         # pc -> coherent-access scope (atom + .STRONG ld/st); R2 only
         self.sync_edges = []  # (anc, cur, d) observed atomic sync hops
+        self.release_points = None  # T12: u -> PO-next RMW pcs from the trace
+        self.acquire_points = None  # T12: v -> PO-previous RMW pcs from the trace
         self.pc_opcode = {}   # every parsed pc -> opcode (alignment check)
         self.pc_node = {}     # pc -> its region node
         self.syncs = {}       # sync node id -> (pc, opcode, scope, qualifying)
         self.unknown_syncs = []
         first, last = {}, {}
+        # T12: the instruction-level graph for fenced() -- pc -> successor pcs (the next
+        # instruction of the block; a block's last instruction -> the first of each successor
+        # block; an unguarded EXIT/RET -> none) and the guarded pcs.
+        self.ins_succ, self.ins_pred_pcs = {}, set()
+        self._reach = {}
+        self._build_ins_graph(blocks, edges)
         for bname, instrs in blocks.items():
             cur, n = f"{bname}#0", 0
             first[bname] = cur
@@ -317,6 +377,104 @@ class HBGraph:
         self.postdom = self._dom_sets(
             nx.immediate_dominators(self.G.reverse(), VEXIT))
 
+    def _build_ins_graph(self, blocks, edges):
+        succ_blocks = {}
+        for src, dst in edges:
+            succ_blocks.setdefault(src, []).append(dst)
+
+        def heads(b, seen=()):         # first pcs reached entering block b (skip empty ones)
+            if blocks.get(b):
+                return [blocks[b][0][0]]
+            if b in seen:
+                return []
+            return [pc for nb in succ_blocks.get(b, ()) for pc in heads(nb, seen + (b,))]
+
+        for bname, instrs in blocks.items():
+            for i, ins in enumerate(instrs):
+                pc, op = ins
+                if getattr(ins, "pred", False):
+                    self.ins_pred_pcs.add(pc)
+                if classify(op) == "exit" and not getattr(ins, "pred", False):
+                    self.ins_succ[pc] = []
+                elif i + 1 < len(instrs):
+                    self.ins_succ[pc] = [instrs[i + 1][0]]
+                else:
+                    self.ins_succ[pc] = sorted({h for nb in succ_blocks.get(bname, ())
+                                                for h in heads(nb)})
+        self.ins_preds = {}
+        for pc, ss in self.ins_succ.items():
+            for q in ss:
+                self.ins_preds.setdefault(q, []).append(pc)
+
+    def fence_at(self, pc, side):
+        """fence_scope of the instruction at pc (NONE if guarded or unknown)."""
+        if pc in self.ins_pred_pcs or pc not in self.pc_opcode:
+            return NONE
+        return fence_scope(self.pc_opcode[pc], side)
+
+    def _unfenced_reach(self, pc, s, side, forward):
+        """pcs reachable from pc's successors (forward) or reaching pc's predecessors
+        (backward) through instructions that are no fence of scope >= s on side."""
+        key = (pc, s, side, forward)
+        got = self._reach.get(key)
+        if got is None:
+            nxt = self.ins_succ if forward else self.ins_preds
+            got, stack = set(), list(nxt.get(pc, ()))
+            while stack:
+                x = stack.pop()
+                if x in got or self.fence_at(x, side) >= s:
+                    continue
+                got.add(x)
+                stack.extend(nxt.get(x, ()))
+            self._reach[key] = got
+        return got
+
+    def fenced(self, p, q, s, side):
+        """hb_proof.tex Definition "Gate": every CFG path from pc p to pc q crosses a fence of
+        scope >= s on side ('rel' | 'acq'); a path starting or ending at a fence (a barrier
+        arrival) crosses it. False for a pc the CFG does not know (the gate errs toward
+        reporting). s = NONE is trivially fenced."""
+        if s <= NONE:
+            return True
+        if p not in self.ins_succ or q not in self.ins_succ:
+            return False
+        if self.fence_at(p, side) >= s or self.fence_at(q, side) >= s:
+            return True
+        return q not in self._unfenced_reach(p, s, side, True)
+
+    def record_pcs(self):
+        """pcs a trace record can carry: memory instructions, barriers/warpsync, exits and
+        the cp.async commit/wait instructions -- the domain of the sidecar's gate table."""
+        out = set()
+        for pc, op in self.pc_opcode.items():
+            c = classify(op)
+            if c in ("mem", "exit") or isinstance(c, tuple) or \
+                    op.split(".")[0] in ("DEPBAR", "LDGDEPBAR", "ARRIVES"):
+                out.add(pc)
+        return out
+
+    def gate_table(self):
+        """T12: {rmw pc: (scope, rel-fenced pcs, acq-fenced pcs)} over record_pcs():
+        p is rel-fenced for r iff fenced(p, r, scope(r), 'rel'), q acq-fenced iff
+        fenced(r, q, scope(r), 'acq'). One table for the sidecar and the oracle."""
+        dom = self.record_pcs()
+        out = {}
+        for r, op in sorted(self.pc_opcode.items()):
+            s = atomic_scope(op)
+            if s is None:
+                continue
+            if s <= NONE:
+                out[r] = (s, frozenset(dom), frozenset(dom))
+                continue
+            back = self._unfenced_reach(r, s, "rel", False)
+            fwd = self._unfenced_reach(r, s, "acq", True)
+            rel = frozenset(p for p in dom if p not in back or self.fence_at(p, "rel") >= s
+                            or self.fence_at(r, "rel") >= s)
+            acq = frozenset(q for q in dom if q not in fwd or self.fence_at(q, "acq") >= s
+                            or self.fence_at(r, "acq") >= s)
+            out[r] = (s, rel, acq)
+        return out
+
     @staticmethod
     def _dom_sets(idom):
         """Full dominator sets = ancestors in the immediate-dominator tree.
@@ -335,17 +493,25 @@ class HBGraph:
             out.setdefault(cur, {cur})
         return out
 
-    def attach_trace(self, atom, sync_edges, coh=None, same_loc=None):
+    def attach_trace(self, atom, sync_edges, coh=None, same_loc=None, release_points=None,
+                     acquire_points=None):
         """Bind the dynamic facts: atom = {pc -> atomic RMW scope} (the release/
         acquire atomics R3 chains over), sync_edges = validated observed atomic-atomic
         hops (anc, cur, d), coh = {pc -> coherent-access scope} for R2 (atom plus the
         .STRONG loads/stores; defaults to atom), same_loc = {frozenset{pc_a, pc_b}}
         atomic pairs observed on one location at ANY distance, intra-thread included
-        (the evidence that an EXCH rewrites the word a CAS acquired)."""
+        (the evidence that an EXCH rewrites the word a CAS acquired). release_points (T12)
+        = {non-atomic pc u: frozenset of the pcs of the PO-next RMW of u's thread after each
+        observed instance of u, or None if some instance has none} from the trace; None
+        keeps the region-dominance release point (release_scope). acquire_points (T12) = the
+        same with the PO-previous RMW before each instance: the atomics the chain must land on
+        (None: region dominance, po(n, cur))."""
         self.atom = atom
         self.sync_edges = sync_edges
         self.coh = atom if coh is None else coh
         self.same_loc = same_loc or set()
+        self.release_points = release_points
+        self.acquire_points = acquire_points
 
     # -- R1: sync dominance (static) ------------------------------------------
     def dominance(self, u, v):
@@ -372,8 +538,19 @@ class HBGraph:
         return best, sorted(used)
 
     def loop_scope(self, pc):
-        """R1's cycle form for a same-PC pair: ordered at scope s iff a qualifying
-        sync of scope >= s lies on every cycle through the PC's region (1.5)."""
+        """The former cycle form of R1 for a same-PC pair: ordered at scope s iff a qualifying
+        sync of scope >= s lies on every cycle through the PC's region (1.5).
+
+        Not a certificate, and no longer used by ordered() (T12): a barrier on every cycle
+        separates the pc's instances in DIFFERENT iterations only; two threads executing the pc
+        in the same iteration -- one barrier segment -- are never separated by it, so a
+        cross-thread same-pc conflict is certified by nothing static. hb_proof.tex section 5's R1
+        says the same (every path between the two regions crosses a barrier; for one region the
+        empty path crosses none). Found on P4 uts-norace-small (two volatile stores to one
+        address by two warps of block 45, both before the block's first barrier arrival, which
+        this form had certified -- a model_bug). The cross-iteration instances are ordered by the
+        barrier-only clock where it runs (barrier-ordered). $CUVEIN_R1_LOOP_SCOPE=1 restores the
+        old use (ablation, for measuring the change)."""
         r = self.pc_node[pc]
         if not self._on_cycle(r, ()):
             return NONE, []  # no loop: distinct threads, same interval
@@ -407,15 +584,42 @@ class HBGraph:
                     if op.startswith("MEMBAR") and sid in self.postdom.get(ru, ())
                     and sid in self.dom.get(ra, ())), default=NONE)
 
+    def release_fence(self, u, a):
+        """T12: the widest scope s with fenced(u, a, s, 'rel') -- every CFG path from u to the
+        release RMW a crosses a release fence of scope >= s (hb_proof.tex section 5, R3's
+        release point from the trace); NONE if none."""
+        for s in (GRID, BLOCK):
+            if self.fenced(u, a, s, "rel"):
+                return s
+        return NONE
+
     def _cs_fenced(self, x, need):
         """Release-side gate for an ordinary store x: if x sits in a CAS-acquired
         critical section, a fence of scope >= need must sit between the CAS and x.
         Competing (CAS) acquires succeed in schedule-dependent order, so the
         observed chain direction cannot vouch for the other schedule; flag/spin
-        handoffs (non-CAS) pin their direction by dataflow and need no fence."""
-        return all(self.release_scope(c, x) >= need
+        handoffs (non-CAS) pin their direction by dataflow and need no fence.
+        T12: "between" is fenced(CAS, x, need, 'acq') of Definition "Gate" -- a fence on
+        the CAS's success edge counts (the region test, a MEMBAR in postdom(CAS), did not);
+        $CUVEIN_R3_TRACE_RELEASE=0 restores the region test (ablation)."""
+        region = os.environ.get("CUVEIN_R3_TRACE_RELEASE", "1") == "0"
+        return all((self.release_scope(c, x) >= need) if region
+                   else self.fenced(c, x, need, "acq")
                    for c in self.atom
                    if "CAS" in self.pc_opcode[c].split(".") and self.po(c, x))
+
+    def _before_acquire(self, u, rel):
+        """T12, the mirror of _past_release (hb_proof.tex section 5): u lies BEFORE its thread's
+        own CAS acquire on the location the chain's first hop leaves from (rel's location) --
+        write-before-lock. Competing CAS acquires succeed in schedule-dependent order, so the
+        observed hop cannot vouch for an access its thread made before locking.
+        $CUVEIN_R3_BEFORE_ACQUIRE=0 disables the decline (ablation)."""
+        if os.environ.get("CUVEIN_R3_BEFORE_ACQUIRE", "1") == "0":
+            return False
+        return any("CAS" in self.pc_opcode[c].split(".") and c != u
+                   and (c == rel or frozenset((c, rel)) in self.same_loc)
+                   and self.po(u, c) and (c == rel or self.po(c, rel))
+                   for c in self.atom)
 
     def _past_release(self, acq, cur):
         """Acquire-side gate: cur lies PAST the release of the critical section that
@@ -426,11 +630,22 @@ class HBGraph:
         access after its own unlock would run concurrently with the other section
         (ScoR race_interblock_none-lock_rtraw). Non-CAS flag/spin hand-offs pin their
         direction by dataflow, so everything after the acquire stays ordered.
-        $CUVEIN_R3_PAST_RELEASE=0 disables the gate (ablation).
-        ponytail: the mirror (an access BEFORE its thread's own acquire) is not gated."""
-        if acq is None or "CAS" not in self.pc_opcode[acq].split(".") \
-                or os.environ.get("CUVEIN_R3_PAST_RELEASE", "1") == "0":
+        T12: a hop can also land DIRECTLY on the section's release -- a non-CAS RMW on a
+        location some CAS acquires (with many threads on the same pcs, a failed CAS of one
+        thread hops to another thread's unlock). cur after that RMW is past the release as
+        well, so the gate fires then too (before T12 it returned False for any non-CAS acq,
+        and a multi-thread rtraw was certified). A flag location no CAS touches is a
+        dataflow hand-off and stays ungated. $CUVEIN_R3_PAST_RELEASE=0 disables the gate
+        (ablation). The mirror (an access BEFORE its thread's own acquire) is
+        _before_acquire."""
+        if acq is None or os.environ.get("CUVEIN_R3_PAST_RELEASE", "1") == "0":
             return False
+        if "CAS" not in self.pc_opcode[acq].split("."):
+            if os.environ.get("CUVEIN_R3_LANDING", "1") == "0":   # pre-T12 (ablation)
+                return False
+            return self.po(acq, cur) and any(
+                "CAS" in self.pc_opcode[c].split(".") and frozenset((c, acq)) in self.same_loc
+                for c in self.atom)
         return any(r != acq and r != cur and frozenset((acq, r)) in self.same_loc
                    and self.po(acq, r) and self.po(r, cur) for r in self.atom)
 
@@ -448,29 +663,95 @@ class HBGraph:
         for a1, a2, d in self.sync_edges:
             hops.setdefault(a1, []).append((a2, d))
         anc_atomic = anc in self.atom
+        every = False                   # T12: a chain needed from EVERY start
         if anc_atomic:  # atomics need no release fence, only certified program order
             starts = [(anc, GRID)]
-        else:  # fence scope gates the first sync hop's distance
+        elif self.release_points is not None and anc in self.release_points and \
+                os.environ.get("CUVEIN_R3_TRACE_RELEASE", "1") != "0":
+            # T12 (hb_proof.tex section 5): the release point is the PO-next RMW of anc's
+            # thread in each observed instance, release-fenced iff fenced(anc, a, d, 'rel').
+            # An instance with no RMW after it is released by nothing; instances with
+            # different next RMWs each need their own chain.
+            rp = self.release_points[anc]
+            if not rp:
+                return None
+            starts = [(a, self.release_fence(anc, a)) for a in sorted(rp)]
+            if any(s == NONE for _, s in starts):
+                return None
+            every = True
+        else:  # fence scope gates the first sync hop's distance (region release point)
             starts = [(a, s) for a in self.atom
                       if (s := self.release_scope(anc, a)) > NONE]
-        for a0, first_scope in starts:
-            # acq = the atomic the latest sync hop landed on (the acquire in force)
-            stack, seen = [(a0, False, [a0], None)], set()
-            while stack:
-                n, synced, path, acq = stack.pop()
-                if synced and n != cur and self.po(n, cur) \
-                        and not self._past_release(acq, cur):  # acquire: dependency
+        # T12, the acquire side from the trace: every observed instance of cur must be
+        # preceded in its thread by an atomic the chain lands on (its PO-previous RMW) --
+        # symmetric to the release point; region dominance (po(n, cur)) otherwise.
+        # $CUVEIN_R3_TRACE_ACQUIRE=0 keeps region dominance (ablation).
+        need = None
+        if self.acquire_points is not None and cur not in self.atom and \
+                cur in self.acquire_points and \
+                os.environ.get("CUVEIN_R3_TRACE_ACQUIRE", "1") != "0":
+            need = self.acquire_points[cur]
+            if not need:
+                return None
+        if need is None:
+            found = None
+            for a0, first_scope in starts:
+                path = self._chain_from(a0, first_scope, anc, cur, anc_atomic, hops, every)
+                if path is not None and not every:
                     return path
-                if (n, synced, acq) in seen:
-                    continue
-                seen.add((n, synced, acq))
-                for a2, d in hops.get(n, ()):
-                    if synced or d <= first_scope:
-                        stack.append((a2, True, path + [a2], a2))
-                if synced or anc_atomic:  # po hop between atomics, no fence needed
-                    for b in self.atom:
-                        if b != n and self.po(n, b):
-                            stack.append((b, synced, path + [b], acq))
+                if path is None and every:
+                    return None
+                found = found or path
+            return found
+        # With trace points the chain must COVER both sides: every release start (when they
+        # come from the trace) reaches some acquire point, and every acquire point is reached
+        # from some start -- the instances of anc released at different RMWs (a border and an
+        # inner thread, say) may pair with different acquires of cur's instances; a pc-level
+        # rule cannot tell which, and assumes the observed hand-offs are the ones used.
+        covered, first = set(), None
+        for a0, first_scope in starts:
+            hit = False
+            for q in sorted(need):
+                path = self._chain_from(a0, first_scope, anc, cur, anc_atomic, hops, every,
+                                        land=q)
+                if path is not None:
+                    covered.add(q)
+                    hit = True
+                    first = first or path
+            if every and not hit:
+                return None
+        return first if covered == set(need) else None
+
+    def _chain_from(self, a0, first_scope, anc, cur, anc_atomic, hops, traced=False, land=None):
+        """One chain search from start a0. traced (T12): a0 is anc's trace release point;
+        before the first sync hop the chain may take program-order steps to later atomics b
+        of anc's thread, the release scope narrowing to release_fence(anc, b). land (T12):
+        the acquire must be exactly this atomic (cur's trace acquire point) instead of one
+        whose region dominates cur's."""
+        # acq = the atomic the latest sync hop landed on (the acquire in force); fs = the
+        # release scope gating the first hop
+        stack, seen = [(a0, False, [a0], None, first_scope)], set()
+        while stack:
+            n, synced, path, acq, fs = stack.pop()
+            if synced and n != cur and (self.po(n, cur) if land is None else n == land) \
+                    and not self._past_release(acq, cur):  # acquire: dependency
+                return path
+            if (n, synced, acq, fs) in seen:
+                continue
+            seen.add((n, synced, acq, fs))
+            for a2, d in hops.get(n, ()):
+                if synced or (d <= fs and
+                              (anc_atomic or not self._before_acquire(anc, n))):
+                    stack.append((a2, True, path + [a2], a2, fs))
+            if synced or anc_atomic:  # po hop between atomics, no fence needed
+                for b in self.atom:
+                    if b != n and self.po(n, b):
+                        stack.append((b, synced, path + [b], acq, fs))
+            elif traced:              # T12: po step before the first hop, fence-gated
+                for b in self.atom:
+                    if b != n and self.po(n, b) and \
+                            (f := min(fs, self.release_fence(anc, b))) > NONE:
+                        stack.append((b, False, path + [b], acq, f))
         return None
 
     def _on_cycle(self, r, excluded):
@@ -490,7 +771,9 @@ class HBGraph:
         if not static:
             strength, syncs = NONE, []
         elif cur == anc:
-            strength, syncs = self.loop_scope(cur)              # R1 (cycle form)
+            # R1 certifies no same-pc pair (loop_scope's docstring; T12)
+            strength, syncs = self.loop_scope(cur) \
+                if os.environ.get("CUVEIN_R1_LOOP_SCOPE") == "1" else (NONE, [])
         else:
             strength, syncs = self.dominance(cur, anc)          # R1
         coherence = self.coherence(cur, anc)                    # R2 (class only)
@@ -510,6 +793,46 @@ def thread_distance(t1, t2):
     if t1 >> 10 != t2 >> 10:
         return GRID
     return BLOCK if (t1 >> 5) != (t2 >> 5) else WARP
+
+
+def trace_rmw_points(trace, rmw, max_lanes=None):
+    """T12 (hb_proof.tex section 5, R3's release point from the trace) -> (release, acquire):
+    release = {non-RMW memory pc u: frozenset of the pcs of the PO-next RMW of u's thread after
+    each observed instance of u, empty if some instance has none}; acquire = the same with the
+    PO-previous RMW before each instance. rmw = the kernel's RMW pcs. Local records are outside
+    the model (D14). -> (None, None) if the dump has no hb_events or exceeds max_lanes
+    lane-accesses (R3 then keeps region dominance)."""
+    events = trace.get("hb_events")
+    if not events:
+        return None, None
+    if max_lanes is not None and \
+            sum(len(e.get("lanes", ())) for e in events) > max_lanes:
+        return None, None
+    pending = {}                       # tid -> non-RMW pcs since its last RMW
+    last = {}                          # tid -> its last RMW pc
+    out, back, orphan = {}, {}, set()
+    for e in sorted(events, key=lambda e: e["seq"]):
+        if "lanes" not in e or e.get("space") == "local":
+            continue
+        pc, is_rmw = e["pc"], e["pc"] in rmw
+        for ln in e["lanes"]:
+            t = (e["block"] << 10) | (e["warp"] << 5) | ln["lane"]
+            if is_rmw:
+                for u in pending.pop(t, ()):
+                    out.setdefault(u, set()).add(pc)
+                last[t] = pc
+            else:
+                pending.setdefault(t, set()).add(pc)
+                if t in last:
+                    back.setdefault(pc, set()).add(last[t])
+                else:
+                    orphan.add(pc)
+    stranded = {u for us in pending.values() for u in us}
+    rel = {u: (frozenset() if u in stranded else frozenset(out.get(u, ())))
+           for u in set(out) | stranded}
+    acq = {v: (frozenset() if v in orphan else frozenset(back.get(v, ())))
+           for v in set(back) | orphan}
+    return rel, acq
 
 
 def barrier_only_pairs(trace, rmw, coh, max_lanes=None, dist_out=None, order_out=None,
@@ -734,10 +1057,12 @@ def _hb_class(r1_ordered, chain_ordered, dyn_raced, sync_raced=None, strong=Fals
     dyn_raced (the engine's hb_races) is the observed-schedule truth; `strong` is the
     pair's class, SC (morally strong -- decided by hb_races' instances in vector-clock
     mode, else by R2 at the widest observed distance) or DR. R2 grants no order.
-      model_bug   R1 claims every-schedule order yet it raced -> a soundness bug in R1 or
-                  a trace/CFG misalignment; investigate.
       structural  raced (some instance a data race), and no all-schedule proof orders it
                   (the chain over-ordered, or nothing did) -> a race static missed.
+    `model_bug` (R1 claims every-schedule order yet the pair raced: a defect of R1 or a
+    trace/CFG misalignment -- investigate) is an ANNOTATION on the raced pair's verdict, not
+    a class: judge() sets it on the record (model_bug_of), and the verdict is the class's --
+    a model_bug on an SC pair is a Strong conflict, on a DR pair a Race.
       sc          raced, every instance an unordered strong conflict: reported,
                   informational (D2), neither a race nor ordered.
       ordered     not raced and R1 or R3 orders it.
@@ -747,7 +1072,7 @@ def _hb_class(r1_ordered, chain_ordered, dyn_raced, sync_raced=None, strong=Fals
       latent      not raced this schedule, nothing proves all-schedule ordering -> may race
                   under another schedule (D8: a third verdict); latent-sc if SC."""
     if dyn_raced:
-        return "model_bug" if r1_ordered else "sc" if strong else "structural"
+        return "sc" if strong else "structural"
     if r1_ordered or chain_ordered:
         return "ordered"
     # No static proof. sync_raced is the engine's second, barrier/syncwarp-ONLY clock
@@ -763,6 +1088,7 @@ def _hb_class(r1_ordered, chain_ordered, dyn_raced, sync_raced=None, strong=Fals
 # class -> verdict. RACE = a race of this run (structural, model_bug) or LATENT (latent),
 # the latter still counted as RACE by the program-level harness (the Race u Latent
 # operating point, D2); SC = an unordered strong conflict, informational, never RACE.
+# ("model_bug" stays mapped for detail files written before it became an annotation.)
 CLASS_VERDICT = {"model_bug": "RACE", "structural": "RACE", "latent": "RACE",
                  "sc": "SC", "latent-sc": "SC",
                  "ordered": "ORDERED", "barrier-ordered": "ORDERED"}
@@ -830,7 +1156,12 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
     policy = strong_ldst_policy(strong_ldst)
     coh = {pc: sc for pc in pcs
            if (sc := coherent_scope(eng.pc_opcode[pc], policy)) is not None}
-    eng.attach_trace(atom, sync_edges, coh, same_loc)
+    # T12: R3's release point from the trace (the PO-next RMW of each instance's thread)
+    rmw_pcs = {pc for pc, op in eng.pc_opcode.items() if atomic_scope(op) is not None}
+    rpoints, apoints = trace_rmw_points(
+        trace, rmw_pcs, int(os.environ.get("CUVEIN_BARRIER_PASS_MAX_LANES", "5000000"))) \
+        if atom else (None, None)
+    eng.attach_trace(atom, sync_edges, coh, same_loc, rpoints, apoints)
 
     # Dynamic happens-before ground truth (the analyzer's C++ HB engine, present when
     # the trace was taken with YOSEMITE_HB_TRACE=1). Crossed with the static legs below
@@ -988,13 +1319,15 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
             strong = all(r.get("class", "DR") == "SC" for r in recs)
         else:
             strong = eng.coherence(cur, anc) >= widest
+        model_bug = None                 # the annotation (vector-clock only; _hb_class)
         if raced_pcsets is not None:
+            dyn = hb_pair_raced(cur, anc, cur_access == "read", anc_access == "read")
             hb_class = _hb_class(
-                r1_ordered, chain_ordered,
-                hb_pair_raced(cur, anc, cur_access == "read", anc_access == "read"),
+                r1_ordered, chain_ordered, dyn,
                 None if sync_pcsets is None else frozenset((cur, anc)) in sync_pcsets,
                 strong)
             verdict = CLASS_VERDICT[hb_class]
+            model_bug = bool(dyn and r1_ordered)
         else:
             # static leg only (no engine): a pair without a static proof is still
             # ordered when barrier/syncwarp joins order every observed conflict; the
@@ -1052,6 +1385,7 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
             "event_candidate": from_events,
             "hb_class": hb_class,
             "matrix_class": matrix_class,
+            "model_bug": model_bug,
             "a2_uncertain": a2,
             "conflict_class": "SC" if strong else "DR",
             "benign": benign,
@@ -1127,10 +1461,12 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
         "summary": {"races": races, "sc": n_sc, "ordered": len(verdicts) - races - n_sc,
                     "skipped": len(skipped),
                     "hb_classes": {c: sum(v["hb_class"] == c for v in verdicts)
-                                   for c in ("structural", "latent", "model_bug",
+                                   for c in ("structural", "latent",
                                              "benign", "warp-po-ordered",
                                              "barrier-ordered", "sc", "latent-sc")}
-                                  if raced_pcsets is not None else None},
+                                  if raced_pcsets is not None else None,
+                    # the model_bug annotation (R1 contradicted by hb_races), on DR and SC
+                    "model_bug": sum(bool(v.get("model_bug")) for v in verdicts)},
     }
 
 

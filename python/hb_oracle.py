@@ -149,7 +149,7 @@ def _comp_of(comps, s, blk):
 
 
 
-def analyze(dot_path, trace_path, strong_ldst=None, records=False):
+def analyze(dot_path, trace_path, strong_ldst=None, records=False, gate=None):
     """-> the report dict. `races` is aggregated per (a_pc, b_pc, kind, class, space, thread
     distance, async side): one example record plus `count`, the number of conflicting
     record pairs Check found (with repeats) -- a race set without the FastTrack collapse is
@@ -157,7 +157,12 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False):
     on pc pairs, their class, widest distance, warp and async). records=True also returns
     `race_records`, the set of record pairs (addr, a_tid, a_pc, b_tid, b_pc, class) with the
     issuing thread's id for an agent's access (design/algorithms_check.py compares it with
-    Detect)."""
+    Detect).
+
+    gate (T12, hb_proof.tex Definition "Gate"; design/instance_gate.md): 'instance' gates
+    every (ATOM) edge by fenced() on the thread's previous/next record pcs, 'trusting' joins
+    every hand-off (the pre-T12 code). Default: $CUVEIN_GATE, else the gate that produced the
+    dump (its `hb_gate` key), else 'trusting' -- a pre-T12 dump replays as it was recorded."""
     trace = json.loads(Path(trace_path).read_text())
     events = sorted(trace.get("hb_events", []), key=lambda e: e["seq"])
     if not events:
@@ -180,6 +185,14 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False):
     # engine reads the same set from the sidecar's `# async` lines (sd.async_pcs rule);
     # a dump without the engine's hb_async marker keeps the pre-T1a reading.
     async_pcs = sd.dump_async_pcs(eng, trace)
+    # T12: the instance gate. rel(r) from t's previous record, acq(r) from its next one; the
+    # acquire is DEFERRED to t's next record exactly as HbEngine must (it cannot look ahead):
+    # Check(r) runs against vc[t] and the conflicts only the pending join J would order are
+    # held in r's window, reported iff acq(r) = 0 (design/instance_gate.md section 6).
+    gate_on = sd.dump_gate(trace, gate) == "instance"
+    gtab = eng.gate_table() if gate_on else {}
+    last_pc = {}                      # tid -> pc of its latest record (rel)
+    gstat = defaultdict(int)          # RMW lane records: rmw, rel0, acq0, held, held_reported
     ASYNC = sd.ASYNC_BIT
     groups = defaultdict(list)        # t -> [(vc, vs) of its agent at each commit], oldest first
 
@@ -269,12 +282,32 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False):
         for t in tids if pj else ():
             pd_join(t, pj)
 
-    def conflict(prev_tid, prev_clk, prev_sclk, prev_pc, t, pc, kind, cls, rec, observer=None):
+    def conflict(prev_tid, prev_clk, prev_sclk, prev_pc, t, pc, kind, cls, rec, observer=None,
+                 gheld=None):
         """One unordered-ness test per clock for a conflicting (prev, current) pair, as
         seen by `observer` (default t; the issuing thread for two copies of its agent).
-        cls = "DR" (data race) or "SC" (unordered strong conflict, Definition "Verdicts")."""
+        cls = "DR" (data race) or "SC" (unordered strong conflict, Definition "Verdicts").
+        gheld (T12): the gate state of t's RMW with a pending acquire J -- a conflict J
+        would order is held there; the flag decision of any other is taken after the gate
+        resolves (it depends on J through the possible clock)."""
         o = t if observer is None else observer
         if prev_clk > vc[o].get(prev_tid, 0):
+            te = vc[t][t]
+            if gheld is not None:
+                if prev_clk <= gheld[2].get(prev_tid, 0):
+                    gheld[4].append((prev_tid, prev_clk, prev_pc, pc, kind, cls, dict(rec), te))
+                else:
+                    gheld[5].append((report(prev_tid, prev_clk, prev_pc, t, pc, kind, cls, rec),
+                                     prev_tid, prev_clk, prev_pc, pc, dict(rec), te))
+            else:
+                key = report(prev_tid, prev_clk, prev_pc, t, pc, kind, cls, rec)
+                a2_decide(key, prev_tid, prev_clk, prev_pc, t, pc, o, rec)   # T14: DR and SC
+        if prev_sclk > vs[o].get(prev_tid, 0):
+            sync_pairs[(min(prev_pc, pc), max(prev_pc, pc))] += 1
+
+    def report(prev_tid, prev_clk, prev_pc, t, pc, kind, cls, rec):
+        """count one reportable record pair in its aggregate -> the aggregate key"""
+        if True:
             a0, b0 = prev_tid & ~ASYNC, t & ~ASYNC
             asy = "ab" if prev_tid & t & ASYNC else "a" if prev_tid & ASYNC else \
                   "b" if t & ASYNC else ""
@@ -289,13 +322,11 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False):
                 agg[key] = [ex, 1, 0]
             else:
                 g[1] += 1
-            a2_decide(key, prev_tid, prev_clk, prev_pc, t, pc, o, rec)   # T14: DR and SC alike
             if rec_set is not None:
                 rec_set.add((rec["addr"], a0, prev_pc, b0, pc, cls))
-        if prev_sclk > vs[o].get(prev_tid, 0):
-            sync_pairs[(min(prev_pc, pc), max(prev_pc, pc))] += 1
+            return key
 
-    def check(t, kind, scope, pc, loc, rec):
+    def check(t, kind, scope, pc, loc, rec, gheld=None):
         """Procedure Check: every other thread's buckets on loc that conflict with this
         record (one of the two a write); morally strong pairs are SC unless both are RMWs,
         which are never reportable."""
@@ -314,7 +345,8 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False):
                 strong = sd.morally_strong(ps, u & ~ASYNC, scope, t & ~ASYNC)
                 if strong and both_rmw:
                     continue
-                conflict(u, uc, usc, upc, t, pc, label, "SC" if strong else "DR", rec)
+                conflict(u, uc, usc, upc, t, pc, label, "SC" if strong else "DR", rec,
+                         gheld=gheld)
 
     # T1a: the async agent (see HbEngine::async_issue/commit/wait; one-to-one)
     def async_issue(t, ag):
@@ -404,27 +436,47 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False):
                 st.comps = [_Comp(c.ag, c.ab, c.J) for c in st.inflow]
             else:
                 st.comps = []
-                for r, actual in ((st.prev, False), (released[loc], True)):
+                for r, actual in ((st.prev, False), (released.get(loc), True)):
                     if r is not None and r[2] != sd.NONE:   # the single RMW before; the first
                         c = _comp_add(st.comps, r[2], r[1], actual)   # member, as published
-                        _join_into(c.J, r[0])
-                        _join_into(c.J, r[3])
+                        _join_into(c.J, r[0] or {})         # (None: T12, nothing released)
+                        _join_into(c.J, r[3] or {})
         if st.comps is not None and scope != sd.NONE:
             _comp_add(st.comps, scope, blk, True)
-        wins[t] = [loc, scope, own(t), {}, [], blk]
+        # [6]: T12 gate state of this RMW -- None, or [pc, rel, J, Jpd, held, defer]
+        wins[t] = [loc, scope, own(t), {}, [], blk, None]
 
-    def close_win(t):
-        """t's next record (or the end of the kernel) closes its RMW window: the late acquire,
-        then the decisions held on the window."""
-        loc, scope, w_ep, pend, shared, blk = wins.pop(t)
+    def close_win(t, nxt_pc=None):
+        """t's next record (pc nxt_pc; None = the end of the kernel) closes its RMW window:
+        under the instance gate first acq(r) and the deferred acquire (T12), then the late
+        acquire, then the decisions held on the window."""
+        g = wins[t][6]
+        acq = rel = True
+        if g is not None:
+            r_pc, rel, J, Jpd, held, defer = g
+            acq = nxt_pc is None or nxt_pc in gtab[r_pc][2]
+            gstat["acq0"] += not acq
+            gstat["held"] += len(held)
+            gstat["held_reported"] += 0 if acq else len(held)
+            if acq:                   # the deferred acquire: join, drop what it orders
+                if J:
+                    vc[t] = vc[t].joined(J)
+                pd_join(t, Jpd)
+            else:                     # no acquire: the held conflicts are reported
+                for u, uc, upc, pc, kind, cls, rec, te in held:
+                    defer.append((report(u, uc, upc, t, pc, kind, cls, rec), u, uc, upc,
+                                  pc, rec, te))
+            for key, u, ue, upc, pc, rec, te in defer:
+                a2_decide(key, u, ue, upc, t, pc, t, rec, te)
+        loc, scope, w_ep, pend, shared, blk, _ = wins.pop(t)
         st = clus[loc]
-        if st.comps is not None and scope != sd.NONE:
+        if st.comps is not None and scope != sd.NONE and acq:
             a = _comp_of(st.comps, scope, blk).J
             if a:
                 pd_join(t, a)
-                if st.members == 1:   # a single RMW after a multi cluster: what it hands on
-                    rc, rb, rs, rp = released[loc]
-                    released[loc] = (rc, rb, rs, rp.joined(a))
+                if st.members == 1 and rel and released[loc][0] is not None:
+                    rc, rb, rs, rp = released[loc]   # a single RMW after a multi cluster:
+                    released[loc] = (rc, rb, rs, rp.joined(a))   # what it hands on
         for (key, u, e, side), n in pend.items():
             f = e <= poss(t, u)
             if f:
@@ -446,17 +498,22 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False):
                 if st.comps is not None and st.members >= 2 else None
             st.comps, st.prev, st.members = None, None, 0
 
-    def close_lanes(block, warp, mask):
+    def close_lanes(block, warp, mask, pc):
         if wins:
             for k in range(32):
                 if (mask >> k) & 1 and tid_of(block, warp, k) in wins:
-                    close_win(tid_of(block, warp, k))
+                    close_win(tid_of(block, warp, k), pc)
+        if gate_on:
+            for k in range(32):
+                if (mask >> k) & 1:
+                    last_pc[tid_of(block, warp, k)] = pc
 
-    def a2_decide(key, u, ue, upc, t, pc, o, rec):
-        """One reported instance (u's record at epoch ue, then t's record): flagged now if the
-        possible clock orders it; else held on an RMW endpoint's open window -- t's RMW, whose
-        window just opened, or u's RMW, whose window has not closed -- and decided there."""
-        te = vc[t][t]
+    def a2_decide(key, u, ue, upc, t, pc, o, rec, te=None):
+        """One reported instance (u's record at epoch ue, then t's record at epoch te): flagged
+        now if the possible clock orders it; else held on an RMW endpoint's open window -- t's
+        RMW, whose window just opened, or u's RMW, whose window has not closed -- and decided
+        there."""
+        te = vc[t][t] if te is None else te
         if ue <= poss(o, u):
             agg[key][2] += 1
             if a2_log is not None:
@@ -492,7 +549,7 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False):
         typ = e["type"]
         if typ == "exit":             # T3b: the exiting lanes of one warp
             block, warp, mask = e["block"], e["warp"], e["active_mask"]
-            close_lanes(block, warp, mask)                    # T14
+            close_lanes(block, warp, mask, e["pc"])           # T14; T12: its pc is q
             if strict and mask & exited_lanes[(block, warp)]:
                 raise sd.AlignmentError(
                     f"TV-record-after-exit: block {block} warp {warp} lanes mask "
@@ -520,7 +577,7 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False):
                 f"TV-record-after-exit: block {e['block']} warp {e['warp']} issues a {typ} "
                 f"at pc {hex(e['pc'])} (seq {seq}) after its exit")
         if "lanes" not in e:          # T14: a sync record is its lanes' next record
-            close_lanes(e["block"], e["warp"], lanes_mask)
+            close_lanes(e["block"], e["warp"], lanes_mask, e["pc"])
         if typ in ("pipeline_commit", "pipeline_wait"):   # T1a: cp.async commit / wait_group N
             for k in range(32):
                 if (e["active_mask"] >> k) & 1:
@@ -588,7 +645,7 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False):
         for lane in e["lanes"]:
             t0 = tid_of(e["block"], e["warp"], lane["lane"])
             if t0 in wins:            # T14: this record closes the lane's RMW window
-                close_win(t0)
+                close_win(t0, pc)
             t = t0 | ASYNC if is_async else t0
             if is_async:
                 async_issue(t0, t)
@@ -611,14 +668,28 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False):
                 my_scope = atom_scope[pc]
                 a2_open(t, loc, my_scope, my_block)           # T14
                 rel = released.get(loc)
+                chain_ok = False
                 if rel is not None:
                     rclk, rblock, rscope, rpd = rel
                     eff = min(my_scope, rscope)
-                    if eff == sd.GRID or (eff == sd.BLOCK and rblock == my_block):
+                    chain_ok = eff == sd.GRID or (eff == sd.BLOCK and rblock == my_block)
+                    if chain_ok and not gate_on:
                         vc[t] = vc[t].joined(rclk)
                         pd_join(t, rpd)                       # T14
+                if gate_on:                   # T12: rel(r) now, the acquire at the close
+                    pt = last_pc.get(t0)
+                    g_rel = pt is None or pt in gtab[pc][1]
+                    gstat["rmw"] += 1
+                    gstat["rel0"] += not g_rel
+                    last_pc[t0] = pc
+                    has_j = chain_ok and rel[0] is not None
+                    wins[t][6] = [pc, g_rel, rel[0] if has_j else None,
+                                  rel[3] if has_j else None, [], []]
+            elif gate_on:
+                last_pc[t0] = pc
             clk, sclk = own(t), owns(t)
-            check(t, kind, my_coh, pc, loc, rec)
+            gheld = wins[t][6] if is_atomic and gate_on and wins[t][6][2] is not None else None
+            check(t, kind, my_coh, pc, loc, rec, gheld)
             if kind == "W" and t & ASYNC:
                 # two copies of one thread: PTX orders no two cp.async operations, so they
                 # are unordered until a wait completes the first. The agent knows its own
@@ -632,16 +703,29 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False):
                 # later acquirer is ordered after the RMW but not after t's next accesses --
                 # then tick. Overwriting released[loc] equals Algorithm 1's join under the
                 # trusting gate (the clock already holds the chain unless it broke).
-                released[loc] = (VC(vc[t]), my_block, my_scope, VC(pd.get(t, ())))
                 st = clus[loc]
-                if st.comps is not None and my_scope != sd.NONE:   # T14: its component's join
-                    c = _comp_of(st.comps, my_scope, my_block)
-                    _join_into(c.J, vc[t])
-                    _join_into(c.J, pd.get(t, {}))
+                if not gate_on:
+                    released[loc] = (VC(vc[t]), my_block, my_scope, VC(pd.get(t, ())))
+                    if st.comps is not None and my_scope != sd.NONE:   # T14: its component's
+                        c = _comp_of(st.comps, my_scope, my_block)    # join
+                        _join_into(c.J, vc[t])
+                        _join_into(c.J, pd.get(t, {}))
+                else:
+                    # T12: Ch_loc is a join; it breaks when r is not ms with the last RMW
+                    # (chain_ok False); only a releasing r publishes; the label is always r's
+                    ch, chpd = (rel[0], rel[3]) if chain_ok else (None, None)
+                    if wins[t][6][1]:
+                        ch = VC(vc[t]) if ch is None else ch.joined(vc[t])
+                        chpd = VC(pd.get(t, ())) if chpd is None else chpd.joined(pd.get(t, {}))
+                        if st.comps is not None and my_scope != sd.NONE:
+                            c = _comp_of(st.comps, my_scope, my_block)
+                            _join_into(c.J, ch)
+                            _join_into(c.J, chpd)
+                    released[loc] = (ch, my_block, my_scope, chpd)
                 vc[t][t] = clk + 1
 
     for t in sorted(wins):            # T14: no next record -- the window ends with the kernel
-        close_win(t)
+        close_win(t)                  # (T12: q does not exist, acq(r) = 1)
 
     # TV-barrier-pending-at-end (hb_proof.tex section 1, the fifth monitor check, the runtime
     # form of A3): every open segment completes by the end of the kernel. Only on dumps
@@ -678,10 +762,12 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False):
         **({"a2_records": sorted([*k, n] for k, n in a2_log.items())}
            if a2_log is not None else {}),
         "races_sync_only": [[a, b, n] for (a, b), n in sorted(sync_pairs.items())],
+        "gate": "instance" if gate_on else "trusting",
         "coherence_profile": coherence_profile,
         "summary": {"races": len(uniq), "events": len(events),
                     "sc": sum(r["class"] == "SC" for r in uniq),
                     "a2_uncertain": sum(r["a2_uncertain"] for r in uniq),
+                    **({"gate": dict(gstat)} if gate_on else {}),
                     "atomic_addrs": len(coherence_profile)},
     }
 

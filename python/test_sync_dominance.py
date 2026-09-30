@@ -50,6 +50,30 @@ _PTX_STRONG_RACES = {
 }
 
 
+# T12 (D11; design/instance_gate.md): the ScoR kernels labelled race-free that PTX section 8.7.1
+# does not order. In each, the consumer spins on the flag with a RELAXED atomic
+# (atomicExch/atomicAdd) and has no fence after the spin, so the hand-off has no acquire
+# pattern and the instance gate adds no (ATOM) edge; the producer side is fenced. ScoR's model
+# (ScoRD, HRF-indirect) orders them by the dependency on the spin. With volatile data the pair
+# is morally strong (reported as SC, informational); hrd-indirect's data accesses are RMWs of
+# block scope used across blocks, not morally strong, so its pairs are data races. Reported,
+# footnoted in make_tables.py, never relabelled. Scalar-clock mode (R3: a flag hand-off needs
+# no acquire fence -- ScoRD's reading) keeps them silent.
+_PTX_UNFENCED_NORACE = {
+    "norace_interblock_fence_raw": "spin atomicExch(&flag,0) without a fence before data[0]",
+    "norace_interwarp_fence_raw": "spin atomicExch(&flag,0) without a fence before data[0]",
+    "norace_interwarp_blkfence_raw": "spin atomicExch(&flag,0) without a fence before data[0]",
+    "norace_interwarp-block_fence_hrf-indirect":
+        "spins atomicAdd(&flag,0) without a fence before data[0]",
+    "norace_interwarp-block_fence-atom_hrd-indirect":
+        "spins atomicAdd(&flag,0) without a fence before the block-scope atomicExch on data[0]",
+}
+
+
+def _gate_is_instance():
+    return sd.gate_mode() == "instance"
+
+
 def _volatile_is_strong():
     """Is a volatile (address-spaced .STRONG) access strong under the active policy?"""
     return sd.strong_ldst_policy() in ("token", "all")
@@ -134,6 +158,11 @@ def test_scor_microbenchmark(binary, logfile):
                                             f"only, got {races} race(s) and {sc} SC")
         else:
             assert races >= 1, f"false negative: {binary.name} reported no race"
+    elif _gate_is_instance() and binary.name in _PTX_UNFENCED_NORACE:
+        # T12 (D11): unordered under PTX -- reported (DR or SC by class), not suppressed
+        assert races + sc >= 1, (f"{binary.name}: PTX leaves it unordered "
+                                 f"({_PTX_UNFENCED_NORACE[binary.name]}) and the instance "
+                                 f"gate must report it")
     else:
         assert races == 0, f"false positive: {binary.name} reported {races} race(s)"
         assert sc == 0, f"{binary.name}: {sc} unordered strong conflict(s) on a race-free kernel"
