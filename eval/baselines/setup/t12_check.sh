@@ -57,7 +57,7 @@ rm -rf ScoR/microbenchmarks/artifacts/* cuHadron/_coherent_ldst cuHadron/_mm_han
 .env/bin/python -m pytest python/test_sync_dominance.py python/test_barrier_soundness.py \
     python/test_coherent_ldst.py python/test_atomic_memory_model.py \
     python/test_barrier_exit.py python/test_hb_substitutions.py python/test_cp_async.py python/test_instance_gate.py \
-    -rxXs -p no:cacheprovider 2>&1 | tail -30
+    -rfExXs --tb=line -p no:cacheprovider 2>&1 | grep -v "Warning\|setParseAction\|^$\|capture-warnings" | tail -60
 echo "== done $(date -Is)"
 echo "== (3) Detect reference, both gates"
 .env/bin/python design/algorithms_check.py --gate=instance | tail -3

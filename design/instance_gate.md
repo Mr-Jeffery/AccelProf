@@ -189,6 +189,22 @@ flag moves no verdict). Under the trusting gate nothing changes.
   from every one of them. This replaces `release_scope` (a `MEMBAR` in postdom(u) ∩ dom(a)) and
   its region-dominance program order for the release point. A dump without `hb_events`, or above
   `CUVEIN_BARRIER_PASS_MAX_LANES`, keeps the region test (said in the report).
+- **Acquire point from the trace** (added during the measurement; not in the brief's step 3).
+  The release point alone did not certify the 23 pairs it was meant to: in `rule-110-norace`
+  the reader `v` sits under a loop/branch too, so the old acquire test `po(n, v)` (region
+  dominance) fails for every atomic even when the release side is certified. Symmetric to the
+  release point: the chain must land (after a sync hop, not past the section's release) on the
+  `PO`-previous RMW of `v`'s thread in each observed instance of `v`; an instance with no RMW
+  before it cannot be acquired. The acquire side stays fence-agnostic, as R3 was (a flag
+  hand-off is ordered by the dependency on the spin; ScoRD's reading; the vector clock's gate is
+  where the acquire fence is required). Ablation `CUVEIN_R3_TRACE_ACQUIRE=0`.
+- **Covering rule.** With trace points on either side, `anc`'s instances can release at
+  different RMWs and `cur`'s acquire at different ones (rule-110: border threads hand off
+  through a grid-scope `EXCH`/`ADD` pair, inner threads through block-scope ones). R3 requires
+  every release start to reach some acquire point and every acquire point to be reached from
+  some start. The pre-T12 rule was "some start reaches some acquire"; the cross product
+  (every start to every acquire point) rejects rule-110's correct pairing. It is still a
+  pc-level rule that assumes the observed hand-offs are the ones the instances used.
 - **The acquire side of a CAS section** (`_cs_fenced`: a store in a CAS critical section needs a
   fence after the CAS) uses the same predicate, `fenced(c, x, need, acquire)`, in place of
   `release_scope(c, x)`: a fence on the success branch only now counts (Finding 1 of T9-0,
