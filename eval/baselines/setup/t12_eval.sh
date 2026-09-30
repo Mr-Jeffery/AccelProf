@@ -25,7 +25,7 @@ for which in ${WHICHES:-main t12}; do
     BASELINE_TRACE_DIR=/mnt/beegfs/$USER/cuvein_traces/$TAG $W/.env/bin/python $R/eval/baselines/parallel.py run \
         --manifest $W/eval/baselines/manifest.csv --id-file $IDS \
         --reps 1 --confirm --tag $TAG --results-dir $W/eval/results/$TAG \
-        --confirm-dir $W/eval/baselines/confirm_$TAG 2>&1 | tail -3
+        --confirm-dir $W/eval/baselines/confirm_$TAG > $W/build_logs/$TAG.run.log 2>&1; tail -5 $W/build_logs/$TAG.run.log
   )
 done
 cd $W

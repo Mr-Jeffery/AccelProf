@@ -34,6 +34,13 @@ paragraph, §7 I4 row). Hardware: RTX 4060 Ti (sm_89, driver 580.82.07, CUDA 13.
   acquire side failed the same region test. With the acquire point also taken from the trace and a
   covering rule (both beyond the brief's step 3, said so in §5) all 20 rule-110 pairs are `ordered`;
   the 3 reduction pairs are the ticket idiom (not ordered, correctly).
+- **GPU sweep P4/P5, both modes, fresh recordings (§7):** 5 vector-clock TIMEOUTs now finish
+  (graph-coloring/connectivity large, uts small), matrix-multiplication-small 62 -> 24 s;
+  scalar-clock verdicts unchanged. One new vector-clock FP besides `hrd-indirect`:
+  `uts-norace-small` (was TIMEOUT) is RACE through one `model_bug` on an SC pair -- R1's cycle form
+  over-claims a same-pc pair inside one barrier segment, a pre-existing R1 defect the gate exposed
+  (not fixed here). A 2x engine slowdown on spin locks found in the first sweep was fixed
+  (copy-on-write chain clock, §7.1).
 - **Memory (T5a's three programs, `HB_STATS`, §6):** Indigo3 CC push 1296n: trusting gate 118.5 GB
   peak and killed (rc 1) in its first big kernel; instance gate 14.4 GB, all 5 kernels, 159 s.
   reduction-large 7.1 -> 1.9 GB, 17 -> 6 s. tiled_gemm (no atomics) unchanged. What is left in CC
@@ -90,7 +97,7 @@ ordering at the arrival).
 | oracle `--gate trusting` vs the recorded `hb_races` of the 32 ScoR dumps (main checkout) | 32/32 identical (`count`, `a2_uncertain` included) |
 | `design/algorithms_check.py --gate=instance` (Detect, direct gate) vs oracle (deferred) | 32/32 equal (vector clock and barrier clock) |
 | `design/algorithms_check.py --gate=trusting` | 32/32 equal |
-| green set (worktree runtime, collector 5c503aa1, libsanalyzer d6cb4c7b; job 294255, c-node rtx4060ti16g) | **297 passed, 2 skipped** (the two ScoR-parametrised tests of `test_instance_gate.py`, collected before the artifacts existed; run afterwards on the login node: 47/47 passed) |
+| green set (worktree runtime, collector 5c503aa1, final libsanalyzer dca547a5; job 294473, rtx4060ti16g; also job 294255 with d6cb4c7b, same result) | **297 passed, 2 skipped** (the two ScoR-parametrised tests of `test_instance_gate.py`, collected before the artifacts existed; run afterwards on the login node: 47/47 passed) |
 | `test_held_conflict_engine_matches_oracle[fenced|unfenced]` | pass: held >= 1; fenced: 0 reported; unfenced: the plain-store/CAS pair reported, engine == oracle |
 | default tool path (no `YOSEMITE_HB_TRACE`), main vs T12 runtime, two ScoR programs (job 294134) | identical up to device addresses and dist histograms |
 
@@ -125,8 +132,8 @@ W=<wt> WHICH=before|r3only|after IDFILE=eval/results/t12-rescore/ids_affected.tx
 .env/bin/python eval/baselines/t12_rescore.py tables
 ```
 
-Not in the verdict comparison: `P9-mr-cuda` and `P9-fpc-cuda` (analysis still running / over the
-4 h cap at the time of writing, as in T9/T10).
+`P9-mr-cuda` and `P9-fpc-cuda` hit the 4 h analysis cap or failed identically in all three analyses
+(vector-clock TIMEOUT / ERROR), as in T9/T10; they compare equal and carry no information.
 
 ### 4.1 The gate on the race sets
 
@@ -162,11 +169,12 @@ does not exist there). Per suite (affected, labelled), vector-clock, Race u Late
 
 | pset | before | after |
 |---|---|---|
-| P1 | 93/0/0/169, 93/0/0/169 | unchanged |
-| P2 | 8/5/0/26, 8/5/0/26 | unchanged |
-| P3 | 0/0/12/36, 0/0/12/36 | unchanged |
+| P1 | 106/0/0/176, 106/0/0/176 | unchanged |
+| P2 | 8/5/0/28, 8/5/0/28 | unchanged |
+| P3 | 0/0/14/38, 0/0/14/38 | unchanged |
 | P4 | 9/0/2/7, 7/2/0/9 | 9/0/2/7, **9/0/2/7** |
-| P5 | 3/16/0/12, 3/16/0/12 (sc 17/0) | 3/16/**1**/11, 3/16/**1**/11 (sc 17/**4**) |
+| P5 | 3/16/0/14, 3/16/0/14 (sc 17/0) | 3/16/**1**/13, 3/16/**1**/13 (sc 17/**4**) |
+| P9 | no vector-clock verdict (fpc ERROR, mr TIMEOUT in all three analyses) | unchanged |
 
 (TP/FN/FP/TN over the affected programs with a label; sc = programs with an SC report, labelled
 RACE / CLEAN.) Under ScoRD's notion (D2 amended: DR ∪ SC are reports) the 8 fence races are
@@ -207,23 +215,24 @@ dependency reading).
 - **Covering rule** (release starts x acquire points): every start reaches some acquire point and every
   acquire point is reached; the cross product rejected rule-110's correct pairing (border threads hand
   off 0x1140 -> 0x1310 at grid scope, inner threads 0x1190 -> 0x1220 at block scope).
-- **Write-before-lock decline** (`_before_acquire`): implemented; it moved no verdict on the corpus
-  (not exercised, as the census predicted).
+- **Write-before-lock decline** (`_before_acquire`): implemented; the three R3 amendments together
+  moved no verdict on the corpus (before -> r3only, §4.2); whether the decline alone fired on any
+  pair was not measured separately.
 - `_cs_fenced` on `fenced(c, x, d, acq)`: the success-edge idiom is certified (matrix-multiplication).
 - Result: all 20 rule-110 pairs `ordered` (18 large + 2 small; they were `latent-sc` after T10); the 3
   reduction pairs stay reported (the ticket idiom is acquire-unfenced).
 
 ## 6. Memory (`YOSEMITE_HB_STATS`, T5a's three programs)
 
-Job 294289, node c73 (125 GB), T12 runtime, same helper as T5a/T9 (`t5a_stats.py`), instance gate
+Job 294475 (re-run with the final library dca547a5; the first run, job 294289 with d6cb4c7b, agreed within 1 %), node c73 (125 GB), T12 runtime, same helper as T5a/T9 (`t5a_stats.py`), instance gate
 vs `YOSEMITE_HB_GATE=trusting`. Files: `eval/results/t12-stats/`.
 
 | program | gate | rc | wall s | peak RSS | vc entries (bytes) | released entries |
 |---|---|---|---|---|---|---|
 | tiled_gemm N=256 (no atomics) | instance | 0 | 84.3 | 4.55 GB | 67.1 M (2.73 GB) | 0 |
 | | trusting | 0 | 83.8 | 4.54 GB | 67.1 M (2.73 GB) | 0 |
-| reduction-norace-large | instance | 0 | 5.9 | 1.85 GB | 7.9 M (0.32 GB) | 3.46 M |
-| | trusting | 0 | 17.1 | 7.13 GB | 121.9 M (5.35 GB) | 6.78 M |
+| reduction-norace-large | instance | 0 | 5.0 | 1.85 GB | 7.9 M (0.32 GB) | 3.46 M |
+| | trusting | 0 | 17.7 | 7.17 GB | 121.9 M (5.35 GB) | 6.78 M |
 | Indigo3 CC push 1296n (300 s cap) | instance | 0 | 158.8 | 14.4 GB | kernel_1: 339.7 M (13.8 GB) | 0 (1,297 records, none published) |
 | | trusting | **1** | 178.9 | **118.5 GB** | 1.38 G (60.7 GB) at record 16,000 of kernel_1 | 1.83 M |
 
@@ -235,11 +244,14 @@ removes the RMW-join growth; the barrier-only ones are untouched (tiled_gemm).
 
 ## 7. P4/P5 GPU sweep, both modes
 
-Job 294290, node c53, one rep, the harness's 120 s cap: the 61 P4/P5 programs in both modes, first
-with the main runtime (cuVein f61c389's python, installed collector 7bafac9f / libsanalyzer), then
-with the T12 runtime (collector 5c503aa1, libsanalyzer d6cb4c7b), fresh recordings
+One rep, the harness's 120 s cap, the 61 P4/P5 programs in both modes, fresh recordings
 (`eval/baselines/setup/t12_eval.sh`, results `eval/results/t12-eval-{main,t12}/`, traces on BeeGFS
-`t12-eval-{main,t12}`). 122 (id, mode) rows, **11 differ, all vector-clock; scalar-clock identical**:
+`t12-eval-{main,t12}`): the main runtime (cuVein f61c389's python, installed collector 7bafac9f and
+libsanalyzer) in job 294290 on c53; the T12 runtime with the final library (collector 5c503aa1,
+libsanalyzer dca547a5) in job 294481 on c1 (both rtx4060ti16g, same hardware; a first T12 run on
+c53 with the pre-copy-on-write library d6cb4c7b is superseded, §7.1). 122 (id, mode) rows, **11
+differ**; 9 are vector-clock rows, the 2 scalar-clock ones keep their verdict and differ in report
+ids only (separate recordings, schedule differences):
 
 | program | label | main | T12 | note |
 |---|---|---|---|---|
@@ -249,17 +261,16 @@ with the T12 runtime (collector 5c503aa1, libsanalyzer d6cb4c7b), fresh recordin
 | graph-connectivity-norace-large | CLEAN | TIMEOUT (5.9 GB) | CLEAN (27 s, 1.1 GB) | finishes |
 | graph-connectivity-racy-large | RACE | TIMEOUT | RACE (27 s), structural 9 | finishes |
 | graph-connectivity-racy-small | RACE | RACE (17 s), structural 8 | RACE (2.4 s), structural 9 | +1 pair (re-score: 2 unfenced hand-offs) |
-| uts-norace-small | CLEAN | TIMEOUT (12.5 GB) | **RACE (38 s)**: model_bug 1, sc 17 | finishes; new FP, see below |
+| uts-norace-small | CLEAN | TIMEOUT (12.5 GB) | **RACE (20 s)**: model_bug 1, sc 17 | finishes; new FP, see below |
 | uts-racy-small | RACE | TIMEOUT (13.0 GB) | RACE (27 s): model_bug 2, structural 10, sc 17 | finishes |
-| matrix-multiplication-norace-small | CLEAN | CLEAN (62 s) | **TIMEOUT** | slower, see below |
-| matrix-multiplication-racy-small | RACE | RACE (65 s) | **TIMEOUT** | slower, see below |
+| graph-coloring-racy-small (scalar-clock) | RACE | RACE | RACE | report ids differ (schedule) |
+| uts-racy-small (scalar-clock) | RACE | RACE, race 10 | RACE, race 11 + sc 7 | report ids differ (schedule) |
 | norace_interwarp-block_fence-atom_hrd-indirect | CLEAN | CLEAN | RACE, structural 3 | D11, §4.3 |
 
-Every other row is identical, including all 8 ScoR fence races (`sc` 1 in both runs: the fresh
-recordings' schedules happen to leave them unordered already under the trusting gate) and the
-four SC `norace_*fence*` kernels (clean in both: in these recordings the pairs are ordered by
-the hand-off's dependency in R3 or not observed conflicting -- only the stored evcand traces of
-§4 show them).
+Every other row is identical, including all 8 ScoR fence races (`sc` 1 in both runs: in these fresh
+recordings the pair is already reported under the trusting gate) and the four SC `norace_*fence*`
+kernels (clean in both runs; the stored evcand traces of §4 are where the gate reports them; why
+these recordings differ was not investigated).
 
 **uts-norace-small (new Race verdict).** The one `model_bug` is an SC pair: two `volatile` stores
 (`STG.E.STRONG.SYS`, pc 0x470) to one address by warps 5 and 6 of block 45, recorded at seq 4,212
@@ -272,11 +283,43 @@ although the pair's class is SC. Not changed in T12 (verdict layer; a follow-up:
 not claim a same-pc pair whose instances lie in one segment, and `model_bug` on an SC pair should
 not count as a race). Under the trusting gate this program timed out, so the defect was invisible.
 
-**matrix-multiplication-small (regression).** See §7.1.
+Not in the table because their verdict is unchanged: `matrix-multiplication-{norace,racy}-small`
+now take 24 s / 8 s (main: 62 s / 65 s); `matrix-multiplication-*-large` and `uts-*-large` time out
+in both.
+
+### 7.1 A performance regression found and fixed
+
+The first T12 run (library d6cb4c7b) turned `matrix-multiplication-{norace,racy}-small` into
+TIMEOUTs (main: 62 s / 65 s). Profiled on c23 (`perf record`, job 294464): 223 s under the instance
+gate vs 117 s under the trusting gate, 56 % of the time in clock hash-map copies/joins and
+`malloc`/`free`. The gated path copied the full chain clock at every RMW (the held `J`) and built
+each release record from two further copies; on a spin lock every failed CAS paid that. Fix
+(c03d256): the chain clock is shared copy-on-write (`Released::clk` a `shared_ptr`, `Win::J` a
+pointer to it), copied only while a snapshot still holds it. Same node, same binary: 24 s instance
+vs 62 s trusting (job 294472). Green set with the fixed library: 297 passed, 2 skipped; Detect ==
+oracle 32/32 (job 294473); the 47 ScoR-parametrised gate tests pass.
 
 ## 8. Latent census after T12
 
-<!-- filled from the t12-census collect -->
+`latent_census.py collect --stores t12-after` (jobs 294291/294292, `normal`, the census's own caps)
+then `tables --out eval/results/t12-census` (generated files there; `detail/` not committed, as in
+T9-0). 554 programs with a vector-clock verdict (scalar-clock 593); one >= 2 GB program of the big
+shard was still in its 4 h cap when the tables were generated and is not in them.
+
+| | T9-0 (evcand, 3331d35) | after T12 (t12-after) |
+|---|---|---|
+| `latent` (DR) pc pairs | 50 on 20 programs | **0** |
+| latent-only TPs | 10 (all P5) | 0 |
+| latent FPs on race-free programs | 25 on 5 P4 programs | 0 |
+
+Where the ten latent-only races of T9-0 went: 8 fence/scope races -> reported in the run (`sc`,
+§4.3); `race_interblock_fence_rtraw` -> reported since T9 (I1); `race_interblock_none-lock_rtraw`
+-> `latent-sc` (T10 made its data strong; its fenced hand-off orders it in the recorded schedule, so
+it stays the one "ordered in this run only" case D8 describes). The 25 latent FPs: rule-110's 20 ->
+`ordered` (R3, §5), matrix-multiplication's 2 -> `ordered` (the success-edge fence), reduction's 3
+-> reported (`structural` 1 per size + SC; the ticket idiom, D11). This census version counts the DR
+class only (`latent`); `latent-sc` (T10) is not one of its columns, and its TP/FP totals include the
+effects of T9 and T10 as well as T12.
 
 ## What remains unverified
 
@@ -294,7 +337,7 @@ not count as a race). Under the trusting gate this program timed out, so the def
 - A `thread_scope_block` libcu++ acquire without an explicit fence is reported (the binary cannot
   show the acquire); none such is known in the corpus (the measurement above found no
   program where only this rule moved a verdict), but it was not searched for separately.
-- `P9-mr-cuda`, `P9-fpc-cuda`: not in the verdict comparison.
+- `P9-mr-cuda`, `P9-fpc-cuda`: no vector-clock verdict in any analysis (4 h cap / error).
 - Merge: `HbEngine` also changed in T5b (`perf/shared-base-clock`, unmerged); the gate's state lives in
   the T14 window and `released`, T5b's in `vc` -- expect a textual conflict in `process()`'s RMW
   block, not a semantic one; engine == oracle must be re-run after the rebase.
