@@ -12,7 +12,7 @@ set -u
 W=/home/fzheng4/AccelProf/.claude/worktrees/feat-instance-gate; A=/home/fzheng4/AccelProf
 IDS=$W/eval/baselines/setup/t12_eval_ids.txt
 for which in ${WHICHES:-main t12}; do
-  R=$A; [ $which = t12 ] && R=$W
+  R=$A; [ $which != main ] && R=$W
   TAG=t12-eval-$which
   (
     cd $R || exit 1
@@ -30,7 +30,7 @@ for which in ${WHICHES:-main t12}; do
 done
 cd $W
 .env/bin/python - <<'PY'
-import csv, glob, sys
+import csv, glob, os, sys
 sys.path.insert(0, "eval/baselines")
 import make_tables as mt
 man = {r["id"]: r for r in csv.DictReader(open("eval/baselines/manifest.csv"))}
@@ -40,7 +40,7 @@ def load(tag):
         for r in csv.DictReader(open(p)):
             out[(r["id"], r["mode"])] = r
     return out
-b, a = load("t12-eval-main"), load("t12-eval-t12")
+b, a = load("t12-eval-main"), load("t12-eval-" + os.environ.get("CMP", "t12"))
 chg = 0
 for k in sorted(set(a) | set(b)):
     rb, ra = b.get(k, {}), a.get(k, {})

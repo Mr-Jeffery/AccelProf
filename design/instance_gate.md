@@ -164,6 +164,15 @@ lives in that window:
 - **(4) Held pairs are resolved at kernel end** with `acq(r) = 1` (`q` does not exist), before
   `hb_races` is written (`emit` → `a2_close_all`).
 
+**Representation, since the rebase onto T5b** (`cuVein` b3bfdf3). The chain clock `Ch_ℓ`, its
+possible-clock part and the held `J` are T5b's `VClock`s (a shared immutable base, a delta above
+it, the owner's component), so holding `J` and building a release record copy O(delta), and the
+acquire at the close is T5b's `join_vc`. `Released` gains `has_clk` (⊥: the chain broke and no
+RMW has released since). Before the rebase the clocks were full maps; the instance gate then
+copied a full clock per RMW for the held `J`, which on spin locks doubled the engine's time
+(matrix-multiplication-small 223 s vs 117 s trusting under `perf`); a copy-on-write `shared_ptr`
+fixed it (24 s). On T5b that commit is dropped: 11.1 s instance vs 10.1 s trusting, same node.
+
 The oracle mirrors the deferral step for step instead of evaluating `acq` at `r`. Its race *set*
 is the same either way (the argument above, and §8's reference check proves it on the traces);
 mirroring keeps the aggregated records, their counts and their T14 `a2_uncertain` counts
@@ -213,6 +222,20 @@ flag moves no verdict). Under the trusting gate nothing changes.
   its own thread, a CAS acquire on the location from which the chain's first hop departs
   (`u -po-> c` with `c` that hop's atomic or observed on its location). Ablation:
   `CUVEIN_R3_BEFORE_ACQUIRE=0`.
+- **Landing on the unlock** (found by the soundness review after the rebase). `_past_release`
+  knew only a CAS as the acquire in force. With many threads on the same pcs a failed CAS hops to
+  another thread's unlock, so the chain can land directly on `v`'s own unlock (a non-CAS RMW on a
+  CAS-acquired location, `v`'s PO-previous RMW when `v` follows its unlock): the rtraw race was
+  certified. The hole predates T12 (the region rule landed there as well); `_past_release` now
+  fires on such a landing. Ablation: `CUVEIN_R3_LANDING=0`. The rule as a whole, its declines and
+  its assumptions (R3a–R3c) are stated in `hb_proof.tex` §5 "R3 as implemented".
+- **R1 has no same-pc form.** The code certified a same-pc pair when a barrier lies on every cycle
+  through the pc's region (`loop_scope`), which separates instances in different iterations only;
+  two threads executing the pc in one barrier segment are ordered by nothing static (P4
+  uts-norace-small: a `model_bug`, program RACE). R1 now certifies no same-pc pair, as the proof's
+  R1 says; `CUVEIN_R1_LOOP_SCOPE=1` restores the old form (ablation; unset = fixed, the default).
+  `model_bug` became an annotation on the raced pair's verdict (an SC pair with it is a Strong
+  conflict).
 
 ## 8. Checks
 

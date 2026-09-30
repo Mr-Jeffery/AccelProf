@@ -1,11 +1,42 @@
 # T12: the instance gate (I4) and R3's release point from the trace
 
-Branch `feat/instance-gate` (base `cuVein` f61c389). Design note: `design/instance_gate.md`. Proof:
-`design/proof/hb_proof.tex` (Definition "Gate" O2 sentence, §5 R3 amendments, §6 containment
-paragraph, §7 I4 row). Hardware: RTX 4060 Ti (sm_89, driver 580.82.07, CUDA 13.3) on
-`rtx4060ti16g` for every GPU step; CPU re-scores on `normal`. Python: `.env/bin/python`.
+Branch `feat/instance-gate`, **rebased onto `cuVein` b3bfdf3 (T5b merged) on 2026-09-30**
+(originally based on f61c389). Design note: `design/instance_gate.md`. Proof:
+`design/proof/hb_proof.tex` (Definition "Gate" O2 sentence, §5 "R3 as implemented" and the verdict
+matrix, fact (iv), §6 containment paragraph, §7 I4 row). Hardware: RTX 4060 Ti (sm_89, driver
+580.82.07, CUDA 13.3) on `rtx4060ti16g` for every GPU step; CPU re-scores on `normal`. Python:
+`.env/bin/python`.
 
-## Headline
+## State after the rebase onto T5b and the review (2026-09-30; details in §9)
+
+- **Engine on T5b's clock layout.** The gate's state (chain clock, held acquire `J`) is T5b's
+  `VClock` (shared base + delta); T12's copy-on-write commit is dropped (T5b's representation
+  makes the held `J` an O(delta) copy). Library `e527875d` (collector unchanged, `5c503aa1`).
+  matrix-multiplication-small: **11.1 s instance vs 10.1 s trusting** (same node; 62 s pre-T5b).
+- **Engine == oracle:** green set **305 passed, 2 skipped** (the 297 of §3 plus 8 new tests:
+  R3 on hand-built CFGs, `write_before_lock.cu` on a real trace, R1's same-pc rule, the
+  annotation); `gate_held.cu` re-recorded, held path both ways; Detect == oracle 32/32 under both
+  gates; 55/55 gate tests on the fresh artifacts; T5b's parity set: **60 of 60 programs, 412 kernels, 7,497,797 records, 0 mismatches, 0 `tv_violation`** (recorded under the instance gate; the other 5 of the 65 ids exceed the 120 s floor, as in T5b's run).
+- **R3 review (§9.3):** the rule is stated in `hb_proof.tex` §5 with its assumptions (R3a–R3c);
+  write-before-lock and rtraw are declined (unit tests with each decline switched off, and real
+  traces). The review found a hole older than T12: with many threads on the same pcs the chain
+  can land directly on the reader's own unlock and `_past_release` (CAS acquires only) certified
+  the rtraw race; closed (`CUVEIN_R3_LANDING=0` restores the old rule).
+- **R1 and `model_bug` (§9.4):** R1 certifies no same-pc pair (the code's cycle form over-claimed
+  pairs inside one barrier segment); `model_bug` is an annotation on the class's verdict.
+  **uts-norace-small: CLEAN in both modes** (the 0x470 pair is `sc`, no annotation); it was RACE
+  through the `model_bug` row in §7's sweep.
+- **Re-score (§9.5), all 594 kept programs, no GPU:** the review's changes (R1's same-pc fix, the
+  landing decline, the `model_bug` annotation) move **no verdict** in either mode at either
+  operating point; class changes only in uts (scalar-clock: norace `sc` 7 -> 8, racy `race` 10 -> 11,
+  `sc` 7 -> 8). The only `model_bug` annotations left are crs-cuda's old pre-T3b dump (142; a
+  fresh recording is CLEAN, T3b).
+- **P4/P5 GPU sweep with the rebased runtime (§9.6):** <<SWEEP>>
+- **Memory on T5b's clocks (§9.2):** Indigo3 CC push 1296n 6.9 GB / 9.9 s trusting vs **1.3 GB /
+  5.7 s instance** (`vc` 179 M -> 1.3 M entries, `released` 60 M -> 1.3 K); reduction-large and
+  tiled_gemm equal under both gates.
+
+## Headline (pre-rebase, 2026-09-29/30; superseded where §9 says so)
 
 - **Implemented** in `sync_dominance.py` (the predicate `fenced`, the fence inventory, R3),
   `atomic_scope_sidecar.py` (the gate table the engine reads), `hb_oracle.py` and `HbEngine` (the
@@ -321,6 +352,132 @@ it stays the one "ordered in this run only" case D8 describes). The 25 latent FP
 class only (`latent`); `latent-sc` (T10) is not one of its columns, and its TP/FP totals include the
 effects of T9 and T10 as well as T12.
 
+## 9. Rebase onto T5b and review (2026-09-30)
+
+### 9.1 The rebase
+
+`git rebase origin/cuVein` (b3bfdf3 = T5b merged; T5b changed only `HbEngine`, no Python). Two T12
+commits touched the engine and conflicted:
+
+- `02bed31` (was 6eb9c6a), the gate in `HbEngine`: resolved on T5b's file with T12's semantics
+  re-applied in T5b's terms -- `Released` holds `VClock`s plus `has_clk` (⊥), the held acquire `J`
+  and its possible-clock part are `VClock` copies (O(delta)), the close joins with `join_vc`, the
+  gated publish builds the chain clock as a join (`join_vc` into a copy of the previous one, or
+  `V(t)` when there is none), the trusting path is T5b's code unchanged.
+- `cc8449f` (was c03d256), the copy-on-write chain clock: its engine change is dropped (T5b's
+  `VClock` gives the same effect); the commit keeps its report and script changes.
+
+The oracle, predicate, sidecar and verdict layer replayed without conflict. Rebased library
+`e527875d` (GCC 12.4, `eval/baselines/setup/t12_build.sh`; the collector is unchanged).
+
+### 9.2 Verification on the rebased engine
+
+| check | result |
+|---|---|
+| green set + `test_instance_gate.py` (job 294732, all traces re-recorded incl. `gate_held`, `write_before_lock`) | **305 passed, 2 skipped** (the two ScoR-parametrised tests, collected before their artifacts; 55/55 afterwards on the login node) |
+| `design/algorithms_check.py --gate=instance` / `--gate=trusting` (same job) | 32/32 / 32/32 |
+| T5b's parity set (`setup/t5b_parity_ids.txt`, 65 ids, recorded with the rebased runtime, job 294662, 120 s floor; compared on CPU, job 294670) | **60 of 60 programs, 412 kernels, 7,497,797 records, 0 mismatches, 0 `tv_violation`** (P1 10, P3 10, P4 10, P5 10, P6 9, P7 1, PI 10; the green set's keys incl. `count` and `a2_uncertain`, `hb_races_sync_only`, the coherence profile, TV behaviour); the other 5 ids left no dump within the floor, the same 5 as T5b's run |
+| matrix-multiplication-small wall (job 294671, c-node rtx4060ti16g, `perf` off) | instance **11.1 s**, trusting 10.1 s (pre-T5b: trusting 62 s; T12 before copy-on-write 223 s under `perf`, after 24 s) |
+
+`HB_STATS` on T5a's three programs with the rebased library (job 294734, node c55, 125 GB;
+`eval/results/t12-stats-rebased/`):
+
+| program | gate | wall s | peak RSS | largest kernel: `vc` entries (bytes) | `released` entries |
+|---|---|---|---|---|---|
+| tiled_gemm N=256 (no atomics) | instance / trusting | 10.6 / 9.9 | 1.94 / 1.94 GB | 131 K (0.01 GB), 64 bases / same | 0 / 0 |
+| reduction-norace-large | instance / trusting | 1.7 / 1.7 | 1.29 / 1.30 GB | 31 K / 254 K | 41.6 K / 52.8 K |
+| Indigo3 CC push 1296n | instance / trusting | **5.7 / 9.9** | **1.33 / 6.93 GB** | **1.33 M (0.09 GB) / 179.3 M (3.05 GB)** | **1.3 K / 60.2 M (963 MB)** |
+
+On T5b's representation the gate still removes nearly all of CC push's clock state (its RMWs
+are unfenced, so they neither publish nor join); T5b alone takes the trusting run from
+OOM to 6.9 GB.
+
+### 9.3 R3: the review
+
+The rule as implemented is stated in `hb_proof.tex` §5 ("R3 as implemented (T12)"): release
+points and acquire points from the trace, release-fenced by `fenced`, hops, the covering rule, the
+two declines, the CAS-section fence, and three assumptions -- (R3a) instances of a pc are ordered
+alike (the observed hand-offs are the ones used; distances meet scopes only at the first hop),
+(R3b) locks are CAS-acquired and released by another RMW on the same location, (R3c) the RMWs
+around the observed instances are the same in every schedule.
+
+What the review checked, on hand-built CFGs (`python/test_instance_gate.py`, `test_r3_*`) where
+the trace facts are given exactly:
+
+| shape | result | the decline that matters (switched off: certified) |
+|---|---|---|
+| lock hand-off (write in one section, read in the next) | certified | -- |
+| write-before-lock, no fence before the lock | declined | no release point (scope none) |
+| write-before-lock, fence before the lock | declined | `_before_acquire` (`CUVEIN_R3_BEFORE_ACQUIRE=0` certifies) |
+| rtraw, two threads | declined | `_past_release`, CAS case (`CUVEIN_R3_PAST_RELEASE=0` certifies) |
+| rtraw, many threads on the same pcs (a failed CAS hops to another thread's unlock) | declined | `_past_release`, landing case -- **new**: the pre-T12 `_past_release` certifies it (`[0xa0, 0x30, 0xa0]`) |
+| fenced flag hand-off (no CAS on the location) | certified | -- |
+
+And on real traces: `write_before_lock.cu` (new; block 0 writes, fences, locks; block 1, delayed,
+locks and reads): vector-clock `latent`, scalar-clock RACE, `hb_chain` none; with
+`CUVEIN_R3_BEFORE_ACQUIRE=0` both ORDERED with a chain -- passed in job 294732 (the schedule was
+reached). The ScoR rtraw kernel keeps `test_write_after_unlock_is_event_candidate` green.
+
+The hole: before T12 the acquire side was region dominance (`po(n, v)`), and the landing atomic
+`n` could be the reader's own unlock reached by a hop, so the rtraw race was certified whenever
+the aggregated edges held a failed-CAS -> unlock hop (any lock with more than two contenders on
+shared pcs). T12's acquire point did not change that; `_past_release` now also fires when the
+landing atomic is a non-CAS RMW on a CAS-acquired location and precedes `v`. The verdict moves
+it causes are in §9.5.
+
+### 9.4 R1 and the `model_bug` annotation
+
+`uts-norace-small`'s `model_bug` (§7): R1's cycle form (`loop_scope`) certified a same-pc pair
+because a barrier lies on every cycle through the pc's region -- which separates the pc's
+instances in *different* iterations only. The two conflicting stores (warps 5 and 6 of block 45,
+seq 4,212 and 19,625) were both before the block's first barrier arrival. The proof's R1 never
+certifies a same-pc pair (one region; the empty path crosses no barrier), so the code now matches
+it (`CUVEIN_R1_LOOP_SCOPE=1` restores the old form; unset = the fixed behaviour, the default); a
+cross-iteration instance is ordered by the barrier-only clock where it runs. Named in the proof's
+fact (iv) as a closed deviation.
+
+`model_bug` is now an annotation: `_hb_class` returns the class (`structural` / `sc`), `judge`
+sets `model_bug` on the verdict, the verdict is the class's (an SC pair with it is a Strong
+conflict), `run_cuvein` writes `model_bug=<n>` beside `classes=`, `make_tables.py` shows it as an
+informational column (rows written before keep the old `model_bug` class and their RACE);
+`latent_census`, `classify_fp_causes`, `aggregate` read the annotation.
+
+uts after the fix, from the §7 sweep's own dumps (`t12-eval-t12`, `run_cuvein._analyze_reports`):
+
+| program | mode | R1 cycle form (CUVEIN_R1_LOOP_SCOPE=1) | R1 fixed (default) |
+|---|---|---|---|
+| uts-norace-small | vector-clock | CLEAN, `model_bug=1` (the 0x470 pair, `sc`) | **CLEAN**, `sc` 18, no annotation |
+| uts-norace-small | scalar-clock | CLEAN (0x470 R1-ordered), `sc` 7 | CLEAN, `sc` 8 (0x470 reported `sc`) |
+| uts-racy-small | vector-clock | RACE (structural 11), `model_bug=2` | RACE (structural 11) |
+| uts-racy-small | scalar-clock | RACE (race 11, `sc` 7) | RACE (race 11, `sc` 8) |
+
+### 9.5 Re-score of the kept stores
+
+Store `t12-after` (the gated oracle's `hb_races`; the oracle is unchanged by the rebase, T5b
+touched only the engine). Three analyses, all with this branch's verdict layer
+(`p_t12_analyze.sh`, jobs 294682/294683 over all 594 programs, 32 shards; the 36 programs queued
+behind P9 fpc-cuda and mr-cuda in shards 15 and 17 re-run separately, jobs 294836/294837, because
+`parallel.py analyze` flushes a shard's CSV only at its end): `after` (§4's run, the pre-rebase
+detector, 464 programs with an RMW), `r1old` (`CUVEIN_R1_LOOP_SCOPE=1 CUVEIN_R3_LANDING=0`: the
+annotation alone), `final` (defaults). Tables: `eval/results/t12-rescore/T12_REVIEW_TABLES.md`
+(`t12_rescore.py review`).
+
+| step | programs | verdict moves (either mode, Race u Latent and Race alone) | class moves |
+|---|---|---|---|
+| `after` -> `r1old` (`model_bug` becomes an annotation) | 464 | none | none |
+| `r1old` -> `final` (R1 certifies no same-pc pair; R3 declines a landing on the unlock) | 594 | none | uts-norace-small scalar-clock `sc` 7 -> 8; uts-racy-small scalar-clock `race` 10 -> 11, `sc` 7 -> 8 |
+
+P9 fpc-cuda and mr-cuda: 4 h analysis cap / error in every analysis, as in T9/T10 (not compared).
+The `model_bug` annotations left in `final`: P9 crs-cuda vector-clock, 142 -- its kept dump
+predates T3b (no exit records), so its barrier segments never complete; recorded afresh it is
+CLEAN in both modes (T3b). The landing decline moved nothing on the corpus: no judged pair of a kept program changed class
+between `r1old` and `final` other than uts's same-pc pairs, so no certificate there rested on a
+landing on an unlock; the decline is a soundness guard, pinned by the unit test.
+
+### 9.6 P4/P5 GPU sweep with the rebased runtime
+
+<<SWEEP_DETAIL>>
+
 ## What remains unverified
 
 - The containment paragraph (§6 of the proof) is an argument relative to the inventory: that every
@@ -332,12 +489,21 @@ effects of T9 and T10 as well as T12.
   record, the decision is taken on `t`'s window alone (a possible under-flag relative to T14's
   definition; not measured, 0 held conflicts on the corpus means the case needs a pending acquire,
   which is exactly the held path).
-- R3's acquire point and covering rule are pc-level: they assume the observed hand-offs are the ones
-  each instance used (the pre-T12 rule assumed more: any one chain).
+- R3 is a pc-level certificate under three assumptions stated in `hb_proof.tex` §5 (R3a instances
+  ordered alike / observed hand-offs are the ones used; R3b CAS-acquired locks -- a test-and-set lock
+  built from `EXCH` alone is not recognised; R3c the RMWs around the instances are the same in every
+  schedule). None of them is checked; vector-clock mode vetoes an over-ordering R3 on a trace where
+  an instance is unordered, scalar-clock mode cannot.
+- The landing decline (§9.3) is exercised only by the hand-built unit test: no kept program's
+  verdict or class depended on it.
+- `write_before_lock.cu` forces block 0 first by a delay (no memory access); the test skips when the
+  schedule is not reached. It was reached in job 294732.
 - A `thread_scope_block` libcu++ acquire without an explicit fence is reported (the binary cannot
   show the acquire); none such is known in the corpus (the measurement above found no
   program where only this rule moved a verdict), but it was not searched for separately.
 - `P9-mr-cuda`, `P9-fpc-cuda`: no vector-clock verdict in any analysis (4 h cap / error).
-- Merge: `HbEngine` also changed in T5b (`perf/shared-base-clock`, unmerged); the gate's state lives in
-  the T14 window and `released`, T5b's in `vc` -- expect a textual conflict in `process()`'s RMW
-  block, not a semantic one; engine == oracle must be re-run after the rebase.
+- The T5b merge is done (§9.1); engine == oracle re-checked on the green set and T5b's parity set.
+  The five parity programs that exceed the 120 s floor (as in T5b's own run) are not compared.
+- The re-score reads kept dumps: the gated oracle's `hb_races` there come from the oracle, not from
+  the rebased engine; the engine's own `hb_races` are checked against the oracle only on the
+  green-set and parity recordings.

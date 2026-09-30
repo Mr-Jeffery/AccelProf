@@ -16,7 +16,7 @@ export ACCEL_PROF_HOME=$W
 source eval/baselines/gpu_env.sh
 export PATH=/usr/local/cuda-13.3/bin:$PATH
 echo "host=$(hostname) $(nvidia-smi -i ${CUDA_VISIBLE_DEVICES:-0} --query-gpu=name,compute_cap --format=csv,noheader) mem=$(free -g | awk '/Mem:/{print $2}')G collector $(sha256sum $W/lib/libcompute_sanitizer.so | cut -c1-16) libsanalyzer $(sha256sum $W/sanalyzer/wt_install/lib/libsanalyzer.so | cut -c1-16) HEAD=$(git -C $W rev-parse --short HEAD)"
-EV=$W/eval/results/t12-stats; mkdir -p $EV
+EV=$W/eval/results/${STATS_DIR:-t12-stats}; mkdir -p $EV
 B=/mnt/beegfs/$USER/t12_bin; mkdir -p $B
 nvcc -arch=sm_89 -lineinfo --cudart shared -o $B/tiled_gemm python/testdata/scale/tiled_gemm.cu
 S="$PY eval/baselines/setup/t5a_stats.py --out $EV"
