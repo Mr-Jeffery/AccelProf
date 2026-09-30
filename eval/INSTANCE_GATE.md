@@ -303,8 +303,8 @@ oracle 32/32 (job 294473); the 47 ScoR-parametrised gate tests pass.
 
 `latent_census.py collect --stores t12-after` (jobs 294291/294292, `normal`, the census's own caps)
 then `tables --out eval/results/t12-census` (generated files there; `detail/` not committed, as in
-T9-0). 554 programs with a vector-clock verdict (scalar-clock 593); one >= 2 GB program of the big
-shard was still in its 4 h cap when the tables were generated and is not in them.
+T9-0). 554 programs with a vector-clock verdict (scalar-clock 593); `P9-mr-cuda` (scalar-clock, 113 GB) hit
+the 4 h analysis cap, as in T9-0, and is not in them.
 
 | | T9-0 (evcand, 3331d35) | after T12 (t12-after) |
 |---|---|---|
