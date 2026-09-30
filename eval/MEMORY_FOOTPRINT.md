@@ -200,6 +200,8 @@ scalar-clock mode holds; streaming the dump per buffer drain (T4) removes it.
 
 ## 4. Projected effect of T5b (shared-base main clock) — estimates
 
+*(Written before T5b; the measured effect is §7.)*
+
 T5b gives the main clock the sync-only clock's representation: one immutable base per sync
 group plus a per-thread delta (acquires since the last barrier) and own component; releases
 store a base pointer + delta. What the measured `vs` shows for the same programs:
@@ -238,9 +240,236 @@ restored (the `working-tree-2026-09-20` pin, from `b616cf9`), and the T8 pin is 
 
 ## 6. What remains unverified
 * Byte figures are estimates (node layouts; allocator slack not counted); counts are exact.
-* T5b's deltas (§4): not measured.
+* T5b's deltas (§4): not measured (measured in §7).
 * Native RSS: neither harness records it.
 * One ScoR app (reduction) and one Indigo3 program; sm_89 only.
 
 Green set with the T5a runtime (job 287963, c20): 136 passed, 1 xfailed
 (`test_relaxed_handoff_should_race`).
+
+## 7. After the fix: the shared-base main clock (T5b, measured)
+
+Branch `perf/shared-base-clock` (worktree `.claude/worktrees/t5b-shared-base-clock`), based on
+`cuVein` @ `f61c389` (T10 + T14 merged). 2026-09-29. Claude.md T5b. Legend as at the head of
+this file; **proved-in-effect** = an invariant checked over the stated traces.
+
+### 7.1 What changed (engine only; `hb_oracle.py` keeps full clocks — it is the spec)
+
+| commit | change | library |
+|---|---|---|
+| `2356ef3` | main clock `vc` = shared immutable **base** + per-thread **delta** (entries above the base) + **own** component; `sync_group` builds one base per group (each distinct input base joined once); a release stores base pointer + delta; an acquire puts a small base (≤ 64 entries) into the delta and merges a large one into a new base (memoised per base pair); a delta beyond an eighth of its base folds into a private base | `f7f92376` |
+| `b4cdfff` | T14's possible-clock deltas `pd` take the same representation (the next O(threads²) term: 1.69·10⁹ entries on CC push 1296n with `2356ef3`); `pd` is only read as `vc ⊔ pd`, so entries `vc` covers may stay | `14917f8a` |
+| `dba193b` | bases are **sorted flat vectors** (merge = one linear pass + one allocation, lookup = binary search, 16 B/entry); T14's cluster clocks `Comp.J` shared the same way; the merge memo holds weak references | `b8b1738e` |
+| `5ebb60f` | group joins merge bases pairwise (no sort of concatenated bases); `base_merge` reports whether its result equals an input (no separate covers scans); deltas fold at a 32nd of the base | **`c0fbc335`** (all measurements below unless stated) |
+| `5afd10b` | the sync-only clock `vs` (already one shared base per group, but node-based) takes the same flat bases and pairwise group join | `80971686` (branch head; §7.2 green set and parity, §7.5) |
+
+Every clock keeps its values, so no test on them can see the representation; §7.2 checks that
+rather than assuming it.
+
+### 7.2 Correctness
+
+* **Green set** (CLAUDE.md A4, every trace re-recorded with the worktree runtime):
+  287 passed + 1 xfail (`test_relaxed_handoff_should_race`) after each of the five commits
+  (jobs 293617, 293732, 293747, 293756, 293880; RTX 4060 Ti 16 GB, sm_89) — the count CLAUDE.md expects
+  after the T10 + T14 merge. The default tool path (no `YOSEMITE_HB_TRACE`) is identical to the
+  live runtime's, up to device addresses, on two ScoR programs in each of those jobs.
+* **Engine == oracle, proved-in-effect on 59 programs** (`setup/t5b_parity.py`, the green set's
+  keys: `hb_races` per aggregate key with `count` and `a2_uncertain`, `hb_races_sync_only`, the
+  coherence profile, and TV behaviour). 10 programs per pset, spread over the event-count range
+  of the finished baseline rows (`setup/t5b_parity_ids.txt`, 65 ids; P7 has 3 and P9 2 finished
+  rows), recorded with the T5b runtime (job 293761) and compared on CPU nodes (job 293784):
+  **59 of 59 programs, 394 kernels, 5,898,760 records, 0 mismatches** (P1 9, P3 10, P4 10,
+  P5 10, P6 9, P7 1, PI 10). The other 6 hit the 120 s floor of this recording and left no dump
+  (P1 CC_V_Topo_Pull 1296n, P6 interkernel writewrite racy, P7 bfs, P7 particlefilter, P9
+  crs-cuda, P9 overlap). None of the 394 kernels carries a `tv_violation`. Repeated with the
+  branch head `5afd10b` (library `80971686`; recording job 293881, comparison job 293889):
+  **60 of 60 programs, 410 kernels, 7,489,619 records, 0 mismatches, 0 `tv_violation`** (P1 10,
+  P3 10, P4 10, P5 10, P6 9, P7 1, PI 10; P1 CC_V_Topo_Pull 1296n now finishes within 120 s,
+  the other 5 above do not).
+* **Same revision, before/after**: the live runtime `7524d978` (= `f61c389` without T5b, job
+  293806) against the T5b runtime on the same 65 ids, same node pool (c74–c79), 120 s floor.
+  57 rows identical in verdict and report ids; 3 go TIMEOUT → verdict (P3
+  CC_V_Data_Pull_…Persist_Atomic_Block 100n RACE, P4 graph-coloring-racy-small RACE, P7
+  backprop CLEAN); 5 RACE rows differ in report ids (RAW/WAR orientation of the same pc pairs,
+  and a few pc pairs present in one run only; 3 of the 5 recorded different record counts). The
+  live engine also equals the oracle on all 56 of its dumps (job 293844), so each runtime
+  reports exactly `oracle(its trace)`: the five differ because the executions differ, not
+  because of T5b. Wall time on the 56 programs both finish: geomean **0.56×** (0.046× … 1.47×;
+  the 1.47× is a 1.2 s → 1.7 s run on two different nodes); peak RSS geomean 0.86×, worst 1.034×
+  (P4 1dconv-norace-large, 4.48 → 4.63 GB).
+
+### 7.3 T5a's three programs (before = live runtime `7524d978`, job 293642; after = `c0fbc335`, job 293762; both on c76, 125 GB)
+
+| program | before | after |
+|---|---|---|
+| tiled_gemm N=256 (barriers only) | 79.5 s, RSS 4.54 GB; `vc` 67,108,864 entries ≈ 2.73 GB | 15.9 s, 1.95 GB; `vc` 131,072 stored entries (64 bases × 1,024 + 65,536 own) ≈ 9.1 MB |
+| reduction, large (atomics across blocks) | 16.5 s, 7.20 GB; `vc` 121,896,960 ≈ 5.35 GB; releases 6,781,952 ≈ 0.28 GB | 2.8 s, 1.30 GB; `vc` 254,080 (30 bases) ≈ 6.8 MB; releases 52,966 ≈ 3.4 MB |
+| Indigo3 CC push 1296n (663,552 threads) | OOM-killed after 167 s at 119.7 GB in kernel 1 of 5; at 16,000 records: RSS 73.6 GB, `vc` 1.38·10⁹, `pd` 3.10·10⁸ entries | **17.9 s, 6.9 GB, all 5 kernels**; at 16,000 records: RSS 1.25 GB, `vc` 5.2·10⁶, `pd` 4.3·10⁶; end of kernel 1: `vc` 178.7 M stored (2,207 bases, largest 195,584) ≈ 3.05 GB, releases 58.0 M ≈ 0.93 GB, `pd` 114 M (1,161 bases) |
+
+`vc` after a barrier is O(threads) (tiled_gemm: two stored entries per thread), as the brief
+asks. Per commit, CC push 1296n on c76: `2356ef3` 271 s / 82.9 GB (`pd` then 1.69·10⁹ entries,
+job 293642), `b4cdfff` 70.6 s / 15.5 GB (job 293733), `5ebb60f` 17.9 s / 6.9 GB. P4
+graph-coloring-norace-large, vector-clock: TIMEOUT in the baselines; 356 s with `2356ef3` (the
+cancelled stage-1 sweep, job 293626, rows not kept); under perf at 29 Hz 84 s (`dba193b`, job
+293749), 60 s (pairwise joins, job 293752), 41 s (`5ebb60f`, job 293757); 36 s in the sweep
+(§7.4). Raw: `setup/t5b_stats/*.json` (`*-main` before, `*-t5b` after, `stage2-14917f8a/` for
+`b4cdfff`); `setup/t5b_stats_table.py` prints them.
+
+### 7.4 The acceptance set: `setup/engine_timeout_ids.txt` (58 programs, both modes)
+
+Job 293760 (16 shards, rtx4060ti16g, 125 GB nodes), one rep, T5b runtime `c0fbc335`, tool cap
+`min(max(10 × native, 1200 s), 1200 s)` — the 20-minute protocol P7/P9 were recorded under — so a
+row says whether the program finishes at all, and its wall whether it does so within 120 s.
+Baseline column = the committed baseline row (vector-clock, earlier detector revisions).
+Categories: T6's SASS classification (`design/T6_REVIEW.md`), re-derived with
+`setup/t6_sass_scan.py` section 3. Regenerate with
+`.env/bin/python eval/baselines/setup/t5b_sweep_table.py`.
+
+| program | baseline vector-clock | T5b vector-clock | T5b scalar-clock |
+|---|---|---|---|
+| **barriers, no atomics** (10) | | | |
+| P7-heartwall-cuda | TIMEOUT 79.3 GB | TIMEOUT 1200 s, 98.0 GB | TIMEOUT 1200 s, 82.9 GB |
+| P7-hotspot-cuda | TIMEOUT 6.5 GB | CLEAN 522 s, 2.2 GB | CLEAN 135 s, 1.1 GB |
+| P7-lavaMD-cuda | TIMEOUT 34.9 GB | TIMEOUT 1200 s, 102.5 GB | ERROR 671 s, 181.0 GB |
+| P7-particlefilter-cuda | RACE 117.4 GB | TIMEOUT 1230 s, 121.6 GB | TIMEOUT 1217 s, 121.6 GB |
+| P7-pathfinder-cuda | TIMEOUT 92.9 GB | TIMEOUT 1200 s, 30.3 GB | TIMEOUT 1200 s, 7.6 GB |
+| P7-srad-cuda | TIMEOUT 3.6 GB | TIMEOUT 1200 s, 1.6 GB | TIMEOUT 1200 s, 1.0 GB |
+| P7-stencil1d-cuda | ERROR 119.0 GB | ERROR 721 s, 115.8 GB | TIMEOUT 1200 s, 82.4 GB |
+| P9-dxtc2-cuda | TIMEOUT 13.1 GB | TIMEOUT 1200 s, 11.1 GB | TIMEOUT 1200 s, 4.4 GB |
+| P9-knn-cuda | TIMEOUT 68.2 GB | TIMEOUT 1204 s, 119.3 GB | TIMEOUT 1200 s, 96.3 GB |
+| P9-tridiagonal-cuda | TIMEOUT 49.9 GB | TIMEOUT 1200 s, 39.8 GB | TIMEOUT 1200 s, 14.6 GB |
+| **atomics + barriers** (30) | | | |
+| P1-CC_V_Data_Pull_…1296n | TIMEOUT 32.7 GB | RACE 157 s, 20.7 GB | RACE 12 s, 1.0 GB |
+| P1-CC_V_Data_Pull_…1296n | TIMEOUT 32.8 GB | RACE 74 s, 22.0 GB | RACE 8 s, 1.0 GB |
+| P1-CC_V_Data_Pull_…100n | TIMEOUT 32.2 GB | RACE 2 s, 1.0 GB | RACE 1 s, 0.8 GB |
+| P1-CC_V_Data_Pull_…1296n | TIMEOUT 40.6 GB | RACE 215 s, 6.1 GB | RACE 12 s, 1.0 GB |
+| P1-CC_V_Data_Pull_…100n | TIMEOUT 34.4 GB | RACE 4 s, 1.0 GB | RACE 2 s, 0.8 GB |
+| P1-CC_V_Data_Pull_…1296n | TIMEOUT 63.4 GB | RACE 108 s, 6.2 GB | RACE 8 s, 1.0 GB |
+| P1-CC_V_Data_Pull_…1296n | TIMEOUT 34.0 GB | RACE 39 s, 24.0 GB | RACE 5 s, 1.0 GB |
+| P1-CC_V_Data_Pull_…1296n | TIMEOUT 34.1 GB | RACE 39 s, 24.5 GB | RACE 5 s, 1.0 GB |
+| P1-CC_V_Data_Pull_…100n | TIMEOUT 32.5 GB | RACE 2 s, 1.0 GB | RACE 1 s, 0.8 GB |
+| P1-CC_V_Data_Pull_…1296n | ERROR | RACE 77 s, 6.1 GB | RACE 6 s, 1.0 GB |
+| P1-CC_V_Data_Pull_…100n | RACE 31.6 GB | RACE 4 s, 1.0 GB | RACE 2 s, 0.8 GB |
+| P1-CC_V_Data_Pull_…1296n | TIMEOUT 62.6 GB | RACE 79 s, 6.2 GB | RACE 6 s, 1.0 GB |
+| P1-CC_V_Data_Push_…1296n | TIMEOUT 124.5 GB | RACE 19 s, 6.8 GB | RACE 4 s, 1.0 GB |
+| P1-CC_V_Data_Push_…1296n | TIMEOUT 121.6 GB | RACE 10 s, 6.9 GB | RACE 2 s, 1.0 GB |
+| P1-CC_V_Data_Push_…1296n | TIMEOUT 89.2 GB | RACE 19 s, 5.6 GB | RACE 2 s, 1.0 GB |
+| P1-CC_V_Data_Push_…1296n | TIMEOUT 88.8 GB | RACE 35 s, 5.6 GB | RACE 4 s, 1.0 GB |
+| P3-CC_V_Data_Pull_…100n | TIMEOUT 79.0 GB | RACE 7 s, 1.3 GB | RACE 1 s, 0.8 GB |
+| P3-CC_V_Data_Pull_…100n | TIMEOUT 67.8 GB | RACE 6 s, 1.4 GB | RACE 1 s, 0.8 GB |
+| P4-graph-coloring-norace-large | TIMEOUT 1.7 GB | CLEAN 36 s, 1.9 GB | CLEAN 1 s, 0.8 GB |
+| P4-graph-coloring-racy-large | TIMEOUT 1.8 GB | RACE 51 s, 1.8 GB | RACE 2 s, 0.8 GB |
+| P4-graph-connectivity-norace-large | TIMEOUT 3.1 GB | CLEAN 268 s, 3.0 GB | CLEAN 2 s, 0.9 GB |
+| P4-graph-connectivity-racy-large | TIMEOUT 3.0 GB | RACE 427 s, 3.2 GB | RACE 2 s, 0.9 GB |
+| P4-matrix-multiplication-norace-large | TIMEOUT 6.1 GB | CLEAN 705 s, 15.5 GB | CLEAN 42 s, 10.9 GB |
+| P4-matrix-multiplication-racy-large | TIMEOUT 4.2 GB | RACE 806 s, 16.6 GB | RACE 45 s, 10.9 GB |
+| P4-uts-norace-large | TIMEOUT 14.0 GB | CLEAN 805 s, 6.0 GB | CLEAN 7 s, 2.5 GB |
+| P4-uts-norace-small | TIMEOUT 12.1 GB | CLEAN 26 s, 1.8 GB | CLEAN 1 s, 0.9 GB |
+| P4-uts-racy-large | TIMEOUT 14.3 GB | RACE 802 s, 6.5 GB | RACE 7 s, 2.5 GB |
+| P4-uts-racy-small | TIMEOUT 12.0 GB | RACE 26 s, 1.8 GB | RACE 1 s, 0.9 GB |
+| P9-expdist-cuda | TIMEOUT 44.4 GB | TIMEOUT 1200 s, 5.7 GB | TIMEOUT 1200 s, 59.8 GB |
+| P9-fpc-cuda | ERROR 122.4 GB | ERROR 1160 s, 118.3 GB | CLEAN 258 s, 1.3 GB |
+| **atomics only** (8) | | | |
+| P1-BFS_V_Data_Pull_…1296n | TIMEOUT 9.9 GB | CLEAN 73 s, 5.2 GB | CLEAN 3 s, 0.9 GB |
+| P1-CC_V_Data_Pull_…1296n | TIMEOUT 37.5 GB | RACE 17 s, 3.4 GB | RACE 2 s, 0.8 GB |
+| P1-CC_V_Data_Pull_…1296n | TIMEOUT 40.6 GB | RACE 17 s, 3.6 GB | RACE 1 s, 0.8 GB |
+| P1-CC_V_Data_Pull_…1296n | TIMEOUT 41.8 GB | RACE 23 s, 3.5 GB | RACE 2 s, 0.8 GB |
+| P1-CC_V_Data_Pull_…1296n | TIMEOUT 41.5 GB | RACE 24 s, 3.7 GB | RACE 2 s, 0.8 GB |
+| P9-atomicCAS-cuda | TIMEOUT 32.4 GB | TIMEOUT 1200 s, 73.1 GB | TIMEOUT 1200 s, 0.8 GB |
+| P9-gpp-cuda | TIMEOUT 140.9 GB | TIMEOUT 1200 s, 73.4 GB | CLEAN 61 s, 2.2 GB |
+| P9-mr-cuda | TIMEOUT 1.7 GB | ERROR 693 s, 1.0 GB | ERROR 177 s, 0.9 GB |
+| **neither** (10) | | | |
+| P6-asyncmemcpy-kernel_memcpy_dtoh_race-fixed | TIMEOUT 18.3 GB | TIMEOUT 1200 s, 123.7 GB | ERROR 598 s, 181.3 GB |
+| P6-asyncmemcpy-kernel_memcpy_dtoh_race-racy | ERROR 119.8 GB | TIMEOUT 1200 s, 125.2 GB | TIMEOUT 1201 s, 165.7 GB |
+| P6-asyncmemcpy-memcpy_htod_kernel_race-racy | TIMEOUT 83.1 GB | CLEAN 231 s, 100.1 GB | CLEAN 77 s, 16.0 GB |
+| P6-interkernel-global_writewrite_race-fixed | TIMEOUT 10.2 GB | CLEAN 255 s, 11.7 GB | CLEAN 252 s, 11.7 GB |
+| P6-interkernel-global_writewrite_race-racy | CLEAN 11.1 GB | CLEAN 252 s, 11.1 GB | CLEAN 248 s, 11.1 GB |
+| P7-bezier-surface-cuda | TIMEOUT 32.3 GB | ERROR 713 s, 102.6 GB | ERROR 815 s, 102.7 GB |
+| P7-bitonic-sort-cuda | TIMEOUT 18.7 GB | TIMEOUT 1200 s, 21.2 GB | TIMEOUT 1200 s, 4.3 GB |
+| P7-haversine-cuda | TIMEOUT 28.7 GB | TIMEOUT 1200 s, 28.3 GB | TIMEOUT 1200 s, 10.1 GB |
+| P7-mandelbrot-cuda | TIMEOUT 2.7 GB | TIMEOUT 1200 s, 2.6 GB | TIMEOUT 1200 s, 1.2 GB |
+| P7-nbody-cuda | TIMEOUT 114.3 GB | TIMEOUT 1200 s, 99.0 GB | TIMEOUT 1200 s, 43.3 GB |
+
+| category | programs | vector-clock finishes | … within 120 s | scalar-clock finishes |
+|---|---|---|---|---|
+| barriers, no atomics | 10 | 1 | 0 | 1 |
+| atomics + barriers | 30 | 28 | 20 | 29 |
+| atomics only | 8 | 5 | 5 | 6 |
+| neither | 10 | 3 | 0 | 3 |
+| all | 58 | 37 | 25 | 39 |
+
+**Reading.**
+* **Atomics + barriers and atomics only (38 programs; the regime T5b targets)**: every P1, P3
+  and P4 program of the set (33) now finishes in vector-clock mode (baseline rows: 31 TIMEOUT,
+  1 ERROR, 1 RACE). The P9 ones do not: expdist and atomicCAS time out in scalar-clock mode too; gpp and
+  fpc finish in scalar-clock mode (61 s, 258 s) and not in vector-clock mode (§7.5); mr's
+  collection completes in both modes (vector-clock 693 s at 1.0 GB, scalar-clock 177 s; 1,600
+  kernels, 35 GB of dumps each) and its ERROR is the offline analysis exceeding the 3,600 s
+  analysis cap in both modes (T7's benchmark case), not the engine. Counting verdicts:
+  33 of 38 finish, 25 within 120 s.
+* **Barriers, no atomics (the brief's acceptance set, 10)**: only hotspot finishes (vector-clock
+  522 s, scalar-clock 135 s). The other 9 do not finish **in scalar-clock mode either**, where
+  the engine does not run: in 1,200 s scalar-clock writes 100–252 GB of `hb_events` without
+  reaching the end (heartwall 252 GB, tridiagonal 178 GB, srad and pathfinder 164 GB, dxtc2
+  151 GB, stencil1d 115 GB, knn 101 GB), lavaMD dies at 181 GB RSS, particlefilter reaches the
+  node's 125 GB in both modes (the kernel's whole `hb_events` is held in RAM, §2.4). So "all 10
+  finish under 120 s" is **not reachable through the clock**: it is bounded by the trace path —
+  per-record serialisation on the drain path and in-RAM buffering, i.e. T4 (streaming, compact
+  `hb_events`). What T5b removes for them is the `sync_group` copy (tiled_gemm, §7.3).
+* **Neither (10)**: no engine synchronisation work; the 3 P6 programs that finish do so in both
+  modes with near-equal walls, the rest time out or run out of memory in both modes.
+* **Against the brief's bars.** "All 10 barrier-only programs finish under the 120 s cap": **not
+  met** — 0 of 10 within 120 s, 1 of 10 at all — and not reachable by the engine, since 9 of
+  them do not finish without it. "At least half of the rest": **met** — 25 of the other 48
+  finish within 120 s in vector-clock mode (36 within 1,200 s), all 25 P1/P3/P4 programs with
+  atomics; in the baseline rows 2 of the 48 had a vector-clock verdict. `vc` after a barrier is
+  O(threads) (§7.3), `tv_violation` is 0 on every T5b dump checked (§7.2), engine == oracle holds
+  on 59/59 programs (§7.2).
+
+### 7.5 What remains in the engine
+
+* **Long release/acquire chains without barriers** (P9 gpp: 6 atomic counters hit by every
+  thread; under the trusting gate each RMW acquires the previous one). Each thread's clock is
+  its predecessor's plus an entry, so the clocks are genuinely distinct and a base + delta cannot
+  share them. With library `80971686` (this branch + the `vs` change below), 600 s cap, at
+  400,000 records: RSS 28.2 GB, `vc` 260.7 M stored entries of which 215.9 M are deltas over
+  166,752 threads (largest 4,415; 1,173 bases, largest 142,176), `pd` 593.8 M
+  (`setup/t5b_stats/gpp-next.json`, job 293860). The fix is a persistent map (e.g. a HAMT:
+  O(log n) new nodes per update, versions share the rest) — not implemented. T12's gate removes
+  the hand-offs whose RMWs are unfenced, which may shorten such chains.
+* **Barrier-heavy kernels spend most of their engine time outside the clocks.** hotspot,
+  vector-clock, perf with DWARF call graphs (job 293875): the collector's drain callback is 85 %
+  of samples, `HbEngine::process` 56 % inclusive; malloc/free/consolidate together are ≈ 32 %
+of all samples (flat profile, job 293859). Flat
+  bases for the sync-only clock `vs` too (below) make hotspot 557 → 522 s on one node (job
+  293859). The inlined callees of `process` did not resolve, so how the rest splits between the
+  per-(location, thread) buckets (T9), barrier assembly and the checks is **not measured**.
+
+### 7.6 Commands
+
+```
+W=<worktree> sbatch -p rtx4060ti16g -x c54,c2 eval/baselines/setup/wt_runtime.sh   # private runtime (GPU partition: the relink needs /usr/local/cuda)
+sbatch -p rtx4060ti16g -x c54,c2 eval/baselines/setup/t5b_check.sh                  # default path + green set
+RUNTIMES="main t5b" sbatch -p rtx4060ti16g -w c76 eval/baselines/setup/t5b_stats.sh # §7.3
+TAG=t5b-final-timeout sbatch eval/baselines/setup/p_t5b_timeout.sh                  # §7.4
+IDS=eval/baselines/setup/t5b_parity_ids.txt TAG=t5b-final-parity BASELINE_MODES=vector-clock FLOOR=120 \
+  sbatch --array=0-7 eval/baselines/setup/p_t5b_timeout.sh                          # §7.2 recording (RT=<checkout>: another runtime)
+TAG=t5b-final-parity sbatch eval/baselines/setup/p_t5b_parity_cmp.sh                # §7.2 engine == oracle
+ID=<manifest id> sbatch -p rtx4060ti16g eval/baselines/setup/t5b_profile.sh         # perf (DWARF= for frame pointers only)
+ID=<id> RTS="<checkout> <checkout>" sbatch -p rtx4060ti16g eval/baselines/setup/t5b_ab.sh   # same-node A/B
+```
+Stores: `/mnt/beegfs/fzheng4/cuvein_traces/{t5b-final-timeout,t5b-final-parity,t5b-before-parity}`;
+rows `eval/results/{t5b-final-timeout,t5b-final-parity,t5b-before-parity}/`; parity details
+`eval/baselines/setup/t5b_parity/<tag>/`. Toolchain: GCC 12.4.0 (/opt/ohpc), `-g -O3
+-mtune=znver4`, CUDA 13.3, driver 580.82.07; RTX 4060 Ti 16 GB (sm_89), 125 GB RAM nodes.
+**Build gotcha:** `wt_runtime.sh` relinked the private collector from the main checkout's
+`nv-compute/lib/obj`, which predate T1a (no pipeline commit/wait callbacks: 24 green-set
+failures, the first `test_cp_async`'s commit/wait tripwire; job 293612); the live collector `7bafac9f` was linked from the T1a
+objects in `/home/fzheng4/wt-T1a-review/install_stage/obj`, now the default `OBJ`.
+
+### 7.7 What remains unverified
+* Byte figures are estimates (layouts; allocator slack not counted); entry counts are exact.
+* sm_89 only; one rep per program; walls on shared nodes (the A/B pairs ran on one node).
+* §7.5's attribution inside `process`; the persistent-map fix for chains.
+* The 9 barrier-only programs that time out did not run to completion in either mode, so
+  whether T5b alone would let them finish under a larger cap is unknown.
