@@ -11,7 +11,7 @@
 set -u
 W=/home/fzheng4/AccelProf/.claude/worktrees/feat-instance-gate; A=/home/fzheng4/AccelProf
 IDS=$W/eval/baselines/setup/t12_eval_ids.txt
-for which in main t12; do
+for which in ${WHICHES:-main t12}; do
   R=$A; [ $which = t12 ] && R=$W
   TAG=t12-eval-$which
   (

@@ -90,7 +90,10 @@ struct HbEngine {
     // T12: clk is the chain clock Ch_loc, a join (has_clk false: bottom -- the chain broke and
     // no RMW has released since); block/scope label the last RMW on the location. Under the
     // trusting gate has_clk is always true and clk is the last RMW's post-acquire clock.
-    struct Released { Clock clk; uint64_t block; int scope; Clock pd; bool has_clk = true; };
+    // clk is shared copy-on-write: a window's held acquire J (T12) is a pointer to the chain clock
+    // it saw, and a publish copies only while such a snapshot is still held.
+    struct Released { std::shared_ptr<Clock> clk; uint64_t block; int scope; Clock pd;
+                      bool has_clk = true; };
     // keyed by location, not raw address: shared-memory addresses are per-block
     // offsets, so with >1 block another block's release on the same offset would
     // clobber this block's and its next acquire would miss it (spurious atomic race).
@@ -357,7 +360,8 @@ struct HbEngine {
         // T12, the instance gate: this RMW's pc, rel(r), and the deferred acquire J (+ its
         // possible-clock part) with what Check(r) held on it
         bool g = false, g_rel = true, g_hasj = false; uint32_t g_pc = 0;
-        Clock J, Jpd;
+        std::shared_ptr<const Clock> J;                     // the chain clock at r (shared)
+        Clock Jpd;
         std::vector<GHeld> gheld;
         std::vector<GDefer> gdefer;
     };
@@ -453,13 +457,13 @@ struct HbEngine {
             } else {
                 if (st.has_prev && st.prev.scope != SCOPE_NONE) {   // the single RMW before
                     Comp& c = st.comps[comp_add(st.comps, st.prev.scope, st.prev.block, false)];
-                    if (st.prev.has_clk) { join_into(c.J, st.prev.clk); join_into(c.J, st.prev.pd); }
+                    if (st.prev.has_clk) { join_into(c.J, *st.prev.clk); join_into(c.J, st.prev.pd); }
                 }
                 const auto rit = released.find(loc);        // the first member, as published
                 if (rit != released.end() && rit->second.scope != SCOPE_NONE) {
                     Comp& c = st.comps[comp_add(st.comps, rit->second.scope, rit->second.block, true)];
                     if (rit->second.has_clk) {              // (T12: bottom = nothing released)
-                        join_into(c.J, rit->second.clk); join_into(c.J, rit->second.pd);
+                        join_into(c.J, *rit->second.clk); join_into(c.J, rit->second.pd);
                     }
                 }
             }
@@ -469,7 +473,7 @@ struct HbEngine {
         Win& w = wins[t];
         w.loc = loc; w.scope = scope; w.ep = own(t); w.blk = blk; w.pend.clear(); w.held.clear();
         w.g = false; w.g_rel = true; w.g_hasj = false; w.g_pc = 0;           // T12
-        w.J.clear(); w.Jpd.clear(); w.gheld.clear(); w.gdefer.clear();
+        w.J.reset(); w.Jpd.clear(); w.gheld.clear(); w.gdefer.clear();
         win_lanes[((t >> 10) << 5) | ((t >> 5) & 31)] |= 1u << (t & 31);
     }
     // t's next record (pc nxt - 1; nxt = 0: the end of the kernel) closes its window: under the
@@ -483,7 +487,7 @@ struct HbEngine {
             grel = g.g_rel;
             acq = nxt == 0 || gate_listed(g.g_pc, nxt - 1, false);
             if (acq) {                                      // the deferred acquire
-                if (g.g_hasj) { join_into(vc[t], g.J); pd_join(t, g.Jpd); }
+                if (g.g_hasj) { join_into(vc[t], *g.J); pd_join(t, g.Jpd); }
             } else {                                        // no acquire: report what it held
                 for (const GHeld& h : g.gheld)
                     g.gdefer.push_back(GDefer{report(h.addr, h.space, h.loc_block, h.u, h.e, t,
@@ -689,7 +693,7 @@ struct HbEngine {
         if (p.clock > clk_get(vc[obs], p_tid)) {
             const uint64_t te = clk_get(vc[t], t);
             const Loc loc{space, space == 1 ? loc_block : 0, addr};
-            if (gw != nullptr && p.clock <= clk_get(gw->J, p_tid)) {
+            if (gw != nullptr && p.clock <= clk_get(*gw->J, p_tid)) {
                 gw->gheld.push_back(GHeld{p_tid, p, pc, kind, sc, addr, space, loc_block, te});
             } else {
                 const size_t idx = report(addr, space, loc_block, p_tid, p, t, pc, kind, sc);
@@ -1009,7 +1013,7 @@ struct HbEngine {
                         const int eff = std::min(pit->second.scope, rit->second.scope);
                         chain_ok = eff == SCOPE_GRID || (eff == SCOPE_BLOCK && rit->second.block == a.ctaId);
                         if (chain_ok && gate == nullptr) {
-                            join_into(vc[t], rit->second.clk);
+                            join_into(vc[t], *rit->second.clk);
                             pd_join(t, rit->second.pd);             // T14
                         }
                     }
@@ -1019,7 +1023,7 @@ struct HbEngine {
                         w.g_pc = pc;
                         w.g_rel = prev == 0 || gate_listed(pc, prev - 1, true);
                         w.g_hasj = chain_ok && rit->second.has_clk;
-                        if (w.g_hasj) { w.J = rit->second.clk; w.Jpd = rit->second.pd; }
+                        if (w.g_hasj) { w.J = rit->second.clk; w.Jpd = rit->second.pd; }   // J: a pointer
                         if (w.g_hasj) gw = &w;
                     }
                 }
@@ -1041,16 +1045,25 @@ struct HbEngine {
                     // then tick. Overwriting equals Algorithm 1's join under the trusting gate.
                     Clu& st = clus[loc];                            // T14
                     const auto rit2 = released.find(loc);
-                    Released nr{vc[t], a.ctaId, pit->second.scope, pd_of(t)};
-                    if (gate != nullptr) {
+                    Released nr{nullptr, a.ctaId, pit->second.scope, Clock{}, false};
+                    if (gate == nullptr) {
+                        nr.clk = std::make_shared<Clock>(vc[t]); nr.pd = pd_of(t); nr.has_clk = true;
+                    } else {
                         // T12: Ch_loc is a join; it breaks when r is not ms with the last RMW;
                         // only a releasing r publishes; the label is always r's
-                        nr.clk.clear(); nr.pd.clear(); nr.has_clk = false;
                         if (chain_ok && rit2->second.has_clk) {
                             nr.clk = rit2->second.clk; nr.pd = rit2->second.pd; nr.has_clk = true;
                         }
                         if (wins[t].g_rel) {
-                            join_into(nr.clk, vc[t]); join_into(nr.pd, pd_of(t)); nr.has_clk = true;
+                            if (!nr.clk) nr.clk = std::make_shared<Clock>(vc[t]);
+                            else {       // copy-on-write: in place only if the old record's
+                                         // reference (rit2, dropped below) is the only other one
+                                const bool keeps_prev = st.members == 1 && st.need_prev;
+                                if (nr.clk.use_count() > 2 || keeps_prev)
+                                    nr.clk = std::make_shared<Clock>(*nr.clk);
+                                join_into(*nr.clk, vc[t]);
+                            }
+                            join_into(nr.pd, pd_of(t)); nr.has_clk = true;
                         }
                     }
                     const bool contributes = gate == nullptr || wins[t].g_rel;
@@ -1058,7 +1071,7 @@ struct HbEngine {
                         Comp* c = comp_of(st.comps, pit->second.scope, a.ctaId);   // its component
                         if (c != nullptr) {
                             if (gate == nullptr) { join_into(c->J, vc[t]); join_into(c->J, pd_of(t)); }
-                            else { join_into(c->J, nr.clk); join_into(c->J, nr.pd); }
+                            else { join_into(c->J, *nr.clk); join_into(c->J, nr.pd); }
                         }
                     }
                     if (rit2 == released.end()) {
@@ -1109,8 +1122,9 @@ struct HbEngine {
         uint64_t rel_entries = 0;
         uint64_t rel_bytes = released.size() * mchunk(32 + sizeof(decltype(released)::value_type));
         for (const auto& kv : released) {
-            rel_entries += kv.second.clk.size();
-            rel_bytes += clock_bytes(kv.second.clk);
+            if (!kv.second.clk) continue;
+            rel_entries += kv.second.clk->size();
+            rel_bytes += clock_bytes(*kv.second.clk);
         }
         uint64_t bk_groups = 0, bk_entries = 0;
         uint64_t bk_bytes = buckets.size() * mchunk(32 + sizeof(decltype(buckets)::value_type));
@@ -1161,7 +1175,7 @@ struct HbEngine {
             multi += kv.second.has_comps && kv.second.members >= 2;
             for (const auto* cs : {&kv.second.comps, &kv.second.inflow})
                 for (const Comp& c : *cs) clu_entries += c.J.size();
-            clu_entries += kv.second.prev.clk.size();
+            if (kv.second.prev.clk) clu_entries += kv.second.prev.clk->size();
         }
         for (const auto& kv : released) rel_pd += kv.second.pd.size();
         o << ", \"a2\": {\"pd_threads\": " << pd.size() << ", \"pd_entries\": " << pd_entries
