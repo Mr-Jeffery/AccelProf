@@ -32,7 +32,7 @@
 \algnewcommand{\algorithmicreport}{\textbf{report}}\algnewcommand{\Report}{\algorithmicreport{} }
 
 \title{Happens-Before Data-Race Detection for GPU Kernels:\\ Model, Algorithm, Proofs}
-\date{2026-09-28 --- against \texttt{cuVein} 6c34736 (T3b, T9 and T13 merged); revised after the latent census (T9-0), reviewed (T6), revised on T6's and T13's findings}
+\date{2026-09-30 --- against \texttt{cuVein} 7849a70 (T3b, T9, T10, T13, T14, T15, T5b and T12 merged); revised after the latent census (T9-0), reviewed (T6), revised on the findings of T6, T13, T14, T15 and T12}
 
 \emergencystretch=2em
 \begin{document}
@@ -83,7 +83,12 @@ leaves the model (Definition~\ref{def:records}; I5 by exclusion, D14); the fence
 instructions of Definition~\ref{def:gate} come from the per-architecture inventory,
 which on sm\_89 is not \texttt{MEMBAR} alone (T6, T13); the vector clock's memory fix
 precedes the gate in the order of work; A2 stays an assumption with a measured rate and
-a report flag (D15).
+a report flag (D15). \emph{T10, T14, T15} (2026-09-29): the strength rule (D9; classes only,
+\S\ref{sec:impl}), the \texttt{a2\_uncertain} flag and the window count, the late ordering
+key measured and not adopted (\S\ref{sec:impl}, ``A2 observed to fail''). \emph{T5b, T12}
+(2026-09-30): the shared-base clock (no clock value changes; engine equals the oracle on 60
+programs, 412 kernels) and the instance gate on it (I4 matched; \S\ref{sec:verdict} states R3
+as implemented, with the same-pc R1 over-claim and the landing-on-the-unlock hole closed).
 
 %=============================================================================
 \section{Trace model}\label{sec:model}
@@ -1038,13 +1043,21 @@ windows a later record of the same thread closes. On the re-oracled vector-clock
 558 programs the flag marks 432,810 of $8.58\cdot 10^{9}$ $\DR$ instances in 34 programs, no
 verdict moves, and three race-free programs (\texttt{matrix-multiplication-norace-small} and
 both inputs of \texttt{rule-110-norace}) have a Race-alone verdict resting on flagged reports
-only; the tables count them in their own column. The gap to NVBit's rates is not a property
-of the hardware but of where the ordering key is drawn: the Sanitizer callback takes its
-buffer index first and then writes the record, fences and increments the entry count, so
-the window between the key and the instruction contains a fence and a second global atomic;
-an instrumentation that draws its key last has a window of the return alone. Drawing a
-second key as the callback's last action and ordering the HB records by it is the
-cheapest mitigation and is measured before it is adopted (T15). \emph{Monitor}: one unit test
+only; the tables count them in their own column. Two later facts bound how the rates are
+read. A late ordering key --- drawn as the callback's last action and used to order the HB
+records --- cuts the inversions by only about 12\,\% (T15, \texttt{eval/LATE\_SEQ.md}:
+14.3 $\to$ 12.7\,\% at 4 warps, 16.6 $\to$ 14.7\,\% at 16), so the window's length inside
+the callback is not what decides the rate, and T13's NVBit tool did not draw its key last
+either; the key stays off. And the one-block levels of the litmus repeat identically from
+run to run while two builds of the same collector give 11 / 32 / 28\,\% and 0 / 19 / 25\,\%:
+each configuration lands in one deterministic schedule, and the rate is a property of that
+schedule; the NVBit figures are single schedules of another tool, and why they sit lower at
+every level is not established (candidates, untested: instrumentation density lowering the
+effective contention; the collector's buffer-full handshake releasing parked warps in
+bursts). What the corpus says is the statement to rely on: after T10 the three programs above
+are clean with their pairs $\SC$, so on the 558 programs no \textsc{Race}-alone verdict
+depends on A2; the exposure is confined to the $\SC$ column and to ScoR under ScoRD's notion.
+\emph{Monitor}: one unit test
 per check that must raise plus a valid multi-warp control that must not (five of the seven
 tests of \texttt{test\_barrier\_soundness.py}, passing; they exercise \texttt{hb\_oracle.py},
 not the engine's \texttt{tv\_fail}); zero violations on the ScoR corpus; the
@@ -1068,12 +1081,16 @@ is wrong in both modes until then, and the scope label must err narrow
 false positives removed, none added). (4$'$) In parallel with (4): the \texttt{a2\_uncertain}
 flag of D15 and the offline window count over the kept dumps (the rate the paper
 cites for its own corpus; T13's rates are for one lock under NVBit's timing) --- done
-(T14, branch \texttt{feat/a2-flag}, unmerged; \texttt{eval/A2\_WINDOWS.md}). (5) The
-vector clock's memory (T5b), directly after (4): ten of the 58 engine-timeout programs
-have barriers and no atomics (mostly HeCBench, the suite with no vector-clock dump), and
-the gate cannot touch a barrier join, so nothing is gained by waiting for it; the
-reference mode has no dump for the realistic suites, which bounds the mode comparison to
-litmus and micro-benchmarks until it runs there. (6) I4 as the instance gate of
+(T14, \texttt{eval/A2\_WINDOWS.md}); the late-key mitigation measured and not adopted (T15,
+\texttt{eval/LATE\_SEQ.md}). (5) The vector clock's memory (T5b), directly after (4) --- done
+(\texttt{eval/MEMORY\_FOOTPRINT.md} \S7; no clock value changes; tiled\_gemm's clock from 67\,M
+to 131\,k entries, CC push 1296n from an out-of-memory kill to 17.9\,s and 6.9\,GB, 25 of the
+48 non-barrier timeout programs under 120\,s). Its second bar --- the ten barrier-only
+timeout programs --- is not reachable by any clock change: nine of them do not finish in
+scalar-clock mode either, where no clock runs, because \texttt{hb\_events} is held in host
+memory for the kernel and serialised as text at its end (100--252\,GB in 1,200\,s, or out of
+memory). Trace volume, not analysis, bounds both modes on the realistic suites; the remedy
+is (7). (6) I4 as the instance gate of
 Definition~\ref{def:gate}, in parallel with (5) --- done (T12, \texttt{feat/instance-gate},
 \texttt{eval/INSTANCE\_GATE.md}; R3's acquire point is taken from the trace as well, \S\ref{sec:verdict}): the fence inventory per SM (O2: on
 sm\_89 \texttt{CCTL.IVALL} on the acquire side and the barrier on both) and the
@@ -1084,8 +1101,21 @@ held pairs at the end of the kernel. The gate is measured before it is wired: th
 census's fence classification is the before; the expected after is the eight ScoR fence
 races moving from \textsc{Latent} to \textsc{Race}, \texttt{matrix-multiplication} staying
 clean, and the ticket idiom of \texttt{reduction} reported (a PTX race by the letter,
-which iGUARD also reports; a labelled-clean program, to be footnoted, not suppressed).
-Deferred past the submission: the value-recording collector (A2), I6, I7 (model and
+which iGUARD also reports; a labelled-clean program, to be footnoted, not suppressed) ---
+observed as predicted, plus five \texttt{norace\_*fence*} litmus (a consumer that spins on
+the flag with no fence after it; four $\SC$, \texttt{hrd-indirect} a $\DR$; PTX gives no
+acquire, ScoRD's one-sided fences do; footnoted under D11, reported by no baseline). On T5b's
+clocks the gate takes CC push 1296n from 6.9 to 1.3\,GB. (7) No-dump mode: both clocks
+computed during the run, as the dependency graph of the same tool does, and only the
+per-pc-pair aggregates the verdict layer reads written at kernel end; the lossless dump kept
+for every program that can replay, where the implementation is checked against the
+specification. This is the route to vector-clock and scalar-clock verdicts on the realistic
+suites before the submission. (8) The certain clock (\S\ref{sec:impl}, ``A2 observed to
+fail''): accept a chain edge only when the two RMW windows do not overlap; under A2w its
+happens-before is a sub-relation of the execution's, so by Lemma~\ref{lem:mono} it misses
+no race of the execution --- a sound operating point without a new collector, at the price
+of completeness on contended hand-offs; one switch in the edge acceptance, no GPU; a
+decision, not yet taken. Deferred past the submission: the value-recording collector (A2), I6, I7 (model and
 re-proof; stated as a limitation), the \texttt{bar.arrive} and access-size deviations
 (none in the corpus), the discharge of MM1--MM3 and the referee notes of
 \S\ref{sec:cert}. Obligations kept from v4: uniform access size and generic proxy per
