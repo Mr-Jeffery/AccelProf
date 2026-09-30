@@ -173,6 +173,11 @@ def pcs(rep):
 def tables(dots, trace):
     """(dot, atom, coh) for a dump: the aligning CFG, its RMW scopes and its coherent-access
     scopes under the current --strong-ldst policy (as hb_oracle.analyze derives them)."""
+    return _tables(dots, trace)[:3]
+
+
+def _tables(dots, trace):
+    """tables() plus the aligning kernel's HBGraph (T12: its gate table)."""
     for dot in dots:
         try:
             kernels = sd.parse_dot(dot)
@@ -190,9 +195,12 @@ def tables(dots, trace):
 
 
 def reference(dots, trace_path, **switches):
-    """Detect(T, vec) (switches off: the proof's reference) over one kernel dump."""
+    """Detect(T, vec) (switches off: the proof's reference) over one kernel dump, under the
+    gate the oracle replays it with (sd.dump_gate: the dump's `hb_gate`, or $CUVEIN_GATE)."""
     trace = json.loads(Path(trace_path).read_text())
-    _, atom, coh, _ = tables(dots, trace)
+    _, atom, coh, eng = _tables(dots, trace)
+    if "gate" not in switches:
+        switches["gate"] = eng.gate_table() if sd.dump_gate(trace) == "instance" else None
     return detect(trace["hb_events"], trace["kernel"].get("block_thread_count"), atom, coh,
                   **switches)
 
@@ -200,7 +208,7 @@ def reference(dots, trace_path, **switches):
 def check(dots, trace_path, gate=None):
     """One kernel dump -> dict of the comparisons (see the module docstring)."""
     trace = json.loads(Path(trace_path).read_text())
-    dot, atom, coh, eng = tables(dots, trace)
+    dot, atom, coh, eng = _tables(dots, trace)
     oracle = hb_oracle.analyze(dot, trace_path, records=True, gate=gate)
     ev, tc = trace["hb_events"], trace["kernel"].get("block_thread_count")
     gt = eng.gate_table() if oracle["gate"] == "instance" else None

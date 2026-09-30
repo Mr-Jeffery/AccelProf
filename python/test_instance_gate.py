@@ -141,3 +141,77 @@ def test_dump_gate(monkeypatch):
     assert sd.dump_gate({"hb_gate": "instance"}, "trusting") == "trusting"
     monkeypatch.setenv("CUVEIN_GATE", "instance")
     assert sd.dump_gate({}) == "instance"
+
+
+# ---- GPU: the engine's deferred acquire (testdata/gate_held.cu) ----------------------------
+_HELD_SRC = Path(__file__).resolve().parent / "testdata" / "gate_held.cu"
+
+
+def _held_artifacts():
+    """(dots, {"fenced"|"unfenced": trace}) built on demand; None without nvcc / a GPU."""
+    import shutil
+    import subprocess
+    work = _ROOT / "cuHadron" / "_gate_held"          # a gitignored scratch area
+    work.mkdir(parents=True, exist_ok=True)
+    binary = work / "gate_held.out"
+
+    def collect():
+        dots = sorted((work / "gate_held_extracted_cubins").glob("*.dot"))
+        deps = sorted(work.glob("dependency_gate_held*"))
+        by = {}
+        for t in (sorted(deps[-1].glob("kernel_*.json")) if deps else []):
+            nm = json.loads(t.read_text())["kernel"]["kernel_name"]
+            by["unfenced" if "unfenced" in nm else "fenced"] = t
+        return dots, by
+
+    dots, by = collect()
+    if dots and {"fenced", "unfenced"} <= by.keys() and \
+            binary.stat().st_mtime >= _HELD_SRC.stat().st_mtime:
+        return dots, by
+    if shutil.which("nvcc") is None:
+        return None
+    b = subprocess.run(["nvcc", "-arch=native", "-lineinfo", "--cudart", "shared",
+                        str(_HELD_SRC), "-o", str(binary)], cwd=work, capture_output=True)
+    if b.returncode != 0:
+        return None
+    subprocess.run(["bash", str(_ROOT / "getall.sh"), str(binary.resolve())],
+                   cwd=_ROOT, capture_output=True, timeout=600)
+    dots, by = collect()
+    return (dots, by) if dots and {"fenced", "unfenced"} <= by.keys() else None
+
+
+def _key(r):
+    return (r.get("a_pc"), r["b_pc"], r["kind"], r.get("class"), r["space"], r.get("dist"),
+            r.get("async"), r.get("count"), r.get("a2_uncertain"))
+
+
+@pytest.mark.parametrize("variant", ["fenced", "unfenced"])
+def test_held_conflict_engine_matches_oracle(variant):
+    """The CAS thread's Check finds thread 0's plain store of the lock word ordered only by the
+    pending acquire: held, then dropped (a fence after the CAS: acq = 1) or reported (none:
+    acq = 0). The engine (hb_races, recorded under the instance gate) equals the oracle."""
+    art = _held_artifacts()
+    if art is None:
+        pytest.skip("no GPU / nvcc / accelprof to build and trace gate_held")
+    dots, by = art
+    tj = json.loads(by[variant].read_text())
+    assert tj.get("hb_gate") == "instance", "the dump was not recorded under the instance gate"
+    rep = None
+    for dot in dots:
+        try:
+            rep = ho.analyze(dot, by[variant])
+            break
+        except sd.AlignmentError:
+            continue
+    assert rep is not None
+    assert sorted(map(_key, tj["hb_races"])) == sorted(map(_key, rep["races"]))
+    g = rep["summary"]["gate"]
+    assert g.get("held", 0) >= 1, g                   # the path under test was taken
+    kern = sd.parse_dot(rep["inputs"]["cfg_dot"])[rep["kernel"]["mangled"]]
+    ops = sd.HBGraph(*kern).pc_opcode
+    cas = [r for r in rep["races"] if "CAS" in ops[r["b_pc"]].split(".")
+           and ops[r["a_pc"]].split(".")[0] in ("ST", "STG")]
+    if variant == "fenced":
+        assert g.get("held_reported", 0) == 0 and not cas, (g, cas)
+    else:
+        assert g.get("held_reported", 0) >= 1 and cas, (g, rep["races"])
