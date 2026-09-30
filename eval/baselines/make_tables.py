@@ -49,6 +49,25 @@ COLNAME = {("cuvein", VC): hb_modes.SHORT[VC], ("cuvein", SC): hb_modes.SHORT[SC
            ("memcheck", ""): "memcheck*",
            ("synccheck", ""): "synccheck*", ("initcheck", ""): "initcheck*"}
 SKIP_FILES = {"build", "disagreements", "p7-selection", "diagnose"}
+
+# T12 (D11, CLAUDE.md A4): labelled race-free programs that the instance gate reports because PTX
+# section 8.7.1 leaves them unordered (a hand-off side without a fence of sufficient scope).
+# Footnote hooks with the PTX reason (footnote (9) of the accuracy table), never a relabel.
+_SPIN = "the consumer spins on the flag with a relaxed {} and has no fence before it {}"
+PTX_UNORDERED_CLEAN = {
+    "P4-reduction-norace-small": "the ticket `atomicInc` is followed by the shared store `amLast` "
+                                 "with no fence in between (the program relies on the "
+                                 "`__syncthreads()` after it)",
+    "P4-reduction-norace-large": "the ticket `atomicInc`, as in the small input",
+    "P5-norace_interblock_fence_raw": _SPIN.format("`atomicExch`", "reads the volatile data (SC)"),
+    "P5-norace_interwarp_fence_raw": _SPIN.format("`atomicExch`", "reads the volatile data (SC)"),
+    "P5-norace_interwarp_blkfence_raw": _SPIN.format("`atomicExch`", "reads the volatile data (SC)"),
+    "P5-norace_interwarp-block_fence_hrf-indirect":
+        _SPIN.format("`atomicAdd`", "updates the volatile data (SC)"),
+    "P5-norace_interwarp-block_fence-atom_hrd-indirect":
+        _SPIN.format("`atomicAdd`", "does a block-scope `atomicExch` on data the other block writes "
+                     "with a device-scope one (not morally strong: DR)"),
+}
 PSET_LABEL = {"P1": "P1 Indigo3", "PI": "PI Indigo original (all 590 IndigoSuite codes x 7 inputs)",
               "P3": "P3 ECL race-free",
               "P4": "P4 ScoR apps", "P5": "P5 ScoR micro + canary",
@@ -1191,6 +1210,17 @@ def comparison_matrix_section(runs, meta, man):
                     "diagnose re-runs of `kernel_memcpy_dtoh_race` (cancelled after node failures on c3, c2, c75), the "
                     "`memcpy_htod_kernel_race-fixed` row lost to a full scratch disk on c37, and the "
                     "`interkernel/global_writewrite_race-fixed` diagnose task that was OOM-killed on c53.")
+    # (9) T12 (D11): labelled race-free programs the instance gate reports, PTX section 8.7.1 by the
+    # letter -- footnoted with the reason and an agreeing baseline, never relabelled
+    ptx = [(i, why) for i, why in PTX_UNORDERED_CLEAN.items() if i in meta]
+    if ptx:
+        agree = lambda i: ", ".join(t for t in ("racecheck", "hirace", "iguard", "supercollider")
+                                    if (runs.get((i, t, "")) or {}).get("verdict") == "RACE")
+        out[-1] += (" (9) Labelled race-free, reported under the instance gate (T12, D11): PTX section 8.7.1 "
+                    "gives no ordering where one side of a hand-off has no fence of sufficient scope. "
+                    + "; ".join(f"`{i}`: {why}" + (f" (also reported by {agree(i)})" if agree(i) else
+                                                    " (no baseline reports it)")
+                                for i, why in ptx) + ".")
     orc = {k: v for k, v in pi_oracle().items() if v in ("CONFLICT", "NO-CONFLICT")}
     if orc:
         graphs = sorted({meta[i][3] for i in orc if i in meta})
