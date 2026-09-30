@@ -6,7 +6,7 @@
 #SBATCH --exclude=c54,c2
 # T12 step 4: `parallel.py analyze` of one of the three analyses of eval/baselines/t12_rescore.py
 # over T9's manifest, with this worktree's detector:
-#   WHICH=before  store t10-after, CUVEIN_R3_TRACE_RELEASE=0 CUVEIN_R3_BEFORE_ACQUIRE=0 (pre-T12)
+#   WHICH=before  store t10-after, CUVEIN_R3_TRACE_{RELEASE,ACQUIRE}=0 CUVEIN_R3_BEFORE_ACQUIRE=0 (pre-T12)
 #   WHICH=r3only  store t10-after, defaults (R3 amendments; trusting-gate hb_races)
 #   WHICH=after   store t12-after, defaults (R3 amendments; instance-gate hb_races)
 # IDFILE restricts the ids (eval/results/t12-rescore/ids_affected.txt).
@@ -17,9 +17,9 @@ W=${W:?W=<the T12 worktree>}
 WHICH=${WHICH:?WHICH=before|r3only|after}
 cd "$W" || exit 1
 export ACCEL_PROF_HOME=$W CUVEIN_HOME=$W
-unset CUVEIN_STRONG_LDST CUVEIN_GATE CUVEIN_R3_TRACE_RELEASE CUVEIN_R3_BEFORE_ACQUIRE
+unset CUVEIN_STRONG_LDST CUVEIN_GATE CUVEIN_R3_TRACE_RELEASE CUVEIN_R3_TRACE_ACQUIRE CUVEIN_R3_BEFORE_ACQUIRE
 case $WHICH in
-  before) STORE=t10-after; export CUVEIN_R3_TRACE_RELEASE=0 CUVEIN_R3_BEFORE_ACQUIRE=0 ;;
+  before) STORE=t10-after; export CUVEIN_R3_TRACE_RELEASE=0 CUVEIN_R3_TRACE_ACQUIRE=0 CUVEIN_R3_BEFORE_ACQUIRE=0 ;;
   r3only) STORE=t10-after ;;
   after)  STORE=t12-after ;;
   *) echo "bad WHICH=$WHICH"; exit 2 ;;
