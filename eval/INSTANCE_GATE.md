@@ -31,7 +31,12 @@ matrix, fact (iv), §6 containment paragraph, §7 I4 row). Hardware: RTX 4060 Ti
   operating point; class changes only in uts (scalar-clock: norace `sc` 7 -> 8, racy `race` 10 -> 11,
   `sc` 7 -> 8). The only `model_bug` annotations left are crs-cuda's old pre-T3b dump (142; a
   fresh recording is CLEAN, T3b).
-- **P4/P5 GPU sweep with the rebased runtime (§9.6):** <<SWEEP>>
+- **P4/P5 GPU sweep with the rebased runtime (§9.6), fresh recordings, both modes:** 11 of 122 rows
+  differ from the pre-T12/pre-T5b runtime -- 7 vector-clock TIMEOUTs now finish
+  (graph-coloring/connectivity large, uts-norace-large, uts-{norace,racy}-small), **uts-norace-small
+  CLEAN** (`sc` 18), hrd-indirect RACE (D11), one extra pair on graph-connectivity-racy-small, two
+  scalar-clock rows with other report ids (same verdict); matrix-multiplication-small keeps its
+  verdicts at 20.4 s / 13.2 s (main 62 s / 65 s).
 - **Memory on T5b's clocks (§9.2):** Indigo3 CC push 1296n 6.9 GB / 9.9 s trusting vs **1.3 GB /
   5.7 s instance** (`vc` 179 M -> 1.3 M entries, `released` 60 M -> 1.3 K); reduction-large and
   tiled_gemm equal under both gates.
@@ -476,7 +481,30 @@ landing on an unlock; the decline is a soundness guard, pinned by the unit test.
 
 ### 9.6 P4/P5 GPU sweep with the rebased runtime
 
-<<SWEEP_DETAIL>>
+`eval/baselines/setup/t12_eval.sh` with `WHICHES=t12rb` (job 294733, node c70; the rebased runtime,
+library `e527875d`, this branch's verdict layer), against the pre-T12 main runtime's recording of
+§7 (job 294290, node c53); one rep, 120 s cap, fresh recordings, results
+`eval/results/t12-eval-t12rb/`, traces on BeeGFS `t12-eval-t12rb`. 122 (id, mode) rows, **11
+differ**:
+
+| program | mode | label | main (pre-T12) | rebased T12 | note |
+|---|---|---|---|---|---|
+| graph-coloring-norace-large | vector-clock | CLEAN | TIMEOUT (3.2 GB) | CLEAN (3.9 s, 0.9 GB) | finishes |
+| graph-coloring-racy-large | vector-clock | RACE | TIMEOUT | RACE, structural 14 | finishes |
+| graph-coloring-racy-small | scalar-clock | RACE | RACE | RACE, race 13 | report ids differ (schedule) |
+| graph-connectivity-norace-large | vector-clock | CLEAN | TIMEOUT (5.9 GB) | CLEAN | finishes |
+| graph-connectivity-racy-large | vector-clock | RACE | TIMEOUT | RACE, structural 9 | finishes |
+| graph-connectivity-racy-small | vector-clock | RACE | RACE, structural 8 | RACE, structural 9 | +1 pair (unfenced hand-off, §4.1) |
+| uts-norace-large | vector-clock | CLEAN | TIMEOUT (14.7 GB) | **CLEAN** (107.9 s, 3.3 GB), `sc` 54 | finishes (new with the rebased runtime) |
+| uts-norace-small | vector-clock | CLEAN | TIMEOUT (12.5 GB) | **CLEAN** (2.5 s), `sc` 18 | finishes; RACE in §7 through the old R1 |
+| uts-racy-small | scalar-clock | RACE | RACE, race 10 | RACE, race 11 + `sc` 8 | the R1 fix: a same-pc pair no longer R1-ordered |
+| uts-racy-small | vector-clock | RACE | TIMEOUT | RACE, structural 11 + `sc` 18 | finishes |
+| norace_interwarp-block_fence-atom_hrd-indirect | vector-clock | CLEAN | CLEAN | RACE, structural 3 | D11 (§4.3) |
+
+Every other row is identical, including matrix-multiplication-{norace,racy}-small (CLEAN / RACE;
+20.4 s / 13.2 s against main's 62.0 s / 65.4 s; §7's first T12 run timed out on them before the
+copy-on-write fix, which T5b's clocks now subsume), the 8 ScoR fence races (`sc` in both, as in
+§7) and the P5 canary. No `model_bug` annotation on any row.
 
 ## What remains unverified
 
@@ -490,8 +518,9 @@ landing on an unlock; the decline is a soundness guard, pinned by the unit test.
   definition; not measured, 0 held conflicts on the corpus means the case needs a pending acquire,
   which is exactly the held path).
 - R3 is a pc-level certificate under three assumptions stated in `hb_proof.tex` §5 (R3a instances
-  ordered alike / observed hand-offs are the ones used; R3b CAS-acquired locks -- a test-and-set lock
-  built from `EXCH` alone is not recognised; R3c the RMWs around the instances are the same in every
+  ordered alike / observed hand-offs are the ones used; R3b CAS-acquired locks released by an RMW --
+  a test-and-set lock built from `EXCH` alone, or a lock released by a plain or `volatile` store, is
+  not recognised and its post-unlock accesses can be over-ordered; R3c the RMWs around the instances are the same in every
   schedule). None of them is checked; vector-clock mode vetoes an over-ordering R3 on a trace where
   an instance is unordered, scalar-clock mode cannot.
 - The landing decline (§9.3) is exercised only by the hand-built unit test: no kept program's

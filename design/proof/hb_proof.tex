@@ -643,7 +643,8 @@ rule assumes, beyond the inventory: (R3a) the instances of a pc are ordered alik
 covering rule assumes the observed hand-offs are the ones the instances used, and a pair's
 instance distances meet the chain's scopes only at the first hop; (R3b) a lock is acquired by a
 CAS and released by another RMW on its location (a test-and-set lock built from \texttt{EXCH}
-alone is not recognised and its pairs can be over-ordered); (R3c) the RMWs that precede and
+alone, or a lock released by a plain or \texttt{volatile} store, is not recognised, and the
+accesses after its unlock can be over-ordered); (R3c) the RMWs that precede and
 follow the observed instances are the same in every schedule, the caveat of
 \cls{barrier-ordered} (referee note (2) of \S\ref{sec:single}). Where R3 over-orders on a trace,
 vector-clock mode vetoes it through $\Rep_{\mathsf{vec}}$ (failure mode (a) below);
