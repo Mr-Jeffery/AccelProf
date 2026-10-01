@@ -2,8 +2,8 @@
 
 testdata/coherent_ldst.cu holds one kernel per case. Verdicts come from the full
 pipeline (sync_dominance.analyze over the vector-clock dump produced by getall.sh:
-static R1/R2/R3 crossed with the C++ engine's hb_races / hb_races_sync_only), and the
-engine must equal the Python oracle on both race sets. Also pins the toolchain
+static R1/R2/R3 crossed with HbClock's hb_races / hb_races_sync_only), and
+HbClock must equal the Python oracle on both race sets. Also pins the toolchain
 lowering the pre-T10 --strong-ldst=generic policy relied on: cuda::atomic load/store
 -> generic LD/ST.*.STRONG, volatile -> address-spaced LDG/STG.*.STRONG. Since T10 the
 default policy (`token`) reads the scope token of either form, so volatile_pair -- two
@@ -109,7 +109,7 @@ def test_race(kernel):
     dots, by = _art_or_skip()
     report = _try_dots(sd.analyze, dots, by[kernel])
     if _sc_not_race(kernel):
-        # T10: reported as an unordered strong conflict, with the engine's class SC
+        # T10: reported as an unordered strong conflict, with HbClock's class SC
         assert not _races(report) and _scs(report), \
             f"{kernel}: expected SC and no RACE, got {_races(report)} / {_scs(report)}"
         assert all(v["conflict_class"] == "SC" and v["matrix_class"] == "sc"
@@ -155,7 +155,7 @@ def _race_key(r):
 
 
 @pytest.mark.parametrize("kernel", _KERNELS)
-def test_engine_matches_oracle(kernel):
+def test_hb_clock_matches_specification(kernel):
     dots, by = _art_or_skip()
     tj = json.loads(by[kernel].read_text())
     if "hb_events" not in tj:
@@ -188,7 +188,7 @@ def test_offline_barrier_pass_matches_oracle(kernel):
 
 
 def _scalar_clock_copy(trace, tmp_path):
-    """The same dump as YOSEMITE_HB_MODE=scalar-clock would write it: no engine keys."""
+    """The same dump as YOSEMITE_HB_MODE=scalar-clock would write it: no HbClock keys."""
     tj = json.loads(trace.read_text())
     for k in ("hb_races", "hb_races_sync_only", "coherence_profile"):
         tj.pop(k, None)
@@ -200,7 +200,7 @@ def _scalar_clock_copy(trace, tmp_path):
 @pytest.mark.parametrize("kernel", _KERNELS)
 def test_scalar_clock_verdict(kernel, tmp_path):
     """Scalar-clock mode (static leg + offline barrier pass over hb_events) reaches the
-    same program verdict: the in-loop reduction is barrier-ordered without the engine,
+    same program verdict: the in-loop reduction is barrier-ordered without HbClock,
     and with the pass disabled it falls back to the static-only RACE."""
     dots, by = _art_or_skip()
     trace = _scalar_clock_copy(by[kernel], tmp_path)

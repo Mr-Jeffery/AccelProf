@@ -34,7 +34,7 @@ def _rank(mode):
 
 def effective_verdict(r):
     """A cuVein CLEAN needs a run that reached its own exit: accelprof returns 1 when
-    the app dies under the tool (OOM-killed engine run) while the kernels dumped before
+    the app dies under the tool (OOM-killed vector-clock run) while the kernels dumped before
     that still parse, so rows written before parallel.py flagged this
     (incomplete-trace) can say CLEAN over a prefix of the run. Re-score them ERROR.
     rc 127 is exempt: the pre-fix bin/accelprof returned it after a SUCCESSFUL run."""

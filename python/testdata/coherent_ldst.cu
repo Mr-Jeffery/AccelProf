@@ -16,7 +16,7 @@
 //
 // RC2: the shared-memory tree reduction. Read and write sit in one sync region of a
 // loop; same-iteration instances are index-disjoint and cross-iteration ones are
-// separated by the in-loop barrier — no PC-level static proof, but the engine's
+// separated by the in-loop barrier — no PC-level static proof, but HbClock's
 // barrier-only clock orders every observed conflict:
 //
 //   reduce_barrier    __syncthreads() inside the stride loop           -> NORACE

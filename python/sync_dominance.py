@@ -158,7 +158,7 @@ def gate_mode(gate=None):
 
 
 def dump_gate(trace, gate=None):
-    """The gate to replay one dump with: explicit arg > $CUVEIN_GATE > the gate the engine
+    """The gate to replay one dump with: explicit arg > $CUVEIN_GATE > the gate HbClock
     recorded it under (`hb_gate`) > 'trusting' (a pre-T12 dump: the gate it was recorded
     under, so an old store re-scores unchanged unless asked otherwise)."""
     return gate_mode(gate or os.environ.get("CUVEIN_GATE") or trace.get("hb_gate") or "trusting")
@@ -187,7 +187,7 @@ _STRONG_TOKEN = {"LD", "LDG", "LDS", "LDL", "ST", "STG", "STS", "STL"}
 
 
 # T1a: a cp.async copy (LDGSTS) is performed by the issuing thread's async agent, whose
-# thread id is the thread's with ASYNC_BIT set (HbEngine, hb_oracle, barrier_only_pairs).
+# thread id is the thread's with ASYNC_BIT set (HbClock, hb_oracle, barrier_only_pairs).
 ASYNC_BIT = 1 << 62
 
 
@@ -203,7 +203,7 @@ def async_pcs(eng):
 
 
 def dump_async_pcs(eng, trace):
-    """async_pcs for one dump: empty unless the dump carries the engine's `hb_async`
+    """async_pcs for one dump: empty unless the dump carries HbClock's `hb_async`
     marker. An older dump (pre-T1a collector) has LDGSTS accesses but no pipeline_commit /
     pipeline_wait records, so under the agent model its copies would never complete; it
     keeps the pre-T1a reading (the copy is the issuing thread's own access)."""
@@ -223,7 +223,7 @@ def coherent_scope(opcode, policy=None):
     atomic RMW, or (per policy; since T10 by its .STRONG.<scope> token) a strong load/
     store; None if the access is weak. This is the sidecar's strength column.
 
-    Used ONLY for the key and moral strength of a record (the engine's and oracle's
+    Used ONLY for the key and moral strength of a record (HbClock's and oracle's
     buckets, Check's DR/SC class) and for R2's class. A strong load/store is never a
     release/acquire point: it joins no clocks and takes no part in the R3 chain, so it
     cannot order surrounding non-atomic accesses (that would widen the relaxed-atomic
@@ -245,7 +245,7 @@ def coherent_scope(opcode, policy=None):
 
 
 def morally_strong(s1, t1, s2, t2):
-    """ms of two records of threads t1, t2 (engine tids, no async bit) from their strong
+    """ms of two records of threads t1, t2 (HbClock tids, no async bit) from their strong
     scopes (None = weak; hb_proof.tex Definition "Scope inclusion, moral strength"): both
     strong and each scope covers the other thread -- GRID any block, BLOCK the same block,
     NONE (an atomic whose SASS names no scope) nothing."""
@@ -789,7 +789,7 @@ class HBGraph:
 
 
 def thread_distance(t1, t2):
-    """Scope distance of two engine tids (block << 10 | warp << 5 | lane)."""
+    """Scope distance of two HbClock tids (block << 10 | warp << 5 | lane)."""
     if t1 >> 10 != t2 >> 10:
         return GRID
     return BLOCK if (t1 >> 5) != (t2 >> 5) else WARP
@@ -839,7 +839,7 @@ def barrier_only_pairs(trace, rmw, coh, max_lanes=None, dist_out=None, order_out
                        async_pc=frozenset(), tv_out=None):
     """Offline barrier/syncwarp-ONLY happens-before pass over a dump's `hb_events`:
     the pc pairs {(pc_lo, pc_hi): count} whose conflicts those joins leave unordered
-    (the engine's `hb_races_sync_only`, same semantics as hb_oracle's second clock) --
+    (HbClock's `hb_races_sync_only`, same semantics as hb_oracle's second clock) --
     Detect(T, sync) of hb_proof.tex Algorithm 1, DR and SC pairs alike.
 
     It needs no atomic release/acquire joins, so it is cheap enough for the scalar-clock
@@ -847,15 +847,15 @@ def barrier_only_pairs(trace, rmw, coh, max_lanes=None, dist_out=None, order_out
     the same joined clock plus its own tick -> one shared base per group, O(threads)
     per barrier. rmw = {pc: scope} atomic RMWs (write semantics), coh = {pc: scope}
     strong accesses (the RMWs plus .STRONG loads/stores per policy). State per location:
-    one bucket per (kind, strong scope) and thread, as in the engine (T9, I2); `local`
+    one bucket per (kind, strong scope) and thread, as in HbClock (T9, I2); `local`
     records are outside the model and skipped (I5). dist_out, if given, receives
     {(pc_lo, pc_hi): widest thread distance (WARP/BLOCK/GRID) among the pair's unordered
     conflicts}; order_out {(pc_lo, pc_hi): (earlier_pc, later_pc)} of the pair's first
     conflict in event order. async_pc = the cp.async (LDGSTS) pcs: their accesses belong
     to the issuing thread's async agent, completed for the thread by a covering wait_group
-    (T1a; one-to-one with HbEngine::async_issue/commit/wait).
+    (T1a; one-to-one with HbClock::async_issue/commit/wait).
     Exit records (T3b) take their threads out of the expected count of the block's later
-    whole-block barrier segments and re-check its open ones, as in HbEngine / hb_oracle.
+    whole-block barrier segments and re-check its open ones, as in HbClock / hb_oracle.
     tv_out, if given, receives the one trace-validity check this pass runs,
     TV-barrier-pending-at-end (a segment still open at the end; only on dumps with the
     `hb_exits` marker). The pass has no other TV checks (T11 unifies them).
@@ -1054,7 +1054,7 @@ def _hb_class(r1_ordered, chain_ordered, dyn_raced, sync_raced=None, strong=Fals
     ordering crossed with the observed-schedule dynamic HB race:
       * R1 dominance is all-schedule sound                       (r1_ordered)
       * R3 chain is PC-level and can over-order (the canary)     (chain_ordered)
-    dyn_raced (the engine's hb_races) is the observed-schedule truth; `strong` is the
+    dyn_raced (HbClock's hb_races) is the observed-schedule truth; `strong` is the
     pair's class, SC (morally strong -- decided by hb_races' instances in vector-clock
     mode, else by R2 at the widest observed distance) or DR. R2 grants no order.
       structural  raced (some instance a data race), and no all-schedule proof orders it
@@ -1075,7 +1075,7 @@ def _hb_class(r1_ordered, chain_ordered, dyn_raced, sync_raced=None, strong=Fals
         return "sc" if strong else "structural"
     if r1_ordered or chain_ordered:
         return "ordered"
-    # No static proof. sync_raced is the engine's second, barrier/syncwarp-ONLY clock
+    # No static proof. sync_raced is HbClock's second, barrier/syncwarp-ONLY clock
     # (hb_races_sync_only; None when the dump predates it). Barrier joins do not
     # depend on the schedule, so a pair whose every observed conflict they order is
     # not a "lucky schedule": barrier-ordered. A pair they leave unordered was ordered
@@ -1163,11 +1163,11 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
         if atom else (None, None)
     eng.attach_trace(atom, sync_edges, coh, same_loc, rpoints, apoints)
 
-    # Dynamic happens-before ground truth (the analyzer's C++ HB engine, present when
+    # Dynamic happens-before ground truth (HbClock, present when
     # the trace was taken with YOSEMITE_HB_TRACE=1). Crossed with the static legs below
     # into the verdict-matrix class; absent -> the R3 chain is the only observed axis.
     hb_races = trace.get("hb_races")
-    # exact {a,b} match on the pc pair. Every record now names both pcs (the engine
+    # exact {a,b} match on the pc pair. Every record now names both pcs (HbClock
     # and oracle keep the reader pc for WAR); a subset match over single-pc keys
     # attributed a race to every pair sharing one pc, filling the model_bug cell.
     raced_records = {}  # frozenset{pc_a, pc_b} -> [race records]  (a same-pc race is {pc})
@@ -1175,7 +1175,7 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
         for r in hb_races:
             raced_records.setdefault(frozenset((r["a_pc"], r["b_pc"])), []).append(r)
     raced_pcsets = set(raced_records) if hb_races is not None else None
-    # Cross-thread conflicts the EVENT STREAM shows (engine race records / the offline
+    # Cross-thread conflicts the EVENT STREAM shows (HbClock's race records / the offline
     # barrier pass), with their widest thread distance. A trace edge remembers only the
     # LAST accessor of a location, so a single-instance conflict can be recorded at
     # intra-thread distance when the last reader happened to be the writer's own
@@ -1199,9 +1199,9 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
     sync_only = trace.get("hb_races_sync_only")
     sync_pcsets = {frozenset((a, b)) for a, b, _ in sync_only} \
         if sync_only is not None else None
-    # No engine-side set (scalar-clock dump, or a pre-fix engine): derive it offline from
+    # No HbClock set (scalar-clock dump, or a pre-fix HbClock): derive it offline from
     # hb_events. The barrier-only clock needs no atomic joins, so the scalar-clock mode
-    # gets the same barrier-ordered evidence without running the exact engine.
+    # gets the same barrier-ordered evidence without running HbClock.
     # $CUVEIN_BARRIER_PASS=0 disables it; dumps above $CUVEIN_BARRIER_PASS_MAX_LANES
     # lane-accesses (default 5M) stay static-only.
     offline_memo = []
@@ -1233,7 +1233,7 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
             observed_dyn[frozenset(k)] = max(observed_dyn.get(frozenset(k), NONE), d)
 
     # Event-stream candidates: the conflicting pc pairs the event stream shows that
-    # barriers/syncwarps leave unordered (engine: hb_races_sync_only + hb_races; trace-
+    # barriers/syncwarps leave unordered (vector-clock: hb_races_sync_only + hb_races; trace-
     # only: the offline pass). A trace edge remembers only the LAST accessor of a
     # location, so a pair can have no edge at all (read by A, read by B, write by B:
     # the write's edge names B's own read and A's read is gone) — such pairs are judged
@@ -1249,7 +1249,7 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
     # plain read of a parent pointer another thread CAS-updates) — a real HB-unordered
     # access the algorithm tolerates. Tagged and re-bucketed, never hidden.
     # ponytail: PC-granular; the exact per-location "never plainly written" bit
-    # belongs in the engine's location shadow.
+    # belongs in HbClock's location shadow.
     writers = {}
     for e in trace.get("edges", []):
         cur, anc = e["current_pc"], e.get("ancient_pc")
@@ -1302,7 +1302,7 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
         if cur in asy or anc in asy:
             # T1a review: the static rules place an access at its instruction, but a copy
             # completes later, when a wait covering its group returns -- an event-stream
-            # fact (engine races / the offline pass), not a CFG one. A sync after the
+            # fact (HbClock's races / the offline pass), not a CFG one. A sync after the
             # copy's issue orders nothing about it: no R1/R2 credit when the copy is the
             # EARLIER access (as the later one it starts after its issue, so a sync before
             # it still orders it), and no R3 credit either way (the chain is
@@ -1312,8 +1312,8 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
                 ev.update(strength=NONE, syncs=[])
         r1_ordered = ev["strength"] >= observed          # R1 dominance
         chain_ordered = ev["chain"] is not None          # R3 PC-level handshake
-        # the pair's class (D12): DR if some engine instance is a DR, else SC; with no
-        # engine instance, R2 at the widest observed distance (never SC -> DR reversed)
+        # the pair's class (D12): DR if some HbClock instance is a DR, else SC; with no
+        # HbClock instance, R2 at the widest observed distance (never SC -> DR reversed)
         recs = raced_records.get(frozenset((cur, anc)), [])
         if recs:
             strong = all(r.get("class", "DR") == "SC" for r in recs)
@@ -1329,7 +1329,7 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
             verdict = CLASS_VERDICT[hb_class]
             model_bug = bool(dyn and r1_ordered)
         else:
-            # static leg only (no engine): a pair without a static proof is still
+            # static leg only (no HbClock): a pair without a static proof is still
             # ordered when barrier/syncwarp joins order every observed conflict; the
             # rest is a race of unknown kind (RACE), or `sc` if its class is SC.
             if r1_ordered or chain_ordered:
@@ -1417,7 +1417,7 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
     missing = event_pairs - {frozenset((v["current_pc"], v["ancient_pc"])) for v in verdicts}
     if missing:
         ev_info = {}   # pair -> (anc, cur, distance, conflicts)
-        for k, recs in raced_records.items():       # engine race records carry tids
+        for k, recs in raced_records.items():       # HbClock's race records carry tids
             if recs[0].get("a_pc") is not None:
                 ev_info[k] = (recs[0]["a_pc"], recs[0]["b_pc"], observed_dyn.get(k, NONE),
                               sum(r.get("count", 1) for r in recs))
@@ -1452,7 +1452,7 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
                                      for pc, op in eng.unknown_syncs],
             # event-stream pairs without an edge verdict: how many, judged, unusable
             "event_candidates": cand_diag,
-            # the engine's first trace-validity violation (vector-clock dump) or, when the
+            # HbClock's first trace-validity violation (vector-clock dump) or, when the
             # offline barrier pass ran, its end-of-kernel check (T3b); None = none seen.
             # Informational: no verdict depends on it.
             "tv_violation": trace.get("tv_violation") or
@@ -1479,7 +1479,7 @@ def render(report, out):
                  for s in report["syncs"]) or "none")]
     for v in report["verdicts"]:
         # A RACE that still carries an hb_chain is a structural race the dynamic HB
-        # engine caught: the PC-level chain (release->sync->acquire) holds for the
+        # HbClock caught: the PC-level chain (release->sync->acquire) holds for the
         # threads that actually handshook, but not for the pair that raced — so the
         # chain was refuted, not the justification. Only ORDERED "via hb(...)".
         if v["ordering_syncs"]:

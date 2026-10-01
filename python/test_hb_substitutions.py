@@ -1,8 +1,8 @@
 """Three substitutions of design/proof/hb_proof.tex section 7 on real kernels -- pinned as strict
 xfails by T6 (c), fixed by T9 -- plus T9's D12 case. Each kernel is built and traced here
 (getall.sh, vector-clock mode); pairs are asserted by role, not by pc offset; the scalar-clock
-verdict is the same dump without the engine's keys (what YOSEMITE_HB_MODE=scalar-clock
-writes). Every case also asserts engine == hb_oracle == design/algorithms_check.py's
+verdict is the same dump without HbClock's keys (what YOSEMITE_HB_MODE=scalar-clock
+writes). Every case also asserts HbClock == hb_oracle == design/algorithms_check.py's
 Detect(T, vec) with the I1/I2 switches off (the proof's reference).
 
   I1  python/testdata/write_after_unlock_other_schedule.cu -- the ScoR rtraw lock pattern
@@ -86,8 +86,8 @@ def _verdict(dots, trace, pcs):
     return [v for v in rep["verdicts"] if {v["current_pc"], v["ancient_pc"]} == set(pcs)]
 
 
-def _engine_equals_oracle(dots, trace):
-    """engine == oracle (records with class, and the second clock), and the oracle ==
+def _hb_clock_equals_specification(dots, trace):
+    """HbClock == specification (records with class, and the second clock), and the oracle ==
     Detect(T, vec) with the I1/I2 switches off (record pairs with DR/SC)."""
     key = lambda r: (r.get("a_pc"), r["b_pc"], r["kind"], r.get("class"), r["space"], r.get("dist"),
                      r.get("async"), r.get("count"), r.get("a2_uncertain"))
@@ -102,7 +102,7 @@ def _engine_equals_oracle(dots, trace):
 
 
 def _scalar_clock(trace, tmp_path):
-    """The dump as scalar-clock mode writes it: no engine keys."""
+    """The dump as scalar-clock mode writes it: no HbClock keys."""
     t = copy.deepcopy(_load(trace))
     for k in ("hb_races", "hb_races_sync_only", "coherence_profile"):
         t.pop(k, None)
@@ -138,8 +138,8 @@ def test_write_after_unlock_reference_reports_it(i1):
     assert ref == {(write["pc"], 0, read["pc"], 1, cls)}
 
 
-def test_write_after_unlock_engine_matches_oracle(i1):
-    assert _engine_equals_oracle(*i1[:2])
+def test_write_after_unlock_hb_clock_matches_specification(i1):
+    assert _hb_clock_equals_specification(*i1[:2])
 
 
 def test_write_after_unlock_other_schedule(i1):
@@ -186,8 +186,8 @@ def test_bucket_kernel_reference_reports_dr_and_sc(i2):
     assert ref == {(a["pc"], c["pc"], "DR"), (a["pc"], b["pc"], "SC")}
 
 
-def test_bucket_kernel_engine_matches_oracle(i2):
-    assert _engine_equals_oracle(*i2[:2])
+def test_bucket_kernel_hb_clock_matches_specification(i2):
+    assert _hb_clock_equals_specification(*i2[:2])
 
 
 def test_strong_stores_barrier_weak_load(i2):
@@ -240,7 +240,7 @@ def test_local_memory_verdict_is_clean(i5):
 
 def test_local_memory_is_thread_private(i5):
     # I5 fixed (T9, D14): local memory is outside the HB model -- the HB trace carries no
-    # local record and the engine reports no local race
+    # local record and HbClock reports no local race
     _, _, t, loc = i5
     assert not loc
     assert not [r for r in t.get("hb_races", []) if r["space"] == "local"]
@@ -286,8 +286,8 @@ def d12(tmp_path_factory):
     return dots, trace, st, ld
 
 
-def test_strong_store_strong_load_engine_matches_oracle(d12):
-    assert _engine_equals_oracle(*d12[:2])
+def test_strong_store_strong_load_hb_clock_matches_specification(d12):
+    assert _hb_clock_equals_specification(*d12[:2])
 
 
 def test_strong_store_strong_load_is_sc(d12):
@@ -529,9 +529,9 @@ def _a2_verdicts(dots, trace):
     raise AssertionError("no CFG aligns with the trace")
 
 
-def test_lock_contention_engine_matches_oracle(a2lock):
+def test_lock_contention_hb_clock_matches_specification(a2lock):
     dots, ks = a2lock
-    assert all(_engine_equals_oracle(dots, tr) for tr in ks.values())
+    assert all(_hb_clock_equals_specification(dots, tr) for tr in ks.values())
 
 
 def test_lock_contention_every_dr_is_a2_uncertain(a2lock):

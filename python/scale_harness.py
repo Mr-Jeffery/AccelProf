@@ -4,14 +4,14 @@
 Runs one app binary through the HB pipeline and records the metrics microbenchmarks
 cannot surface:
   - event count (len hb_events)
-  - engine hb_races: deduped count AND grouped-by-(a_pc,b_pc) pair count
-  - TV violations (Phase 1) reported by the engine
+  - HbClock's hb_races: deduped count AND grouped-by-(a_pc,b_pc) pair count
+  - TV violations (Phase 1) reported by HbClock
   - coherence profile size (atomic addresses; longest per-address order)
-  - wall time A/B: scalar-clock (dump only) vs vector-clock (dump + engine), via
-    YOSEMITE_HB_MODE (engine cost = t_vector_clock_s - t_scalar_clock_s)
+  - wall time A/B: scalar-clock (dump only) vs vector-clock (dump + HbClock), via
+    YOSEMITE_HB_MODE (HbClock cost = t_vector_clock_s - t_scalar_clock_s)
   - exact VC oracle: verdict + peak RSS + wall, WHERE IT FITS. Above a bound the exact
     O(threads) oracle is not run -- the row is then flagged vector_clock_only_unverified
-    (UNVERIFIED against the oracle), never silently. The engine remains the only verdict there.
+    (UNVERIFIED against the oracle), never silently. HbClock remains the only verdict there.
 
 The harness reuses getall.sh to produce the (CFG .dot, atomic-scope sidecar, trace) tuple,
 then re-runs accelprof directly for the A/B timing.
@@ -87,13 +87,13 @@ def analyze_app(binary, app_args, tag, oracle_cap_events):
     # dep dirs before/after so we analyze exactly this run's trace, not getall's.
     run_cmd = ["accelprof", "-v", "-t", "pc_dependency_analysis", "-n", "1", f"./{base}", *app_args]
     before = set(idir.glob(f"dependency_{base}_*"))
-    t_engine, _ = _run(run_cmd, cwd=idir, env=_accelprof_env(sidecar, hb_modes.VECTOR_CLOCK), timeout=7200)
+    t_vc, _ = _run(run_cmd, cwd=idir, env=_accelprof_env(sidecar, hb_modes.VECTOR_CLOCK), timeout=7200)
     new = sorted(set(idir.glob(f"dependency_{base}_*")) - before)
     if not new:
         return {"tag": tag, "error": "no trace produced (accelprof vector-clock run failed)"}
     dep = new[-1]
     traces = sorted(dep.glob("kernel_*.json"))
-    # scalar-clock (dump-only) time (engine cost = vector-clock - scalar-clock), same args.
+    # scalar-clock (dump-only) time (HbClock cost = vector-clock - scalar-clock), same args.
     t_dump, _ = _run(run_cmd, cwd=idir, env=_accelprof_env(sidecar, hb_modes.SCALAR_CLOCK), timeout=7200)
 
     rows = []
@@ -113,8 +113,8 @@ def analyze_app(binary, app_args, tag, oracle_cap_events):
             "tv_violation": d.get("tv_violation"),
             "atomic_addrs": len(cp),
             "max_coherence_len": max((v["len"] for v in cp.values()), default=0),
-            "t_scalar_clock_s": round(t_dump, 3), "t_vector_clock_s": round(t_engine, 3),
-            "t_vector_clock_delta_s": round(t_engine - t_dump, 3),
+            "t_scalar_clock_s": round(t_dump, 3), "t_vector_clock_s": round(t_vc, 3),
+            "t_vector_clock_delta_s": round(t_vc - t_dump, 3),
         }
         # 3) Exact VC oracle where it fits.
         if events == 0:

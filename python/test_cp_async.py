@@ -1,7 +1,7 @@
 """T1a (eval/CP_ASYNC_REPORT.md): cp.async (LDGSTS) copies and the waits that complete them,
 end to end. python/testdata/cp_async_wait.cu in nine builds, each built for the GPU running the
 suite and traced with getall.sh (vector-clock); the scalar-clock view is the same dump without
-the engine's keys.
+HbClock's keys.
   racy / fixed      the read before / after cp.async.wait_all
   groups            two commit groups, wait_group 1: the first is complete, the second in flight
   barrier(_fixed)   a __syncthreads() between the copy and a read of the other warp's element,
@@ -86,7 +86,7 @@ def _pairs(races):
 
 
 def _expected(v, copies, loads):
-    """The engine's race records ((a_pc, b_pc, kind, async)) that involve a copy."""
+    """HbClock's race records ((a_pc, b_pc, kind, async)) that involve a copy."""
     if v in ("racy", "barrier", "barrier_own"):     # the copy vs the unwaited read
         return {(copies[0], loads[0], "RAW", "a")}
     if v == "groups":                               # group B still in flight at wait_group 1
@@ -116,7 +116,7 @@ def test_commit_and_wait_are_recorded(built, v):
 
 
 @pytest.mark.parametrize("v", list(VARIANTS))
-def test_engine_races(built, v):
+def test_hb_clock_races(built, v):
     dots, trace = built[v]
     _, copies, loads, _ = _ops(dots, trace)
     races = _pairs(json.loads(Path(trace).read_text())["hb_races"])
@@ -126,7 +126,7 @@ def test_engine_races(built, v):
 
 
 @pytest.mark.parametrize("v", list(VARIANTS))
-def test_engine_matches_oracle(built, v):
+def test_hb_clock_matches_specification(built, v):
     dots, trace = built[v]
     tj = json.loads(Path(trace).read_text())
     rep = _try(ho.analyze, dots, trace)
@@ -183,7 +183,7 @@ def test_lockstep_orders_no_copy(built, v, tmp_path):
 
 def test_mbarrier_copies_keep_the_pre_t1a_reading(built):
     # a copy completed through an mbarrier (cp.async.mbarrier.arrive = ARRIVES.LDGSTSBAR) is
-    # not modelled: the kernel's LDGSTS pcs are not async, for the engine (sidecar) and the
+    # not modelled: the kernel's LDGSTS pcs are not async, for HbClock (sidecar) and the
     # oracle / offline pass (CFG) alike
     dots, trace = built["mbarrier"]
     ops, copies, _, rep = _ops(dots, trace)

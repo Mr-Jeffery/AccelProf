@@ -405,6 +405,8 @@ def setup_section(build_rows):
 
 def residual_section():
     rows = load_csv(f"{RES}/baselines-diagnose.csv")
+    for r in rows:              # pre-T17 rows say engine-hang
+        r["cause"] = hb_modes.canon_value(r.get("cause", ""))
     out = ["\n## 1b. Residual ERROR/TIMEOUT root causes (cuVein)\n"]
     if not rows:
         out.append("_No diagnosis CSV yet (run p_diagnose.sh + classify_residuals.py)._")
@@ -420,7 +422,7 @@ def residual_section():
                "- **collector-hang** — TIMEOUT with an empty dump and modest RSS: the collector stalled\n"
                "- **collector-memory** — TIMEOUT with an empty dump but ≥32 GB RSS: the collector holds the whole trace in memory (nothing written before the end): **attributable to the cuVein collector**\n"
                "- **collector-oom** — native rc 0 but the accelprof child was SIGKILLed (`Killed`): the collector's memory grows with the trace: **attributable to the cuVein collector**\n"
-               "- **engine-hang** — vector-clock-mode TIMEOUT with an empty dump while scalar-clock of the same program resolved: **attributable to the cuVein engine** (not the tracer)\n"
+               "- **hb-clock-hang** — vector-clock-mode TIMEOUT with an empty dump while scalar-clock of the same program resolved: **attributable to cuVein's vector-clock runtime (HbClock)** (not the tracer)\n"
                "- **collector-fail** — native rc 0 but accelprof rc≠0 / no kernel JSON: **attributable to the cuVein collector**\n"
                "- **trace-disk-full** — the raw dump filled the node-local scratch disk (`No space left on device`): **attributable to the cuVein collector** (unbounded dump)\n"
                "- **analysis-oom** — the collector finished but the Python `sync_dominance` analysis of the trace was Killed (OOM): **attributable to cuVein's scalar-clock analysis path**\n"
@@ -432,8 +434,8 @@ def residual_section():
     out.append("|---|---|---|")
     for k in sorted(c, key=lambda k: (_mode_rank(k[0]), k[1])):
         out.append(f"| {k[0]} | {k[1]} | {c[k]} |")
-    coll = [r for r in rows if r["cause"] in ("collector-fail", "collector-hang", "collector-memory", "collector-oom", "engine-hang", "analysis-oom", "analysis-timeout", "trace-disk-full")]
-    out.append(f"\n**cuVein-attributable (collector-fail/hang/memory/oom + trace-disk-full + engine-hang + analysis-oom/timeout): {len(coll)} "
+    coll = [r for r in rows if r["cause"] in ("collector-fail", "collector-hang", "collector-memory", "collector-oom", "hb-clock-hang", "analysis-oom", "analysis-timeout", "trace-disk-full")]
+    out.append(f"\n**cuVein-attributable (collector-fail/hang/memory/oom + trace-disk-full + hb-clock-hang + analysis-oom/timeout): {len(coll)} "
                f"of {len(rows)} (program,mode) rows.**\n")
     keys = ["pset", "program", "mode", "verdict", "cause", "native_rc", "timeout_s",
             "dump_mb", "peak_mb", "wall_s", "native_wall_s", "evidence"]
@@ -570,7 +572,7 @@ def operating_points_section(runs, meta, man):
            "that point rests only on reports every DR instance of which a window-consistent "
            "coherence order could have ordered (A2 not assumed), as FP / TP by label: counted "
            "there and as neither TP nor FP in the point's own column; only rows whose dumps carry "
-           "the flag. `model_bug` = programs with a report R1 certifies and the engine saw racing "
+           "the flag. `model_bug` = programs with a report R1 certifies and HbClock saw racing "
            "(an annotation on the report's verdict, informational: the verdict is its class's, so "
            "an SC report with it is a Strong conflict).\n"]
     hdr = ["pset", "mode", "Race u Latent FP / TP", "a2 (R u L) FP / TP", "Race alone FP / TP",
@@ -632,7 +634,7 @@ def fp_cause_table():
                    "`baselines-fp-causes.csv`._")
         return "\n".join(out)
     out.append("A program counts as FP above on ANY RACE verdict. `structural-FP` = programs "
-               "with >=1 report the engine observed racing (structural/model_bug); the rest "
+               "with >=1 report HbClock observed racing (structural/model_bug); the rest "
                "carry only `latent` reports (no dynamic race, no static proof). Causes are "
                "per program as the SET of its reports' causes (see `eval/FP_DIAGNOSIS.md`): "
                "RC1 cuda::atomic load/store not modelled, RC2 latent on barrier/lock idioms, "
@@ -945,7 +947,7 @@ MATRIX_SHORT = {("cuvein", VC): hb_modes.SHORT[VC], ("cuvein", SC): hb_modes.SHO
                 ("hirace", ""): "HiRace", ("iguard", ""): "iGUARD", ("supercollider", ""): "SuperCollider"}
 FP_CAUSE_TEXT = {"RC1": "cuda::atomic load/store not modelled as atomic",
                  "RC2": "latent report on a barrier/lock idiom (not raced dynamically, no static proof)",
-                 "RC3": "pair mis-attribution in the engine",
+                 "RC3": "pair mis-attribution in HbClock",
                  "RC4": "same-pc write-write of the same value (idempotent `updated = true`)",
                  "RC5": "ScoR volatile-handshake data",
                  "other": "plain conflicting accesses that did race in the run (suite labels the program race-free)"}
@@ -1399,11 +1401,11 @@ def memory_footprint_section(runs, meta, man):
             ratio = f"{statistics.median(xs) / floor_e:.2f}×" if xs and floor_e else "—"
             u = f"{blank} rows without a peak (no-kernel-json)" if blank else "0"
             out.append(f"| {suite} {label} | {m} | {len(xs)} | {cell} | {ratio} | {u} |")
-    # the vector-clock TIMEOUT/OOM set the engine-memory fix (T5b) is measured on
-    tf = f"{HERE}/setup/engine_timeout_ids.txt"
+    # the vector-clock TIMEOUT/OOM set the HbClock memory fix (T5b) is measured on
+    tf = f"{HERE}/setup/hb_clock_timeout_ids.txt"
     if os.path.exists(tf):
         ids = [x.strip() for x in open(tf) if x.strip()]
-        out += ["", f"**`setup/engine_timeout_ids.txt`** ({len(ids)} programs, the vector-clock "
+        out += ["", f"**`setup/hb_clock_timeout_ids.txt`** ({len(ids)} programs, the vector-clock "
                 "TIMEOUT/OOM set): last observed peak RSS per mode (MB) and the vector-clock / "
                 "scalar-clock ratio on the same program.\n",
                 "| program | vector-clock | scalar-clock | VC ÷ SC |", "|---|---|---|---|"]
@@ -1616,7 +1618,7 @@ def main():
     doc.append(residual_section())
     doc.append("\n## 2. Verdicts per program set\n")
     doc.append("Cells: `RACE(n)` = race reported with n deduped reports; `CLEAN`; "
-               f"`TO` timeout; `ERR`; `—` not run. {hb_modes.SHORT[VC]} = C++ HB engine "
+               f"`TO` timeout; `ERR`; `—` not run. {hb_modes.SHORT[VC]} = C++ HbClock "
                f"verdict; {hb_modes.SHORT[SC]} = scalar-clock (sync_dominance static leg). "
                "Columns marked `*` (memcheck/synccheck/initcheck) are NOT race detectors: "
                "`FLAG(n)` = the tool reported ≥1 error of its own class; `clean` = none.")

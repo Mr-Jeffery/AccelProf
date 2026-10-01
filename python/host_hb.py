@@ -9,7 +9,7 @@ that log with vector clocks over streams plus the host's knowledge C_H (§2.1 of
 takes each monitored kernel's global-memory footprint from its hb_events, and returns every
 pair of operations that access a common address, at least one writing, with neither ordered
 before the other. It needs no GPU; both modes use it (a copy has no pc, so neither the static
-leg nor the in-kernel engine is involved).
+leg nor HbClock is involved).
 
     python3 host_hb.py <dump dir>            # summary
     python3 host_hb.py <dump dir> --json     # the race records

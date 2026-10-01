@@ -2,7 +2,7 @@
 """Generate deterministic stdin inputs for the ScoR benchmark apps (E0).
 
 Each app reads its whole input from stdin (cin/scanf). Two sizes per app:
-'small' (fits the exact hb_oracle) and 'large' (engine-only). Writes files to
+'small' (fits the exact hb_oracle) and 'large' (hb-clock-only: no oracle cross-check). Writes files to
 the given out dir as <app>.<size>.in.
 
     python eval/gen_scor_input.py --out /abs/inputs
