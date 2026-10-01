@@ -5,6 +5,7 @@
 #SBATCH --time=06:00:00
 #SBATCH --array=0-31
 #SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/iguard-%A_%a.log
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # iGUARD (NVBit tool, LD_PRELOAD) over P1-P6, 3 reps, sharded ->
 # eval/results/baselines-iguard-shard{k}_32.csv. Exits 3 (no rows) if the tool
 # was not built -- nothing is simulated.

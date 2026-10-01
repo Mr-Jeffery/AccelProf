@@ -603,6 +603,21 @@ def _keep_decision(verdicts, label):
     return ",".join(reasons)
 
 
+def _resolve_keep_dir(v, allow_home):
+    """--keep-mismatch target. A bare tag (no '/') -> /mnt/beegfs/$USER/cuvein_traces/keep/<tag>
+    (T-H: home has a 40 GB quota). An absolute path under $HOME is refused unless --keep-home."""
+    if not v:
+        return ""
+    if "/" not in v:
+        return f"/mnt/beegfs/{os.environ.get('USER', 'unknown')}/cuvein_traces/keep/{v}"
+    real = os.path.realpath(v)
+    home = os.path.realpath(os.path.expanduser("~"))
+    if (real == home or real.startswith(home + os.sep)) and not allow_home:
+        sys.exit(f"--keep-mismatch {v}: path is under $HOME (40 GB quota); pass a bare tag "
+                 f"(BeeGFS keep/<tag>) or add --keep-home to force the home path")
+    return v
+
+
 def _keep_trace(idir, keep_dir, reason, cap_mb):
     """Copy kernel JSONs + dots + meta + logs of a kept program into keep_dir/<id>
     (home). Above cap_mb the kernel JSONs are dropped (meta+logs+dots kept) and the
@@ -752,7 +767,7 @@ def cmd_run(a):
     if keep_all:
         _write_store_info(STORE, a)
     kept_bytes = 0
-    keep_dir = getattr(a, "keep_mismatch", "")
+    keep_dir = _resolve_keep_dir(getattr(a, "keep_mismatch", ""), getattr(a, "keep_home", False))
     if keep_dir:
         os.makedirs(keep_dir, exist_ok=True)
     tag = a.shard.replace("/", "_") if a.shard else "all"
@@ -827,8 +842,11 @@ def main():
         p.add_argument("--timeout-floor", dest="timeout_floor", type=int, default=120,
                        help="minimum tool timeout in s (P7 overhead set: 1200)")
         p.add_argument("--keep-mismatch", dest="keep_mismatch", default="",
-                       help="dir (home) where FP/FN/ERROR/TIMEOUT traces are kept; "
+                       help="tag (BeeGFS keep/<tag>) or path where FP/FN/ERROR/TIMEOUT traces are kept; "
                             "TP/TN traces are always deleted")
+        p.add_argument("--keep-home", dest="keep_home", action="store_true",
+                       help="allow --keep-mismatch to be a path under $HOME (default: refused; "
+                            "a bare tag goes to /mnt/beegfs/$USER/cuvein_traces/keep/<tag>)")
         p.add_argument("--keep-cap-mb", dest="keep_cap_mb", type=int, default=300,
                        help="size cap (MB) of one program's --keep-mismatch home copy; 0 = none")
         p.add_argument("--keep-all", dest="keep_all", action="store_true",

@@ -6,6 +6,7 @@
 #SBATCH --time=06:00:00
 #SBATCH --array=0-31
 #SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/evcand-%A_%a.log
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # Re-run of the labelled sets P1-P6 on the detector with event-stream candidates + the R3
 # past-release gate (eval/FP_DIAGNOSIS.md), BOTH modes in one job (collect_one wipes
 # <store>/<id>, so split per-mode jobs would clobber each other). EVERY trace is KEPT on
@@ -25,4 +26,4 @@ $PY eval/baselines/parallel.py run --manifest eval/baselines/setup/manifest.evca
     --shard ${SLURM_ARRAY_TASK_ID}/32 --confirm --tag evcand \
     --results-dir /home/fzheng4/AccelProf/eval/results/evcand \
     --confirm-dir /home/fzheng4/AccelProf/eval/baselines/confirm_evcand \
-    --keep-mismatch /home/fzheng4/AccelProf/eval/baselines/traces_keep_evcand --keep-cap-mb 100
+    --keep-mismatch traces_keep_evcand --keep-cap-mb 100

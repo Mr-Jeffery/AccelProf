@@ -5,6 +5,7 @@
 #SBATCH --time=24:00:00
 #SBATCH --exclude=c54,c2
 #SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/t9-analyze-%A_%a.log
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # T9 step 6: `parallel.py analyze` of the re-score stores (eval/baselines/t9_rescore.py).
 #   WHICH=before  the BEFORE store (recorded dumps) with the detector code of 1a3aea5
 #                 (CODE=<a `git archive 1a3aea5 python eval/baselines eval/aggregate.py` tree>)

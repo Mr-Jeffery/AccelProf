@@ -4,6 +4,7 @@
 #SBATCH --nodes=1 --ntasks=1
 #SBATCH --time=00:40:00
 #SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/fullfinal-%j.log
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 cd /home/fzheng4/AccelProf || exit 1
 source eval/baselines/gpu_env.sh
 $PY eval/baselines/select_p7.py

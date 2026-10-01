@@ -4,6 +4,7 @@
 #SBATCH --nodes=1 --ntasks=1
 #SBATCH --time=00:30:00
 #SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/pfinalize-%j.log
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # CPU node: merge shard CSVs, classify disagreements, rebuild tables.
 cd /home/fzheng4/AccelProf || exit 1
 source eval/baselines/gpu_env.sh

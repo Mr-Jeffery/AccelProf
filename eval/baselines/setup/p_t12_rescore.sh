@@ -4,6 +4,7 @@
 #SBATCH --nodes=1 --ntasks=1 --cpus-per-task=2
 #SBATCH --time=24:00:00
 #SBATCH --exclude=c54,c2
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # T12 step 4 (CLAUDE.md section C): the gated oracle (instance gate, strong-ldst token) over the
 # vector-clock dumps of every program with an RMW pc -> the AFTER store t12-after
 # (eval/baselines/t12_rescore.py). CPU only; BeeGFS is mounted on compute nodes.

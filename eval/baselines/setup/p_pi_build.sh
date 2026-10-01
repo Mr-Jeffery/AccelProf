@@ -4,6 +4,7 @@
 #SBATCH --nodes=1 --ntasks=1 --cpus-per-task=16
 #SBATCH --time=03:00:00
 #SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/pi-build-%j.log
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # PI = whole Indigo-original suite (590 IndigoSuite codes + their HiRace twins), then the
 # manifest (PI replaces the partial sets P2 and P8). CPU node; nvcc only.
 cd /home/fzheng4/AccelProf || exit 1

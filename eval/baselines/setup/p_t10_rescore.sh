@@ -4,6 +4,7 @@
 #SBATCH --nodes=1 --ntasks=1 --cpus-per-task=2
 #SBATCH --time=12:00:00
 #SBATCH --exclude=c54,c2
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # T10 step 3 (CLAUDE.md section C): the T10 oracle (policy `token`) over the vector-clock dumps
 # of every program whose strength table differs between `generic` and `token` -> the AFTER
 # store t10-after (eval/baselines/t10_rescore.py). CPU only; BeeGFS is mounted on compute nodes.

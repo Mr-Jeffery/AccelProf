@@ -4,6 +4,7 @@
 #SBATCH --nodes=1 --ntasks=1 --cpus-per-task=4
 #SBATCH --time=24:00:00
 #SBATCH --exclude=c54,c2
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # T10 step 3: `parallel.py analyze` of the AFTER store t10-after (eval/baselines/t10_rescore.py)
 # with this worktree's detector (default strength policy `token`), over T9's manifest; the
 # BEFORE rows are T9's AFTER rows (eval/results/t9-rescore/after/). IDFILE restricts the ids.

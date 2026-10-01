@@ -6,6 +6,7 @@
 #SBATCH --array=0-31
 #SBATCH --exclude=c54,c2
 #SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/analyze-cpu-%A_%a.log
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # CPU-only re-score of a kept BeeGFS trace store (T0, eval/STORAGE.md): `parallel.py
 # analyze` reads <store>/<id>/{meta.json,dots/,<mode>/kernel_*.json} and runs
 # sync_dominance -- it never calls blib.resolve_cuda_home(), so it runs on the

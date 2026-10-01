@@ -5,6 +5,7 @@
 #SBATCH --time=24:00:00
 #SBATCH --exclude=c54,c2
 #SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/t9-rescore-%A_%a.log
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # T9 step 6 (CLAUDE.md section C): the new hb_oracle over every kept vector-clock dump ->
 # the AFTER store (eval/baselines/t9_rescore.py). CPU only; BeeGFS is mounted on compute nodes.
 #   small (dump < 500 MB), 24 shards:

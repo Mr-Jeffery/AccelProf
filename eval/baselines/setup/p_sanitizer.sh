@@ -5,6 +5,7 @@
 #SBATCH --time=06:00:00
 #SBATCH --array=0-31
 #SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/sanitizer-%A_%a.log
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # compute-sanitizer memcheck/racecheck/synccheck/initcheck over all manifest rows,
 # sharded over (row, tool) pairs -> eval/results/baselines-sanitizer-shard{k}_32.csv
 cd /home/fzheng4/AccelProf || exit 1

@@ -4,6 +4,7 @@
 #SBATCH --nodes=1 --ntasks=1 --cpus-per-task=2
 #SBATCH --time=24:00:00
 #SBATCH --exclude=c54,c2
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # T14 (CLAUDE.md C/T14, design/a2_flag.md): the offline window count and the re-score with the
 # a2_uncertain flag, eval/baselines/a2_window_count.py. CPU only; BeeGFS is mounted on the
 # compute nodes. Outputs under /mnt/beegfs/$USER/t14-a2/ and the store cuvein_traces/t14-after.

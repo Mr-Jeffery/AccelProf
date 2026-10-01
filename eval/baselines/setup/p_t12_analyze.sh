@@ -4,6 +4,7 @@
 #SBATCH --nodes=1 --ntasks=1 --cpus-per-task=4
 #SBATCH --time=24:00:00
 #SBATCH --exclude=c54,c2
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # T12 step 4: `parallel.py analyze` of one of the three analyses of eval/baselines/t12_rescore.py
 # over T9's manifest, with this worktree's detector:
 #   WHICH=before  store t10-after, CUVEIN_R3_TRACE_{RELEASE,ACQUIRE}=0 CUVEIN_R3_BEFORE_ACQUIRE=0 (pre-T12)

@@ -6,6 +6,7 @@
 #SBATCH --time=04:00:00
 #SBATCH --array=0-3
 #SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/pi-sc-%A_%a.log
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # SuperCollider: only PI's sc-subset rows (its 99 pre-instrumented tests on its own input).
 cd /home/fzheng4/AccelProf || exit 1
 source eval/baselines/gpu_env.sh
