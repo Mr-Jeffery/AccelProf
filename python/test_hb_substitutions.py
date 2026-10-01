@@ -37,6 +37,7 @@ from pathlib import Path
 
 import pytest
 
+import a2_aware
 import hb_oracle
 import sync_dominance as sd
 
@@ -119,8 +120,8 @@ def i1(tmp_path_factory):
     t = _load(trace)
     _, atom, coh = ac.tables(dots, t)
     ev = _mem(t)
-    b0, b1 = [e for e in ev if e["block"] == 0], [e for e in ev if e["block"] == 1]
-    if not b0 or not b1 or b0[-1]["seq"] > b1[0]["seq"]:
+    b0, b1, forced = a2_aware.without_flag(ev)       # T18: the order is forced by a flag spin
+    if not forced:
         pytest.skip("schedule not reached: block 0 did not finish before block 1 started")
     unlock = [e for e in b0 if e["pc"] in atom][-1]
     write = next(e for e in b0 if e["seq"] > unlock["seq"] and e["pc"] not in atom)
@@ -151,6 +152,11 @@ def test_write_after_unlock_other_schedule(i1):
     [v] = _verdict(dots, trace, (write["pc"], read["pc"]))
     assert (v["verdict"], v["hb_class"]) == \
         (("RACE", "structural") if cls == "DR" else ("SC", "sc"))
+    # T18: the hand-off order is forced by a flag spin, so no RMW window overlaps and every
+    # other report would have to be a2_uncertain (flag == count); none is expected
+    extra = [r for r in _load(trace).get("hb_races", [])
+             if not (r["a_pc"] == write["pc"] and r["b_pc"] == read["pc"])]
+    assert all(r.get("a2_uncertain", 0) == r.get("count", 1) for r in extra), extra
 
 
 def test_write_after_unlock_scalar_clock(i1, tmp_path):

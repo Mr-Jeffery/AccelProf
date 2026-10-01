@@ -54,6 +54,11 @@ void IncrementNumEntries(MemoryAccessTracker* pTracker) {
 // it drains a buffer. The one exception is the lane whose commit fills the buffer: it draws
 // its key before ringing the doorbell and waiting for the drain (it must: the drain needs
 // the key), so its key precedes that wait -- one record per MEMORY_ACCESS_BUFFER_SIZE.
+// T18: compiled only into the late-key variant (gpu_patch_pc_dependency_late.cu defines
+// HB_LATE_SEQ); the default fatbin has no late-key code, no tracker-field load and no extra
+// __syncwarp in the record callback. The collector loads the variant at module load, by
+// YOSEMITE_HB_LATE_SEQ.
+#ifdef HB_LATE_SEQ
 static __device__ __inline__
 uint64_t DrawLateKey(MemoryAccessTracker* pTracker) {
     if (pTracker->late_mode == 2) {
@@ -86,6 +91,12 @@ void CommitRecord(MemoryAccessTracker* pTracker, uint32_t idx) {
         atomicExch((uint32_t*)&(pTracker->currentEntry), static_cast<uint32_t>(0));
     }
 }
+#else
+static __device__ __inline__
+void CommitRecord(MemoryAccessTracker* pTracker, uint32_t) {
+    IncrementNumEntries(pTracker);
+}
+#endif
 
 static __device__
 SanitizerPatchResult CommonCallback(
@@ -143,9 +154,11 @@ SanitizerPatchResult CommonCallback(
     }
     // T15: with the late key, no lane may leave before its record's key is drawn -- else a
     // non-committing lane could reach its next record (and its key) first, breaking W0.
+#ifdef HB_LATE_SEQ
     if (pTracker->late_keys != nullptr) {
         __syncwarp(active_mask);
     }
+#endif
 
     return SANITIZER_PATCH_SUCCESS;
 }

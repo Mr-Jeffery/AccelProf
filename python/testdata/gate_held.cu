@@ -6,6 +6,10 @@
 // the pending acquire J -- the conflict is HELD until the CAS thread's next record:
 //   held_fenced   : __threadfence() after the CAS  -> acq = 1 -> the held conflict is dropped
 //   held_unfenced : no fence after the CAS          -> acq = 0 -> it is reported (DR, "atomic")
+// The hand-off order is already forced by a flag spin (T18: thread 32 CASes the lock word only
+// after `go` took effect, which is after thread 0's lock-word exchange and its record window
+// closed), so the two RMW windows on the lock word cannot overlap whatever the collector's
+// timing; nothing to change.
 // Both kernels run in one binary; HbClock == specification on both is the check of the deferral.
 #include <cstdio>
 

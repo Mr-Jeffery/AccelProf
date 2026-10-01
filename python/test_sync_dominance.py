@@ -10,6 +10,10 @@ the suite is asserted in both directions:
                   are reported as unordered strong conflicts instead -- SC, no RACE
   * `norace_*` -> zero RACEs and zero SC (a hit is a false positive)
   * every binary -> pipeline aligns, no unknown sync opcodes
+T18: the verdict criterion is A2-aware (python/a2_aware.py). The collector records an atomic
+at issue, so the lock litmus lands in a schedule the collector build decides, and an
+RMW-window overlap there can add a report no label anticipates. The reports that are not
+a2_uncertain must match the label; an extra report must carry a2_uncertain equal to its count.
 """
 import json
 import os
@@ -19,6 +23,7 @@ from pathlib import Path
 
 import pytest
 
+import a2_aware
 import hb_modes
 import hb_oracle as ho
 import sync_dominance as sd
@@ -132,7 +137,7 @@ def test_scor_microbenchmark(binary, logfile):
         pytest.skip("corpus not generated (no GPU / accelprof unavailable)")
     dots, traces = art
 
-    races = sc = 0
+    races = sc = f_races = f_sc = 0            # unflagged / a2_uncertain, per verdict
     with open(logfile, "a") as log:
         log.write(f"\n===== {binary.name} =====\n")
         for trace in traces:
@@ -148,24 +153,39 @@ def test_scor_microbenchmark(binary, logfile):
             log.write(sd.render(report, out) + "\n")
             assert report["diagnostics"]["unknown_sync_count"] == 0, \
                 f"unknown sync opcodes in {binary.name}"
-            races += report["summary"]["races"]
-            sc += report["summary"]["sc"]
+            r, s_, fr, fs = a2_aware.counts(report)
+            races += r; sc += s_; f_races += fr; f_sc += fs
 
-    if binary.name.startswith("race_"):
-        if _volatile_is_strong() and binary.name in _PTX_STRONG_RACES:
-            # T10: reported, as an unordered strong conflict (a miss has sc == 0 as well)
-            assert races == 0 and sc >= 1, (f"{binary.name}: expected the labelled race as SC "
-                                            f"only, got {races} race(s) and {sc} SC")
+    _check_label(binary.name, races, sc, f_races, f_sc)
+
+
+def _check_label(name, races, sc, f_races, f_sc, mode="", scalar=False):
+    """The A2-aware label criterion. races/sc count the unflagged reports, f_* the
+    a2_uncertain ones (flag == count at the verdict level)."""
+    tag = f"{mode}{name}"
+    if name.startswith("race_"):
+        if _volatile_is_strong() and name in _PTX_STRONG_RACES:
+            # T10: reported as an unordered strong conflict, never an unflagged RACE; a miss
+            # has no SC either. An extra a2_uncertain DR beside it is the A2 schedule.
+            assert races == 0 and sc + f_sc >= 1, (
+                f"{tag}: expected the labelled race as SC only, got {races} unflagged race(s), "
+                f"{sc} unflagged SC, {f_races} flagged race(s), {f_sc} flagged SC")
         else:
-            assert races >= 1, f"false negative: {binary.name} reported no race"
-    elif _gate_is_instance() and binary.name in _PTX_UNFENCED_NORACE:
+            assert races + f_races >= 1, f"false negative: {tag} reported no race"
+    elif scalar and name.startswith("norace_"):
+        # scalar-clock mode keeps the T12 unfenced litmus silent (R3: ScoRD's reading) and
+        # asserts no SC on race-free kernels, as before T18
+        assert races == 0, f"scalar-clock false positive: {name} ({races} unflagged race(s))"
+    elif _gate_is_instance() and name in _PTX_UNFENCED_NORACE:
         # T12 (D11): unordered under PTX -- reported (DR or SC by class), not suppressed
-        assert races + sc >= 1, (f"{binary.name}: PTX leaves it unordered "
-                                 f"({_PTX_UNFENCED_NORACE[binary.name]}) and the instance "
-                                 f"gate must report it")
+        assert races + sc + f_races + f_sc >= 1, (
+            f"{tag}: PTX leaves it unordered ({_PTX_UNFENCED_NORACE[name]}) and the instance "
+            f"gate must report it")
     else:
-        assert races == 0, f"false positive: {binary.name} reported {races} race(s)"
-        assert sc == 0, f"{binary.name}: {sc} unordered strong conflict(s) on a race-free kernel"
+        # race-free: every report must be A2-uncertain (the flag equals the count)
+        assert races == 0, f"false positive: {tag} reported {races} unflagged race(s)"
+        assert sc == 0, (f"{tag}: {sc} unflagged strong conflict(s) on a race-free kernel "
+                         f"({f_races} race(s), {f_sc} SC carry a2_uncertain)")
 
 
 def _race_key(r):
@@ -245,7 +265,7 @@ def test_scor_microbenchmark_scalar_clock(binary, tmp_path):
     if art is None:
         pytest.skip("corpus not generated (no GPU / accelprof unavailable)")
     dots, traces = art
-    races = vc_races = sc = 0
+    races = vc_races = sc = f_races = f_sc = 0
     for trace in traces:
         tj = json.loads(trace.read_text())
         for k in ("hb_races", "hb_races_sync_only", "coherence_profile"):
@@ -254,22 +274,20 @@ def test_scor_microbenchmark_scalar_clock(binary, tmp_path):
         stripped.write_text(json.dumps(tj))
         for dot in dots:
             try:
+                vrep = sd.analyze(dot, trace)
                 rep = sd.analyze(dot, stripped)
-                races += rep["summary"]["races"]
-                sc += rep["summary"]["sc"]
-                vc_races += sd.analyze(dot, trace)["summary"]["races"]
+                # T18: the a2_uncertain flag is a property of the trace's RMW windows; the
+                # scalar-clock dump has no hb_races, so take it from the same trace's
+                # vector-clock analysis
+                r, s_, fr, fs = a2_aware.counts(rep, a2_aware.flagged_pairs(vrep))
+                races += r; sc += s_; f_races += fr; f_sc += fs
+                vc_races += vrep["summary"]["races"]
                 break
             except sd.AlignmentError:
                 continue
-    if binary.name.startswith("norace_"):
-        assert races == 0, f"scalar-clock false positive: {binary.name}"
-    elif _volatile_is_strong() and binary.name in _PTX_STRONG_RACES:
-        # T10: the class is R2's here (both pcs strong at a covering scope): SC, no RACE
-        assert races == 0 and sc >= 1, (f"scalar-clock: {binary.name}: expected SC only, got "
-                                        f"{races} race(s) and {sc} SC")
-    elif binary.name not in _SCALAR_CLOCK_KNOWN_FN:
-        assert races >= 1, f"scalar-clock false negative: {binary.name} " \
-                           f"(vector-clock mode reports {vc_races})"
+    if binary.name in _SCALAR_CLOCK_KNOWN_FN:
+        return
+    _check_label(binary.name, races, sc, f_races, f_sc, mode="scalar-clock: ", scalar=True)
 
 
 def test_write_after_unlock_is_event_candidate(tmp_path, monkeypatch):
@@ -294,7 +312,10 @@ def test_write_after_unlock_is_event_candidate(tmp_path, monkeypatch):
     want = "SC" if strong else "RACE"
     cls = {hb_modes.VECTOR_CLOCK: "latent-sc" if strong else "latent",
            hb_modes.SCALAR_CLOCK: "sc" if strong else None}
-    reported = lambda rep: rep["summary"]["races"] + rep["summary"]["sc"]
+    def unflagged(rep, flagged):
+        # T18: reports that are not a2_uncertain (an A2 schedule may add flagged ones)
+        r, s_, _, _ = a2_aware.counts(rep, flagged)
+        return r + s_
 
     def both_modes(trace):
         tj = json.loads(trace.read_text())
@@ -304,11 +325,21 @@ def test_write_after_unlock_is_event_candidate(tmp_path, monkeypatch):
         stripped.write_text(json.dumps(tj))
         return ((hb_modes.VECTOR_CLOCK, trace), (hb_modes.SCALAR_CLOCK, stripped))
 
+    flagged = a2_aware.flagged_pairs(sd.analyze(dots[0], traces[-1]))
     for mode, trace in both_modes(traces[-1]):
         rep = sd.analyze(dots[0], trace)
-        races = [v for v in rep["verdicts"] if v["verdict"] in ("RACE", "SC")]
-        assert len(races) == 1, f"{mode}: {races}"
+        # the labelled race, by role: the event-stream WAR/RAW pair on global memory; every
+        # other report must be a2_uncertain (flag == count), whatever schedule the collector
+        # landed the lock in
+        reps = [v for v in rep["verdicts"] if v["verdict"] in ("RACE", "SC")]
+        races = [v for v in reps if v["event_candidate"] and v["race_type"] in ("WAR", "RAW")
+                 and v["space"] == "global"]
+        assert len(races) == 1, f"{mode}: {reps}"
         race = races[0]
+        extra = [v for v in reps if v is not race]
+        assert all(_pair_flagged(v, flagged) for v in extra), \
+            f"{mode}: extra report(s) without a2_uncertain: " \
+            f"{[(v['race_type'], v['verdict'], v['a2_uncertain']) for v in extra if not _pair_flagged(v, flagged)]}"
         assert race["verdict"] == want, f"{mode}: {race['verdict']} (policy {sd.strong_ldst_policy()})"
         assert race["event_candidate"] and not race["edge_rescued"]
         assert race["race_type"] in ("WAR", "RAW") and race["space"] == "global"
@@ -318,12 +349,17 @@ def test_write_after_unlock_is_event_candidate(tmp_path, monkeypatch):
                  for e in json.loads(Path(trace).read_text())["edges"]}
         assert frozenset((race["current_pc"], race["ancient_pc"])) not in edges
         # the lock-protected pairs stay ordered (R3 inside the critical section)
-        assert all(v["verdict"] == "ORDERED" for v in rep["verdicts"] if v is not race)
+        assert all(v["verdict"] == "ORDERED" or v in extra
+                   for v in rep["verdicts"] if v is not race)
 
-        assert reported(sd.analyze(dots[0], trace, event_candidates=False)) == 0
+        assert unflagged(sd.analyze(dots[0], trace, event_candidates=False), flagged) == 0
         monkeypatch.setenv("CUVEIN_R3_PAST_RELEASE", "0")
-        assert reported(sd.analyze(dots[0], trace)) == 0
+        assert unflagged(sd.analyze(dots[0], trace), flagged) == 0
         monkeypatch.delenv("CUVEIN_R3_PAST_RELEASE")
+
+
+def _pair_flagged(v, flagged):
+    return v.get("a2_uncertain") is True or frozenset((v["current_pc"], v["ancient_pc"])) in flagged
 
 
 _ISW = _ROOT / "cuHadron/intersubwarp"
