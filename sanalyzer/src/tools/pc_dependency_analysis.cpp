@@ -317,10 +317,15 @@ struct HbClock {
     // some instance had none). RMW-ness is the sidecar's rmw column, the predicate
     // (sd.atomic_scope) analyze() applies to the CFG. Keyed by the lane's own tid: a cp.async
     // copy counts as the issuing thread's access here, as offline.
-    struct RmwThread { std::vector<uint32_t> pending; uint32_t last = 0; bool has_last = false; };
+    // Called once per lane access, so the common repeats are short-circuited: a thread's
+    // repeat of its previous non-RMW pc (seen_pc) adds nothing, and a pc's acquire set is
+    // touched only when the previous RMW differs from the one last recorded for it.
+    struct RmwThread { std::vector<uint32_t> pending; uint32_t last = 0; bool has_last = false;
+                       uint32_t seen_pc = UINT32_MAX; };
     std::unordered_map<Tid, RmwThread> rmw_thr;
-    struct RmwPc { std::set<uint32_t> rel, acq; bool stranded = false, orphan = false; };
-    std::map<uint32_t, RmwPc> rmw_pts;
+    struct RmwPc { std::set<uint32_t> rel, acq; bool stranded = false, orphan = false;
+                   uint32_t acq_last = 0; bool acq_last_valid = false; };
+    std::unordered_map<uint32_t, RmwPc> rmw_pts;
     void rmw_note(Tid t0, uint32_t pc, bool is_rmw) {
         RmwThread& r = rmw_thr[t0];
         if (is_rmw) {
@@ -328,11 +333,20 @@ struct HbClock {
             r.pending.clear();
             r.last = pc;
             r.has_last = true;
+            r.seen_pc = UINT32_MAX;
         } else {
+            if (r.seen_pc == pc) return;                    // the same pc again, nothing new
+            r.seen_pc = pc;
             if (std::find(r.pending.begin(), r.pending.end(), pc) == r.pending.end())
                 r.pending.push_back(pc);
             RmwPc& p = rmw_pts[pc];
-            if (r.has_last) p.acq.insert(r.last); else p.orphan = true;
+            if (!r.has_last) {
+                p.orphan = true;
+            } else if (!p.acq_last_valid || p.acq_last != r.last) {
+                p.acq.insert(r.last);
+                p.acq_last = r.last;
+                p.acq_last_valid = true;
+            }
         }
     }
     void rmw_finish() {       // kernel end: a pc still pending in some thread is stranded
@@ -1494,24 +1508,30 @@ struct HbClock {
         }
         // T4: R3's release / acquire points from the trace (sync_dominance.trace_rmw_points):
         // per non-RMW pc the RMW pcs; [] = some instance had none (stranded / orphan).
+        std::vector<uint32_t> rpcs;                         // in pc order
+        rpcs.reserve(rmw_pts.size());
+        for (const auto& kv : rmw_pts) rpcs.push_back(kv.first);
+        std::sort(rpcs.begin(), rpcs.end());
         jout << ",\n  \"hb_rmw_points\": {\"release\": {";
         bool first_pc = true;
-        for (const auto& kv : rmw_pts) {
-            jout << (first_pc ? "" : ", ") << "\"" << kv.first << "\": [";
-            if (!kv.second.stranded) {
+        for (uint32_t u : rpcs) {
+            const RmwPc& p = rmw_pts[u];
+            jout << (first_pc ? "" : ", ") << "\"" << u << "\": [";
+            if (!p.stranded) {
                 bool f = true;
-                for (uint32_t r : kv.second.rel) { jout << (f ? "" : ", ") << r; f = false; }
+                for (uint32_t r : p.rel) { jout << (f ? "" : ", ") << r; f = false; }
             }
             jout << "]";
             first_pc = false;
         }
         jout << "}, \"acquire\": {";
         first_pc = true;
-        for (const auto& kv : rmw_pts) {
-            jout << (first_pc ? "" : ", ") << "\"" << kv.first << "\": [";
-            if (!kv.second.orphan) {
+        for (uint32_t u : rpcs) {
+            const RmwPc& p = rmw_pts[u];
+            jout << (first_pc ? "" : ", ") << "\"" << u << "\": [";
+            if (!p.orphan) {
                 bool f = true;
-                for (uint32_t r : kv.second.acq) { jout << (f ? "" : ", ") << r; f = false; }
+                for (uint32_t r : p.acq) { jout << (f ? "" : ", ") << r; f = false; }
             }
             jout << "]";
             first_pc = false;
