@@ -235,6 +235,19 @@ programs always had (T5b, T12).
    CC 1296n (Pull_Determ_Persist, default) 46 s, 1.24 GB → 40 s, 1.06 GB / 23 s, 1.23 GB →
    18 s, 1.05 GB. (The sweep's 1,154 s for matmul vector-clock on c78 was schedule/node
    variance: the lock program's run time depends on the schedule.)
+   **Node variance, measured:** the same A/B on the final build (job 296679) landed on
+   c73, an EPYC 7302P (Zen 2, 3.0 GHz), where c50 is an EPYC 9115 (Zen 4, 4.1 GHz boost):
+   every run there, the dump half included and the *native* programs too (0.22 → 0.34 s,
+   0.27 → 0.51 s, 0.22 → 0.54 s), is 1.5–2.5× slower — matmul vector-clock with the dump hits
+   the 1,200 s cap on c73 (717 s on c50), uts 246 s vs 113 s, CC 104 s vs 46 s. The
+   `rtx4060ti16g` partition mixes CPU generations, so wall times across the rows of §4.1
+   (and of T5b's table) carry up to ~2× node variance; the dump → no-dump ratios on one
+   node are the clean measure, and on c73 (final build 7d038730) they are: matmul
+   vector-clock at the cap in both halves (1,200 s; RSS 14.8 → 5.3 GB), scalar-clock 166 s,
+   11.6 GB → 73 s, 1.3 GB; uts vector-clock 246 s, 3.4 GB → 190 s, 1.3 GB, scalar-clock
+   58 s, 2.7 GB → 33 s, 1.0 GB; CC 1296n vector-clock 104 s, 1.24 GB → 87 s, 1.07 GB,
+   scalar-clock 58 s, 1.23 GB → 33 s, 1.05 GB — the same direction and proportions as on
+   c50 with the first build.
 3. **The programs that still do not finish are bounded by the instrumented run itself,
    not by the dump.** Every remaining TIMEOUT has a native wall of 0.4–20 s, so the harness
    cap is the 1,200 s ceiling, and the tool is at it in both modes with the dump gone. Two
@@ -352,7 +365,9 @@ entry per thread, and a main-clock entry per thread in vector-clock mode: 9.4 �
   (`hb_stats` shows 44 MB of HB state); not measured directly.
 - `YOSEMITE_HB_STATS_EVERY` snapshots cost a walk over the state each; the long runs'
   wall times carry that overhead (one walk per doubling of the records: ≤ 6 per kernel).
-- No GPU architecture other than sm_89 was used.
+- No GPU architecture other than sm_89 was used; the CPU side of the `rtx4060ti16g`
+  nodes spans Zen 2 to Zen 4 (§4.2 item 2), and the tables do not record which node ran
+  which row beyond the CSVs' `node=` note.
 
 ## 6. Commands, revision, jobs
 
