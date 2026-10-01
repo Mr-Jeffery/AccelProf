@@ -241,6 +241,9 @@ private:
     // acquire spin can be recorded acquire-before-release; HbClock then misses
     // that join and reports the handshake-ordered store as a structural race (2 of
     // the 12 structural reports on the ScoR reduction race-free build are this).
+    // T4 (design/no_dump.md): with YOSEMITE_HB_DUMP=0 nothing is kept -- the drain is only
+    // counted (hb_events_count / hb_lanes_count) and HbClock's aggregates, computed in both
+    // modes, stand in for the array in kernel_N.json ("hb_aggregates": 1).
     void hb_collect_events(const MemoryAccess* buffer, uint64_t size,
                            const uint32_t* order = nullptr);   // T15: drain order
 

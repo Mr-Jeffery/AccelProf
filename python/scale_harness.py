@@ -99,7 +99,8 @@ def analyze_app(binary, app_args, tag, oracle_cap_events):
     rows = []
     for tf in traces:
         d = json.loads(tf.read_text())
-        events = len(d.get("hb_events", []))
+        # T4: a no-dump run carries hb_events_count instead of the array
+        events = len(d.get("hb_events") or ()) or int(d.get("hb_events_count") or 0)
         eng_races = d.get("hb_races", [])
         cp = d.get("coherence_profile", {})
         grid = d["kernel"].get("grid_dim"); block = d["kernel"].get("block_dim")

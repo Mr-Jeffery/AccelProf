@@ -28,6 +28,10 @@ std::vector<uint64_t> g_late_keys;      // keys of the next drain, empty = none 
 uint32_t g_late_mode = 0;               // 1 atomic counter, 2 %globaltimer
 uint32_t g_late_kernel_mode = 0;        // the mode this kernel's dump was ordered by
 uint64_t g_hb_bpos_base = 0;            // buffer slots drained so far in this kernel
+// T4 (design/no_dump.md): what the hb_events array would hold -- records (non-local) and
+// lane-accesses -- counted on every drain, written as hb_events_count / hb_lanes_count whether
+// or not the array itself is written (YOSEMITE_HB_DUMP).
+uint64_t g_hb_events_count = 0, g_hb_lanes_count = 0;
 }  // namespace
 
 
@@ -295,7 +299,46 @@ struct HbClock {
         if ((a >> 10) != (b >> 10)) return 3;
         return ((a >> 5) != (b >> 5)) ? 2 : 1;
     }
-    std::map<std::pair<uint32_t, uint32_t>, uint64_t> sync_pairs;  // (pc_lo, pc_hi) -> count
+    // T4: per pair also the widest thread distance of its unordered conflicts and the
+    // (earlier, later) pcs of the first one -- what sync_dominance.barrier_only_pairs hands
+    // back through dist_out / order_out, so a dump without hb_events (hb_sync_pass) serves
+    // the verdict layer as the offline pass does.
+    struct SyncPair { uint64_t count = 0; uint8_t dist = 0; uint32_t first_pc = 0, second_pc = 0; };
+    std::map<std::pair<uint32_t, uint32_t>, SyncPair> sync_pairs;  // (pc_lo, pc_hi) -> ...
+    // T4 (design/no_dump.md section 4): vector_pass false = Detect(T, sync) alone, the instance
+    // scalar-clock mode runs: the barrier/syncwarp/exit assembly, vs, the buckets' sclock, the
+    // sync pairs, the TV monitor and the RMW points; no vc, released, gate, possible clock,
+    // races or coherence profile, and emit writes none of their keys.
+    bool vector_pass = true;
+    // T4 (design/no_dump.md section 2, row 4): R3's release and acquire points from the trace,
+    // as sync_dominance.trace_rmw_points computes them offline -- per lane thread the non-RMW
+    // pcs since its last RMW and that RMW's pc; per non-RMW pc the PO-next RMW pcs of its
+    // observed instances (stranded: some instance had none) and the PO-previous ones (orphan:
+    // some instance had none). RMW-ness is the sidecar's rmw column, the predicate
+    // (sd.atomic_scope) analyze() applies to the CFG. Keyed by the lane's own tid: a cp.async
+    // copy counts as the issuing thread's access here, as offline.
+    struct RmwThread { std::vector<uint32_t> pending; uint32_t last = 0; bool has_last = false; };
+    std::unordered_map<Tid, RmwThread> rmw_thr;
+    struct RmwPc { std::set<uint32_t> rel, acq; bool stranded = false, orphan = false; };
+    std::map<uint32_t, RmwPc> rmw_pts;
+    void rmw_note(Tid t0, uint32_t pc, bool is_rmw) {
+        RmwThread& r = rmw_thr[t0];
+        if (is_rmw) {
+            for (uint32_t u : r.pending) rmw_pts[u].rel.insert(pc);
+            r.pending.clear();
+            r.last = pc;
+            r.has_last = true;
+        } else {
+            if (std::find(r.pending.begin(), r.pending.end(), pc) == r.pending.end())
+                r.pending.push_back(pc);
+            RmwPc& p = rmw_pts[pc];
+            if (r.has_last) p.acq.insert(r.last); else p.orphan = true;
+        }
+    }
+    void rmw_finish() {       // kernel end: a pc still pending in some thread is stranded
+        for (const auto& kv : rmw_thr)
+            for (uint32_t u : kv.second.pending) rmw_pts[u].stranded = true;
+    }
 
     // Block-barrier instance assembly (see the barrier branch in process): buffer
     // per-warp arrivals per (block, bar_index) until the instance is complete.
@@ -367,10 +410,12 @@ struct HbClock {
         return c.base ? base_merge(*c.base, me) : me;
     }
     void async_issue(Tid t, Tid ag) {
-        own(t);
-        join_vc(V(ag), V(t));
-        pd_join(ag, pd_of(t));                              // T14
-        own(ag);
+        if (vector_pass) {
+            own(t);
+            join_vc(V(ag), V(t));
+            pd_join(ag, pd_of(t));                          // T14
+            own(ag);
+        }
         if (!sync_only_pass) return;
         owns(t);
         SyncClock& a = vs[ag];
@@ -380,10 +425,12 @@ struct HbClock {
     }
     void async_commit(Tid t) {
         const Tid ag = agent_of(t);
-        own(ag);
+        if (vector_pass) own(ag);
         if (sync_only_pass) owns(ag);
-        groups[t].push_back(Group{V(ag), sync_only_pass ? vs_full(ag) : Base(), pd_of(ag)});
-        V(ag).own += 1;
+        groups[t].push_back(Group{vector_pass ? V(ag) : VClock{},
+                                  sync_only_pass ? vs_full(ag) : Base(),
+                                  vector_pass ? pd_of(ag) : VClock{}});
+        if (vector_pass) V(ag).own += 1;
         if (sync_only_pass) vs[ag].own += 1;
     }
     void async_wait(Tid t, uint64_t n) {
@@ -391,9 +438,11 @@ struct HbClock {
         if (it == groups.end() || it->second.size() <= n) return;
         const size_t done = it->second.size() - static_cast<size_t>(n);  // groups [0, done)
         const Group& g = it->second[done - 1];                           // snapshots only grow
-        own(t);
-        join_vc(V(t), g.vc);
-        pd_join(t, g.pd);                                   // T14
+        if (vector_pass) {
+            own(t);
+            join_vc(V(t), g.vc);
+            pd_join(t, g.pd);                               // T14
+        }
         if (sync_only_pass) {
             owns(t);
             SyncClock& c = vs[t];
@@ -754,6 +803,7 @@ struct HbClock {
         last_pc.clear();                                            // T12
         vc.clear(); vs.clear(); released.clear(); buckets.clear(); merge_memo.clear();
         races.clear(); race_index.clear(); sync_pairs.clear();
+        rmw_thr.clear(); rmw_pts.clear();                           // T4
         pending_barriers.clear();  // block_thread_count is (re)set by hb_clock_reset
         exited_count.clear(); exited_lanes.clear();
         bar_warps_seen.clear(); warp_waiting.clear(); tv_violation.clear();
@@ -815,10 +865,27 @@ struct HbClock {
         return std::make_shared<const Base>(std::move(acc));
     }
     void sync_group(const std::vector<Tid>& tids) {
+        std::unordered_set<const Base*> seen;
+        if (vector_pass) sync_group_vc(tids, seen);         // T4: the sync instance skips vc
+        if (!sync_only_pass) return;
+        for (Tid t : tids) owns(t);
+        std::vector<BaseP> sbs;                             // each shared base once
+        std::vector<std::pair<Tid, uint64_t>> sloose;
+        sloose.reserve(tids.size());
+        seen.clear();
+        for (Tid t : tids) {
+            const SyncClock& c = vs[t];
+            if (c.base && seen.insert(c.base.get()).second) sbs.push_back(c.base);
+            sloose.emplace_back(t, c.own);
+        }
+        const BaseP js = join_group(sbs, std::move(sloose));
+        for (Tid t : tids) { SyncClock& c = vs[t]; c.own = base_get(*js, t) + 1; c.base = js; }
+    }
+    // the main clock's (and the possible clock's) part of a sync group
+    void sync_group_vc(const std::vector<Tid>& tids, std::unordered_set<const Base*>& seen) {
         std::vector<BaseP> pbs;                             // T14: the possible deltas join too
         std::vector<std::pair<Tid, uint64_t>> ploose;       // (T5b: into one shared base)
         bool any_pd = false;
-        std::unordered_set<const Base*> seen;
         if (!pd.empty()) {
             for (Tid t : tids) {
                 const auto it = pd.find(t);
@@ -859,19 +926,6 @@ struct HbClock {
                     d.own = base_get(*pb, t);
                 }
         }
-        if (!sync_only_pass) return;
-        for (Tid t : tids) owns(t);
-        std::vector<BaseP> sbs;                             // each shared base once
-        std::vector<std::pair<Tid, uint64_t>> sloose;
-        sloose.reserve(tids.size());
-        seen.clear();
-        for (Tid t : tids) {
-            const SyncClock& c = vs[t];
-            if (c.base && seen.insert(c.base.get()).second) sbs.push_back(c.base);
-            sloose.emplace_back(t, c.own);
-        }
-        const BaseP js = join_group(sbs, std::move(sloose));
-        for (Tid t : tids) { SyncClock& c = vs[t]; c.own = base_get(*js, t) + 1; c.base = js; }
     }
     uint64_t owns(Tid t) {
         uint64_t& v = vs[t].own;
@@ -899,7 +953,7 @@ struct HbClock {
     // there (reported iff acq(r) = 0); the flag decision of any other waits for the gate.
     void conflict(uint64_t addr, int space, uint64_t loc_block, Tid p_tid, const Entry& p,
                   Tid t, uint32_t pc, uint8_t kind, bool sc, Tid obs, Win* gw = nullptr) {
-        if (p.clock > V(obs).get(p_tid)) {
+        if (vector_pass && p.clock > V(obs).get(p_tid)) {
             const uint64_t te = V(t).own;
             const Loc loc{space, space == 1 ? loc_block : 0, addr};
             if (gw != nullptr && p.clock <= gw->J.get(p_tid)) {
@@ -910,8 +964,12 @@ struct HbClock {
                 else a2_decide(idx, p_tid, p.clock, p.pc, t, pc, obs, loc);   // T14: DR and SC
             }
         }
-        if (sync_only_pass && p.sclock > vs_get(obs, p_tid))
-            sync_pairs[{std::min(p.pc, pc), std::max(p.pc, pc)}] += 1;
+        if (sync_only_pass && p.sclock > vs_get(obs, p_tid)) {
+            SyncPair& sp = sync_pairs[{std::min(p.pc, pc), std::max(p.pc, pc)}];
+            if (sp.count == 0) { sp.first_pc = p.pc; sp.second_pc = pc; }   // T4: first conflict
+            sp.count += 1;
+            sp.dist = std::max(sp.dist, thread_distance(p_tid & ~ASYNC_BIT, t & ~ASYNC_BIT));
+        }
     }
     // count one reportable record pair in its aggregate -> the aggregate's index
     size_t report(uint64_t addr, int space, uint64_t loc_block, Tid p_tid, const Entry& p,
@@ -1055,7 +1113,8 @@ struct HbClock {
         async_pcs = (ait != kernel_async.end()) ? &ait->second
                   : (it != kernel_tables.end()) ? &no_async : &merged_async;
         const auto git = kernel_gates.find(norm_name(kernel_name));   // T12
-        gate = (!gate_env_trusting && git != kernel_gates.end()) ? &git->second : nullptr;
+        gate = (vector_pass && !gate_env_trusting && git != kernel_gates.end())   // T4: vc only
+             ? &git->second : nullptr;
         auto sit = kernel_strength.find(norm_name(kernel_name));   // T10
         strength = (sit != kernel_strength.end()) ? &sit->second
                  : (it != kernel_tables.end()) ? &no_strength : &merged_strength;
@@ -1194,6 +1253,7 @@ struct HbClock {
                 const uint32_t lane = static_cast<uint32_t>(__builtin_ctz(lm));
                 if (!wins.empty()) a2_close_lanes(a.ctaId, a.warpId, 1u << lane, pc);   // T14
                 const Tid t0 = tid_of(a.ctaId, a.warpId, lane);
+                rmw_note(t0, pc, is_atomic);                        // T4: R3's trace points
                 uint32_t prev = 0;                                  // T12: t0's previous record
                 if (gate != nullptr) {
                     uint32_t& lp = last_pc[(a.ctaId << 5) | a.warpId][lane];
@@ -1208,7 +1268,7 @@ struct HbClock {
 
                 bool chain_ok = false;                              // T12
                 Win* gw = nullptr;
-                if (is_atomic) {
+                if (is_atomic && vector_pass) {                     // T4: no chain in the sync instance
                     // Coherence profile Pi (observational): append this thread's next
                     // atomic index to the address's observed atomic order.
                     coherence[addr].push_back({t, atom_idx[t]});
@@ -1237,7 +1297,7 @@ struct HbClock {
                         if (w.g_hasj) gw = &w;
                     }
                 }
-                const uint64_t clk = own(t);
+                const uint64_t clk = vector_pass ? own(t) : 0;
                 const uint64_t sclk = sync_only_pass ? owns(t) : 0;
                 check(addr, space, a.ctaId, loc, t, kind, my_coh, pc, gw);
                 KeyGroup& g = group_of(loc, kind, my_coh);
@@ -1249,7 +1309,7 @@ struct HbClock {
                         conflict(addr, space, a.ctaId, t, mit->second, t, pc, RK_WAW, false, t0);
                 }
                 g.by_tid[t] = Entry{clk, sclk, pc};
-                if (is_atomic) {
+                if (is_atomic && vector_pass) {
                     // I1 (D1): publish the pre-tick clock -- the RMW's own epoch is clk, so a
                     // later acquirer is ordered after the RMW, not after t's next accesses --
                     // then tick. Overwriting equals Algorithm 1's join under the trusting gate.
@@ -1416,6 +1476,58 @@ struct HbClock {
 
     void emit(std::ostream& jout) {
         check_pending_at_end();   // T3b: before tv_violation is written below
+        rmw_finish();             // T4: the pcs still pending in some thread are stranded
+        if (vector_pass) emit_vc(jout);
+        // T4 (design/no_dump.md section 3): the offline barrier-only pass's result, computed
+        // online -- [pc_lo, pc_hi, count, dist, first_pc, second_pc]; both modes. In vector-
+        // clock mode hb_races_sync_only (the triples) is written as well, above.
+        if (sync_only_pass) {
+            jout << ",\n  \"hb_sync_pass\": [";
+            bool first_pair = true;
+            for (const auto& kv : sync_pairs) {
+                jout << (first_pair ? "" : ", ") << "[" << kv.first.first << ", "
+                     << kv.first.second << ", " << kv.second.count << ", " << int(kv.second.dist)
+                     << ", " << kv.second.first_pc << ", " << kv.second.second_pc << "]";
+                first_pair = false;
+            }
+            jout << "]";
+        }
+        // T4: R3's release / acquire points from the trace (sync_dominance.trace_rmw_points):
+        // per non-RMW pc the RMW pcs; [] = some instance had none (stranded / orphan).
+        jout << ",\n  \"hb_rmw_points\": {\"release\": {";
+        bool first_pc = true;
+        for (const auto& kv : rmw_pts) {
+            jout << (first_pc ? "" : ", ") << "\"" << kv.first << "\": [";
+            if (!kv.second.stranded) {
+                bool f = true;
+                for (uint32_t r : kv.second.rel) { jout << (f ? "" : ", ") << r; f = false; }
+            }
+            jout << "]";
+            first_pc = false;
+        }
+        jout << "}, \"acquire\": {";
+        first_pc = true;
+        for (const auto& kv : rmw_pts) {
+            jout << (first_pc ? "" : ", ") << "\"" << kv.first << "\": [";
+            if (!kv.second.orphan) {
+                bool f = true;
+                for (uint32_t r : kv.second.acq) { jout << (f ? "" : ", ") << r; f = false; }
+            }
+            jout << "]";
+            first_pc = false;
+        }
+        jout << "}}";
+        // Surface any trace-validity violation so corpus/validation runs (and the
+        // Phase-4 harness) can assert zero. Absent key == none.
+        if (!tv_violation.empty()) {
+            std::string esc;
+            for (char c : tv_violation) { if (c == '"' || c == '\\') esc += '\\'; esc += c; }
+            jout << ",\n  \"tv_violation\": \"" << esc << "\"";
+        }
+    }
+    // the vector-clock instance's keys (vector-clock mode only; absent in scalar-clock mode,
+    // where an absent hb_races sends sync_dominance down its static-only path)
+    void emit_vc(std::ostream& jout) {
         a2_close_all();           // T14: a thread with no next record: its window ends here
         // one record per aggregate key, with its count (see races) and a2_uncertain, how many
         // of its instances the possible clock orders (T14; DR and SC)
@@ -1450,7 +1562,7 @@ struct HbClock {
             bool first_pair = true;
             for (const auto& kv : sync_pairs) {
                 jout << (first_pair ? "" : ", ") << "[" << kv.first.first << ", "
-                     << kv.first.second << ", " << kv.second << "]";
+                     << kv.first.second << ", " << kv.second.count << "]";
                 first_pair = false;
             }
             jout << "]";
@@ -1474,13 +1586,6 @@ struct HbClock {
             jout << "]}";
         }
         jout << (first_addr ? "}" : "\n  }");
-        // Surface any trace-validity violation so corpus/validation runs (and the
-        // Phase-4 harness) can assert zero. Absent key == none.
-        if (!tv_violation.empty()) {
-            std::string esc;
-            for (char c : tv_violation) { if (c == '"' || c == '\\') esc += '\\'; esc += c; }
-            jout << ",\n  \"tv_violation\": \"" << esc << "\"";
-        }
     }
 };
 
@@ -1631,6 +1736,27 @@ static bool hb_stats_enabled() {
     }();
     return on;
 }
+
+// T4 (design/no_dump.md): YOSEMITE_HB_DUMP=0 keeps every record out of host memory -- no
+// hb_events array in kernel_N.json; the aggregates the verdict layer reads from it (the
+// barrier-only pass, R3's trace points, the counts) are computed by HbClock during the run,
+// in both modes, and written at kernel end under "hb_aggregates": 1. Default 1: the lossless
+// dump, with the same aggregates beside it. Read once; D4: T2's host analysis (python/host_hb.py)
+// takes each kernel's footprint from the records, so the two flags together are refused.
+static bool hb_dump_enabled() {
+    static const bool on = [] {
+        const char* v = std::getenv("YOSEMITE_HB_DUMP");
+        const bool dump = v == nullptr || *v == '\0' || std::string(v) != "0";
+        if (!dump && std::getenv("YOSEMITE_HB_HOST_MEMCPY") != nullptr) {
+            fprintf(stderr, "[cuVein] YOSEMITE_HB_HOST_MEMCPY needs the hb_events dump "
+                            "(host_hb.py takes each kernel's footprint from it): unset it, "
+                            "or run with YOSEMITE_HB_DUMP=1\n");
+            exit(EXIT_FAILURE);
+        }
+        return dump;
+    }();
+    return on;
+}
 } // namespace
 
 
@@ -1651,6 +1777,7 @@ PcDependency::PcDependency() : Tool(PC_DEPENDENCY_ANALYSIS) {
     check_folder_existance(output_directory);
 
     _hb_trace = read_env_u32("YOSEMITE_HB_TRACE", 0) != 0;
+    if (_hb_trace) (void)hb_dump_enabled();   // T4: read the switch (and D4's refusal) at start
 
     _worker_count = std::max(1u, read_env_u32("YOSEMITE_WORKER_COUNT", std::thread::hardware_concurrency()));
     const uint32_t sm_count = read_env_u32("YOSEMITE_GPU_SM_COUNT", 128);
@@ -1742,6 +1869,7 @@ void PcDependency::kernel_start_callback(std::shared_ptr<KernelLaunch_t> kernel)
     _hb_seq = 0;
     g_hb_bpos_base = 0;        // T15
     g_late_kernel_mode = 0;
+    g_hb_events_count = g_hb_lanes_count = 0;   // T4
     hb_clock_reset();
     hb_clock_select_kernel(kernel->kernel_name);
     for (uint64_t worker_idx = 0; worker_idx < _worker_count; ++worker_idx) {
@@ -1787,12 +1915,19 @@ void PcDependency::hb_collect_events(const MemoryAccess* buffer, uint64_t size,
     // object appended to _hb_events. Called per buffer drain so the stream spans
     // the whole kernel. Memory records expand to active lanes; sync records carry
     // participation (barrier threadCount / syncwarp mask).
+    // T4: with YOSEMITE_HB_DUMP=0 only the counters move (hb_events_count / hb_lanes_count);
+    // nothing is kept.
+    const bool dump = hb_dump_enabled();
     for (uint64_t k = 0; k < size; ++k) {
         const uint64_t i = order ? order[k] : k;
         const MemoryAccess& a = buffer[i];
         // I5 (D14): local memory is outside the HB model; the collector's default path and
         // its local-address tag are untouched, only the HB trace drops the record.
         if (a.type == MemoryType::Local) continue;
+        g_hb_events_count += 1;
+        if (a.type == MemoryType::Global || a.type == MemoryType::Shared)
+            g_hb_lanes_count += static_cast<uint64_t>(__builtin_popcount(a.active_mask));
+        if (!dump) continue;
         std::ostringstream o;
         const uint64_t seq = _hb_seq++;
         o << "{\"seq\": " << seq;
@@ -1879,16 +2014,18 @@ void PcDependency::hb_clock_reset() {
     const char* strict_env = std::getenv("YOSEMITE_HB_STRICT");
     hc->strict = (strict_env == nullptr) || (std::string(strict_env) != "0");
     hc->sync_only_pass = std::getenv("YOSEMITE_HB_NO_SYNC_ONLY") == nullptr;
+    // T4: in scalar-clock mode HbClock runs the sync instance only (Detect(T, sync)): the
+    // barrier-only pass, the TV monitor and R3's trace points online, no vector clock.
+    hc->vector_pass = !hb_scalar_clock_mode();
     hc->stats_every = read_env_u32("YOSEMITE_HB_STATS_EVERY", 0);
     hc->next_snapshot = hc->stats_every;
 }
 
 void PcDependency::hb_clock_emit(std::ofstream& jout) {
-    // In scalar-clock mode HbClock never saw an event: emit NO hb_races /
-    // hb_races_sync_only rather than empty ones. An empty list is a claim ("nothing
-    // raced", "every pair is barrier-ordered") that the verdict matrix would act on;
-    // an absent key sends sync_dominance down its static-only path.
-    if (hb_scalar_clock_mode()) return;
+    // In scalar-clock mode the sync instance writes NO hb_races / hb_races_sync_only (not
+    // empty ones): an empty list is a claim ("nothing raced", "every pair is barrier-ordered")
+    // that the verdict matrix would act on; an absent key sends sync_dominance down its
+    // static-only path, where hb_sync_pass stands in for the offline pass (T4).
     auto& hc = hb_clock_singleton();
     if (hc) hc->emit(jout);
 }
@@ -1914,10 +2051,10 @@ void hb_stats_emit(std::ostream& jout, const std::vector<std::string>& ev,
         else if (line.rfind("VmHWM:", 0) == 0) hwm = std::strtoull(line.c_str() + 6, nullptr, 10);
     }
     std::ostringstream o;
-    o << "{\"hb_events\": {\"count\": " << ev.size() << ", \"json_bytes\": " << text
+    o << "{\"hb_events\": {\"count\": " << g_hb_events_count << ", \"json_bytes\": " << text
       << ", \"ram_bytes_est\": " << ev_ram << "}, \"hb_clock\": ";
     auto& hc = hb_clock_singleton();
-    if (hc && !hb_scalar_clock_mode()) {    // scalar-clock: HbClock never ran
+    if (hc) {                               // T4: the sync instance in scalar-clock mode too
         o << "{";
         hc->stats(o);
         o << "}";
@@ -2172,13 +2309,21 @@ void PcDependency::kernel_trace_flush(std::shared_ptr<KernelLaunch_t> kernel) {
 
     // Phase 2 HB oracle: raw temporally-ordered per-instance event stream.
     if (_hb_trace) {
-        jout << ",\n  \"hb_events\": [\n";
-        for (size_t i = 0; i < _hb_events.size(); ++i) {
-            jout << "    " << _hb_events[i];
-            if (i + 1 < _hb_events.size()) jout << ",";
-            jout << "\n";
+        if (hb_dump_enabled()) {
+            jout << ",\n  \"hb_events\": [\n";
+            for (size_t i = 0; i < _hb_events.size(); ++i) {
+                jout << "    " << _hb_events[i];
+                if (i + 1 < _hb_events.size()) jout << ",";
+                jout << "\n";
+            }
+            jout << "  ]";
+        } else {
+            // T4 (design/no_dump.md section 3): no records; HbClock's aggregates below stand
+            // in for them. Never a lossy hb_events (A4).
+            jout << ",\n  \"hb_aggregates\": 1";
         }
-        jout << "  ]";
+        jout << ",\n  \"hb_events_count\": " << g_hb_events_count
+             << ", \"hb_lanes_count\": " << g_hb_lanes_count;
         // T1a: this stream records cp.async commit / wait_group (pipeline_commit /
         // pipeline_wait). Offline consumers (hb_oracle, the scalar-clock barrier pass)
         // apply the async-agent model only to dumps carrying the marker: an older dump
@@ -2746,13 +2891,13 @@ void PcDependency::gpu_data_analysis(void* data, uint64_t size) {
         }
         const uint32_t* order = late_order.empty() ? nullptr : late_order.data();
         hb_collect_events(accesses_buffer, size, order);
-        // scalar-clock mode dumps the events without running HbClock, which also
-        // isolates the event-dump cost from HbClock's cost (A/B lever for the
-        // bounded-clock / FastTrack-epoch calibration). On a reduction of 4M elts
-        // (136K events) HbClock's exact unbounded VCs add ~4s vs ~1.3s for the
-        // dump — the growing per-thread clocks under heavy __syncthreads are the
-        // target of the scale knobs.
-        if (!hb_scalar_clock_mode()) hb_clock_process(accesses_buffer, size, order);
+        // T4: HbClock consumes the drain in both modes -- the vector clock and the sync
+        // instance in vector-clock mode, the sync instance alone in scalar-clock mode
+        // (hb_clock_reset sets vector_pass) -- so a run without the dump still yields the
+        // barrier-only pass, R3's trace points and the TV monitor. (Before T4 scalar-clock
+        // mode only dumped: on a reduction of 4M elts, 136K events, the exact VCs added ~4 s
+        // vs ~1.3 s for the dump.)
+        hb_clock_process(accesses_buffer, size, order);
         g_hb_bpos_base += size;
         g_late_keys.clear();
     }

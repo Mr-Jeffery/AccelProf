@@ -164,6 +164,55 @@ def dump_gate(trace, gate=None):
     return gate_mode(gate or os.environ.get("CUVEIN_GATE") or trace.get("hb_gate") or "trusting")
 
 
+# T4 (design/no_dump.md): a dump written with YOSEMITE_HB_DUMP=0 carries no hb_events but the
+# aggregates HbClock computed online, in both modes -- hb_sync_pass (the offline barrier-only
+# pass's pairs with their widest distance and first orientation), hb_rmw_points (R3's trace
+# points) and hb_events_count / hb_lanes_count. A dump with records carries them as well; the
+# records are then preferred (today's path, byte-identical results) unless
+# $CUVEIN_PREFER_AGGREGATES=1 (the same-trace parity check, eval/baselines/setup/t4_parity.py).
+def use_aggregates(trace):
+    """Read the online aggregates instead of hb_events? True when the dump has no records, or
+    when $CUVEIN_PREFER_AGGREGATES=1 (the keys must then be present, else the records serve)."""
+    if not trace.get("hb_events"):
+        return True
+    return os.environ.get("CUVEIN_PREFER_AGGREGATES") == "1"
+
+
+def event_count(trace):
+    """How many hb_events records the kernel had: the array's length, or hb_events_count when
+    the dump carries no array (T4)."""
+    ev = trace.get("hb_events")
+    return len(ev) if ev else int(trace.get("hb_events_count") or 0)
+
+
+def lane_count(trace):
+    """The kernel's lane-accesses (the sum of the records' lanes), or hb_lanes_count (T4)."""
+    ev = trace.get("hb_events")
+    return sum(len(e.get("lanes", ())) for e in ev) if ev else int(trace.get("hb_lanes_count") or 0)
+
+
+def aggregated_sync_pass(trace):
+    """(pairs, dist, order) of barrier_only_pairs as the dump's hb_sync_pass carries them
+    ([pc_lo, pc_hi, count, dist, first_pc, second_pc]); None if the key is absent."""
+    sp = trace.get("hb_sync_pass")
+    if sp is None:
+        return None
+    pairs, dist, order = {}, {}, {}
+    for a, b, n, d, f, s in sp:
+        pairs[(a, b)], dist[(a, b)], order[(a, b)] = n, d, (f, s)
+    return pairs, dist, order
+
+
+def aggregated_rmw_points(trace):
+    """(release, acquire) of trace_rmw_points as the dump's hb_rmw_points carries them (decimal
+    pc strings -> RMW pc lists, [] = some instance had none); None if the key is absent."""
+    rp = trace.get("hb_rmw_points")
+    if rp is None:
+        return None
+    return ({int(k): frozenset(v) for k, v in rp.get("release", {}).items()},
+            {int(k): frozenset(v) for k, v in rp.get("acquire", {}).items()})
+
+
 # .STRONG loads/stores. cuda::atomic<T>::load()/store() do not lower to an ATOM* RMW
 # but to an ordinary load/store carrying the atomic's coherence scope (seq_cst adds a
 # MEMBAR fence in front, relaxed does not): LD|ST.E.STRONG.<scope>. A `volatile`
@@ -801,7 +850,13 @@ def trace_rmw_points(trace, rmw, max_lanes=None):
     each observed instance of u, empty if some instance has none}; acquire = the same with the
     PO-previous RMW before each instance. rmw = the kernel's RMW pcs. Local records are outside
     the model (D14). -> (None, None) if the dump has no hb_events or exceeds max_lanes
-    lane-accesses (R3 then keeps region dominance)."""
+    lane-accesses (R3 then keeps region dominance).
+    T4: a dump's hb_rmw_points (HbClock's online copy of this, no lane cutoff) is taken instead
+    of the records when use_aggregates(trace)."""
+    if use_aggregates(trace):
+        agg = aggregated_rmw_points(trace)
+        if agg is not None:
+            return agg
     events = trace.get("hb_events")
     if not events:
         return None, None
@@ -1208,10 +1263,15 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
     offline_tv = []                   # T3b: the offline pass's TV-barrier-pending-at-end
 
     def offline_pass():
-        """-> (pairs, dist, order) of the offline barrier-only pass, or None. Memoized."""
+        """-> (pairs, dist, order) of the offline barrier-only pass, or None. Memoized.
+        T4: a dump's hb_sync_pass (HbClock's sync instance, computed online, no lane cutoff)
+        stands in for the pass when use_aggregates(trace); its TV check is the dump's own
+        tv_violation, read by the diagnostics below."""
         if not offline_memo:
             res = None
             if barrier_pass and os.environ.get("CUVEIN_BARRIER_PASS", "1") != "0":
+                res = aggregated_sync_pass(trace) if use_aggregates(trace) else None
+            if res is None and barrier_pass and os.environ.get("CUVEIN_BARRIER_PASS", "1") != "0":
                 rmw_all = {pc: sc for pc, op in eng.pc_opcode.items()
                            if (sc := atomic_scope(op)) is not None}
                 coh_all = {pc: sc for pc, op in eng.pc_opcode.items()

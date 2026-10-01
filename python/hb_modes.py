@@ -11,7 +11,8 @@ vector-clock   was "engine". The in-process HbClock (full scoped vector clocks,
                python/hb_oracle.py is its exact offline oracle.
 
 Not mode names (unchanged by T8): the kernel_N.json keys (hb_events, hb_races,
-hb_races_sync_only, coherence_profile, tv_violation).
+hb_races_sync_only, coherence_profile, tv_violation; since T4 also hb_aggregates,
+hb_sync_pass, hb_rmw_points, hb_events_count, hb_lanes_count -- design/no_dump.md).
 
 T17 (2026-09-30) renamed the in-process computation of vector-clock mode to HbClock
 (hb_clock_* functions). Persisted fields that were spelled with the old word are written

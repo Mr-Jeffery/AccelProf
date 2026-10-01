@@ -101,15 +101,25 @@ def base_env(cuda_home=None, hb_trace=False, hb_mode=None, scope_file=None):
                             + e.get("LD_LIBRARY_PATH", ""))
     # drop every HB knob inherited from the shell, the pre-T8 mode switch included
     # (the collector would still honour it and silently flip the mode)
-    for k in ("YOSEMITE_HB_TRACE", hb_modes.ENV, hb_modes.LEGACY_ENV, "YOSEMITE_ATOMIC_SCOPE_FILE"):
+    for k in ("YOSEMITE_HB_TRACE", hb_modes.ENV, hb_modes.LEGACY_ENV, "YOSEMITE_ATOMIC_SCOPE_FILE",
+              "YOSEMITE_HB_DUMP"):
         e.pop(k, None)
     if hb_trace:
         hb_modes.require_collector_support(APH)   # a pre-T8 library ignores YOSEMITE_HB_MODE
         e["YOSEMITE_HB_TRACE"] = "1"
         e.update(hb_modes.collector_env(hb_mode or hb_modes.VECTOR_CLOCK))
+        if not hb_dump():                          # T4: no-dump mode for the whole sweep
+            e["YOSEMITE_HB_DUMP"] = "0"
     if scope_file:
         e["YOSEMITE_ATOMIC_SCOPE_FILE"] = scope_file
     return e
+
+
+def hb_dump():
+    """T4 (design/no_dump.md): $BASELINE_HB_DUMP=0 records every HB run of a sweep without the
+    hb_events array (YOSEMITE_HB_DUMP=0: HbClock's aggregates only); default 1, the lossless
+    dump. Recorded in every program's meta.json as `hb_dump`."""
+    return os.environ.get("BASELINE_HB_DUMP", "1") != "0"
 
 
 # --- timed subprocess (mirrors driver.run_timed; env passed in) -------------
