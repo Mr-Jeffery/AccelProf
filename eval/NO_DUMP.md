@@ -54,6 +54,13 @@ relinked from the objects the installed collector c9b862f9 was linked from (T18'
   (the two skips are the gate suite's empty parameter sets, as before T4; T18's count on the
   same files without the new test was 305 + 2 skipped).
 
+The same check on the final build — `libsanalyzer` 7d038730 with the `rmw_note`
+short-circuit (commit 81ec25a; `wt_install2`, collector 30d3e8f0; job 296677, node c58):
+default path **IDENTICAL**, **332 passed, 2 skipped, 0 failed**. The sweeps of §4 and the
+parity store of §3 were recorded with 2fc83fe0; the two builds differ only in that
+bookkeeping shortcut, whose output the check's parity tests compare against the offline
+functions.
+
 `test_no_dump.py` (27 tests, two green-set kernels — `strong_stores_barrier_weak_load.cu`
 and `write_after_unlock_other_schedule.cu` — recorded four ways each: vector-clock /
 scalar-clock, with and without the dump) asserts on the dump recordings that `hb_sync_pass`
