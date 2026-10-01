@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Emit the coherent-access sidecar for the analyzer's dynamic-HB engine.
+"""Emit the coherent-access sidecar for HbClock.
 
-The C++ engine (pc_dependency_analysis.cpp) needs each atomic PC's coherence scope,
+HbClock (pc_dependency_analysis.cpp) needs each atomic PC's coherence scope,
 which is a static SASS property only visible in the CFG. getall.sh generates the
 CFG .dot before accelprof runs, so we distill it here into a tiny text file the
 tool reads via YOSEMITE_ATOMIC_SCOPE_FILE. One line per coherent-access PC:
@@ -11,13 +11,13 @@ tool reads via YOSEMITE_ATOMIC_SCOPE_FILE. One line per coherent-access PC:
 scope matches sync_dominance.SCOPES (NONE=0, BLOCK=2, GRID=3); kind is `rmw` (an
 atomic RMW: release/acquire point) or `ldst` (a strong load/store — cuda::atomic
 load()/store(), volatile — per the --strong-ldst policy); kernel is the
-demangled kernel name with all whitespace removed (what the engine derives from the
+demangled kernel name with all whitespace removed (what HbClock derives from the
 launch's kernel_name). pc offsets are function-relative, so the table is per kernel:
 a multi-kernel binary routinely has a plain store in one kernel at the offset of an
 atomic in another. Every kernel of the binary is declared with a `# kernel <kernel>`
 line, so one without any coherent pc gets an EMPTY table instead of the merged one.
 `# async <pc> <kernel>` lines list the kernel's cp.async (LDGSTS) pcs (T1a: accesses of the
-issuing thread's async agent); engines older than T1a skip them as comments.
+issuing thread's async agent); HbClock builds older than T1a skip them as comments.
 
 The strength column (T10, D9; under the default policy `token` only):
 
@@ -25,10 +25,10 @@ The strength column (T10, D9; under the default policy `token` only):
 
 one line for EVERY memory pc of the kernel -- strength and scope read off the SASS token
 (sync_dominance.coherent_scope: .STRONG.<scope> on a load, store, atomic or reduction;
-no token or an unknown scope is weak). An engine since T10 takes a non-RMW record's key
-and moral strength from these lines; an older engine skips them as comments and reads the
+no token or an unknown scope is weak). HbClock since T10 takes a non-RMW record's key
+and moral strength from these lines; an older HbClock skips them as comments and reads the
 `ldst` lines, which under `token` list the same strong pcs with the same scopes, so both
-engines compute the same races from one sidecar. Under a pre-T10 policy (generic, all,
+builds compute the same races from one sidecar. Under a pre-T10 policy (generic, all,
 none) no strength line is written and the file is the pre-T10 sidecar.
 
 The gate table (T12, hb_proof.tex Definition "Gate", design/instance_gate.md section 4):
@@ -41,7 +41,7 @@ for every RMW pc of scope block/grid: the record pcs p with fenced(p, r, scope(r
 (`rel`) and q with fenced(r, q, scope(r), acquire) (`acq`), from sync_dominance.gate_table --
 the same table hb_oracle.py evaluates. The FENCED pcs are listed, so a pc the table does not
 know is unfenced (the gate errs toward reporting). A kernel in several cubins gets the
-intersection. An engine older than T12 skips the lines; an engine since T12 uses the instance
+intersection. HbClock older than T12 skips the lines; HbClock since T12 uses the instance
 gate for a kernel with a `# gate-kernel` line (unless YOSEMITE_HB_GATE=trusting) and the
 trusting gate otherwise. --gate trusting writes no gate lines.
 
@@ -56,7 +56,7 @@ import sync_dominance as sd
 
 
 def kernel_key(mangled):
-    """Engine-side kernel key: demangled name sans whitespace (mangled if no c++filt)."""
+    """HbClock-side kernel key: demangled name sans whitespace (mangled if no c++filt)."""
     return re.sub(r"\s+", "", sd._demangle(mangled) or mangled)
 
 
@@ -101,7 +101,7 @@ def collect(dot_paths, policy=None, asyncs=None, mem=None, gates=None):
 
 def strength_lines(scopes, mem):
     """T10: `# strength <pc> <strong|weak> <scope|-> <kernel>` for every memory pc, from the
-    same merged table as the coherent-pc lines (so an engine reading either agrees)."""
+    same merged table as the coherent-pc lines (so HbClock reading either agrees)."""
     out = []
     for key in sorted(mem):
         for pc in sorted(mem[key]):
@@ -139,10 +139,10 @@ def main(argv=None):
     scopes, names = collect(args.dots, policy, asyncs, mem, gates)
     lines = [f"# kernel {key}" for key in names]
     lines += [f"{pc} {s} {kind} {key}" for (key, pc), (s, kind) in sorted(scopes.items())]
-    # T1a: cp.async (LDGSTS) pcs as comment lines -- an engine older than T1a skips them
+    # T1a: cp.async (LDGSTS) pcs as comment lines -- HbClock older than T1a skips them
     # (it would otherwise read an unknown kind as an atomic RMW)
     lines += [f"# async {pc} {key}" for key, pcs in sorted(asyncs.items()) for pc in sorted(pcs)]
-    # T10: the strength column, comment lines as well (an engine older than T10 skips them)
+    # T10: the strength column, comment lines as well (HbClock older than T10 skips them)
     strength = strength_lines(scopes, mem) if policy == "token" else []
     lines += strength
     glines = gate_lines(gates) if gates is not None else []   # T12

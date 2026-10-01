@@ -18,7 +18,7 @@ release/acquire device-scope atomics disassemble to the identical opcode
 `MEMBAR.SC.GPU` + `MEMBAR.ALL.GPU` fences that handoff_relaxed lacks. `.STRONG` is a
 coherence-SCOPE marker, not a release/acquire-ordering marker. sync_dominance.atomic_scope
 keys the synchronizing scope on `.STRONG.<scope>` alone, so it gives the RELAXED flag the
-same GRID scope as the strong one, and the runtime HB model (oracle + engine) orders the
+same GRID scope as the strong one, and the runtime HB model (oracle + HbClock) orders the
 non-atomic data access in BOTH -> handoff_relaxed is reported NORACE = a false negative.
 
 => The model was UNSOUND on unfenced/relaxed atomics that publish non-atomic state (the
@@ -31,9 +31,9 @@ Uses the Python oracle (self-contained: no atomic-scope sidecar / YOSEMITE env n
 builds on demand and skips if no GPU / nvcc, mirroring test_intersubwarp_readwrite.
 
 T10 (D9, the last section): a load/store's strength and scope come from its SASS token
-(.STRONG.<scope>), in the sidecar's strength column, the engine, the oracle and R2 alike.
+(.STRONG.<scope>), in the sidecar's strength column, HbClock, the oracle and R2 alike.
 testdata/strong_ldst_scopes.cu has one strong-store/strong-load litmus per scope (cta, gpu,
-sys) at two distances; the DR/SC class is asserted in both modes, engine == oracle, the
+sys) at two distances; the DR/SC class is asserted in both modes, HbClock == specification, the
 sidecar's lines, and the pre-T10 `generic` policy (a sidecar without the column) end to end.
 """
 import json
@@ -146,7 +146,7 @@ _SASS_SCOPE = {"cta": ("SM", sd.BLOCK), "gpu": ("GPU", sd.GRID), "sys": ("SYS", 
 
 def _getall(tmp_path_factory, policy=None):
     """(dots, {kernel: trace}, sidecar text) of one getall.sh run of strong_ldst_scopes.cu,
-    with CUVEIN_STRONG_LDST=policy if given (the sidecar, hence the engine, follows it)."""
+    with CUVEIN_STRONG_LDST=policy if given (the sidecar, hence HbClock, follows it)."""
     if not _SCOPES_SRC.is_file() or shutil.which("nvcc") is None:
         pytest.skip("no nvcc / source (run on a GPU node)")
     d = tmp_path_factory.mktemp(f"strong_ldst_{policy or 'default'}")
@@ -281,7 +281,7 @@ def test_sidecar_strength_lines_only_under_token(tmp_path):
 def test_sidecar_strength_column(scopes_run):
     """Step 1: the strength column names every litmus access -- the strong ones with their
     scope, the plain control weak -- and the old `ldst` lines list the same strong pcs (an
-    engine older than T10 reads those and computes the same races)."""
+    HbClock older than T10 reads those and computes the same races)."""
     dots, by, side = scopes_run
     lines = side.splitlines()
     for k, trace in by.items():
@@ -303,7 +303,7 @@ def test_sidecar_strength_column(scopes_run):
 
 @pytest.mark.parametrize("kernel", _LITMUS)
 def test_strong_ldst_class(scopes_run, kernel, tmp_path):
-    """Step 3: the pair's DR/SC class, in the engine's hb_races and in both modes' verdicts."""
+    """Step 3: the pair's DR/SC class, in HbClock's hb_races and in both modes' verdicts."""
     dots, by, _ = scopes_run
     t, st, ld = _pair(by[kernel])
     cls = _expected(kernel, dots, t, st, ld)
@@ -329,7 +329,7 @@ def _race_key(r):
 
 
 @pytest.mark.parametrize("kernel", _LITMUS)
-def test_strong_ldst_engine_matches_oracle(scopes_run, kernel):
+def test_strong_ldst_hb_clock_matches_specification(scopes_run, kernel):
     dots, by, _ = scopes_run
     t = json.loads(by[kernel].read_text())
     dot, _ = _ops(dots, t)
@@ -341,7 +341,7 @@ def test_strong_ldst_engine_matches_oracle(scopes_run, kernel):
 
 def test_generic_sidecar_keeps_pre_t10_behaviour(scopes_generic):
     """Old sidecars keep today's behaviour: under CUVEIN_STRONG_LDST=generic the sidecar has
-    no strength column, the engine takes the pre-T10 path, equals the oracle under generic,
+    no strength column, HbClock takes the pre-T10 path, equals the oracle under generic,
     and every pair of the litmus is a DR (the address-spaced strong forms are weak there)."""
     dots, by, side = scopes_generic
     assert side and not [ln for ln in side.splitlines() if ln.startswith("# strength ")]

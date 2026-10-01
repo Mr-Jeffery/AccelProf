@@ -2,7 +2,7 @@
 """Full vector-clock happens-before oracle over the hb_events dump.
 
 Exact per-instance *observed-schedule* happens-before, used as the correctness
-spec for the analyzer's scalable per-thread epoch engine (roadmap Phase 2). Reads
+spec for HbClock (roadmap Phase 2). Reads
 the kernel CFG (only to classify which PCs are atomics + their scope, reusing
 sync_dominance) and the pc_dependency trace JSON produced with YOSEMITE_HB_TRACE=1
 (the `hb_events` per-instance stream).
@@ -28,7 +28,7 @@ races (`races_sync_only`, pc pairs with counts, DR and SC alike) tell the verdic
 which dynamically ordered pairs owe their order to schedule-independent barrier joins
 alone and which to atomic release/acquire joins (which ignore fences -> stay latent).
 
-This is the exact O(threads) reference; the analyzer's epoch engine must agree
+This is the exact O(threads) reference; HbClock must agree
 with it on every corpus binary. Not for large workloads.
 
 Usage:  python hb_oracle.py <kernel_cfg.dot> <kernel_N.json> [-o out.json]
@@ -62,7 +62,7 @@ _MASK64 = (1 << 64) - 1
 
 def coherence_hash(seq):
     """Stable 64-bit FNV-1a of a (tid, atomic-index) sequence. Byte-for-byte the same
-    construction as HbEngine::coherence_hash so oracle and engine profiles compare."""
+    construction as HbClock::coherence_hash so oracle and HbClock profiles compare."""
     h = _FNV64_OFFSET
     for tid, idx in seq:
         for shift in (0, 8, 16, 24):                 # tid: 4 bytes little-endian
@@ -182,11 +182,11 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False, gate=None):
     coh_scope = {pc: s for pc in eng.pc_opcode
                  if (s := sd.coherent_scope(eng.pc_opcode[pc], policy)) is not None}
     # T1a: cp.async (LDGSTS) pcs -- accesses by the issuing thread's async agent. The
-    # engine reads the same set from the sidecar's `# async` lines (sd.async_pcs rule);
-    # a dump without the engine's hb_async marker keeps the pre-T1a reading.
+    # HbClock reads the same set from the sidecar's `# async` lines (sd.async_pcs rule);
+    # a dump without HbClock's hb_async marker keeps the pre-T1a reading.
     async_pcs = sd.dump_async_pcs(eng, trace)
     # T12: the instance gate. rel(r) from t's previous record, acq(r) from its next one; the
-    # acquire is DEFERRED to t's next record exactly as HbEngine must (it cannot look ahead):
+    # acquire is DEFERRED to t's next record exactly as HbClock must (it cannot look ahead):
     # Check(r) runs against vc[t] and the conflicts only the pending join J would order are
     # held in r's window, reported iff acq(r) = 0 (design/instance_gate.md section 6).
     gate_on = sd.dump_gate(trace, gate) == "instance"
@@ -223,7 +223,7 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False, gate=None):
     # single-trace certificate is per-profile: the observed per-address coherence order
     # of atomics. Record, per address touched by >=1 atomic, the sequence of
     # (tid, that thread's atomic index) in event order, plus a stable hash of it (the
-    # SAME FNV-1a the engine emits, so the two profiles are cross-checkable).
+    # SAME FNV-1a HbClock emits, so the two profiles are cross-checkable).
     atom_idx = defaultdict(int)      # tid -> count of atomics this thread has issued
     coherence = defaultdict(list)    # addr -> [(tid, per-thread atomic index), ...]
 
@@ -348,7 +348,7 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False, gate=None):
                 conflict(u, uc, usc, upc, t, pc, label, "SC" if strong else "DR", rec,
                          gheld=gheld)
 
-    # T1a: the async agent (see HbEngine::async_issue/commit/wait; one-to-one)
+    # T1a: the async agent (see HbClock::async_issue/commit/wait; one-to-one)
     def async_issue(t, ag):
         own(t)
         vc[ag] = vc[ag].joined(vc[t])     # the copy follows t's earlier accesses
@@ -730,7 +730,7 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False, gate=None):
     # TV-barrier-pending-at-end (hb_proof.tex section 1, the fifth monitor check, the runtime
     # form of A3): every open segment completes by the end of the kernel. Only on dumps
     # with exit records (`hb_exits`): without them an early-exit kernel's segments stay
-    # open, which is the pre-T3b reading those dumps keep. The engine records it in
+    # open, which is the pre-T3b reading those dumps keep. HbClock records it in
     # tv_violation whatever YOSEMITE_HB_STRICT says; the oracle raises, so like its other
     # checks it is off under YOSEMITE_HB_STRICT=0 (replaying a known-bad trace).
     open_segs = {k: v for k, v in pending_bar.items() if v}
@@ -741,7 +741,7 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False, gate=None):
             f"of the kernel; first: {k}, arrived {len(open_segs[k])} of expected "
             f"{expected_of(k)}")
 
-    # aggregated race records, in first-report order (HbEngine emits the same); each carries
+    # aggregated race records, in first-report order (HbClock emits the same); each carries
     # a2_uncertain, how many of its instances the possible clock orders (T14; DR and SC)
     uniq = [dict(ex, count=n, a2_uncertain=f) for ex, n, f in agg.values()]
 

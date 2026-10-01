@@ -360,7 +360,7 @@ $\alpha(t)$'s own bucket of its key, with $\clk[t]$ in place of $\clk[\alpha(t)]
 of one agent are ordered only through a wait of $t$). At the $j$-th commit of $t$:
 $S_{t,j}\gets\clk[\alpha(t)]$, then $\clk[\alpha(t)][\alpha(t)]\gets j+1$. At a wait $w$ of $t$:
 $\clk[t]\gets\clk[t]\sqcup S_{t,g(w)}$. (\texttt{hb\_oracle.py}: \texttt{async\_issue},
-\texttt{async\_commit}, \texttt{async\_wait} and the same-agent \texttt{WAW} test; the engine
+\texttt{async\_commit}, \texttt{async\_wait} and the same-agent \texttt{WAW} test; \texttt{HbClock}
 and \texttt{barrier\_only\_pairs} likewise.)
 
 \medskip\noindent
@@ -379,7 +379,7 @@ $\textsc{Detect}(T,\mathsf{sync})$ computed offline with $\clk[u]$ stored as a p
 $J$ plus the scalar $\clk[u][u]$ (after \textsc{Sync} no participant's map is ever
 mutated again, so the sharing is exact); above \texttt{CUVEIN\_BARRIER\_PASS\_MAX\_LANES}
 lane-accesses, or with \texttt{CUVEIN\_BARRIER\_PASS=0}, it is skipped and scalar-clock mode
-has the static rules only (\S\ref{sec:verdict}, (c)). Under the instance gate the online engine does
+has the static rules only (\S\ref{sec:verdict}, (c)). Under the instance gate vector-clock mode's online \texttt{HbClock} does
 not know $\pc(q)$ when it processes $r$. It records a pending acquire $J=\Ch_\ell$ and
 applies the join of line~\ref{ln:acquire} when $t$'s next record arrives, before that
 record is processed. One reader of $\clk[t]$ lies in between: \textsc{Check}($r$) itself,
@@ -898,10 +898,10 @@ matched --- publish then tick, per-(thread, key) buckets in both clocks and in
 \texttt{design/algorithms\_check.py}'s Algorithm~\ref{alg:detect} with the switches off, record
 pairs with their class and the second clock with its counts, on the 32 ScoR litmus traces
 re-recorded with the T9 runtime (and \texttt{barrier\_only\_pairs} equals the second clock);
-engine $=$ oracle on the green set; the three T6 strict xfails pass. The rows below keep the
+\texttt{HbClock} $=$ specification on the green set; the three T6 strict xfails pass. The rows below keep the
 3331d35 substitutions for the record.
 
-\texttt{hb\_oracle.py} (= \texttt{HbEngine} on the corpus; the engine takes its labels from
+\texttt{hb\_oracle.py} (= \texttt{HbClock} on the corpus; \texttt{HbClock} takes its labels from
 the sidecar, merged over a binary's CFGs, where the oracle reads the one CFG it is given, and
 on a trace-validity violation it records and continues where the oracle raises),
 \texttt{barrier\_only\_pairs} and the verdict layer of \texttt{sync\_dominance.py} implement \S\ref{sec:alg}--\ref{sec:verdict} with the
@@ -914,9 +914,9 @@ substitutions below. Each is stated with what it costs against \S\ref{sec:single
 \midrule
 I1 & \textbf{matched (T9).} Was: \emph{tick before publish}: line~\ref{ln:tick} before line~\ref{ln:publish}; the RMW's bucket entry carries the post-tick epoch & Theorem~\ref{thm:sound} fails on $R_{\mathrm{miss}}$ (Proposition~\ref{prop:rmiss}); Theorem~\ref{thm:complete} holds; Corollary~\ref{cor:causal}(a) void. Corpus instance: \texttt{race\_interblock\_fence\_rtraw} (evcand vector-clock dump; the verdict survived only as \cls{latent}) \\
 I2 & \textbf{matched (T9).} Was: \emph{one last write per location and, per thread, its last read since that write} in place of buckets, shared by both clocks; $\SC$ dropped (\texttt{--strong-ldst generic}: coherent pairs never conflict) & Theorem~\ref{thm:sound} fails for $\DR$ in both clocks (Remark~\ref{rem:buckets}), and \S\ref{sec:verdict}~(ii) with it; policy \texttt{none} does not repair it (note (a)) \\
-I3 & \emph{matched} for exits (T3b, \texttt{aab77ca}): exit records in the dump (marker \texttt{hb\_exits}), $\exp_k=N_\beta-|\gone_\beta|$ for whole-block segments and $n$ for counted ones, \textsc{Complete} on exit, the end-of-kernel check, in engine, oracle and \texttt{barrier\_only\_pairs}; remaining: \texttt{bar.arrive} recorded as blocking (note (b)) & dumps recorded before T3b keep the old reading ($\exp_k=N_\beta$: A3 false for early-exit kernels there, crs-cuda 155/7 spurious); re-recorded crs-cuda (50 launches, 247,587 exit records): CLEAN in both modes, no trace-validity violation; the evcand store (597 programs, no exit records) re-scores to identical verdicts \\
-I4 & \textbf{matched (T12, branch \texttt{feat/instance-gate}: \texttt{9ea18a4} oracle, predicate and sidecar table, \texttt{02bed31} engine, rebased onto T5b; review \texttt{1445952}).} The instance gate of Definition~\ref{def:gate} in engine and oracle: $\mathrm{fenced}$ from the CFG dots with the sm\_86/89 inventory, a per-RMW table in the sidecar, $\rel$ at the RMW, the acquire deferred to the thread's next record with \textsc{Check}($r$) held as \S\ref{sec:alg} says, $\Ch_\ell$ a join (a T5b clock: shared base plus delta), no publish when $\rel=0$, held pairs resolved at the end of the kernel; the trusting gate stays selectable (\texttt{YOSEMITE\_HB\_GATE=trusting}) and pre-T12 dumps replay under it. Was: \emph{trusting gate} (every hand-off joined) & oracle $=$ \textsc{Detect} with the gate evaluated directly on 32/32 litmus traces; engine $=$ oracle on the green set (305 passed) including a kernel that exercises the held path both ways, and on T5b's 60-program parity set; \texttt{test\_relaxed\_handoff\_should\_race} passes. Re-score of 464 programs: no pair lost, 9 new $\DR$ and 377 new $\SC$ pairs; the 8 ScoR fence races are reported in their run ($\SC$: volatile data); the ticket idiom of \texttt{reduction-norace} and the five ScoR \texttt{norace\_*fence*} consumers that spin without a fence are reported (D11). Indigo3 CC push 1296n on T5b's clocks: 6.9\,GB, 9.9\,s under the trusting gate, 1.3\,GB, 5.7\,s under the instance gate (\texttt{eval/INSTANCE\_GATE.md}) \\
-I5 & \textbf{matched (T9, D14): local memory is outside the model} --- the HB trace carries no local record, and engine, oracle and \texttt{barrier\_only\_pairs} skip those of an older dump. Was: local memory keyed by $(\mathtt{local},a)$, $a$ the local-window offset with no thread id (note (c)) & every thread's access at one offset is one location: 8,096 spurious race records on a 2$\times$32-thread kernel with no sharing; no verdict there (note (c)) \\
+I3 & \emph{matched} for exits (T3b, \texttt{aab77ca}): exit records in the dump (marker \texttt{hb\_exits}), $\exp_k=N_\beta-|\gone_\beta|$ for whole-block segments and $n$ for counted ones, \textsc{Complete} on exit, the end-of-kernel check, in \texttt{HbClock}, oracle and \texttt{barrier\_only\_pairs}; remaining: \texttt{bar.arrive} recorded as blocking (note (b)) & dumps recorded before T3b keep the old reading ($\exp_k=N_\beta$: A3 false for early-exit kernels there, crs-cuda 155/7 spurious); re-recorded crs-cuda (50 launches, 247,587 exit records): CLEAN in both modes, no trace-validity violation; the evcand store (597 programs, no exit records) re-scores to identical verdicts \\
+I4 & \textbf{matched (T12, branch \texttt{feat/instance-gate}: \texttt{9ea18a4} oracle, predicate and sidecar table, \texttt{02bed31} \texttt{HbClock}, rebased onto T5b; review \texttt{1445952}).} The instance gate of Definition~\ref{def:gate} in \texttt{HbClock} and oracle: $\mathrm{fenced}$ from the CFG dots with the sm\_86/89 inventory, a per-RMW table in the sidecar, $\rel$ at the RMW, the acquire deferred to the thread's next record with \textsc{Check}($r$) held as \S\ref{sec:alg} says, $\Ch_\ell$ a join (a T5b clock: shared base plus delta), no publish when $\rel=0$, held pairs resolved at the end of the kernel; the trusting gate stays selectable (\texttt{YOSEMITE\_HB\_GATE=trusting}) and pre-T12 dumps replay under it. Was: \emph{trusting gate} (every hand-off joined) & oracle $=$ \textsc{Detect} with the gate evaluated directly on 32/32 litmus traces; \texttt{HbClock} $=$ specification on the green set (305 passed) including a kernel that exercises the held path both ways, and on T5b's 60-program parity set; \texttt{test\_relaxed\_handoff\_should\_race} passes. Re-score of 464 programs: no pair lost, 9 new $\DR$ and 377 new $\SC$ pairs; the 8 ScoR fence races are reported in their run ($\SC$: volatile data); the ticket idiom of \texttt{reduction-norace} and the five ScoR \texttt{norace\_*fence*} consumers that spin without a fence are reported (D11). Indigo3 CC push 1296n on T5b's clocks: 6.9\,GB, 9.9\,s under the trusting gate, 1.3\,GB, 5.7\,s under the instance gate (\texttt{eval/INSTANCE\_GATE.md}) \\
+I5 & \textbf{matched (T9, D14): local memory is outside the model} --- the HB trace carries no local record, and \texttt{HbClock}, oracle and \texttt{barrier\_only\_pairs} skip those of an older dump. Was: local memory keyed by $(\mathtt{local},a)$, $a$ the local-window offset with no thread id (note (c)) & every thread's access at one offset is one location: 8,096 spurious race records on a 2$\times$32-thread kernel with no sharing; no verdict there (note (c)) \\
 I6 & monitor: the completion-order check per warp, not per lane, on memory records only; per-warp degrade when the count is unknown; no size or overlap check (a location is the start address); scalar-clock mode: the degrade, no check & over-rejects under independent thread scheduling (predicted from the code, not observed: 0 violations on ScoR 32/32, \texttt{HARDENING\_REPORT.md}); the degrade path is unreachable on launched kernels and unsound without the monitor, so T11 deletes it \\
 I7 & cp.async copies as accesses of a virtual agent $t\,|\,2^{62}$, joined at issue, completed by commit/wait (note (d)) & outside the model; needs generators (ISSUE), (WAIT) and a re-proof of \S\ref{sec:single} \\
 \bottomrule
@@ -927,8 +927,8 @@ I7 & cp.async copies as accesses of a virtual agent $t\,|\,2^{62}$, joined at is
 gives only FastTrack's guarantee, a report at the first reportable access of each location,
 not Theorem~\ref{thm:sound}: E2 under \texttt{none} reports $(w_0,w_1)$ but not $(w_0,r)$.
 (b) On a dump recorded before T3b, vector-clock mode flags an early-exit kernel only
-indirectly: \texttt{TV-barrier-completion-order} fires when a released warp runs on (the
-engine writes \texttt{tv\_violation}, which no verdict reads; the oracle raises);
+indirectly: \texttt{TV-barrier-completion-order} fires when a released warp runs on (\texttt{HbClock}
+writes \texttt{tv\_violation}, which no verdict reads; the oracle raises);
 scalar-clock mode not at all. Since T3b, a segment the model still holds open at the end is
 flagged directly by the fifth check of \S\ref{sec:model}, in both modes. The collector drops the barrier callback's
 \texttt{IS\_SYNCHRONIZING} flag, so a \texttt{bar.arrive} is a blocking arrival to the model:
@@ -1047,7 +1047,7 @@ second key as the callback's last action and ordering the HB records by it is th
 cheapest mitigation and is measured before it is adopted (T15). \emph{Monitor}: one unit test
 per check that must raise plus a valid multi-warp control that must not (five of the seven
 tests of \texttt{test\_barrier\_soundness.py}, passing; they exercise \texttt{hb\_oracle.py},
-not the engine's \texttt{tv\_fail}); zero violations on the ScoR corpus; the
+not \texttt{HbClock}'s \texttt{tv\_fail}); zero violations on the ScoR corpus; the
 head-to-head suites are not yet counted.
 
 \paragraph{Order of work (PLDI 2027).}
@@ -1056,7 +1056,7 @@ $\SC$ class decided by R2 and by nothing else (D12) --- done (T9). (2) I3: exit 
 in the dump, \textsc{Complete} on exit, the fifth monitor check of \S\ref{sec:model}; A3
 becomes PTX semantics (D7, route (a)) --- done (T3b, \texttt{aab77ca}; crs-cuda clean on
 a fresh recording). (3) I1, I2 (buckets, in both clocks, D6) and I5 (exclusion of local
-memory, D14) in one change to oracle, engine and offline pass, with the offline re-score
+memory, D14) in one change to oracle, \texttt{HbClock} and offline pass, with the offline re-score
 --- done (T9; \texttt{design/soundness\_event\_candidates.md},
 \texttt{eval/T9\_RESCORE.md}; merged at 6c34736, library 75f46012, green set 238 passed
 and the one expected failure, evcand re-score 3,621 rows unchanged). (4) Sidecar strength
@@ -1069,7 +1069,7 @@ false positives removed, none added). (4$'$) In parallel with (4): the \texttt{a
 flag of D15 and the offline window count over the kept dumps (the rate the paper
 cites for its own corpus; T13's rates are for one lock under NVBit's timing) --- done
 (T14, branch \texttt{feat/a2-flag}, unmerged; \texttt{eval/A2\_WINDOWS.md}). (5) The
-vector clock's memory (T5b), directly after (4): ten of the 58 engine-timeout programs
+vector clock's memory (T5b), directly after (4): ten of the 58 vector-clock timeout programs
 have barriers and no atomics (mostly HeCBench, the suite with no vector-clock dump), and
 the gate cannot touch a barrier join, so nothing is gained by waiting for it; the
 reference mode has no dump for the realistic suites, which bounds the mode comparison to
@@ -1078,7 +1078,7 @@ Definition~\ref{def:gate}, in parallel with (5) --- done (T12, \texttt{feat/inst
 \texttt{eval/INSTANCE\_GATE.md}; R3's acquire point is taken from the trace as well, \S\ref{sec:verdict}): the fence inventory per SM (O2: on
 sm\_89 \texttt{CCTL.IVALL} on the acquire side and the barrier on both) and the
 $\mathrm{fenced}$ predicate from the CFG dots (O3), shared with R3's release-point test;
-the engine defers the acquire join with \textsc{Check}($r$) evaluated as \S\ref{sec:alg}
+\texttt{HbClock} defers the acquire join with \textsc{Check}($r$) evaluated as \S\ref{sec:alg}
 says, turns the publish into a join, publishes nothing when $\rel(r)=0$, and resolves
 held pairs at the end of the kernel. The gate is measured before it is wired: the
 census's fence classification is the before; the expected after is the eight ScoR fence

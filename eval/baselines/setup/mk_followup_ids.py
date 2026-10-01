@@ -8,7 +8,7 @@ sweep just used. Same definitions the original hand-built lists encoded:
 
 Rows whose only failure is `missing-exe` (arch-excluded cuHadron targets) are left
 out: nothing to re-collect. Reads eval/results/baselines-cuvein.csv + manifest.csv,
-writes eval/baselines/setup/{keep_all_ids,residual_ids,engine_timeout_ids}.txt and
+writes eval/baselines/setup/{keep_all_ids,residual_ids,hb_clock_timeout_ids}.txt and
 prints the counts (used by run_rerun.sh to size the diagnose array).
 """
 import csv
@@ -53,7 +53,7 @@ def main():
         if t in ("TIMEOUT", "ERROR") or man.get(i, {}).get("pset") == "P7":
             resid.append(i)
     keep_all = sorted(set(keep) | set(eng_fail))
-    for name, lst in (("keep_all_ids.txt", keep_all), ("engine_timeout_ids.txt", eng_fail),
+    for name, lst in (("keep_all_ids.txt", keep_all), ("hb_clock_timeout_ids.txt", eng_fail),
                       ("residual_ids.txt", resid)):
         with open(f"{HERE}/{name}", "w") as f:
             f.write("\n".join(lst) + ("\n" if lst else ""))

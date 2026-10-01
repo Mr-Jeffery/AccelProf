@@ -32,7 +32,9 @@ namespace yosemite {
 // special-cased. Per location it keeps one bucket per (thread, record key) -- never a
 // FastTrack collapse across threads, which Theorem "Sound" does not survive (T9, I2).
 // ponytail: sparse VCs over shared bases (T5b); a clock is O(threads) only in what it knows.
-struct HbEngine {
+// HbClock is the computation (vector-clock mode's runtime): it owns the thread clocks, of the
+// value type VClock below, and the per-location state.
+struct HbClock {
     // sync scopes match sync_dominance.SCOPES: NONE=0, (WARP=1), BLOCK=2, GRID=3.
     static constexpr int SCOPE_NONE = 0;
     static constexpr int SCOPE_BLOCK = 2;
@@ -130,6 +132,8 @@ struct HbEngine {
     }
     static Base base_of(const Clock& c) { return base_sorted(Base(c.begin(), c.end())); }
 
+    // VClock is a clock value (T5b's shared base + delta + own component), not the computation:
+    // HbClock owns one per thread (vc, pd) and copies them into releases and commits.
     struct VClock {
         BaseP base;
         Clock delta;                                        // never holds `self`
@@ -286,7 +290,7 @@ struct HbEngine {
     // Block-barrier instance assembly (see the barrier branch in process): buffer
     // per-warp arrivals per (block, bar_index) until the instance is complete.
     // block_thread_count is the expected participant count for a plain __syncthreads
-    // (whose per-record thread_count is 0); set per-kernel by hb_engine_reset.
+    // (whose per-record thread_count is 0); set per-kernel by hb_clock_reset.
     // T3b (hb_proof.tex Definition "Instances"): a whole-block segment expects
     // block_thread_count minus the block's exited threads; a counted one (bar.sync id, n)
     // keeps n. `count` is the segment's thread_count (0 = whole block), so an exit can
@@ -301,7 +305,7 @@ struct HbEngine {
     // YOSEMITE_HB_STRICT=0 to disable. A violation is a collector/trace bug: it prints
     // a loud banner and is recorded in `tv_violation` (surfaced in the JSON output) so
     // corpus/validation runs can assert zero. The oracle raises AlignmentError; the
-    // engine cannot unwind the streaming process, so it records-and-continues instead
+    // HbClock cannot unwind the streaming process, so it records-and-continues instead
     // (equivalent on valid traces, where no violation ever fires).
     bool strict = true;
     std::string tv_violation;
@@ -740,7 +744,7 @@ struct HbEngine {
         last_pc.clear();                                            // T12
         vc.clear(); vs.clear(); released.clear(); buckets.clear(); merge_memo.clear();
         races.clear(); race_index.clear(); sync_pairs.clear();
-        pending_barriers.clear();  // block_thread_count is (re)set by hb_engine_reset
+        pending_barriers.clear();  // block_thread_count is (re)set by hb_clock_reset
         exited_count.clear(); exited_lanes.clear();
         bar_warps_seen.clear(); warp_waiting.clear(); tv_violation.clear();
         atom_idx.clear(); coherence.clear();
@@ -760,7 +764,7 @@ struct HbEngine {
     }
 
     void tv_fail(const std::string& msg) {
-        std::cerr << "\n[HB_ENGINE] *** TRACE-VALIDITY VIOLATION *** " << msg
+        std::cerr << "\n[HB_CLOCK] *** TRACE-VALIDITY VIOLATION *** " << msg
                   << "\n  (the single-trace certificate assumes this cannot happen; "
                      "verdict for this kernel is untrustworthy)\n" << std::endl;
         if (tv_violation.empty()) tv_violation = msg;  // keep the first
@@ -1046,7 +1050,7 @@ struct HbEngine {
         strength = (sit != kernel_strength.end()) ? &sit->second
                  : (it != kernel_tables.end()) ? &no_strength : &merged_strength;
         if (it == kernel_tables.end() && !kernel_tables.empty())
-            std::cerr << "[HB_ENGINE] kernel '" << kernel_name << "' not in the atomic-scope "
+            std::cerr << "[HB_CLOCK] kernel '" << kernel_name << "' not in the atomic-scope "
                          "sidecar; using the merged pc table" << std::endl;
     }
     // T10: a record's strong scope (-1 = weak), the scope of key(e) and ms. An RMW keeps its
@@ -1137,7 +1141,7 @@ struct HbEngine {
                             + std::to_string(p.arrived.size()) + " > expected "
                             + std::to_string(expected));
                 // fire once complete; expected==0 (unknown count, unreachable for a
-                // launched kernel) degrades to per-warp so the engine never stalls.
+                // launched kernel) degrades to per-warp so HbClock never stalls.
                 if (expected == 0) {
                     // TV-expected-nonzero-multiwarp: the per-warp fallback with an unknown
                     // count is exactly the pre-fix bug for a >1-warp block.
@@ -1166,7 +1170,7 @@ struct HbEngine {
             // TV-barrier-completion-order: a warp blocked at a pending barrier cannot
             // execute a post-barrier memory access before its instance fires. This is the
             // segmentation property block-barrier assembly relies on. (TV-seq-monotonic is
-            // structural here: the engine consumes the trace buffer in native order, so the
+            // structural here: HbClock consumes the trace buffer in native order, so the
             // event sequence is monotonic by construction — the oracle checks it because it
             // reads an external JSON that could be reordered.)
             if (strict && warp_waiting.count({a.ctaId, a.warpId}))
@@ -1277,7 +1281,7 @@ struct HbEngine {
         }
     }
 
-    // YOSEMITE_HB_STATS (T5a): what the engine holds at kernel end, per container.
+    // YOSEMITE_HB_STATS (T5a): what HbClock holds at kernel end, per container.
     // Entry counts are exact; bytes are estimates from libstdc++'s node layouts (hash
     // node = next pointer + value, tree node = 32 bytes of links + value, each rounded to
     // a glibc malloc chunk; buckets = one pointer each) and leave out allocator slack.
@@ -1569,13 +1573,14 @@ static uint32_t read_env_u32(const char* key, uint32_t default_value) {
 }
 
 // Analysis mode of an HB trace (YOSEMITE_HB_TRACE=1), read once per process:
-//   YOSEMITE_HB_MODE=vector-clock  (default) the in-process HbEngine runs over the
+//   YOSEMITE_HB_MODE=vector-clock  (default) the in-process HbClock runs over the
 //                                  event stream and hb_races / hb_races_sync_only
 //                                  are emitted next to hb_events;
 //   YOSEMITE_HB_MODE=scalar-clock  hb_events are dumped only; the static leg and the
 //                                  offline barrier-only pass decide.
-// The pre-T8 switch YOSEMITE_HB_NO_ENGINE (set = scalar-clock) is honoured for one
-// more release with a deprecation warning; YOSEMITE_HB_MODE wins when both are set.
+// The pre-T8 switch YOSEMITE_HB_NO_ENGINE (set = scalar-clock) is retired, not renamed
+// (T17): honoured for one more release with a deprecation warning; YOSEMITE_HB_MODE wins
+// when both are set.
 // File-static on purpose: PcDependency must not grow members (HARDENING_REPORT.md).
 static bool hb_scalar_clock_mode() {
     static const bool scalar = [] {
@@ -1583,7 +1588,7 @@ static bool hb_scalar_clock_mode() {
         const char* legacy = std::getenv("YOSEMITE_HB_NO_ENGINE");
         bool s = false;
         if (legacy != nullptr) {
-            fprintf(stderr, "[cuVein] YOSEMITE_HB_NO_ENGINE is deprecated: "
+            fprintf(stderr, "[cuVein] YOSEMITE_HB_NO_ENGINE is deprecated and will be removed: "
                             "use YOSEMITE_HB_MODE=scalar-clock\n");
             s = true;
         }
@@ -1709,7 +1714,7 @@ PcDependency::~PcDependency() {
 }
 
 
-static void hb_engine_select_kernel(const std::string& kernel_name);
+static void hb_clock_select_kernel(const std::string& kernel_name);
 
 void PcDependency::kernel_start_callback(std::shared_ptr<KernelLaunch_t> kernel) {
 
@@ -1724,8 +1729,8 @@ void PcDependency::kernel_start_callback(std::shared_ptr<KernelLaunch_t> kernel)
     _unknown_region_shadow.clear();
     _hb_events.clear();
     _hb_seq = 0;
-    hb_engine_reset();
-    hb_engine_select_kernel(kernel->kernel_name);
+    hb_clock_reset();
+    hb_clock_select_kernel(kernel->kernel_name);
     for (uint64_t worker_idx = 0; worker_idx < _worker_count; ++worker_idx) {
         auto& worker_state = _worker_shadow_memory_shared[worker_idx];
         worker_state.pool_miss_count = 0;
@@ -1803,61 +1808,61 @@ void PcDependency::hb_collect_events(const MemoryAccess* buffer, uint64_t size) 
 }
 
 
-// The engine state is a file-static singleton, NOT a PcDependency member: adding a
+// HbClock's state is a file-static singleton, NOT a PcDependency member: adding a
 // member re-triggers a latent heap-corruption UB (see the header note). Only the
 // single enabled pc_dependency tool instance ever processes kernels, so one
 // singleton is correct; the 2 discarded tool temporaries never call reset().
 // ponytail: singleton, not per-instance. Key by `this` only if two instances ever
 // process concurrently (they don't — one tool is enabled at a time).
 namespace {
-std::unique_ptr<HbEngine>& hb_engine_singleton() {
-    static std::unique_ptr<HbEngine> engine;
-    return engine;
+std::unique_ptr<HbClock>& hb_clock_singleton() {
+    static std::unique_ptr<HbClock> inst;
+    return inst;
 }
 }  // namespace
 
-// pcs are function-relative: bind the engine to the launching kernel's pc table.
-static void hb_engine_select_kernel(const std::string& kernel_name) {
-    auto& engine = hb_engine_singleton();
-    if (engine) engine->select_kernel(kernel_name);
+// pcs are function-relative: bind HbClock to the launching kernel's pc table.
+static void hb_clock_select_kernel(const std::string& kernel_name) {
+    auto& hc = hb_clock_singleton();
+    if (hc) hc->select_kernel(kernel_name);
 }
 
-void PcDependency::hb_engine_process(const MemoryAccess* buffer, uint64_t size) {
-    auto& engine = hb_engine_singleton();
-    if (engine) engine->process(buffer, size);
+void PcDependency::hb_clock_process(const MemoryAccess* buffer, uint64_t size) {
+    auto& hc = hb_clock_singleton();
+    if (hc) hc->process(buffer, size);
 }
 
-void PcDependency::hb_engine_reset() {
-    if (!_hb_trace) return;  // engine only runs in HB-trace mode
-    auto& engine = hb_engine_singleton();
-    if (!engine) {
-        engine = std::make_unique<HbEngine>();
-        engine->load_scopes(std::getenv("YOSEMITE_ATOMIC_SCOPE_FILE"));
+void PcDependency::hb_clock_reset() {
+    if (!_hb_trace) return;  // HbClock only runs in HB-trace mode
+    auto& hc = hb_clock_singleton();
+    if (!hc) {
+        hc = std::make_unique<HbClock>();
+        hc->load_scopes(std::getenv("YOSEMITE_ATOMIC_SCOPE_FILE"));
     }
-    engine->reset();
+    hc->reset();
     // expected participant count for a plain __syncthreads (thread_count 0 in the
     // trace) -> the whole block; used to assemble block-barrier instances.
-    engine->block_thread_count = _current_block_thread_count;
+    hc->block_thread_count = _current_block_thread_count;
     // TV invariants ON by default; YOSEMITE_HB_STRICT=0 disables them.
     const char* strict_env = std::getenv("YOSEMITE_HB_STRICT");
-    engine->strict = (strict_env == nullptr) || (std::string(strict_env) != "0");
-    engine->sync_only_pass = std::getenv("YOSEMITE_HB_NO_SYNC_ONLY") == nullptr;
-    engine->stats_every = read_env_u32("YOSEMITE_HB_STATS_EVERY", 0);
-    engine->next_snapshot = engine->stats_every;
+    hc->strict = (strict_env == nullptr) || (std::string(strict_env) != "0");
+    hc->sync_only_pass = std::getenv("YOSEMITE_HB_NO_SYNC_ONLY") == nullptr;
+    hc->stats_every = read_env_u32("YOSEMITE_HB_STATS_EVERY", 0);
+    hc->next_snapshot = hc->stats_every;
 }
 
-void PcDependency::hb_engine_emit(std::ofstream& jout) {
-    // In scalar-clock mode the engine never saw an event: emit NO hb_races /
+void PcDependency::hb_clock_emit(std::ofstream& jout) {
+    // In scalar-clock mode HbClock never saw an event: emit NO hb_races /
     // hb_races_sync_only rather than empty ones. An empty list is a claim ("nothing
     // raced", "every pair is barrier-ordered") that the verdict matrix would act on;
     // an absent key sends sync_dominance down its static-only path.
     if (hb_scalar_clock_mode()) return;
-    auto& engine = hb_engine_singleton();
-    if (engine) engine->emit(jout);
+    auto& hc = hb_clock_singleton();
+    if (hc) hc->emit(jout);
 }
 
 
-// YOSEMITE_HB_STATS=1: the kernel's HB memory at kernel end, when it peaks (the engine
+// YOSEMITE_HB_STATS=1: the kernel's HB memory at kernel end, when it peaks (HbClock
 // resets at the next launch) -> "hb_stats" in kernel_N.json and one stderr line.
 // hb_events: the kernel's event objects, buffered as one std::string each until this
 // dump, so RAM = the string objects + their heap buffers; json_bytes = their text.
@@ -1867,7 +1872,7 @@ void hb_stats_emit(std::ostream& jout, const std::vector<std::string>& ev,
     uint64_t text = 0, heap = 0;
     for (const auto& e : ev) {
         text += e.size();
-        if (e.capacity() > 15) heap += HbEngine::mchunk(e.capacity() + 1);  // past SSO
+        if (e.capacity() > 15) heap += HbClock::mchunk(e.capacity() + 1);  // past SSO
     }
     const uint64_t ev_ram = ev.capacity() * sizeof(std::string) + heap;
     uint64_t rss = 0, hwm = 0;                      // kB
@@ -1878,11 +1883,11 @@ void hb_stats_emit(std::ostream& jout, const std::vector<std::string>& ev,
     }
     std::ostringstream o;
     o << "{\"hb_events\": {\"count\": " << ev.size() << ", \"json_bytes\": " << text
-      << ", \"ram_bytes_est\": " << ev_ram << "}, \"engine\": ";
-    auto& engine = hb_engine_singleton();
-    if (engine && !hb_scalar_clock_mode()) {    // scalar-clock: the engine never ran
+      << ", \"ram_bytes_est\": " << ev_ram << "}, \"hb_clock\": ";
+    auto& hc = hb_clock_singleton();
+    if (hc && !hb_scalar_clock_mode()) {    // scalar-clock: HbClock never ran
         o << "{";
-        engine->stats(o);
+        hc->stats(o);
         o << "}";
     } else {
         o << "null";
@@ -1898,7 +1903,7 @@ void hb_stats_emit(std::ostream& jout, const std::vector<std::string>& ev,
 // copies, sets, launches (tied to their kernel_N.json), stream creation, synchronize and
 // event calls -- as the collector reports them with YOSEMITE_HB_HOST_MEMCPY=1. Written as
 // <dump dir>/host_ops.json at every kernel flush and at exit (a copy after the last kernel
-// is common), for python/host_hb.py. File-static like the HB engine: PcDependency must not
+// is common), for python/host_hb.py. File-static like HbClock: PcDependency must not
 // grow members (HARDENING_REPORT.md).
 namespace {
 std::vector<std::string>& host_op_log() {
@@ -2152,8 +2157,8 @@ void PcDependency::kernel_trace_flush(std::shared_ptr<KernelLaunch_t> kernel) {
         // end-of-kernel TV-barrier-pending-at-end check only on dumps with the marker: an
         // older dump has no exits, so an early-exit kernel's segments stay open there.
         jout << ",\n  \"hb_exits\": 1";
-        // Phase 2 dynamic-HB engine verdicts (streaming; mirrors hb_oracle.py).
-        hb_engine_emit(jout);
+        // HbClock's verdicts (streaming; mirrors hb_oracle.py).
+        hb_clock_emit(jout);
         if (hb_stats_enabled()) hb_stats_emit(jout, _hb_events, *kernel);
     }
 
@@ -2638,7 +2643,7 @@ void PcDependency::worker_loop(uint64_t worker_idx) {
                 case MemoryType::PipelineCommit:   // T1a (HB-trace runs only)
                 case MemoryType::PipelineWait:
                     // Phase 2 sync events: no shadow/pc-statistics update. Consumed
-                    // by hb_collect_events (HB oracle) and, later, the epoch engine.
+                    // by hb_collect_events (HB oracle) and HbClock.
                     continue;
                 default:
                     printf("unknown memory type\n");
@@ -2688,13 +2693,13 @@ void PcDependency::gpu_data_analysis(void* data, uint64_t size) {
 
     if (_hb_trace) {
         hb_collect_events(accesses_buffer, size);
-        // scalar-clock mode dumps the events without running the engine, which also
-        // isolates the event-dump cost from the engine cost (A/B lever for the
+        // scalar-clock mode dumps the events without running HbClock, which also
+        // isolates the event-dump cost from HbClock's cost (A/B lever for the
         // bounded-clock / FastTrack-epoch calibration). On a reduction of 4M elts
-        // (136K events) the engine's exact unbounded VCs add ~4s vs ~1.3s for the
+        // (136K events) HbClock's exact unbounded VCs add ~4s vs ~1.3s for the
         // dump — the growing per-thread clocks under heavy __syncthreads are the
         // target of the scale knobs.
-        if (!hb_scalar_clock_mode()) hb_engine_process(accesses_buffer, size);
+        if (!hb_scalar_clock_mode()) hb_clock_process(accesses_buffer, size);
     }
 
     for (uint64_t worker_idx = 0; worker_idx < _worker_count; ++worker_idx) {

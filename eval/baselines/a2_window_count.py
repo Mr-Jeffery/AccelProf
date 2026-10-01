@@ -29,7 +29,7 @@ have gaps where exits were dropped).
            `parallel.py analyze` runs (per program and per row), -> eval/results/t14-a2/
            A2_TABLES.md + CSVs.
   handoffs --dots D.. -- K..: the Sanitizer's own inversion rate on the race-free lock of
-           python/testdata/lock_contention_a2.cu, and engine == oracle on those traces
+           python/testdata/lock_contention_a2.cu, and HbClock == specification on those traces
            (setup/t14_handoffs.sh runs it on a GPU node).
 """
 import argparse
@@ -409,7 +409,7 @@ def rescore_program(info):
             det["kernels"].append(k)
             continue
         rep = err = None
-        for strict in ("1", "0"):                      # the engine records a TV violation
+        for strict in ("1", "0"):                      # HbClock records a TV violation
             os.environ["YOSEMITE_HB_STRICT"] = strict   # and continues: so does the re-score
             for dot in dots:
                 try:
@@ -547,14 +547,14 @@ def cmd_handoffs(a):
         unordered |= {(r[3], r[5], r[0], r[2]) for r in recs}
         c = Counter(sections=len(cs), adjacent=max(len(cs) - 1, 0),
                     instances=sum(r[7] for r in recs), flagged=sum(r[7] for r in recs if r[6]))
-        if "hb_races" in t:           # vector-clock dump: the engine's records, the new field too
+        if "hb_races" in t:           # vector-clock dump: HbClock's records, the new field too
             key = lambda r: (r.get("a_pc"), r["b_pc"], r["kind"], r.get("class"), r["space"],
                              r.get("dist"), r.get("async"), r.get("count"), r.get("a2_uncertain"))
-            c["engine_traces"] += 1
-            c["engine_eq_oracle"] += {key(r) for r in t["hb_races"]} == \
+            c["hb_clock_traces"] += 1
+            c["hb_clock_eq_spec"] += {key(r) for r in t["hb_races"]} == \
                 {key(r) for r in rep["races"]} and \
                 t.get("hb_races_sync_only") == rep["races_sync_only"]
-            c["engine_flagged"] += sum(r.get("a2_uncertain") or 0 for r in t["hb_races"])
+            c["hb_clock_flagged"] += sum(r.get("a2_uncertain") or 0 for r in t["hb_races"])
         for x, y in zip(cs, cs[1:]):
             if x[0] != y[0]:
                 c["cross_thread"] += 1

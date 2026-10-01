@@ -6,7 +6,7 @@ completes when the block's non-exited threads have arrived. The collector's per-
 records (`type: "exit"`, the exiting lanes in `active_mask`; dump marker `hb_exits: 1`) take
 the exited threads out of the expected count of every later whole-block segment of their
 block and re-check its open segments (Complete on exit); a counted barrier keeps its n.
-HbEngine, hb_oracle.py, sync_dominance.barrier_only_pairs and design/algorithms_check.py
+HbClock, hb_oracle.py, sync_dominance.barrier_only_pairs and design/algorithms_check.py
 implement it identically.
 
 Two parts:
@@ -253,12 +253,12 @@ def test_threads_really_exit_before_the_barrier(artifacts):
     assert all(len(exits[b]) == 128 for b in active), {b: len(s) for b, s in exits.items()}
 
 
-def test_engine_reports_no_race(artifacts):
+def test_hb_clock_reports_no_race(artifacts):
     assert _load(artifacts[1]).get("hb_races") == []
 
 
 def test_no_trace_validity_violation(artifacts):
-    # includes TV-barrier-pending-at-end, which the engine records whatever the strict flag
+    # includes TV-barrier-pending-at-end, which HbClock records whatever the strict flag
     assert _load(artifacts[1]).get("tv_violation") is None
 
 
@@ -284,7 +284,7 @@ def test_oracle_accepts_the_trace(artifacts):
     assert _first(hb_oracle.analyze, *artifacts)["races"] == []
 
 
-def test_oracle_agrees_with_the_engine(artifacts):
+def test_hb_clock_matches_specification(artifacts):
     dots, trace = artifacts
     t = _load(trace)
     rep = _first(hb_oracle.analyze, dots, trace)
@@ -292,7 +292,7 @@ def test_oracle_agrees_with_the_engine(artifacts):
     assert t["hb_races_sync_only"] == rep["races_sync_only"]
 
 
-def test_offline_pass_matches_the_engine(artifacts):
+def test_offline_pass_matches_hb_clock(artifacts):
     t = _load(artifacts[1])
     tv = []
     assert sd.barrier_only_pairs(t, {}, {}, tv_out=tv) == \

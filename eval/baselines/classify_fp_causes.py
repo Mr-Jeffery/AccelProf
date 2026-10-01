@@ -3,7 +3,7 @@
 
 Input: the manifest (label CLEAN = race-free program), the per-program confirmation
 details (confirm/<id>__cuvein__<mode>.json: deduped RACE reports with pcs + hb_class)
-and the kept mismatch traces (traces_keep/<id>/: CFG dots + engine kernel JSONs). For
+and the kept mismatch traces (traces_keep/<id>/: CFG dots + vector-clock kernel JSONs). For
 each report of a race-free program the two racing pcs are looked up in the CFG and
 each endpoint is typed from its SASS opcode:
 
@@ -22,7 +22,7 @@ access lowers to). The report is then assigned one cause:
   RC1-atomic-ldst     both endpoints are language-level atomics (atom, or generic-form
                       seq/strong) and at least one is a load/store: the atomic model
                       only knows RMW opcodes, so cuda::atomic load/store looks plain
-  RC3-attribution     vector-clock mode only: hb_class says the pair raced, but no engine
+  RC3-attribution     vector-clock mode only: hb_class says the pair raced, but no HbClock
                       hb_races record names this pc pair (subset pair matching marks
                       every pair sharing a pc with a same-pc race) -- or model_bug
   RC2-latent          not raced dynamically (hb_class latent) and no static proof:
@@ -98,8 +98,8 @@ def lookup(dotmap, a, b):
     return None
 
 
-def engine_pairs(idir):
-    """Exact raced pc pairs from the kept vector-clock dumps (the HbEngine's hb_races).
+def hb_clock_pairs(idir):
+    """Exact raced pc pairs from the kept vector-clock dumps (the HbClock's hb_races).
     A WAR record on this branch has a_pc null: keep it as (None, writer_pc). -> set, or
     None if no dump was kept."""
     kjs = glob.glob(f"{hb_modes.resolve_dir(idir, VC)}/kernel_*.json")
@@ -116,7 +116,7 @@ def engine_pairs(idir):
     return pairs
 
 
-def engine_confirms(pairs, a, b, race_type):
+def hb_clock_confirms(pairs, a, b, race_type):
     if (a, b) in pairs or (b, a) in pairs:
         return True
     # WAR with an unknown reader pc: the writer must be in the pair and the report
@@ -135,7 +135,7 @@ def cause_of(ea, eb, hb_class, same_pc, mode, confirmed):
     if any(e[1] == "spaced" for e in (ea, eb)):
         return "RC5-volatile"
     # scalar-clock has no dynamic class: a same-pc plain write-write is the idempotent-
-    # write candidate there too (the engine confirms these race; barriers don't order them)
+    # write candidate there too (HbClock confirms these race; barriers don't order them)
     if same_pc and ea[0] == "plain" and (hb_class == "structural" or mode == SC):
         return "RC4-samepc-waw"
     if hb_class in ("latent", None):
@@ -170,7 +170,7 @@ def main():
         if not dotmap:
             nodots[(m["pset"], j["mode"])] += 1
             continue
-        pairs = engine_pairs(idir) if j["mode"] == VC else None
+        pairs = hb_clock_pairs(idir) if j["mode"] == VC else None
         for r in j["raw"]:
             if r.get("host"):                  # T2 host-copy race: no pc pair to classify
                 continue
@@ -180,7 +180,7 @@ def main():
             else:
                 ea, eb = hit
             confirmed = None if pairs is None else \
-                engine_confirms(pairs, r["a_pc"], r["b_pc"], r.get("race_type"))
+                hb_clock_confirms(pairs, r["a_pc"], r["b_pc"], r.get("race_type"))
             rows.append({
                 "id": j["id"], "pset": m["pset"], "mode": j["mode"],
                 "a_pc": hex(r["a_pc"]), "b_pc": hex(r["b_pc"]), "space": r["space"],
@@ -188,7 +188,7 @@ def main():
                 "op_a": ea[2], "op_b": eb[2],
                 "kind_a": ea[0] + (f"/{ea[1]}" if ea[1] else ""),
                 "kind_b": eb[0] + (f"/{eb[1]}" if eb[1] else ""),
-                "engine_confirmed": "" if confirmed is None else int(confirmed),
+                "hb_clock_confirmed": "" if confirmed is None else int(confirmed),
                 "cause": "unmapped" if hit is None else
                          cause_of(ea, eb, "model_bug" if r.get("model_bug") else r.get("hb_class"),
                                   r["a_pc"] == r["b_pc"],

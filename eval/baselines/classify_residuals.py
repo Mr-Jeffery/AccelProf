@@ -20,9 +20,9 @@ setup/residual_ids.txt and every mode, the best row of the *diagnostic* shard
   collector-oom     native rc==0 but the accelprof child was SIGKILLed (bash
                     "Killed", rc 137) -- the collector's memory grows with the
                     trace and is killed by the node: attributable to cuVein
-  engine-hang       vector-clock-mode TIMEOUT with an empty dump while scalar-clock of
-                    the SAME program resolved -- attributable to the cuVein
-                    engine (not the tracer)
+  hb-clock-hang     vector-clock-mode TIMEOUT with an empty dump while scalar-clock of
+                    the SAME program resolved -- attributable to cuVein's
+                    vector-clock runtime, HbClock (not the tracer)
   collector-fail    native rc==0 but accelprof exits non-zero / no kernel JSON:
                     attributable to the cuVein collector
   trace-disk-full   the raw dependency_* dump filled the node-local scratch disk
@@ -106,7 +106,7 @@ def classify(r, manifest_label, other_mode_row=None):
             return "collector-memory"
         if (r["mode"] == VC and other_mode_row
                 and other_mode_row["verdict"] in ("RACE", "CLEAN")):
-            return "engine-hang"
+            return "hb-clock-hang"
         return "collector-hang"
     return "collector-fail"
 

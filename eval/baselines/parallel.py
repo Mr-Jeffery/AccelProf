@@ -319,7 +319,7 @@ def collect_one(mrow, cuda, reps, floor=120):
                     except OSError:
                         pass
             # complete = the app ran to its own exit status under the tool. accelprof
-            # returns 1 when the app dies (OOM-killed engine run: "Killed ... Fail to run
+            # returns 1 when the app dies (OOM-killed vector-clock run: "Killed ... Fail to run
             # the application"), yet the kernels finished BEFORE the kill are already on
             # disk -- such a dump covers a prefix of the run only and must never be read
             # as a CLEAN verdict (P1-CC_..Push..Block-slower_atomic-1296n: 1 of 5 kernels).

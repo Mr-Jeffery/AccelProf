@@ -2,12 +2,12 @@
 """T9-0 latent census: how many labelled races only `latent` catches in the recorded
 run, what the tier costs in false positives, and whether the hand-offs are fenced.
 
-MEASUREMENT ONLY. The detector (python/sync_dominance.py, hb_oracle.py, the engine) is
+MEASUREMENT ONLY. The detector (python/sync_dominance.py, hb_oracle.py, HbClock) is
 run unchanged over the kept BeeGFS stores; this script only observes it:
   * HBGraph is subclassed to keep a handle on the kernel's graph (for the R3 decline
     reason and the fence adjacency of the hand-off atomics);
   * sync_dominance's `json` name is shadowed so the loaded dump can be kept and, for
-    the same-trace variant, the engine's race keys (hb_races, hb_races_sync_only)
+    the same-trace variant, HbClock's race keys (hb_races, hb_races_sync_only)
     removed -- exactly what a scalar-clock dump lacks (the collector writes neither key
     in that mode), so analyze() takes its scalar-clock path on the SAME recorded trace.
 
@@ -591,7 +591,7 @@ def cmd_tables(a):
     md.append("## Vector-clock TP/FP with and without `latent` (recorded runs; no detector change)\n")
     md.append("`without latent` = the program's verdict if every `latent` report (and a `benign` "
               "report whose underlying class is latent) were ORDERED -- the \"ordered in this "
-              "execution\" reading of D8 applied to the unchanged engine (I1/I2/I4 as they are).\n")
+              "execution\" reading of D8 applied to the unchanged HbClock (I1/I2/I4 as they are).\n")
     d8 = []
     for s_ in sorted({r["suite"] for r in vcrows}):
         rs = [r for r in vcrows if r["suite"] == s_ and ok(r)]
@@ -730,7 +730,7 @@ def cmd_tables(a):
     md.append(f"A veto = a vector-clock RACE on a pair a static certificate (R1/R2 strength or R3 "
               f"chain) orders: `model_bug`, or `structural` with a chain. Vetoed report keys over "
               f"all programs: {n_veto}.\n")
-    md.append(f"**Same trace** (the vector-clock dump re-analysed with its engine keys removed, "
+    md.append(f"**Same trace** (the vector-clock dump re-analysed with its HbClock keys removed, "
               f"i.e. through the scalar-clock path): {n_same} programs checked, "
               f"**{len(same_bad)} mismatches**.\n")
     if same_bad:

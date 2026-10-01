@@ -3,7 +3,7 @@
 
 Two modes, distinct verdict surfaces (this is what X6/canary probes):
   vector-clock  YOSEMITE_HB_TRACE=1 YOSEMITE_HB_MODE=vector-clock -> verdict from the
-                C++ HbEngine's `hb_races` in kernel_N.json crossed with the static leg.
+                C++ HbClock's `hb_races` in kernel_N.json crossed with the static leg.
   scalar-clock  YOSEMITE_HB_TRACE=1 YOSEMITE_HB_MODE=scalar-clock -> dump only; verdict
                 from the sync_dominance static leg + offline barrier-only pass.
 
@@ -42,9 +42,9 @@ import host_hb               # noqa: E402  (T2: host copies / cross-stream kerne
 def _analyze_reports(depdir, cubindir):
     """Run sync_dominance.analyze over the dump and dedup RACE verdicts on
     (unordered pc pair, space). Used for BOTH modes: analyze derives the verdict
-    from the trace edges, and when the dump carries the C++ engine's hb_races
+    from the trace edges, and when the dump carries HbClock's hb_races
     (vector-clock mode) it crosses them in via _hb_class -- so the vector-clock dump
-    can flag a statically-ordered pair the engine observed racing (e.g. the canary),
+    can flag a statically-ordered pair HbClock observed racing (e.g. the canary),
     while the scalar-clock dump yields the static-leg verdict (+ the offline
     barrier-only pass) and misses it. That is exactly the vector-clock vs
     scalar-clock surface the task compares.
@@ -260,7 +260,7 @@ def run_one(mrow, modes, cuda, writer, confirm_dir):
                 notes = f"no-kernel-json(rc={rc})"
             else:
                 # rc != native rc: the app died under the tool (accelprof returns 1,
-                # e.g. an OOM-killed engine run) and the dump holds only the kernels
+                # e.g. an OOM-killed vector-clock run) and the dump holds only the kernels
                 # finished before that. A race it shows is a race; it is never CLEAN.
                 complete = rc == native_rc
                 try:

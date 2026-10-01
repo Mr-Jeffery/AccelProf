@@ -4,16 +4,19 @@ scalar-clock   was "trace-only" / "no-engine". The collector only dumps hb_event
                (YOSEMITE_HB_TRACE=1 YOSEMITE_HB_MODE=scalar-clock); the verdicts come
                from the static leg (R1/R2/R3) and sync_dominance.barrier_only_pairs(),
                which needs only a per-thread scalar epoch.
-vector-clock   was "engine". The in-process HbEngine (full scoped vector clocks,
+vector-clock   was "engine". The in-process HbClock (full scoped vector clocks,
                per-address release/acquire) runs over the same event stream
                (YOSEMITE_HB_MODE=vector-clock, the default under YOSEMITE_HB_TRACE=1)
                and its hb_races / hb_races_sync_only are crossed into the verdicts;
                python/hb_oracle.py is its exact offline oracle.
 
-Not mode names (unchanged by T8): the HbEngine class, hb_engine_* functions, the
-kernel_N.json keys (hb_events, hb_races, hb_races_sync_only, coherence_profile,
-tv_violation), the E*.csv timing columns t_trace / t_engine, the oracle state
-"engine-only" (engine result not cross-checked against the oracle).
+Not mode names (unchanged by T8): the kernel_N.json keys (hb_events, hb_races,
+hb_races_sync_only, coherence_profile, tv_violation).
+
+T17 (2026-09-30) renamed the in-process computation of vector-clock mode to HbClock
+(hb_clock_* functions). Persisted fields that were spelled with the old word are written
+with the new spelling and read in both (field() / canon_value(), no migration, no
+warning: the historical results keep their spelling) -- see T17_FIELDS / T17_VALUES.
 
 Persisted artifacts were rewritten by eval/baselines/migrate_mode_names.py. For one
 release every reader still accepts the old names through canon() / resolve_dir() /
@@ -31,7 +34,27 @@ LEGACY_OF = {VECTOR_CLOCK: "engine", SCALAR_CLOCK: "trace-only"}
 LABEL = {VECTOR_CLOCK: "cuVein (vector-clock)", SCALAR_CLOCK: "cuVein (scalar-clock)"}
 SHORT = {VECTOR_CLOCK: "cuVein-VC", SCALAR_CLOCK: "cuVein-SC"}
 ENV = "YOSEMITE_HB_MODE"                      # read by the collector
-LEGACY_ENV = "YOSEMITE_HB_NO_ENGINE"          # pre-T8; the collector still honours it (warns)
+LEGACY_ENV = "YOSEMITE_HB_NO_ENGINE"          # pre-T8, retired by T17; the collector honours it (warns)
+
+# T17: new spelling -> the one stores written before 2026-09-30 carry.
+T17_FIELDS = {"hb_clock": "engine",                    # kernel_N.json hb_stats
+              "t_vector_clock": "t_engine",            # E*.csv timing column
+              "hb_clock_confirmed": "engine_confirmed",  # baselines-fp-causes.csv
+              "vector_clock": "engine"}                # eval/driver.py manifest entry
+T17_VALUES = {"engine-only": "hb-clock-only",          # E*.csv oracle_verified
+              "engine-hang": "hb-clock-hang"}          # baselines-diagnose.csv cause
+
+
+def field(d, name, default=None):
+    """d[name], or d[<its pre-T17 spelling>] for a record written before the rename."""
+    if name in d:
+        return d[name]
+    return d.get(T17_FIELDS.get(name, name), default)
+
+
+def canon_value(v):
+    """A persisted value in its T17 spelling (engine-only -> hb-clock-only, ...)."""
+    return T17_VALUES.get(v, v)
 
 
 class LegacyNameError(ValueError):
@@ -81,7 +104,7 @@ def collector_env(mode):
 _supported = {}
 
 
-def engine_library(accel_prof_home):
+def sanalyzer_library(accel_prof_home):
     """Path of the libsanalyzer.so the collector of <accel_prof_home> loads: the first
     RPATH/RUNPATH entry of lib/libcompute_sanitizer.so that holds one (readelf), else
     the documented install location build/sanalyzer/lib."""
@@ -101,11 +124,14 @@ def engine_library(accel_prof_home):
     return os.path.join(accel_prof_home, "build", "sanalyzer", "lib", "libsanalyzer.so")
 
 
+engine_library = sanalyzer_library    # pre-T17 name, kept for the T5a/T8 setup scripts
+
+
 def require_collector_support(accel_prof_home):
-    """Refuse to collect with an engine library that predates T8: it ignores
-    YOSEMITE_HB_MODE, so a scalar-clock run would silently run the engine and dump
+    """Refuse to collect with an analyzer library that predates T8: it ignores
+    YOSEMITE_HB_MODE, so a scalar-clock run would silently run HbClock and dump
     hb_races -- a vector-clock trace filed as scalar-clock. Checked once per library."""
-    lib = engine_library(accel_prof_home)
+    lib = sanalyzer_library(accel_prof_home)
     if lib not in _supported:
         try:
             with open(lib, "rb") as fh:
@@ -114,7 +140,7 @@ def require_collector_support(accel_prof_home):
             _supported[lib] = False
     if not _supported[lib]:
         raise RuntimeError(
-            f"{lib} does not read {ENV} (a pre-T8 engine library, or none): rebuild and "
+            f"{lib} does not read {ENV} (a pre-T8 analyzer library, or none): rebuild and "
             f"install sanalyzer (bin/build, or `make install` in sanalyzer/ with "
             f"INSTALL_DIR=<checkout>/build/sanalyzer) before collecting HB traces")
     return lib
