@@ -24,7 +24,12 @@ with T13's result — A2 inverts 1–4 % of contended hand-offs, so D15's flag i
 T14 — and the proof's 09-27/28 edits re-applied on the merged file; and on 2026-09-29 after
 T10 and T14 finished: D9 adopted, D2 amended (PTX primary, ScoRD's notion as a second column
 for ScoR), D15's rate corrected to the Sanitizer's own (11–32 %) with the explanation of the
-gap to NVBit, T15 (late ordering key) added, the T11 lead from ECL-GC recorded. If HEAD has moved, re-read `eval/BASELINES_SUMMARY.md`,
+gap to NVBit, T15 (late ordering key) added, the T11 lead from ECL-GC recorded; and on
+2026-09-30 after T15, T5b and T12 finished: the late key measured and not adopted and D15's
+"explanation" withdrawn (schedule determinism; the NVBit gap unexplained), T5b and T12 merged
+with their numbers, D11's list extended, the R1 same-pc over-claim and the R3 landing hole
+closed, T4 reframed as no-dump mode and put on the critical path, T16 (the certain clock) and
+T17 (the `HbEngine` rename) added. If HEAD has moved, re-read `eval/BASELINES_SUMMARY.md`,
 `eval/FIX_REPORT.md`, `eval/FP_DIAGNOSIS.md` and `git log` before starting.
 
 ---
@@ -63,9 +68,10 @@ submission, the last three weeks of which are writing. The proof document
 (`design/proof/hb_proof.tex`, revision 2026-09-26) is frozen except for the items its
 "Order of work" lists; agents do not extend it (no I7 re-proof, no discharge of MM1–MM3,
 no separate PTX-bridge proof) unless a brief says so. Code lands in this order: T6 (doc
-review, done) → T3b and T9 (done, merged) → T10 and T14 in parallel → T5b and T12 in
-parallel → the mode comparison and one baseline re-run. T1b, T4, T7, I6, the `bar.arrive` flag and the
-access-size check are after the submission. When a task can finish without a GPU
+review, done) → T3b, T9, T10, T14, T15, T5b, T12 (done, merged at 7849a70) → T17 (rename,
+half a day) → T4 (no-dump mode, the critical path) with T11 and T16 alongside → the mode
+comparison, the tables and one baseline re-run. T1b, T7, I6, the `bar.arrive` flag, the
+access-size check and the value-recording collector are after the submission. When a task can finish without a GPU
 (re-scores, census-style measurements), it does.
 
 ### A2. Environment (NCSU ARC SLURM cluster)
@@ -200,8 +206,10 @@ see T0 for why the previous "keep every trace" attempt lost data and for the pol
   (T12 step 1), never from a hard-coded `MEMBAR`: on sm_89 an acquire lowers to the
   access plus `CCTL.IVALL` with no `MEMBAR`, and `BAR.SYNC` carries the ordering with no
   adjacent fence (T6, 293 CFGs).
-- `hb_events` stays lossless until the submission: offline trace-validity checking, the
-  census scripts and every re-score replay it (supersedes T4 step 4 for now).
+- `hb_events`, when written, stays lossless: offline trace-validity checking, the census
+  scripts and every re-score replay it. Not writing it for a program (T4's no-dump mode)
+  is allowed; writing a lossy version is not. Parity between the vector-clock
+  implementation and the specification is established on the programs that dump.
 - A labelled-clean program the detector reports under PTX §8.7.1 semantics (fence
   missing on one side of a hand-off) is not suppressed and not relabelled silently: it
   gets a footnote hook in `make_tables.py` with the PTX reason and, where available,
@@ -297,14 +305,16 @@ Two things surfaced while reading the code that the plan has to carry:
 | T9 | 9 | vector-clock soundness: I1 (publish-then-tick) + I2 (buckets in **both** clocks, SC reported) + I5 (local memory excluded) in one change to oracle, engine and `barrier_only_pairs`; R2 moved from verdict to class, the `sc` column, `make_tables.py` for D2; the T6 strict xfails and `fence_rtraw` as regression tests | Opus · prover; Sonnet · implementer; Sonnet subagent for the re-score | re-score only + one P5 sweep | T6 ✓; D1/D6 ✓ | `fix/publish-then-tick` ✓ done 2026-09-28 (b1a6408; 554 programs re-scored, no verdict moved at Race ∪ Latent; report `eval/T9_RESCORE.md`) — merged ebc464f → `cuVein` 6c34736; library 75f46012 installed; green set 238 passed + the one expected failure; evcand 3,621 rows unchanged; one new FP at Race alone (A2, D15 → T14) |
 | T10 | — | sidecar strength and scope (O1): a load/store is strong at the scope its `.STRONG.<scope>` token names, generic and address-spaced alike (`volatile` included); default policy `token`, the old ones ablations | Sonnet · implementer, Opus · review | re-score only | T9 ✓ | `fix/sidecar-strength` ✓ done 2026-09-29 (f2a5bde; `eval/SIDECAR_STRENGTH.md`): 1,141 of 1,306 DR instances on the 43 ScoR programs with `volatile` become SC, no other program moves (545 × 2), 5 FPs removed, none added, green set 275 + 1; D9 adopted — **merge pending** |
 | T11 | — | monitor: TV checks in one Python module shared by oracle, `barrier_only_pairs` and a standalone `tv_check` CLI; `HbClock` keeps them behind `YOSEMITE_HB_STRICT`; delete the `expected == 0` degrade path; per-lane W2 row (I6) only if cheap | Sonnet · implementer | no | T3b (fifth check) | `fix/tv-monitor` |
-| T12 | — | I4: the instance gate (`fenced(p, p', s)` from the CFG dots with the O2 inventory — `MEMBAR.SC`, `CCTL.IVALL`, `BAR.SYNC` — two sidecar columns, the deferred acquire join with `Check(r)` against the joined clock) and R3's release point from the trace, sharing the predicate; measured on the kept stores before wiring; **in parallel with T5b** | Opus · design + review, Sonnet · implementer | re-score only + one P4/P5 sweep | T9, T10 | `feat/instance-gate` |
+| T12 | — | I4: the instance gate and R3's release/acquire points from the trace | Opus · design + review, Sonnet · implementer | re-score + one P4/P5 sweep | T9, T10 | `feat/instance-gate` ✓ done 2026-09-30, rebased on T5b, merged 7849a70 (library e527875d installed; `eval/INSTANCE_GATE.md` §9, `design/instance_gate.md`): green set 305 + 55 gate tests, Detect == oracle 32/32 under both gates, T5b's parity set 60/60 (412 kernels, 0 mismatches); `test_relaxed_handoff_should_race` passes, xfail removed; the 8 ScoR fence races reported in the run that recorded them (as SC); `reduction-norace` and 5 `norace_*fence*` litmus reported (D11); CC push 1296n 6.9 → 1.3 GB on T5b's clocks; matrix-multiplication-small 11 s; beyond the brief: R1 certifies no same-pc pair (uts-norace-small CLEAN), `model_bug` an annotation, R3 declines a chain landing on the reader's own unlock; no verdict moves on 594 programs |
 | T1b | 1 | cp.async.bulk / TMA / dsmem model, validated on the H100 node with the 8 cuHadron sm_90 targets — **after the submission** | **Fable** · design + implementation (the hardest task in the queue); fresh Fable context as verifier | yes (`h100`, c29) | T1a ✓ | `feat/cp-async-bulk` |
 | T13 | — | NVBit feasibility spike: after-execution atomics with the value read; A2 inversion rate in vivo; overhead — report only | Sonnet · analyst | yes (one `salloc`) | none | `study/nvbit-spike` ✓ done 2026-09-28 (0a444e9, merged into 6c34736; `eval/NVBIT_SPIKE.md`): NVBit 1.8 loads on driver 580 (README says ≤ 575; the submodule's 1.7.1 does not load); old values correct in every test; Sanitizer-order inversions 0/155, 4/315, 52/1,275 hand-offs at 2/4/16 warps; cost 427× native unoptimised vs 134× for the Sanitizer HB path on the one kernel-dominated input |
 | T14 | — | A2 in the tables: the `a2_uncertain` report flag (D15) and the offline RMW window count over the kept dumps; no verdict change | Sonnet · implementer, Opus · review of the flag's definition | no (kept dumps) | T9 ✓ | `feat/a2-flag` ✓ done 2026-09-29 (2c979fd; `design/a2_flag.md`, `eval/A2_WINDOWS.md`): flag moves 0 of 558 verdicts; 397/397 programs with cross-warp RMWs have overlapping windows; 432,810 DR instances flagged in 34 programs; 3 race-free ScoR programs' Race-alone verdicts rest on flagged reports only; Sanitizer's own inversion rate 11 / 32 / 28 % at 2 / 4 / 16 warps; green set 250 + 1 — **merge pending** |
-| T15 | — | late ordering key: draw a second monotonic key (`atomicAdd` on a separate counter, or `%globaltimer`) as the last action of the HB-path callback, carry it in the HB record, order `hb_events` by it on the host; measure with T14's `handoffs` harness before adopting | Sonnet · implementer | yes (one node, the lock litmus) | T14 ✓ merged | `perf/late-seq` — small; parallel with T5b/T12 |
-| T5b | 5 | shared-base main clock (the planned engine memory fix) — **on the critical path**: vector-clock mode has no dump for P7, 8 of 9 P9 programs, 10 of 28 P4 apps and 23 P1 programs (T9-0 §1); 10 of the 58 timeout programs have barriers and no atomics (T6), which no gate can help — they are T5b's acceptance set | Sonnet · implementer, Opus · reviewer | yes (`engine_timeout_ids.txt`) | T1a ✓, T9 (directly after; parallel with T12) | `perf/shared-base-clock` |
-| T4 | 4 | smaller `hb_events`: lossless compact encoding first, lossy summary only if still needed — after the submission | design: Opus (short) · impl: Sonnet | measure only | T1b, T9, T5b merged | `perf/hb-events-format` |
-| T7 | 7 (opt.) | profile `sync_dominance.py` on the P9-mr trace; port the hot pass only if profiling says so — after the submission | Sonnet · profiler; Opus if a C++ port is warranted | no | T4 | `perf/analysis-hotpath` |
+| T15 | — | late ordering key for the HB records, measured before adoption | Sonnet · implementer | yes (one node) | T14 ✓ | `perf/late-seq` ✓ done 2026-09-29 (55fe57c; `eval/LATE_SEQ.md`): behind `YOSEMITE_HB_LATE_SEQ=atomic|timer`; cuts lock-hand-off inversions ~12 % (14.3→12.7 % at 4 warps, 16.6→14.7 % at 16); `%globaltimer` ties 87 %; **not adopted, off by default**; the dual-key dump (`bpos`, `lkey`) kept for measurement — merged de565c0; its collector and fatbin installed with the T17 merge (b6c9055) |
+| T5b | 5 | shared-base main clock for vector-clock mode's runtime | Sonnet · implementer, Opus · reviewer | yes | T1a ✓, T9 ✓ | `perf/shared-base-clock` ✓ done 2026-09-30, merged b3bfdf3 (`eval/MEMORY_FOOTPRINT.md` §7): no clock value changes; green set 287 + 1; implementation == specification on 60/60 programs, 410 kernels; tiled_gemm `vc` 67 M → 131 k entries (4.5 → 1.95 GB), reduction-large 7.2 → 1.3 GB, CC push 1296n from OOM at 119.7 GB to 17.9 s / 6.9 GB; 25 of the 48 non-barrier timeout programs finish under 120 s; the 10 barrier-only programs cannot be reached by any clock change — 9 do not finish in scalar-clock mode either (100–252 GB of `hb_events` in 1,200 s, or OOM): **trace volume bounds both modes → T4** |
+| T4 | 4 | **no-dump mode** (reframed 2026-09-30, on the critical path): both clocks computed during the run, only the per-pc-pair aggregates the verdict layer reads written at kernel end; lossless dump kept for programs that can replay; then the nine barrier-only programs and HeCBench in both modes; optional second half: streaming binary encoding for the mid-size suites | design: Opus · impl: Sonnet | yes (the timeout set, then P7/P9) | T5b ✓, T12 ✓, T17 | `feat/no-dump` |
+| T16 | — | the certain clock: accept a chain edge only when the two RMW windows do not overlap; a third operating point "Race (sound)" in the tables; no GPU — **decision pending** | Sonnet · implementer, Opus · one-paragraph soundness note | no (kept dumps) | T14 ✓ | `feat/certain-clock` |
+| T17 | — | rename `HbEngine` and its identifiers to the mode vocabulary (D17: `HbClock`); `YOSEMITE_HB_NO_ENGINE` retired with a warning; readers accept both spellings of any persisted field; historical reports untouched; no value changes | Sonnet | no | T12 ✓ merged | `chore/rename-hb-clock` ✓ done 2026-09-30 (663a288, merged b6c9055 with T15's de565c0): on the old collector green set 305 + 2 skipped, gate 55/55, re-score P1–P7/P9 byte-identical; merged runtime installed 2026-10-01 (libsanalyzer 6134effc, collector f2933966, fatbin e9634312): crs-cuda CLEAN both modes, gate 55/55, but green set **4 failed** / 301 — the T15 collector puts the lock litmus (`none-lock_rtraw`, `lock_waw`) in a schedule with an A2 inversion; every new report is `a2_uncertain` — **open, Jeffery** |
+| T7 | 7 (opt.) | profile `sync_dominance.py` on the P9-mr trace; port the hot pass only if profiling says so — after the submission unless T4's reader needs it | Sonnet · profiler; Opus if a C++ port is warranted | no | T4 | `perf/analysis-hotpath` |
 
 **Status 2026-09-24** (`cuVein` at 3331d35): T0, T8, T5a, T2, T3, T1a are merged. What
 they changed for the remaining tasks: the two modes are now `vector-clock` /
@@ -444,23 +454,66 @@ concentrated where the windows matter: in the ScoR applications 57 % of DR insta
 flagged and 26 pc pairs entirely; in P1/P2/P3/P5/P6/P9 no reported pair has every instance
 flagged — every report there is A2-robust, which is the sentence the paper needs. The
 Sanitizer's own inversion rate on the lock litmus is 11 / 32 / 28 % at 2 / 4 / 16 warps,
-7–25× NVBit's — the number D15 and the paper must quote; NVBit's 0–4 % is a different
-instrumentation's window. The gap is not the hardware: the Sanitizer callback draws its
-buffer index first and then writes, fences and increments the entry count, so the window
-between the ordering key and the instruction holds a fence and a second global atomic;
-NVBit's tool drew its key last. T15 tests the cheap mitigation (a late key) before anyone
-relies on it. Open on A2w (an RMW has taken effect by its thread's next record): the
+7–25× NVBit's — the number D15 and the paper must quote; **T15 (2026-09-29) withdrew the
+explanation given here on the 29th:** a key drawn last cuts inversions only ~12 %, and
+T13's tool did not draw its key last either, so the callback's length is not what decides
+the rate. What the litmus shows is schedule determinism: the one-block levels repeat
+identically run to run, and two builds of the same collector give 11 / 32 / 28 % and
+0 / 19 / 25 %, so each configuration lands in one schedule and the rate is that
+schedule's. Why NVBit's single schedules sit lower at every level is **not established**;
+two untested candidates — instrumentation density lowering effective contention (a delay
+knob in the critical section), and the buffer-full handshake releasing parked warps in
+bursts (inversion positions against `bpos` modulo the buffer size, from T15's dumps, no
+GPU) — are optional tail steps of T4. Quote the range (0–32 % on one lock across builds
+and contention) and the corpus statement, not a rate. After T10 the three ScoR programs
+are clean with their pairs SC, so **on the 558 programs no Race-alone verdict depends on
+A2**; the exposure is confined to the `sc` column and to ScoR under ScoRD's notion. Open on A2w (an RMW has taken effect by its thread's next record): the
 Sanitizer callback does not wait for the atomic's result; not measured for `RED`.
 **T11 lead** (from T10): `TV-record-after-exit` fires on ECL-GC — either the exit callback's
 lane mask over-reports the exiting lanes under ITS, or exit and memory records reach the
 dump through paths whose relative order is not the warp's; T11 decides which before
 touching the check.
 
-Remaining order: the merge above; then T5b and T12 in parallel, T15 alongside (T12's gate
-measured on the kept stores before it is wired; T5b's acceptance is the barrier-only
-timeout set); then the mode comparison on every suite where both modes have dumps and
-one baseline re-run. After the submission: the NVBit collector (A2), T1b on `h100`, T4,
-T7, I6, the `bar.arrive` flag, the access-size check, the §6 referee notes.
+**Status 2026-09-30** (`cuVein` 7849a70: T5b b3bfdf3 and the rebased T12 merged, library
+e527875d installed; `perf/late-seq` 55fe57c on the remote, not yet merged — Jeffery merges
+it by hand, flag off, no verdict change). What T5b and T12 established: (1) the vector
+clock is O(threads) after a barrier and the implementation equals the specification on
+60/60 programs; the remaining timeouts split into two kinds — atomic chains with no
+barriers (P9 gpp, fpc: every thread's clock genuinely different; a persistent map, not
+built) and barrier-heavy kernels where the runtime is 56 % of the time (hotspot). (2) The
+nine barrier-only timeout programs do not finish in scalar-clock mode either: the HB path
+holds `hb_events` in host memory for the whole kernel and serialises it as text at the
+end, so they die of RAM or of the 1,200 s cap while writing 100–252 GB, and the offline
+pass would then parse it for hours. Storage is not the limit; host memory, serialisation
+and parsing are. That is why T4 is now no-dump mode and on the critical path. (3) The
+instance gate on T5b's clocks: the 8 ScoR fence races reported in the recorded run;
+`reduction-norace` through its ticket and five `norace_*fence*` litmus (consumer spins on
+the flag with no fence after it — no acquire under PTX, ordered under ScoRD's one-sided
+fences; 4 SC, `hrd-indirect` DR) all under D11; CC push 1296n 6.9 → 1.3 GB; the DR-latent
+census category empty (rtraw's data is volatile, so it is now `latent-sc` — a report under
+ScoRD's notion, informational under PTX). (4) Beyond the brief, closed in the same
+branch: the code's R1 certified same-pc pairs across warps in one barrier segment
+(uts-norace-small, a false RACE through the `model_bug` row) — R1 now matches the proof
+(no certificate for one region), `CUVEIN_R1_LOOP_SCOPE=1` is the ablation; `model_bug` is
+an annotation on the class's verdict, so an SC pair with it is a Strong conflict; R3
+declined the rtraw race only for a CAS acquirer — with many threads a failed CAS hops to
+another thread's unlock and the chain landed on the reader's own unlock, certifying the
+race; `_past_release` now fires on that landing (`CUVEIN_R3_LANDING=0` restores the old
+rule). Stated, not fixed: R3 does not recognise a lock taken by `atomicExch` alone or
+released by a plain or `volatile` store (proof §5, R3b); vector-clock mode still reports
+the pair when the run shows it unordered. (5) Not re-scored: P9 fpc-cuda and mr-cuda (4 h
+analysis cap, as in T9-0).
+
+Remaining order: merge `perf/late-seq`; T17 (the rename, while `pc_dependency_analysis.cpp`
+is quiet); T4 (no-dump mode) with T11 (`tv_check` — the trace-validity counts over every
+kept store are still owed) and T16 (if decided) alongside; then the mode comparison on
+every suite both modes now run, the tables at both operating points with the `latent`,
+`sc`, `a2_uncertain` (and, if T16, "Race (sound)") columns and ScoR's ScoRD-notion column,
+one baseline re-run and `BASELINES.md` regenerated, overhead in both modes; then a
+one-day T6-style consistency pass on the proof after the last code change. After the
+submission: the value-recording collector (A2), T1b on `h100`, T7, I6, the `bar.arrive`
+flag, the access-size check, the §6 referee notes, the persistent map for barrier-free
+atomic chains.
 
 ### B3. Decisions Jeffery must make (blocking)
 - **D1** (T9) — **decided 2026-09-26: apply publish-then-tick** in oracle + engine.
@@ -564,13 +617,36 @@ T7, I6, the `bar.arrive` flag, the access-size check, the §6 referee notes.
   force a full re-evaluation). **T13 (2026-09-28): feasible; NVBit saw 0–4 % inversions.
   T14 (2026-09-29): the Sanitizer's own rate on the same lock is 11 / 32 / 28 % at
   2 / 4 / 16 warps — this is the rate to quote; the flag is built and moves no verdict;
-  outside the ScoR applications no reported pair depends on A2. T15 measures the late
-  ordering key as a mitigation.**
+  outside the ScoR applications no reported pair depends on A2. T15 (2026-09-29): the late
+  key cuts inversions ~12 % and is not adopted; the rate is schedule-determined (range
+  0–32 % across builds and contention on one lock) and the NVBit gap is unexplained, so
+  the paper quotes the range and the corpus statement: after T10 no Race-alone verdict on
+  558 programs depends on A2. The certain clock (T16) is the sound operating point
+  available without values.**
+- **D16** (T16): whether the tables carry a third operating point, "Race (sound)" — the
+  reports under the certain clock (chain edges accepted only when the RMW windows do not
+  overlap), a superset of the execution's races under A2w by Lemma "Monotonicity". Cost:
+  one column, completeness lost on contended hand-offs (the flagged population). Small,
+  no GPU. Recommended: yes — it is the cleanest sentence the paper can make about the
+  execution. Default if unanswered: build it behind a switch, report the column, decide on
+  the numbers.
+- **D17** (T17): the replacement name for `HbEngine`. Proposal `VectorClockAnalysis`
+  (parallel to `PcDependency` in the same file); alternative `HbVectorClock` with
+  `HbScalarClock` for `barrier_only_pairs`, symmetric with the docs. Jeffery's advisor
+  asked for the rename; the paper never names the class. **Decided 2026-09-30: `HbClock`**,
+  distinct from T5b's `VClock` (the clock value type it owns); derived names fixed:
+  `hb_clock_*` / `HbClock::emit`, the `HB_STATS` object `hb_clock`,
+  `setup/hb_clock_timeout_ids.txt` (old name a symlink), test names "HbClock ==
+  specification"; `YOSEMITE_HB_NO_ENGINE` retired, not renamed (after T4 the scalar clock
+  runs inside `HbClock` too).
 - **D11** (T12, tables): a labelled-clean program the gated detector reports because one
-  side of a hand-off has no fence of sufficient scope (T9-0: the ticket `atomicInc` of
-  `reduction-norace`, which iGUARD also reports) is a PTX race by the letter. Policy:
-  report it, footnote it with the PTX reason and the agreeing baseline, do not relabel
-  the suite. Default if unanswered: footnote.
+  side of a hand-off has no fence of sufficient scope is a PTX race by the letter. Policy:
+  report it, footnote it with the PTX reason and any agreeing baseline, do not relabel the
+  suite. **Cases so far (2026-09-30):** `reduction-norace` (ticket `atomicInc`, no acquire
+  after it; iGUARD agrees); the five `norace_*fence*` litmus (consumer spins on the flag
+  with no fence after it: `hrd-indirect` a DR, four SC; no baseline reports them —
+  footnote (9) in `make_tables.py`). All go in the stale-label table of D2's amendment
+  under "labels PTX contradicts".
 
 ---
 
@@ -1206,7 +1282,10 @@ Steps
 
 Report: `HARDENING_REPORT.md` §"Offline checking".
 
-### T12 — I4: the instance gate, and R3's release point from the trace
+### T12 — I4: the instance gate, and R3's release point from the trace — done
+**Done 2026-09-30** (rebased on T5b, merged 7849a70; `eval/INSTANCE_GATE.md` §9,
+`design/instance_gate.md`; pre-rebase history on `feat/instance-gate-prerebase`). Kept for
+reference; see the 09-30 status paragraph for what it changed beyond the brief.
 Branch `feat/instance-gate`. Models: Opus (design and review), Sonnet (implementation).
 No GPU for the measurement; one P4/P5 sweep at the end. After T9 and T10; in parallel
 with T5b (D13). Decisions D11, D13.
@@ -1402,7 +1481,11 @@ paper cites (A2's measured exposure on this corpus, with T13's in-vivo rates as 
 calibration). Update `hb_proof.tex` §7's A2 paragraph with the corpus numbers. No
 `Co-Authored-By` trailer.
 
-### T15 — Late ordering key for the HB records (A2 mitigation, measured first)
+### T15 — Late ordering key for the HB records (A2 mitigation, measured first) — done, not adopted
+**Done 2026-09-29** (55fe57c, `eval/LATE_SEQ.md`): ~12 % fewer inversions, below step 4's
+bar; off by default; the premise in the context paragraph below (that NVBit's tool drew its
+key last) was wrong. Kept for reference; the dual-key dump it added is the instrument for
+T4's optional A2-gap steps.
 Branch `perf/late-seq`. Model: Sonnet. GPU: one `rtx4060ti16g` node, the lock litmus only.
 After T14 (merged). Small; parallel with T5b and T12. Nothing is adopted until step 3 says so.
 
@@ -1435,7 +1518,9 @@ Steps
 Report: `eval/LATE_SEQ.md`: the rates side by side, the ScoR re-recordings, the cost per
 record, and the sentence for D15. No `Co-Authored-By` trailer.
 
-### T5b — Shared-base main clock (todo 5, the fix)
+### T5b — Shared-base main clock (todo 5, the fix) — done
+**Done 2026-09-30** (merged b3bfdf3; `eval/MEMORY_FOOTPRINT.md` §7). Kept for reference;
+the second acceptance bar is reassigned to T4 (see the 09-30 status paragraph).
 Branch `perf/shared-base-clock`. Models: Sonnet (implementation), Opus (review). GPU:
 the programs in `eval/baselines/setup/engine_timeout_ids.txt`. Directly after T9, in
 parallel with T12 (D13). **On the critical path**: T9-0 §1 found no vector-clock dump
@@ -1462,35 +1547,108 @@ all 10 barrier-only programs of `engine_timeout_ids.txt` and at least half of th
 finish under the 120 s cap; `tv_violation` still 0. Report `eval/MEMORY_FOOTPRINT.md`
 §"After the fix".
 
-### T4 — Smaller `hb_events` (todo 4)
-Branch `perf/hb-events-format`. Design: Opus (short). Implementation: Sonnet. Only after
-T1b, T9 and T5b are merged (Jeffery's rule: not before functionality is fixed).
+### T4 — No-dump mode: both clocks during the run, aggregates only (reframed 2026-09-30)
+Branch `feat/no-dump`. Design note: Opus. Implementation: Sonnet. GPU: the timeout set
+first, then P7 and P9. After T5b, T12 and T17. **This is the critical path**: it is the only
+route to vector-clock and scalar-clock verdicts on the realistic suites before the
+submission.
 
-What consumers need (so the format cannot lose it): `hb_oracle.py`, `barrier_only_pairs`
-and the event-candidate path read `seq`, `type`, `block`, `warp`, `pc`, `space`, `size`,
-`active_mask`, `bar_index`, `thread_count`, `sync_mask`, `lanes[].lane`, `lanes[].addr`
-in `seq` order; `scale_harness.py`, `aggregate.py`, `parallel.py._count_events` read only
-`len(hb_events)`. The writer is hand-rolled (`pc_dependency_analysis.cpp:686-730`,
-`:948-955`), no compression, whole kernel buffered in RAM.
+Context. Nine of the ten barrier-only timeout programs, and by T9-0's count most of P7 and
+P9, never finish in either mode. The cause is not analysis and not storage: the HB path
+appends every record to an in-memory `hb_events` for the whole kernel and serialises it as
+text JSON at kernel end (`hb_collect_events`, `kernel_trace_flush`), so those programs die
+of host memory or of the 1,200 s cap while writing 100–252 GB, and the offline
+scalar-clock pass would then parse it for hours (P9-mr-cuda: 4 h cap, twice). The
+dependency-graph tool in the same file never keeps a record: it updates shadow state per
+drained buffer and writes per-pc-pair aggregates at kernel end. Vector-clock mode's
+runtime already works that way for its own clock; the dump is the extra.
 
 Steps
-1. Measure first (no code): on 20 kept dumps, the share of memory events whose active
-   lanes form one arithmetic progression of addresses (base + lane·stride), the share of
-   consecutive events from the same warp/pc, and the bytes per event. This decides the
-   encoding.
-2. Lossless, replayable encoding (implement this one): `lanes` as `{"base","stride",
-   "mask"}` when regular (fallback to the explicit list), integers as compact fields,
-   optional zstd of the array (`.json.zst`) or a separate binary sidecar
-   `kernel_N.hbev` with a tiny header; add `"hb_events_count"` so count-only consumers
-   skip parsing. One reader module `python/hb_events.py` used by every consumer.
-   Streaming write per buffer drain instead of buffering the whole kernel.
-3. Verify byte-identical oracle output and identical `sync_dominance` verdicts on the
-   kept traces through the new reader; measure size and time; record in
-   `eval/HB_EVENTS_FORMAT.md`.
-4. Only if step 2 is still too large for the P7/P9 apps: design the lossy per-kernel
-   summary (per (pc, thread-set) conflict aggregates) as a separate, clearly named
-   `hb_summary` that never replaces `hb_events` when replay is requested; do not
-   implement without a decision.
+1. Design note `design/no_dump.md` (Opus, before any code): enumerate exactly what
+   `sync_dominance.py` and the harness read from `hb_events` today — `hb_races`
+   (aggregated since T9), `hb_races_sync_only`, event-stream candidates, R3's per-pc
+   release/acquire points (the PO-next and PO-previous RMW pcs of each access pc, per
+   thread, as it takes them from the trace since T12), the A2 windows and flag, the
+   trace-validity flags, `len(hb_events)` — and for each say whether the runtime can
+   emit it as an aggregate at kernel end and what it costs. Candidates need no separate
+   mechanism: the runtime checks every conflicting pair. Name anything that cannot be
+   emitted and what the verdict layer loses without it.
+2. Runtime (`YOSEMITE_HB_DUMP=0`): the scalar clock (`barrier_only_pairs`' clock, already
+   present in T5b's layout) computed alongside the vector clock; at kernel end write a
+   `kernel_N.json` with the aggregates of step 1 and no `hb_events`, marked
+   `hb_aggregates: 1`. The default (`YOSEMITE_HB_DUMP=1`) is unchanged and lossless.
+3. Reader: `sync_dominance.py` and `make_tables.py` accept an aggregates-only dump; the
+   verdict layer runs unchanged on it. Parity: on 20 programs that can do both, the
+   verdicts and classes from the aggregates equal those from the full dump.
+4. Run the ten barrier-only timeout programs and then all of P7 and P9 in both modes
+   under no-dump; report which finish, wall time and peak host memory against the
+   dump runs, and the first vector-clock verdicts on those suites.
+5. Optional, second half if time allows: streaming lossless encoding for the mid-size
+   suites (write per drain, binary lanes as base/stride/mask, `hb_events_count`), one
+   reader module `python/hb_events.py`, byte-identical oracle output on the kept traces.
+6. Optional tail (the A2 gap, no GPU for the first): inversion positions of T15's dumps
+   against `bpos` modulo the buffer size (the buffer-full handshake hypothesis); a delay
+   knob in the lock litmus's critical section under this collector (the instrumentation-
+   density hypothesis) — one node-hour. Skip both if the schedule is tight.
+
+Acceptance: step 3's parity holds; at least the nine barrier-only programs produce
+verdicts in both modes; `hb_events` is never written lossy. Report: `eval/NO_DUMP.md`.
+No `Co-Authored-By` trailer.
+
+### T16 — The certain clock: a sound operating point without values (decision D16)
+Branch `feat/certain-clock`. Model: Sonnet; Opus for the one-paragraph soundness note. No
+GPU: kept dumps. After T14 (merged). Small; alongside T4.
+
+Context. Three clocks can be computed from one trace, differing only in which chain edges
+they accept. The recorded clock accepts the trace's order (today); the possible clock
+(T14's flag) accepts any order the windows allow; the certain clock accepts an edge between
+two RMWs only when their windows do not overlap. Under A2w (an RMW has taken effect by its
+thread's next record) every certain edge is a true coherence edge, so the certain clock's
+happens-before is a sub-relation of the execution's and, by Lemma "Monotonicity", its
+reports are a superset of the execution's races: sound with today's collector, complete
+except on contended hand-offs.
+
+Steps
+1. `HbClock` and oracle: a switch (`YOSEMITE_HB_GATE_CERTAIN=1` / `--certain`) that refuses a
+   chain edge `r → q` when `seq(q) < seq(next record of r's thread)`; T14's window
+   bookkeeping already knows `nx(r)`. Both directions refused; nothing else changes.
+2. One paragraph in `hb_proof.tex` §7 ("A2 observed to fail") stating the sub-relation
+   argument and the assumption it rests on.
+3. Re-score the kept stores under the switch: the "Race (sound)" column per program and
+   suite next to Race and Race ∪ Latent; the programs whose sound verdict differs from the
+   recorded one, with the class of the added reports (expected: the flagged population).
+   Test: the 16-warp lock litmus, the sound column reports the critical sections the
+   recorded clock orders.
+
+Report: `eval/CERTAIN_CLOCK.md`; `make_tables.py` gains the column behind the switch.
+
+### T17 — Rename `HbEngine` to the mode vocabulary (decision D17) — done
+**Done 2026-09-30/10-01** (663a288; merged b6c9055; D17 = `HbClock`, see B3). The names, the
+both-spellings readers in `python/hb_modes.py` and the checks are in the commit messages; the
+install and its open green-set finding in the commit after the merge. Kept for reference.
+Branch `chore/rename-vector-clock`. Model: Sonnet. No GPU; no value changes. After T12
+(merged), before T4, while `pc_dependency_analysis.cpp` is quiet.
+
+Steps
+1. Inventory: `git grep -n -i engine` over code, tests, scripts, `eval/README.md`,
+   CLAUDE.md; classify each hit as identifier, persisted field, env var, file name, or
+   historical report (the reports stay as written).
+2. Rename the class and its functions (`HbEngine`, `hb_engine_emit`, `HbEngine::emit`, the
+   stats labels) to the chosen name (D17); test names of the form "engine == oracle" to
+   "vector-clock implementation == specification"; `engine_timeout_ids.txt` to
+   `vector_clock_timeout_ids.txt` with the old name kept as a symlink for the SLURM
+   scripts until they are updated.
+3. `YOSEMITE_HB_NO_ENGINE`: deprecated, honoured with a warning for one release
+   (scalar-clock mode already implies it). Any persisted field spelled with "engine"
+   (harness rows, JSON) gets a reader that accepts both spellings; check the re-score
+   paths on one kept result per suite.
+4. CLAUDE.md, `eval/README.md`, the proof's §3 correspondence paragraph and §7: "engine"
+   replaced by the mode or the class name; the A4 rule "never mix vocabularies inside one
+   file" now covers identifiers.
+
+Acceptance: green set unchanged (305 + gate tests), re-score of one program per suite
+identical, `git grep -i engine` returns only historical reports and the deprecation
+shim. No `Co-Authored-By` trailer.
 
 ### T7 — Optional: speed up the offline analysis (todo 7)
 Branch `perf/analysis-hotpath`. Model: Sonnet (profiling); Opus only if a port is
