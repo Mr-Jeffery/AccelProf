@@ -18,8 +18,9 @@ source eval/baselines/gpu_env.sh
 export LD_LIBRARY_PATH=/opt/ohpc/pub/compiler/gcc/12.4.0/lib64:$LD_LIBRARY_PATH
 export YOSEMITE_HB_STATS=1
 echo "host=$(hostname) $(nvidia-smi --query-gpu=name,compute_cap --format=csv,noheader) mem=$(free -g | awk '/Mem:/{print $2}')G HEAD=$(git -C $W rev-parse --short HEAD) libsanalyzer $(sha256sum $(ldd $W/lib/libcompute_sanitizer.so | awk '/sanalyzer/{print $3}') | cut -c1-16)"
+TAGP=${TAGP:-t4-ab}     # result/store tag prefix (a second run on another build: TAGP=t4-ab2)
 for dump in 1 0; do
-  TAG=t4-ab-$([ $dump = 1 ] && echo dump || echo nodump)
+  TAG=$TAGP-$([ $dump = 1 ] && echo dump || echo nodump)
   mkdir -p eval/results/$TAG eval/baselines/confirm_$TAG /mnt/beegfs/$USER/cuvein_traces/$TAG
   export BASELINE_TRACE_DIR=/mnt/beegfs/$USER/cuvein_traces/$TAG
   echo "== BASELINE_HB_DUMP=$dump -> $TAG $(date -Is)"
@@ -27,7 +28,7 @@ for dump in 1 0; do
       --timeout-floor 1200 --analysis-timeout 3600 --tag $TAG \
       --results-dir $W/eval/results/$TAG --confirm-dir $W/eval/baselines/confirm_$TAG 2>&1 | tail -8
 done
-for TAG in t4-ab-dump t4-ab-nodump; do
+for TAG in $TAGP-dump $TAGP-nodump; do
   echo "== $TAG"; cut -d, -f1,7,9,13,15 eval/results/$TAG/*.csv | /usr/bin/grep -v '^id,'
 done
 echo "== done $(date -Is)"

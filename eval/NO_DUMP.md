@@ -271,7 +271,8 @@ programs always had (T5b, T12).
    finishes in both modes (and did with the dump in T5b); heartwall, lavaMD, pathfinder,
    srad, dxtc2, knn, tridiagonal hit the 1,200 s cap in both modes (RSS 1.5–51 GB);
    stencil1d and particlefilter exceed the node's memory. Past the cap (§4.3) lavaMD and
-   srad finish in scalar-clock mode. The vector-clock verdicts T4 adds on the realistic
+   srad finish in both modes (3,214 / 3,614 s and 4,651 / 5,234 s). The vector-clock
+   verdicts T4 adds on the realistic
    suites are the ones in item 1 (gpp, bezier-surface, crs, overlap, hotspot, backprop) and
    the P1/P3/P4 rows at a fraction of the memory.
 6. **Two rows that are not what their cell says.** P9-mr-cuda: the *run* now finishes in
@@ -296,14 +297,14 @@ run ended by itself; "records" = `hb_events_count` of that kernel; buckets = ent
 
 | program | scalar-clock: outcome, kernels | RSS, HB state at the last kernel end | vector-clock |
 |---|---|---|---|
-| P7-hotspot (100 kernels) | **finishes, 619 s** | 2.0 GB; 374 K records/kernel, 2.07 M locations, 4.95 M entries (1.0 GB est), 473 K threads | **finishes, 712 s**, 2.1 GB |
-| P7-srad (6,002 kernels) | **finishes, 4,651 s** | 1.5 GB; 21.6 K records/kernel, 230 K locations, 460 K entries (125 MB) | _pending_ (2,455 kernels at the cap? — filled when the job ends) |
-| P7-lavaMD (1 kernel) | **finishes, 3,214 s** | 64.9 GB; 398.8 M records, 33.1 M locations, 866.8 M entries (60.8 GB est), 3.46 M threads | _pending_ |
-| P7-heartwall | killed at 5,400 s after 5 kernels | 17.3 GB; 78.4 M records/kernel, 10.6 M locations, 205 M entries (16.2 GB est), 13 K threads | _pending_ (2 kernels) |
-| P7-pathfinder | killed at 5,400 s after 41 kernels | 9.4 GB; 35.3 M records/kernel, 908 K locations, 1.33 M entries (353 MB), **100 M threads** (`vs`) | _pending_ (7 kernels; 23.3 GB — the main clock's per-thread entries) |
-| P9-dxtc2 | killed at 5,400 s after 94 kernels | 8.2 GB; 6.34 M records/kernel, 7.9 M locations, 60.2 M entries (6.7 GB est), 1.05 M threads | _pending_ (20 kernels) |
-| P9-knn | killed at 5,400 s after 9 kernels | 68.1 GB RSS with an HB state of 44 MB (9.2 K records/kernel, 82 K locations, 164 K entries): the dependency tool's shadow, not HbClock | _pending_ |
-| P9-tridiagonal | killed at 5,400 s after 15 kernels | 28.1 GB; 16.7 M records/kernel, 38.4 M locations, 232.5 M entries (25.5 GB est), 3.84 M threads | _pending_ (3 kernels) |
+| P7-hotspot (100 kernels) | **finishes, 619 s** | 2.0 GB; 374 K records/kernel, 2.07 M locations, 4.95 M entries (1.0 GB est), 473 K threads | **finishes, 712 s**, 2.1 GB (`vc` 66 MB) |
+| P7-srad (6,002 kernels) | **finishes, 4,651 s** | 1.5 GB; 21.6 K records/kernel, 230 K locations, 460 K entries (125 MB) | **finishes, 5,234 s**, 1.85 GB (`vc` 29 MB) |
+| P7-lavaMD (1 kernel) | **finishes, 3,214 s** | 64.9 GB; 398.8 M records, 33.1 M locations, 866.8 M entries (60.8 GB est), 3.46 M threads | **finishes, 3,614 s**, 65.4 GB (`vc` 0.49 GB, 6.9 M entries) |
+| P7-heartwall | killed at 5,400 s after 5 kernels | 17.3 GB; 78.4 M records/kernel, 10.6 M locations, 205 M entries (16.2 GB est), 13 K threads | killed after 4 kernels; 17.3 GB (`vc` 1.8 MB) |
+| P7-pathfinder | killed at 5,400 s after 41 kernels | 9.4 GB; 35.3 M records/kernel, 908 K locations, 1.33 M entries (353 MB), **100 M threads** (`vs`) | killed after 28 kernels; 23.4 GB — `vc` 13.6 GB, 200 M entries for the 100 M threads |
+| P9-dxtc2 | killed at 5,400 s after 94 kernels | 8.2 GB; 6.34 M records/kernel, 7.9 M locations, 60.2 M entries (6.7 GB est), 1.05 M threads | killed after 83 kernels; 8.4 GB (`vc` 147 MB) |
+| P9-knn | killed at 5,400 s after 9 kernels | 68.1 GB RSS with an HB state of 44 MB (9.2 K records/kernel, 82 K locations, 164 K entries): the dependency tool's shadow, not HbClock | killed after 6 kernels; 70.5 GB (`vc` 206 MB) |
+| P9-tridiagonal | killed at 5,400 s after 15 kernels | 28.1 GB; 16.7 M records/kernel, 38.4 M locations, 232.5 M entries (25.5 GB est), 3.84 M threads | killed after 13 kernels; 28.6 GB (`vc` 0.54 GB) |
 | P7-stencil1d | **dies at 174 GB** (rc 1) after 1,050 s, 0 kernels | growth: 32 M records → 152.6 M locations, 905 M entries (101 GB est), 50 M threads, RSS 118 GB (§4.2 item 3) | dies at 174 GB after 1,034 s |
 | P7-particlefilter | **dies at 122.6 GB** (rc 1) after 938 s, 3 kernels | growth in its 4th kernel: 2 M / 4 M / 8 M / 16 M / 32 M / 64 M records → 64 M / 128 M / 256 M / 512 M / 1.02 G / 2.05 G entries on only 59 K / 66 K / 79 K / 106 K / 152 K / 234 K locations (3.9 / 7.7 / 15.4 / 30.7 / 60.7 / 122 GB est), 54–94 K threads, RSS 22 / 22 / 22 / 31 / 60 / 120 GB | dies at 122.8 GB after 1,068 s, 3 kernels |
 
@@ -322,7 +323,7 @@ entry per thread, and a main-clock entry per thread in vector-clock mode: 9.4 �
 
 - **Acceptance, honestly:** parity (§3) holds and `hb_events` is never written lossy; the
   nine barrier-only programs do **not** all produce verdicts in both modes — at the 1,200 s
-  protocol only hotspot does; at 5,400 s srad and (scalar-clock) lavaMD too; stencil1d and
+  protocol only hotspot does; at 5,400 s srad and lavaMD too (both modes); stencil1d and
   particlefilter exceed a 125–188 GB node in both modes without any dump (§4.3). What
   bounds them is the per-(location, thread) bucket state the soundness theorem requires and
   the ~1 µs per lane-access of `HbClock` on 10⁸–10⁹-access kernels, not the dump. The
