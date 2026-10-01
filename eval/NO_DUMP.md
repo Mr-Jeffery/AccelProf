@@ -320,12 +320,31 @@ entry per thread, and a main-clock entry per thread in vector-clock mode: 9.4 �
 
 ## 5. What remains unverified / not done
 
+- **Acceptance, honestly:** parity (§3) holds and `hb_events` is never written lossy; the
+  nine barrier-only programs do **not** all produce verdicts in both modes — at the 1,200 s
+  protocol only hotspot does; at 5,400 s srad and (scalar-clock) lavaMD too; stencil1d and
+  particlefilter exceed a 125–188 GB node in both modes without any dump (§4.3). What
+  bounds them is the per-(location, thread) bucket state the soundness theorem requires and
+  the ~1 µs per lane-access of `HbClock` on 10⁸–10⁹-access kernels, not the dump. The
+  realistic-suite verdicts T4 does add are in §4.2 item 1.
 - Step 5 (streaming lossless encoding for the mid-size suites) and step 6 (the A2-gap tail
   steps) were not started.
 - Parity is established on programs that dump (§3); a no-dump program's verdict rests on the
-  runtime alone, as the design note §7 states.
-- The sync instance's cost in scalar-clock mode (the bucket term) is measured in §4; whether
-  it stays within the node on every program is a result of §4, not a property.
+  runtime alone, as the design note §7 states. The programs the store holds in only one
+  mode (the TIMEOUT rows of the parity recording) are not covered.
+- The two builds: the sweeps and the parity store were recorded with `libsanalyzer`
+  2fc83fe0 (commit d517db2); the `rmw_note` short-circuit (commit 81ec25a, `libsanalyzer`
+  7d038730) changes no output by construction — the check job on that build (§2, re-run) is
+  the evidence, the sweeps were not repeated on it.
+- scalar-clock mode's regression on fpc-class programs (§4.2 item 4) is reported, not
+  fixed; the bucket structure (`std::map` by location, a hash map per key group) is the
+  next profiling target (T7's scope), together with the harness's per-kernel CFG
+  alignment that caps mr-cuda's analysis.
+- P9-knn's 44–68 GB is attributed to the dependency tool's shadow by elimination
+  (`hb_stats` shows 44 MB of HB state); not measured directly.
+- `YOSEMITE_HB_STATS_EVERY` snapshots cost a walk over the state each; the long runs'
+  wall times carry that overhead (one walk per doubling of the records: ≤ 6 per kernel).
+- No GPU architecture other than sm_89 was used.
 
 ## 6. Commands, revision, jobs
 
@@ -346,5 +365,23 @@ W=/home/fzheng4/wt-T4 TAG=t4-nodump BASELINE_HB_DUMP=0 YOSEMITE_HB_STATS=1 \
   -o /home/fzheng4/wt-T4/build_logs/t4-nodump-%A_%a.log eval/baselines/setup/p_t5b_timeout.sh   # 296320
 W=/home/fzheng4/wt-T4 IDS=eval/baselines/setup/t4_p7p9_ids.txt TAG=t4-nodump-p7p9 BASELINE_HB_DUMP=0 \
   YOSEMITE_HB_STATS=1 BASELINE_MODES=vector-clock,scalar-clock sbatch --array=0-1 \
-  -o /home/fzheng4/wt-T4/build_logs/t4-nodump-p7p9-%A_%a.log eval/baselines/setup/p_t5b_timeout.sh
+  -o /home/fzheng4/wt-T4/build_logs/t4-nodump-p7p9-%A_%a.log eval/baselines/setup/p_t5b_timeout.sh   # 296334
+# the HeCBench programs that failed on the worktree's missing corpora link (after `ln -s`)
+#   IDS=setup/t4_rerun_ids.txt TAG=t4-nodump-rerun ... --array=0-1   # 296370 ; P7-bfs: t4-nodump-rerun2 # 296374
+#   P7-bfs for the parity set: TAG=t4-parity-fix FLOOR=120 # 296371 -> p_t4_parity_cmp.sh # 296373
+# the five capped parity kernels: build_logs/t4_parity_cap.sbatch (t4_parity.py --ids ... --cap 25000)   # 296423
+# same-node A/B, the hb_stats table, the long-cap runs, the hot-location analysis
+W=/home/fzheng4/wt-T4 sbatch eval/baselines/setup/t4_ab.sh                                     # 296383 (c50)
+W=/home/fzheng4/wt-T4 sbatch --dependency=afterany:296320:296370:296374 eval/baselines/setup/p_t4_table.sh   # 296393
+W=/home/fzheng4/wt-T4 IDS=eval/baselines/setup/t4_long_ids.txt CAP=5400 sbatch --array=0-9 \
+  -o /home/fzheng4/wt-T4/build_logs/t4-long-%A_%a.log eval/baselines/setup/t4_long.sh         # 296382; 2-3 again: 296421
+build_logs/t4_hotloc.sbatch (t4_hotloc.py on T5b's kept fpc / gpp / matmul scalar-clock dumps)  # 296408
+# the optimised build (wt_install2 / wt_rt_lib2) and its check
+W=/home/fzheng4/wt-T4 INSTALL=$W/sanalyzer/wt_install2 RTLIB=$W/wt_rt_lib2 sbatch -p normal eval/baselines/setup/t4_build.sh   # 296355
 ```
+
+Kept stores on BeeGFS (`/mnt/beegfs/fzheng4/cuvein_traces/`): `t4-parity`, `t4-parity-fix`,
+`t4-nodump`, `t4-nodump-p7p9`, `t4-nodump-rerun`, `t4-nodump-rerun2`, `t4-ab-dump`,
+`t4-ab-nodump`; the long runs under `/mnt/beegfs/fzheng4/t4-long/<id>/<mode>/`. Result CSVs
+under `eval/results/t4-*/` (untracked, as every sweep's); the comparison JSONs under
+`eval/baselines/setup/t4_parity/`.
