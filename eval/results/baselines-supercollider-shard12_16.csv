@@ -1,0 +1,47 @@
+id,pset,program,build,input,tool,mode,rep,verdict,reports_dedup,report_ids,report_lines,wall_s,native_wall_s,peak_mb,rc,notes
+P6-bulkcpy-shared_writeread_race_g2s-racy,P6,bulkcpy/shared_writeread_race_g2s,racy[needs-sm90],default,supercollider,,,ERROR,,,,,,,,unsupported-on-this-gpu: needs sm_90 x1 GPU(s); have sm_89 (artifact skips it too)
+P6-hostdevice-global_readwrite_race-racy,P6,hostdevice/global_readwrite_race,racy,default,supercollider,,1,CLEAN,0,,,0.365,0.365,45.5,0,
+P6-hostdevice-global_readwrite_race-racy,P6,hostdevice/global_readwrite_race,racy,default,supercollider,,2,CLEAN,0,,,0.365,0.365,44.0,0,
+P6-hostdevice-global_readwrite_race-racy,P6,hostdevice/global_readwrite_race,racy,default,supercollider,,3,CLEAN,0,,,0.365,0.365,41.4,0,
+P6-hostdevice-global_readwrite_race-racy,P6,hostdevice/global_readwrite_race,racy,default,supercollider,,4,CLEAN,0,,,0.365,0.365,50.4,0,
+P6-hostdevice-global_readwrite_race-racy,P6,hostdevice/global_readwrite_race,racy,default,supercollider,,5,CLEAN,0,,,0.365,0.365,51.9,0,
+P6-memcpy-global_readwrite_race-racy,P6,memcpy/global_readwrite_race,racy,default,supercollider,,1,RACE,1,global_readwrite_race.cu:58:Race-detected-on-an-asyn,global_readwrite_race.cu:58,0.415,0.365,46.1,0,sc_races=1
+P6-memcpy-global_readwrite_race-racy,P6,memcpy/global_readwrite_race,racy,default,supercollider,,2,RACE,1,global_readwrite_race.cu:58:Race-detected-on-an-asyn,global_readwrite_race.cu:58,0.365,0.365,46.0,0,sc_races=1
+P6-memcpy-global_readwrite_race-racy,P6,memcpy/global_readwrite_race,racy,default,supercollider,,3,RACE,1,global_readwrite_race.cu:58:Race-detected-on-an-asyn,global_readwrite_race.cu:58,0.365,0.365,45.7,0,sc_races=1
+P6-memcpy-global_readwrite_race-racy,P6,memcpy/global_readwrite_race,racy,default,supercollider,,4,RACE,1,global_readwrite_race.cu:58:Race-detected-on-an-asyn,global_readwrite_race.cu:58,0.415,0.365,51.6,0,sc_races=1
+P6-memcpy-global_readwrite_race-racy,P6,memcpy/global_readwrite_race,racy,default,supercollider,,5,RACE,1,global_readwrite_race.cu:58:Race-detected-on-an-asyn,global_readwrite_race.cu:58,0.365,0.365,49.8,0,sc_races=1
+P8-conditional_edge_neighbors_block,P8,conditional_edge_neighbors_block,default,DAG-100n,supercollider,,1,CLEAN,0,,,0.415,0.365,110.7,0,
+P8-conditional_edge_neighbors_block,P8,conditional_edge_neighbors_block,default,DAG-100n,supercollider,,2,CLEAN,0,,,0.365,0.365,112.2,0,
+P8-conditional_edge_neighbors_block,P8,conditional_edge_neighbors_block,default,DAG-100n,supercollider,,3,CLEAN,0,,,0.365,0.365,110.4,0,
+P8-conditional_edge_neighbors_block,P8,conditional_edge_neighbors_block,default,DAG-100n,supercollider,,4,CLEAN,0,,,0.365,0.365,112.6,0,
+P8-conditional_edge_neighbors_block,P8,conditional_edge_neighbors_block,default,DAG-100n,supercollider,,5,CLEAN,0,,,0.365,0.365,108.4,0,
+P8-conditional_vertex_neighbors_atomicBug,P8,conditional_vertex_neighbors_atomicBug,default,DAG-100n,supercollider,,1,RACE,2,conditional_vertex_neighbors_atomicBug.cu:52:W-clobbered conditional_vertex_neighbors_atomicBug.cu:52:R-clobbered,conditional_vertex_neighbors_atomicBug.cu:52,0.415,0.365,116.2,0,sc_races=8
+P8-conditional_vertex_neighbors_atomicBug,P8,conditional_vertex_neighbors_atomicBug,default,DAG-100n,supercollider,,2,RACE,2,conditional_vertex_neighbors_atomicBug.cu:52:W-clobbered conditional_vertex_neighbors_atomicBug.cu:52:R-clobbered,conditional_vertex_neighbors_atomicBug.cu:52,0.365,0.365,112.0,0,sc_races=7
+P8-conditional_vertex_neighbors_atomicBug,P8,conditional_vertex_neighbors_atomicBug,default,DAG-100n,supercollider,,3,RACE,2,conditional_vertex_neighbors_atomicBug.cu:52:W-clobbered conditional_vertex_neighbors_atomicBug.cu:52:R-clobbered,conditional_vertex_neighbors_atomicBug.cu:52,0.365,0.365,108.2,0,sc_races=7
+P8-conditional_vertex_neighbors_atomicBug,P8,conditional_vertex_neighbors_atomicBug,default,DAG-100n,supercollider,,4,RACE,2,conditional_vertex_neighbors_atomicBug.cu:52:W-clobbered conditional_vertex_neighbors_atomicBug.cu:52:R-clobbered,conditional_vertex_neighbors_atomicBug.cu:52,0.415,0.365,112.3,0,sc_races=7
+P8-conditional_vertex_neighbors_atomicBug,P8,conditional_vertex_neighbors_atomicBug,default,DAG-100n,supercollider,,5,RACE,2,conditional_vertex_neighbors_atomicBug.cu:52:W-clobbered conditional_vertex_neighbors_atomicBug.cu:52:R-clobbered,conditional_vertex_neighbors_atomicBug.cu:52,0.415,0.365,114.1,0,sc_races=7
+P8-path_compression_raceBug,P8,path_compression_raceBug,default,DAG-100n,supercollider,,1,RACE,1,path_compression_raceBug.cu:50:R-clobbered,path_compression_raceBug.cu:50,0.365,0.365,110.1,0,sc_races=1
+P8-path_compression_raceBug,P8,path_compression_raceBug,default,DAG-100n,supercollider,,2,RACE,1,path_compression_raceBug.cu:50:R-clobbered,path_compression_raceBug.cu:50,0.415,0.365,111.1,0,sc_races=1
+P8-path_compression_raceBug,P8,path_compression_raceBug,default,DAG-100n,supercollider,,3,RACE,1,path_compression_raceBug.cu:50:R-clobbered,path_compression_raceBug.cu:50,0.365,0.365,116.0,0,sc_races=1
+P8-path_compression_raceBug,P8,path_compression_raceBug,default,DAG-100n,supercollider,,4,RACE,1,path_compression_raceBug.cu:50:R-clobbered,path_compression_raceBug.cu:50,0.415,0.365,112.2,0,sc_races=1
+P8-path_compression_raceBug,P8,path_compression_raceBug,default,DAG-100n,supercollider,,5,RACE,1,path_compression_raceBug.cu:50:R-clobbered,path_compression_raceBug.cu:50,0.365,0.365,114.4,0,sc_races=1
+P8-populate_worklist_neighbors_block_persistent,P8,populate_worklist_neighbors_block_persistent,default,DAG-100n,supercollider,,1,CLEAN,0,,,0.415,0.365,111.2,0,
+P8-populate_worklist_neighbors_block_persistent,P8,populate_worklist_neighbors_block_persistent,default,DAG-100n,supercollider,,2,CLEAN,0,,,0.365,0.365,113.1,0,
+P8-populate_worklist_neighbors_block_persistent,P8,populate_worklist_neighbors_block_persistent,default,DAG-100n,supercollider,,3,CLEAN,0,,,0.365,0.365,60.2,0,
+P8-populate_worklist_neighbors_block_persistent,P8,populate_worklist_neighbors_block_persistent,default,DAG-100n,supercollider,,4,CLEAN,0,,,0.365,0.365,110.3,0,
+P8-populate_worklist_neighbors_block_persistent,P8,populate_worklist_neighbors_block_persistent,default,DAG-100n,supercollider,,5,CLEAN,0,,,0.365,0.365,110.3,0,
+P8-pull_node_neighbors_block_cond_syncBug,P8,pull_node_neighbors_block_cond_syncBug,default,DAG-100n,supercollider,,1,CLEAN,0,,,0.365,0.365,112.3,0,
+P8-pull_node_neighbors_block_cond_syncBug,P8,pull_node_neighbors_block_cond_syncBug,default,DAG-100n,supercollider,,2,CLEAN,0,,,0.365,0.365,112.3,0,
+P8-pull_node_neighbors_block_cond_syncBug,P8,pull_node_neighbors_block_cond_syncBug,default,DAG-100n,supercollider,,3,CLEAN,0,,,0.415,0.365,110.2,0,
+P8-pull_node_neighbors_block_cond_syncBug,P8,pull_node_neighbors_block_cond_syncBug,default,DAG-100n,supercollider,,4,CLEAN,0,,,0.415,0.365,108.5,0,
+P8-pull_node_neighbors_block_cond_syncBug,P8,pull_node_neighbors_block_cond_syncBug,default,DAG-100n,supercollider,,5,CLEAN,0,,,0.365,0.365,110.4,0,
+P8-push_node_neighbors_block_atomicBug,P8,push_node_neighbors_block_atomicBug,default,DAG-100n,supercollider,,1,CLEAN,0,,,0.365,0.365,112.1,0,
+P8-push_node_neighbors_block_atomicBug,P8,push_node_neighbors_block_atomicBug,default,DAG-100n,supercollider,,2,CLEAN,0,,,0.365,0.365,109.9,0,
+P8-push_node_neighbors_block_atomicBug,P8,push_node_neighbors_block_atomicBug,default,DAG-100n,supercollider,,3,CLEAN,0,,,0.365,0.365,110.2,0,
+P8-push_node_neighbors_block_atomicBug,P8,push_node_neighbors_block_atomicBug,default,DAG-100n,supercollider,,4,CLEAN,0,,,0.365,0.365,111.2,0,
+P8-push_node_neighbors_block_atomicBug,P8,push_node_neighbors_block_atomicBug,default,DAG-100n,supercollider,,5,CLEAN,0,,,0.415,0.365,109.2,0,
+P9-gpp-cuda,P9,gpp-cuda,default,sc-artifact,supercollider,,1,CLEAN,0,,,0.465,0.365,139.8,0,
+P9-gpp-cuda,P9,gpp-cuda,default,sc-artifact,supercollider,,2,CLEAN,0,,,0.465,0.365,134.7,0,
+P9-gpp-cuda,P9,gpp-cuda,default,sc-artifact,supercollider,,3,CLEAN,0,,,0.415,0.365,134.8,0,
+P9-gpp-cuda,P9,gpp-cuda,default,sc-artifact,supercollider,,4,CLEAN,0,,,0.415,0.365,132.8,0,
+P9-gpp-cuda,P9,gpp-cuda,default,sc-artifact,supercollider,,5,CLEAN,0,,,0.466,0.365,134.5,0,

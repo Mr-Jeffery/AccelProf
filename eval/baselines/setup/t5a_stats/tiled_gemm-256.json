@@ -1,0 +1,74 @@
+{
+ "label": "tiled_gemm-256",
+ "exe": "/mnt/beegfs/fzheng4/t5a_bin/tiled_gemm",
+ "args": "256",
+ "stdin": "",
+ "mode": "vector-clock",
+ "cap_s": 900,
+ "every": 0,
+ "node": "c70",
+ "accel_prof_home": "/home/fzheng4/wt-T5a",
+ "engine_lib": "/home/fzheng4/wt-T5a/sanalyzer/wt_install/lib/libsanalyzer.so",
+ "engine_lib_sha16": "17773d549e921f46",
+ "wall_s": 71.957,
+ "peak_rss_mb": 4569.6,
+ "rc": 0,
+ "timed_out": false,
+ "kernels": [
+  {
+   "file": "kernel_0.json",
+   "bytes_on_disk": 758101555,
+   "hb_stats": {
+    "hb_events": {
+     "count": 755712,
+     "json_bytes": 753480250,
+     "ram_bytes_est": 801079200
+    },
+    "engine": {
+     "vc": {
+      "threads": 65536,
+      "entries": 67108864,
+      "max_entries": 1024,
+      "bytes_est": 2734843752
+     },
+     "released": {
+      "records": 0,
+      "entries": 0,
+      "bytes_est": 0
+     },
+     "last_write": {
+      "locations": 196608,
+      "bytes_est": 22020096
+     },
+     "last_reads": {
+      "locations": 327680,
+      "readers": 3670016,
+      "bytes_est": 329121792
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 65536,
+      "unique_bases": 64,
+      "base_entries": 65536,
+      "bytes_est": 6497640
+     },
+     "races": {
+      "records": 0,
+      "bytes_est": 0
+     },
+     "sync_pairs": 0,
+     "coherence_addrs": 0
+    },
+    "rss_kb": 4676108,
+    "hwm_kb": 4676108
+   }
+  }
+ ],
+ "kernel_end_lines": 1,
+ "mid_kernel": [],
+ "elapsed_s": 72.0
+}
