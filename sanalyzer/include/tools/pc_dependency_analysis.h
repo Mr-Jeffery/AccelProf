@@ -241,14 +241,16 @@ private:
     // acquire spin can be recorded acquire-before-release; HbClock then misses
     // that join and reports the handshake-ordered store as a structural race (2 of
     // the 12 structural reports on the ScoR reduction race-free build are this).
-    void hb_collect_events(const MemoryAccess* buffer, uint64_t size);
+    void hb_collect_events(const MemoryAccess* buffer, uint64_t size,
+                           const uint32_t* order = nullptr);   // T15: drain order
 
     // HbClock (the .cpp's vector-clock computation): streaming scoped vector-clock happens-before over
     // the same buffer (temporal order, -n 1). process consumes a drain; reset per
     // kernel; emit writes the "hb_races" array. Atomic scope comes from the CFG via
     // a sidecar (YOSEMITE_ATOMIC_SCOPE_FILE); the FastTrack epoch collapse and
     // bounded per-thread clocks are the scale knobs, left exact for the corpus.
-    void hb_clock_process(const MemoryAccess* buffer, uint64_t size);
+    void hb_clock_process(const MemoryAccess* buffer, uint64_t size,
+                           const uint32_t* order = nullptr);
     void hb_clock_reset();
     void hb_clock_emit(std::ofstream& jout);
 
