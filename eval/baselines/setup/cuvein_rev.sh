@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Pin the cuVein revision a re-run is about to use. Records (never modifies) the
 # detector state: HEAD, modified detector files + mtimes, sha256 of the working-tree
-# diff (saved in full under setup/cuvein_rev/), sha256 + mtime of the engine libs, and
-# the knob defaults in effect. Exits 3 if the engine library is older than any
+# diff (saved in full under setup/cuvein_rev/), sha256 + mtime of HbClock libs, and
+# the knob defaults in effect. Exits 3 if HbClock library is older than any
 # sanalyzer/ source (the harness never rebuilds the detector; the blocker names the
 # command). Usage: bash cuvein_rev.sh [label]   -> setup/cuvein_rev.status
 cd /home/fzheng4/AccelProf || exit 1
@@ -22,7 +22,7 @@ DSHA=$(sha256sum "$DIFF" | cut -c1-16)
   git diff --name-only HEAD -- python sanalyzer bin | while read -r f; do
     printf "  %s  %s\n" "$(stat -c %y "$f" | cut -c1-19)" "$f"
   done
-  echo "engine libs:"
+  echo "analyzer libs:"
   for so in build/sanalyzer/lib/libsanalyzer.so lib/libcompute_sanitizer.so; do
     printf "  %s  sha256[:16]=%s  %s\n" "$(stat -c %y "$so" | cut -c1-19)" "$(sha256sum "$so" | cut -c1-16)" "$so"
   done
@@ -33,10 +33,10 @@ SO=build/sanalyzer/lib/libsanalyzer.so
 STALE=$(find sanalyzer -type f \( -name '*.cpp' -o -name '*.h' -o -name '*.hpp' -o -name '*.cu' \) -newer "$SO" | head -5)
 if [ -n "$STALE" ]; then
   {
-    echo "BLOCKED: engine sources newer than $SO:"; echo "$STALE"
+    echo "BLOCKED: analyzer sources newer than $SO:"; echo "$STALE"
     echo "next: cmake --build build/sanalyzer -j8   (detector rebuild is outside this harness)"
   } >> "$OUT"
   cat "$OUT"; exit 3
 fi
-echo "OK: engine lib newer than every sanalyzer/ source" >> "$OUT"
+echo "OK: analyzer lib newer than every sanalyzer/ source" >> "$OUT"
 cat "$OUT"

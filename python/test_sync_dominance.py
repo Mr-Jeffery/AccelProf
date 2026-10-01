@@ -176,10 +176,10 @@ def _race_key(r):
 
 
 @pytest.mark.parametrize("binary", _binaries(), ids=lambda p: p.name)
-def test_hb_engine_matches_oracle(binary):
-    """The analyzer's streaming C++ HB engine (hb_races in the trace) must equal the
+def test_hb_clock_matches_specification(binary):
+    """HbClock (hb_races in the trace) must equal the
     full vector-clock Python oracle (hb_oracle) on every corpus binary — the oracle is
-    the executable correctness spec for the scalable engine (roadmap Phase 2)."""
+    the executable correctness spec for HbClock (roadmap Phase 2)."""
     art = _artifacts(binary)
     if art is None:
         pytest.skip("corpus not generated (no GPU / accelprof unavailable)")
@@ -188,7 +188,7 @@ def test_hb_engine_matches_oracle(binary):
         tj = json.loads(trace.read_text())
         if "hb_events" not in tj:
             pytest.skip("trace has no hb_events (YOSEMITE_HB_TRACE was off)")
-        engine = sorted({_race_key(r) for r in tj.get("hb_races", [])})
+        hbc = sorted({_race_key(r) for r in tj.get("hb_races", [])})
         report = None
         for dot in dots:  # pick the cubin whose CFG holds this kernel
             try:
@@ -198,19 +198,19 @@ def test_hb_engine_matches_oracle(binary):
                 continue
         assert report is not None, f"no CFG aligns with {trace.name}"
         oracle = sorted({_race_key(r) for r in report["races"]})
-        assert engine == oracle, (
+        assert hbc == oracle, (
             f"{binary.name}/{trace.name}: "
-            f"engine-only={[k for k in engine if k not in oracle]} "
-            f"oracle-only={[k for k in oracle if k not in engine]}")
+            f"hb-clock-only={[k for k in hbc if k not in oracle]} "
+            f"oracle-only={[k for k in oracle if k not in hbc]}")
 
         # Barrier/syncwarp-only clock: the pairs (and conflict counts) it leaves
         # unordered decide latent vs barrier-ordered, so they must agree too.
         assert tj.get("hb_races_sync_only") == report["races_sync_only"], (
             f"{binary.name}/{trace.name}: hb_races_sync_only mismatch "
-            f"engine={tj.get('hb_races_sync_only')} oracle={report['races_sync_only']}")
+            f"hb_clock={tj.get('hb_races_sync_only')} oracle={report['races_sync_only']}")
 
         # ... and so must the static analyzer's offline barrier-only pass (what
-        # scalar-clock mode uses in place of the engine's set).
+        # scalar-clock mode uses in place of HbClock's set).
         kern = sd.parse_dot(report["inputs"]["cfg_dot"])[report["kernel"]["mangled"]]
         ops = sd.HBGraph(*kern).pc_opcode
         rmw = {pc: s for pc, op in ops.items() if (s := sd.atomic_scope(op)) is not None}
@@ -220,24 +220,24 @@ def test_hb_engine_matches_oracle(binary):
                       sd.barrier_only_pairs(tj, rmw, coh, async_pc=asy).items())
         assert fast == report["races_sync_only"], f"{binary.name}/{trace.name}: offline pass"
 
-        # Coherence profile Pi (Phase 3): the engine's per-address atomic-order hashes
+        # Coherence profile Pi (Phase 3): HbClock's per-address atomic-order hashes
         # must equal the oracle's (both use the same FNV-1a over (tid, atomic-index)).
         eng_pi = {int(a): v["hash"] for a, v in tj.get("coherence_profile", {}).items()}
         orc_pi = {int(a, 16): v["hash"] for a, v in report.get("coherence_profile", {}).items()}
         assert eng_pi == orc_pi, (
             f"{binary.name}/{trace.name}: coherence_profile mismatch "
-            f"engine-only={ {a: h for a, h in eng_pi.items() if orc_pi.get(a) != h} } "
+            f"hb-clock-only={ {a: h for a, h in eng_pi.items() if orc_pi.get(a) != h} } "
             f"oracle-only={ {a: h for a, h in orc_pi.items() if eng_pi.get(a) != h} }")
 
 
 # PC-level false negative of the static leg by design (one release pc multiplexes two
-# handshakes; only the address-keyed engine separates them) — not a scalar-clock target.
+# handshakes; only the address-keyed HbClock separates them) — not a scalar-clock target.
 _SCALAR_CLOCK_KNOWN_FN = set()
 
 
 @pytest.mark.parametrize("binary", _binaries(), ids=lambda p: p.name)
 def test_scor_microbenchmark_scalar_clock(binary, tmp_path):
-    """Scalar-clock mode = the same dump without the engine's keys (what
+    """Scalar-clock mode = the same dump without HbClock's keys (what
     YOSEMITE_HB_MODE=scalar-clock writes): static leg + offline barrier-only pass. It must keep
     the litmus verdicts — the barrier pass may only turn barrier-ordered pairs into
     ORDERED, never a fence/lock/atomic-omission race."""
@@ -245,7 +245,7 @@ def test_scor_microbenchmark_scalar_clock(binary, tmp_path):
     if art is None:
         pytest.skip("corpus not generated (no GPU / accelprof unavailable)")
     dots, traces = art
-    races = engine_races = sc = 0
+    races = vc_races = sc = 0
     for trace in traces:
         tj = json.loads(trace.read_text())
         for k in ("hb_races", "hb_races_sync_only", "coherence_profile"):
@@ -257,7 +257,7 @@ def test_scor_microbenchmark_scalar_clock(binary, tmp_path):
                 rep = sd.analyze(dot, stripped)
                 races += rep["summary"]["races"]
                 sc += rep["summary"]["sc"]
-                engine_races += sd.analyze(dot, trace)["summary"]["races"]
+                vc_races += sd.analyze(dot, trace)["summary"]["races"]
                 break
             except sd.AlignmentError:
                 continue
@@ -269,7 +269,7 @@ def test_scor_microbenchmark_scalar_clock(binary, tmp_path):
                                         f"{races} race(s) and {sc} SC")
     elif binary.name not in _SCALAR_CLOCK_KNOWN_FN:
         assert races >= 1, f"scalar-clock false negative: {binary.name} " \
-                           f"(vector-clock mode reports {engine_races})"
+                           f"(vector-clock mode reports {vc_races})"
 
 
 def test_write_after_unlock_is_event_candidate(tmp_path, monkeypatch):

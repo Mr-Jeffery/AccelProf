@@ -25,12 +25,12 @@ for cubin in "${cubin_files[@]}"; do
     # dot -Tpng "${BIN_NAME}.dot" -o "${BIN_NAME}.png"
 done
 
-# Atomic-scope sidecar (pc -> coherence scope) for the dynamic-HB engine. Scope is
+# Atomic-scope sidecar (pc -> coherence scope) for HbClock. Scope is
 # a static SASS property only in the CFG, so distill it here (before the trace run)
 # into a file the analyzer reads via YOSEMITE_ATOMIC_SCOPE_FILE.
 if [ ${#cubin_files[@]} -gt 0 ]; then
     # Prefer the env's python directly: a nested `conda run` (getall.sh launched from
-    # inside one) fails silently, leaving the engine without any atomic scopes.
+    # inside one) fails silently, leaving HbClock without any atomic scopes.
     if [ -x "$ACCEL_PROF_HOME/.env/bin/python" ]; then
         SIDECAR_PY=("$ACCEL_PROF_HOME/.env/bin/python")
     else

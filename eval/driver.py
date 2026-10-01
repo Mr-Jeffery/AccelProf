@@ -89,7 +89,7 @@ def _rss_kb(pids):
 
 def run_timed(cmd, env, cwd, timeout, reps=1, poll_mem=False, stdin_path=None):
     """-> (min_wall_s, peak_rss_kb, rc, ok). Wall = min over reps; peak from a
-    /proc poller over the whole subtree when poll_mem (the engine run)."""
+    /proc poller over the whole subtree when poll_mem (the vector-clock run)."""
     best, peak, rc, ok = None, 0, None, True
     for _ in range(reps):
         stop = threading.Event()
@@ -187,7 +187,7 @@ def run_program(pg, csv, detail_dir, mode=hb_modes.VECTOR_CLOCK):
     # 1) native
     tn, _, rcn, _ = run_timed([exe_abs, *args], base_env(), exe_dir, timeout, reps,
                               stdin_path=stdin_path)
-    # 2) scalar-clock dump (engine skipped) — throwaway depdir unless it is the analyzed run
+    # 2) scalar-clock dump (HbClock skipped) — throwaway depdir unless it is the analyzed run
     for d in glob.glob(f"{exe_dir}/dependency_{exe_base}_*"):
         shutil.rmtree(d, ignore_errors=True)
     te_env = base_env(); te_env["YOSEMITE_HB_TRACE"] = "1"
@@ -202,13 +202,13 @@ def run_program(pg, csv, detail_dir, mode=hb_modes.VECTOR_CLOCK):
     accel = ["accelprof", "-t", "pc_dependency_analysis", "-n", "1",
              f"./{exe_base}", *args]
     # scalar-clock mode (YOSEMITE_HB_MODE=scalar-clock): the dump is the analyzed run —
-    # no in-process vector-clock engine, verdicts come from the static leg + offline
+    # no in-process HbClock, verdicts come from the static leg + offline
     # barrier-only pass over the trace (hb_races absent), overhead = tracing cost. A
-    # manifest entry with "engine": false forces it per program.
-    engine_on = pg.get("engine", True) and mode == hb_modes.VECTOR_CLOCK
+    # manifest entry with "vector_clock": false forces it per program.
+    vc_on = hb_modes.field(pg, "vector_clock", True) and mode == hb_modes.VECTOR_CLOCK
     tt, peak_t, rct, _ = run_timed(accel, tr_env, exe_dir, timeout, 1,
-                                   poll_mem=not engine_on, stdin_path=stdin_path)
-    if engine_on:
+                                   poll_mem=not vc_on, stdin_path=stdin_path)
+    if vc_on:
         for d in glob.glob(f"{exe_dir}/dependency_{exe_base}_*"):
             shutil.rmtree(d, ignore_errors=True)
         # 3) vector-clock — keep depdir, poll memory
@@ -233,13 +233,13 @@ def run_program(pg, csv, detail_dir, mode=hb_modes.VECTOR_CLOCK):
         python_dir=PYDIR, depdir=depdir, cubindir=cubindir, log=log,
         suite=pg["suite"], program=pg["program"], variant=pg.get("variant", ""),
         label=pg.get("label", ""), input=tag,
-        t_native=tn, t_trace=tt, t_engine=ten, peak_kb=peak,
+        t_native=tn, t_trace=tt, t_vector_clock=ten, peak_kb=peak,
         racecheck=pg.get("racecheck", ""), oracle=pg.get("oracle", False),
         oracle_max_events=pg.get("oracle_max_events", 300000),
         expect_pcs=pg.get("expect_pcs", ""), csv=csv,
         assume_warp_lockstep=pg.get("assume_warp_lockstep", False),
-        notes_extra=("" if engine_on else f"mode={hb_modes.SCALAR_CLOCK}"),
-        mode=hb_modes.VECTOR_CLOCK if engine_on else hb_modes.SCALAR_CLOCK,
+        notes_extra=("" if vc_on else f"mode={hb_modes.SCALAR_CLOCK}"),
+        mode=hb_modes.VECTOR_CLOCK if vc_on else hb_modes.SCALAR_CLOCK,
         detail=(f"{detail_dir}/{pg['program']}__{pg.get('variant','')}__{tag}.json"
                 if detail_dir else ""))
     aggregate.emit_row(ns)
@@ -250,7 +250,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("manifest")
     ap.add_argument("--mode", default=hb_modes.VECTOR_CLOCK, type=hb_modes.check,
-                    help="vector-clock (default: the in-process HbEngine run is analyzed) "
+                    help="vector-clock (default: the in-process HbClock run is analyzed) "
                          "or scalar-clock (skip it; analyze the YOSEMITE_HB_MODE=scalar-clock "
                          "dump with the static leg + offline barrier-only pass)")
     ap.add_argument("--csv-suffix", default=None,

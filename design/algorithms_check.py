@@ -16,7 +16,7 @@ monitor here (I6), no cp.async records (I7, rejected).
 
 T12: `gate` is the instance gate of Definition "Gate" evaluated DIRECTLY -- rel(r) and acq(r)
 read off the thread's previous and next record in the trace (look-ahead), no deferral. The
-oracle (and HbEngine) defer the acquire to the thread's next record (hb_proof.tex section 3);
+oracle (and HbClock) defer the acquire to the thread's next record (hb_proof.tex section 3);
 Detect(T, vec) under the instance gate equal to the oracle's `race_records` under it is the
 check of that deferral.
 

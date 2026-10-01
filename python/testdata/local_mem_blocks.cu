@@ -2,7 +2,7 @@
 // of two blocks fills and reads its own dynamically indexed array (placed in local memory,
 // STL/LDL). No two threads share a local location, so any local-space report is spurious.
 // The collector stores (flat thread id in the block << 54) | pointer for a local access
-// (gpu_patch_pc_dependency.cu); the engine and hb_oracle key it (local, addr) with no block,
+// (gpu_patch_pc_dependency.cu); HbClock and hb_oracle key it (local, addr) with no block,
 // so threads with the same flat id in different blocks collide iff the pointer is the same.
 // Build:  nvcc -arch=native -lineinfo --cudart shared local_mem_blocks.cu
 #include <cstdio>

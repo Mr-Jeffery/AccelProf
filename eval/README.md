@@ -8,7 +8,7 @@ baseline. Results land in `eval/results/*.csv`; the write-up is `eval/REPORT.md`
 ```
 eval/
   driver.py          orchestrate one program: extract CFG + atomic sidecar, time
-                     native/trace/engine, poll peak RSS, then aggregate -> CSV row
+                     native/scalar-clock/vector-clock, poll peak RSS, then aggregate -> CSV row
   aggregate.py       pair each kernel_N.json with its aligning CFG dot, run
                      sync_dominance, dedup RACE reports, cross-check hb_oracle
   summarize.py       confusion counts + precision/recall/specificity from a CSV
@@ -60,10 +60,10 @@ $CONDA eval/driver.py eval/manifests/e2.json
 ```
 
 ## The two modes: vector-clock and scalar-clock
-cuVein runs in one of two modes (task T8, 2026-09-23, renamed them from "engine" and
-"trace-only"; `python/hb_modes.py` holds the vocabulary):
+cuVein runs in one of two modes (named by task T8, 2026-09-23; `python/hb_modes.py` holds
+the vocabulary and the pre-T8 names):
 - **vector-clock** — `YOSEMITE_HB_TRACE=1 YOSEMITE_HB_MODE=vector-clock` (the default under
-  `YOSEMITE_HB_TRACE=1`): the in-process `HbEngine` (full scoped vector clocks, per-address
+  `YOSEMITE_HB_TRACE=1`): the in-process `HbClock` (full scoped vector clocks, per-address
   release/acquire; `python/hb_oracle.py` is its exact oracle) runs over the event stream and its
   `hb_races` / `hb_races_sync_only` are crossed into the static leg's verdicts.
 - **scalar-clock** — `YOSEMITE_HB_MODE=scalar-clock`: the collector only dumps `hb_events`;
@@ -72,19 +72,29 @@ cuVein runs in one of two modes (task T8, 2026-09-23, renamed them from "engine"
   no `hb_races`.
 
 `driver.py MANIFEST --mode scalar-clock` runs native + the scalar-clock dump only and analyzes
-it: `t_engine` is blank, `peak_mem` is the tracing run's, `oracle_verified` = `scalar-clock`,
+it: `t_vector_clock` is blank, `peak_mem` is the tracing run's, `oracle_verified` = `scalar-clock`,
 notes carry `mode=scalar-clock`, results land next to the vector-clock CSVs as
 `*-scalar-clock.csv` (`--csv-suffix` / `--detail-suffix` override). The harness
 (`parallel.py`, `run_cuvein.py`, `$BASELINE_MODES`) uses `vector-clock,scalar-clock`; kept-trace
 stores hold `<id>/vector-clock/` and `<id>/scalar-clock/`, confirm files are
-`<id>__cuvein__<mode>.json`. Every HB-trace setter refuses to run with an engine library that
+`<id>__cuvein__<mode>.json`. Every HB-trace setter refuses to run with an analyzer library that
 predates `YOSEMITE_HB_MODE` (`hb_modes.require_collector_support`).
 
 Pre-T8 names: `eval/baselines/migrate_mode_names.py` rewrites CSVs, stores and confirm files
 (dry run by default, `--apply`, `--reverse` for stores). For one release every reader still
-accepts `engine` / `trace-only` / `no-engine` with one deprecation line per file
-(`CUVEIN_NO_LEGACY_NAMES=1` turns that into an error), and the collector still honours
-`YOSEMITE_HB_NO_ENGINE` with a warning.
+accepts the pre-T8 mode names with one deprecation line per file
+(`CUVEIN_NO_LEGACY_NAMES=1` turns that into an error), and the collector still honours the
+retired pre-T8 switch (`hb_modes.LEGACY_ENV`) with a warning; it will not be renamed —
+`YOSEMITE_HB_MODE` is the switch.
+
+T17 (2026-09-30) named the in-process computation `HbClock` (`hb_clock_*` in
+`pc_dependency_analysis.cpp`). Persisted fields written since carry the new spelling —
+`hb_stats.hb_clock`, the E*.csv column `t_vector_clock`, `oracle_verified = hb-clock-only`,
+the residual cause `hb-clock-hang`, the fp-causes column `hb_clock_confirmed`, the manifest
+key `"vector_clock": false`, `setup/hb_clock_timeout_ids.txt` (the old name is a symlink until
+the SLURM scripts are updated); readers accept the pre-T17 spelling through
+`hb_modes.field()` / `hb_modes.canon_value()` (no migration; the historical results keep
+theirs).
 
 ## Re-analyzing existing traces / running from a worktree
 - `eval/reanalyze.py --bindir eval/bin/E0 --python-dir python <stems>` re-runs the static
@@ -92,20 +102,20 @@ accepts `engine` / `trace-only` / `no-engine` with one deprecation line per file
   in seconds. `--assume-warp-lockstep` forwards the opt-in filter.
 - `CUVEIN_HOME=<checkout>` makes `driver.py` use that checkout's `bin/ lib/ .env/ python/`.
   A worktree becomes a full runtime mirror by symlinking the gitignored `lib build .env
-  nv-compute/lib ScoR cuHadron` to the main checkout; the rebuilt engine must install into
+  nv-compute/lib ScoR cuHadron` to the main checkout; the rebuilt analyzer library must install into
   the RPATH location `build/sanalyzer/lib` (see `sanalyzer` Makefile `INSTALL_DIR`, and pass
   `CXX=` the conda compiler the existing build used).
 - Run the pytest with the env's python directly (`.env/bin/python -m pytest …`), **not**
   under `conda run`: `getall.sh` calls `conda run` for the atomic-scope sidecar and a nested
-  `conda run` fails silently — the engine then has no atomic scopes and every atomic looks
+  `conda run` fails silently — HbClock then has no atomic scopes and every atomic looks
   like a plain access. Wipe `ScoR/microbenchmarks/artifacts/*` first so traces regenerate.
 
 ## Notes
 - `-n 1` single-worker replay is required (cross-thread edge direction is temporal only then).
-- The atomic-scope sidecar (`YOSEMITE_ATOMIC_SCOPE_FILE`) is mandatory — without it the
-  engine loses atomic-coherence ordering and over-reports.
-- `oracle=false` (engine-only) for many-kernel real apps: the exact VC oracle is O(threads)
-  per conflict and impractical there; engine==oracle equivalence is established on the 33
+- The atomic-scope sidecar (`YOSEMITE_ATOMIC_SCOPE_FILE`) is mandatory — without it
+  HbClock loses atomic-coherence ordering and over-reports.
+- `oracle=false` (hb-clock-only) for many-kernel real apps: the exact VC oracle is O(threads)
+  per conflict and impractical there; HbClock == specification is established on the 33
   ScoR litmus programs + the canary.
 - Run one GPU batch at a time; kill stragglers by PID (a wrapped `conda run` can outlive
   `pkill -f driver.py`).
@@ -117,7 +127,7 @@ accepts `engine` / `trace-only` / `no-engine` with one deprecation line per file
   `make_tables.py` as "false positives by report class and root cause").
 - Detector knobs introduced by the fixes: `--strong-ldst {token,generic,all,none}` (default `token`, D9) / `$CUVEIN_STRONG_LDST`
   (how a load/store is classed strong — `token`: at the scope its `.STRONG` token names; read by `sync_dominance.py`,
-  `hb_oracle.py`, `atomic_scope_sidecar.py`), `YOSEMITE_HB_NO_SYNC_ONLY=1` (disable the engine's
+  `hb_oracle.py`, `atomic_scope_sidecar.py`), `YOSEMITE_HB_NO_SYNC_ONLY=1` (disable HbClock's
   barrier-only second clock; `barrier-ordered` then degrades to `latent`).
 - `hb_races[*].a2_uncertain` (T14; dumps marked `hb_a2: 1`): the number of a report's instances that some coherence order consistent with the RMW windows would order — informational, never a verdict (D15, `design/a2_flag.md`).
 - `sbatch eval/baselines/setup/p_fpfix.sh` re-runs P1–P6 with the current detector into
@@ -125,7 +135,7 @@ accepts `engine` / `trace-only` / `no-engine` with one deprecation line per file
   baseline is untouched); `python3 eval/baselines/compare_fpfix.py` prints before/after FP/TP and
   lists any true positive lost.
 - `CUVEIN_EVENT_CANDIDATES=0` / `--no-event-candidates`: judge trace edges only. By default the
-  conflicting pc pairs that only the `hb_events` stream shows (engine `hb_races_sync_only` +
+  conflicting pc pairs that only the `hb_events` stream shows (vector-clock: `hb_races_sync_only` +
   `hb_races`; scalar-clock: the offline barrier pass) are judged too — a trace edge keeps just the
   LAST accessor of a location, so a pair can have no edge at all. `CUVEIN_R3_PAST_RELEASE=0`
   disables R3's past-release gate (an access after its thread's own unlock of a CAS-acquired lock
@@ -147,7 +157,7 @@ accepts `engine` / `trace-only` / `no-engine` with one deprecation line per file
   `compare_fpfix.py --before 'eval/results/evcand_base/*.csv' --after-glob 'eval/results/evcand/*.csv'`
   is the worked example.
 - A cuVein rep is a verdict only if the app reached its own exit status under the tool
-  (`rc == native rc`). An app killed mid-run (OOM under the engine: accelprof rc 1) leaves the
+  (`rc == native rc`). An app killed mid-run (OOM in vector-clock mode: accelprof rc 1) leaves the
   kernels dumped so far; such a rep is `ERROR incomplete-trace(rc;nkernels;peak_mb)` — or RACE
   `partial` when the prefix already shows a race — never CLEAN. `events=`/`nkernels=` in the
   notes are that mode's own dump. `make_tables.py`/`compare_fpfix.py` re-score older rows the

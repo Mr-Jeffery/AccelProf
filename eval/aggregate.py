@@ -4,7 +4,7 @@
 Pairs every kernel_N.json in a dependency dir with its aligning CFG .dot
 (sync_dominance aborts on the wrong one), collects verdicts, dedups the RACE
 set on (unordered pc pair, memory-space class), optionally cross-checks the C++
-HB engine against the exact hb_oracle, and prints/append-writes the schema row.
+HbClock (vector-clock mode) against the exact hb_oracle, and prints/append-writes the schema row.
 
 Runs under the project env (needs networkx + pydot). Import path is the running
 tree's python/ dir (sync_dominance, hb_oracle).
@@ -24,7 +24,7 @@ import hb_modes  # noqa: E402  (vector-clock / scalar-clock vocabulary)
 
 # Column schema — every suite, every row (task spec).
 COLUMNS = ["suite", "program", "variant", "bug_label", "input", "grid", "block",
-           "events", "t_native", "t_trace", "t_engine", "peak_mem_mb",
+           "events", "t_native", "t_trace", "t_vector_clock", "peak_mem_mb",
            "reports_raw", "reports_dedup", "TP", "FN", "FP", "TN",
            "racecheck_verdict", "oracle_verified", "tv_violations",
            "structural", "latent", "unknown_sync", "notes"]
@@ -62,7 +62,7 @@ def _dedup_key(v):
 
 
 def _race_sig(races):
-    """Comparable signature of an hb race set (engine vs oracle)."""
+    """Comparable signature of an hb race set (HbClock vs oracle)."""
     out = []
     for r in races or []:
         pcs = tuple(sorted(p for p in (r.get("a_pc"), r.get("b_pc")) if p is not None))
@@ -81,7 +81,7 @@ def emit_row(args):
     args.detail = g("detail", "")
     args.csv = g("csv", "")
     args.log = g("log", "")
-    for k in ("variant", "label", "input", "t_native", "t_trace", "t_engine", "peak_kb"):
+    for k in ("variant", "label", "input", "t_native", "t_trace", "t_vector_clock", "peak_kb"):
         setattr(args, k, g(k, ""))
     sys.path.insert(0, args.python_dir)
     import functools
@@ -105,7 +105,7 @@ def emit_row(args):
     unknown_sync = 0
     kernels_paired = 0
     kernels_unpaired = 0
-    oracle_states = []   # per-kernel: "yes" | "engine-only" | "mismatch" | "no-hb"
+    oracle_states = []   # per-kernel: "yes" | "hb-clock-only" | "mismatch" | "no-hb"
     notes = []
 
     for kj in kjsons:
@@ -132,25 +132,25 @@ def emit_row(args):
         unknown_sync += rep["diagnostics"]["unknown_sync_count"]
         verdicts.extend(rep["verdicts"])
 
-        # oracle cross-check (engine hb_races vs exact VC oracle over the same dump)
+        # oracle cross-check (HbClock's hb_races vs exact VC oracle over the same dump)
         if g("mode", hb_modes.VECTOR_CLOCK) == hb_modes.SCALAR_CLOCK:
-            # scalar-clock mode: the dump carries no hb_races (engine skipped; older
+            # scalar-clock mode: the dump carries no hb_races (HbClock skipped; older
             # dumps carried an empty list); verdicts are the static leg's + the
             # offline barrier-only pass, there is nothing to cross-check.
             oracle_states.append(hb_modes.SCALAR_CLOCK)
         elif hb_races is None:
             oracle_states.append("no-hb")
         elif not args.oracle or hb_oracle is None:
-            oracle_states.append("engine-only")
+            oracle_states.append("hb-clock-only")
         elif n_ev > args.oracle_max_events:
-            oracle_states.append("engine-only")
+            oracle_states.append("hb-clock-only")
         else:
             try:
                 orc = hb_oracle.analyze(used_dot, kj)
                 oracle_states.append("yes" if _race_sig(orc["races"]) ==
                                      _race_sig(hb_races) else "mismatch")
             except Exception as e:
-                oracle_states.append("engine-only")
+                oracle_states.append("hb-clock-only")
                 notes.append(f"oracle-err:{type(e).__name__}")
 
     races = [v for v in verdicts if v["verdict"] == "RACE"]
@@ -180,14 +180,14 @@ def emit_row(args):
     elif oracle_states and all(s == "no-hb" for s in oracle_states):
         oracle_verified = "no-hb"
     else:
-        oracle_verified = "engine-only"
+        oracle_verified = "hb-clock-only"
 
     # provisional confusion cell from the label (triage refines).
     # A racy program is caught by ANY RACE verdict (structural OR latent) matching
     # the planted PCs — this is the tool's own detection criterion (the CI asserts
     # verdict==RACE >= 1). structural vs latent is the classification refinement,
     # kept as its own columns; fence-omission races surface as latent because the
-    # dynamic engine has no MEMBAR patch point (a documented tool boundary).
+    # vector-clock runtime has no MEMBAR patch point (a documented tool boundary).
     expect = {int(x, 16) for x in args.expect_pcs.split(",") if x.strip()}
 
     def matches_expect(v):
@@ -223,7 +223,7 @@ def emit_row(args):
         "suite": args.suite, "program": args.program, "variant": args.variant,
         "bug_label": args.label, "input": args.input, "grid": grid, "block": block,
         "events": events, "t_native": args.t_native, "t_trace": args.t_trace,
-        "t_engine": args.t_engine, "peak_mem_mb": peak_mb,
+        "t_vector_clock": args.t_vector_clock, "peak_mem_mb": peak_mb,
         "reports_raw": reports_raw, "reports_dedup": reports_dedup,
         "TP": TP, "FN": FN, "FP": FP, "TN": TN,
         "racecheck_verdict": args.racecheck, "oracle_verified": oracle_verified,
@@ -240,7 +240,14 @@ def emit_row(args):
     if args.csv:
         newfile = not os.path.exists(args.csv) or os.path.getsize(args.csv) == 0
         with open(args.csv, "a", newline="") as f:
-            w = csv.DictWriter(f, fieldnames=COLUMNS)
+            cols = COLUMNS
+            if not newfile:     # a pre-T17 file keeps its t_engine header (hb_modes.T17_FIELDS)
+                with open(args.csv, newline="") as fh:
+                    head = next(csv.reader(fh), [])
+                if "t_engine" in head:
+                    cols = [hb_modes.T17_FIELDS.get(c, c) for c in COLUMNS]
+                    row = {hb_modes.T17_FIELDS.get(k, k): v for k, v in row.items()}
+            w = csv.DictWriter(f, fieldnames=cols)
             if newfile:
                 w.writeheader()
             w.writerow(row)
@@ -266,7 +273,8 @@ def main():
     ap.add_argument("--input", default="")
     ap.add_argument("--t-native", dest="t_native", default="")
     ap.add_argument("--t-trace", dest="t_trace", default="")
-    ap.add_argument("--t-engine", dest="t_engine", default="")
+    ap.add_argument("--t-vector-clock", "--t-engine", dest="t_vector_clock", default="",
+                    help="--t-engine: the pre-T17 spelling")
     ap.add_argument("--peak-kb", dest="peak_kb", default="")
     ap.add_argument("--racecheck", default="")
     ap.add_argument("--oracle", action="store_true")

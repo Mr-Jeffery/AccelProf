@@ -8,8 +8,8 @@ cross-warp happens-before edge, so the most common CUDA idiom (warp 0 loads a ti
 __syncthreads -> other warps consume it) is reported as a spurious RAW race. That is a
 false positive = unsoundness.
 
-test_hb_engine_matches_oracle CANNOT catch this: hb_oracle and HbEngine share the model,
-so if the per-warp bug returns in both, engine==oracle still holds. These tests therefore
+test_hb_clock_matches_specification CANNOT catch this: hb_oracle and HbClock share the model,
+so if the per-warp bug returns in both, HbClock == specification still holds. These tests therefore
 assert ABSOLUTE verdicts (exact race count on a known trace) and include a POSITIVE control
 (a genuine race that must still be reported), so a "reports 0 on everything" regression
 cannot pass, and a "raises on everything" regression cannot pass either.

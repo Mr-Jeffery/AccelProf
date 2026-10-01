@@ -238,21 +238,21 @@ private:
     // Known limitation: a record's slot is reserved by the PRE-op sanitizer callback
     // (GetBufferIndex atomicAdd in gpu_patch_pc_dependency.cu), so slot order is
     // instrumentation order, not memory-operation order. A tight atomic release/
-    // acquire spin can be recorded acquire-before-release; the engine then misses
+    // acquire spin can be recorded acquire-before-release; HbClock then misses
     // that join and reports the handshake-ordered store as a structural race (2 of
     // the 12 structural reports on the ScoR reduction race-free build are this).
     void hb_collect_events(const MemoryAccess* buffer, uint64_t size,
                            const uint32_t* order = nullptr);   // T15: drain order
 
-    // Phase 2 dynamic HB engine: streaming scoped vector-clock happens-before over
+    // HbClock (the .cpp's vector-clock computation): streaming scoped vector-clock happens-before over
     // the same buffer (temporal order, -n 1). process consumes a drain; reset per
     // kernel; emit writes the "hb_races" array. Atomic scope comes from the CFG via
     // a sidecar (YOSEMITE_ATOMIC_SCOPE_FILE); the FastTrack epoch collapse and
     // bounded per-thread clocks are the scale knobs, left exact for the corpus.
-    void hb_engine_process(const MemoryAccess* buffer, uint64_t size,
+    void hb_clock_process(const MemoryAccess* buffer, uint64_t size,
                            const uint32_t* order = nullptr);
-    void hb_engine_reset();
-    void hb_engine_emit(std::ofstream& jout);
+    void hb_clock_reset();
+    void hb_clock_emit(std::ofstream& jout);
 
     void unit_access(
         uint64_t ptr,
@@ -327,11 +327,11 @@ private:
     bool _hb_trace = false;
     uint64_t _hb_seq = 0;
     std::vector<std::string> _hb_events;
-    // NOTE: the dynamic-HB engine state is deliberately NOT a member. Adding any
+    // NOTE: HbClock's state is deliberately NOT a member. Adding any
     // member to PcDependency shifts the process heap layout and re-triggers a
     // latent, pre-existing heap-metadata corruption in a non-instrumented
     // dependency (malloc(): invalid size at init; see build-toolchain memo). The
-    // engine lives in a .cpp file-static singleton instead — zero layout change.
+    // HbClock lives in a .cpp file-static singleton instead — zero layout change.
     // Remove that indirection once the underlying UB is root-caused.
     uint32_t _shared_kernel_generation = 0;
     uint64_t _current_kernel_cta_count = 0;

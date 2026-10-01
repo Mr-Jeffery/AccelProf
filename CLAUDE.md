@@ -35,20 +35,23 @@ gap to NVBit, T15 (late ordering key) added, the T11 lead from ECL-GC recorded. 
 AccelProf/cuVein: a GPU data-race detector for CUDA binaries. A Compute-Sanitizer
 collector (`nv-compute/`, `sanalyzer/src/tools/pc_dependency_analysis.cpp`) records
 per-warp memory/sync records; with `YOSEMITE_HB_TRACE=1` it dumps them as `hb_events`
-into `kernel_N.json` and, unless `YOSEMITE_HB_NO_ENGINE` is set, runs the in-process
-C++ `HbEngine` (vector clocks) over the same stream. `python/hb_oracle.py` is the exact
-offline oracle the engine must match bit-for-bit; `python/sync_dominance.py` joins the
+into `kernel_N.json` and, in vector-clock mode (`YOSEMITE_HB_MODE`, the default), runs the
+in-process C++ `HbClock` (vector clocks) over the same stream. `python/hb_oracle.py` is the
+exact offline specification `HbClock` must match bit-for-bit; `python/sync_dominance.py` joins the
 kernel CFG (nvdisasm) with the trace and produces the verdicts (R1 dominance, R2
 coherence, R3 chain, offline barrier-only pass, event-stream candidates, verdict matrix).
 
-The two modes. After task T8 they are called:
-- **scalar-clock mode** — today "trace-only" / "no-engine" (`YOSEMITE_HB_TRACE=1
-  YOSEMITE_HB_NO_ENGINE=1`): static rules + `sync_dominance.barrier_only_pairs()`
-  (`python/sync_dominance.py:466`), which needs only a per-thread scalar epoch.
-- **vector-clock mode** — today "engine" (`YOSEMITE_HB_TRACE=1`): `HbEngine` in the
-  analyzer + `hb_oracle.py`, full scoped vector clocks, per-address release/acquire.
-Until T8 merges, code and docs still say engine / trace-only; do not mix vocabularies
-inside one file.
+The two modes (named by T8; the pre-T8 names survive only in `python/hb_modes.py`'s
+compatibility path):
+- **scalar-clock mode** (`YOSEMITE_HB_TRACE=1 YOSEMITE_HB_MODE=scalar-clock`): static rules
+  + `sync_dominance.barrier_only_pairs()`, which needs only a per-thread scalar epoch.
+- **vector-clock mode** (`YOSEMITE_HB_TRACE=1`, `YOSEMITE_HB_MODE=vector-clock` the
+  default): `HbClock` in the analyzer + `hb_oracle.py`, full scoped vector clocks,
+  per-address release/acquire.
+`HbClock` (T17, D17) is the computation — it owns the per-thread clocks, whose value type is
+T5b's `VClock`. Docs say vector-clock / scalar-clock for the modes and name `HbClock` only when
+the sentence is about that code; do not mix vocabularies inside one file, identifiers
+included.
 
 Ground truth for the current state: `eval/BASELINES_SUMMARY.md` (head-to-head vs
 racecheck, HiRace, iGUARD, SuperCollider; 2026-09-22), `eval/FIX_REPORT.md` (F1–F6),
@@ -119,7 +122,7 @@ see T0 for why the previous "keep every trace" attempt lost data and for the pol
   atomic degrades to a plain access). Wipe `ScoR/microbenchmarks/artifacts/*` first so
   traces regenerate.
 - Build: `nv-compute` (fatbin) and `sanalyzer` must be rebuilt after any `.cu`/`.cpp`
-  change; the engine library must install into the RPATH location
+  change; the analyzer library (`libsanalyzer.so`) must install into the RPATH location
   `build/sanalyzer/lib`; the existing build used the conda compiler
   (`CXX=/home/fzheng4/miniconda3/bin/x86_64-conda-linux-gnu-c++`, `eval/FIX_REPORT.md`).
   **spack is available** (`eval/baselines/setup/spack_setup.sh`, `spack_env.sh`; used
@@ -127,7 +130,7 @@ see T0 for why the previous "keep every trace" attempt lost data and for the pol
   conda one misbehaves; also check `module avail`. Build notes live in the agent memory
   file `memory/build-toolchain-gotchas.md`; `HARDENING_REPORT.md` and `roadmap.md` (risk
   register) describe the latent heap-corruption UB that forbids adding members to
-  `PcDependency` — keep engine state in the file-static `HbEngine` singleton.
+  `PcDependency` — keep `HbClock`'s state in its file-static singleton.
 - `ACCEL_PROF_HOME=/home/fzheng4/AccelProf` is the runtime checkout. A worktree becomes
   a full runtime mirror by symlinking the gitignored dirs `lib build .env nv-compute/lib
   ScoR cuHadron` from the main checkout and setting `CUVEIN_HOME=<worktree>` for
@@ -160,11 +163,11 @@ see T0 for why the previous "keep every trace" attempt lost data and for the pol
   byte-identical.
 
 ### A4. Correctness discipline
-- Oracle/engine parity is a hard invariant: any change to `HbEngine` is mirrored in
+- `HbClock` == specification is a hard invariant: any change to `HbClock` is mirrored in
   `python/hb_oracle.py` in the same commit, and vice versa. Gate:
-  `test_hb_engine_matches_oracle` (`python/test_sync_dominance.py:111`),
-  `test_engine_matches_oracle` and `test_offline_barrier_pass_matches_oracle`
-  (`python/test_coherent_ldst.py:133,155`).
+  `test_hb_clock_matches_specification` (`python/test_sync_dominance.py:179`,
+  `python/test_coherent_ldst.py:158`) and `test_offline_barrier_pass_matches_oracle`
+  (`python/test_coherent_ldst.py:182`).
 - The green set, run before and after every change:
   ```
   rm -rf ScoR/microbenchmarks/artifacts/*
@@ -190,7 +193,7 @@ see T0 for why the previous "keep every trace" attempt lost data and for the pol
   verdict; ORDERED comes only from R1, R3, the barrier-only clock, and `hb_races` vetoes
   them. `model_bug` is raised by R1 alone (`hb_proof.tex` §5, 2026-09-27).
 - Local memory is outside the HB model (`hb_proof.tex` Definition "Records"): the HB
-  trace path does not emit `MemoryType::Local` records, and engine, oracle and
+  trace path does not emit `MemoryType::Local` records, and `HbClock`, oracle and
   `barrier_only_pairs` skip any `local` record of an older dump. The collector's
   default path and its local-address tag are not touched.
 - The fence instructions of `fenced(p, p', s)` come from the per-architecture inventory
@@ -293,7 +296,7 @@ Two things surfaced while reading the code that the plan has to carry:
 | T9-0 | 9 | latent census: what the `latent` tier catches and costs, fact (i) checked on the kept stores | Sonnet · analyst | no | — | `study/latent-census` ✓ report `eval/LATENT_CENSUS.md` 2026-09-26 (merge pending) |
 | T9 | 9 | vector-clock soundness: I1 (publish-then-tick) + I2 (buckets in **both** clocks, SC reported) + I5 (local memory excluded) in one change to oracle, engine and `barrier_only_pairs`; R2 moved from verdict to class, the `sc` column, `make_tables.py` for D2; the T6 strict xfails and `fence_rtraw` as regression tests | Opus · prover; Sonnet · implementer; Sonnet subagent for the re-score | re-score only + one P5 sweep | T6 ✓; D1/D6 ✓ | `fix/publish-then-tick` ✓ done 2026-09-28 (b1a6408; 554 programs re-scored, no verdict moved at Race ∪ Latent; report `eval/T9_RESCORE.md`) — merged ebc464f → `cuVein` 6c34736; library 75f46012 installed; green set 238 passed + the one expected failure; evcand 3,621 rows unchanged; one new FP at Race alone (A2, D15 → T14) |
 | T10 | — | sidecar strength and scope (O1): a load/store is strong at the scope its `.STRONG.<scope>` token names, generic and address-spaced alike (`volatile` included); default policy `token`, the old ones ablations | Sonnet · implementer, Opus · review | re-score only | T9 ✓ | `fix/sidecar-strength` ✓ done 2026-09-29 (f2a5bde; `eval/SIDECAR_STRENGTH.md`): 1,141 of 1,306 DR instances on the 43 ScoR programs with `volatile` become SC, no other program moves (545 × 2), 5 FPs removed, none added, green set 275 + 1; D9 adopted — **merge pending** |
-| T11 | — | monitor: TV checks in one Python module shared by oracle, `barrier_only_pairs` and a standalone `tv_check` CLI; engine keeps them behind `YOSEMITE_HB_STRICT`; delete the `expected == 0` degrade path; per-lane W2 row (I6) only if cheap | Sonnet · implementer | no | T3b (fifth check) | `fix/tv-monitor` |
+| T11 | — | monitor: TV checks in one Python module shared by oracle, `barrier_only_pairs` and a standalone `tv_check` CLI; `HbClock` keeps them behind `YOSEMITE_HB_STRICT`; delete the `expected == 0` degrade path; per-lane W2 row (I6) only if cheap | Sonnet · implementer | no | T3b (fifth check) | `fix/tv-monitor` |
 | T12 | — | I4: the instance gate (`fenced(p, p', s)` from the CFG dots with the O2 inventory — `MEMBAR.SC`, `CCTL.IVALL`, `BAR.SYNC` — two sidecar columns, the deferred acquire join with `Check(r)` against the joined clock) and R3's release point from the trace, sharing the predicate; measured on the kept stores before wiring; **in parallel with T5b** | Opus · design + review, Sonnet · implementer | re-score only + one P4/P5 sweep | T9, T10 | `feat/instance-gate` |
 | T1b | 1 | cp.async.bulk / TMA / dsmem model, validated on the H100 node with the 8 cuHadron sm_90 targets — **after the submission** | **Fable** · design + implementation (the hardest task in the queue); fresh Fable context as verifier | yes (`h100`, c29) | T1a ✓ | `feat/cp-async-bulk` |
 | T13 | — | NVBit feasibility spike: after-execution atomics with the value read; A2 inversion rate in vivo; overhead — report only | Sonnet · analyst | yes (one `salloc`) | none | `study/nvbit-spike` ✓ done 2026-09-28 (0a444e9, merged into 6c34736; `eval/NVBIT_SPIKE.md`): NVBit 1.8 loads on driver 580 (README says ≤ 575; the submodule's 1.7.1 does not load); old values correct in every test; Sanitizer-order inversions 0/155, 4/315, 52/1,275 hand-offs at 2/4/16 warps; cost 427× native unoptimised vs 134× for the Sanitizer HB path on the one kernel-dominated input |
@@ -535,9 +538,9 @@ T7, I6, the `bar.arrive` flag, the access-size check, the §6 referee notes.
   sidecar can separate them on facts. Atomicity stays the opcode's. `generic` remains as the
   code path for pre-T10 sidecars, not as a paper configuration (its numbers under ScoRD's
   notion equal `token`'s by construction).
-- **D10** (T11): default of `YOSEMITE_HB_STRICT` in the engine once the TV checks also
+- **D10** (T11): default of `YOSEMITE_HB_STRICT` in `HbClock` once the TV checks also
   run offline. Recommended: keep strict on by default unless T11's measurement shows it
-  above a few percent of engine time. Default if unanswered: keep on.
+  above a few percent of `HbClock`'s time. Default if unanswered: keep on.
 - **D12** (T9, decided 2026-09-27): R2 decides the DR/SC class of a candidate pair and
   grants no verdict; ORDERED comes from R1, R3 and the barrier-only clock only, vetoed by
   `hb_races`; `model_bug` from R1 alone. Traded: scalar-clock mode reports every
@@ -970,7 +973,7 @@ before/after). Report: `eval/CP_ASYNC_REPORT.md`; update the F4 row of
 ### T1b — cp.async.bulk / TMA / distributed shared memory (todo 1, part b)
 Branch `feat/cp-async-bulk`. Model: **Fable** for design and implementation — this is
 the most complicated task in the queue (three completion mechanisms, a new location
-space for distributed shared memory, collector + engine + oracle + static leg touched at
+space for distributed shared memory, collector + `HbClock` + oracle + static leg touched at
 once); a fresh Fable context reviews and verifies. GPU: the `h100` partition (node c29,
 sm_90; single node, 8-day limit, often busy — submit early, `sbatch --partition=h100`).
 After T1a.
@@ -998,10 +1001,10 @@ Steps
    conflict partners). If step 2 shows the Sanitizer exposes no patch point for one of
    them, say which and what a `%globaltimer`/NVBit alternative would cost; do not
    approximate.
-4. Implement in serializer, engine, oracle, `barrier_only_pairs` and the static leg,
+4. Implement in serializer, `HbClock`, oracle, `barrier_only_pairs` and the static leg,
    gated by the instruction type only (no env flag — sm_86/89 binaries never emit these
    records). Tests: the 8 cuHadron targets (racy → RACE, fixed → CLEAN, both modes,
-   engine == oracle) plus a `python/testdata/cp_async_bulk.cu` micro test with mbarrier
+   `HbClock` == specification) plus a `python/testdata/cp_async_bulk.cu` micro test with mbarrier
    completion; E6a racecheck on the shared-memory cases for an independent check.
 5. Evaluation rows: add the 8 targets to the P6 manifest with `arch=sm_90`; per D4, run
    racecheck, iGUARD (`make ARCH=sm_90`) and SuperCollider's own binaries on c29 so the
@@ -1011,7 +1014,7 @@ Steps
 
 Deliverable: `design/cp_async_bulk.md`, the implementation, tests, the new matrix cells,
 `eval/CP_ASYNC_REPORT.md` §"bulk". Acceptance: 8/8 cuHadron sm_90 targets correct in
-both modes, engine == oracle, green set unchanged on sm_89.
+both modes, `HbClock` == specification, green set unchanged on sm_89.
 
 ### T5a — Memory-footprint overhead (todo 5, measurement)
 Branch `study/memory-footprint`. Model: Sonnet. GPU: three profiling runs.
@@ -1190,8 +1193,8 @@ Steps
    `TV-barrier-completion-order`, `TV-expected-nonzero-multiwarp`,
    `TV-barrier-pending-at-end`) into `python/tv_check.py`, used unchanged by
    `hb_oracle.py`, `barrier_only_pairs` and a CLI `tv_check <kernel_N.json>...`; identical
-   results to the engine on every kept dump (the checks use no clock).
-2. Engine: keep the checks behind `YOSEMITE_HB_STRICT`; delete the `expected == 0`
+   results to `HbClock` on every kept dump (the checks use no clock).
+2. `HbClock`: keep the checks behind `YOSEMITE_HB_STRICT`; delete the `expected == 0`
    per-warp degrade path (unreachable on launched kernels; unsound without strict) —
    an unknown count is a hard error. Measure strict on/off on T5a's three programs
    (D10).
@@ -1498,8 +1501,8 @@ Profile before rewriting: `sync_dominance.analyze()` loads the whole JSON
 P9-mr case (113 GB, 1600 kernels, >4.5 h; `eval/baselines/setup/blockers.md`) is the
 benchmark. Run cProfile on three of its kernels and on tiled_gemm N=512. If parsing
 dominates, T4's binary format + streaming reader is the fix and no language change is
-needed. If the barrier pass dominates, port only `barrier_only_pairs` to C++ (it is the
-engine's sync-only pass; expose it as an offline mode of `HbEngine` over the dump) and
+needed. If the barrier pass dominates, port only `barrier_only_pairs` to C++ (it is
+`HbClock`'s sync-only pass; expose it as an offline mode of `HbClock` over the dump) and
 keep the verdict logic in Python. A whole-script rewrite is out of scope unless the
 profile shows the Python verdict loop itself above 30 % of wall time. Report:
 `eval/ANALYSIS_PROFILE.md`.

@@ -1,4 +1,4 @@
-// T12 (design/instance_gate.md section 6): the engine's deferred acquire. Thread 0 writes the lock
+// T12 (design/instance_gate.md section 6): HbClock's deferred acquire. Thread 0 writes the lock
 // word plainly, fences, and releases it with atomicExch; it then raises `go` with an UNFENCED
 // atomicExch (rel = 0: `go` orders nothing). Thread 32 waits for `go` (an unfenced spin: no
 // acquire either) and then CASes the lock, which acquires thread 0's release (rel = 1). Check of
@@ -6,7 +6,7 @@
 // the pending acquire J -- the conflict is HELD until the CAS thread's next record:
 //   held_fenced   : __threadfence() after the CAS  -> acq = 1 -> the held conflict is dropped
 //   held_unfenced : no fence after the CAS          -> acq = 0 -> it is reported (DR, "atomic")
-// Both kernels run in one binary; engine == oracle on both is the check of the deferral.
+// Both kernels run in one binary; HbClock == specification on both is the check of the deferral.
 #include <cstdio>
 
 __device__ int lock_word;

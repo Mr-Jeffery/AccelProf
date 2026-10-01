@@ -8,6 +8,9 @@ import json
 import os
 import sys
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "python"))
+import hb_modes  # noqa: E402  (hb_stats' hb_clock object; pre-T17 dumps call it engine)
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = sys.argv[1] if len(sys.argv) > 1 else f"{HERE}/t5b_stats"
 
@@ -20,11 +23,11 @@ for p in sorted(glob.glob(f"{D}/*.json")):
     d = json.load(open(p))
     lab = os.path.basename(p)[:-5]
     run = {k: d.get(k) for k in ("node", "rc", "timed_out", "wall_s", "peak_rss_mb", "engine_lib_sha16")}
-    ks = [k for k in d.get("kernels", []) if (k.get("hb_stats") or {}).get("engine")]
+    ks = [k for k in d.get("kernels", []) if hb_modes.field(k.get("hb_stats") or {}, "hb_clock")]
     print(f"== {lab}: {run} kernels_with_stats={len(ks)}")
     if ks:
-        k = max(ks, key=lambda k: k["hb_stats"]["engine"]["vc"].get("bytes_est", 0))
-        s = k["hb_stats"]["engine"]
+        k = max(ks, key=lambda k: hb_modes.field(k["hb_stats"], "hb_clock")["vc"].get("bytes_est", 0))
+        s = hb_modes.field(k["hb_stats"], "hb_clock")
         print(f"   largest-vc kernel {k.get('file')}: vc={json.dumps(s['vc'])}")
         print(f"   released={json.dumps(s['released'])} buckets_bytes={gb(s['buckets']['bytes_est'])} GB "
               f"vs={json.dumps(s['vs'])} merge_memo={s.get('merge_memo')}")

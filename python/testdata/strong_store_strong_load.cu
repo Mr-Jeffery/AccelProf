@@ -2,7 +2,7 @@
 // cuda::atomic store (ST.E.STRONG.SYS), block 0 thread 0 later loads it with a relaxed
 // cuda::atomic load (LD.E.STRONG.SYS); nothing orders the two. Both are strong at sys scope
 // (morally strong under the default --strong-ldst generic policy), so the pair is not a data
-// race but an unordered strong conflict (hb_proof.tex Definition "Verdicts"): the engine
+// race but an unordered strong conflict (hb_proof.tex Definition "Verdicts"): HbClock
 // reports it with class SC and the verdict layer calls it `sc` -- never `model_bug` (R2 no
 // longer certifies an order, D12) and never a RACE.
 // Build:  nvcc -arch=native -lineinfo --cudart shared strong_store_strong_load.cu

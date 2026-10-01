@@ -148,7 +148,7 @@ def _rss_kb(pids):
 
 def _prefer_oom_victim():
     """In the child, before exec: make the traced app (inherited by everything it
-    spawns) the kernel OOM killer's first choice. An engine run can fill the node
+    spawns) the kernel OOM killer's first choice. A vector-clock run can fill the node
     (100+ GB); without this the killer may pick the harness instead and the whole
     shard dies with no rows (evcand shard 0, P6 asyncmemcpy)."""
     try:

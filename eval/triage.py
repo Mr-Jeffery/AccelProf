@@ -6,7 +6,7 @@
 
 Per-report line: space | race_type | dist | strength | hb_class | chain?
 Totals cross space x hb_class and count reports that carry a static hb_chain
-(these would be ORDERED in static-only mode — a fence-blind-engine false positive
+(these would be ORDERED in static-only mode — a fence-blind-HbClock false positive
 when the program is race-free).
 """
 import collections

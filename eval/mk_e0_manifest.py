@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Build the E0 (ScoR apps) driver manifest: 7 benchmarks x {norace,racy} x
-{small,large}. small -> oracle cross-check; large -> engine-only. Each reads its
+{small,large}. small -> oracle cross-check; large -> hb-clock-only. Each reads its
 stdin input file. false-positive control = the norace (fixed) build."""
 import argparse
 import json
@@ -36,8 +36,8 @@ def main():
                     "input": size + ("+lockstep" if args.lockstep else ""),
                     "assume_warp_lockstep": args.lockstep,
                     "exe": exe, "args": [], "stdin": stdin,
-                    # engine-only: the exact VC oracle is O(threads) per conflict and
-                    # impractical on many-kernel real apps (graph-*). engine==oracle
+                    # hb-clock-only: the exact VC oracle is O(threads) per conflict and
+                    # impractical on many-kernel real apps (graph-*). HbClock == specification
                     # already established on the 33 ScoR litmus + canary.
                     "oracle": False, "reps": 2,
                     "timeout": 200 if size == "small" else 600,

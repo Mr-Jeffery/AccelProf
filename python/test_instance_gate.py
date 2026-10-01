@@ -103,7 +103,7 @@ def _scor():
 @pytest.mark.parametrize("d", _scor(), ids=lambda p: p.name)
 def test_deferred_acquire_equals_direct_gate(d):
     """Detect(T, vec) with rel/acq read off the trace (look-ahead) == the oracle, which defers
-    the acquire to the thread's next record as HbEngine must (hb_proof.tex section 3)."""
+    the acquire to the thread's next record as HbClock must (hb_proof.tex section 3)."""
     import algorithms_check as ac
     dots = sorted(d.glob("**/*.dot"))
     traces = sorted(d.glob("dependency_*/kernel_*.json"))
@@ -231,7 +231,7 @@ def test_model_bug_is_an_annotation():
 
 def test_dump_gate(monkeypatch):
     """A dump without `hb_gate` (every pre-T12 dump) replays under the trusting gate unless
-    told otherwise; the engine's marker selects the gate otherwise; an explicit arg wins."""
+    told otherwise; HbClock's marker selects the gate otherwise; an explicit arg wins."""
     monkeypatch.delenv("CUVEIN_GATE", raising=False)
     assert sd.dump_gate({}) == "trusting"
     assert sd.dump_gate({"hb_gate": "instance"}) == "instance"
@@ -240,7 +240,7 @@ def test_dump_gate(monkeypatch):
     assert sd.dump_gate({}) == "instance"
 
 
-# ---- GPU: the engine's deferred acquire (testdata/gate_held.cu) ----------------------------
+# ---- GPU: HbClock's deferred acquire (testdata/gate_held.cu) ----------------------------
 _HELD_SRC = Path(__file__).resolve().parent / "testdata" / "gate_held.cu"
 
 
@@ -283,10 +283,10 @@ def _key(r):
 
 
 @pytest.mark.parametrize("variant", ["fenced", "unfenced"])
-def test_held_conflict_engine_matches_oracle(variant):
+def test_held_conflict_hb_clock_matches_specification(variant):
     """The CAS thread's Check finds thread 0's plain store of the lock word ordered only by the
     pending acquire: held, then dropped (a fence after the CAS: acq = 1) or reported (none:
-    acq = 0). The engine (hb_races, recorded under the instance gate) equals the oracle."""
+    acq = 0). HbClock (hb_races, recorded under the instance gate) equals the oracle."""
     art = _held_artifacts()
     if art is None:
         pytest.skip("no GPU / nvcc / accelprof to build and trace gate_held")

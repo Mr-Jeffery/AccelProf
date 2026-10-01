@@ -89,18 +89,18 @@ run_min() {  # reps, env-prefix... -- cmd...; echos "min_elapsed max_rss_kb rc"
 # 1) native (no accelprof)
 read tn _ rcn < <(run_min "$nreps" -- "$exe_abs" "${appargs[@]}")
 
-# a pre-T8 engine library ignores YOSEMITE_HB_MODE: the scalar-clock run would silently
-# run the engine. Refuse (hb_modes.require_collector_support does the same in Python).
+# a pre-T8 analyzer library ignores YOSEMITE_HB_MODE: the scalar-clock run would silently
+# run HbClock. Refuse (hb_modes.require_collector_support does the same in Python).
 "${ACCEL_PROF_HOME}/.env/bin/python" -c "import sys; sys.path.insert(0, '${ACCEL_PROF_HOME}/python'); import hb_modes; hb_modes.require_collector_support('${ACCEL_PROF_HOME}')" \
-  || { echo "harness.sh: engine library predates YOSEMITE_HB_MODE (T8) -- rebuild sanalyzer" >&2; exit 3; }
+  || { echo "harness.sh: analyzer library predates YOSEMITE_HB_MODE (T8) -- rebuild sanalyzer" >&2; exit 3; }
 
-# 2) scalar-clock (dump only, engine skipped) — one rep, throwaway depdir
+# 2) scalar-clock (dump only, HbClock skipped) — one rep, throwaway depdir
 rm -rf "${exe_dir}/dependency_${exe_base}"_* 2>/dev/null
 read tt _ rct < <(run_min 1 YOSEMITE_HB_TRACE=1 YOSEMITE_HB_MODE=scalar-clock -- \
                   accelprof -t pc_dependency_analysis -n 1 "$exe_abs" "${appargs[@]}")
 rm -rf "${exe_dir}/dependency_${exe_base}"_* 2>/dev/null
 
-# 3) vector-clock (dump + in-process engine) — one rep, keep depdir + capture peak RSS
+# 3) vector-clock (dump + in-process HbClock) — one rep, keep depdir + capture peak RSS
 read te peak rce < <(run_min 1 YOSEMITE_HB_TRACE=1 YOSEMITE_HB_MODE=vector-clock -- \
                      accelprof -t pc_dependency_analysis -n 1 "$exe_abs" "${appargs[@]}")
 depdir="$(ls -dt "${exe_dir}/dependency_${exe_base}"_* 2>/dev/null | head -1)"
@@ -115,7 +115,7 @@ if [ -z "$depdir" ] || [ ! -d "$depdir" ]; then
   $ENV "$AGG" --python-dir "$ACCEL_PROF_HOME/python" --depdir /nonexistent \
        --cubindir "$cubindir" --log "$log" --suite "$suite" --program "$program" \
        --variant "$variant" --label "$label" --input "$input" \
-       --t-native "$tn" --t-trace "$tt" --t-engine "$te" \
+       --t-native "$tn" --t-trace "$tt" --t-vector-clock "$te" \
        ${racecheck:+--racecheck "$racecheck"} ${csv:+--csv "$csv"} 2>/dev/null
   exit 0
 fi
@@ -124,7 +124,7 @@ $ENV "$AGG" --python-dir "$ACCEL_PROF_HOME/python" \
      --depdir "$depdir" --cubindir "$cubindir" --log "$log" \
      --suite "$suite" --program "$program" --variant "$variant" \
      --label "$label" --input "$input" \
-     --t-native "$tn" --t-trace "$tt" --t-engine "$te" --peak-kb "$peak" \
+     --t-native "$tn" --t-trace "$tt" --t-vector-clock "$te" --peak-kb "$peak" \
      ${expect:+--expect-pcs "$expect"} ${racecheck:+--racecheck "$racecheck"} \
      ${oracle:+--oracle} ${csv:+--csv "$csv"} \
      ${detail_dir:+--detail "$detail_dir/${program}__${variant}__${input}.json"}
