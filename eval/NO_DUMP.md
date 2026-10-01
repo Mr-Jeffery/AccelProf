@@ -101,7 +101,12 @@ file from a full dump (assumptions A1 and A2 of the design note hold on this cor
 
 ### 3.1 The five capped kernels
 
-_filled from job 296423_
+Job 296423 (`t4_parity.py compare --ids <that program> --cap 25000`, node c25): all 15
+scalar-clock kernels of P1-CC_CUDA_V_Topo_Pull_Determ_…slower_atomic-1296n compare ok in
+3,984 s (the offline `barrier_only_pairs` and `trace_rmw_points` in Python over 1296n
+dumps are the slow side; the runtime had done the same work online in the 1,200 s run).
+With them, the parity set is **799 of 799 kernel JSONs ok, 0 MISMATCH**, over 56 programs
+with a dump in both modes (119 program × mode rows).
 
 ## 4. The timeout set and P7/P9 under no-dump (brief step 4)
 
