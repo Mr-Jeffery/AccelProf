@@ -136,6 +136,8 @@ def cmd_compare(a):
     os.environ["CUVEIN_BARRIER_PASS_MAX_LANES"] = str(10 ** 12)   # the cutoff lifted (section 6)
     ids = sorted(os.path.basename(p) for p in glob.glob(f"{a.store}/*") if os.path.isdir(p)
                  and os.path.exists(f"{p}/meta.json"))
+    if a.ids:
+        ids = [i for i in ids if i in set(a.ids.split(","))]
     if a.shard:
         k, n = map(int, a.shard.split("/"))
         ids = ids[k::n]
@@ -186,6 +188,7 @@ def main(argv=None):
     c.add_argument("--store", required=True)
     c.add_argument("--out", required=True)
     c.add_argument("--shard", default="")
+    c.add_argument("--ids", default="", help="comma list: only these program ids")
     c.add_argument("--cap", type=int, default=3600, help="seconds per program and mode")
     c.set_defaults(fn=cmd_compare)
     t = sub.add_parser("table")

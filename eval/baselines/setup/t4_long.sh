@@ -42,10 +42,12 @@ for mode in scalar-clock vector-clock; do
   fi
   echo "== $mode start $(date -Is)"
   t0=$(date +%s)
+  # GNU time is not on every node image (c0, c1 gave rc 127): without it the RSS comes from
+  # the HB_STATS lines (rss_kb) and the wall from the timestamps
+  TIME=(); [ -x /usr/bin/time ] && TIME=(/usr/bin/time -f "maxrss_kb=%M wall_s=%e" -o $D/time.txt)
   ( cd $D && env YOSEMITE_HB_TRACE=1 YOSEMITE_HB_MODE=$mode YOSEMITE_HB_DUMP=0 YOSEMITE_HB_STATS=1 \
       YOSEMITE_HB_STATS_EVERY=$EVERY YOSEMITE_ATOMIC_SCOPE_FILE=$scope \
-      /usr/bin/time -f "maxrss_kb=%M wall_s=%e" -o $D/time.txt \
-      timeout -s KILL ${CAP}s accelprof -v -t pc_dependency_analysis -n 1 ./$base $args < /dev/null > $D/stdout.txt 2>&1; echo "rc=$?" > $D/rc.txt )
+      "${TIME[@]}" timeout -s KILL ${CAP}s accelprof -v -t pc_dependency_analysis -n 1 ./$base $args < /dev/null > $D/stdout.txt 2>&1; echo "rc=$?" > $D/rc.txt )
   echo "== $mode end $(date -Is) elapsed=$(( $(date +%s) - t0 ))s $(cat $D/rc.txt) $(cat $D/time.txt 2>/dev/null | tr '\n' ' ')"
   ls $D/dependency_*/kernel_*.json 2>/dev/null | wc -l | sed 's/^/kernel JSONs: /'
   /usr/bin/grep -h "HB_STATS" $D/*.accelprof.log $D/stdout.txt 2>/dev/null | tail -3 | cut -c1-400
