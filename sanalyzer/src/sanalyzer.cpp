@@ -236,6 +236,15 @@ YosemiteResult_t yosemite_kernel_end_callback(std::string kernel_name, int devic
 }
 
 
+// T15: defined with the pc_dependency tool, the only consumer.
+void pc_dependency_set_late_keys(const uint64_t* keys, uint64_t size, uint32_t mode);
+
+YosemiteResult_t yosemite_gpu_data_late_keys(const uint64_t* keys, uint64_t size, uint32_t mode) {
+    pc_dependency_set_late_keys(keys, size, mode);
+    return YOSEMITE_SUCCESS;
+}
+
+
 YosemiteResult_t yosemite_gpu_data_analysis(void* data, uint64_t size) {
     for (auto &tool : _tools) {
         tool.second->gpu_data_analysis(data, size);

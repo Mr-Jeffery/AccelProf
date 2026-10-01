@@ -1,0 +1,91 @@
+host=c23 NVIDIA GeForce RTX 4060 Ti, 8.9, 580.82.07 HEAD=f61c389 dirty=7
+collector fc964ef246c4f4ff libsanalyzer ffd3736d23c8b3f4 fatbin e96343121c74ca0a
+== 1x2 off (buffer order, late key not drawn)
+total {'sections': 160, 'adjacent': 155, 'instances': 0, 'flagged': 0, 'engine_traces': 5, 'engine_eq_oracle': 5, 'engine_flagged': 0, 'cross_thread': 155, 'inverted': 0}
+== 1x2 atomic: W0 / seq order / ties
+total {'events': 1180, 'w0_threads': 640, 'w0_violations': 0, 'ties': 0, 'seq_order_bad': 0, 'tv_violations': 0}
+== 1x2 atomic late order
+total {'sections': 160, 'adjacent': 155, 'instances': 0, 'flagged': 0, 'engine_traces': 5, 'engine_eq_oracle': 5, 'engine_flagged': 0, 'cross_thread': 155, 'inverted': 0}
+== 1x2 atomic buffer order (same runs)
+total {'sections': 160, 'adjacent': 155, 'instances': 0, 'flagged': 0, 'cross_thread': 155, 'inverted': 0}
+== 1x2 timer: W0 / seq order / ties
+total {'events': 1185, 'w0_threads': 640, 'w0_violations': 0, 'ties': 557, 'seq_order_bad': 0, 'tv_violations': 0}
+== 1x2 timer late order
+total {'sections': 160, 'adjacent': 155, 'instances': 225, 'flagged': 225, 'engine_traces': 5, 'engine_eq_oracle': 5, 'engine_flagged': 225, 'cross_thread': 155, 'inverted': 75}
+== 1x2 timer buffer order (same runs)
+total {'sections': 160, 'adjacent': 155, 'instances': 225, 'flagged': 225, 'cross_thread': 155, 'inverted': 75}
+== 1x4 off (buffer order, late key not drawn)
+total {'sections': 320, 'adjacent': 315, 'instances': 180, 'flagged': 180, 'engine_traces': 5, 'engine_eq_oracle': 5, 'engine_flagged': 180, 'cross_thread': 311, 'inverted': 60}
+== 1x4 atomic: W0 / seq order / ties
+total {'events': 3700, 'w0_threads': 960, 'w0_violations': 0, 'ties': 0, 'seq_order_bad': 0, 'tv_violations': 0}
+== 1x4 atomic late order
+total {'sections': 320, 'adjacent': 315, 'instances': 120, 'flagged': 120, 'engine_traces': 5, 'engine_eq_oracle': 5, 'engine_flagged': 120, 'cross_thread': 315, 'inverted': 40}
+== 1x4 atomic buffer order (same runs)
+total {'sections': 320, 'adjacent': 315, 'instances': 135, 'flagged': 135, 'cross_thread': 315, 'inverted': 45}
+== 1x4 timer: W0 / seq order / ties
+total {'events': 3280, 'w0_threads': 960, 'w0_violations': 0, 'ties': 2163, 'seq_order_bad': 0, 'tv_violations': 0}
+== 1x4 timer late order
+total {'sections': 320, 'adjacent': 315, 'instances': 435, 'flagged': 435, 'engine_traces': 5, 'engine_eq_oracle': 5, 'engine_flagged': 435, 'cross_thread': 305, 'inverted': 145}
+== 1x4 timer buffer order (same runs)
+total {'sections': 320, 'adjacent': 315, 'instances': 435, 'flagged': 435, 'cross_thread': 305, 'inverted': 145}
+== 4x4 off (buffer order, late key not drawn)
+total {'sections': 1280, 'adjacent': 1275, 'instances': 963, 'flagged': 963, 'engine_traces': 5, 'engine_eq_oracle': 5, 'engine_flagged': 963, 'cross_thread': 1266, 'inverted': 321}
+== 4x4 atomic: W0 / seq order / ties
+total {'events': 50830, 'w0_threads': 2880, 'w0_violations': 0, 'ties': 0, 'seq_order_bad': 0, 'tv_violations': 0}
+== 4x4 atomic late order
+total {'sections': 1280, 'adjacent': 1275, 'instances': 561, 'flagged': 561, 'engine_traces': 5, 'engine_eq_oracle': 5, 'engine_flagged': 561, 'cross_thread': 1274, 'inverted': 187}
+== 4x4 atomic buffer order (same runs)
+total {'sections': 1280, 'adjacent': 1275, 'instances': 636, 'flagged': 636, 'cross_thread': 1274, 'inverted': 212}
+== 4x4 timer: W0 / seq order / ties
+total {'events': 50095, 'w0_threads': 2880, 'w0_violations': 0, 'ties': 43456, 'seq_order_bad': 0, 'tv_violations': 0}
+== 4x4 timer late order
+total {'sections': 1280, 'adjacent': 1275, 'instances': 1281, 'flagged': 1281, 'engine_traces': 5, 'engine_eq_oracle': 5, 'engine_flagged': 1281, 'cross_thread': 1271, 'inverted': 427}
+== 4x4 timer buffer order (same runs)
+total {'sections': 1280, 'adjacent': 1275, 'instances': 1281, 'flagged': 1281, 'cross_thread': 1271, 'inverted': 427}
+cfg	variant	run	wall_s	rc	events
+1x2	off	1	.991711886	0	236
+1x2	off	2	.916018710	0	236
+1x2	off	3	.899019288	0	236
+1x2	off	4	.954099131	0	236
+1x2	off	5	.956439422	0	236
+1x2	atomic	1	.985518313	0	236
+1x2	atomic	2	1.009202249	0	236
+1x2	atomic	3	.928562009	0	236
+1x2	atomic	4	.937900598	0	236
+1x2	atomic	5	.913998648	0	236
+1x2	timer	1	.978686280	0	237
+1x2	timer	2	.962417524	0	237
+1x2	timer	3	.965739787	0	237
+1x2	timer	4	1.111916319	0	237
+1x2	timer	5	.975434892	0	237
+1x4	off	1	.928457555	0	800
+1x4	off	2	1.161291622	0	800
+1x4	off	3	.995670056	0	800
+1x4	off	4	.916295121	0	800
+1x4	off	5	.940111212	0	792
+1x4	atomic	1	.938446201	0	740
+1x4	atomic	2	.939825210	0	740
+1x4	atomic	3	.929325904	0	740
+1x4	atomic	4	1.172604263	0	740
+1x4	atomic	5	.973454433	0	740
+1x4	timer	1	.981170955	0	656
+1x4	timer	2	.972579082	0	656
+1x4	timer	3	.990230468	0	656
+1x4	timer	4	.956885824	0	656
+1x4	timer	5	.959351195	0	656
+4x4	off	1	1.008352599	0	10294
+4x4	off	2	.944466032	0	11162
+4x4	off	3	.950683790	0	11131
+4x4	off	4	.995000985	0	10815
+4x4	off	5	1.041100233	0	10842
+4x4	atomic	1	.999743144	0	9807
+4x4	atomic	2	.949998980	0	10232
+4x4	atomic	3	.994777392	0	10445
+4x4	atomic	4	.960609512	0	10482
+4x4	atomic	5	.990716125	0	9864
+4x4	timer	1	.995767778	0	10093
+4x4	timer	2	1.064473991	0	11160
+4x4	timer	3	.945454814	0	10192
+4x4	timer	4	1.438837810	0	8943
+4x4	timer	5	.969895977	0	9707
+== done 2026-09-29T12:14:53-04:00
