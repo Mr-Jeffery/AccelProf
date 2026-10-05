@@ -172,6 +172,8 @@ void ModuleUnloadedCallback(CUmodule module) {
 }
 
 
+static uint32_t late_seq_mode();   // T18: defined below, used when the module loads
+
 void ModuleLoadedCallback(CUmodule module)
 {
     if (sanitizer_options.patch_name == GPU_NO_PATCH) {
@@ -193,6 +195,12 @@ void ModuleLoadedCallback(CUmodule module)
 
     // Instrument user code
     std::string fatbin_file = patch_path + sanitizer_options.patch_file;
+    // T18: the late-key device code lives in its own fatbin variant, selected here, once per
+    // module; the default fatbin has no late-key code and no runtime branch for it.
+    if (sanitizer_options.patch_name == GPU_PATCH_PC_DEPENDENCY_ANALYSIS && late_seq_mode() != 0) {
+        const std::string suffix = ".fatbin";
+        fatbin_file.replace(fatbin_file.size() - suffix.size(), suffix.size(), "_late.fatbin");
+    }
     SANITIZER_SAFECALL(sanitizerAddPatchesFromFile(fatbin_file.c_str(), 0));
 
     if (sanitizer_options.patch_name == GPU_PATCH_APP_METRIC) {

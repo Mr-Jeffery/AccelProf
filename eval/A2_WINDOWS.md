@@ -361,3 +361,37 @@ W=<worktree> WHICH=t14 IDS=<id file> TAG=late sbatch eval/baselines/setup/p_t14_
 - The manufactured-edge direction (a hidden race) is bounded (§3), not enumerated: that needs a
   "certain" clock, or the value-recording collector (D15, post-submission).
 - T10 is not merged: the numbers under policy `token` are not measured (§6).
+
+## 10. Same source, two collectors (T18, 2026-10-01)
+
+The corpus example of A2: one program, one source, two builds of the collector, two different
+complete traces. `race_interblock_none-lock_rtraw` (ScoR; block 0 `lock; read; unlock; data[0]=1`,
+block 1 `lock; read; unlock`) recorded five times per runtime, vector-clock mode, one node (c58,
+RTX 4060 Ti), `setup/t18_rtraw_schedules.sh`, verdicts by `eval/baselines/t18_rtraw_verdicts.py`:
+
+| runtime | device code in the record callback | events | outcome (5 of 5 runs identical) |
+|---|---|---|---|
+| installed by T18 (collector c9b862f9, default fatbin a2d7368b = the pre-T15 device code) | none for the late key | 15 | one report: WAR, SC, `latent-sc`; `hb_races` empty (the run's lock hand-off ordered it); no instance, so nothing to flag |
+| the runtime of 96698c1 (T15 collector f2933966, default fatbin e9634312 with the late-key code), rebuilt from the `*.pre-t18-*` backups as a private mirror | late-key branch + second `__syncwarp` | 14 | two reports: WAW DR `structural` and WAR SC `sc`; both `a2_uncertain`, flag equal to count (1/1 each) |
+
+Both traces are complete (no record lost, `tv_violation` none). 96698c1 found the cause in the
+records: the earlier runtime has block 0 spin five times on the lock CAS before it enters, the
+later one four, and the fourth CAS (recorded before block 1's unlock) is the one that
+succeeds -- a successful lock CAS whose trace position precedes the unlock it read from, i.e. an
+inversion of coherence order by overlapping RMW windows (A2). The program, the binary and the
+hardware are the same; only the time the callback spends before the instruction differs, and
+each build lands in one schedule (T15, schedule determinism). The extra reports of the second
+schedule are exactly the ones the flag exists for: every one is `a2_uncertain`.
+
+What this does and does not show. It shows that a litmus verdict on a lock idiom is not a
+property of the program under this collector, and that the flag marks precisely the reports that
+move. It does **not** show that the first schedule's single report is A2-robust: with no
+`hb_races` instance the pair has nothing to flag, and its `latent-sc` class rests on the run's
+hand-off order -- the order A2 makes uncertain. So "both traces flagged" does not hold: the T15
+schedule's reports are flagged, the pre-T15 schedule's one report is latent and unflagged.
+
+Consequence for the tests (`python/a2_aware.py`): the litmus assertions check that the reports
+which are not `a2_uncertain` match the label, and that any extra report carries `a2_uncertain`
+equal to its count; the project's own litmus kernels force the hand-off order with a flag spin.
+The four tests that failed after the T17 install pass on the installed runtime and on the same
+runtime with `YOSEMITE_HB_LATE_SEQ=atomic` (305 passed, 2 skipped, each).

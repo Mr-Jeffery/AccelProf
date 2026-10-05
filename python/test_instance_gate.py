@@ -12,6 +12,7 @@ from pathlib import Path
 
 import pytest
 
+import a2_aware
 import atomic_scope_sidecar
 import hb_oracle as ho
 import sync_dominance as sd
@@ -306,8 +307,11 @@ def test_held_conflict_hb_clock_matches_specification(variant):
     assert g.get("held", 0) >= 1, g                   # the path under test was taken
     kern = sd.parse_dot(rep["inputs"]["cfg_dot"])[rep["kernel"]["mangled"]]
     ops = sd.HBGraph(*kern).pc_opcode
+    # T18: the label is asserted on the reports that are not a2_uncertain (flag == count); the
+    # lock word's hand-off order is forced by the `go` flag spin, so none is expected flagged
     cas = [r for r in rep["races"] if "CAS" in ops[r["b_pc"]].split(".")
-           and ops[r["a_pc"]].split(".")[0] in ("ST", "STG")]
+           and ops[r["a_pc"]].split(".")[0] in ("ST", "STG")
+           and r.get("a2_uncertain", 0) < r.get("count", 1)]
     if variant == "fenced":
         assert g.get("held_reported", 0) == 0 and not cas, (g, cas)
     else:
@@ -375,9 +379,8 @@ def test_r3_declines_write_before_lock_on_a_real_trace(monkeypatch, tmp_path):
     else:
         raise AssertionError("no CFG aligns")
     rmw = {pc for pc, op in g.pc_opcode.items() if sd.atomic_scope(op) is not None}
-    b0 = [e for e in mem if e["block"] == 0]
-    b1 = [e for e in mem if e["block"] == 1]
-    if max(e["seq"] for e in b0 if e["pc"] in rmw) > min(e["seq"] for e in b1 if e["pc"] in rmw):
+    b0, b1, forced = a2_aware.without_flag(mem)       # T18: the order is forced by a flag spin
+    if not forced:
         pytest.skip("schedule not reached: block 1 touched the lock before block 0 was done")
     write = next(e for e in b0 if e["pc"] not in rmw)
     read = next(e for e in b1 if e["type"] == "read" and e["pc"] not in rmw
