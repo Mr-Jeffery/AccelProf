@@ -259,9 +259,129 @@ struct HbClock {
     // replacement, which is what Theorem "Sound" needs; both clocks share the bucket
     // because both runs of Detect replace it at the same records.
     static constexpr uint8_t KIND_R = 0, KIND_W = 1, KIND_RMW = 2;
-    struct Entry { uint64_t clock; uint64_t sclock; uint32_t pc; };
-    struct KeyGroup { uint8_t kind; int scope; std::unordered_map<Tid, Entry> by_tid; };
-    std::map<Loc, std::vector<KeyGroup>> buckets;           // loc -> its key groups
+    struct Entry { uint64_t clock; uint64_t sclock; uint32_t pc; };   // a decoded slot
+    // T19 (design/flat_buckets.md): the same entries in a flat layout. A slot is 20 bytes:
+    // the thread (inline below 2^31, else 0x80000000 | its row in wide_tids), both epochs
+    // (checked < 2^32, never wrapped), the pc and the key kind << 3 | (scope + 1). Per
+    // location one malloc'd array: [0, nsorted) sorted by (key, tid) -- each key group a run
+    // -- then an arrival-order tail of < TAIL slots, merged into the prefix when it fills.
+    // The locations sit in an open-addressing table (no output iterates it).
+    struct Slot { uint32_t tid, clock, sclock, pc; uint8_t key, pad[3]; };
+    static_assert(sizeof(Slot) == 20, "Slot is 20 bytes");
+    struct LocSlots { Slot* p = nullptr; uint32_t n = 0, nsorted = 0; };
+    static constexpr uint32_t TAIL = 32;
+    static uint8_t slot_key(uint8_t kind, int scope) {
+        return static_cast<uint8_t>((kind << 3) | (scope + 1));
+    }
+    static uint8_t key_kind(uint8_t key) { return key >> 3; }
+    static int key_scope(uint8_t key) { return static_cast<int>(key & 7) - 1; }
+    static uint64_t slot_order(const Slot& s) { return (uint64_t(s.key) << 32) | s.tid; }
+    static uint32_t cap_of(uint32_t n) {                    // capacity held at n slots
+        if (n == 0) return 0;
+        uint64_t c = 2;
+        while (c < n) c += c / 2;
+        return static_cast<uint32_t>(std::min<uint64_t>(c, UINT32_MAX));
+    }
+    struct FlatBuckets {
+        struct TSlot { uint64_t hi, addr; LocSlots s; };    // hi = space << 63 | block; 32 B
+        static constexpr uint64_t EMPTY = ~uint64_t(0);
+        static constexpr size_t INIT = 1024;
+        std::vector<TSlot> table = std::vector<TSlot>(INIT, TSlot{EMPTY, 0, {}});
+        size_t count = 0;
+        std::vector<Tid> wide_tids;                         // tids that do not fit inline
+        std::unordered_map<Tid, uint32_t> wide_index;
+
+        static uint64_t mix(uint64_t hi, uint64_t addr) {   // splitmix64 finaliser
+            uint64_t x = hi ^ ((addr << 29) | (addr >> 35));
+            x ^= x >> 30; x *= 0xbf58476d1ce4e5b9ULL;
+            x ^= x >> 27; x *= 0x94d049bb133111ebULL;
+            return x ^ (x >> 31);
+        }
+        static uint64_t hi_of(const Loc& l) {
+            return (uint64_t(std::get<0>(l) != 0) << 63) | std::get<1>(l);
+        }
+        LocSlots* find(const Loc& l) {
+            const uint64_t hi = hi_of(l), addr = std::get<2>(l), m = table.size() - 1;
+            for (uint64_t i = mix(hi, addr) & m;; i = (i + 1) & m) {
+                TSlot& s = table[i];
+                if (s.hi == hi && s.addr == addr) return &s.s;
+                if (s.hi == EMPTY) return nullptr;
+            }
+        }
+        LocSlots& get(const Loc& l) {
+            if ((count + 1) * 4 > table.size() * 3) grow();
+            const uint64_t hi = hi_of(l), addr = std::get<2>(l), m = table.size() - 1;
+            for (uint64_t i = mix(hi, addr) & m;; i = (i + 1) & m) {
+                TSlot& s = table[i];
+                if (s.hi == hi && s.addr == addr) return s.s;
+                if (s.hi == EMPTY) { s.hi = hi; s.addr = addr; ++count; return s.s; }
+            }
+        }
+        void grow() {
+            std::vector<TSlot> old(table.size() * 2, TSlot{EMPTY, 0, {}});
+            old.swap(table);
+            const uint64_t m = table.size() - 1;
+            for (const TSlot& o : old) {
+                if (o.hi == EMPTY) continue;
+                uint64_t i = mix(o.hi, o.addr) & m;
+                while (table[i].hi != EMPTY) i = (i + 1) & m;
+                table[i] = o;
+            }
+        }
+        void clear() {
+            for (TSlot& s : table) if (s.hi != EMPTY) std::free(s.s.p);
+            std::vector<TSlot>(INIT, TSlot{EMPTY, 0, {}}).swap(table);
+            count = 0;
+            wide_tids.clear(); wide_index.clear();
+        }
+        ~FlatBuckets() { for (TSlot& s : table) if (s.hi != EMPTY) std::free(s.s.p); }
+        size_t size() const { return count; }
+
+        uint32_t enc(Tid t) {
+            if (t < (Tid(1) << 31)) return static_cast<uint32_t>(t);
+            const auto it = wide_index.find(t);
+            if (it != wide_index.end()) return it->second;
+            const uint32_t e = 0x80000000u | static_cast<uint32_t>(wide_tids.size());
+            wide_tids.push_back(t);
+            wide_index.emplace(t, e);
+            return e;
+        }
+        Tid dec(uint32_t e) const {
+            return (e & 0x80000000u) ? wide_tids[e & 0x7fffffffu] : Tid(e);
+        }
+        // the slot of (key, tid) on the location, or nullptr
+        static Slot* own_slot(LocSlots& ls, uint8_t key, uint32_t tid) {
+            const uint64_t want = (uint64_t(key) << 32) | tid;
+            Slot* const b = ls.p;
+            Slot* const e = ls.p + ls.nsorted;
+            Slot* it = std::lower_bound(b, e, want,
+                                        [](const Slot& s, uint64_t w) { return slot_order(s) < w; });
+            if (it != e && slot_order(*it) == want) return it;
+            for (Slot* s = e; s != ls.p + ls.n; ++s)
+                if (s->key == key && s->tid == tid) return s;
+            return nullptr;
+        }
+        static void append(LocSlots& ls, const Slot& s) {
+            if (ls.n == cap_of(ls.n)) {
+                const uint32_t nc = cap_of(ls.n + 1);
+                Slot* np = static_cast<Slot*>(std::realloc(ls.p, size_t(nc) * sizeof(Slot)));
+                if (np == nullptr) {
+                    std::cerr << "[HB_CLOCK] out of memory growing a location's buckets to "
+                              << nc << " slots" << std::endl;
+                    std::abort();
+                }
+                ls.p = np;
+            }
+            ls.p[ls.n++] = s;
+            if (ls.n - ls.nsorted == TAIL) {                // merge the tail into the prefix
+                auto lt = [](const Slot& a, const Slot& b) { return slot_order(a) < slot_order(b); };
+                std::sort(ls.p + ls.nsorted, ls.p + ls.n, lt);
+                std::inplace_merge(ls.p, ls.p + ls.nsorted, ls.p + ls.n, lt);
+                ls.nsorted = ls.n;
+            }
+        }
+    };
+    FlatBuckets buckets;                                    // loc -> its entries
 
     // race kind labels (the report's orientation) and DR/SC class (Definition "Verdicts")
     static constexpr uint8_t RK_ATOMIC = 0, RK_WAW = 1, RK_RAW = 2, RK_WAR = 3;
@@ -1013,30 +1133,52 @@ struct HbClock {
     // never reportable (a whole key group is skipped when its scope makes that certain).
     void check(uint64_t addr, int space, uint64_t loc_block, const Loc& loc, Tid t,
                uint8_t kind, int scope, uint32_t pc, Win* gw = nullptr) {
-        auto bit = buckets.find(loc);
-        if (bit == buckets.end()) return;
+        const LocSlots* ls = buckets.find(loc);
+        if (ls == nullptr) return;
         const uint64_t tb = block_of(t);
-        for (const KeyGroup& g : bit->second) {
-            if (kind == KIND_R && g.kind == KIND_R) continue;
-            const bool both_rmw = kind == KIND_RMW && g.kind == KIND_RMW;
-            if (both_rmw && g.scope >= 0 && scope >= 0 && std::min(g.scope, scope) == SCOPE_GRID)
-                continue;
-            const uint8_t label = g.kind == KIND_R ? RK_WAR : kind == KIND_RMW ? RK_ATOMIC
+        // a key group is skipped whole when no pair with it can be reportable
+        auto skip = [&](uint8_t gkind, int gscope) {
+            if (kind == KIND_R && gkind == KIND_R) return true;
+            return kind == KIND_RMW && gkind == KIND_RMW && gscope >= 0 && scope >= 0
+                   && std::min(gscope, scope) == SCOPE_GRID;
+        };
+        auto visit = [&](const Slot& s, uint8_t gkind, int gscope) {
+            const Tid u = buckets.dec(s.tid);
+            if (u == t) return;
+            const bool both_rmw = kind == KIND_RMW && gkind == KIND_RMW;
+            const uint8_t label = gkind == KIND_R ? RK_WAR : kind == KIND_RMW ? RK_ATOMIC
                                 : kind == KIND_W ? RK_WAW : RK_RAW;
-            for (const auto& kv : g.by_tid) {
-                if (kv.first == t) continue;
-                const bool strong = morally_strong(g.scope, block_of(kv.first), scope, tb);
-                if (strong && both_rmw) continue;
-                conflict(addr, space, loc_block, kv.first, kv.second, t, pc, label, strong, t, gw);
-            }
+            const bool strong = morally_strong(gscope, block_of(u), scope, tb);
+            if (strong && both_rmw) return;
+            const Entry e{s.clock, s.sclock, s.pc};
+            conflict(addr, space, loc_block, u, e, t, pc, label, strong, t, gw);
+        };
+        const Slot* const p = ls->p;
+        for (uint32_t i = 0; i < ls->nsorted;) {             // the sorted prefix, run by run
+            const uint8_t k = p[i].key;
+            const uint32_t j = static_cast<uint32_t>(std::upper_bound(
+                p + i, p + ls->nsorted, k,
+                [](uint8_t w, const Slot& s) { return w < s.key; }) - p);
+            const uint8_t gk = key_kind(k);
+            const int gs = key_scope(k);
+            if (!skip(gk, gs))
+                for (; i < j; ++i) visit(p[i], gk, gs);
+            i = j;
+        }
+        for (uint32_t i = ls->nsorted; i < ls->n; ++i) {     // the tail, slot by slot
+            const uint8_t gk = key_kind(p[i].key);
+            const int gs = key_scope(p[i].key);
+            if (!skip(gk, gs)) visit(p[i], gk, gs);
         }
     }
-    KeyGroup& group_of(const Loc& loc, uint8_t kind, int scope) {
-        std::vector<KeyGroup>& gs = buckets[loc];
-        for (KeyGroup& g : gs)
-            if (g.kind == kind && g.scope == scope) return g;
-        gs.push_back(KeyGroup{kind, scope, {}});
-        return gs.back();
+    // an epoch is stored in 32 bits; a larger one is a hard error, never a wrap
+    static uint32_t epoch32(uint64_t v, Tid t) {
+        if (v > UINT32_MAX) {
+            std::cerr << "[HB_CLOCK] *** FATAL *** epoch " << v << " of thread " << t
+                      << " does not fit a bucket slot (design/flat_buckets.md 2.1)" << std::endl;
+            std::abort();
+        }
+        return static_cast<uint32_t>(v);
     }
 
     static std::string norm_name(const std::string& n) {
@@ -1314,15 +1456,19 @@ struct HbClock {
                 const uint64_t clk = vector_pass ? own(t) : 0;
                 const uint64_t sclk = sync_only_pass ? owns(t) : 0;
                 check(addr, space, a.ctaId, loc, t, kind, my_coh, pc, gw);
-                KeyGroup& g = group_of(loc, kind, my_coh);
-                if (kind == KIND_W && is_async) {
+                LocSlots& ls = buckets.get(loc);
+                const uint8_t skey = slot_key(kind, my_coh);
+                const uint32_t stid = buckets.enc(t);
+                Slot* mine = FlatBuckets::own_slot(ls, skey, stid);
+                if (kind == KIND_W && is_async && mine != nullptr) {
                     // two copies of one thread: PTX orders no two cp.async operations, so
                     // they are unordered until a wait completes the first
-                    auto mit = g.by_tid.find(t);
-                    if (mit != g.by_tid.end())
-                        conflict(addr, space, a.ctaId, t, mit->second, t, pc, RK_WAW, false, t0);
+                    const Entry e{mine->clock, mine->sclock, mine->pc};
+                    conflict(addr, space, a.ctaId, t, e, t, pc, RK_WAW, false, t0);
                 }
-                g.by_tid[t] = Entry{clk, sclk, pc};
+                const uint32_t c32 = epoch32(clk, t), s32 = epoch32(sclk, t);
+                if (mine != nullptr) { mine->clock = c32; mine->sclock = s32; mine->pc = pc; }
+                else FlatBuckets::append(ls, Slot{stid, c32, s32, pc, skey, {0, 0, 0}});
                 if (is_atomic && vector_pass) {
                     // I1 (D1): publish the pre-tick clock -- the RMW's own epoch is clk, so a
                     // later acquirer is ordered after the RMW, not after t's next accesses --
@@ -1418,17 +1564,33 @@ struct HbClock {
         }
         const uint64_t rel_bases = mbases.size() - vc_bases;
         const uint64_t rel_entries = rel_base_entries + rel_delta_entries + released.size();
+        // T19: `bytes` is the flat layout (table + each array's malloc chunk + the wide-tid
+        // table); `bytes_est` what the pre-T19 layout would hold for the same entries (a
+        // std::map node per location, a KeyGroup vector, a hash node per entry, one bucket
+        // pointer per entry of a group above one entry), as T5a estimated it.
         uint64_t bk_groups = 0, bk_entries = 0;
-        uint64_t bk_bytes = buckets.size() * mchunk(32 + sizeof(decltype(buckets)::value_type));
-        for (const auto& kv : buckets) {
-            bk_groups += kv.second.size();
-            bk_bytes += mchunk(kv.second.capacity() * sizeof(KeyGroup));
-            for (const KeyGroup& g : kv.second) {
-                bk_entries += g.by_tid.size();
-                bk_bytes += g.by_tid.size() *
-                            mchunk(sizeof(void*) + sizeof(std::pair<const Tid, Entry>))
-                          + hash_buckets(g.by_tid);
+        uint64_t bk_bytes = buckets.table.capacity() * sizeof(FlatBuckets::TSlot)
+                          + buckets.wide_tids.capacity() * sizeof(Tid)
+                          + buckets.wide_index.size() * mchunk(sizeof(void*) + 16)
+                          + hash_buckets(buckets.wide_index);
+        constexpr uint64_t OLD_KEYGROUP = 64, OLD_NODE_VALUE = 24 + 24;   // KeyGroup; Loc + vector
+        constexpr uint64_t OLD_ENTRY_NODE = sizeof(void*) + sizeof(Tid) + sizeof(Entry);
+        uint64_t bk_old = buckets.size() * mchunk(32 + OLD_NODE_VALUE);
+        for (const FlatBuckets::TSlot& ts : buckets.table) {
+            if (ts.hi == FlatBuckets::EMPTY) continue;
+            const LocSlots& ls = ts.s;
+            bk_entries += ls.n;
+            bk_bytes += mchunk(uint64_t(cap_of(ls.n)) * sizeof(Slot));
+            uint32_t per_key[32] = {0};
+            for (uint32_t i = 0; i < ls.n; ++i) per_key[ls.p[i].key & 31] += 1;
+            uint32_t groups = 0;
+            for (uint32_t c : per_key) {
+                if (c == 0) continue;
+                groups += 1;
+                bk_old += c * mchunk(OLD_ENTRY_NODE) + (c > 1 ? c * sizeof(void*) : 0);
             }
+            bk_groups += groups;
+            bk_old += mchunk(groups * OLD_KEYGROUP);
         }
         std::set<const Base*> bases;
         uint64_t vs_base_entries = 0;
@@ -1454,7 +1616,8 @@ struct HbClock {
           << rel_delta_entries << ", \"bytes_est\": " << rel_bytes << "}"
           << ", \"merge_memo\": " << merge_memo.size()
           << ", \"buckets\": {\"locations\": " << buckets.size() << ", \"groups\": "
-          << bk_groups << ", \"entries\": " << bk_entries << ", \"bytes_est\": " << bk_bytes << "}"
+          << bk_groups << ", \"entries\": " << bk_entries << ", \"bytes\": " << bk_bytes
+          << ", \"bytes_est\": " << bk_old << "}"
           << ", \"pending_barriers\": {\"instances\": " << pending_barriers.size()
           << ", \"arrivals\": " << arrivals << ", \"bytes_est\": " << pend_bytes << "}"
           << ", \"vs\": {\"threads\": " << vs.size() << ", \"unique_bases\": " << bases.size()
