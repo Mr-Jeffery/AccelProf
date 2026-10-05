@@ -23,7 +23,7 @@ nvcc -arch=sm_89 -lineinfo --cudart shared -o $B/tiled_gemm python/testdata/scal
 CC=CC_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Block_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug
 echo P7-hotspot-cuda > $EV/hotspot.txt; echo P9-fpc-cuda > $EV/fpc.txt
 for rt in ${RUNTIMES:-before after}; do
-  R=$A; [ $rt = after ] && R=$W
+  R=$A; [ $rt != before ] && R=$W     # any other label: the worktree runtime (lib -> its current build)
   export ACCEL_PROF_HOME=$R
   echo "== $rt: collector $(sha256sum $R/lib/libcompute_sanitizer.so | cut -c1-16) -> libsanalyzer $(sha256sum $(ldd $R/lib/libcompute_sanitizer.so | awk '/sanalyzer/{print $3}') | cut -c1-16) $(date -Is)"
   S="$PY $W/eval/baselines/setup/t5a_stats.py --out $EV --mode vector-clock"

@@ -76,21 +76,20 @@ struct LocSlots {        // 16 B, the value of one location-table slot
 - **One array per location, not one per key group.** The array keeps all of the
   location's entries. The prefix `[0, nsorted)` is sorted by `(key, tid)`, so each key
   group is one contiguous run inside it. The tail `[nsorted, n)` holds entries in
-  arrival order. When the tail reaches `TAIL = 32` slots, it is sorted and merged into
-  the prefix (`std::sort` on 32 slots, then `std::inplace_merge`). A location with at most
-  32 entries never merges and is a plain arrival-order array. That covers stencil1d's
-  average of about 6 entries per location.
+  arrival order. When the tail reaches `TAIL = 8` slots, it is sorted and merged into
+  the prefix from the back, through an 8-slot stack buffer, with no allocation. The merge
+  costs the tail plus the prefix slots that order after the tail's smallest slot, so a
+  tail of new, higher tids (threads arriving in order) costs O(8). (The first build used
+  `TAIL = 32` with `std::sort` + `std::inplace_merge`. Medium locations, about 26 entries
+  on lavaMD, then never left the tail, and every read scanned them. §6 has the
+  measurements.)
 - **Capacity.** It is a function of `n`, not a stored field: 2 below 2, otherwise the next
   value of a ×1.5 ladder (2, 3, 4, 6, 9, 13, 19, 28, 42, …). The array is `realloc`'d when
   `n` reaches its capacity. `Slot` is trivially copyable, so `realloc` and `memmove` are
   safe. Worst-case slack is 50 %; for a small array it is a few slots.
 - **Finding the thread's own slot** for the replace step: binary search for
-  `(key, tid)` in the sorted prefix, then a linear scan of the tail (≤ 32 slots). The
-  threshold is 32 because a 32-slot scan reads 640 B (10 cache lines) with no unpredictable
-  branches. That is cheaper than a hash probe into a separate node, and at the merge point
-  the amortised merge cost is `n/32` slot moves per new entry. Particlefilter's 8,800
-  entries per location give about 275 moves per newly arriving thread, and only arriving
-  threads pay it; the steady state replaces in place.
+  `(key, tid)` in the sorted prefix, then a linear scan of the tail (< 8 slots, 160 B).
+  The steady state replaces in place.
 - **Check** walks the prefix run by run. At the start of a run with key `k`, its end is
   found by binary search (`upper_bound` on the key alone). If the whole run is skippable,
   check jumps over it. Two cases are skippable, exactly as today's group skip: a read
@@ -101,18 +100,28 @@ struct LocSlots {        // 16 B, the value of one location-table slot
 - **Async WAW** (T1a, `kind == W && is_async`): the same own-slot lookup returns the
   thread's previous copy, which is the current `by_tid.find(t)`.
 
-### 2.3 The location index: open addressing, keyed by a packed `Loc`
+### 2.3 The location index: segments of 32 words behind a directory
 
 ```
-struct LocKey { uint64_t hi; uint64_t addr; };   // hi = space << 63 | block-or-0
-table: std::vector<{LocKey, LocSlots}>  (32 B per slot), linear probing,
-       power-of-two size, grown ×2 at load 0.75, empty slot = hi == ~0
+hi  = space << 63 | block-or-0            // (space, block, addr) <-> (hi, addr), one to one
+Seg = LocSlots w[32]                      // 512 B: the 32 4-byte words of one 128-byte range
+dir: open addressing {hi, addr >> 7, Seg*} (24 B per slot), linear probing, ×2 at load 0.75
+     + a one-entry cache of the last segment found
+unaligned (addr & 3 != 0): a plain open-addressing table {hi, addr, LocSlots} (32 B per slot)
 ```
 
-`(space, block, addr)` maps one to one onto `(hi, addr)`. Space is 0 or 1, and a block id
-is below 2⁶³ because it already fits `Tid`'s 54-bit block field. The hash is a 64-bit mix
-(splitmix64 finaliser) of `hi ^ rotl(addr, 29)`. Entries are never deleted during a
-kernel; `reset()` clears the whole table.
+A 4-byte-aligned location's header is `seg(hi, addr >> 7)->w[(addr >> 2) & 31]`. Every
+other location goes to the plain table; byte and half-word accesses are rare in the corpus.
+A location exists iff its header holds a slot (`n > 0`). A warp's coalesced access stays in
+one segment, so with the cache a record costs about one directory probe, not a random probe
+per lane. The 32 headers it touches are 512 contiguous bytes. The hash is a 64-bit mix
+(splitmix64 finaliser) of `hi ^ rotl(key, 29)`. Nothing is deleted during a kernel;
+`reset()` frees every array and segment.
+
+Two other index designs were built and measured (§6) and are not used:
+- one plain open-addressing table of all locations, the first build;
+- that table with a locality-preserving home slot (the segment hash in the high bits, the
+  word in the low 5). It clustered under linear probing and was the slowest on lavaMD.
 
 **Which outputs depend on iteration order.** Over the location index, none: `buckets` is
 only probed (`check`, the replace step), summed (`stats`) and cleared. No output iterates
@@ -159,15 +168,13 @@ then the tail in arrival order.
 | | today (per entry, incl. location share) | new |
 |---|---|---|
 | entry | ~56 B (48 B node + bucket ptr) | 20 B (+ ≤ 50 % capacity slack on growing arrays) |
-| location | ~96 B tree node + ≥ 80 B group vector | 32 B table slot / load (0.375–0.75) + one malloc chunk header |
+| location | ~96 B tree node + ≥ 80 B group vector | a 16 B header in a 512 B segment (+ 24 B directory slot per segment) + the array's malloc chunk header and rounding |
 
-stencil1d (905 M entries, 152.6 M locations): about 18 GB of slots, 8.6 GB of table
-(2²⁸ × 32 B) and about 3 GB of chunk overhead, roughly 30 GB in total against the run
-that died at 174 GB. particlefilter (2.05 G entries, 234 K locations): about 41 GB of
-slots plus slack, roughly 45 GB. `HB_STATS` reports the new layout's bytes exactly
-(table + `malloc_usable_size` of every array + the wide-tid table) as `bytes`. It also
-reports `bytes_est`, the old layout's estimate from the same counts using the formula T5a
-used, so the reduction is read off one run.
+These were the pre-implementation estimates. The measured values are in
+`eval/FLAT_BUCKETS.md` §3: 24–42 B per entry, 33–41 % of the old layout. `HB_STATS`
+reports the new layout's bytes as `bytes`: directory, segments, the unaligned table, each
+array's malloc chunk, and the wide-tid table. It also reports `bytes_est`, the old layout's
+estimate from the same counts, so the reduction can be read off one run.
 
 ## 5. Risks and how they are checked
 
@@ -178,3 +185,24 @@ used, so the reduction is read off one run.
 - Parity: the green set (every trace re-recorded), T5b's 60-program implementation ==
   specification set, and T4's aggregates-vs-records parity. On the installed runtime, the
   default tool path must be byte-identical on two ScoR programs.
+
+## 6. Variants built and measured
+
+All four keep §2.1's slot and §3's guarantees. They differ in the tail and the index:
+
+| variant | tail, merge | location index | libsanalyzer |
+|---|---|---|---|
+| v1 (6f6adcf) | 32, `std::sort` + `std::inplace_merge` | one open-addressing table, uniform hash | `65dc4425` |
+| v2 | 8, backward merge | as v1 | `bbe56e0e` |
+| v3 | 8, backward merge | as v1, home slot = segment hash << 5 \| word | `adcec1a3` |
+| **v4 (adopted)** | 8, backward merge | segment directory + cache (§2.3) | `31549a8f` |
+
+Measured results (`eval/FLAT_BUCKETS.md` §4):
+- **v4 is the fastest variant on every step-5 program** (hotspot 499 → 212 s, fpc
+  1,237 → 730 s) and uses the least memory.
+- **All four are about 22–25 % slower than the old layout on full-size lavaMD** (3,162 s →
+  3,858 s for v4, scalar-clock, c3), and about 4 % slower at a smaller size.
+- **Why, from profiles of the small run:** the same per-thread `unordered_map<Tid, …>`
+  lookups (`vs`, `rmw_thr`) and `rmw_note`'s linear `std::find` take about 2.4× the absolute
+  time they take under the old layout. That is cache pressure on per-thread state; it is
+  not the index, which v4 makes nearly free.

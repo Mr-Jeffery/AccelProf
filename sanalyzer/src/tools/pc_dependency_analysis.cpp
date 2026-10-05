@@ -265,11 +265,11 @@ struct HbClock {
     // (checked < 2^32, never wrapped), the pc and the key kind << 3 | (scope + 1). Per
     // location one malloc'd array: [0, nsorted) sorted by (key, tid) -- each key group a run
     // -- then an arrival-order tail of < TAIL slots, merged into the prefix when it fills.
-    // The locations sit in an open-addressing table (no output iterates it).
+    // The locations are indexed by 128-byte segments (FlatBuckets; no output iterates it).
     struct Slot { uint32_t tid, clock, sclock, pc; uint8_t key, pad[3]; };
     static_assert(sizeof(Slot) == 20, "Slot is 20 bytes");
     struct LocSlots { Slot* p = nullptr; uint32_t n = 0, nsorted = 0; };
-    static constexpr uint32_t TAIL = 32;
+    static constexpr uint32_t TAIL = 8;
     static uint8_t slot_key(uint8_t kind, int scope) {
         return static_cast<uint8_t>((kind << 3) | (scope + 1));
     }
@@ -283,11 +283,24 @@ struct HbClock {
         return static_cast<uint32_t>(std::min<uint64_t>(c, UINT32_MAX));
     }
     struct FlatBuckets {
-        struct TSlot { uint64_t hi, addr; LocSlots s; };    // hi = space << 63 | block; 32 B
+        // The location index. A 4-byte-aligned location lives in a segment: the 32 words of one
+        // 128-byte range of one (space, block), whose 32 LocSlots headers are one 512-byte block
+        // found through a directory (open addressing, keyed (hi, addr >> 7)). A warp's coalesced
+        // access stays in one segment and the last segment found is cached, so a record costs
+        // about one directory probe rather than a random probe per lane. Any other location
+        // (byte or half-word addresses) goes to a plain open-addressing table. A location exists
+        // iff its header holds a slot (n > 0); no output iterates the index.
+        struct Seg { LocSlots w[32]; };                     // 512 B
+        struct DSlot { uint64_t hi, seg; Seg* s; };         // hi = space << 63 | block; 24 B
+        struct TSlot { uint64_t hi, addr; LocSlots s; };    // 32 B
         static constexpr uint64_t EMPTY = ~uint64_t(0);
         static constexpr size_t INIT = 1024;
+        std::vector<DSlot> dir = std::vector<DSlot>(INIT, DSlot{EMPTY, 0, nullptr});
+        size_t nseg = 0;
+        uint64_t c_hi = EMPTY, c_seg = 0;                   // the last segment found
+        Seg* c_s = nullptr;
         std::vector<TSlot> table = std::vector<TSlot>(INIT, TSlot{EMPTY, 0, {}});
-        size_t count = 0;
+        size_t count = 0;                                   // locations in `table`
         std::vector<Tid> wide_tids;                         // tids that do not fit inline
         std::unordered_map<Tid, uint32_t> wide_index;
 
@@ -300,21 +313,66 @@ struct HbClock {
         static uint64_t hi_of(const Loc& l) {
             return (uint64_t(std::get<0>(l) != 0) << 63) | std::get<1>(l);
         }
+        Seg* seg_find(uint64_t hi, uint64_t seg) {
+            if (hi == c_hi && seg == c_seg) return c_s;
+            const uint64_t m = dir.size() - 1;
+            for (uint64_t i = mix(hi, seg) & m;; i = (i + 1) & m) {
+                const DSlot& d = dir[i];
+                if (d.hi == hi && d.seg == seg) { c_hi = hi; c_seg = seg; c_s = d.s; return d.s; }
+                if (d.hi == EMPTY) return nullptr;
+            }
+        }
+        Seg* seg_get(uint64_t hi, uint64_t seg) {
+            if (Seg* s = seg_find(hi, seg)) return s;
+            if ((nseg + 1) * 4 > dir.size() * 3) dir_grow();
+            Seg* s = static_cast<Seg*>(std::calloc(1, sizeof(Seg)));
+            if (s == nullptr) {
+                std::cerr << "[HB_CLOCK] out of memory allocating a bucket segment" << std::endl;
+                std::abort();
+            }
+            const uint64_t m = dir.size() - 1;
+            uint64_t i = mix(hi, seg) & m;
+            while (dir[i].hi != EMPTY) i = (i + 1) & m;
+            dir[i] = DSlot{hi, seg, s};
+            ++nseg;
+            c_hi = hi; c_seg = seg; c_s = s;
+            return s;
+        }
+        void dir_grow() {
+            std::vector<DSlot> old(dir.size() * 2, DSlot{EMPTY, 0, nullptr});
+            old.swap(dir);
+            const uint64_t m = dir.size() - 1;
+            for (const DSlot& o : old) {
+                if (o.hi == EMPTY) continue;
+                uint64_t i = mix(o.hi, o.seg) & m;
+                while (dir[i].hi != EMPTY) i = (i + 1) & m;
+                dir[i] = o;
+            }
+        }
         LocSlots* find(const Loc& l) {
-            const uint64_t hi = hi_of(l), addr = std::get<2>(l), m = table.size() - 1;
+            const uint64_t hi = hi_of(l), addr = std::get<2>(l);
+            if ((addr & 3) == 0) {
+                Seg* s = seg_find(hi, addr >> 7);
+                if (s == nullptr) return nullptr;
+                LocSlots& w = s->w[(addr >> 2) & 31];
+                return w.n != 0 ? &w : nullptr;
+            }
+            const uint64_t m = table.size() - 1;
             for (uint64_t i = mix(hi, addr) & m;; i = (i + 1) & m) {
-                TSlot& s = table[i];
-                if (s.hi == hi && s.addr == addr) return &s.s;
-                if (s.hi == EMPTY) return nullptr;
+                TSlot& t = table[i];
+                if (t.hi == hi && t.addr == addr) return &t.s;
+                if (t.hi == EMPTY) return nullptr;
             }
         }
         LocSlots& get(const Loc& l) {
+            const uint64_t hi = hi_of(l), addr = std::get<2>(l);
+            if ((addr & 3) == 0) return seg_get(hi, addr >> 7)->w[(addr >> 2) & 31];
             if ((count + 1) * 4 > table.size() * 3) grow();
-            const uint64_t hi = hi_of(l), addr = std::get<2>(l), m = table.size() - 1;
+            const uint64_t m = table.size() - 1;
             for (uint64_t i = mix(hi, addr) & m;; i = (i + 1) & m) {
-                TSlot& s = table[i];
-                if (s.hi == hi && s.addr == addr) return s.s;
-                if (s.hi == EMPTY) { s.hi = hi; s.addr = addr; ++count; return s.s; }
+                TSlot& t = table[i];
+                if (t.hi == hi && t.addr == addr) return t.s;
+                if (t.hi == EMPTY) { t.hi = hi; t.addr = addr; ++count; return t.s; }
             }
         }
         void grow() {
@@ -328,14 +386,36 @@ struct HbClock {
                 table[i] = o;
             }
         }
+        // every location's header (stats only)
+        template <class F> void each(F f) const {
+            for (const DSlot& d : dir)
+                if (d.hi != EMPTY)
+                    for (const LocSlots& w : d.s->w) if (w.n != 0) f(w);
+            for (const TSlot& t : table) if (t.hi != EMPTY) f(t.s);
+        }
+        void release() {
+            for (DSlot& d : dir)
+                if (d.hi != EMPTY) {
+                    for (LocSlots& w : d.s->w) std::free(w.p);
+                    std::free(d.s);
+                }
+            for (TSlot& t : table) if (t.hi != EMPTY) std::free(t.s.p);
+        }
         void clear() {
-            for (TSlot& s : table) if (s.hi != EMPTY) std::free(s.s.p);
+            release();
+            std::vector<DSlot>(INIT, DSlot{EMPTY, 0, nullptr}).swap(dir);
+            nseg = 0; c_hi = EMPTY; c_seg = 0; c_s = nullptr;
             std::vector<TSlot>(INIT, TSlot{EMPTY, 0, {}}).swap(table);
             count = 0;
             wide_tids.clear(); wide_index.clear();
         }
-        ~FlatBuckets() { for (TSlot& s : table) if (s.hi != EMPTY) std::free(s.s.p); }
-        size_t size() const { return count; }
+        ~FlatBuckets() { release(); }
+        size_t size() const {                               // locations
+            size_t n = count;
+            for (const DSlot& d : dir)
+                if (d.hi != EMPTY) for (const LocSlots& w : d.s->w) n += w.n != 0;
+            return n;
+        }
 
         uint32_t enc(Tid t) {
             if (t < (Tid(1) << 31)) return static_cast<uint32_t>(t);
@@ -373,12 +453,23 @@ struct HbClock {
                 ls.p = np;
             }
             ls.p[ls.n++] = s;
-            if (ls.n - ls.nsorted == TAIL) {                // merge the tail into the prefix
-                auto lt = [](const Slot& a, const Slot& b) { return slot_order(a) < slot_order(b); };
-                std::sort(ls.p + ls.nsorted, ls.p + ls.n, lt);
-                std::inplace_merge(ls.p, ls.p + ls.nsorted, ls.p + ls.n, lt);
-                ls.nsorted = ls.n;
+            if (ls.n - ls.nsorted == TAIL) merge_tail(ls);
+        }
+        // sort the tail and merge it into the prefix from the back, without allocating: the
+        // cost is the tail plus the prefix slots that order after its smallest slot, so a
+        // tail of new, higher tids (threads arriving in order) costs O(TAIL)
+        static void merge_tail(LocSlots& ls) {
+            Slot* const p = ls.p;
+            const uint32_t m = ls.n - ls.nsorted;
+            Slot tmp[TAIL];
+            std::memcpy(tmp, p + ls.nsorted, size_t(m) * sizeof(Slot));
+            std::sort(tmp, tmp + m, [](const Slot& a, const Slot& b) { return slot_order(a) < slot_order(b); });
+            int64_t i = int64_t(ls.nsorted) - 1, j = int64_t(m) - 1, k = int64_t(ls.n) - 1;
+            while (j >= 0) {
+                if (i >= 0 && slot_order(p[i]) > slot_order(tmp[j])) p[k--] = p[i--];
+                else p[k--] = tmp[j--];
             }
+            ls.nsorted = ls.n;
         }
     };
     FlatBuckets buckets;                                    // loc -> its entries
@@ -1564,21 +1655,23 @@ struct HbClock {
         }
         const uint64_t rel_bases = mbases.size() - vc_bases;
         const uint64_t rel_entries = rel_base_entries + rel_delta_entries + released.size();
-        // T19: `bytes` is the flat layout (table + each array's malloc chunk + the wide-tid
-        // table); `bytes_est` what the pre-T19 layout would hold for the same entries (a
-        // std::map node per location, a KeyGroup vector, a hash node per entry, one bucket
-        // pointer per entry of a group above one entry), as T5a estimated it.
-        uint64_t bk_groups = 0, bk_entries = 0;
-        uint64_t bk_bytes = buckets.table.capacity() * sizeof(FlatBuckets::TSlot)
+        // T19: `bytes` is the flat layout (segment directory and blocks, the unaligned table,
+        // each array's malloc chunk, the wide-tid table); `bytes_est` what the pre-T19 layout
+        // would hold for the same entries (a std::map node per location, a KeyGroup vector, a
+        // hash node per entry, one bucket pointer per entry of a group above one entry).
+        uint64_t bk_groups = 0, bk_entries = 0, bk_locs = 0;
+        uint64_t bk_bytes = buckets.dir.capacity() * sizeof(FlatBuckets::DSlot)
+                          + buckets.nseg * mchunk(sizeof(FlatBuckets::Seg))
+                          + buckets.table.capacity() * sizeof(FlatBuckets::TSlot)
                           + buckets.wide_tids.capacity() * sizeof(Tid)
                           + buckets.wide_index.size() * mchunk(sizeof(void*) + 16)
                           + hash_buckets(buckets.wide_index);
         constexpr uint64_t OLD_KEYGROUP = 64, OLD_NODE_VALUE = 24 + 24;   // KeyGroup; Loc + vector
         constexpr uint64_t OLD_ENTRY_NODE = sizeof(void*) + sizeof(Tid) + sizeof(Entry);
-        uint64_t bk_old = buckets.size() * mchunk(32 + OLD_NODE_VALUE);
-        for (const FlatBuckets::TSlot& ts : buckets.table) {
-            if (ts.hi == FlatBuckets::EMPTY) continue;
-            const LocSlots& ls = ts.s;
+        uint64_t bk_old = 0;
+        buckets.each([&](const LocSlots& ls) {
+            bk_locs += 1;
+            bk_old += mchunk(32 + OLD_NODE_VALUE);
             bk_entries += ls.n;
             bk_bytes += mchunk(uint64_t(cap_of(ls.n)) * sizeof(Slot));
             uint32_t per_key[32] = {0};
@@ -1591,7 +1684,7 @@ struct HbClock {
             }
             bk_groups += groups;
             bk_old += mchunk(groups * OLD_KEYGROUP);
-        }
+        });
         std::set<const Base*> bases;
         uint64_t vs_base_entries = 0;
         uint64_t vs_bytes = vs.size() * mchunk(sizeof(void*) + sizeof(decltype(vs)::value_type))
@@ -1615,7 +1708,8 @@ struct HbClock {
           << rel_entries << ", \"own_bases\": " << rel_bases << ", \"delta_entries\": "
           << rel_delta_entries << ", \"bytes_est\": " << rel_bytes << "}"
           << ", \"merge_memo\": " << merge_memo.size()
-          << ", \"buckets\": {\"locations\": " << buckets.size() << ", \"groups\": "
+          << ", \"buckets\": {\"locations\": " << bk_locs << ", \"segments\": " << buckets.nseg
+          << ", \"groups\": "
           << bk_groups << ", \"entries\": " << bk_entries << ", \"bytes\": " << bk_bytes
           << ", \"bytes_est\": " << bk_old << "}"
           << ", \"pending_barriers\": {\"instances\": " << pending_barriers.size()
