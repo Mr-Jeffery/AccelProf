@@ -1,0 +1,27 @@
+id,pset,program,build,input,tool,mode,rep,verdict,reports_dedup,report_ids,report_lines,wall_s,native_wall_s,peak_mb,rc,notes
+P4-reduction-racy-small,P4,reduction,racy,small,cuvein,vector-clock,1,RACE,1,global:0xa80-0x1650:WAW,device_atomic_functions.hpp:162;red_kernel.cu:210,2.018,0.215,987.4,0,"node=c68;arch=8.9;events=883;nkernels=1;classes=latent:1,latent-sc:4,sc:11"
+P4-reduction-racy-small,P4,reduction,racy,small,cuvein,vector-clock,2,RACE,1,global:0xa80-0x1650:WAW,device_atomic_functions.hpp:162;red_kernel.cu:210,1.267,0.215,985.5,0,"node=c68;arch=8.9;events=883;nkernels=1;classes=latent:1,latent-sc:4,sc:11"
+P4-reduction-racy-small,P4,reduction,racy,small,cuvein,vector-clock,3,RACE,1,global:0xa80-0x1650:WAW,device_atomic_functions.hpp:162;red_kernel.cu:210,1.367,0.215,985.5,0,"node=c68;arch=8.9;events=883;nkernels=1;classes=latent:1,latent-sc:4,sc:11"
+P4-reduction-racy-small,P4,reduction,racy,small,cuvein,scalar-clock,1,RACE,1,global:0xa80-0x1650:WAW,device_atomic_functions.hpp:162;red_kernel.cu:210,1.066,0.215,845.0,0,"node=c68;arch=8.9;events=879;nkernels=1;classes=race:1,sc:14"
+P4-reduction-racy-small,P4,reduction,racy,small,cuvein,scalar-clock,2,RACE,1,global:0xa80-0x1650:WAW,device_atomic_functions.hpp:162;red_kernel.cu:210,0.966,0.215,846.9,0,"node=c68;arch=8.9;events=879;nkernels=1;classes=race:1,sc:14"
+P4-reduction-racy-small,P4,reduction,racy,small,cuvein,scalar-clock,3,RACE,1,global:0xa80-0x1650:WAW,device_atomic_functions.hpp:162;red_kernel.cu:210,0.866,0.215,846.9,0,"node=c68;arch=8.9;events=879;nkernels=1;classes=race:1,sc:14"
+P4-uts-racy-small,P4,uts,racy,small,cuvein,vector-clock,1,TIMEOUT,0,,,120.006,1.385,11260.1,124,timeout=120s;dump_mb=0.0;err=./uts_racy  | Running the pc_dependency_analysis tool for uts_racy...
+P4-uts-racy-small,P4,uts,racy,small,cuvein,scalar-clock,1,RACE,10,shared:0x14e0-0x1e80:WAW shared:0x14e0-0x2290:WAW shared:0x1d60-0x1e80:WAW shared:0x1d60-0x2290:WAW shared:0x1e80-0x1e80:WAW shared:0x1e80-0x2290:WAW shared:0x1e80-0x3240:WAW shared:0x1e80-0x3ac0:WAW shared:0x2290-0x3240:WAW shared:0x2290-0x3ac0:WAW,sm_60_atomic_functions.hpp:384;sm_60_atomic_functions.hpp:552,2.173,1.385,915.3,0,node=c57;arch=8.9;events=304607;nkernels=1;classes=race:10
+P5-norace_intrawarp_none-blkatom,P5,norace_intrawarp_none-blkatom,default,default,cuvein,vector-clock,1,CLEAN,0,,,0.816,0.165,844.4,0,node=c1;arch=8.9;events=2;nkernels=1
+P5-norace_intrawarp_none-blkatom,P5,norace_intrawarp_none-blkatom,default,default,cuvein,vector-clock,2,CLEAN,0,,,0.665,0.165,844.8,0,node=c1;arch=8.9;events=2;nkernels=1
+P5-norace_intrawarp_none-blkatom,P5,norace_intrawarp_none-blkatom,default,default,cuvein,vector-clock,3,CLEAN,0,,,0.916,0.165,845.8,0,node=c1;arch=8.9;events=2;nkernels=1
+P5-norace_intrawarp_none-blkatom,P5,norace_intrawarp_none-blkatom,default,default,cuvein,scalar-clock,1,CLEAN,0,,,1.016,0.165,844.5,0,node=c1;arch=8.9;events=2;nkernels=1
+P5-norace_intrawarp_none-blkatom,P5,norace_intrawarp_none-blkatom,default,default,cuvein,scalar-clock,2,CLEAN,0,,,1.066,0.165,800.5,0,node=c1;arch=8.9;events=2;nkernels=1
+P5-norace_intrawarp_none-blkatom,P5,norace_intrawarp_none-blkatom,default,default,cuvein,scalar-clock,3,CLEAN,0,,,0.916,0.165,844.0,0,node=c1;arch=8.9;events=2;nkernels=1
+P5-race_interblock_lock-no-tf_waw,P5,race_interblock_lock-no-tf_waw,default,default,cuvein,vector-clock,1,CLEAN,0,,,0.916,0.215,851.9,0,node=c66;arch=8.9;events=8;nkernels=1;classes=latent-sc:1
+P5-race_interblock_lock-no-tf_waw,P5,race_interblock_lock-no-tf_waw,default,default,cuvein,vector-clock,2,CLEAN,0,,,0.866,0.215,851.1,0,node=c66;arch=8.9;events=8;nkernels=1;classes=latent-sc:1
+P5-race_interblock_lock-no-tf_waw,P5,race_interblock_lock-no-tf_waw,default,default,cuvein,vector-clock,3,CLEAN,0,,,0.916,0.215,851.9,0,node=c66;arch=8.9;events=8;nkernels=1;classes=latent-sc:1
+P5-race_interblock_lock-no-tf_waw,P5,race_interblock_lock-no-tf_waw,default,default,cuvein,scalar-clock,1,CLEAN,0,,,0.966,0.215,851.0,0,node=c66;arch=8.9;events=8;nkernels=1;classes=sc:1
+P5-race_interblock_lock-no-tf_waw,P5,race_interblock_lock-no-tf_waw,default,default,cuvein,scalar-clock,2,CLEAN,0,,,0.916,0.215,849.9,0,node=c66;arch=8.9;events=8;nkernels=1;classes=sc:1
+P5-race_interblock_lock-no-tf_waw,P5,race_interblock_lock-no-tf_waw,default,default,cuvein,scalar-clock,3,CLEAN,0,,,0.916,0.215,849.9,0,node=c66;arch=8.9;events=8;nkernels=1;classes=sc:1
+P5-race_interwarp_none-atom_waw,P5,race_interwarp_none-atom_waw,default,default,cuvein,vector-clock,1,CLEAN,0,,,1.167,0.216,847.7,0,node=c74;arch=8.9;events=2;nkernels=1;classes=sc:1
+P5-race_interwarp_none-atom_waw,P5,race_interwarp_none-atom_waw,default,default,cuvein,vector-clock,2,CLEAN,0,,,1.117,0.216,847.7,0,node=c74;arch=8.9;events=2;nkernels=1;classes=sc:1
+P5-race_interwarp_none-atom_waw,P5,race_interwarp_none-atom_waw,default,default,cuvein,vector-clock,3,CLEAN,0,,,1.117,0.216,847.7,0,node=c74;arch=8.9;events=2;nkernels=1;classes=sc:1
+P5-race_interwarp_none-atom_waw,P5,race_interwarp_none-atom_waw,default,default,cuvein,scalar-clock,1,CLEAN,0,,,1.117,0.216,846.8,0,node=c74;arch=8.9;events=2;nkernels=1;classes=sc:1
+P5-race_interwarp_none-atom_waw,P5,race_interwarp_none-atom_waw,default,default,cuvein,scalar-clock,2,CLEAN,0,,,1.017,0.216,846.8,0,node=c74;arch=8.9;events=2;nkernels=1;classes=sc:1
+P5-race_interwarp_none-atom_waw,P5,race_interwarp_none-atom_waw,default,default,cuvein,scalar-clock,3,CLEAN,0,,,1.268,0.216,845.8,0,node=c74;arch=8.9;events=2;nkernels=1;classes=sc:1

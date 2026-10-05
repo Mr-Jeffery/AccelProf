@@ -1,0 +1,126 @@
+#!/usr/bin/env python3
+"""B2 -- HiRace (SC'24) runner into the unified baseline schema.
+
+HiRace turned out NOT to need LLVM/Clang: the SC24 artifact ships a header-only
+runtime (src/hirace/HiRace.h etc.) plus PRE-INSTRUMENTED sources
+(indigo/indigo_hirace_sources/<pattern>/<pattern>_hirace.cu) where each device
+array is already wrapped (HiRaceDataWrap + hr_shadowt shadow metadata). They
+compile with plain `nvcc -I src/hirace` and report a race as
+`HiRace:\\n\\tRace @ line N in file F on a <space>:` (HiRace.h:1541). This runner
+compiles each of the 21 pattern sources and runs it over the Indigo graph inputs,
+parsing that line -> RACE (+ source lines) / CLEAN.
+
+Per the protocol, the per-array wrapping is recorded (read from the instrumented
+source's __hr_<arr> / hr_shadowt* __hr_metadata_<arr> params, not assumed). These
+are the Indigo graph-pattern kernels, so they line up with the P2/Indigo family;
+each HiRace verdict is directly comparable to cuVein/racecheck/iGUARD on the same
+plain pattern (indigo/indigo_sources/<pattern>.cu).
+
+  srun -p rtx4060ti16g -N1 -n1 -t 02:00:00 bash -c \
+    'source eval/baselines/gpu_env.sh; $PY eval/baselines/run_hirace.py'
+"""
+import argparse
+import glob
+import os
+import re
+import subprocess
+import sys
+import time
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+import blib
+
+HOME = os.environ.get("HIRACE_HOME", f"{HERE}/setup/tools/HiRace")
+SRCS = f"{HOME}/indigo/indigo_hirace_sources"
+INC = f"{HOME}/src/hirace"
+GRAPHS_DIR = f"{HOME}/indigo/input"
+_RACE = re.compile(r"Race @ line (\d+) in file (\S+)")
+_HR = re.compile(r"HiRace:|Race @ line")
+# device arrays wrapped by HiRace = the __hr_metadata_<arr> shadow params.
+_WRAP = re.compile(r"hr_shadowt\s*\*\s*__hr_metadata_(\w+)")
+
+
+def wrapped_arrays(src):
+    try:
+        return sorted(set(_WRAP.findall(open(src, errors="ignore").read())))
+    except OSError:
+        return []
+
+
+def run_one(pattern, src, graphs, cuda, reps):
+    common = dict(id=f"HiRace-{pattern}", pset="P2", program=pattern,
+                  build="hirace-instrumented", tool="hirace")
+    env = blib.base_env(cuda)
+    binout = f"/tmp/hirace_{pattern}_{os.getpid()}"
+    cc = subprocess.run(["nvcc", "-O3", f"-arch=sm_{os.environ.get('BASELINE_SM','89')}",
+                         "-lineinfo", "--cudart", "shared", "-I", INC, src, "-o", binout],
+                        env=env, capture_output=True, text=True)
+    warr = ";".join(wrapped_arrays(src))
+    if not os.path.exists(binout):
+        return [blib.row(**common, input="", verdict="ERROR",
+                         notes=f"hirace-compile-fail:{cc.stderr[-140:].strip()}")]
+    rows = []
+    for g in graphs:
+        m = re.search(r"(\d+)n", os.path.basename(g))
+        tag = (m.group(1) + "n") if m else os.path.basename(g)
+        best = None
+        verdict, lines = "CLEAN", []
+        for _ in range(reps):
+            t0 = time.perf_counter()
+            try:
+                p = subprocess.run([binout, g, "256", "4"], env=env,
+                                   capture_output=True, text=True, timeout=1200)
+            except subprocess.TimeoutExpired:
+                verdict = "TIMEOUT"; break
+            wall = round(time.perf_counter() - t0, 3)
+            best = wall if best is None else min(best, wall)
+            out = p.stdout + p.stderr
+            if _HR.search(out):
+                verdict = "RACE"
+                lines = sorted({f"{os.path.basename(f)}:{ln}" for ln, f in _RACE.findall(out)})
+        rows.append(blib.row(**common, input=tag, verdict=verdict,
+            reports_dedup=len(lines), report_ids=" ".join(lines),
+            report_lines=" ".join(lines), wall_s=best if best else "",
+            notes=f"wrapped_arrays={warr};atomic_wrappers=via-HiRaceDataWrap(recorded-from-src)"))
+    try:
+        os.remove(binout)
+    except OSError:
+        pass
+    return rows
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--reps", type=int, default=3)
+    ap.add_argument("--graphs", default="", help="comma .egr paths; default = 2 Indigo inputs")
+    a = ap.parse_args()
+    if not os.path.isdir(SRCS):
+        sys.stderr.write(f"BLOCKER: HiRace artifact not at {HOME}. Not simulating.\n")
+        sys.exit(3)
+    cuda = blib.resolve_cuda_home()
+    srcs = sorted(glob.glob(f"{SRCS}/*/*_hirace.cu"))
+    if a.graphs:
+        graphs = a.graphs.split(",")
+    else:
+        allg = sorted(glob.glob(f"{GRAPHS_DIR}/*.egr"))
+        # a small + a larger graph
+        graphs = [g for g in allg if "100n" in g][:1] + [g for g in allg if "200n" in g][:1]
+        graphs = graphs or allg[:2]
+    writer, fh, path = blib.open_results("hirace")
+    n = 0
+    try:
+        for src in srcs:
+            pattern = os.path.basename(src).replace("_hirace.cu", "")
+            n += 1
+            print(f"[{n}/{len(srcs)}] {pattern}", flush=True)
+            for r in run_one(pattern, src, graphs, cuda, a.reps):
+                writer.writerow(r)
+            fh.flush()
+    finally:
+        fh.close()
+    print(f"hirace: {n} patterns x {len(graphs)} graphs -> {path}")
+
+
+if __name__ == "__main__":
+    main()

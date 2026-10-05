@@ -1,0 +1,89 @@
+host=c20 NVIDIA GeForce RTX 4060 Ti, 8.9 APH=/home/fzheng4/wt-T8
+[run 1/5] P4-1dconv-norace-small
+[run 2/5] P4-graph-coloring-norace-large
+[run 3/5] P5-norace_interblock_atom
+[run 4/5] P5-race_interblock_none-lock_rtraw
+[run 5/5] P5-canary
+run: 5 programs -> eval/results/t8-fresh/baselines-cuvein-shardt8-freshall.csv
+kept traces: 0.13 GB in /mnt/beegfs/fzheng4/cuvein_traces/t8-fresh
+== rows (id, mode, verdict, notes)
+id,mode,verdict,notes
+P4-1dconv-norace-small,vector-clock,CLEAN,node=c20;arch=8.9;events=520;nkernels=2
+P4-1dconv-norace-small,scalar-clock,CLEAN,node=c20;arch=8.9;events=520;nkernels=2
+P4-graph-coloring-norace-large,vector-clock,TIMEOUT,timeout=120s;dump_mb=42.9;err=./graph-coloring_norace  | Running the pc_dependency_analysis tool f
+P4-graph-coloring-norace-large,scalar-clock,CLEAN,node=c20;arch=8.9;events=158661;nkernels=30
+P5-norace_interblock_atom,vector-clock,CLEAN,node=c20;arch=8.9;events=2;nkernels=1
+P5-norace_interblock_atom,scalar-clock,CLEAN,node=c20;arch=8.9;events=2;nkernels=1
+P5-race_interblock_none-lock_rtraw,vector-clock,RACE,node=c20;arch=8.9;events=13;nkernels=1
+P5-race_interblock_none-lock_rtraw,scalar-clock,RACE,node=c20;arch=8.9;events=13;nkernels=1
+P5-canary,vector-clock,RACE,node=c20;arch=8.9;events=10;nkernels=1
+P5-canary,scalar-clock,CLEAN,node=c20;arch=8.9;events=10;nkernels=1
+== store layout
+.
+./P4-1dconv-norace-small
+./P4-1dconv-norace-small/dots
+./P4-1dconv-norace-small/logs
+./P4-1dconv-norace-small/logs/native_rep1.txt
+./P4-1dconv-norace-small/logs/scalar-clock_rep1.txt
+./P4-1dconv-norace-small/logs/vector-clock_rep1.txt
+./P4-1dconv-norace-small/meta.json
+./P4-1dconv-norace-small/scalar-clock
+./P4-1dconv-norace-small/vector-clock
+./P4-graph-coloring-norace-large
+./P4-graph-coloring-norace-large/dots
+./P4-graph-coloring-norace-large/logs
+./P4-graph-coloring-norace-large/logs/native_rep1.txt
+./P4-graph-coloring-norace-large/logs/scalar-clock_rep1.txt
+./P4-graph-coloring-norace-large/logs/vector-clock_rep1.txt
+./P4-graph-coloring-norace-large/meta.json
+./P4-graph-coloring-norace-large/scalar-clock
+./P4-graph-coloring-norace-large/vector-clock-partial-rep1
+./P4-graph-coloring-norace-large/vector-clock-partial-rep1/PARTIAL
+./P5-canary
+./P5-canary/dots
+./P5-canary/logs
+./P5-canary/logs/native_rep1.txt
+./P5-canary/logs/scalar-clock_rep1.txt
+./P5-canary/logs/vector-clock_rep1.txt
+./P5-canary/meta.json
+./P5-canary/scalar-clock
+./P5-canary/vector-clock
+./P5-norace_interblock_atom
+./P5-norace_interblock_atom/dots
+./P5-norace_interblock_atom/logs
+./P5-norace_interblock_atom/logs/native_rep1.txt
+./P5-norace_interblock_atom/logs/scalar-clock_rep1.txt
+./P5-norace_interblock_atom/logs/vector-clock_rep1.txt
+./P5-norace_interblock_atom/meta.json
+./P5-norace_interblock_atom/scalar-clock
+./P5-norace_interblock_atom/vector-clock
+./P5-race_interblock_none-lock_rtraw
+./P5-race_interblock_none-lock_rtraw/dots
+./P5-race_interblock_none-lock_rtraw/logs
+./P5-race_interblock_none-lock_rtraw/logs/native_rep1.txt
+./P5-race_interblock_none-lock_rtraw/logs/scalar-clock_rep1.txt
+./P5-race_interblock_none-lock_rtraw/logs/vector-clock_rep1.txt
+./P5-race_interblock_none-lock_rtraw/meta.json
+./P5-race_interblock_none-lock_rtraw/scalar-clock
+./P5-race_interblock_none-lock_rtraw/vector-clock
+./STORE_INFO.json
+== STORE_INFO modes
+['vector-clock', 'scalar-clock']
+== meta modes keys / partial_dump
+P4-1dconv-norace-small ['vector-clock', 'scalar-clock'] [None, None]
+P4-graph-coloring-norace-large ['vector-clock', 'scalar-clock'] ['vector-clock-partial-rep1', None]
+P5-canary ['vector-clock', 'scalar-clock'] [None, None]
+P5-norace_interblock_atom ['vector-clock', 'scalar-clock'] [None, None]
+P5-race_interblock_none-lock_rtraw ['vector-clock', 'scalar-clock'] [None, None]
+== confirm files
+P4-1dconv-norace-small__cuvein__scalar-clock.json
+P4-1dconv-norace-small__cuvein__vector-clock.json
+P4-graph-coloring-norace-large__cuvein__scalar-clock.json
+P5-canary__cuvein__scalar-clock.json
+P5-canary__cuvein__vector-clock.json
+P5-norace_interblock_atom__cuvein__scalar-clock.json
+P5-norace_interblock_atom__cuvein__vector-clock.json
+P5-race_interblock_none-lock_rtraw__cuvein__scalar-clock.json
+P5-race_interblock_none-lock_rtraw__cuvein__vector-clock.json
+== old names anywhere in the outputs (expect none):
+== done

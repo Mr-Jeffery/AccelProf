@@ -1,0 +1,195 @@
+# Compute Sanitizer API facts used by T2 / T1a / T1b (extracted from the CUDA 13.3
+# toolkit's compute-sanitizer/include on node c20, 2026-09-23; header copyright line:
+# Copyright (c) 2018-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+
+## callback domains (sanitizer_callbacks.h)
+  SANITIZER_CB_DOMAIN_INVALID = 0
+  SANITIZER_CB_DOMAIN_DRIVER_API = 1
+  SANITIZER_CB_DOMAIN_RUNTIME_API = 2
+  SANITIZER_CB_DOMAIN_RESOURCE = 3
+  SANITIZER_CB_DOMAIN_SYNCHRONIZE = 4
+  SANITIZER_CB_DOMAIN_LAUNCH = 5
+  SANITIZER_CB_DOMAIN_MEMCPY = 6
+  SANITIZER_CB_DOMAIN_MEMSET = 7
+  SANITIZER_CB_DOMAIN_BATCH_MEMOP = 8
+  SANITIZER_CB_DOMAIN_UVM = 9
+  SANITIZER_CB_DOMAIN_GRAPHS = 10
+  SANITIZER_CB_DOMAIN_EVENTS = 11
+  SANITIZER_CB_DOMAIN_EXTERNAL_MEMORY = 12
+  SANITIZER_CB_DOMAIN_ERROR_LOGGING = 13
+  SANITIZER_CB_DOMAIN_FORCE_INT = 0x7fffffff
+
+## SANITIZER_CBID_RESOURCE_*
+  SANITIZER_CBID_RESOURCE_INVALID = 0
+  SANITIZER_CBID_RESOURCE_INIT_FINISHED = 1
+  SANITIZER_CBID_RESOURCE_CONTEXT_CREATION_STARTING = 2
+  SANITIZER_CBID_RESOURCE_CONTEXT_CREATION_FINISHED = 3
+  SANITIZER_CBID_RESOURCE_CONTEXT_DESTROY_STARTING = 4
+  SANITIZER_CBID_RESOURCE_CONTEXT_DESTROY_FINISHED = 5
+  SANITIZER_CBID_RESOURCE_STREAM_CREATED = 6
+  SANITIZER_CBID_RESOURCE_STREAM_DESTROY_STARTING = 7
+  SANITIZER_CBID_RESOURCE_STREAM_DESTROY_FINISHED = 8
+  SANITIZER_CBID_RESOURCE_MODULE_LOADED = 9
+  SANITIZER_CBID_RESOURCE_MODULE_UNLOAD_STARTING = 10
+  SANITIZER_CBID_RESOURCE_DEVICE_MEMORY_ALLOC = 11
+  SANITIZER_CBID_RESOURCE_DEVICE_MEMORY_FREE = 12
+  SANITIZER_CBID_RESOURCE_HOST_MEMORY_ALLOC = 13
+  SANITIZER_CBID_RESOURCE_HOST_MEMORY_FREE = 14
+  SANITIZER_CBID_RESOURCE_MEMORY_ALLOC_ASYNC = 15
+  SANITIZER_CBID_RESOURCE_MEMORY_FREE_ASYNC = 16
+  SANITIZER_CBID_RESOURCE_MEMORY_FREE_ASYNC_DONE = 17
+  SANITIZER_CBID_RESOURCE_MEMPOOL_CREATED = 18
+  SANITIZER_CBID_RESOURCE_MEMPOOL_DESTROYING = 19
+  SANITIZER_CBID_RESOURCE_MEMPOOL_PEER_ACCESS_ENABLED = 20
+  SANITIZER_CBID_RESOURCE_MEMPOOL_PEER_ACCESS_DISABLING = 21
+  SANITIZER_CBID_RESOURCE_ARRAY_CREATED = 22
+  SANITIZER_CBID_RESOURCE_ARRAY_DESTROYED = 23
+  SANITIZER_CBID_RESOURCE_FUNCTIONS_LAZY_LOADED = 24
+  SANITIZER_CBID_RESOURCE_FUNCTIONS_LAZY_PATCHED = 25
+  SANITIZER_CBID_RESOURCE_VIRTUAL_RESERVE = 26
+  SANITIZER_CBID_RESOURCE_VIRTUAL_RELEASE = 27
+  SANITIZER_CBID_RESOURCE_MEMPOOL_IMPORT_POINTER = 28
+  SANITIZER_CBID_RESOURCE_GREEN_CONTEXT_CREATION_FINISHED = 29
+  SANITIZER_CBID_RESOURCE_GREEN_CONTEXT_DESTROY_STARTING = 30
+  SANITIZER_CBID_RESOURCE_GREEN_CONTEXT_DESTROY_FINISHED = 31
+  SANITIZER_CBID_RESOURCE_LOGICAL_ENDPOINT_CREATED = 32
+  SANITIZER_CBID_RESOURCE_LOGICAL_ENDPOINT_DESTROYED = 33
+
+## SANITIZER_CBID_SYNCHRONIZE_*
+  SANITIZER_CBID_SYNCHRONIZE_INVALID = 0
+  SANITIZER_CBID_SYNCHRONIZE_STREAM_SYNCHRONIZED = 1
+  SANITIZER_CBID_SYNCHRONIZE_CONTEXT_SYNCHRONIZED = 2
+  SANITIZER_CBID_SYNCHRONIZE_GREEN_CONTEXT_SYNCHRONIZED = 3
+
+## SANITIZER_CBID_LAUNCH_*
+  SANITIZER_CBID_LAUNCH_INVALID = 0
+  SANITIZER_CBID_LAUNCH_BEGIN = 1
+  SANITIZER_CBID_LAUNCH_AFTER_SYSCALL_SETUP = 2
+  SANITIZER_CBID_LAUNCH_END = 3
+
+## SANITIZER_CBID_MEMCPY_*
+  SANITIZER_CBID_MEMCPY_INVALID = 0
+  SANITIZER_CBID_MEMCPY_STARTING = 1
+
+## SANITIZER_CBID_MEMSET_*
+  SANITIZER_CBID_MEMSET_INVALID = 0
+  SANITIZER_CBID_MEMSET_STARTING = 1
+
+## SANITIZER_CBID_EVENTS_*
+  SANITIZER_CBID_EVENTS_INVALID = 0
+  SANITIZER_CBID_EVENTS_CREATED = 1
+  SANITIZER_CBID_EVENTS_DESTROYED = 2
+  SANITIZER_CBID_EVENTS_RECORD = 3
+  SANITIZER_CBID_EVENTS_STREAM_WAIT = 4
+  SANITIZER_CBID_EVENTS_SYNCHRONIZE = 5
+
+## SANITIZER_CBID_GRAPHS_*
+  SANITIZER_CBID_GRAPHS_INVALID = 0
+  SANITIZER_CBID_GRAPHS_GRAPHEXEC_CREATING = 1
+  SANITIZER_CBID_GRAPHS_GRAPHEXEC_CREATED = 2
+  SANITIZER_CBID_GRAPHS_GRAPHEXEC_DESTROYING = 3
+  SANITIZER_CBID_GRAPHS_NODE_LAUNCH_BEGIN = 4
+  SANITIZER_CBID_GRAPHS_NODE_LAUNCH_END = 5
+  SANITIZER_CBID_GRAPHS_LAUNCH_BEGIN = 6
+  SANITIZER_CBID_GRAPHS_LAUNCH_END = 7
+
+## Sanitizer_MemcpyData
+  CUcontext srcContext; CUcontext dstContext; CUstream srcStream; Sanitizer_StreamHandle hSrcStream; CUstream dstStream; Sanitizer_StreamHandle hDstStream; uint64_t srcAddress; uint64_t dstAddress; uint64_t size; uint64_t width; uint64_t height; uint64_t depth; uint64_t srcPitch; uint64_t dstPitch; uint32_t isAsync; Sanitizer_MemcpyDirection direction; CUcontext apiContext; CUstream apiStream; Sanitizer_StreamHandle hApiStream;
+
+## Sanitizer_MemsetData
+  CUcontext context; CUstream stream; Sanitizer_StreamHandle hStream; uint64_t address; uint64_t width; uint64_t height; uint64_t pitch; uint32_t elementSize; uint32_t value; uint32_t isAsync;
+
+## Sanitizer_LaunchData
+  CUcontext context; CUstream stream; Sanitizer_StreamHandle hStream; CUmodule module; CUfunction function; const char *functionName; uint32_t gridDim_x; uint32_t gridDim_y; uint32_t gridDim_z; uint32_t blockDim_x; uint32_t blockDim_y; uint32_t blockDim_z; uint32_t clusterDim_x; uint32_t clusterDim_y; uint32_t clusterDim_z; uint64_t gridId; Sanitizer_LaunchHandle hLaunch; CUdevice device; CUcontext apiContext; CUstream apiStream; Sanitizer_StreamHandle hApiStream;
+
+## Sanitizer_SynchronizeData
+  CUcontext context; CUstream stream; Sanitizer_StreamHandle hStream; CUgreenCtx greenContext;
+
+## Sanitizer_EventData
+  CUevent event; CUcontext context; CUgreenCtx greenCtx; CUstream stream; Sanitizer_StreamHandle hStream;
+
+## Sanitizer_ResourceStreamData
+  CUcontext context; CUgreenCtx greenContext; CUstream stream; Sanitizer_StreamHandle hStream;
+
+## instruction patch points (sanitizer_patching.h, Sanitizer_InstructionId)
+  SANITIZER_INSTRUCTION_INVALID = 0
+  SANITIZER_INSTRUCTION_BLOCK_ENTER = 1
+  SANITIZER_INSTRUCTION_BLOCK_EXIT = 2
+  SANITIZER_INSTRUCTION_GLOBAL_MEMORY_ACCESS = 3
+  SANITIZER_INSTRUCTION_SHARED_MEMORY_ACCESS = 4
+  SANITIZER_INSTRUCTION_LOCAL_MEMORY_ACCESS = 5
+  SANITIZER_INSTRUCTION_BARRIER = 6
+  SANITIZER_INSTRUCTION_SYNCWARP = 7
+  SANITIZER_INSTRUCTION_SHFL = 8
+  SANITIZER_INSTRUCTION_CALL = 9
+  SANITIZER_INSTRUCTION_RET = 10
+  SANITIZER_INSTRUCTION_DEVICE_SIDE_MALLOC = 11
+  SANITIZER_INSTRUCTION_DEVICE_SIDE_FREE = 12
+  SANITIZER_INSTRUCTION_CUDA_BARRIER = 13
+  SANITIZER_INSTRUCTION_MEMCPY_ASYNC = 14
+  SANITIZER_INSTRUCTION_PIPELINE_COMMIT = 15
+  SANITIZER_INSTRUCTION_PIPELINE_WAIT = 16
+  SANITIZER_INSTRUCTION_REMOTE_SHARED_MEMORY_ACCESS = 17
+  SANITIZER_INSTRUCTION_DEVICE_ALIGNED_MALLOC = 18
+  SANITIZER_INSTRUCTION_MATRIX_MEMORY_ACCESS = 19
+  SANITIZER_INSTRUCTION_CACHE_CONTROL = 20
+  SANITIZER_INSTRUCTION_CLUSTER_BARRIER_ARRIVE = 21
+  SANITIZER_INSTRUCTION_CLUSTER_BARRIER_WAIT = 22
+  SANITIZER_INSTRUCTION_WARPGROUP_MMA_ASYNC = 23
+  SANITIZER_INSTRUCTION_WARPGROUP_WAIT_GROUP = 24
+  SANITIZER_INSTRUCTION_WARPGROUP_FENCE = 25
+  SANITIZER_INSTRUCTION_ASYNC_STORE = 26
+  SANITIZER_INSTRUCTION_ASYNC_REDUCTION = 27
+  SANITIZER_INSTRUCTION_SET_SHARED_MEMORY_SIZE = 28
+  SANITIZER_INSTRUCTION_BARRIER_RELEASE = 29
+  SANITIZER_INSTRUCTION_BULK_COPY_GLOBAL_TO_SHARED = 30
+  SANITIZER_INSTRUCTION_TENSOR_CORE_BARRIER = 31
+  SANITIZER_INSTRUCTION_MEMSET_SHARED = 32
+  SANITIZER_INSTRUCTION_SYNCWARP_RELEASE = 33
+  SANITIZER_INSTRUCTION_MEMCPY_ASYNC_BARRIER = 34
+  SANITIZER_INSTRUCTION_BULK_COPY_SHARED_TO_GLOBAL = 35
+  SANITIZER_INSTRUCTION_BULK_COPY_SHARED_TO_SHARED = 36
+  SANITIZER_INSTRUCTION_BULK_REDUCTION_SHARED_TO_GLOBAL = 37
+  SANITIZER_INSTRUCTION_BULK_REDUCTION_SHARED_TO_SHARED = 38
+  SANITIZER_INSTRUCTION_CUDA_BARRIER_ATTEMPT = 39
+  SANITIZER_INSTRUCTION_CLUSTER_BARRIER_WAIT_ENTRY = 40
+  SANITIZER_INSTRUCTION_WARPGROUP_FENCE_RELEASE = 41
+  SANITIZER_INSTRUCTION_WARPGROUP_MMA_ASYNC_RELEASE = 42
+  SANITIZER_INSTRUCTION_TMA_LOAD = 43
+  SANITIZER_INSTRUCTION_TMA_STORE = 44
+
+## patch callback signatures
+  SanitizerCallbackBlockEnter(void* userdata, uint64_t pc)
+  SanitizerCallbackBlockExit(void* userdata, uint64_t pc)
+  SanitizerCallbackMemoryAccess(void* userdata, uint64_t pc, void* ptr, uint32_t accessSize, uint32_t flags, const void* pData)
+  SanitizerCallbackBarrier(void* userdata, uint64_t pc, uint32_t barIndex, uint32_t threadCount, uint32_t flags)
+  SanitizerCallbackSyncwarp(void* userdata, uint64_t pc, uint32_t mask)
+  SanitizerCallbackShfl(void* userdata, uint64_t pc)
+  SanitizerCallbackCall(void* userdata, uint64_t pc, uint64_t targetPc, uint32_t flags)
+  SanitizerCallbackRet(void* userdata, uint64_t pc)
+  SanitizerCallbackDeviceSideMalloc(void* userdata, uint64_t pc, void* allocatedPtr, uint64_t allocatedSize)
+  SanitizerCallbackDeviceSideFree(void* userdata, uint64_t pc, void* ptr)
+  SanitizerCallbackCudaBarrier(void* userdata, uint64_t pc, void* barrier, uint32_t kind, uint32_t data)
+  SanitizerCallbackCudaBarrierAttempt(void* userdata, uint64_t pc, void* barrier, uint32_t kind, uint32_t data, uint32_t result)
+  SanitizerCallbackMemcpyAsync(void* userdata, uint64_t pc, void* src, uint32_t dst, uint32_t accessSize)
+  SanitizerCallbackPipelineCommit(void* userdata, uint64_t pc)
+  SanitizerCallbackPipelineWait(void* userdata, uint64_t pc, uint32_t groups)
+  SanitizerCallbackMatrixMemoryAccess(void* userdata, uint64_t pc, uint32_t address, uint32_t accessSize, uint32_t flags, uint32_t count, const void* pNewValue)
+  SanitizerCallbackCacheControl(void* userdata, uint64_t pc, void* address, Sanitizer_CacheControlInstructionKind kind)
+  SanitizerCallbackClusterBarrierArrive(void* userdata, uint64_t pc)
+  SanitizerCallbackClusterBarrierWait(void* userdata, uint64_t pc)
+  SanitizerCallbackWarpgroupMMAAsync(void* userdata, uint64_t pc, uint32_t addressMatrixA, uint32_t sizeMatrixA, uint32_t addressMatrixB, uint32_t sizeMatrixB, uint32_t flags, uint32_t warpMask)
+  SanitizerCallbackWarpgroupWaitGroup(void* userdata, uint64_t pc, uint32_t numGroups, uint32_t warpMask)
+  SanitizerCallbackWarpgroupFence(void* userdata, uint64_t pc, uint32_t warpMask)
+  SanitizerCallbackAsyncStore(void* userdata, uint64_t pc, uint32_t address, uint32_t mbarAddress, void* pNewValue, uint32_t accessSize)
+  SanitizerCallbackAsyncReduction(void* userdata, uint64_t pc, uint32_t address, uint32_t mbarAddress, uint32_t accessSize)
+  SanitizerCallbackSetSmemSize(void* userdata, uint64_t pc, uint32_t size)
+  SanitizerCallbackBulkCopyGlobalToShared(void* userdata, uint64_t pc, uint64_t src, uint32_t dst, uint32_t barrier, uint32_t maskAndSize, uint32_t isMulticast)
+  SanitizerCallbackBulkCopySharedToGlobal(void* userdata, uint64_t pc, uint64_t dst, uint32_t src, uint32_t maskAndSize, uint32_t hasCpMask)
+  SanitizerCallbackBulkCopySharedToShared(void* userdata, uint64_t pc, uint32_t src, uint32_t dst, uint32_t barrier, uint32_t numBlocks)
+  SanitizerCallbackBulkReductionSharedToGlobal(void* userdata, uint64_t pc, uint64_t dst, uint32_t src, uint32_t numBlocks)
+  SanitizerCallbackBulkReductionSharedToShared(void* userdata, uint64_t pc, uint32_t src, uint32_t dst, uint32_t barrier, uint32_t numBlocks)
+  SanitizerCallbackTensorCoreBarrier(void* userdata, uint64_t pc, uint32_t barrier, uint32_t isMulticast, uint32_t multicastMask)
+  SanitizerCallbackMemsetShared(void* userdata, uint64_t pc, uint32_t dst, uint32_t numBlocks)
+  SanitizerCallbackMemcpyAsyncBarrier(void* userdata, uint64_t pc, uint32_t barrier)
+  SanitizerCallbackTensorMemoryLoad(void* pUserData, uint64_t pc, uint64_t pTensorMap, uint32_t dst, uint32_t barrier, int32_t coord0, int32_t coord1, int32_t coord2, int32_t coord3, int32_t coord4, uint32_t dim, uint32_t isMulticast, uint32_t maskAndIm2ColArgs, uint32_t loadMode)

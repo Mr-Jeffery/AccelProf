@@ -1,0 +1,45 @@
+== 1dconv_norace
+  same    default rep1: before vs after (2 files)
+  same**  hb-vc rep1: before vs after (2 files; equal modulo schedule order, engine race records compared as (pc pair, kind, space) sets)
+  same*   hb-sc rep1: before(NO_ENGINE) vs after(HB_MODE=scalar-clock) (2 files; equal modulo schedule order)
+  same*   hb-legacy rep1 vs hb-sc (after) (2 files; equal modulo schedule order)
+  same**  hb-bogus rep1 vs hb-vc (after) (2 files; equal modulo schedule order, engine race records compared as (pc pair, kind, space) sets)
+  same    default rep2: before vs after (2 files)
+  same**  hb-vc rep2: before vs after (2 files; equal modulo schedule order, engine race records compared as (pc pair, kind, space) sets)
+  same*   hb-sc rep2: before(NO_ENGINE) vs after(HB_MODE=scalar-clock) (2 files; equal modulo schedule order)
+  same*   hb-legacy rep2 vs hb-sc (after) (2 files; equal modulo schedule order)
+  same**  hb-bogus rep2 vs hb-vc (after) (2 files; equal modulo schedule order, engine race records compared as (pc pair, kind, space) sets)
+  note    before/hb-vc: rep1 != rep2 exactly; equal at pc-pair level
+  note    before/hb-sc: rep1 != rep2 exactly; equal modulo schedule order
+  note    after/hb-vc: rep1 != rep2 exactly; equal at pc-pair level
+  note    after/hb-sc: rep1 != rep2 exactly; equal modulo schedule order
+  keys    vector-clock has hb_races: True; scalar-clock has hb_races: False
+  warn    legacy warning: True; bogus warning: True; spurious [cuVein] line elsewhere: False
+== norace_interblock_atom
+  same    default rep1: before vs after (1 files)
+  same    hb-vc rep1: before vs after (1 files)
+  same    hb-sc rep1: before(NO_ENGINE) vs after(HB_MODE=scalar-clock) (1 files)
+  same    hb-legacy rep1 vs hb-sc (after) (1 files)
+  same    hb-bogus rep1 vs hb-vc (after) (1 files)
+  same    default rep2: before vs after (1 files)
+  same    hb-vc rep2: before vs after (1 files)
+  same    hb-sc rep2: before(NO_ENGINE) vs after(HB_MODE=scalar-clock) (1 files)
+  same    hb-legacy rep2 vs hb-sc (after) (1 files)
+  same    hb-bogus rep2 vs hb-vc (after) (1 files)
+  keys    vector-clock has hb_races: True; scalar-clock has hb_races: False
+  warn    legacy warning: True; bogus warning: True; spurious [cuVein] line elsewhere: False
+== race_interblock_none-lock_rtraw
+  same    default rep1: before vs after (1 files)
+  same    hb-vc rep1: before vs after (1 files)
+  same    hb-sc rep1: before(NO_ENGINE) vs after(HB_MODE=scalar-clock) (1 files)
+  same    hb-legacy rep1 vs hb-sc (after) (1 files)
+  same    hb-bogus rep1 vs hb-vc (after) (1 files)
+  same    default rep2: before vs after (1 files)
+  same    hb-vc rep2: before vs after (1 files)
+  same    hb-sc rep2: before(NO_ENGINE) vs after(HB_MODE=scalar-clock) (1 files)
+  same    hb-legacy rep2 vs hb-sc (after) (1 files)
+  same    hb-bogus rep2 vs hb-vc (after) (1 files)
+  keys    vector-clock has hb_races: True; scalar-clock has hb_races: False
+  warn    legacy warning: True; bogus warning: True; spurious [cuVein] line elsewhere: False
+
+ALL CHECKS PASS

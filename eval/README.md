@@ -1,0 +1,181 @@
+# cuVein race-detector evaluation harness
+
+Reproducible evaluation of the `cuVein` scoped happens-before data-race detector across
+the ScoR micro/app suites, cuHadron, HeCBench, Indigo3, ECL, and the Compute-Sanitizer
+baseline. Results land in `eval/results/*.csv`; the write-up is `eval/REPORT.md`.
+
+## Layout
+```
+eval/
+  driver.py          orchestrate one program: extract CFG + atomic sidecar, time
+                     native/scalar-clock/vector-clock, poll peak RSS, then aggregate -> CSV row
+  aggregate.py       pair each kernel_N.json with its aligning CFG dot, run
+                     sync_dominance, dedup RACE reports, cross-check hb_oracle
+  summarize.py       confusion counts + precision/recall/specificity from a CSV
+  triage.py          per-report breakdown of a detail JSON (space/class/chain)
+  mkmanifest.py      manifest from executables in a dir (label by prefix)
+  mk_e0_manifest.py  E0 (ScoR apps) manifest: 7 benches x {norace,racy} x sizes
+  mk_e2_manifest.py  E2 (cuHadron) manifest from built binaries
+  build_scor.py      build the 7 ScoR apps for sm_86, both RACEY variants
+  build_cuhadron.py  build cuHadron for sm_86, both FIXED variants
+  gen_scor_input.py  deterministic stdin inputs for the ScoR apps
+  racecheck.py       E6a: Compute Sanitizer racecheck baseline (shared mem only)
+  manifests/*.json   what was run
+  results/*.csv      the eval rows (committed)
+  detail/*.json      per-program verdict detail (gitignored)
+  inputs/*.in        generated app inputs (gitignored)
+  bin/E0, bin/E2     built benchmark binaries (gitignored)
+```
+
+## Environment (uncommitted fixups)
+The detector runtime lives in the main checkout (`ACCEL_PROF_HOME=/home/fzheng4/AccelProf`);
+the harness runs against it. Two fixups (kept out of git, in `.env/` and `setup_env.sh`):
+- `.env/bin/python` symlinked to the py310 env that carries networkx 3.2.1 + pydot;
+- `setup_env.sh` exports `LD_LIBRARY_PATH` with `$CUDA_HOME/compute-sanitizer` and the
+  py310 `lib` (for `libpython3.10.so.1.0`, pulled in by `libcompute_sanitizer.so`).
+
+## Run
+```
+CONDA="conda run -p /home/fzheng4/AccelProf/.env python"
+
+# E5 microbench litmus
+$CONDA eval/mkmanifest.py --suite E5-micro --dir /abs/ScoR/microbenchmarks/bin \
+    --label-rule race_:racy,norace_:race-free --oracle --out eval/manifests/e5_micro.json \
+    --csv eval/results/E5-micro.csv --detail-dir eval/detail
+$CONDA eval/driver.py eval/manifests/e5_micro.json
+$CONDA eval/summarize.py eval/results/E5-micro.csv
+
+# E0 ScoR apps
+$CONDA eval/build_scor.py --bench-dir /abs/ScoR/benchmarks --out eval/bin/E0
+$CONDA eval/gen_scor_input.py --out eval/inputs
+$CONDA eval/mk_e0_manifest.py --bin eval/bin/E0 --inputs eval/inputs --sizes small \
+    --out eval/manifests/e0_small.json --csv eval/results/E0.csv --detail-dir eval/detail
+$CONDA eval/driver.py eval/manifests/e0_small.json
+
+# E2 cuHadron
+$CONDA eval/build_cuhadron.py --dir /abs/cuHadron --out eval/bin/E2
+$CONDA eval/mk_e2_manifest.py --bin eval/bin/E2 --out eval/manifests/e2.json \
+    --csv eval/results/E2.csv --detail-dir eval/detail
+$CONDA eval/driver.py eval/manifests/e2.json
+```
+
+## The two modes: vector-clock and scalar-clock
+cuVein runs in one of two modes (named by task T8, 2026-09-23; `python/hb_modes.py` holds
+the vocabulary and the pre-T8 names):
+- **vector-clock** — `YOSEMITE_HB_TRACE=1 YOSEMITE_HB_MODE=vector-clock` (the default under
+  `YOSEMITE_HB_TRACE=1`): the in-process `HbClock` (full scoped vector clocks, per-address
+  release/acquire; `python/hb_oracle.py` is its exact oracle) runs over the event stream and its
+  `hb_races` / `hb_races_sync_only` are crossed into the static leg's verdicts.
+- **scalar-clock** — `YOSEMITE_HB_MODE=scalar-clock`: the collector only dumps `hb_events`;
+  verdicts come from the static leg (R1/R2/R3 over the trace's pc edges) plus the offline
+  barrier-only pass (`sync_dominance.barrier_only_pairs`, a per-thread scalar epoch); there is
+  no `hb_races`.
+
+`driver.py MANIFEST --mode scalar-clock` runs native + the scalar-clock dump only and analyzes
+it: `t_vector_clock` is blank, `peak_mem` is the tracing run's, `oracle_verified` = `scalar-clock`,
+notes carry `mode=scalar-clock`, results land next to the vector-clock CSVs as
+`*-scalar-clock.csv` (`--csv-suffix` / `--detail-suffix` override). The harness
+(`parallel.py`, `run_cuvein.py`, `$BASELINE_MODES`) uses `vector-clock,scalar-clock`; kept-trace
+stores hold `<id>/vector-clock/` and `<id>/scalar-clock/`, confirm files are
+`<id>__cuvein__<mode>.json`. Every HB-trace setter refuses to run with an analyzer library that
+predates `YOSEMITE_HB_MODE` (`hb_modes.require_collector_support`).
+
+Pre-T8 names: `eval/baselines/migrate_mode_names.py` rewrites CSVs, stores and confirm files
+(dry run by default, `--apply`, `--reverse` for stores). For one release every reader still
+accepts the pre-T8 mode names with one deprecation line per file
+(`CUVEIN_NO_LEGACY_NAMES=1` turns that into an error), and the collector still honours the
+retired pre-T8 switch (`hb_modes.LEGACY_ENV`) with a warning; it will not be renamed —
+`YOSEMITE_HB_MODE` is the switch.
+
+### No-dump mode (T4, `design/no_dump.md`)
+`YOSEMITE_HB_DUMP=0` records an HB run without the `hb_events` array: `HbClock` consumes every
+buffer drain in **both** modes — the vector clock plus the barrier-only clock in vector-clock
+mode, the barrier-only instance alone in scalar-clock mode — and `kernel_N.json` carries, under
+`"hb_aggregates": 1`, what the verdict layer used to derive from the records: `hb_sync_pass`
+(the offline barrier-only pass as `[pc_lo, pc_hi, count, dist, first_pc, second_pc]`),
+`hb_rmw_points` (R3's release/acquire points from the trace), `hb_events_count` /
+`hb_lanes_count`, and in both modes now `tv_violation` (the runtime monitor). The default,
+`YOSEMITE_HB_DUMP=1`, is unchanged and lossless — the dump plus the same aggregates beside it;
+`sync_dominance.analyze` reads the records when they are present and the aggregates otherwise
+(`CUVEIN_PREFER_AGGREGATES=1` forces the aggregates on a full dump: the same-trace parity check,
+`setup/t4_parity.py`). What no-dump cannot give: `hb_oracle.py` cannot replay the run (parity
+is established on programs that dump), a changed detector needs a re-recording instead of an
+offline re-score, and the A2 window census / T2's host analysis need records
+(`YOSEMITE_HB_HOST_MEMCPY` with `YOSEMITE_HB_DUMP=0` is refused). Harness: `BASELINE_HB_DUMP=0`
+puts the whole sweep in no-dump mode (`blib.base_env`; `meta.json` records `hb_dump`).
+
+T17 (2026-09-30) named the in-process computation `HbClock` (`hb_clock_*` in
+`pc_dependency_analysis.cpp`). Persisted fields written since carry the new spelling —
+`hb_stats.hb_clock`, the E*.csv column `t_vector_clock`, `oracle_verified = hb-clock-only`,
+the residual cause `hb-clock-hang`, the fp-causes column `hb_clock_confirmed`, the manifest
+key `"vector_clock": false`, `setup/hb_clock_timeout_ids.txt` (the old name is a symlink until
+the SLURM scripts are updated); readers accept the pre-T17 spelling through
+`hb_modes.field()` / `hb_modes.canon_value()` (no migration; the historical results keep
+theirs).
+
+## Re-analyzing existing traces / running from a worktree
+- `eval/reanalyze.py --bindir eval/bin/E0 --python-dir python <stems>` re-runs the static
+  leg + aggregation on already-recorded traces (no GPU) — validates `sync_dominance` changes
+  in seconds. `--assume-warp-lockstep` forwards the opt-in filter.
+- `CUVEIN_HOME=<checkout>` makes `driver.py` use that checkout's `bin/ lib/ .env/ python/`.
+  A worktree becomes a full runtime mirror by symlinking the gitignored `lib build .env
+  nv-compute/lib ScoR cuHadron` to the main checkout; the rebuilt analyzer library must install into
+  the RPATH location `build/sanalyzer/lib` (see `sanalyzer` Makefile `INSTALL_DIR`, and pass
+  `CXX=` the conda compiler the existing build used).
+- Run the pytest with the env's python directly (`.env/bin/python -m pytest …`), **not**
+  under `conda run`: `getall.sh` calls `conda run` for the atomic-scope sidecar and a nested
+  `conda run` fails silently — HbClock then has no atomic scopes and every atomic looks
+  like a plain access. Wipe `ScoR/microbenchmarks/artifacts/*` first so traces regenerate.
+
+## Notes
+- `-n 1` single-worker replay is required (cross-thread edge direction is temporal only then).
+- The atomic-scope sidecar (`YOSEMITE_ATOMIC_SCOPE_FILE`) is mandatory — without it
+  HbClock loses atomic-coherence ordering and over-reports.
+- `oracle=false` (hb-clock-only) for many-kernel real apps: the exact VC oracle is O(threads)
+  per conflict and impractical there; HbClock == specification is established on the 33
+  ScoR litmus programs + the canary.
+- Run one GPU batch at a time; kill stragglers by PID (a wrapped `conda run` can outlive
+  `pkill -f driver.py`).
+```
+
+## False-positive diagnosis and the post-fix re-run
+- `eval/FP_DIAGNOSIS.md` explains the head-to-head false positives; regenerate the attribution with
+  `python3 eval/baselines/classify_fp_causes.py` (→ `eval/results/baselines-fp-causes.csv`, rendered by
+  `make_tables.py` as "false positives by report class and root cause").
+- Detector knobs introduced by the fixes: `--strong-ldst {token,generic,all,none}` (default `token`, D9) / `$CUVEIN_STRONG_LDST`
+  (how a load/store is classed strong — `token`: at the scope its `.STRONG` token names; read by `sync_dominance.py`,
+  `hb_oracle.py`, `atomic_scope_sidecar.py`), `YOSEMITE_HB_NO_SYNC_ONLY=1` (disable HbClock's
+  barrier-only second clock; `barrier-ordered` then degrades to `latent`).
+- `hb_races[*].a2_uncertain` (T14; dumps marked `hb_a2: 1`): the number of a report's instances that some coherence order consistent with the RMW windows would order — informational, never a verdict (D15, `design/a2_flag.md`).
+- `sbatch eval/baselines/setup/p_fpfix.sh` re-runs P1–P6 with the current detector into
+  `eval/results/fpfix/`, `eval/baselines/confirm_fpfix/`, `eval/baselines/traces_keep_fpfix/` (the merged
+  baseline is untouched); `python3 eval/baselines/compare_fpfix.py` prints before/after FP/TP and
+  lists any true positive lost.
+- `CUVEIN_EVENT_CANDIDATES=0` / `--no-event-candidates`: judge trace edges only. By default the
+  conflicting pc pairs that only the `hb_events` stream shows (vector-clock: `hb_races_sync_only` +
+  `hb_races`; scalar-clock: the offline barrier pass) are judged too — a trace edge keeps just the
+  LAST accessor of a location, so a pair can have no edge at all. `CUVEIN_R3_PAST_RELEASE=0`
+  disables R3's past-release gate (an access after its thread's own unlock of a CAS-acquired lock
+  is not ordered by the lock hand-off). Both exist for ablation on identical traces.
+- Storage (T0, `eval/STORAGE.md`): every trace store lives on BeeGFS,
+  `BASELINE_TRACE_DIR=/mnt/beegfs/$USER/cuvein_traces/<tag>` (127 TB shared FS, no quota,
+  ~450 MB/s per node; mounted on every compute node, NOT on the login node; not backed up).
+  `parallel.py run` keeps EVERY program's trace there (`<id>/{meta.json,dots/,logs/,
+  <mode>/kernel_*.json}`, `STORE_INFO.json` = collector build), with no size cap
+  (`--keep-all-cap-gb 0`), and a timed-out rep's partial dump under
+  `<id>/<mode>-partial-rep<k>/` (marked `PARTIAL`, never a verdict). `_store_root()` refuses
+  any other location (`/mnt/local`, `/tmp`, home): the pre-T0 fall-through is what filled
+  node-local disks and the 40 GB home quota. `--delete-traces` restores the old lean mode.
+  Result CSVs and confirm JSONs still go to home; `store_inventory.py` mirrors every
+  store's `STORE_INFO.json`/`meta.json` into `eval/baselines/store_index/<tag>/` (home) and
+  lists what each store lacks. Re-score a store on CPU nodes with
+  `TAG=<tag> sbatch eval/baselines/setup/p_analyze_cpu.sh` (`parallel.py analyze` never
+  touches CUDA); `setup/p_evcand.sh` + `setup/p_evcand_base.sh` +
+  `compare_fpfix.py --before 'eval/results/evcand_base/*.csv' --after-glob 'eval/results/evcand/*.csv'`
+  is the worked example.
+- A cuVein rep is a verdict only if the app reached its own exit status under the tool
+  (`rc == native rc`). An app killed mid-run (OOM in vector-clock mode: accelprof rc 1) leaves the
+  kernels dumped so far; such a rep is `ERROR incomplete-trace(rc;nkernels;peak_mb)` — or RACE
+  `partial` when the prefix already shows a race — never CLEAN. `events=`/`nkernels=` in the
+  notes are that mode's own dump. `make_tables.py`/`compare_fpfix.py` re-score older rows the
+  same way (FP_DIAGNOSIS.md, addendum).
