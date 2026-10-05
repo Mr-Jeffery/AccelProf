@@ -4,6 +4,7 @@
 #SBATCH --nodes=1 --ntasks=1 --cpus-per-task=8
 #SBATCH --time=02:00:00
 #SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/swbuild-%j.log
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # CPU: generate+compile P1 (Indigo3, 100-sample) & P3 (graph race-free) via the
 # suite compiler, build P7 (HeCBench), regenerate the manifest.
 cd /home/fzheng4/AccelProf || exit 1

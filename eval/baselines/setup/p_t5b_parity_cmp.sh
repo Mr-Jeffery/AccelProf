@@ -4,6 +4,7 @@
 #SBATCH --nodes=1 --ntasks=1
 #SBATCH --time=12:00:00
 #SBATCH --array=0-7
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # T5b acceptance: HbClock == specification on the t5b_parity_ids.txt programs recorded with the T5b
 # runtime (p_t5b_timeout.sh with TAG=t5b-final-parity); CPU only (setup/t5b_parity.py compare).
 #   sbatch --dependency=afterany:<recording job> -o <W>/build_logs/t5b-parity-cmp-%A_%a.log \

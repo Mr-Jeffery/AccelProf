@@ -4,6 +4,7 @@
 #SBATCH --nodes=1 --ntasks=1 --cpus-per-task=8
 #SBATCH --time=01:30:00
 #SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/pbuild-%j.log
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # CPU node: build all corpora for sm_89 (nvcc runs on CPU), compile P3, regen
 # manifest, and reset the parallel work dirs. No GPU used.
 cd /home/fzheng4/AccelProf || exit 1

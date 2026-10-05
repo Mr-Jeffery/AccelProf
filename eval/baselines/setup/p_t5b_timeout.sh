@@ -5,6 +5,7 @@
 #SBATCH --nodes=1 --ntasks=1
 #SBATCH --time=12:00:00
 #SBATCH --array=0-15
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # T5b acceptance (CLAUDE.md section C): the 58 programs of setup/hb_clock_timeout_ids.txt
 # (vector-clock TIMEOUT/OOM in the baselines) with the T5b worktree runtime, both modes,
 # one rep, every trace kept on BeeGFS. Tool cap = the harness rule min(max(10 x native,

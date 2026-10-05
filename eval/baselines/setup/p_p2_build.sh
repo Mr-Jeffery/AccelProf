@@ -4,6 +4,7 @@
 #SBATCH --nodes=1 --ntasks=1 --cpus-per-task=8
 #SBATCH --time=01:00:00
 #SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/p2build-%j.log
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 cd /home/fzheng4/AccelProf || exit 1
 source eval/baselines/gpu_env.sh
 export BASELINE_SM=89

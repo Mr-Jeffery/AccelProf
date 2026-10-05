@@ -6,6 +6,7 @@
 #SBATCH --time=06:00:00
 #SBATCH --array=0-15
 #SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/pi-hirace-%A_%a.log
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # HiRace: the artifact's 590 instrumented twins, per PI manifest row (same graph+launch).
 cd /home/fzheng4/AccelProf || exit 1
 source eval/baselines/gpu_env.sh

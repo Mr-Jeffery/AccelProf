@@ -5,6 +5,7 @@
 #SBATCH --time=04:00:00
 #SBATCH --array=0-31
 #SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/fullrun-%A_%a.log
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 cd /home/fzheng4/AccelProf || exit 1
 source eval/baselines/gpu_env.sh
 export BASELINE_TRACE_DIR=/mnt/beegfs/$USER/cuvein_traces/full   # BeeGFS, every trace kept (eval/STORAGE.md)

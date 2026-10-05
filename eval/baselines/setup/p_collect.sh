@@ -5,6 +5,7 @@
 #SBATCH --time=02:00:00
 #SBATCH --array=0-15
 #SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/pcollect-%A_%a.log
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # GPU node (sm_89): collect cuVein traces for one shard.
 cd /home/fzheng4/AccelProf || exit 1
 source eval/baselines/gpu_env.sh

@@ -4,6 +4,7 @@
 #SBATCH --nodes=1 --ntasks=1 --cpus-per-task=2
 #SBATCH --time=24:00:00
 #SBATCH --exclude=c54,c2
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # T14 step 5: `parallel.py analyze` of the store t14-after (T9's selection, vector-clock dumps
 # re-oracled with the a2_uncertain flag; eval/baselines/a2_window_count.py rescore), vector-clock
 # rows only (scalar-clock dumps carry no flag), twice:

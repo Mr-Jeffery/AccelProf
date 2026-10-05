@@ -4,6 +4,7 @@
 #SBATCH --nodes=1 --ntasks=1
 #SBATCH --time=00:20:00
 #SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/rerun-mid-%j.log
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # After the re-run arrays: merge the new cuVein shards and derive the follow-up id
 # lists (keep / residual) from them, then submit the keep + diagnose arrays and the
 # final merge/classify/tables job (submitted here because the diagnose array size

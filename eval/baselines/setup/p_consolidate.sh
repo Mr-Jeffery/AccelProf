@@ -4,6 +4,7 @@
 #SBATCH --nodes=1 --ntasks=1
 #SBATCH --time=00:40:00
 #SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/consolidate-%j.log
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # Final consolidation after the v3 sweep AND HiRace: merge cuVein shards, select
 # P7, classify (now incl. HiRace + iGUARD if present), rebuild all tables.
 cd /home/fzheng4/AccelProf || exit 1

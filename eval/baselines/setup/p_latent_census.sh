@@ -5,6 +5,7 @@
 #SBATCH --time=24:00:00
 #SBATCH --exclude=c54,c2
 #SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/latent-census-%A_%a.log
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # T9-0 (CLAUDE.md §C, eval/LATENT_CENSUS.md): CPU-only re-score of the kept BeeGFS stores
 # with the current analyzer, keeping every verdict class. Measurement only.
 #   small programs (largest dump < 2 GB), 16 shards:

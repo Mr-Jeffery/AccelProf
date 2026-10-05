@@ -5,6 +5,7 @@
 #SBATCH --nodes=1 --ntasks=1
 #SBATCH --time=08:00:00
 #SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/full-%A_%a.log
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # T0 step 6: (re-)collect programs into an UNCAPPED BeeGFS store, both modes, every
 # trace kept, a timed-out rep's partial dump kept under <id>/<mode>-partial-rep<k>/
 # (eval/STORAGE.md). First use: the programs whose traces earlier sweeps dropped

@@ -6,6 +6,7 @@
 #SBATCH --time=06:00:00
 #SBATCH --array=0-31
 #SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/fpfixtr-%A_%a.log
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # Post-fix re-run (eval/FP_DIAGNOSIS.md: coherent load/store model, barrier-ordered
 # class, exact pair matching, per-kernel sidecar) of the labelled sets P1-P6, kept
 # APART from the merged baseline: shard csvs -> eval/results/fpfix_tr/, confirmation
@@ -20,4 +21,4 @@ $PY eval/baselines/parallel.py run --pset P1,P2,P3,P4,P5,P6 \
     --shard ${SLURM_ARRAY_TASK_ID}/32 --confirm --tag fpfixtr \
     --results-dir /home/fzheng4/AccelProf/eval/results/fpfix_tr \
     --confirm-dir /home/fzheng4/AccelProf/eval/baselines/confirm_fpfix_tr \
-    --keep-mismatch /home/fzheng4/AccelProf/eval/baselines/traces_keep_fpfix_tr --keep-cap-mb 100
+    --keep-mismatch traces_keep_fpfix_tr --keep-cap-mb 100

@@ -5,6 +5,7 @@
 #SBATCH --time=01:00:00
 #SBATCH --array=0-15
 #SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/panalyze-%A_%a.log
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # CPU node: sync_dominance analysis of one shard's saved traces.
 cd /home/fzheng4/AccelProf || exit 1
 source eval/baselines/gpu_env.sh

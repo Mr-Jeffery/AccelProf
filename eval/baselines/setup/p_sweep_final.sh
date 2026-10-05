@@ -4,6 +4,7 @@
 #SBATCH --nodes=1 --ntasks=1
 #SBATCH --time=00:40:00
 #SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/swfinal-%j.log
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # Merge ALL cuVein shard CSVs (P4/P5/P6 from the earlier run + P1/P3/P7), classify,
 # rebuild tables. racecheck reused as-is.
 cd /home/fzheng4/AccelProf || exit 1

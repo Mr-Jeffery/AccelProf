@@ -4,6 +4,7 @@
 #SBATCH --nodes=1 --ntasks=1
 #SBATCH --time=00:40:00
 #SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/final2-%j.log
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # Merge every tool family's shard CSVs, root-cause residuals, classify
 # disagreements, regenerate BASELINES.md. CPU only.
 cd /home/fzheng4/AccelProf || exit 1

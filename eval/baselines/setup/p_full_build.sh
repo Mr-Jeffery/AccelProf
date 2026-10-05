@@ -4,6 +4,7 @@
 #SBATCH --nodes=1 --ntasks=1 --cpus-per-task=8
 #SBATCH --time=03:00:00
 #SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/fullbuild-%j.log
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # CPU: P1 (default+slower_atomic) + P3(expanded) via suite compiler; P2 (IndigoSuite);
 # P7 (broad HeCBench); regenerate manifest. nvcc runs on CPU node.
 cd /home/fzheng4/AccelProf || exit 1

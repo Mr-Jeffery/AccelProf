@@ -6,6 +6,7 @@
 #SBATCH --time=08:00:00
 #SBATCH --array=0-31
 #SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/pi-iguard-%A_%a.log
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # iGUARD (NVBit 1.8 build) over PI.
 cd /home/fzheng4/AccelProf || exit 1
 source eval/baselines/gpu_env.sh

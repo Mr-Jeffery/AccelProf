@@ -6,6 +6,7 @@
 #SBATCH --time=04:00:00
 #SBATCH --array=0-31
 #SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/evbase-%A_%a.log
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # BEFORE rows on the IDENTICAL traces p_evcand.sh kept on BeeGFS: analysis only (no GPU
 # work, no collection) with the two new rules switched off. Same 32-way sharding as the
 # collect so shards align. Compare:

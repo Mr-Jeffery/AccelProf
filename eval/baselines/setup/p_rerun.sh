@@ -6,6 +6,7 @@
 #SBATCH --time=08:00:00
 #SBATCH --array=0-31
 #SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/rerun-%A_%a.log
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # cuVein re-run on the current detector revision (setup/cuvein_rev.status), both
 # modes, every labelled/overhead set except P9 (20-min-cap protocol: p_rerun_p9.sh).
 # Same protocol as the original sweep: 3 reps, 120 s floor, confirmation details,
@@ -16,4 +17,4 @@ source eval/baselines/gpu_env.sh
 export BASELINE_TRACE_DIR=/mnt/beegfs/$USER/cuvein_traces/rerun   # BeeGFS, every trace kept (eval/STORAGE.md)
 $PY eval/baselines/parallel.py run --pset P1,P2,P3,P4,P5,P6,P7,P8 \
     --shard ${SLURM_ARRAY_TASK_ID}/32 --confirm \
-    --keep-mismatch /home/fzheng4/AccelProf/eval/baselines/traces_keep --keep-cap-mb 300
+    --keep-mismatch traces_keep --keep-cap-mb 300

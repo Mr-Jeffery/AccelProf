@@ -4,6 +4,7 @@
 #SBATCH --nodes=1 --ntasks=1 --cpus-per-task=4
 #SBATCH --time=06:00:00
 #SBATCH --exclude=c54,c2
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # T10: the BEFORE baseline of the re-score, checked where it matters. T9's AFTER rows (the T9
 # code b1a6408 on t9-after) are the BEFORE of every program; this re-runs the pre-T10 detector of
 # cuVein f127790 (CODE = `git archive f127790 python eval/baselines eval/aggregate.py`, default

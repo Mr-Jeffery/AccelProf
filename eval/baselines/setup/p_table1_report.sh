@@ -4,6 +4,7 @@
 #SBATCH --nodes=1 --ntasks=1
 #SBATCH --time=00:30:00
 #SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/t1-report-%j.log
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # After the artifact's verbatim `make table1`: sqlite -> CSV, then regenerate the report
 # (adds the "HiRace artifact Table 1, reproduced" section + the runner cross-check). CPU only.
 cd /home/fzheng4/AccelProf || exit 1

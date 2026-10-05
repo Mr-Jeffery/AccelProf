@@ -5,6 +5,7 @@
 #SBATCH --time=02:00:00
 #SBATCH --array=0-15
 #SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/prun-%A_%a.log
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # GPU node (sm_89): lean combined collect+analyze+delete for one shard (no trace
 # persistence -> no disk blowup). Writes a per-shard cuvein CSV.
 cd /home/fzheng4/AccelProf || exit 1

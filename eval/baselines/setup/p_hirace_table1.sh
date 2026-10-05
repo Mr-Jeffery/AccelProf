@@ -4,6 +4,7 @@
 #SBATCH --nodes=1 --ntasks=1
 #SBATCH --time=1-00:00:00
 #SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/hirace-table1-%j.log
+source /home/fzheng4/AccelProf/eval/baselines/setup/home_quota_guard.sh
 # The HiRace SC24 artifact's own `make table1`, verbatim (scripts/hirace_experiments.py:
 # 590 codes x 6 graphs, 256x1024, uninstrumented + compute-sanitizer + iGUARD + HiRace,
 # then scripts/gen_table1.py). Only accommodation: the artifact hard-codes the iGUARD
