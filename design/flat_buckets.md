@@ -200,8 +200,9 @@ All four keep §2.1's slot and §3's guarantees. They differ in the tail and the
 Measured results (`eval/FLAT_BUCKETS.md` §4):
 - **v4 is the fastest variant on every step-5 program** (hotspot 499 → 212 s, fpc
   1,237 → 730 s) and uses the least memory.
-- **All four are about 22–25 % slower than the old layout on full-size lavaMD** (3,162 s →
-  3,858 s for v4, scalar-clock, c3), and about 4 % slower at a smaller size.
+- **All four are slower than the old layout on full-size lavaMD** (c3). In scalar-clock mode
+  the gap is 22–44 % (3,162 s → 3,858 s for v4). In vector-clock mode it is at least 54 %:
+  3,505 s → more than 5,400 s. At a smaller size the gap is about 4 %.
 - **Why, from profiles of the small run:** the same per-thread `unordered_map<Tid, …>`
   lookups (`vs`, `rmw_thr`) and `rmw_note`'s linear `std::find` take about 2.4× the absolute
   time they take under the old layout. That is cache pressure on per-thread state; it is

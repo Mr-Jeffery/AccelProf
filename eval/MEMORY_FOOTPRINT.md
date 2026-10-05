@@ -253,6 +253,13 @@ Branch `perf/shared-base-clock` (worktree `.claude/worktrees/t5b-shared-base-clo
 `cuVein` @ `f61c389` (T10 + T14 merged). 2026-09-29. Claude.md T5b. Legend as at the head of
 this file; **proved-in-effect** = an invariant checked over the stated traces.
 
+> **T19 (2026-10-05, `perf/flat-buckets` 67675e4, `eval/FLAT_BUCKETS.md`):** the per-location
+> buckets became 20-byte slots in flat per-location arrays behind a 128-byte-segment index,
+> with no value change. Bucket bytes are 27–41 % of the old layout's; stencil1d's scalar-clock
+> kernels now complete (111 GiB). hotspot runs 2.4× and fpc 1.7× faster, but lavaMD is 22 %
+> slower in scalar-clock mode and at least 54 % slower in vector-clock mode.
+
+
 ### 7.1 What changed (engine only; `hb_oracle.py` keeps full clocks — it is the spec)
 
 | commit | change | library |
