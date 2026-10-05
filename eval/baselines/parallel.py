@@ -249,6 +249,7 @@ def collect_one(mrow, cuda, reps, floor=120):
         pcmap.update(blib.pc_line_map(c, nenv))
     meta["pc_lines"] = {str(k): v for k, v in pcmap.items()}
     meta["scope_present"] = bool(scope)
+    meta["hb_dump"] = blib.hb_dump()     # T4: 0 = recorded without hb_events (aggregates only)
     os.makedirs(f"{idir}/dots", exist_ok=True)
     for dot in glob.glob(f"{cubindir}/*.dot"):
         shutil.copy(dot, f"{idir}/dots/")
@@ -375,7 +376,9 @@ def _count_events(mode_dir):
             if os.path.getsize(kj) > COUNT_EVENTS_MAX_GB * 1e9:
                 uncounted.append(os.path.basename(kj))
                 continue
-            events += len(json.loads(Path(kj).read_text()).get("hb_events", []))
+            t = json.loads(Path(kj).read_text())
+            # T4: a no-dump run carries hb_events_count instead of the array
+            events += len(t.get("hb_events") or ()) or int(t.get("hb_events_count") or 0)
         except (OSError, ValueError):
             pass
     return events, uncounted

@@ -110,7 +110,7 @@ def emit_row(args):
 
     for kj in kjsons:
         d = json.loads(Path(kj).read_text())
-        n_ev = len(d.get("hb_events", []))
+        n_ev = sd.event_count(d)          # T4: hb_events_count when the dump has no records
         events += n_ev
         hb_races = d.get("hb_races")
 
@@ -140,8 +140,8 @@ def emit_row(args):
             oracle_states.append(hb_modes.SCALAR_CLOCK)
         elif hb_races is None:
             oracle_states.append("no-hb")
-        elif not args.oracle or hb_oracle is None:
-            oracle_states.append("hb-clock-only")
+        elif not args.oracle or hb_oracle is None or not d.get("hb_events"):
+            oracle_states.append("hb-clock-only")   # (T4: a no-dump run cannot be replayed)
         elif n_ev > args.oracle_max_events:
             oracle_states.append("hb-clock-only")
         else:

@@ -303,8 +303,8 @@ def worker(pdir, mode, variant, out):
         kernels.append({"file": os.path.basename(kj), "aligned": True,
                         "name": rep["kernel"]["name"], "hb_races": None if hbr is None else len(hbr),
                         "sync_only": None if so is None else len(so),
-                        "events": len(tr.get("hb_events") or ()),
-                        "lanes": sum(len(e.get("lanes", ())) for e in tr.get("hb_events") or ()),
+                        "events": sd.event_count(tr),      # T4: the counts of a no-dump run
+                        "lanes": sd.lane_count(tr),
                         "event_candidates": rep["diagnostics"]["event_candidates"],
                         "hb_classes": rep["summary"]["hb_classes"]})
         for v in rep["verdicts"]:

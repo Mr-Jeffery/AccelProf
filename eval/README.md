@@ -87,6 +87,23 @@ accepts the pre-T8 mode names with one deprecation line per file
 retired pre-T8 switch (`hb_modes.LEGACY_ENV`) with a warning; it will not be renamed —
 `YOSEMITE_HB_MODE` is the switch.
 
+### No-dump mode (T4, `design/no_dump.md`)
+`YOSEMITE_HB_DUMP=0` records an HB run without the `hb_events` array: `HbClock` consumes every
+buffer drain in **both** modes — the vector clock plus the barrier-only clock in vector-clock
+mode, the barrier-only instance alone in scalar-clock mode — and `kernel_N.json` carries, under
+`"hb_aggregates": 1`, what the verdict layer used to derive from the records: `hb_sync_pass`
+(the offline barrier-only pass as `[pc_lo, pc_hi, count, dist, first_pc, second_pc]`),
+`hb_rmw_points` (R3's release/acquire points from the trace), `hb_events_count` /
+`hb_lanes_count`, and in both modes now `tv_violation` (the runtime monitor). The default,
+`YOSEMITE_HB_DUMP=1`, is unchanged and lossless — the dump plus the same aggregates beside it;
+`sync_dominance.analyze` reads the records when they are present and the aggregates otherwise
+(`CUVEIN_PREFER_AGGREGATES=1` forces the aggregates on a full dump: the same-trace parity check,
+`setup/t4_parity.py`). What no-dump cannot give: `hb_oracle.py` cannot replay the run (parity
+is established on programs that dump), a changed detector needs a re-recording instead of an
+offline re-score, and the A2 window census / T2's host analysis need records
+(`YOSEMITE_HB_HOST_MEMCPY` with `YOSEMITE_HB_DUMP=0` is refused). Harness: `BASELINE_HB_DUMP=0`
+puts the whole sweep in no-dump mode (`blib.base_env`; `meta.json` records `hb_dump`).
+
 T17 (2026-09-30) named the in-process computation `HbClock` (`hb_clock_*` in
 `pc_dependency_analysis.cpp`). Persisted fields written since carry the new spelling —
 `hb_stats.hb_clock`, the E*.csv column `t_vector_clock`, `oracle_verified = hb-clock-only`,
