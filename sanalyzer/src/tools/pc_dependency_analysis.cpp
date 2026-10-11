@@ -60,6 +60,70 @@ struct HbClock {
     using Clock = std::unordered_map<Tid, uint64_t>;        // tid -> logical clock
     using Loc = std::tuple<int, uint64_t, uint64_t>;        // (space, block-or-0, addr)
 
+    // T20 (design/thread_index.md): per-thread state as a dense array indexed by a computed
+    // thread index, block * bt + (warp << 5 | lane), bt = the block size rounded up to 32 --
+    // no lookup on the per-lane path. Pages of 2^14 threads are allocated on first touch (grids
+    // reach 10^8 threads); a tid the formula does not cover (an async agent, bit 62) goes to a
+    // side hash map. Values are those the hash maps held; `size()` counts the touched threads.
+    template <class T> struct ThreadArray {
+        static constexpr unsigned PB = 14;
+        static constexpr uint64_t PN = uint64_t(1) << PB, MAX_PAGES = uint64_t(1) << 26;
+        struct Page { T v[PN]; uint64_t present[PN / 64] = {}; };
+        std::vector<std::unique_ptr<Page>> pages;
+        std::unordered_map<Tid, T> side;
+        uint64_t bt = 1024, n = 0, npages = 0;
+        bool index(Tid t, uint64_t& i) const {
+            if ((t >> 62) != 0 || (t & 1023) >= bt) return false;
+            i = (t >> 10) * bt + (t & 1023);
+            return (i >> PB) < MAX_PAGES;
+        }
+        Tid tid_at(uint64_t i) const { return ((i / bt) << 10) | (i % bt); }
+        T& at(Tid t, bool* created = nullptr) {
+            uint64_t i;
+            if (!index(t, i)) {
+                auto r = side.try_emplace(t);
+                if (created) *created = r.second;
+                n += r.second;
+                return r.first->second;
+            }
+            const uint64_t p = i >> PB, o = i & (PN - 1);
+            if (p >= pages.size()) pages.resize(p + 1);
+            if (!pages[p]) { pages[p] = std::make_unique<Page>(); npages += 1; }
+            Page& pg = *pages[p];
+            uint64_t& w = pg.present[o >> 6];
+            const uint64_t bit = uint64_t(1) << (o & 63);
+            const bool fresh = (w & bit) == 0;
+            w |= bit;
+            n += fresh;
+            if (created) *created = fresh;
+            return pg.v[o];
+        }
+        T& operator[](Tid t) { return at(t); }
+        size_t size() const { return n; }
+        uint64_t bytes() const {
+            return npages * sizeof(Page) + pages.capacity() * sizeof(void*)
+                 + side.size() * (sizeof(void*) + sizeof(std::pair<const Tid, T>));
+        }
+        template <class F> void each(F f) const {           // index order, then the side map
+            for (uint64_t p = 0; p < pages.size(); ++p) {
+                if (!pages[p]) continue;
+                const Page& pg = *pages[p];
+                for (uint64_t k = 0; k < PN / 64; ++k)
+                    for (uint64_t m = pg.present[k]; m != 0; m &= m - 1) {
+                        const uint64_t o = k * 64 + static_cast<uint64_t>(__builtin_ctzll(m));
+                        f(tid_at((p << PB) | o), pg.v[o]);
+                    }
+            }
+            for (const auto& kv : side) f(kv.first, kv.second);
+        }
+        // an empty array for a block size (kernel start); the old pages go to `dead`
+        void reset(uint64_t block_threads, ThreadArray* dead = nullptr) {
+            if (dead != nullptr) { dead->pages.swap(pages); dead->side.swap(side); }
+            pages.clear(); side.clear(); n = 0; npages = 0;
+            bt = block_threads == 0 ? 1024 : std::min<uint64_t>(1024, (block_threads + 31) & ~uint64_t(31));
+        }
+    };
+
     // pc offset -> coherent-access info; absence => plain ld/st. rmw = an atomic RMW
     // (release/acquire point + write); !rmw = a .STRONG load/store (cuda::atomic
     // load()/store()): pairwise same-address coherence only, otherwise an ordinary
@@ -161,11 +225,12 @@ struct HbClock {
             return (it != delta.end() && it->second > v) ? it->second : v;
         }
     };
-    std::unordered_map<Tid, VClock> vc;                     // tid -> vector clock
+    ThreadArray<VClock> vc;                                 // tid -> vector clock (T20: dense)
     VClock& V(Tid t) {
-        auto r = vc.try_emplace(t);
-        if (r.second) r.first->second.self = t;
-        return r.first->second;
+        bool fresh = false;
+        VClock& v = vc.at(t, &fresh);
+        if (fresh) v.self = t;
+        return v;
     }
     // d ⊔= (u: v), keeping the representation's invariants (self in own, delta above base)
     static void raise(VClock& d, Tid u, uint64_t v) {
@@ -243,7 +308,7 @@ struct HbClock {
     // own tick, so a sync group SHARES one immutable base and each thread keeps just
     // its own component: a barrier costs O(threads), not O(threads^2) like vc.
     struct SyncClock { BaseP base; uint64_t own = 0; };   // T5b: a flat base, like vc's
-    std::unordered_map<Tid, SyncClock> vs;
+    ThreadArray<SyncClock> vs;                              // T20: dense
     bool sync_only_pass = true;                             // YOSEMITE_HB_NO_SYNC_ONLY=1 disables
     // T12: clk is the chain clock Ch_loc, a join (has_clk false: bottom -- the chain broke and
     // no RMW has released since); block/scope label the last RMW on the location. Under the
@@ -393,13 +458,24 @@ struct HbClock {
                     for (const LocSlots& w : d.s->w) if (w.n != 0) f(w);
             for (const TSlot& t : table) if (t.hi != EMPTY) f(t.s);
         }
-        void release() {
+        static void release_parts(std::vector<DSlot>& dir, std::vector<TSlot>& table) {
             for (DSlot& d : dir)
                 if (d.hi != EMPTY) {
                     for (LocSlots& w : d.s->w) std::free(w.p);
                     std::free(d.s);
                 }
             for (TSlot& t : table) if (t.hi != EMPTY) std::free(t.s.p);
+            dir.clear(); table.clear();
+        }
+        void release() { release_parts(dir, table); }
+        // T20: hand the owning arrays to the caller (freed off the launch path) and start empty
+        void detach(std::vector<DSlot>& d, std::vector<TSlot>& t) {
+            d.swap(dir); t.swap(table);
+            std::vector<DSlot>(INIT, DSlot{EMPTY, 0, nullptr}).swap(dir);
+            nseg = 0; c_hi = EMPTY; c_seg = 0; c_s = nullptr;
+            std::vector<TSlot>(INIT, TSlot{EMPTY, 0, {}}).swap(table);
+            count = 0;
+            wide_tids.clear(); wide_index.clear();
         }
         void clear() {
             release();
@@ -531,38 +607,85 @@ struct HbClock {
     // Called once per lane access, so the common repeats are short-circuited: a thread's
     // repeat of its previous non-RMW pc (seen_pc) adds nothing, and a pc's acquire set is
     // touched only when the previous RMW differs from the one last recorded for it.
-    struct RmwThread { std::vector<uint32_t> pending; uint32_t last = 0; bool has_last = false;
-                       uint32_t seen_pc = UINT32_MAX; };
-    std::unordered_map<Tid, RmwThread> rmw_thr;
+    // T20 (design/thread_index.md section 4): a thread's pending pcs are a node of a shared,
+    // append-only trie (node = (parent, pc); 0 = the empty set), so threads that walk the same
+    // pcs share nodes; add(set, pc) is memoised (one-entry cache: the lanes of one record), and
+    // an RMW's rel insertions are made once per distinct (set, RMW pc) -- they are idempotent.
+    // The per-thread state is a dense array (ThreadArray), no vector and no linear search.
+    struct RmwThread { uint32_t set = 0; uint32_t last = 0; uint32_t seen_pc = UINT32_MAX;
+                       bool has_last = false; };
+    ThreadArray<RmwThread> rmw_thr;
     struct RmwPc { std::set<uint32_t> rel, acq; bool stranded = false, orphan = false;
                    uint32_t acq_last = 0; bool acq_last_valid = false; };
     std::unordered_map<uint32_t, RmwPc> rmw_pts;
-    void rmw_note(Tid t0, uint32_t pc, bool is_rmw) {
-        RmwThread& r = rmw_thr[t0];
+    struct PendTrie {
+        std::vector<std::pair<uint32_t, uint32_t>> node{{0, 0}};   // (parent, pc)
+        std::unordered_map<uint64_t, uint32_t> next;                // set << 32 | pc -> set'
+        std::unordered_set<uint64_t> applied;                       // set << 32 | rmw pc
+        uint64_t c_key = ~uint64_t(0), a_key = ~uint64_t(0);
+        uint32_t c_val = 0;
+        uint32_t add(uint32_t s, uint32_t pc) {
+            const uint64_t k = (uint64_t(s) << 32) | pc;
+            if (k == c_key) return c_val;
+            auto it = next.find(k);
+            uint32_t r;
+            if (it != next.end()) {
+                r = it->second;
+            } else {
+                bool on = false;
+                for (uint32_t x = s; x != 0 && !on; x = node[x].first) on = node[x].second == pc;
+                if (on) {
+                    r = s;
+                } else {
+                    r = static_cast<uint32_t>(node.size());
+                    node.emplace_back(s, pc);
+                }
+                next.emplace(k, r);
+            }
+            c_key = k; c_val = r;
+            return r;
+        }
+        void clear() {
+            std::vector<std::pair<uint32_t, uint32_t>>{{0, 0}}.swap(node);
+            next.clear(); applied.clear(); c_key = a_key = ~uint64_t(0); c_val = 0;
+        }
+    };
+    PendTrie ptrie;
+    // p: the record's rmw_pts[pc], looked up at the first lane that needs it (same keys as before)
+    void rmw_note(Tid t0, uint32_t pc, bool is_rmw, RmwPc*& p) {
+        RmwThread& r = rmw_thr.at(t0);
         if (is_rmw) {
-            for (uint32_t u : r.pending) rmw_pts[u].rel.insert(pc);
-            r.pending.clear();
+            if (r.set != 0) {
+                const uint64_t k = (uint64_t(r.set) << 32) | pc;
+                if (k != ptrie.a_key && ptrie.applied.insert(k).second)
+                    for (uint32_t x = r.set; x != 0; x = ptrie.node[x].first)
+                        rmw_pts[ptrie.node[x].second].rel.insert(pc);
+                ptrie.a_key = k;
+            }
+            r.set = 0;
             r.last = pc;
             r.has_last = true;
             r.seen_pc = UINT32_MAX;
         } else {
             if (r.seen_pc == pc) return;                    // the same pc again, nothing new
             r.seen_pc = pc;
-            if (std::find(r.pending.begin(), r.pending.end(), pc) == r.pending.end())
-                r.pending.push_back(pc);
-            RmwPc& p = rmw_pts[pc];
+            r.set = ptrie.add(r.set, pc);
+            if (p == nullptr) p = &rmw_pts[pc];
             if (!r.has_last) {
-                p.orphan = true;
-            } else if (!p.acq_last_valid || p.acq_last != r.last) {
-                p.acq.insert(r.last);
-                p.acq_last = r.last;
-                p.acq_last_valid = true;
+                p->orphan = true;
+            } else if (!p->acq_last_valid || p->acq_last != r.last) {
+                p->acq.insert(r.last);
+                p->acq_last = r.last;
+                p->acq_last_valid = true;
             }
         }
     }
     void rmw_finish() {       // kernel end: a pc still pending in some thread is stranded
-        for (const auto& kv : rmw_thr)
-            for (uint32_t u : kv.second.pending) rmw_pts[u].stranded = true;
+        std::unordered_set<uint32_t> sets;
+        rmw_thr.each([&](Tid, const RmwThread& r) { if (r.set != 0) sets.insert(r.set); });
+        for (uint32_t s : sets)
+            for (uint32_t x = s; x != 0; x = ptrie.node[x].first)
+                rmw_pts[ptrie.node[x].second].stranded = true;
     }
 
     // Block-barrier instance assembly (see the barrier branch in process): buffer
@@ -1023,18 +1146,49 @@ struct HbClock {
         }
     }
 
-    void reset() {
-        pd.clear(); wins.clear(); win_lanes.clear(); clus.clear();   // T14
-        last_pc.clear();                                            // T12
-        vc.clear(); vs.clear(); released.clear(); buckets.clear(); merge_memo.clear();
-        races.clear(); race_index.clear(); sync_pairs.clear();
-        rmw_thr.clear(); rmw_pts.clear();                           // T4
-        pending_barriers.clear();  // block_thread_count is (re)set by hb_clock_reset
-        exited_count.clear(); exited_lanes.clear();
-        bar_warps_seen.clear(); warp_waiting.clear(); tv_violation.clear();
-        atom_idx.clear(); coherence.clear();
-        groups.clear();
+    // T20 (design/thread_index.md section 5): the previous kernel's state is moved into a bundle
+    // and destroyed on a background thread instead of being freed on the launch path. At most
+    // one bundle is in flight (the next reset joins it first); nothing in it is shared with the
+    // new kernel's state (the sidecar tables stay; clock bases are refcounted atomically).
+    struct Dead {
+        decltype(pd) pd_; decltype(wins) wins_; decltype(clus) clus_; decltype(last_pc) last_pc_;
+        ThreadArray<VClock> vc_; ThreadArray<SyncClock> vs_; ThreadArray<RmwThread> rmw_thr_;
+        decltype(released) released_; decltype(merge_memo) merge_memo_;
+        decltype(race_index) race_index_; decltype(sync_pairs) sync_pairs_;
+        decltype(rmw_pts) rmw_pts_; PendTrie ptrie_; decltype(pending_barriers) pending_barriers_;
+        decltype(exited_lanes) exited_lanes_; decltype(bar_warps_seen) bar_warps_seen_;
+        decltype(warp_waiting) warp_waiting_; decltype(atom_idx) atom_idx_;
+        decltype(coherence) coherence_; decltype(groups) groups_;
+        std::vector<FlatBuckets::DSlot> dir_; std::vector<FlatBuckets::TSlot> table_;
+        ~Dead() { FlatBuckets::release_parts(dir_, table_); }
+    };
+    std::thread reaper;
+    bool reap_async = true;                                 // YOSEMITE_HB_SYNC_RESET=1: in line
+    static constexpr uint64_t REAP_MIN = uint64_t(1) << 16;
+    void reap_join() { if (reaper.joinable()) reaper.join(); }
+    ~HbClock() { reap_join(); }
+    void reset(uint64_t block_threads = 0) {
+        reap_join();
+        // a small state is freed in line: a thread start costs more than its teardown
+        const uint64_t weight = vc.size() + vs.size() + rmw_thr.size() + released.size()
+                              + buckets.nseg * 32 + buckets.count;
+        auto d = std::make_unique<Dead>();
+        d->pd_.swap(pd); d->wins_.swap(wins); d->clus_.swap(clus); d->last_pc_.swap(last_pc);
+        vc.reset(block_threads, &d->vc_); vs.reset(block_threads, &d->vs_);
+        rmw_thr.reset(block_threads, &d->rmw_thr_);
+        d->released_.swap(released); d->merge_memo_.swap(merge_memo);
+        d->race_index_.swap(race_index); d->sync_pairs_.swap(sync_pairs);
+        d->rmw_pts_.swap(rmw_pts); std::swap(d->ptrie_, ptrie); ptrie.clear();
+        d->pending_barriers_.swap(pending_barriers); d->exited_lanes_.swap(exited_lanes);
+        d->bar_warps_seen_.swap(bar_warps_seen); d->warp_waiting_.swap(warp_waiting);
+        d->atom_idx_.swap(atom_idx); d->coherence_.swap(coherence); d->groups_.swap(groups);
+        buckets.detach(d->dir_, d->table_);
+        win_lanes.clear();                                          // T14
+        races.clear();
+        exited_count.clear(); tv_violation.clear();
         processed = 0; next_snapshot = stats_every;
+        if (reap_async && weight >= REAP_MIN) reaper = std::thread([dd = std::move(d)]() mutable { dd.reset(); });
+        else d.reset();
     }
 
     // Stable 64-bit FNV-1a of a (tid, atomic-index) sequence; byte-for-byte identical to
@@ -1158,8 +1312,8 @@ struct HbClock {
         return v;
     }
     // what thread t knows of thread u on the sync-only clock
-    uint64_t vs_get(Tid t, Tid u) {
-        const SyncClock& c = vs[t];
+    uint64_t vs_get(Tid t, Tid u) { return sync_get(vs[t], t, u); }
+    static uint64_t sync_get(const SyncClock& c, Tid t, Tid u) {
         if (u == t) return c.own;
         return c.base ? base_get(*c.base, u) : 0;
     }
@@ -1176,9 +1330,11 @@ struct HbClock {
     // thread (the agent always knows its own copies; the thread only those a wait completed)
     // gw (T12): t's RMW window with a pending acquire J -- a conflict J would order is held
     // there (reported iff acq(r) = 0); the flag decision of any other waits for the gate.
+    // ov / os (T20): obs's two clocks when the caller has them (Check: obs = t throughout)
     void conflict(uint64_t addr, int space, uint64_t loc_block, Tid p_tid, const Entry& p,
-                  Tid t, uint32_t pc, uint8_t kind, bool sc, Tid obs, Win* gw = nullptr) {
-        if (vector_pass && p.clock > V(obs).get(p_tid)) {
+                  Tid t, uint32_t pc, uint8_t kind, bool sc, Tid obs, Win* gw = nullptr,
+                  const VClock* ov = nullptr, const SyncClock* os = nullptr) {
+        if (vector_pass && p.clock > (ov != nullptr ? *ov : V(obs)).get(p_tid)) {
             const uint64_t te = V(t).own;
             const Loc loc{space, space == 1 ? loc_block : 0, addr};
             if (gw != nullptr && p.clock <= gw->J.get(p_tid)) {
@@ -1189,7 +1345,8 @@ struct HbClock {
                 else a2_decide(idx, p_tid, p.clock, p.pc, t, pc, obs, loc);   // T14: DR and SC
             }
         }
-        if (sync_only_pass && p.sclock > vs_get(obs, p_tid)) {
+        if (sync_only_pass
+            && p.sclock > (os != nullptr ? sync_get(*os, obs, p_tid) : vs_get(obs, p_tid))) {
             SyncPair& sp = sync_pairs[{std::min(p.pc, pc), std::max(p.pc, pc)}];
             if (sp.count == 0) { sp.first_pc = p.pc; sp.second_pc = pc; }   // T4: first conflict
             sp.count += 1;
@@ -1227,6 +1384,9 @@ struct HbClock {
         const LocSlots* ls = buckets.find(loc);
         if (ls == nullptr) return;
         const uint64_t tb = block_of(t);
+        // T20: t's clocks once per Check, not once per slot (t exists in both: own / owns ran)
+        const VClock* ov = vector_pass ? &V(t) : nullptr;
+        const SyncClock* os = sync_only_pass ? &vs[t] : nullptr;
         // a key group is skipped whole when no pair with it can be reportable
         auto skip = [&](uint8_t gkind, int gscope) {
             if (kind == KIND_R && gkind == KIND_R) return true;
@@ -1242,7 +1402,7 @@ struct HbClock {
             const bool strong = morally_strong(gscope, block_of(u), scope, tb);
             if (strong && both_rmw) return;
             const Entry e{s.clock, s.sclock, s.pc};
-            conflict(addr, space, loc_block, u, e, t, pc, label, strong, t, gw);
+            conflict(addr, space, loc_block, u, e, t, pc, label, strong, t, gw, ov, os);
         };
         const Slot* const p = ls->p;
         for (uint32_t i = 0; i < ls->nsorted;) {             // the sorted prefix, run by run
@@ -1496,14 +1656,24 @@ struct HbClock {
                         + " issues a post-barrier access at pc " + std::to_string(pc)
                         + " while still pending at a barrier");
 
+            // T20: once per record, not per lane. A lane's open-window bit cannot change while
+            // the lanes before it are processed (a2_open / a2_close touch only their own lane),
+            // so the record-start mask decides each lane's close exactly as a per-lane probe did.
+            uint32_t open_lanes = 0;
+            if (!wins.empty()) {
+                const auto wl = win_lanes.find((a.ctaId << 5) | a.warpId);
+                if (wl != win_lanes.end()) open_lanes = wl->second & a.active_mask;
+            }
+            std::array<uint32_t, 32>* lpc = gate != nullptr ? &last_pc[(a.ctaId << 5) | a.warpId] : nullptr;
+            RmwPc* rpt = nullptr;                                   // the record's rmw_pts[pc]
             for (uint32_t lm = a.active_mask; lm != 0; lm &= (lm - 1)) {
                 const uint32_t lane = static_cast<uint32_t>(__builtin_ctz(lm));
-                if (!wins.empty()) a2_close_lanes(a.ctaId, a.warpId, 1u << lane, pc);   // T14
                 const Tid t0 = tid_of(a.ctaId, a.warpId, lane);
-                rmw_note(t0, pc, is_atomic);                        // T4: R3's trace points
+                if (open_lanes & (1u << lane)) a2_close(t0, pc + 1);   // T14
+                rmw_note(t0, pc, is_atomic, rpt);                   // T4: R3's trace points
                 uint32_t prev = 0;                                  // T12: t0's previous record
-                if (gate != nullptr) {
-                    uint32_t& lp = last_pc[(a.ctaId << 5) | a.warpId][lane];
+                if (lpc != nullptr) {
+                    uint32_t& lp = (*lpc)[lane];
                     prev = lp;
                     lp = pc + 1;
                 }
@@ -1630,20 +1800,19 @@ struct HbClock {
         // attributed to vc if some thread holds it, else to the releases that do.
         std::set<const Base*> mbases;
         uint64_t vc_base_entries = 0, vc_delta_entries = 0, vc_max_delta = 0, vc_max_base = 0;
-        uint64_t vc_bytes = vc.size() * mchunk(sizeof(void*) + sizeof(decltype(vc)::value_type))
-                          + hash_buckets(vc);
+        uint64_t vc_bytes = vc.bytes();                     // T20: the dense pages
         auto add_base = [&](const BaseP& b, uint64_t& entries, uint64_t& bytes) {
             if (!b || !mbases.insert(b.get()).second) return;
             entries += b->size();
             bytes += mchunk(16 + sizeof(Base)) + mchunk(b->capacity() * sizeof(Base::value_type));
         };
-        for (const auto& kv : vc) {
-            vc_delta_entries += kv.second.delta.size();
-            vc_max_delta = std::max<uint64_t>(vc_max_delta, kv.second.delta.size());
-            if (kv.second.base) vc_max_base = std::max<uint64_t>(vc_max_base, kv.second.base->size());
-            vc_bytes += clock_bytes(kv.second.delta);
-            add_base(kv.second.base, vc_base_entries, vc_bytes);
-        }
+        vc.each([&](Tid, const VClock& c) {
+            vc_delta_entries += c.delta.size();
+            vc_max_delta = std::max<uint64_t>(vc_max_delta, c.delta.size());
+            if (c.base) vc_max_base = std::max<uint64_t>(vc_max_base, c.base->size());
+            vc_bytes += clock_bytes(c.delta);
+            add_base(c.base, vc_base_entries, vc_bytes);
+        });
         const uint64_t vc_bases = mbases.size();
         const uint64_t vc_entries = vc_base_entries + vc_delta_entries + vc.size();
         uint64_t rel_base_entries = 0, rel_delta_entries = 0;
@@ -1687,14 +1856,14 @@ struct HbClock {
         });
         std::set<const Base*> bases;
         uint64_t vs_base_entries = 0;
-        uint64_t vs_bytes = vs.size() * mchunk(sizeof(void*) + sizeof(decltype(vs)::value_type))
-                          + hash_buckets(vs);
-        for (const auto& kv : vs)
-            if (kv.second.base && bases.insert(kv.second.base.get()).second) {
-                vs_base_entries += kv.second.base->size();
+        uint64_t vs_bytes = vs.bytes();                     // T20: the dense pages
+        vs.each([&](Tid, const SyncClock& c) {
+            if (c.base && bases.insert(c.base.get()).second) {
+                vs_base_entries += c.base->size();
                 vs_bytes += mchunk(16 + sizeof(Base))
-                          + mchunk(kv.second.base->capacity() * sizeof(Base::value_type));
+                          + mchunk(c.base->capacity() * sizeof(Base::value_type));
             }
+        });
         uint64_t arrivals = 0;
         for (const auto& kv : pending_barriers) arrivals += kv.second.arrived.size();
         const uint64_t pend_bytes =
@@ -2283,7 +2452,10 @@ void PcDependency::hb_clock_reset() {
         hc = std::make_unique<HbClock>();
         hc->load_scopes(std::getenv("YOSEMITE_ATOMIC_SCOPE_FILE"));
     }
-    hc->reset();
+    // T20: the thread index needs the block size; YOSEMITE_HB_SYNC_RESET=1 frees the previous
+    // kernel's state in line (the pre-T20 behaviour) instead of on a background thread
+    hc->reap_async = std::getenv("YOSEMITE_HB_SYNC_RESET") == nullptr;
+    hc->reset(_current_block_thread_count);
     // expected participant count for a plain __syncthreads (thread_count 0 in the
     // trace) -> the whole block; used to assemble block-barrier instances.
     hc->block_thread_count = _current_block_thread_count;
