@@ -164,6 +164,49 @@ def dump_gate(trace, gate=None):
     return gate_mode(gate or os.environ.get("CUVEIN_GATE") or trace.get("hb_gate") or "trusting")
 
 
+# T16 (eval/CERTAIN_CLOCK.md; hb_proof.tex section 7, "A2 observed to fail"): which chain edges
+# the vector clock accepts. An (ATOM) edge joins two RMWs r -> q that are successors on one
+# location (q the next RMW on it in the trace) and morally strong:
+#   recorded  every such edge, in the trace's order (the recorded clock, today's default);
+#   certain   only an edge whose issue windows do not overlap -- r's thread has a later record
+#             before q, nx(r) <= pos(q) -- and whose possible coherence intermediates (the RMWs
+#             whose windows reach r's issue or lie inside q's window) are pairwise morally strong
+#             with it; refused in both directions otherwise. Under A2w (an RMW has taken effect
+#             by its thread's next record) every accepted edge is an edge of the execution's own
+#             happens-before, so the certain clock computes a sub-relation of it and, by Lemma
+#             "Monotonicity", reports a superset of the execution's races: sound with today's
+#             collector, complete except on contended hand-offs.
+# The sync instance (barrier_only_pairs, hb_races_sync_only) has no (ATOM) edge: unaffected.
+GATE_POLICIES = ("recorded", "certain")
+
+
+def gate_policy_mode(policy=None):
+    """The chain-edge policy: explicit arg > $CUVEIN_GATE_POLICY > 'recorded'."""
+    policy = policy or os.environ.get("CUVEIN_GATE_POLICY") or "recorded"
+    if policy not in GATE_POLICIES:
+        raise ValueError(f"gate policy '{policy}' not in {GATE_POLICIES}")
+    return policy
+
+
+def dump_gate_policy(trace, policy=None):
+    """The policy to replay one dump with: explicit arg > $CUVEIN_GATE_POLICY > the policy
+    HbClock recorded it under (`hb_gate_policy`, or the `gate_policy` its hb_races carry) >
+    'recorded' (a pre-T16 dump re-scores as it was recorded unless asked otherwise)."""
+    return gate_policy_mode(policy or os.environ.get("CUVEIN_GATE_POLICY")
+                            or dump_policy_of(trace) or "recorded")
+
+
+def dump_policy_of(trace):
+    """The policy a dump's hb_races were computed under, or None (no HbClock keys, or a
+    pre-T16 dump, whose chain is the recorded one)."""
+    p = trace.get("hb_gate_policy")
+    if p is None:
+        for r in trace.get("hb_races") or ():
+            p = r.get("gate_policy")
+            break
+    return p
+
+
 # T4 (design/no_dump.md): a dump written with YOSEMITE_HB_DUMP=0 carries no hb_events but the
 # aggregates HbClock computed online, in both modes -- hb_sync_pass (the offline barrier-only
 # pass's pairs with their widest distance and first orientation), hb_rmw_points (R3's trace
@@ -1500,6 +1543,10 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
     return {
         "inputs": {"cfg_dot": str(dot_path), "trace_json": str(trace_path)},
         "kernel": {"mangled": mangled, "name": trace["kernel"]["kernel_name"]},
+        # T16: the chain-edge policy the dump's hb_races were computed under (None: no HbClock
+        # keys, or a pre-T16 dump = recorded); the tables' "Race (sound)" column is the
+        # verdict of a certain-policy run
+        "gate_policy": dump_policy_of(trace) if hb_races is not None else None,
         "verdicts": verdicts,
         "skipped_edges": skipped,
         "syncs": sorted(({"pc": pc, "pc_hex": hex(pc), "opcode": op,

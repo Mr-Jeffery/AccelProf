@@ -91,6 +91,21 @@ struct HbClock {
     std::unordered_map<std::string, GateTable> kernel_gates;
     const GateTable* gate = nullptr;                        // nullptr: the trusting gate
     bool gate_env_trusting = false;
+    // T16 (eval/CERTAIN_CLOCK.md; hb_proof.tex section 7 "A2 observed to fail"): the chain-edge
+    // policy, YOSEMITE_HB_GATE_POLICY=recorded|certain (default recorded, today's clock).
+    // `certain` accepts a successor edge r -> q (q the next RMW on r's location, morally strong
+    // with r) only when r's window closed before q was issued and the RMWs a window-consistent
+    // coherence order could put between them are pairwise morally strong with the edge; it is
+    // refused in both directions otherwise. The acquire J is then deferred to q's window close
+    // as under the instance gate, and r's chain clock is attached to q's publish only once the
+    // edge is accepted; the possible clock (pd, the a2_uncertain flag) still takes the recorded
+    // join. hb_oracle.py --gate-policy is the specification, 1:1. Counters per kernel:
+    // chain edges (ms successor pairs), `uncertain` (windows overlap), `unsafe` (disjoint but a
+    // possible intermediate is not ms with the edge), `refused` (0 under recorded).
+    bool certain = false;
+    uint64_t chain_edges = 0, chain_uncertain = 0, chain_unsafe = 0, chain_refused = 0;
+    uint64_t chain_open = 0;   // uncertain edges whose releaser's window never closed (kernel end)
+    uint64_t chain_xwarp = 0;  // uncertain edges between RMWs of different warps (A2_WINDOWS.md's count)
     // each thread's latest record pc + 1 (0: none), per warp: rel(r) needs t's previous record
     std::unordered_map<uint64_t, std::array<uint32_t, 32>> last_pc;
 
@@ -248,7 +263,8 @@ struct HbClock {
     // T12: clk is the chain clock Ch_loc, a join (has_clk false: bottom -- the chain broke and
     // no RMW has released since); block/scope label the last RMW on the location. Under the
     // trusting gate has_clk is always true and clk is the last RMW's post-acquire clock.
-    struct Released { VClock clk; uint64_t block; int scope; VClock pd; bool has_clk = true; };
+    struct Released { VClock clk; uint64_t block; int scope; VClock pd; bool has_clk = true;
+                      Tid tid = 0; uint64_t ep = 0; bool isolated = false; };   // T16: who, when, alone?
     // keyed by location, not raw address: shared-memory addresses are per-block
     // offsets, so with >1 block another block's release on the same offset would
     // clobber this block's and its next acquire would miss it (spurious atomic race).
@@ -784,6 +800,12 @@ struct HbClock {
         VClock J, Jpd;
         std::vector<GHeld> gheld;
         std::vector<GDefer> gdefer;
+        // T16: the successor edge r -> this RMW -- exists (ms), r's window closed at this issue,
+        // r was isolated (no window of the location open at r's issue); the cluster's member
+        // count at this issue and the windows open at it (isolated)
+        bool c_edge = false, c_closed = true, c_iso = false;
+        uint32_t c_members0 = 0, c_open0 = 0;
+        uint32_t c_refusals = 0;                            // edges found uncertain on this window
     };
     std::unordered_map<Tid, Win> wins;
     std::unordered_map<uint64_t, uint32_t> win_lanes;       // (block << 5 | warp) -> lanes with one
@@ -830,6 +852,16 @@ struct HbClock {
         bool has_comps = false, has_inflow = false, need_prev = false, has_prev = false;
         std::vector<Comp> comps, inflow;                    // its components; the multi one's before
         Released prev;                                      // the single RMW before, if no inflow
+        // T16: are the location's RMWs so far pairwise morally strong? Iff no none-scope RMW
+        // and (every RMW grid-scope, or all of them in one block); kept across clusters
+        bool ms_has = false, ms_none = false, ms_multi = false;
+        int ms_min = SCOPE_GRID; uint64_t ms_blk = 0;
+        void ms_note(int s, uint64_t blk) {
+            if (!ms_has) { ms_has = true; ms_min = s; ms_blk = blk; }
+            else { ms_min = std::min(ms_min, s); ms_multi = ms_multi || blk != ms_blk; }
+            ms_none = ms_none || s == SCOPE_NONE;
+        }
+        bool ms_pairwise() const { return !ms_none && (ms_min == SCOPE_GRID || !ms_multi); }
     };
     std::map<Loc, Clu> clus;
     static const Clock& empty_clock() { static const Clock e; return e; }
@@ -876,6 +908,7 @@ struct HbClock {
     // it was (its inflow); two singletons in a row need none -- the recorded chain is exact.
     void a2_open(Tid t, const Loc& loc, int scope, uint64_t blk) {
         Clu& st = clus[loc];
+        const uint32_t open0 = st.open;                     // T16: windows of loc open at this issue
         if (st.open == 0) {                                 // every earlier window closed: new
             st.members = 0; st.comps.clear(); st.has_comps = false;
             st.need_prev = !st.has_inflow; st.has_prev = false;
@@ -904,10 +937,13 @@ struct HbClock {
             st.has_comps = true;
         }
         if (st.has_comps && scope != SCOPE_NONE) comp_add(st.comps, scope, blk, true);
+        st.ms_note(scope, blk);                             // T16
         Win& w = wins[t];
         w.loc = loc; w.scope = scope; w.ep = own(t); w.blk = blk; w.pend.clear(); w.held.clear();
         w.g = false; w.g_rel = true; w.g_hasj = false; w.g_pc = 0;           // T12
         w.J = VClock{}; w.Jpd = VClock{}; w.gheld.clear(); w.gdefer.clear();
+        w.c_edge = false; w.c_closed = true; w.c_iso = false;               // T16
+        w.c_members0 = st.members; w.c_open0 = open0; w.c_refusals = 0;
         win_lanes[((t >> 10) << 5) | ((t >> 5) & 31)] |= 1u << (t & 31);
     }
     // t's next record (pc nxt - 1; nxt = 0: the end of the kernel) closes its window: under the
@@ -915,13 +951,24 @@ struct HbClock {
     // the decisions held on the window.
     void a2_close(Tid t, uint32_t nxt) {
         auto wit = wins.find(t);
-        bool acq = true, grel = true;
+        bool acq = true, grel = true, cert = true;
+        if (nxt == 0) chain_open += wit->second.c_refusals;   // T16: never closed by a record
+        if (wit->second.c_edge) {                           // T16: is the edge r -> q certain?
+            const Win& w = wit->second;                     // (counted under both policies; it
+            const Clu& st = clus[w.loc];                    // decides only under `certain`)
+            const bool quiet = st.members == w.c_members0;  // no RMW of loc issued in the window
+            const bool safe = w.c_closed && (st.ms_pairwise() || (w.c_iso && quiet));
+            chain_unsafe += w.c_closed && !safe;
+            if (certain) { cert = safe; chain_refused += !safe; }
+        }
         if (wit->second.g) {
             Win& g = wit->second;
             grel = g.g_rel;
-            acq = nxt == 0 || gate_listed(g.g_pc, nxt - 1, false);
-            if (acq) {                                      // the deferred acquire
-                if (g.g_hasj) { join_vc(V(t), g.J); pd_join(t, g.Jpd); }
+            acq = gate == nullptr || nxt == 0 || gate_listed(g.g_pc, nxt - 1, false);
+            const bool acc = acq && cert;                   // T16: the gate's acquire AND a certain edge
+            if (acq) pd_join(t, g.Jpd);                     // the possible clock takes the recorded join
+            if (acc) {                                      // the deferred acquire
+                if (g.g_hasj) join_vc(V(t), g.J);
             } else {                                        // no acquire: report what it held
                 for (const GHeld& h : g.gheld)
                     g.gdefer.push_back(GDefer{report(h.addr, h.space, h.loc_block, h.u, h.e, t,
@@ -934,6 +981,16 @@ struct HbClock {
             g.gheld.clear();
             for (const GDefer& d : defer)
                 a2_decide(d.idx, d.u, d.ue, d.upc, t, d.pc, t, d.loc, d.te);
+            if (certain && cert && g.g_hasj) {
+                // T16: the edge is certain -- the chain passes through this RMW: attach r's chain
+                // clock to its publish, if that is still the location's current one (an RMW
+                // issued inside this window replaced it, and refused the edge from it anyway)
+                auto rr = released.find(g.loc);
+                if (rr != released.end() && rr->second.tid == t && rr->second.ep == g.ep) {
+                    if (!rr->second.has_clk) { rr->second.clk = g.J; rr->second.has_clk = true; }
+                    else join_vc(rr->second.clk, g.J);
+                }
+            }
             wit = wins.find(t);
         }
         Win w = std::move(wit->second);
@@ -1024,6 +1081,7 @@ struct HbClock {
     }
 
     void reset() {
+        chain_edges = chain_uncertain = chain_unsafe = chain_refused = chain_open = chain_xwarp = 0;   // T16
         pd.clear(); wins.clear(); win_lanes.clear(); clus.clear();   // T14
         last_pc.clear();                                            // T12
         vc.clear(); vs.clear(); released.clear(); buckets.clear(); merge_memo.clear();
@@ -1526,23 +1584,41 @@ struct HbClock {
                     // gate (T12): rel(r) from t's previous record now; the acquire J is held in
                     // r's window until t's next record decides acq(r).
                     auto rit = released.find(loc);
+                    bool c_closed = true, c_iso = false;            // T16
                     if (rit != released.end()) {
                         const int eff = std::min(pit->second.scope, rit->second.scope);
                         chain_ok = eff == SCOPE_GRID || (eff == SCOPE_BLOCK && rit->second.block == a.ctaId);
-                        if (chain_ok && gate == nullptr) {
+                        if (chain_ok) {
+                            // T16: the successor edge r -> q. r's window is open iff r's thread
+                            // still holds the window of that very RMW (its epoch, on loc)
+                            chain_edges += 1;
+                            const auto wr = wins.find(rit->second.tid);
+                            c_closed = wr == wins.end() || wr->second.ep != rit->second.ep
+                                       || !(wr->second.loc == loc);
+                            chain_uncertain += !c_closed;
+                            if (!c_closed) {
+                                wr->second.c_refusals += 1;
+                                chain_xwarp += (rit->second.tid >> 5) != (t0 >> 5);
+                            }
+                            c_iso = rit->second.isolated;
+                        }
+                        if (chain_ok && gate == nullptr && !certain) {
                             join_vc(V(t), rit->second.clk);
                             pd_join(t, rit->second.pd);             // T14
                         }
                     }
-                    if (gate != nullptr) {
+                    if (gate != nullptr || certain) {               // T16: certain defers too
                         Win& w = wins[t];
                         w.g = true;
                         w.g_pc = pc;
-                        w.g_rel = prev == 0 || gate_listed(pc, prev - 1, true);
+                        w.g_rel = gate == nullptr || prev == 0 || gate_listed(pc, prev - 1, true);
                         w.g_hasj = chain_ok && rit->second.has_clk;
-                        if (w.g_hasj) { w.J = rit->second.clk; w.Jpd = rit->second.pd; }
+                        if (w.g_hasj) w.J = rit->second.clk;
+                        // the pd channel flows with the chain whether or not r's clock is bottom
+                        if (chain_ok && (w.g_hasj || certain)) w.Jpd = rit->second.pd;
                         if (w.g_hasj) gw = &w;
                     }
+                    { Win& w = wins[t]; w.c_edge = chain_ok; w.c_closed = c_closed; w.c_iso = c_iso; }
                 }
                 const uint64_t clk = vector_pass ? own(t) : 0;
                 const uint64_t sclk = sync_only_pass ? owns(t) : 0;
@@ -1567,11 +1643,12 @@ struct HbClock {
                     Clu& st = clus[loc];                            // T14
                     const auto rit2 = released.find(loc);
                     Released nr{V(t), a.ctaId, pit->second.scope, pd_of(t)};
-                    if (gate != nullptr) {
+                    nr.tid = t; nr.ep = clk; nr.isolated = wins[t].c_open0 == 0;   // T16
+                    if (gate != nullptr || certain) {
                         // T12: Ch_loc is a join; it breaks when r is not ms with the last RMW;
                         // only a releasing r publishes; the label is always r's
                         nr.clk = VClock{}; nr.pd = VClock{}; nr.has_clk = false;
-                        if (chain_ok && rit2->second.has_clk) {
+                        if (chain_ok && rit2->second.has_clk && !certain) {
                             nr.clk = rit2->second.clk; nr.pd = rit2->second.pd; nr.has_clk = true;
                         }
                         if (wins[t].g_rel) {
@@ -1579,12 +1656,21 @@ struct HbClock {
                             else { join_vc(nr.clk, V(t)); join_vc(nr.pd, pd_of(t)); }
                             nr.has_clk = true;
                         }
+                        if (certain) {
+                            // T16: the clock channel publishes the own part only -- r's chain
+                            // clock is attached at this window's close iff the edge r -> q is
+                            // certain (a2_close). The pd channel carries what the recorded clock
+                            // would publish (r's recorded clock and pd, the own clock and pd),
+                            // so the possible clock, hence a2_uncertain, is the recorded policy's.
+                            if (chain_ok) join_vc(nr.pd, rit2->second.pd);
+                            if (wins[t].g_rel) join_vc(nr.pd, V(t));
+                        }
                     }
-                    const bool contributes = gate == nullptr || wins[t].g_rel;
+                    const bool contributes = (gate == nullptr && !certain) || wins[t].g_rel;
                     if (st.has_comps && pit->second.scope != SCOPE_NONE && contributes) {
                         Comp* c = comp_of(st.comps, pit->second.scope, a.ctaId);   // its component
                         if (c != nullptr) {
-                            if (gate == nullptr) { join_vc(c->J, V(t)); join_vc(c->J, pd_of(t)); }
+                            if (gate == nullptr && !certain) { join_vc(c->J, V(t)); join_vc(c->J, pd_of(t)); }
                             else { join_vc(c->J, nr.clk); join_vc(c->J, nr.pd); }
                         }
                     }
@@ -1743,6 +1829,11 @@ struct HbClock {
           << ", \"released_pd_entries\": " << rel_pd << ", \"windows\": " << wins.size()
           << ", \"held\": " << held << ", \"clusters\": " << clus.size() << ", \"multi\": " << multi
           << ", \"cluster_clock_entries\": " << clu_entries << "}";
+        // T16: the chain edges of the kernel so far and the policy
+        o << ", \"gate_policy\": \"" << (certain ? "certain" : "recorded") << "\""
+          << ", \"chain\": {\"edges\": " << chain_edges << ", \"uncertain\": " << chain_uncertain
+          << ", \"unsafe\": " << chain_unsafe << ", \"refused\": " << chain_refused
+          << ", \"open\": " << chain_open << ", \"xwarp\": " << chain_xwarp << "}";
     }
 
     void emit(std::ostream& jout) {
@@ -1825,6 +1916,7 @@ struct HbClock {
             if (r.asy)   // T1a: which side is an agent's copy
                 jout << ", \"async\": \"" << (r.asy == 3 ? "ab" : r.asy == 1 ? "a" : "b") << "\"";
             jout << ", \"count\": " << r.count << ", \"a2_uncertain\": " << r.a2;
+            jout << ", \"gate_policy\": \"" << (certain ? "certain" : "recorded") << "\"";   // T16
             jout << "}";
             if (i + 1 < races.size()) jout << ",";
             jout << "\n";
@@ -1832,6 +1924,12 @@ struct HbClock {
         jout << "  ]";
         jout << ",\n  \"hb_a2\": 1";   // T14: hb_races carry a2_uncertain (design/a2_flag.md)
         jout << ",\n  \"hb_gate\": \"" << (gate != nullptr ? "instance" : "trusting") << "\"";   // T12
+        // T16: the chain-edge policy of hb_races and the kernel's chain edges (counted under
+        // both policies: `refused` is 0 under recorded)
+        jout << ",\n  \"hb_gate_policy\": \"" << (certain ? "certain" : "recorded") << "\"";
+        jout << ",\n  \"hb_chain\": {\"edges\": " << chain_edges << ", \"uncertain\": " << chain_uncertain
+             << ", \"unsafe\": " << chain_unsafe << ", \"refused\": " << chain_refused
+             << ", \"open\": " << chain_open << ", \"xwarp\": " << chain_xwarp << "}";
         // barrier/syncwarp-only race pairs [pc_lo, pc_hi, count]; key absent when the
         // second pass is disabled so sync_dominance falls back to plain `latent`.
         if (sync_only_pass) {
@@ -2020,6 +2118,22 @@ static bool hb_stats_enabled() {
 // in both modes, and written at kernel end under "hb_aggregates": 1. Default 1: the lossless
 // dump, with the same aggregates beside it. Read once; D4: T2's host analysis (python/host_hb.py)
 // takes each kernel's footprint from the records, so the two flags together are refused.
+// T16 (eval/CERTAIN_CLOCK.md): YOSEMITE_HB_GATE_POLICY=certain makes HbClock accept a chain edge
+// between two RMWs only when their issue windows do not overlap (the certain clock: sound
+// under A2w, complete except on contended hand-offs); default `recorded`, today's clock. Read
+// once; zero cost when unset.
+static bool hb_gate_policy_certain() {
+    static const bool on = [] {
+        const char* v = std::getenv("YOSEMITE_HB_GATE_POLICY");
+        if (v == nullptr || *v == '\0' || std::string(v) == "recorded") return false;
+        if (std::string(v) == "certain") return true;
+        fprintf(stderr, "[cuVein] YOSEMITE_HB_GATE_POLICY=%s is neither recorded nor certain; "
+                        "using recorded\n", v);
+        return false;
+    }();
+    return on;
+}
+
 static bool hb_dump_enabled() {
     static const bool on = [] {
         const char* v = std::getenv("YOSEMITE_HB_DUMP");
@@ -2291,6 +2405,7 @@ void PcDependency::hb_clock_reset() {
     const char* strict_env = std::getenv("YOSEMITE_HB_STRICT");
     hc->strict = (strict_env == nullptr) || (std::string(strict_env) != "0");
     hc->sync_only_pass = std::getenv("YOSEMITE_HB_NO_SYNC_ONLY") == nullptr;
+    hc->certain = hb_gate_policy_certain();                  // T16
     // T4: in scalar-clock mode HbClock runs the sync instance only (Detect(T, sync)): the
     // barrier-only pass, the TV monitor and R3's trace points online, no vector clock.
     hc->vector_pass = !hb_scalar_clock_mode();
