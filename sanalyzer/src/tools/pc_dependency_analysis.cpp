@@ -697,7 +697,21 @@ struct HbClock {
     // keeps n. `count` is the segment's thread_count (0 = whole block), so an exit can
     // re-check the segment (procedure Complete).
     uint64_t block_thread_count = 0;
-    struct Pending { std::set<Tid> arrived; uint64_t count = 0; };
+    // T20: the arrived threads of an open segment as one lane mask per warp of the block (a tid
+    // has 5 warp bits), not a std::set<Tid> -- no allocation per arriving thread. Iterating
+    // warps, then lanes, yields the set's order (tid order within one block).
+    struct Arrived {
+        std::array<uint32_t, 32> mask{};
+        uint64_t n = 0;
+        void add(uint32_t warp, uint32_t lanes) {
+            n += static_cast<uint64_t>(__builtin_popcount(lanes & ~mask[warp]));
+            mask[warp] |= lanes;
+        }
+        bool has(uint32_t warp, uint32_t lane) const { return (mask[warp] >> lane) & 1u; }
+        size_t size() const { return n; }
+        bool empty() const { return n == 0; }
+    };
+    struct Pending { Arrived arrived; uint64_t count = 0; };
     std::map<std::pair<uint64_t, uint32_t>, Pending> pending_barriers;
     std::unordered_map<uint64_t, uint64_t> exited_count;               // block -> exited threads
     std::map<std::pair<uint64_t, uint32_t>, uint32_t> exited_lanes;     // (block,warp) -> lane mask
@@ -809,7 +823,11 @@ struct HbClock {
     }
     // the instance of an open segment: join its participants and close the segment
     void fire(std::map<std::pair<uint64_t, uint32_t>, Pending>::iterator it) {
-        std::vector<Tid> tids(it->second.arrived.begin(), it->second.arrived.end());
+        std::vector<Tid> tids;
+        tids.reserve(it->second.arrived.size());
+        for (uint32_t w = 0; w < 32; ++w)
+            for (uint32_t m = it->second.arrived.mask[w]; m != 0; m &= (m - 1))
+                tids.push_back(tid_of(it->first.first, w, static_cast<uint32_t>(__builtin_ctz(m))));
         if (strict)
             for (Tid t : tids)
                 warp_waiting.erase({it->first.first, static_cast<uint32_t>((t >> 5) & 0x1f)});
@@ -842,8 +860,7 @@ struct HbClock {
             // W2: an exiting thread cannot be waiting at an open segment.
             if (strict)
                 for (uint32_t m = fresh; m != 0; m &= (m - 1))
-                    if (it->second.arrived.count(tid_of(a.ctaId, a.warpId,
-                            static_cast<uint32_t>(__builtin_ctz(m))))) {
+                    if (it->second.arrived.has(a.warpId, static_cast<uint32_t>(__builtin_ctz(m)))) {
                         tv_fail("TV-barrier-completion-order: block " + std::to_string(a.ctaId)
                                 + " warp " + std::to_string(a.warpId)
                                 + " exits a thread still pending at barrier "
@@ -1607,8 +1624,7 @@ struct HbClock {
                 const std::pair<uint64_t, uint32_t> key{a.ctaId, a.flags};
                 Pending& p = pending_barriers[key];
                 p.count = a.accessSize;
-                for (uint32_t m = a.active_mask; m != 0; m &= (m - 1))
-                    p.arrived.insert(tid_of(a.ctaId, a.warpId, static_cast<uint32_t>(__builtin_ctz(m))));
+                p.arrived.add(a.warpId, a.active_mask);             // T20
                 if (strict) bar_warps_seen[key].insert(a.warpId);
                 const uint64_t expected = expected_of(key, p);
                 // TV-barrier-overfill: arrivals must never EXCEED the expected count.
@@ -1867,8 +1883,8 @@ struct HbClock {
         uint64_t arrivals = 0;
         for (const auto& kv : pending_barriers) arrivals += kv.second.arrived.size();
         const uint64_t pend_bytes =
-            pending_barriers.size() * mchunk(32 + sizeof(decltype(pending_barriers)::value_type))
-            + arrivals * mchunk(32 + sizeof(Tid));
+            pending_barriers.size() * mchunk(32 + sizeof(decltype(pending_barriers)::value_type));
+                                                            // T20: arrivals are masks in the node
         o << "\"vc\": {\"threads\": " << vc.size() << ", \"entries\": " << vc_entries
           << ", \"bases\": " << vc_bases << ", \"base_entries\": " << vc_base_entries
           << ", \"max_base\": " << vc_max_base << ", \"delta_entries\": " << vc_delta_entries
