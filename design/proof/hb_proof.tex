@@ -1057,6 +1057,43 @@ effective contention; the collector's buffer-full handshake releasing parked war
 bursts). What the corpus says is the statement to rely on: after T10 the three programs above
 are clean with their pairs $\SC$, so on the 558 programs no \textsc{Race}-alone verdict
 depends on A2; the exposure is confined to the $\SC$ column and to ScoR under ScoRD's notion.
+\emph{The certain clock} (T16, D16, \texttt{eval/CERTAIN\_CLOCK.md};
+\texttt{YOSEMITE\_HB\_GATE\_POLICY=certain}, the oracle's \texttt{--gate-policy}). Three clocks
+can be computed from one trace, differing only in which (ATOM) edges between successors
+$r\to q$ on one location they take: the recorded clock (the default) takes the trace's order;
+the possible clock behind the flag takes every order the windows allow; the certain clock
+takes the edge only when the two issue windows do not overlap, $\mathrm{nx}(r)\le\mathrm{pos}(q)$
+with $\mathrm{nx}(r)$ the position of the next record of $r$'s thread (an exit record included),
+and refuses it in both directions otherwise. The decision is online: when $q$ is processed,
+$r$'s thread has either produced a later record or not. A refused step breaks the chain clock
+$\Ch_\ell$ at $q$ (what $q$ publishes is its own clock, not $r$'s), and the acquire of an
+accepted edge is deferred to $q$'s window close as the instance gate's is. One refinement is
+needed for the argument below: an RMW $z$ whose window reaches $r$'s issue, or which is issued
+inside $q$'s window, may lie between $r$ and $q$ in coherence order under A2w, so the edge is
+taken only if every such $z$ is pairwise morally strong with $r$, $q$ and the other such $z$ --- a
+location whose RMWs all carry one scope (a lock word, a counter) satisfies this trivially.
+\emph{Sub-relation.} Under A1, A2w and A3 let $\mathrm{co}$ be the execution's coherence order
+and $\HB^{\mathrm{co}}$ Definition~\ref{def:hb} with the successor relation of
+Definition~\ref{def:gate} taken from $\mathrm{co}$ instead of $\seq$ (the execution's own
+happens-before, as in Proposition~\ref{prop:fidelity}). Every edge the certain clock takes is
+an edge of $\HB^{\mathrm{co}}$: $\mathrm{nx}(r)\le\mathrm{pos}(q)$ gives $r<_{\mathrm{co}}q$ by
+A2w; an RMW $\mathrm{co}$-between them is one that can be $\mathrm{co}$-after $r$ (its window
+reaches $\mathrm{pos}(r)$) and $\mathrm{co}$-before $q$ (issued before $\mathrm{nx}(q)$), i.e.\ one
+of the $z$ above, and pairwise moral strength makes $r=z_0,\dots,z_k=q$ a chain of morally
+strong $\mathrm{co}$-successors, so $r\chain q$ in $\HB^{\mathrm{co}}$; $\rel$ and $\acq$ are
+evaluated on the same records in both relations, and the other generators do not depend on
+the order of RMWs. Hence $\to_{\mathrm{certain}}\subseteq\HB^{\mathrm{co}}$ and, by
+Lemma~\ref{lem:mono}, $\Rep_{\mathrm{certain}}\supseteq\Rep^{\mathrm{co}}$: no race of the
+execution is missed --- soundness with the collector as it is --- at the price of completeness
+on contended hand-offs (every refused edge the execution did take leaves ordered pairs
+reported) and, on a dump without exit records, of every edge from a thread's last RMW (its
+window never closes). The same argument with $\mathrm{co}=\seq$ gives
+$\to_{\mathrm{certain}}\subseteq\HB$, hence the invariant the re-score asserts on every kernel,
+$\Rep_{\mathrm{certain}}\supseteq\Rep_{\mathrm{recorded}}$; the added instances are those the
+recorded order ordered through a refused edge, which the possible clock flags
+(\texttt{a2\_uncertain} is computed under the recorded join in both policies). The sync
+instance has no (ATOM) edge, so scalar-clock mode is unaffected. The tables give the certain
+clock's verdicts as a third operating point, ``Race (sound)''.
 \emph{Monitor}: one unit test
 per check that must raise plus a valid multi-warp control that must not (five of the seven
 tests of \texttt{test\_barrier\_soundness.py}, passing; they exercise \texttt{hb\_oracle.py},
@@ -1114,8 +1151,9 @@ suites before the submission. (8) The certain clock (\S\ref{sec:impl}, ``A2 obse
 fail''): accept a chain edge only when the two RMW windows do not overlap; under A2w its
 happens-before is a sub-relation of the execution's, so by Lemma~\ref{lem:mono} it misses
 no race of the execution --- a sound operating point without a new collector, at the price
-of completeness on contended hand-offs; one switch in the edge acceptance, no GPU; a
-decision, not yet taken. Deferred past the submission: the value-recording collector (A2), I6, I7 (model and
+of completeness on contended hand-offs; one switch in the edge acceptance, no GPU. Decided
+2026-10-11 (D16) and built as T16 (\texttt{YOSEMITE\_HB\_GATE\_POLICY}, the paragraph above).
+Deferred past the submission: the value-recording collector (A2), I6, I7 (model and
 re-proof; stated as a limitation), the \texttt{bar.arrive} and access-size deviations
 (none in the corpus), the discharge of MM1--MM3 and the referee notes of
 \S\ref{sec:cert}. Obligations kept from v4: uniform access size and generic proxy per

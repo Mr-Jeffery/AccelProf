@@ -147,6 +147,15 @@ theirs).
   `hb_oracle.py`, `atomic_scope_sidecar.py`), `YOSEMITE_HB_NO_SYNC_ONLY=1` (disable HbClock's
   barrier-only second clock; `barrier-ordered` then degrades to `latent`).
 - `hb_races[*].a2_uncertain` (T14; dumps marked `hb_a2: 1`): the number of a report's instances that some coherence order consistent with the RMW windows would order — informational, never a verdict (D15, `design/a2_flag.md`).
+- The chain-edge policy (T16, `eval/CERTAIN_CLOCK.md`): `YOSEMITE_HB_GATE_POLICY=recorded|certain` for `HbClock`,
+  `hb_oracle.py --gate-policy` / `$CUVEIN_GATE_POLICY` offline (default: the dump's `hb_gate_policy`, else `recorded`).
+  `certain` takes an (ATOM) edge between two RMWs only when their issue windows do not overlap (and the RMWs a
+  window-consistent coherence order could put between them are pairwise morally strong) — the certain clock: sound
+  under A2w, complete except on contended hand-offs, its reports a superset of the recorded clock's. The dump carries
+  `hb_gate_policy`, every `hb_races` record `gate_policy`, and `hb_chain` (the kernel's chain edges: `uncertain` =
+  windows overlap, `open` = the releaser's window never closed, `unsafe` = a non-ms intermediate, `refused`); a
+  `parallel.py analyze` row of a certain-policy store carries `gate_policy=certain` in `notes`, which is what
+  `make_tables.py --certain-results <dir>` keys the "Race (sound)" column on.
 - `sbatch eval/baselines/setup/p_fpfix.sh` re-runs P1–P6 with the current detector into
   `eval/results/fpfix/`, `eval/baselines/confirm_fpfix/`, `eval/baselines/traces_keep_fpfix/` (the merged
   baseline is untouched); `python3 eval/baselines/compare_fpfix.py` prints before/after FP/TP and

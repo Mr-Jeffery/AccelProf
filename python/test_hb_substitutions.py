@@ -327,8 +327,8 @@ _A2_OPS = {   # pc: (opcode, location, record type); one location per pc
     0x78: ("LD.E.STRONG.GPU", 0x3000, "read"),            # strong (every --strong-ldst policy
     0x88: ("ST.E.STRONG.GPU", 0x3000, "write"),           # but none): SC pairs among them
 }
-_CAS, _EXCH, _ADDN, _LDX, _STX, _STF, _LDF, _LDY, _BAR = \
-    0x10, 0x20, 0x38, 0x18, 0x28, 0x30, 0x60, 0x68, 0x40
+_CAS, _EXCH, _ADDN, _LDX, _STX, _STF, _LDF, _LDY, _BAR, _EXIT = \
+    0x10, 0x20, 0x38, 0x18, 0x28, 0x30, 0x60, 0x68, 0x40, 0x80
 
 
 def _a2_dump(tmp_path, events, block_tc=32):
@@ -343,6 +343,10 @@ def _a2_dump(tmp_path, events, block_tc=32):
             ev.append({"seq": s, "type": "barrier", "block": block, "warp": warp, "pc": pc,
                        "bar_index": 0, "thread_count": 0, "active_mask": mask})
             continue
+        if pc == _EXIT:                         # T16: the lanes' exit (T3b record) closes their windows
+            ev.append({"seq": s, "type": "exit", "block": block, "warp": warp, "pc": pc,
+                       "active_mask": mask})
+            continue
         _, addr, typ = _A2_OPS[pc]
         ev.append({"seq": s, "type": typ, "block": block, "warp": warp, "pc": pc,
                    "space": "global", "size": 4, "active_mask": mask,
@@ -352,6 +356,7 @@ def _a2_dump(tmp_path, events, block_tc=32):
         d.write_text('digraph "x" {\n subgraph "cluster_k" {\n'
                      f'  "k" [shape=Mrecord, label="{{{body}}}"];\n }}\n}}\n')
     t.write_text(json.dumps({"kernel": {"kernel_name": "k", "block_thread_count": block_tc},
+                             **({"hb_exits": 1} if any(e["type"] == "exit" for e in ev) else {}),
                              "hb_events": ev}))
     return d, t
 
@@ -569,3 +574,188 @@ def test_lock_control_race_is_not_a2_uncertain(a2lock):
     assert races and all(r["class"] == "DR" and r["a2_uncertain"] == 0 for r in races)
     vs = [v for v in _a2_verdicts(dots, ks["kcontrol"]) if v["verdict"] == "RACE"]
     assert vs and all(v["a2_uncertain"] is False for v in vs)
+
+
+# --- T16: the certain clock (eval/CERTAIN_CLOCK.md) ----------------------------------------
+# Three clocks from one trace, differing in which chain edges r -> q between two RMWs on one
+# location they take: recorded (the trace's order), possible (the flag), certain (only when the
+# windows do not overlap). Hand-made traces; the GPU litmus below.
+
+def _policy_pairs(rep):
+    """{(a_pc, b_pc, kind, class): [instances, flagged]} of an oracle report."""
+    out = {}
+    for r in rep["races"]:
+        c = out.setdefault((r["a_pc"], r["b_pc"], r["kind"], r["class"]), [0, 0])
+        c[0] += r["count"]
+        c[1] += r["a2_uncertain"]
+    return out
+
+
+def _both(tmp_path, events, block_tc=32):
+    d, t = _a2_dump(tmp_path, events, block_tc)
+    rec = hb_oracle.analyze(str(d), str(t), gate_policy="recorded")
+    cer = hb_oracle.analyze(str(d), str(t), gate_policy="certain")
+    assert rec["gate_policy"] == "recorded" and cer["gate_policy"] == "certain"
+    assert all(r["gate_policy"] == "certain" for r in cer["races"])
+    return rec, cer
+
+
+def test_certain_refuses_an_overlapping_handoff(tmp_path):
+    # B writes x, then its CAS; A's CAS is recorded while B's window is still open (B's next
+    # record, its exit, comes later): the recorded clock takes B -> A and orders (B's write,
+    # A's read); the certain clock refuses the edge, reports the pair and flags it (the
+    # recorded order is a window-consistent coherence order)
+    ev = [(_B, 0, _STX), (_B, 0, _CAS), (_A, 0, _CAS), (_B, 0, _EXIT), (_A, 0, _LDX)]
+    rec, cer = _both(tmp_path, ev)
+    assert _policy_pairs(rec) == {}
+    assert _policy_pairs(cer) == {(_STX, _LDX, "RAW", "DR"): [1, 1]}
+    assert rec["chain"] == {"edges": 1, "uncertain": 1, "unsafe": 0, "refused": 0, "open": 0, "xwarp": 1}
+    assert cer["chain"] == {"edges": 1, "uncertain": 1, "unsafe": 0, "refused": 1, "open": 0, "xwarp": 1}
+
+
+def test_certain_takes_a_closed_handoff(tmp_path):
+    # the same hand-off with B's window closed (its exit) before A's CAS: certain == recorded
+    ev = [(_B, 0, _STX), (_B, 0, _CAS), (_B, 0, _EXIT), (_A, 0, _CAS), (_A, 0, _LDX)]
+    rec, cer = _both(tmp_path, ev)
+    assert _policy_pairs(rec) == _policy_pairs(cer) == {}
+    assert cer["chain"] == {"edges": 1, "uncertain": 0, "unsafe": 0, "refused": 0, "open": 0, "xwarp": 0}
+
+
+def test_certain_open_ended_window_without_exit_records(tmp_path):
+    # no exit record (a pre-T3b dump): B's last RMW keeps its window open to the end of the
+    # kernel, so the edge is refused and counted as open-ended -- the limitation the re-score
+    # of the exit-less stores carries (eval/CERTAIN_CLOCK.md)
+    ev = [(_B, 0, _STX), (_B, 0, _CAS), (_A, 0, _CAS), (_A, 0, _LDX)]
+    rec, cer = _both(tmp_path, ev)
+    assert _policy_pairs(rec) == {}
+    assert _policy_pairs(cer) == {(_STX, _LDX, "RAW", "DR"): [1, 1]}
+    assert cer["chain"] == {"edges": 1, "uncertain": 1, "unsafe": 0, "refused": 1, "open": 1, "xwarp": 1}
+
+
+def test_certain_refuses_a_non_ms_coherence_intermediate(tmp_path):
+    # r (A's CAS) closed before q (B's CAS), but a block-scope RMW of another block is issued
+    # inside q's window: under A2w it may sit between r and q in coherence order and, not being
+    # morally strong with them, break the execution's chain -- the edge is refused ("unsafe")
+    # (B's block, so morally strong with q but not with r). The recorded clock takes both edges
+    # (r -> q, then q -> z, z in B's block) and orders everything; the certain clock refuses r -> q
+    # (unsafe) and q -> z (z inside q's window) and reports (A's write, B's read) and the non-ms
+    # RMW pair (A's CAS, z), both flagged
+    blk = 0x58                              # ATOMG.E.ADD.STRONG.SM, block scope
+    ev = [(_A, 0, _STX), (_A, 0, _CAS), (_A, 0, _EXIT), (_B, 0, _CAS), (_B, 1, blk), (_B, 0, _LDX)]
+    rec, cer = _both(tmp_path, ev)
+    assert _policy_pairs(rec) == {}
+    assert _policy_pairs(cer) == {(_STX, _LDX, "RAW", "DR"): [1, 1], (_CAS, blk, "atomic", "DR"): [1, 1]}
+    assert rec["chain"] == {"edges": 2, "uncertain": 1, "unsafe": 1, "refused": 0, "open": 0, "xwarp": 1}
+    assert cer["chain"] == {"edges": 2, "uncertain": 1, "unsafe": 1, "refused": 2, "open": 0, "xwarp": 1}
+    # the same intermediate at grid scope is morally strong with both: r -> q is taken (q -> z,
+    # inside q's window, is still refused, and orders nothing here)
+    (tmp_path / "ms").mkdir()
+    ev2 = [(_A, 0, _STX), (_A, 0, _CAS), (_A, 0, _EXIT), (_B, 0, _CAS), (_B, 1, _EXCH), (_B, 0, _LDX)]
+    rec2, cer2 = _both(tmp_path / "ms", ev2)
+    assert _policy_pairs(rec2) == _policy_pairs(cer2) == {}
+    assert cer2["chain"] == {"edges": 2, "uncertain": 1, "unsafe": 0, "refused": 1, "open": 0, "xwarp": 1}
+
+
+def test_certain_superset_and_flag_randomized(tmp_path):
+    # 200 random traces (as test_a2_only_over_flags_randomized): under `certain` the race set
+    # is a superset of the recorded one at the aggregate key, counts included (the invariant of
+    # the brief), the sync pairs are equal, no instance some window-consistent coherence order
+    # orders is left unflagged under either policy, and the unflagged instances are the same --
+    # what the certain clock adds is exactly the flagged population
+    import random
+    rng = random.Random(16)
+    added = 0
+    for n in range(200):
+        while True:
+            thr = [(rng.choice((0, 1)), w) for w in range(rng.choice((2, 3, 3, 4)))]
+            left = [[rng.choice(list(_A2_OPS)) for _ in range(rng.randint(2, 5))] for _ in thr]
+            per = [_A2_OPS[pc][1] for p in left for pc in p if sd.atomic_scope(_A2_OPS[pc][0]) is not None]
+            if max((per.count(x) for x in per), default=0) <= 6:
+                break
+        order = []
+        while any(left):
+            i = rng.choice([k for k in range(len(thr)) if left[k]])
+            order.append((i, left[i].pop(0)))
+        (tmp_path / f"r{n}").mkdir()
+        d, t = _a2_dump(tmp_path / f"r{n}", [(*thr[i], pc) for i, pc in order])
+        rec = hb_oracle.analyze(str(d), str(t), gate_policy="recorded", records=True)
+        cer = hb_oracle.analyze(str(d), str(t), gate_policy="certain", records=True)
+        pr, pc_ = _policy_pairs(rec), _policy_pairs(cer)
+        for k, (c, _f) in pr.items():
+            assert k in pc_ and pc_[k][0] >= c, (thr, order, k, pr, pc_)
+        assert rec["races_sync_only"] == cer["races_sync_only"]
+        assert set(map(tuple, rec["race_records"])) <= set(map(tuple, cer["race_records"]))
+        assert sum(c - f for c, f in pr.values()) == sum(c - f for c, f in pc_.values()), (thr, order)
+        added += pc_ != pr
+        ref = _a2_reference(thr, order)
+        for rep in (rec, cer):
+            for a_t, a_pc, a_ep, b_t, b_pc, b_ep, flag, _cnt in rep["a2_records"]:
+                a, b = (a_t, a_pc, a_ep), (b_t, b_pc, b_ep)
+                assert flag or not ((a, b) in ref or (b, a) in ref), (rep["gate_policy"], thr, order, a, b)
+    assert added > 0
+
+
+def test_lock_contention_certain_reports_the_ordered_sections(a2lock):
+    # the 16-warp lock (step 6 of T16): on the recorded dump the certain clock refuses every
+    # hand-off whose windows overlap and reports the critical sections the recorded clock
+    # ordered through them -- a superset of the recorded reports, every added instance
+    # a2_uncertain; the recorded policy is unchanged (the dump's own hb_races)
+    dots, ks = a2lock
+    t = _load(ks["kcontend"])
+    dot, _, _ = ac.tables(dots, t)
+    rec = hb_oracle.analyze(dot, ks["kcontend"], gate_policy="recorded")
+    cer = hb_oracle.analyze(dot, ks["kcontend"], gate_policy="certain")
+    key = lambda r: (r.get("a_pc"), r["b_pc"], r["kind"], r.get("class"), r["space"], r.get("dist"),
+                     r.get("async"), r.get("count"), r.get("a2_uncertain"))
+    assert {key(r) for r in t["hb_races"]} == {key(r) for r in rec["races"]}
+    assert t.get("hb_gate_policy") == "recorded" and t.get("hb_chain") == rec["chain"]
+    pr, pc_ = _policy_pairs(rec), _policy_pairs(cer)
+    assert all(k in pc_ and pc_[k][0] >= c for k, (c, _f) in pr.items())
+    assert cer["chain"]["edges"] > 0 and cer["chain"]["refused"] == \
+        cer["chain"]["uncertain"] + cer["chain"]["unsafe"]
+    if cer["chain"]["refused"] == 0:
+        pytest.skip("no overlapping hand-off in this run")
+    assert sum(c for c, _f in pc_.values()) > sum(c for c, _f in pr.values())
+    assert sum(c - f for c, f in pc_.values()) == sum(c - f for c, f in pr.values()) == 0
+
+
+@pytest.fixture(scope="module")
+def a2lock_certain(tmp_path_factory):
+    """(dots, {"kcontend": trace, "kcontrol": trace}) of one run of lock_contention_a2.cu with
+    HbClock under YOSEMITE_HB_GATE_POLICY=certain."""
+    import os
+    old = os.environ.get("YOSEMITE_HB_GATE_POLICY")
+    os.environ["YOSEMITE_HB_GATE_POLICY"] = "certain"
+    try:
+        dots, last = _trace(tmp_path_factory, "lock_contention_a2")
+    finally:
+        if old is None:
+            os.environ.pop("YOSEMITE_HB_GATE_POLICY", None)
+        else:
+            os.environ["YOSEMITE_HB_GATE_POLICY"] = old
+    ks = {}
+    for tr in sorted(Path(last).parent.glob("kernel_*.json")):
+        ks[_load(tr)["kernel"]["kernel_name"].split("(")[0]] = tr
+    assert set(ks) == {"kcontend", "kcontrol"}, ks
+    return dots, ks
+
+
+def test_lock_contention_hb_clock_certain_matches_specification(a2lock_certain):
+    # HbClock under the certain policy == the oracle under it (records with class and flag, the
+    # second clock, the chain counters), and the dump says which policy it ran under
+    dots, ks = a2lock_certain
+    key = lambda r: (r.get("a_pc"), r["b_pc"], r["kind"], r.get("class"), r["space"], r.get("dist"),
+                     r.get("async"), r.get("count"), r.get("a2_uncertain"))
+    for name, tr in ks.items():
+        t = _load(tr)
+        assert t.get("hb_gate_policy") == "certain"
+        assert all(r.get("gate_policy") == "certain" for r in t.get("hb_races", []))
+        dot, _, _ = ac.tables(dots, t)
+        rep = hb_oracle.analyze(dot, tr)             # the dump's own policy
+        assert rep["gate_policy"] == "certain"
+        assert {key(r) for r in t.get("hb_races", [])} == {key(r) for r in rep["races"]}, name
+        assert t.get("hb_races_sync_only") == rep["races_sync_only"], name
+        assert t.get("hb_chain") == rep["chain"], name
+    # kcontrol's genuine race: reported and unflagged under certain as under recorded
+    races = _load(ks["kcontrol"]).get("hb_races", [])
+    assert races and all(r["class"] == "DR" and r["a2_uncertain"] == 0 for r in races)
