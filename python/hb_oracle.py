@@ -23,6 +23,17 @@ Local memory is outside the model (I5): `local` records are skipped. No pattern 
 special-cased: the canary, named barriers, masked syncwarps and loop-carried handshakes
 all fall out as a consequence of the clocks.
 
+The chain edges (ATOM) are taken under a policy (T16, sd.GATE_POLICIES): `recorded` -- every
+morally strong successor edge r -> q in the trace's order (the default) -- or `certain`, which
+accepts an edge only when the two RMW windows do not overlap (r's thread has a later record
+before q) and the RMWs that a window-consistent coherence order could put between r and q are
+pairwise morally strong with them, and refuses it in both directions otherwise; the acquire is
+then deferred to q's window close as under the instance gate, and q publishes r's chain clock
+only once the edge is accepted. Under A2w the certain clock's happens-before is a sub-relation
+of the execution's, so its reports are a superset of the execution's races (sound), and a
+superset of the recorded clock's (asserted by the re-score). --gate-policy / $CUVEIN_GATE_POLICY
+/ the dump's hb_gate_policy; the race records carry `gate_policy`.
+
 A second clock per thread is advanced by barriers/syncwarps ONLY (Detect(T, sync)). Its
 races (`races_sync_only`, pc pairs with counts, DR and SC alike) tell the verdict matrix
 which dynamically ordered pairs owe their order to schedule-independent barrier joins
@@ -94,7 +105,8 @@ class _Clu:
     [record, the thread's next record) chain-overlap. `inflow` is what the cluster before it
     hands on: its components if it was multi (else None, and `prev` is its single RMW's
     publish); `comps` the cluster's own, once it needs them."""
-    __slots__ = ("open", "members", "comps", "inflow", "prev")
+    __slots__ = ("open", "members", "comps", "inflow", "prev", "ms_none", "ms_min", "ms_blk",
+                 "ms_multi")
 
     def __init__(self):
         self.open = 0          # members whose window is still open
@@ -102,6 +114,23 @@ class _Clu:
         self.comps = None      # [_Comp]: after a multi cluster, or once this one is multi
         self.inflow = None
         self.prev = None
+        # T16: are the location's RMWs so far pairwise morally strong? None iff no none-scope
+        # RMW and (every RMW grid-scope, or all of them in one block); kept across clusters
+        self.ms_none = False
+        self.ms_min = None
+        self.ms_blk = None
+        self.ms_multi = False
+
+    def ms_note(self, scope, blk):
+        if self.ms_min is None:
+            self.ms_min, self.ms_blk = scope, blk
+        else:
+            self.ms_min = min(self.ms_min, scope)
+            self.ms_multi = self.ms_multi or blk != self.ms_blk
+        self.ms_none = self.ms_none or scope == sd.NONE
+
+    def ms_pairwise(self):
+        return not self.ms_none and (self.ms_min == sd.GRID or not self.ms_multi)
 
 
 class _Comp:
@@ -149,7 +178,8 @@ def _comp_of(comps, s, blk):
 
 
 
-def analyze(dot_path, trace_path, strong_ldst=None, records=False, gate=None):
+def analyze(dot_path, trace_path, strong_ldst=None, records=False, gate=None,
+            gate_policy=None):
     """-> the report dict. `races` is aggregated per (a_pc, b_pc, kind, class, space, thread
     distance, async side): one example record plus `count`, the number of conflicting
     record pairs Check found (with repeats) -- a race set without the FastTrack collapse is
@@ -162,7 +192,11 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False, gate=None):
     gate (T12, hb_proof.tex Definition "Gate"; design/instance_gate.md): 'instance' gates
     every (ATOM) edge by fenced() on the thread's previous/next record pcs, 'trusting' joins
     every hand-off (the pre-T12 code). Default: $CUVEIN_GATE, else the gate that produced the
-    dump (its `hb_gate` key), else 'trusting' -- a pre-T12 dump replays as it was recorded."""
+    dump (its `hb_gate` key), else 'trusting' -- a pre-T12 dump replays as it was recorded.
+
+    gate_policy (T16, sd.GATE_POLICIES): 'recorded' takes every ms successor edge, 'certain'
+    only the edges whose windows do not overlap (module docstring). Default: $CUVEIN_GATE_POLICY,
+    else the dump's `hb_gate_policy`, else 'recorded'."""
     trace = json.loads(Path(trace_path).read_text())
     events = sorted(trace.get("hb_events", []), key=lambda e: e["seq"])
     if not events:
@@ -191,6 +225,22 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False, gate=None):
     # held in r's window, reported iff acq(r) = 0 (design/instance_gate.md section 6).
     gate_on = sd.dump_gate(trace, gate) == "instance"
     gtab = eng.gate_table() if gate_on else {}
+    # T16: the chain-edge policy. Under `certain` the acquire J of every RMW is deferred to its
+    # window close exactly as under the instance gate (the edge r -> q is decided there, with
+    # the RMWs issued inside q's window known), and r's chain clock is attached to q's publish
+    # only when the edge is accepted.
+    policy = sd.dump_gate_policy(trace, gate_policy)
+    certain = policy == "certain"
+    defer_acq = gate_on or certain
+    rel_rmw = {}                      # loc -> (tid, epoch, isolated) of the RMW that published released[loc]
+    # chain edges (ms successor pairs) per kernel: `uncertain` = windows overlap (the brief's
+    # order-uncertain edges); `unsafe` = windows disjoint but a possible intermediate is not ms
+    # with the edge; `refused` = what the certain policy refused (0 under recorded)
+    # `open`: the uncertain edges whose releaser's window was still open at the kernel's end (a
+    # thread's last RMW with no later record -- on a dump without exit records, every one);
+    # `xwarp`: the uncertain edges between RMWs of different warps (the lanes of one warp
+    # instruction always overlap; eval/A2_WINDOWS.md counts cross-warp successor edges)
+    chain = {"edges": 0, "uncertain": 0, "unsafe": 0, "refused": 0, "open": 0, "xwarp": 0}
     last_pc = {}                      # tid -> pc of its latest record (rel)
     gstat = defaultdict(int)          # RMW lane records: rmw, rel0, acq0, held, held_reported
     ASYNC = sd.ASYNC_BIT
@@ -319,6 +369,7 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False, gate=None):
                       "kind": kind, "class": cls, "dist": sd.SCOPES[dist]}
                 if asy:
                     ex["async"] = asy
+                ex["gate_policy"] = policy                     # T16
                 agg[key] = [ex, 1, 0]
             else:
                 g[1] += 1
@@ -426,6 +477,7 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False, gate=None):
         st = clus.get(loc)
         if st is None:
             st = clus[loc] = _Clu()
+        open0 = st.open               # T16: windows of loc still open at this issue
         if st.open == 0:              # every earlier window on loc closed: a new cluster
             st.members, st.comps = 0, None
             st.prev = released.get(loc) if st.inflow is None else None
@@ -443,32 +495,62 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False, gate=None):
                         _join_into(c.J, r[3] or {})
         if st.comps is not None and scope != sd.NONE:
             _comp_add(st.comps, scope, blk, True)
+        st.ms_note(scope, blk)        # T16
         # [6]: T12 gate state of this RMW -- None, or [pc, rel, J, Jpd, held, defer]
-        wins[t] = [loc, scope, own(t), {}, [], blk, None]
+        # [7]: T16 edge state -- [chain edge r -> this RMW exists (ms successor), r's window
+        #      closed at this issue, members of the cluster at this issue, no window of loc
+        #      open at this issue (isolated), r isolated, edges refused for this open window]
+        wins[t] = [loc, scope, own(t), {}, [], blk, None,
+                   [False, True, st.members, open0 == 0, False, 0]]
 
     def close_win(t, nxt_pc=None):
         """t's next record (pc nxt_pc; None = the end of the kernel) closes its RMW window:
         under the instance gate first acq(r) and the deferred acquire (T12), then the late
         acquire, then the decisions held on the window."""
         g = wins[t][6]
-        acq = rel = True
+        acq = rel = cert = True
+        c_edge, c_closed, members0, _iso, iso_r, refusals = wins[t][7]
+        if nxt_pc is None:
+            chain["open"] += refusals     # T16: never closed by a record of its thread
+        if c_edge:                    # T16: is the edge r -> this RMW certain? (counted under
+            st0 = clus[wins[t][0]]    # both policies; it decides only under `certain`)
+            quiet = st0.members == members0          # no RMW on loc issued inside this window
+            safe = c_closed and (st0.ms_pairwise() or (iso_r and quiet))
+            chain["unsafe"] += c_closed and not safe
+            if certain:
+                cert = safe
+                chain["refused"] += not safe
         if g is not None:
             r_pc, rel, J, Jpd, held, defer = g
-            acq = nxt_pc is None or nxt_pc in gtab[r_pc][2]
-            gstat["acq0"] += not acq
-            gstat["held"] += len(held)
-            gstat["held_reported"] += 0 if acq else len(held)
-            if acq:                   # the deferred acquire: join, drop what it orders
+            if gate_on:
+                acq = nxt_pc is None or nxt_pc in gtab[r_pc][2]
+            acc = acq and cert        # T16: the gate's acquire AND the certain edge
+            if gate_on:
+                gstat["acq0"] += not acq
+                gstat["held"] += len(held)
+                gstat["held_reported"] += 0 if acc else len(held)
+            if acq:                   # T16: the possible clock takes the recorded join (Jpd
+                pd_join(t, Jpd)       # carries r's recorded clock under `certain`) whenever
+            if acc:                   # the gate acquires; the vector clock only a certain edge
                 if J:
                     vc[t] = vc[t].joined(J)
-                pd_join(t, Jpd)
             else:                     # no acquire: the held conflicts are reported
                 for u, uc, upc, pc, kind, cls, rec, te in held:
                     defer.append((report(u, uc, upc, t, pc, kind, cls, rec), u, uc, upc,
                                   pc, rec, te))
             for key, u, ue, upc, pc, rec, te in defer:
                 a2_decide(key, u, ue, upc, t, pc, t, rec, te)
-        loc, scope, w_ep, pend, shared, blk, _ = wins.pop(t)
+            if certain and cert and J is not None:
+                # T16: the edge is certain -- the chain passes through this RMW: attach r's
+                # chain clock to its publish (still the location's current one; an RMW issued
+                # inside this window replaced it, and refused the edge from it anyway)
+                loc0, ep0 = wins[t][0], wins[t][2]
+                rr = rel_rmw.get(loc0)
+                if rr is not None and rr[0] == t and rr[1] == ep0:
+                    rc, rb, rs, rp = released[loc0]
+                    released[loc0] = (VC(J) if rc is None else rc.joined(J), rb, rs,
+                                      VC(Jpd or ()) if rp is None else rp.joined(Jpd or {}))
+        loc, scope, w_ep, pend, shared, blk, _, _ = wins.pop(t)
         st = clus[loc]
         if st.comps is not None and scope != sd.NONE and acq:
             a = _comp_of(st.comps, scope, blk).J
@@ -669,26 +751,43 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False, gate=None):
                 a2_open(t, loc, my_scope, my_block)           # T14
                 rel = released.get(loc)
                 chain_ok = False
+                closed_r = True
                 if rel is not None:
                     rclk, rblock, rscope, rpd = rel
                     eff = min(my_scope, rscope)
                     chain_ok = eff == sd.GRID or (eff == sd.BLOCK and rblock == my_block)
-                    if chain_ok and not gate_on:
+                    if chain_ok:
+                        # T16: the successor edge r -> q. r's window is open iff r's thread
+                        # still holds the window of that very RMW (its epoch on loc)
+                        chain["edges"] += 1
+                        r_tid, r_ep, r_iso = rel_rmw[loc]
+                        wr = wins.get(r_tid)
+                        closed_r = wr is None or wr[2] != r_ep or wr[0] != loc
+                        chain["uncertain"] += not closed_r
+                        if not closed_r:
+                            wr[7][5] += 1
+                            chain["xwarp"] += (r_tid >> 5) != (t0 >> 5)
+                        wins[t][7][0], wins[t][7][1], wins[t][7][4] = True, closed_r, r_iso
+                    if chain_ok and not defer_acq:
                         vc[t] = vc[t].joined(rclk)
                         pd_join(t, rpd)                       # T14
-                if gate_on:                   # T12: rel(r) now, the acquire at the close
-                    pt = last_pc.get(t0)
-                    g_rel = pt is None or pt in gtab[pc][1]
-                    gstat["rmw"] += 1
-                    gstat["rel0"] += not g_rel
-                    last_pc[t0] = pc
+                if defer_acq:                 # T12: rel(r) now, the acquire at the close
+                    if gate_on:
+                        pt = last_pc.get(t0)
+                        g_rel = pt is None or pt in gtab[pc][1]
+                        gstat["rmw"] += 1
+                        gstat["rel0"] += not g_rel
+                        last_pc[t0] = pc
+                    else:
+                        g_rel = True          # T16: certain under the trusting gate
                     has_j = chain_ok and rel[0] is not None
+                    has_jpd = chain_ok and rel[3] is not None if certain else has_j
                     wins[t][6] = [pc, g_rel, rel[0] if has_j else None,
-                                  rel[3] if has_j else None, [], []]
+                                  rel[3] if has_jpd else None, [], []]
             elif gate_on:
                 last_pc[t0] = pc
             clk, sclk = own(t), owns(t)
-            gheld = wins[t][6] if is_atomic and gate_on and wins[t][6][2] is not None else None
+            gheld = wins[t][6] if is_atomic and defer_acq and wins[t][6][2] is not None else None
             check(t, kind, my_coh, pc, loc, rec, gheld)
             if kind == "W" and t & ASYNC:
                 # two copies of one thread: PTX orders no two cp.async operations, so they
@@ -704,7 +803,7 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False, gate=None):
                 # then tick. Overwriting released[loc] equals Algorithm 1's join under the
                 # trusting gate (the clock already holds the chain unless it broke).
                 st = clus[loc]
-                if not gate_on:
+                if not defer_acq:
                     released[loc] = (VC(vc[t]), my_block, my_scope, VC(pd.get(t, ())))
                     if st.comps is not None and my_scope != sd.NONE:   # T14: its component's
                         c = _comp_of(st.comps, my_scope, my_block)    # join
@@ -719,9 +818,24 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False, gate=None):
                         chpd = VC(pd.get(t, ())) if chpd is None else chpd.joined(pd.get(t, {}))
                         if st.comps is not None and my_scope != sd.NONE:
                             c = _comp_of(st.comps, my_scope, my_block)
-                            _join_into(c.J, ch)
-                            _join_into(c.J, chpd)
+                            _join_into(c.J, ch)              # the possible clock sees the
+                            _join_into(c.J, chpd)            # recorded publish under both policies
+                    if certain:
+                        # T16: the clock channel publishes the own part only -- r's chain clock
+                        # is attached at this window's close iff the edge r -> q is certain
+                        # (close_win; no RMW issued inside the window can accept an edge from
+                        # q, their windows overlap). The pd channel carries what the recorded
+                        # clock would publish (r's recorded clock and pd, the own clock and
+                        # pd), so the possible clock, hence the a2_uncertain flag, is the
+                        # recorded policy's.
+                        rec = VC(rel[3]) if chain_ok and rel[3] is not None else None
+                        if wins[t][6][1]:
+                            own_all = VC(vc[t]).joined(pd.get(t, {}))
+                            rec = own_all if rec is None else rec.joined(own_all)
+                        ch = VC(vc[t]) if wins[t][6][1] else None
+                        chpd = rec
                     released[loc] = (ch, my_block, my_scope, chpd)
+                rel_rmw[loc] = (t, clk, wins[t][7][3])        # T16: who published, isolated?
                 vc[t][t] = clk + 1
 
     for t in sorted(wins):            # T14: no next record -- the window ends with the kernel
@@ -763,10 +877,13 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False, gate=None):
            if a2_log is not None else {}),
         "races_sync_only": [[a, b, n] for (a, b), n in sorted(sync_pairs.items())],
         "gate": "instance" if gate_on else "trusting",
+        "gate_policy": policy,                                # T16
+        "chain": dict(chain),                                 # T16: the kernel's chain edges
         "coherence_profile": coherence_profile,
         "summary": {"races": len(uniq), "events": len(events),
                     "sc": sum(r["class"] == "SC" for r in uniq),
                     "a2_uncertain": sum(r["a2_uncertain"] for r in uniq),
+                    "gate_policy": policy, "chain": dict(chain),   # T16
                     **({"gate": dict(gstat)} if gate_on else {}),
                     "atomic_addrs": len(coherence_profile)},
     }
@@ -796,9 +913,15 @@ def main(argv=None):
                     help="which .STRONG loads/stores are strong: 'token' (every one with a "
                          "known scope, T10) or a pre-T10 ablation "
                          "(default: $CUVEIN_STRONG_LDST or 'token')")
+    ap.add_argument("--gate-policy", choices=sd.GATE_POLICIES,
+                    help="which chain edges the vector clock takes (T16): 'recorded' (the "
+                         "trace's order) or 'certain' (only edges whose RMW windows do not "
+                         "overlap; sound under A2w). Default: $CUVEIN_GATE_POLICY, else the "
+                         "dump's hb_gate_policy, else 'recorded'")
     args = ap.parse_args(argv)
     try:
-        report = analyze(args.cfg_dot, args.trace_json, strong_ldst=args.strong_ldst)
+        report = analyze(args.cfg_dot, args.trace_json, strong_ldst=args.strong_ldst,
+                         gate_policy=args.gate_policy)
     except sd.AlignmentError as exc:
         print(f"ALIGNMENT FAILURE: {exc}", file=sys.stderr)
         return 1

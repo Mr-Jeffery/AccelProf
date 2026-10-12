@@ -105,14 +105,16 @@ def effective_verdict(r):
     return r.get("verdict")
 
 
-def load_runs(paths=None):
+def load_runs(paths=None, shards=False):
     """-> runs[(id, tool, mode)] = reduced dict. Collapses the reps per key.
-    `paths` restricts the input (default: every merged eval/results/baselines-*.csv)."""
+    `paths` restricts the input (default: every merged eval/results/baselines-*.csv); per-shard
+    CSVs of `parallel.py` are skipped unless `shards` (T16: the certain-policy analyses are
+    read from their shard CSVs directly)."""
     per = defaultdict(list)
     meta = {}
     for path in (paths if paths is not None else glob.glob(f"{RES}/baselines-*.csv")):
         tool = os.path.basename(path)[len("baselines-"):-4]
-        if tool in SKIP_FILES or "-shard" in tool:
+        if tool in SKIP_FILES or ("-shard" in tool and not shards):
             continue
         with open(path, newline="") as f:
             rd = csv.DictReader(f)
@@ -123,7 +125,12 @@ def load_runs(paths=None):
             for r in rd:
                 if (r.get("tool") or tool) == "cuvein":
                     r["verdict"] = effective_verdict({**r, "tool": "cuvein"})
-                key = (r["id"], r.get("tool") or tool, hb_modes.canon(r.get("mode", ""), path))
+                t = r.get("tool") or tool
+                # T16: a row analysed from certain-clock dumps (run_cuvein notes
+                # `gate_policy=certain`) is its own tool, cuvein-certain: the "Race (sound)" column
+                if t == "cuvein" and _GATE_POLICY_RE.search(r.get("notes") or ""):
+                    t = "cuvein-certain"
+                key = (r["id"], t, hb_modes.canon(r.get("mode", ""), path))
                 per[key].append(r)
                 meta[r["id"]] = (r["pset"], r["program"], r["build"], r["input"])
     runs = {}
@@ -536,6 +543,13 @@ def report_classes(r):
 _A2_RE = re.compile(r"a2_uncertain=(\d+):(\d+)")
 
 
+# T16 (eval/CERTAIN_CLOCK.md): `gate_policy=certain` -- the row's hb_races come from the certain
+# clock (YOSEMITE_HB_GATE_POLICY=certain, or hb_oracle.py --gate-policy certain in a re-score).
+# Such rows are loaded as tool "cuvein-certain" and give the "Race (sound)" column, when
+# `--certain-results <dir>` names their CSVs (they never sit in eval/results/baselines-*.csv).
+_GATE_POLICY_RE = re.compile(r"gate_policy=certain")
+
+
 def report_a2(r):
     """(k, m) from a run's notes (max over reps), or None when the row has no flag."""
     found = _A2_RE.findall(r.get("notes") or "")
@@ -575,14 +589,23 @@ def operating_points_section(runs, meta, man):
            "the flag. `model_bug` = programs with a report R1 certifies and HbClock saw racing "
            "(an annotation on the report's verdict, informational: the verdict is its class's, so "
            "an SC report with it is a Strong conflict).\n"]
+    sound = any(k[1] == "cuvein-certain" for k in runs)
     hdr = ["pset", "mode", "Race u Latent FP / TP", "a2 (R u L) FP / TP", "Race alone FP / TP",
            "a2 (R) FP / TP", "latent", "sc", "model_bug", "n/a"]
+    if sound:
+        # T16: the certain clock's verdicts at both points (D16); `n` = programs with a certain
+        # row beside the recorded one; the other columns stay the recorded clock's
+        out.append("`Race (sound)` / `R u L (sound)` (T16, `eval/CERTAIN_CLOCK.md`): the same "
+                   "programs under the certain clock (chain edges only between RMWs whose windows "
+                   "do not overlap; sound under A2w), at Race alone and at Race u Latent, over the "
+                   "programs that have a certain-policy row (`--certain-results`); FP / TP by label.\n")
+        hdr += ["Race (sound) FP / TP", "R u L (sound) FP / TP", "n (sound)"]
     out.append("| " + " | ".join(hdr) + " |")
     out.append("|" + "---|" * len(hdr))
     for ps in ("P1", "PI", "P3", "P4", "P5", "P6", "P7", "P9"):
         for mode in (VC, SC):
             c = dict(fp=0, tp=0, nob=0, rac=0, fp1=0, tp1=0, nob1=0, rac1=0, lat=0, sc=0, na=0,
-                     a2fp=0, a2tp=0, a2fp1=0, a2tp1=0, mb=0)
+                     a2fp=0, a2tp=0, a2fp1=0, a2tp1=0, mb=0, sfp=0, stp=0, sfp1=0, stp1=0, sn=0)
             seen = False
             for _id, m in meta.items():
                 r = runs.get((_id, "cuvein", mode))
@@ -591,6 +614,13 @@ def operating_points_section(runs, meta, man):
                 seen = True
                 lab = man.get(_id, {}).get("label", "")
                 v1, cls = race_alone_verdict(r), report_classes(r) or {}
+                rs = runs.get((_id, "cuvein-certain", mode)) if sound else None   # T16
+                if rs is not None and rs["verdict"] not in ("ERROR", "TIMEOUT") \
+                        and lab in ("RACE", "CLEAN"):
+                    c["sn"] += 1
+                    vs1 = race_alone_verdict(rs)
+                    c["stp" if lab == "RACE" else "sfp"] += rs["verdict"] == "RACE"
+                    c["stp1" if lab == "RACE" else "sfp1"] += vs1 == "RACE"
                 c["lat"] += bool(cls.get("latent"))
                 c["sc"] += bool(cls.get("sc") or cls.get("latent-sc"))
                 c["mb"] += bool(report_model_bug(r))
@@ -616,11 +646,15 @@ def operating_points_section(runs, meta, man):
                 else:
                     c["tp1" if pos else "fp1"] += v1 == "RACE"
             if seen:
-                out.append(f"| {ps} | {hb_modes.SHORT[mode]} | {c['fp']}/{c['nob']} / {c['tp']}/{c['rac']} "
-                           f"| {c['a2fp']} / {c['a2tp']} "
-                           f"| {c['fp1']}/{c['nob1']} / {c['tp1']}/{c['rac1']} "
-                           f"| {c['a2fp1']} / {c['a2tp1']} | {c['lat']} | {c['sc']} "
-                           f"| {c['mb']} | {c['na']} |")
+                row = (f"| {ps} | {hb_modes.SHORT[mode]} | {c['fp']}/{c['nob']} / {c['tp']}/{c['rac']} "
+                       f"| {c['a2fp']} / {c['a2tp']} "
+                       f"| {c['fp1']}/{c['nob1']} / {c['tp1']}/{c['rac1']} "
+                       f"| {c['a2fp1']} / {c['a2tp1']} | {c['lat']} | {c['sc']} "
+                       f"| {c['mb']} | {c['na']} |")
+                if sound:   # T16: a dash where no program of the row has a certain-policy run
+                    row += (f" {c['sfp1']} / {c['stp1']} | {c['sfp']} / {c['stp']} | {c['sn']} |"
+                            if c["sn"] else " — | — | 0 |")
+                out.append(row)
     return "\n".join(out)
 
 
@@ -1590,8 +1624,25 @@ def x_checks(runs, meta, man):
     return "\n".join(L)
 
 
+def _certain_paths(argv):
+    """T16: `--certain-results <dir or glob>` (repeatable) -- the CSVs of a certain-policy
+    analysis (eval/baselines/t16_rescore.py; `parallel.py analyze` on a t16-certain store)."""
+    paths = []
+    for k, a in enumerate(argv):
+        if a == "--certain-results" and k + 1 < len(argv):
+            p = argv[k + 1]
+            paths += sorted(glob.glob(f"{p}/*.csv")) if os.path.isdir(p) else sorted(glob.glob(p))
+    return paths
+
+
 def main():
     runs, meta = load_runs()
+    certain = _certain_paths(sys.argv[1:])
+    if certain:
+        cruns, cmeta = load_runs(certain, shards=True)
+        runs.update({k: v for k, v in cruns.items() if k[1] == "cuvein-certain"})
+        for k, v in cmeta.items():
+            meta.setdefault(k, v)
     add_sanitizer_union(runs)
     man = load_manifest()
     if "--memory" in sys.argv[1:]:     # §4b alone (eval/MEMORY_FOOTPRINT.md)

@@ -62,6 +62,7 @@ def _analyze_reports(depdir, cubindir):
     dots = sorted(glob.glob(f"{cubindir}/*.dot"))
     ded, cls, ded_sc = {}, {}, {}
     mbug = set()   # keys with a model_bug annotation (R1 contradicted by hb_races; DR or SC)
+    policies = set()   # T16: the chain-edge policy the dumps' hb_races were computed under
     a2s = {}   # T14: key -> [race of this run, some unflagged, latent, flagged without R3, flag seen]
     for kj in sorted(glob.glob(f"{depdir}/kernel_*.json")):
         rep = None
@@ -73,6 +74,8 @@ def _analyze_reports(depdir, cubindir):
                 continue
         if rep is None:
             continue
+        if rep.get("gate_policy"):
+            policies.add(rep["gate_policy"])
         for v in rep["verdicts"]:
             k = agg._dedup_key(v)
             if v.get("model_bug") or v.get("hb_class") == "model_bug":
@@ -111,6 +114,12 @@ def _analyze_reports(depdir, cubindir):
                     "matrix_class": v.get("matrix_class"), "conflict_class": "SC",
                     "model_bug": k in mbug})
     ids_h, raw_h = _host_reports(depdir)
+    # T16: a certain-policy dump set is noted on every report (classes_note reads it off raw);
+    # a mixed set (some kernels under each policy) is noted as such and is never the paper's
+    if policies:
+        pol = next(iter(policies)) if len(policies) == 1 else "mixed"
+        for r in raw:
+            r["gate_policy"] = pol
     return ids + ids_h, pcs_all | {r[p] for r in raw_h for p in ("a_pc", "b_pc") if r[p] is not None}, \
         raw + raw_h
 
@@ -162,6 +171,12 @@ def classes_note(raw):
     nb = sum(bool(r.get("model_bug")) for r in raw)
     if note and nb:
         note += f";model_bug={nb}"
+    # T16: `;gate_policy=certain` when the dumps' hb_races were computed under the certain clock
+    # (sync_dominance.dump_policy_of); the recorded policy, today's default, is not noted, so
+    # every existing row reads as recorded. make_tables keys the "Race (sound)" column on it.
+    pol = {r.get("gate_policy") for r in raw if r.get("gate_policy")}
+    if note and pol and pol != {"recorded"}:
+        note += f";gate_policy={'mixed' if len(pol) > 1 else next(iter(pol))}"
     return note
 
 
