@@ -124,3 +124,11 @@ iterate a changed container (`HB_STATS`' `vc`/`vs` counts, `rmw_finish`) are ord
 sorted. Check visits buckets in the same order (T19's layout is untouched), so even the
 representative instance of each `hb_races` aggregate is unchanged. Acceptance is parity (brief
 step 3).
+
+## 7. Addendum (after the first build's profile)
+
+The first build's profile of hotspot and fpc (`eval/baselines/setup/t20_perf/v1-*`) showed one more
+per-thread container on the hot path that section 3 had not listed: barrier-instance assembly kept
+`Pending::arrived` as a `std::set<Tid>`, one tree node allocated per arriving thread and freed when
+the instance fires. It is now 32 lane masks and a count (a tid has 5 warp bits); `fire()` lists the
+tids warp by warp, lane by lane, which is the set's order within one block. Commit 31845b3.

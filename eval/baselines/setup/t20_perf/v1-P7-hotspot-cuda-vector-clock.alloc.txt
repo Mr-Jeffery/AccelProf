@@ -1,0 +1,148 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 11K of event 'cycles:u'
+# Event count (approx.): 660555877712
+#
+# Overhead      Pid:Command         Symbol                 
+# ........  ......................  .......................
+#
+     8.39%  2465712:hotspot-cuda    [.] _int_malloc
+            |          
+             --8.18%--_start
+                       __libc_start_main
+                       main
+                       compute_tran_temp
+                       __device_stub__Z9calc_tempiPKfS0_Pfiiiifffff
+                       cudaLaunchKernel
+                       0x7f9291a14ffc
+                       cuLaunchKernel
+                       0x7f9273da92c7
+                       0x7f9273bd63ed
+                       0x7f9273bd5a47
+                       0x7f9273bc9af4
+                       0x7f92749b9071
+                       0x7f929084b8a9
+                       0x7f929083e6a3
+                       ComputeSanitizerCallback
+                       LaunchEndCallback
+                       |          
+                        --8.03%--yosemite_gpu_data_analysis
+                                  yosemite::PcDependency::gpu_data_analysis
+                                  yosemite::HbClock::process
+                                  |          
+                                  |--6.18%--?? (inlined)
+                                  |          |          
+                                  |          |--2.05%--__GI___libc_malloc (inlined)
+                                  |          |          _int_malloc
+                                  |          |          
+                                  |          |--1.78%--std::_Rb_tree<unsigned long, unsigned long, std::_Identity<unsigned long>, std::less<unsigned long>, std::allocator<unsigned long> >::_M_insert_unique<unsigned long>
+                                  |          |          ?? (inlined)
+                                  |          |          ?? (inlined)
+                                  |          |          ?? (inlined)
+                                  |          |          ?? (inlined)
+                                  |          |          ?? (inlined)
+                                  |          |          ?? (inlined)
+                                  |          |          operator new
+                                  |          |          __GI___libc_malloc (inlined)
+                                  |          |          _int_malloc
+                                  |          |          
+                                  |           --1.70%--__GI___libc_realloc (inlined)
+                                  |                     _int_realloc
+                                  |                     _int_malloc
+                                  |          
+                                   --1.33%--yosemite::HbClock::complete
+                                             yosemite::HbClock::fire
+                                             |          
+                                              --1.15%--yosemite::HbClock::sync_group
+     4.33%  2465712:hotspot-cuda    [.] malloc_consolidate
+            |          
+             --3.39%--_start
+                       __libc_start_main
+                       main
+                       compute_tran_temp
+                       __device_stub__Z9calc_tempiPKfS0_Pfiiiifffff
+                       cudaLaunchKernel
+                       0x7f9291a14ffc
+                       cuLaunchKernel
+                       0x7f9273da92c7
+                       0x7f9273bd63ed
+                       0x7f9273bd5a47
+                       0x7f9273bc9af4
+                       0x7f92749b9071
+                       0x7f929084b8a9
+                       0x7f929083e6a3
+                       ComputeSanitizerCallback
+                       LaunchEndCallback
+                       |          
+                        --2.51%--yosemite_gpu_data_analysis
+                                  yosemite::PcDependency::gpu_data_analysis
+                                  yosemite::HbClock::process
+                                  |          
+                                   --1.95%--yosemite::HbClock::complete
+                                             yosemite::HbClock::fire
+                                             |          
+                                              --1.82%--?? (inlined)
+                                                        ?? (inlined)
+                                                        ?? (inlined)
+                                                        ?? (inlined)
+                                                        ?? (inlined)
+                                                        operator new
+                                                        __GI___libc_malloc (inlined)
+                                                        _int_malloc
+                                                        malloc_consolidate
+     2.84%  2465712:hotspot-cuda    [.] unlink_chunk.isra.2
+            |          
+             --1.77%--malloc_consolidate
+                       unlink_chunk.isra.2
+     1.95%  2465712:hotspot-cuda    [.] _int_free
+            |          
+             --1.70%--_start
+                       __libc_start_main
+                       main
+                       compute_tran_temp
+                       __device_stub__Z9calc_tempiPKfS0_Pfiiiifffff
+                       cudaLaunchKernel
+                       0x7f9291a14ffc
+                       cuLaunchKernel
+                       0x7f9273da92c7
+                       0x7f9273bd63ed
+                       0x7f9273bd5a47
+                       0x7f9273bc9af4
+                       0x7f92749b9071
+                       0x7f929084b8a9
+                       0x7f929083e6a3
+                       ComputeSanitizerCallback
+                       LaunchEndCallback
+                       yosemite_gpu_data_analysis
+                       yosemite::PcDependency::gpu_data_analysis
+                       yosemite::HbClock::process
+     1.54%  2465712:hotspot-cuda    [.] malloc
+            |          
+             --1.32%--_start
+                       __libc_start_main
+                       main
+                       compute_tran_temp
+                       __device_stub__Z9calc_tempiPKfS0_Pfiiiifffff
+                       cudaLaunchKernel
+                       0x7f9291a14ffc
+                       cuLaunchKernel
+                       0x7f9273da92c7
+                       0x7f9273bd63ed
+                       0x7f9273bd5a47
+                       0x7f9273bc9af4
+                       0x7f92749b9071
+                       0x7f929084b8a9
+                       0x7f929083e6a3
+                       ComputeSanitizerCallback
+                       LaunchEndCallback
+                       yosemite_gpu_data_analysis
+                       yosemite::PcDependency::gpu_data_analysis
+                       yosemite::HbClock::process
+                       |          
+                        --1.20%--?? (inlined)
+#
+# (Tip: To report cacheline events from previous recording: perf c2c report)
+#
