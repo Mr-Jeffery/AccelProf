@@ -154,7 +154,7 @@ vector-clock, one program per node (jobs 310932, 310934, 310935). T4's column is
 | P7-pathfinder | killed after 52 kernels | killed after 27 | killed after 41 / 28 |
 | P9-knn | killed after 27 kernels | killed after 18 | killed after 9 / 6 |
 | P9-tridiagonal | killed after 36 kernels | killed after 27 | killed after 15 / 13 |
-| P7-stencil1d (1,000 kernels) | STENCIL_SC | STENCIL_VC | dies at 174 GB, 0 kernels (both) |
+| P7-stencil1d (1,000 kernels) | killed after 7 kernels (c61) | killed after 6 | dies at 174 GB, 0 kernels (both); T19: 3 / 2 kernels in 3,600 s |
 | P7-particlefilter | OOM-killed at 174 GB after 4,770 s, 3 kernels | OOM-killed at 174 GB after 4,957 s, 3 kernels | dies at 123 GB, 3 kernels (both) |
 
 **Four of the ten now finish in both modes** (T4: hotspot, srad and lavaMD at 5,400 s; dxtc2 is
