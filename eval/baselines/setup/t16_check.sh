@@ -39,6 +39,6 @@ for k in lock_contention_a2 write_after_unlock_other_schedule atomic_mm_handoff 
   nvcc -arch=native -lineinfo --cudart shared python/testdata/$k.cu -o $OUT/bin/$k 2>&1 | grep -v "^$" | head -3
 done
 nvcc -arch=native -lineinfo --cudart shared -DNB=1 -DNW=4 python/testdata/lock_contention_a2.cu -o $OUT/bin/lock_contention_a2_1x4 2>&1 | head -3
-BINS=$(ls $OUT/bin/*; ls ScoR/microbenchmarks/bin/race_* ScoR/microbenchmarks/bin/norace_* | grep -v extracted_cubins)
+BINS=$(ls $OUT/bin/*; for f in ScoR/microbenchmarks/bin/race_* ScoR/microbenchmarks/bin/norace_*; do [ -f "$f" ] && [ -x "$f" ] && echo "$f"; done)
 .env/bin/python eval/baselines/setup/t16_parity.py --out $OUT/runs $BINS 2>&1 | grep -v "Warning\|setParseAction"
 echo "== done $(date -Is)"

@@ -480,3 +480,7 @@ objects in `/home/fzheng4/wt-T1a-review/install_stage/obj`, now the default `OBJ
 * §7.5's attribution inside `process`; the persistent-map fix for chains.
 * The 9 barrier-only programs that time out did not run to completion in either mode, so
   whether T5b alone would let them finish under a larger cap is unknown.
+
+## 8. T20: per-thread state as dense arrays (2026-10-11)
+
+T20 (`eval/THREAD_INDEX.md`) replaces the per-thread hash maps (`vc`, `vs`, `rmw_thr`) by dense arrays on a computed thread index and the barrier arrivals by lane masks: no value changes; peak RSS equal or lower on every measured program (lavaMD 26.4 → 23.2 GB against T19 on c64, fpc 2.18 → 1.68 GB), and at 100 M threads `vc`/`vs` cost 88/24 B per thread against ~120/~56 B per hash node.

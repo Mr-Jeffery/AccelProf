@@ -80,7 +80,7 @@ typedef struct KernelLaunch : public Event {
     uint32_t touched_objects;
     uint32_t touched_objects_size;
     uint64_t key;   // for UVM Advisor
-    uint64_t kernel_pc;
+    uint64_t kernel_pc = 0;   // T20: was uninitialised (the default path printed heap garbage)
 
     KernelLaunch() {
         this->evt_type = EventType_KERNEL_LAUNCH;
