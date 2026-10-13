@@ -210,15 +210,24 @@ def dump_policy_of(trace):
 # T4 (design/no_dump.md): a dump written with YOSEMITE_HB_DUMP=0 carries no hb_events but the
 # aggregates HbClock computed online, in both modes -- hb_sync_pass (the offline barrier-only
 # pass's pairs with their widest distance and first orientation), hb_rmw_points (R3's trace
-# points) and hb_events_count / hb_lanes_count. A dump with records carries them as well; the
-# records are then preferred (today's path, byte-identical results) unless
-# $CUVEIN_PREFER_AGGREGATES=1 (the same-trace parity check, eval/baselines/setup/t4_parity.py).
+# points) and hb_events_count / hb_lanes_count. A dump with records carries them as well.
+# X0 (the freeze, eval/AGGREGATES_DEFAULT.md): verdicts are computed from the aggregates
+# whenever the file has them, dump or no dump, so the replay's lane cutoff
+# ($CUVEIN_BARRIER_PASS_MAX_LANES) never applies to a file recorded since T4. Replaying the
+# records is the parity reference, selected by $CUVEIN_PREFER_RECORDS=1 (t4_parity.py,
+# test_no_dump.py); a file from before T4 has only the records and keeps the replay.
 def use_aggregates(trace):
-    """Read the online aggregates instead of hb_events? True when the dump has no records, or
-    when $CUVEIN_PREFER_AGGREGATES=1 (the keys must then be present, else the records serve)."""
+    """Read the online aggregates instead of hb_events? True when the file has no records
+    (nothing to replay), else False under $CUVEIN_PREFER_RECORDS=1, else True when it
+    carries hb_sync_pass or hb_rmw_points (any file recorded since T4) or under
+    $CUVEIN_PREFER_AGGREGATES=1 (kept for old scripts; now redundant). False otherwise: a
+    pre-T4 dump. A key that is absent is replayed from the records by its reader."""
     if not trace.get("hb_events"):
         return True
-    return os.environ.get("CUVEIN_PREFER_AGGREGATES") == "1"
+    if os.environ.get("CUVEIN_PREFER_RECORDS") == "1":
+        return False
+    return "hb_sync_pass" in trace or "hb_rmw_points" in trace or \
+        os.environ.get("CUVEIN_PREFER_AGGREGATES") == "1"
 
 
 def event_count(trace):
@@ -1300,8 +1309,10 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
     # No HbClock set (scalar-clock dump, or a pre-fix HbClock): derive it offline from
     # hb_events. The barrier-only clock needs no atomic joins, so the scalar-clock mode
     # gets the same barrier-ordered evidence without running HbClock.
-    # $CUVEIN_BARRIER_PASS=0 disables it; dumps above $CUVEIN_BARRIER_PASS_MAX_LANES
-    # lane-accesses (default 5M) stay static-only.
+    # $CUVEIN_BARRIER_PASS=0 disables it. X0: a file recorded since T4 takes the pass from
+    # its hb_sync_pass (use_aggregates), with no lane cutoff; the replay below runs only on
+    # a pre-T4 dump or under $CUVEIN_PREFER_RECORDS=1 (the parity reference), and there
+    # dumps above $CUVEIN_BARRIER_PASS_MAX_LANES lane-accesses (default 5M) stay static-only.
     offline_memo = []
     offline_tv = []                   # T3b: the offline pass's TV-barrier-pending-at-end
 

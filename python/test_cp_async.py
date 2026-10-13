@@ -207,7 +207,11 @@ def test_dump_without_marker_keeps_the_pre_t1a_reading(built, v, tmp_path):
     t.pop("hb_async")
     t["hb_events"] = [e for e in t["hb_events"]
                       if e["type"] not in ("pipeline_commit", "pipeline_wait")]
-    for k in ("hb_races", "hb_races_sync_only"):
+    # A pre-T1a dump also predates T4 and T16: it carries none of the runtime's aggregates
+    # (HbClock computes them with the agent model) -- without this the verdict layer, which
+    # reads the aggregates by default since X0, would see the agents of the new collector.
+    for k in ("hb_races", "hb_races_sync_only", "hb_sync_pass", "hb_rmw_points",
+              "hb_events_count", "hb_lanes_count", "hb_chain", "hb_gate_policy"):
         t.pop(k, None)
     p = tmp_path / "k.json"
     p.write_text(json.dumps(t))

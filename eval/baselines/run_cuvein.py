@@ -212,7 +212,7 @@ def _host_reports(depdir):
     return ids, raw
 
 
-def run_one(mrow, modes, cuda, writer, confirm_dir):
+def run_one(mrow, modes, cuda, writer, confirm_dir, cap=1200):
     exe = mrow["exe"]
     exe_dir = os.path.dirname(exe)
     base = os.path.basename(exe)
@@ -238,8 +238,9 @@ def run_one(mrow, modes, cuda, writer, confirm_dir):
         if not to and isinstance(w, (int, float)):
             native = w if native is None else min(native, w)
     # "10x native or 20 min": read as up to 20 min (vector-clock runs 3-218x native,
-    # so a literal 10x cap kills it on ~0.1s-native programs). Floor 120s, cap 1200s.
-    tool_timeout = min(max(int(10 * native), 120), 1200) if native else man_timeout
+    # so a literal 10x cap kills it on ~0.1s-native programs). Floor 120s, cap 1200s unless
+    # --timeout-cap is passed (X1: 5,400 s); the cap goes into every row's notes (cap=<s>).
+    tool_timeout = min(max(int(10 * native), 120), cap) if native else man_timeout
 
     # 2) extract cubins/CFG/scope + pc->line map (once)
     cubindir = f"{exe_dir}/{os.path.splitext(base)[0]}_eval_cubins"
@@ -294,6 +295,7 @@ def run_one(mrow, modes, cuda, writer, confirm_dir):
                     if not ids:
                         verdict = "ERROR"
                         notes = f"incomplete-trace(rc={rc};nkernels={len(kjs)})"
+            notes = f"cap={cap};{notes}"
             writer.writerow(blib.row(
                 **common, mode=mode, rep=rep, verdict=verdict,
                 reports_dedup=len(ids), report_ids=" ".join(ids),
@@ -324,6 +326,9 @@ def main():
     ap.add_argument("--id", default="", help="run only these ids (comma list)")
     ap.add_argument("--confirm", action="store_true",
                     help="write a confirmation-run detail JSON per program (rep 1)")
+    ap.add_argument("--timeout-cap", dest="timeout_cap", type=int, default=1200,
+                    help="maximum tool timeout in s, min(max(10x native, 120), cap) "
+                         "(default 1200; recorded as cap=<s> in the row's notes)")
     a = ap.parse_args()
     cuda = blib.resolve_cuda_home()   # raises on the login node
     psets = set(a.pset.split(",")) if a.pset else None
@@ -343,7 +348,7 @@ def main():
             n += 1
             print(f"[{n}] {mrow['id']}")
             try:
-                run_one(mrow, modes, cuda, writer, confirm_dir)
+                run_one(mrow, modes, cuda, writer, confirm_dir, cap=a.timeout_cap)
                 fh.flush()
             except Exception as e:
                 writer.writerow(blib.row(

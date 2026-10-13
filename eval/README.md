@@ -96,9 +96,9 @@ mode, the barrier-only instance alone in scalar-clock mode — and `kernel_N.jso
 `hb_rmw_points` (R3's release/acquire points from the trace), `hb_events_count` /
 `hb_lanes_count`, and in both modes now `tv_violation` (the runtime monitor). The default,
 `YOSEMITE_HB_DUMP=1`, is unchanged and lossless — the dump plus the same aggregates beside it;
-`sync_dominance.analyze` reads the records when they are present and the aggregates otherwise
-(`CUVEIN_PREFER_AGGREGATES=1` forces the aggregates on a full dump: the same-trace parity check,
-`setup/t4_parity.py`). What no-dump cannot give: `hb_oracle.py` cannot replay the run (parity
+`sync_dominance.analyze` reads the aggregates whenever the file carries them, dump or no dump
+(X0, `eval/AGGREGATES_DEFAULT.md`; `CUVEIN_PREFER_RECORDS=1` replays the records instead: the
+same-trace parity check, `setup/t4_parity.py`). What no-dump cannot give: `hb_oracle.py` cannot replay the run (parity
 is established on programs that dump), a changed detector needs a re-recording instead of an
 offline re-score, and the A2 window census / T2's host analysis need records
 (`YOSEMITE_HB_HOST_MEMCPY` with `YOSEMITE_HB_DUMP=0` is refused). Harness: `BASELINE_HB_DUMP=0`
@@ -114,6 +114,15 @@ the SLURM scripts are updated); readers accept the pre-T17 spelling through
 theirs).
 
 ## Re-analyzing existing traces / running from a worktree
+- Verdicts come from the runtime's aggregates (`hb_sync_pass`, `hb_rmw_points`), which every
+  `kernel_N.json` recorded since T4 carries, dump or no dump (X0, the freeze;
+  `eval/AGGREGATES_DEFAULT.md`). Replaying `hb_events` (`sync_dominance.barrier_only_pairs`,
+  `trace_rmw_points`) is the **parity reference**, not the production path:
+  `CUVEIN_PREFER_RECORDS=1` selects it (`setup/t4_parity.py`, `python/test_no_dump.py`).
+  The replay's lane cutoff `CUVEIN_BARRIER_PASS_MAX_LANES` (default 5 M lane-accesses per
+  kernel; above it scalar-clock mode loses the barrier pass and R3 falls back to region
+  dominance) therefore applies only to stores recorded before T4 (pre-October 2026) and to
+  the parity reference. `CUVEIN_PREFER_AGGREGATES=1` is kept and now redundant.
 - `eval/reanalyze.py --bindir eval/bin/E0 --python-dir python <stems>` re-runs the static
   leg + aggregation on already-recorded traces (no GPU) — validates `sync_dominance` changes
   in seconds. `--assume-warp-lockstep` forwards the opt-in filter.

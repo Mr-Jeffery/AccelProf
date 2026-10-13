@@ -5,7 +5,8 @@ YOSEMITE_HB_DUMP=1), check, per kernel and mode:
   sync   hb_sync_pass == barrier_only_pairs(records) as (pairs, dist, order) -- and in
          vector-clock mode hb_races_sync_only == its triples;
   rmw    hb_rmw_points == trace_rmw_points(records), the lane cutoff lifted;
-  verdicts  analyze() from the records == analyze() with CUVEIN_PREFER_AGGREGATES=1, every
+  verdicts  analyze() from the records (CUVEIN_PREFER_RECORDS=1 since X0) == analyze() with
+         CUVEIN_PREFER_AGGREGATES=1, every
          field of every verdict, plus skipped_edges and the candidate diagnostics.
 The dump side runs with CUVEIN_BARRIER_PASS_MAX_LANES lifted, so a kernel above the
 production cutoff (5 M lane-accesses) is compared on its content; `over_cutoff` marks it (in
@@ -39,10 +40,14 @@ def _vkey(v):
 
 
 def _analyze(dots, kj, prefer):
+    # X0: the aggregates are the default on a T4+ file; the records side must ask for the
+    # replay explicitly (CUVEIN_PREFER_RECORDS=1), or both sides would read the aggregates
     if prefer:
         os.environ["CUVEIN_PREFER_AGGREGATES"] = "1"
+        os.environ.pop("CUVEIN_PREFER_RECORDS", None)
     else:
         os.environ.pop("CUVEIN_PREFER_AGGREGATES", None)
+        os.environ["CUVEIN_PREFER_RECORDS"] = "1"
     for dot in dots:
         try:
             return sd.analyze(dot, kj), dot
