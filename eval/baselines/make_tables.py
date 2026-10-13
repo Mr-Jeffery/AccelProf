@@ -1456,6 +1456,78 @@ def memory_footprint_section(runs, meta, man):
 SUMMARY_OUT = f"{APH}/eval/BASELINES_SUMMARY.md"
 
 
+def _verdict_view(runs, tool, mode, as_tool):
+    """{(id, as_tool, mode): run with verdict = its Race-alone verdict} for the confusion
+    counts, and the ids whose Race-alone verdict is unknown (rows analysed before T9)."""
+    view, na = {}, []
+    for (i, t, m), r in runs.items():
+        if (t, m) != (tool, mode):
+            continue
+        v = race_alone_verdict(r)
+        if v is None:
+            na.append(i)
+        else:
+            view[(i, as_tool, mode)] = dict(r, verdict=v)
+    return view, na
+
+
+def sound_points_section(runs, meta, man):
+    """X2 (eval/FINAL_CERTAIN.md): cuVein's vector-clock mode at its three operating points,
+    per suite, in the comparison matrix's cell format -- Race u Latent (the matrix's own
+    cuVein cell), Race alone, and Race (sound): the certain clock (T16, D16) at Race alone,
+    from the certain-policy rows `--certain-results` loads. Suites without such rows say
+    `= Race alone` and the footnote cites the re-score that says so. Only written when
+    certain-policy rows are loaded (the summary is otherwise unchanged)."""
+    ra, ra_na = _verdict_view(runs, "cuvein", VC, "cuvein-race-alone")
+    so, so_na = _verdict_view(runs, "cuvein-certain", VC, "cuvein-sound")
+    out = ["\n## 3. cuVein (vector-clock) at three operating points\n",
+           "Cells as in table 1 (`TP/(TP+FN), FP/(FP+TN), TO, ERR`). **Race u Latent** = the "
+           "program verdict the harness records (table 1's cuVein (vector-clock) cell); **Race "
+           "alone** = only reports that raced in the recorded run (`structural` / `model_bug`; a "
+           "program whose reports are all Latent is CLEAN there; D2); **Race (sound)** = Race alone "
+           "under the certain clock (T16, `YOSEMITE_HB_GATE_POLICY=certain`: an atomic hand-off is "
+           "taken only when the two RMWs' issue windows do not overlap, so every edge it takes is an "
+           "edge of the execution's happens-before under A2w and no race of the run is missed; "
+           "`eval/CERTAIN_CLOCK.md`). SC reports are a Strong conflict at every point, never a "
+           "RACE.\n"]
+    hdr = ["test suite", "Race u Latent", "Race alone", "Race (sound)"]
+    out.append("| " + " | ".join(hdr) + " |")
+    out.append("|" + "---|" * len(hdr))
+    sound_sets, recorded_only = [], []
+    for ps in ALL_PSETS:
+        c, _ = confusion(runs, meta, man, (ps,), "cuvein", VC)
+        if not c["n"]:
+            continue
+        c1, _ = confusion(ra, meta, man, (ps,), "cuvein-race-alone", VC)
+        na = sum(1 for i in ra_na if _in(meta.get(i), (ps,)))
+        cs, _ = confusion(so, meta, man, (ps,), "cuvein-sound", VC)
+        sna = sum(1 for i in so_na if _in(meta.get(i), (ps,)))
+        if cs["n"] or sna:
+            sound_sets.append(ps)
+            scell = _mcell(cs) + (f" ({sna} n/a)" if sna else "") + " (a)"
+        else:
+            recorded_only.append(ps)
+            scell = "= Race alone (b)"
+        out.append(f"| {_suite_name(ps, man)} | {_mcell(c)} | {_mcell(c1)}"
+                   + (f" ({na} n/a: rows analysed before T9 carry no class note)" if na else "")
+                   + f" | {scell} |")
+    out.append(
+        "\nFootnotes: (a) a recording of every program of the suite under the certain policy "
+        "(X2: `setup/p_final_certain.sh`, vector-clock mode, no-dump, 3 reps, 1,200 s cap; rows "
+        "`eval/results/final-certain/`, report `eval/FINAL_CERTAIN.md`). It is a second run, so "
+        "its schedule is not the one behind the two recorded columns; `eval/FINAL_CERTAIN.md` "
+        "checks the superset invariant against a recording under the recorded policy made "
+        "alike (same job, same node). (b) Not re-recorded under the certain policy: equal to "
+        "Race alone by the re-score of `eval/CERTAIN_CLOCK.md` section 5 -- the certain clock "
+        "over the kept vector-clock dumps of 594 + 97 programs (P1, P2, P3, P4, P5, P6, P7, P9, "
+        "PI; 5,110 kernels) adds reports only on the ScoR suites, and no verdict of "
+        + ", ".join(recorded_only or ["the other suites"]) + " moves; its section 6 records four "
+        "P7/P9 programs (`crs`, `overlap`, `gpp`, `backprop`) under both policies, CLEAN under "
+        "both. Programs of these suites that have no kept vector-clock dump are not covered by "
+        "the re-score.")
+    return "\n".join(out)
+
+
 def write_summary(runs, meta, man):
     rev = ""
     st = f"{HERE}/setup/cuvein_rev.status"
@@ -1467,6 +1539,8 @@ def write_summary(runs, meta, man):
            f"cuVein revision: {rev or 'see eval/baselines/setup/cuvein_rev.status'}.\n",
            comparison_matrix_section(runs, meta, man).replace("## 2c. ", "## 1. "),
            overhead_minmax_section(runs, meta, man).replace("## 4a. ", "## 2. ").replace("§2c", "table 1")]
+    if any(k[1] == "cuvein-certain" for k in runs):     # X2: only with --certain-results
+        doc.append(sound_points_section(runs, meta, man))
     with open(SUMMARY_OUT, "w") as f:
         f.write("\n".join(doc) + "\n")
     print(f"wrote {SUMMARY_OUT}")
