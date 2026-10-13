@@ -243,6 +243,12 @@ see T0 for why the previous "keep every trace" attempt lost data and for the pol
 - The default tool path's `kernel_pc` field is uninitialised in `sanalyzer` (`event.h:83`)
   and prints heap garbage, so byte-identity checks of the default path compare modulo it
   until the one-line fix lands (T20 step 0); tell Yanbo — upstream has the same line.
+- Verdicts are computed from the runtime's aggregates (`hb_sync_pass`, `hb_rmw_points`, which
+  every `kernel_N.json` recorded since T4 carries, dump or no dump); the record-replay path
+  (`barrier_only_pairs`, `trace_rmw_points` over `hb_events`, selected by
+  `CUVEIN_PREFER_RECORDS=1`) is the parity reference; `CUVEIN_BARRIER_PASS_MAX_LANES` applies
+  only to stores recorded before T4 (X0, `eval/AGGREGATES_DEFAULT.md`). A test or script that
+  needs the records must ask for them explicitly.
 - Distinguish in every report: **proved-in-effect** (an invariant checked over N real
   traces), **tested** (a specific verdict asserted), **assumed/unverified**.
 - Persisted artifact names (CSV column names and values, kept-trace directory names,
@@ -560,6 +566,15 @@ reported as a mode's verdict. **Limitations, not tasks**: particlefilter (the sh
 number), stencil1d (kernels completed under the cap and why not the rest), the two P9
 programs under the analysis cap. **Also found**: the default path's `kernel_pc` is
 uninitialised (`event.h:83`) — one-line fix in T20, and a note to Yanbo.
+
+**Status 2026-10-13 — the code freeze (X0).** T16 + T20 merged (`ba99486`) and installed
+(`d38d057`: libsanalyzer 2201fcb7, collector ee78cb89, fatbin a2d7368b). X0 (`fix/aggregates-default`,
+commit `fce124c`, unmerged — Jeffery merges) makes the aggregates the verdict path and adds the
+harness's `--timeout-cap` (default 1200, `cap=<s>` in the row's notes); green set 312 + 2 skipped,
+gate 55/55, `test_no_dump.py` 31/31; the T20 parity store re-scored both ways: 130 rows and 122
+detail files identical, no report lost (`eval/AGGREGATES_DEFAULT.md`). **From `fce124c` on, the
+detector is frozen**: no change to `sanalyzer/`, `nv-compute/` or `python/hb_oracle.py` before
+the submission except a bug fix with a failing test.
 
 Remaining order: Jeffery fast-forwards the install commit and merges `perf/flat-buckets`,
 rebuilds both components, installs, green set, pushes; then T20 (per-thread lookups;

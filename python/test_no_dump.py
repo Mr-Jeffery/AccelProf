@@ -10,8 +10,10 @@ records of the SAME recording (design/no_dump.md section 6):
   1. hb_sync_pass == sync_dominance.barrier_only_pairs (pairs, widest distance, first
      orientation), both modes; in vector-clock mode hb_races_sync_only == its triples;
   2. hb_rmw_points == sync_dominance.trace_rmw_points;
-  3. analyze() from the records == analyze() from the aggregates (CUVEIN_PREFER_AGGREGATES=1),
-     every verdict field.
+  3. analyze() from the records (CUVEIN_PREFER_RECORDS=1) == analyze() from the aggregates
+     (CUVEIN_PREFER_AGGREGATES=1), every verdict field; and (X0) analyze() with no
+     environment -- the production path, the aggregates -- == the records with the lane
+     cutoff lifted.
 A no-dump recording has no hb_events, the counts, and analyze() runs on it; its verdicts
 equal the dump recording's (the forced-order kernel; the barrier kernel's race set does not
 depend on the schedule either). D4: YOSEMITE_HB_HOST_MEMCPY with YOSEMITE_HB_DUMP=0 is refused.
@@ -91,10 +93,22 @@ def _eng(dots, t):
     raise AssertionError("no CFG holds the trace's kernel")
 
 
-def _analyze(dots, trace, prefer_aggregates=False):
-    env = {"CUVEIN_PREFER_AGGREGATES": "1"} if prefer_aggregates else {}
-    old = {k: os.environ.get(k) for k in ("CUVEIN_PREFER_AGGREGATES",)}
-    os.environ.pop("CUVEIN_PREFER_AGGREGATES", None)
+_PATH_ENV = ("CUVEIN_PREFER_AGGREGATES", "CUVEIN_PREFER_RECORDS", "CUVEIN_BARRIER_PASS_MAX_LANES")
+
+
+def _analyze(dots, trace, prefer_aggregates=False, path=None):
+    """analyze() on one reader path: path "records" replays hb_events (CUVEIN_PREFER_RECORDS=1,
+    the lane cutoff lifted), "aggregates" forces the aggregates (CUVEIN_PREFER_AGGREGATES=1),
+    "default" sets none of the three variables (the production path since X0). The
+    prefer_aggregates flag is the two-path form of the T4 tests: False = "records"."""
+    path = path or ("aggregates" if prefer_aggregates else "records")
+    env = {"records": {"CUVEIN_PREFER_RECORDS": "1",
+                       "CUVEIN_BARRIER_PASS_MAX_LANES": str(10 ** 12)},
+           "aggregates": {"CUVEIN_PREFER_AGGREGATES": "1"},
+           "default": {}}[path]
+    old = {k: os.environ.get(k) for k in _PATH_ENV}
+    for k in _PATH_ENV:
+        os.environ.pop(k, None)
     os.environ.update(env)
     try:
         for dot in dots:
@@ -189,6 +203,36 @@ def test_verdicts_from_aggregates_equal_verdicts_from_records(rec, mode):
         sorted(map(str, (_vkey(v, True) for v in b["verdicts"]))), f"{name}/{mode}"
     assert a["skipped_edges"] == b["skipped_edges"]
     assert a["diagnostics"]["event_candidates"] == b["diagnostics"]["event_candidates"]
+
+
+@pytest.mark.parametrize("mode", ("vector-clock", "scalar-clock"))
+def test_default_path_equals_records_without_cutoff(rec, mode):
+    """X0: with no environment set, analyze() on a full dump reads the aggregates (the file
+    carries them) and equals the record replay with CUVEIN_PREFER_RECORDS=1 and the lane
+    cutoff lifted -- every verdict field, the skipped edges, the candidates, the summary."""
+    name, runs = rec
+    dots, trace = runs[(mode, 1)]
+    t = _load(trace)
+    assert t.get("hb_events"), f"{name}/{mode}: the dump recording has no hb_events"
+    _default_reads_aggregates(t)
+    a = _analyze(dots, trace, path="default")
+    b = _analyze(dots, trace, path="records")
+    assert sorted(map(str, (_vkey(v, True) for v in a["verdicts"]))) == \
+        sorted(map(str, (_vkey(v, True) for v in b["verdicts"]))), f"{name}/{mode}"
+    assert a["skipped_edges"] == b["skipped_edges"]
+    assert a["diagnostics"]["event_candidates"] == b["diagnostics"]["event_candidates"]
+    assert a["summary"] == b["summary"]
+    assert a["gate_policy"] == b["gate_policy"]
+
+
+def _default_reads_aggregates(t):
+    """use_aggregates() with none of the reader variables set must be True on a T4+ dump."""
+    old = {k: os.environ.pop(k, None) for k in _PATH_ENV}
+    try:
+        got = sd.use_aggregates(t)
+    finally:
+        os.environ.update({k: v for k, v in old.items() if v is not None})
+    assert got is True, "a dump carrying hb_sync_pass/hb_rmw_points must read the aggregates"
 
 
 # --- the no-dump recordings ----------------------------------------------------------------

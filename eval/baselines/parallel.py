@@ -147,13 +147,14 @@ def _arch():
 
 
 # ---------- collect (GPU) ----------
-def collect_one(mrow, cuda, reps, floor=120):
+def collect_one(mrow, cuda, reps, floor=120, cap=1200):
     """Collect traces for one program with ALL heavy IO on scratch. accelprof
     writes its dependency_* dump to the CWD, and a single dump can be multi-GB, so
     we run it in a scratch work dir under STORE (node-local/beegfs), never in the
     home bin/ dir. The exe is symlinked into the work dir so accelprof's ./<base>
     resolves there. Only the (small) kernel JSONs, dots, meta and the captured
-    stderr of failing runs are kept. `floor` is the minimum tool timeout (s)."""
+    stderr of failing runs are kept. `floor` is the minimum tool timeout (s), `cap` the
+    maximum (--timeout-cap; 1200 s unless passed)."""
     exe = mrow["exe"]
     idir = f"{STORE}/{mrow['id']}"
     shutil.rmtree(idir, ignore_errors=True)
@@ -234,13 +235,16 @@ def collect_one(mrow, cuda, reps, floor=120):
         if not to and isinstance(w, (int, float)):
             native = w if native is None else min(native, w)
     # "10x native or 20 min" read as up to 20 min: floor 120s by default (vector-clock
-    # runs 3-218x native, REPORT.md F3), hard cap 1200s. --timeout-floor raises the
-    # floor (P7 overhead-only set uses the full 20 min).
-    tool_timeout = min(max(int(10 * native), floor), 1200) if native else max(man_timeout, floor)
+    # runs 3-218x native, REPORT.md F3), cap 1200s by default. --timeout-floor raises the
+    # floor (P7 overhead-only set uses the full 20 min); --timeout-cap raises the cap (X1:
+    # 5,400 s for vector-clock mode on the heavy suites). The cap is recorded in meta.json
+    # and in every row's notes (cap=<s>) so a table can state it.
+    tool_timeout = min(max(int(10 * native), floor), cap) if native else max(man_timeout, floor)
     meta["native_wall"] = native
     meta["native_rc"] = native_rc
     meta["native_err"] = blib.tail_text(f"{logs}/native_rep1.txt", 12, 600)
     meta["tool_timeout"] = tool_timeout
+    meta["tool_timeout_cap"] = cap
 
     cubindir = f"{work}/cubins"
     scope, cubs = blib.extract(os.path.realpath(exe), cubindir, nenv)
@@ -400,7 +404,7 @@ def cmd_collect(a):
     for i, m in enumerate(rows, 1):
         print(f"[collect {i}/{len(rows)}] {m['id']}", flush=True)
         try:
-            collect_one(m, cuda, a.reps)
+            collect_one(m, cuda, a.reps, cap=getattr(a, "timeout_cap", 1200))
         except Exception as e:
             Path(f"{STORE}/{m['id']}.error").write_text(f"{type(e).__name__}: {e}")
             print(f"  ERROR {type(e).__name__}: {e}", flush=True)
@@ -576,6 +580,8 @@ def analyze_one(idir, writer, confirm_dir, analysis_cap=0, analysis_mem=-1):
                          + (f";{cnote}" if cnote else ""))
                 ri, rl, nd = " ".join(ids_), lines_for(pcs), len(ids_)
             verdicts[mode] = verdict if mode not in verdicts or verdict == "RACE" else verdicts[mode]
+            if meta.get("tool_timeout_cap") is not None:   # absent in metas before X0
+                notes = f"cap={meta['tool_timeout_cap']};{notes}"
             writer.writerow(blib.row(
                 **common, mode=mode, rep=rep, verdict=verdict, reports_dedup=nd,
                 report_ids=ri, report_lines=rl, wall_s=rm.get("wall"),
@@ -785,7 +791,8 @@ def cmd_run(a):
             print(f"[run {i}/{len(rows)}] {m['id']}", flush=True)
             idir = f"{STORE}/{m['id']}"
             try:
-                collect_one(m, cuda, a.reps, floor=getattr(a, "timeout_floor", 120))
+                collect_one(m, cuda, a.reps, floor=getattr(a, "timeout_floor", 120),
+                            cap=getattr(a, "timeout_cap", 1200))
                 verdicts = analyze_one(idir, w, confirm_dir, getattr(a, "analysis_timeout", 0),
                             getattr(a, "analysis_mem", -1)) or {}
                 if keep_dir:
@@ -844,6 +851,9 @@ def main():
         p.add_argument("--confirm", action="store_true")
         p.add_argument("--timeout-floor", dest="timeout_floor", type=int, default=120,
                        help="minimum tool timeout in s (P7 overhead set: 1200)")
+        p.add_argument("--timeout-cap", dest="timeout_cap", type=int, default=1200,
+                       help="maximum tool timeout in s, min(max(10x native, floor), cap) "
+                            "(default 1200; recorded as cap=<s> in the row's notes)")
         p.add_argument("--keep-mismatch", dest="keep_mismatch", default="",
                        help="tag (BeeGFS keep/<tag>) or path where FP/FN/ERROR/TIMEOUT traces are kept; "
                             "TP/TN traces are always deleted")
