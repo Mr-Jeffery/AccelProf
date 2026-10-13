@@ -1,0 +1,23 @@
+id,pset,program,build,input,tool,mode,rep,verdict,reports_dedup,report_ids,report_lines,wall_s,native_wall_s,peak_mb,rc,notes
+P4-reduction-norace-small,P4,reduction,norace,small,cuvein,vector-clock,1,RACE,1,global:0xab0-0x1690:WAW,device_atomic_functions.hpp:162;red_kernel.cu:210,2.774,1.443,990.6,0,"node=c57;arch=8.9;events=883;nkernels=1;classes=latent:1,latent-sc:2,sc:10"
+P4-reduction-norace-small,P4,reduction,norace,small,cuvein,scalar-clock,1,RACE,1,global:0xab0-0x1690:WAW,device_atomic_functions.hpp:162;red_kernel.cu:210,1.22,1.443,850.4,0,"node=c57;arch=8.9;events=883;nkernels=1;classes=race:1,sc:12"
+P4-uts-norace-small,P4,uts,norace,small,cuvein,vector-clock,1,TIMEOUT,0,,,120.005,1.372,11273.4,124,timeout=120s;dump_mb=0.0;err=./uts_norace  | Running the pc_dependency_analysis tool for uts_norace...
+P4-uts-norace-small,P4,uts,norace,small,cuvein,scalar-clock,1,CLEAN,0,,,1.873,1.372,917.1,0,node=c57;arch=8.9;events=303799;nkernels=1
+P5-norace_interwarp_dev-blklock_waw,P5,norace_interwarp_dev-blklock_waw,default,default,cuvein,vector-clock,1,CLEAN,0,,,1.016,0.165,792.2,0,node=c53;arch=8.9;events=7;nkernels=1
+P5-norace_interwarp_dev-blklock_waw,P5,norace_interwarp_dev-blklock_waw,default,default,cuvein,vector-clock,2,CLEAN,0,,,0.665,0.165,847.1,0,node=c53;arch=8.9;events=7;nkernels=1
+P5-norace_interwarp_dev-blklock_waw,P5,norace_interwarp_dev-blklock_waw,default,default,cuvein,vector-clock,3,CLEAN,0,,,0.715,0.165,809.3,0,node=c53;arch=8.9;events=7;nkernels=1
+P5-norace_interwarp_dev-blklock_waw,P5,norace_interwarp_dev-blklock_waw,default,default,cuvein,scalar-clock,1,CLEAN,0,,,0.665,0.165,847.5,0,node=c53;arch=8.9;events=7;nkernels=1
+P5-norace_interwarp_dev-blklock_waw,P5,norace_interwarp_dev-blklock_waw,default,default,cuvein,scalar-clock,2,CLEAN,0,,,0.866,0.165,848.2,0,node=c53;arch=8.9;events=7;nkernels=1
+P5-norace_interwarp_dev-blklock_waw,P5,norace_interwarp_dev-blklock_waw,default,default,cuvein,scalar-clock,3,CLEAN,0,,,0.916,0.165,658.2,0,node=c53;arch=8.9;events=7;nkernels=1
+P5-race_interblock_lock-blkfence_waw,P5,race_interblock_lock-blkfence_waw,default,default,cuvein,vector-clock,1,CLEAN,0,,,0.917,0.215,844.8,0,node=c64;arch=8.9;events=9;nkernels=1;classes=latent-sc:1
+P5-race_interblock_lock-blkfence_waw,P5,race_interblock_lock-blkfence_waw,default,default,cuvein,vector-clock,2,CLEAN,0,,,0.866,0.215,824.8,0,node=c64;arch=8.9;events=9;nkernels=1;classes=latent-sc:1
+P5-race_interblock_lock-blkfence_waw,P5,race_interblock_lock-blkfence_waw,default,default,cuvein,vector-clock,3,CLEAN,0,,,0.866,0.215,807.2,0,node=c64;arch=8.9;events=9;nkernels=1;classes=latent-sc:1
+P5-race_interblock_lock-blkfence_waw,P5,race_interblock_lock-blkfence_waw,default,default,cuvein,scalar-clock,1,CLEAN,0,,,0.967,0.215,846.8,0,node=c64;arch=8.9;events=9;nkernels=1;classes=sc:1
+P5-race_interblock_lock-blkfence_waw,P5,race_interblock_lock-blkfence_waw,default,default,cuvein,scalar-clock,2,CLEAN,0,,,0.916,0.215,846.8,0,node=c64;arch=8.9;events=9;nkernels=1;classes=sc:1
+P5-race_interblock_lock-blkfence_waw,P5,race_interblock_lock-blkfence_waw,default,default,cuvein,scalar-clock,3,CLEAN,0,,,0.766,0.215,844.8,0,node=c64;arch=8.9;events=9;nkernels=1;classes=sc:1
+P5-race_interwarp_dev-blklock-no-stf_waw,P5,race_interwarp_dev-blklock-no-stf_waw,default,default,cuvein,vector-clock,1,CLEAN,0,,,1.017,0.215,846.4,0,node=c72;arch=8.9;events=7;nkernels=1;classes=latent-sc:1
+P5-race_interwarp_dev-blklock-no-stf_waw,P5,race_interwarp_dev-blklock-no-stf_waw,default,default,cuvein,vector-clock,2,CLEAN,0,,,0.916,0.215,845.8,0,node=c72;arch=8.9;events=7;nkernels=1;classes=latent-sc:1
+P5-race_interwarp_dev-blklock-no-stf_waw,P5,race_interwarp_dev-blklock-no-stf_waw,default,default,cuvein,vector-clock,3,CLEAN,0,,,0.866,0.215,723.1,0,node=c72;arch=8.9;events=7;nkernels=1;classes=latent-sc:1
+P5-race_interwarp_dev-blklock-no-stf_waw,P5,race_interwarp_dev-blklock-no-stf_waw,default,default,cuvein,scalar-clock,1,CLEAN,0,,,0.916,0.215,845.8,0,node=c72;arch=8.9;events=7;nkernels=1;classes=sc:1
+P5-race_interwarp_dev-blklock-no-stf_waw,P5,race_interwarp_dev-blklock-no-stf_waw,default,default,cuvein,scalar-clock,2,CLEAN,0,,,0.966,0.215,717.9,0,node=c72;arch=8.9;events=7;nkernels=1;classes=sc:1
+P5-race_interwarp_dev-blklock-no-stf_waw,P5,race_interwarp_dev-blklock-no-stf_waw,default,default,cuvein,scalar-clock,3,CLEAN,0,,,0.866,0.215,835.1,0,node=c72;arch=8.9;events=7;nkernels=1;classes=sc:1

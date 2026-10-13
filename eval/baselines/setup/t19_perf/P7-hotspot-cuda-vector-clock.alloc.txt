@@ -1,0 +1,73 @@
+     4.31%  [.] malloc_consolidate
+            |          
+             --4.01%--_int_malloc
+                       __GI___libc_malloc (inlined)
+                       |          
+                        --3.35%--operator new
+                                  ?? (inlined)
+                                  ?? (inlined)
+                                  ?? (inlined)
+                                  |          
+                                   --3.35%--?? (inlined)
+                                             |          
+                                              --3.34%--?? (inlined)
+                                                        |          
+                                                         --3.10%--?? (inlined)
+                                                                   ?? (inlined)
+                                                                   ?? (inlined)
+                                                                   ?? (inlined)
+                                                                   yosemite::PcDependency::hb_clock_reset
+                                                                   yosemite::PcDependency::kernel_start_callback
+                                                                   yosemite::PcDependency::evt_callback
+                                                                   yosemite_kernel_start_callback
+                                                                   LaunchBeginCallback
+                                                                   ComputeSanitizerCallback
+                                                                   0x7f10ace38e58
+                                                                   0x7f10ace4a888
+     3.43%  [.] unlink_chunk.isra.2
+            |          
+             --3.35%--malloc_consolidate
+                       |          
+                        --3.21%--_int_malloc
+                                  __GI___libc_malloc (inlined)
+                                  |          
+                                   --2.64%--operator new
+                                             ?? (inlined)
+                                             ?? (inlined)
+                                             ?? (inlined)
+                                             ?? (inlined)
+                                             ?? (inlined)
+                                             |          
+                                              --2.61%--?? (inlined)
+                                                        ?? (inlined)
+                                                        ?? (inlined)
+                                                        ?? (inlined)
+                                                        yosemite::PcDependency::hb_clock_reset
+                                                        yosemite::PcDependency::kernel_start_callback
+                                                        yosemite::PcDependency::evt_callback
+                                                        yosemite_kernel_start_callback
+                                                        LaunchBeginCallback
+                                                        ComputeSanitizerCallback
+                                                        0x7f10ace38e58
+     3.21%  [.] cfree@GLIBC_2.2.5
+            |
+            ---?? (inlined)
+               |          
+                --3.18%--?? (inlined)
+                          ?? (inlined)
+                          |          
+                           --2.28%--yosemite::PcDependency::hb_clock_reset
+                                     yosemite::PcDependency::kernel_start_callback
+                                     yosemite::PcDependency::evt_callback
+                                     yosemite_kernel_start_callback
+                                     LaunchBeginCallback
+                                     ComputeSanitizerCallback
+                                     0x7f10ace38e58
+                                     0x7f10ace4a888
+                                     0x7f1090fb8ba2
+                                     0x7f10901c9af4
+                                     0x7f10901d5a47
+     2.03%  [.] _int_free
+     1.95%  [.] _int_malloc
+     0.98%  [.] malloc
+     0.30%  [.] _int_realloc

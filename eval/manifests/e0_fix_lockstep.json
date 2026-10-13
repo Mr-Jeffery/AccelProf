@@ -1,0 +1,34 @@
+{
+  "csv": "/home/fzheng4/AccelProf/.claude/worktrees/eval-suite/eval/results/E0-fixed.csv",
+  "detail_dir": "/home/fzheng4/AccelProf/.claude/worktrees/eval-suite/eval/detail",
+  "programs": [
+    {
+      "suite": "E0",
+      "program": "reduction",
+      "variant": "norace",
+      "label": "race-free",
+      "input": "small+lockstep",
+      "assume_warp_lockstep": true,
+      "exe": "/home/fzheng4/AccelProf/.claude/worktrees/eval-suite/eval/bin/E0/reduction_norace",
+      "args": [],
+      "stdin": "/home/fzheng4/AccelProf/.claude/worktrees/eval-suite/eval/inputs/reduction.small.in",
+      "oracle": false,
+      "reps": 2,
+      "timeout": 200
+    },
+    {
+      "suite": "E0",
+      "program": "reduction",
+      "variant": "racy",
+      "label": "racy",
+      "input": "small+lockstep",
+      "assume_warp_lockstep": true,
+      "exe": "/home/fzheng4/AccelProf/.claude/worktrees/eval-suite/eval/bin/E0/reduction_racy",
+      "args": [],
+      "stdin": "/home/fzheng4/AccelProf/.claude/worktrees/eval-suite/eval/inputs/reduction.small.in",
+      "oracle": false,
+      "reps": 2,
+      "timeout": 200
+    }
+  ]
+}

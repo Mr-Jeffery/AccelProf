@@ -1,0 +1,3554 @@
+[
+ {
+  "program": "P1-BFS_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Thread_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug_NoOverflowBug-slower_atomic-1296n",
+  "label": "RACE",
+  "current_pc": 1232,
+  "ancient_pc": 1744,
+  "space": "global",
+  "race_type": "WAW",
+  "observed_distance": "block",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "STG.E",
+   "STG.E"
+  ],
+  "kernel": "bfs_vertex_data(ECLgraph, int*, int const*, int, int*, int*, int, int*)",
+  "kfile": "kernel_7.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 1,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-fence",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x2e0",
+     "acquire": "0x2e0",
+     "hop": "block",
+     "release_op": "ATOMG.E.MAX.S32.STRONG.GPU",
+     "acquire_op": "ATOMG.E.MAX.S32.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x390",
+     "acquire": "0x390",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x9b0",
+     "acquire": "0x390",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x4e0",
+     "acquire": "0x4e0",
+     "hop": "block",
+     "release_op": "ATOMG.E.MAX.S32.STRONG.GPU",
+     "acquire_op": "ATOMG.E.MAX.S32.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x6e0",
+     "acquire": "0x4e0",
+     "hop": "block",
+     "release_op": "ATOMG.E.MAX.S32.STRONG.GPU",
+     "acquire_op": "ATOMG.E.MAX.S32.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x390",
+     "acquire": "0x590",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x590",
+     "acquire": "0x590",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x790",
+     "acquire": "0x590",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x6e0",
+     "acquire": "0x6e0",
+     "hop": "block",
+     "release_op": "ATOMG.E.MAX.S32.STRONG.GPU",
+     "acquire_op": "ATOMG.E.MAX.S32.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x900",
+     "acquire": "0x6e0",
+     "hop": "block",
+     "release_op": "ATOMG.E.MAX.S32.STRONG.GPU",
+     "acquire_op": "ATOMG.E.MAX.S32.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x590",
+     "acquire": "0x790",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x790",
+     "acquire": "0x790",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x9b0",
+     "acquire": "0x790",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x900",
+     "acquire": "0x900",
+     "hop": "block",
+     "release_op": "ATOMG.E.MAX.S32.STRONG.GPU",
+     "acquire_op": "ATOMG.E.MAX.S32.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x790",
+     "acquire": "0x9b0",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x9b0",
+     "acquire": "0x9b0",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0xe70",
+     "acquire": "0x9b0",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": false
+    }
+   ],
+   "handoffs_certified": false
+  },
+  "lines": [
+   "BFS_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Thread_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug_NoOverflowBug.cu:85",
+   "BFS_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Thread_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug_NoOverflowBug.cu:85"
+  ],
+  "key": [
+   1232,
+   1744,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-matrix-multiplication-norace-small",
+  "label": "CLEAN",
+  "current_pc": 1424,
+  "ancient_pc": 1440,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "block",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "matMultKernel(int*, int*, int volatile*, int, int, int, int*, int volatile*, int volatile*)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 347328,
+  "static_proof": false,
+  "r3": {
+   "reason": "cs-unfenced",
+   "gate": [
+    "0x5a0"
+   ],
+   "handoffs": [
+    {
+     "release": "0x5c0",
+     "acquire": "0x540",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.CAS.STRONG.SM",
+     "release_fenced": true,
+     "acquire_fenced": false
+    }
+   ],
+   "handoffs_certified": true
+  },
+  "lines": [
+   "mm_kernel.cu:104",
+   "mm_kernel.cu:104"
+  ],
+  "key": [
+   1424,
+   1440,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-matrix-multiplication-norace-small",
+  "label": "CLEAN",
+  "current_pc": 2400,
+  "ancient_pc": 2432,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "block",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "matMultKernel(int*, int*, int volatile*, int, int, int, int*, int volatile*, int volatile*)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 126464,
+  "static_proof": false,
+  "r3": {
+   "reason": "cs-unfenced",
+   "gate": [
+    "0x980"
+   ],
+   "handoffs": [
+    {
+     "release": "0x9a0",
+     "acquire": "0x910",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.CAS.STRONG.SM",
+     "release_fenced": true,
+     "acquire_fenced": false
+    }
+   ],
+   "handoffs_certified": true
+  },
+  "lines": [
+   "mm_kernel.cu:104",
+   "mm_kernel.cu:104"
+  ],
+  "key": [
+   2400,
+   2432,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-matrix-multiplication-racy-small",
+  "label": "RACE",
+  "current_pc": 1408,
+  "ancient_pc": 1424,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "block",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "matMultKernel(int*, int*, int volatile*, int, int, int, int*, int volatile*, int volatile*)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 346240,
+  "static_proof": false,
+  "r3": {
+   "reason": "cs-unfenced",
+   "gate": [
+    "0x590"
+   ],
+   "handoffs": [
+    {
+     "release": "0x5a0",
+     "acquire": "0x540",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.CAS.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": false
+    }
+   ],
+   "handoffs_certified": true
+  },
+  "lines": [
+   "mm_kernel.cu:104",
+   "mm_kernel.cu:104"
+  ],
+  "key": [
+   1408,
+   1424,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-matrix-multiplication-racy-small",
+  "label": "RACE",
+  "current_pc": 2352,
+  "ancient_pc": 2384,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "block",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "matMultKernel(int*, int*, int volatile*, int, int, int, int*, int volatile*, int volatile*)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 126784,
+  "static_proof": false,
+  "r3": {
+   "reason": "cs-unfenced",
+   "gate": [
+    "0x950"
+   ],
+   "handoffs": [
+    {
+     "release": "0x960",
+     "acquire": "0x8f0",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.CAS.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": false
+    }
+   ],
+   "handoffs_certified": true
+  },
+  "lines": [
+   "mm_kernel.cu:104",
+   "mm_kernel.cu:104"
+  ],
+  "key": [
+   2352,
+   2384,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-reduction-norace-large",
+  "label": "CLEAN",
+  "current_pc": 3824,
+  "ancient_pc": 2592,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "grid",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "void reduceSinglePass<512u, true>(int const*, int volatile*, int volatile*, int*, unsigned int)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 29,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-point",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0xab0",
+     "acquire": "0xab0",
+     "hop": "grid",
+     "release_op": "ATOMG.E.INC.STRONG.GPU",
+     "acquire_op": "ATOMG.E.INC.STRONG.GPU",
+     "release_fenced": true,
+     "acquire_fenced": false
+    }
+   ],
+   "handoffs_certified": false
+  },
+  "lines": [
+   "red_kernel.cu:200",
+   "red_kernel.cu:147"
+  ],
+  "key": [
+   2592,
+   3824,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-reduction-norace-small",
+  "label": "CLEAN",
+  "current_pc": 3824,
+  "ancient_pc": 2592,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "grid",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "void reduceSinglePass<512u, true>(int const*, int volatile*, int volatile*, int*, unsigned int)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 3,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-point",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0xab0",
+     "acquire": "0xab0",
+     "hop": "grid",
+     "release_op": "ATOMG.E.INC.STRONG.GPU",
+     "acquire_op": "ATOMG.E.INC.STRONG.GPU",
+     "release_fenced": true,
+     "acquire_fenced": false
+    }
+   ],
+   "handoffs_certified": false
+  },
+  "lines": [
+   "red_kernel.cu:200",
+   "red_kernel.cu:147"
+  ],
+  "key": [
+   2592,
+   3824,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-reduction-norace-small",
+  "label": "CLEAN",
+  "current_pc": 5760,
+  "ancient_pc": 2592,
+  "space": "global",
+  "race_type": "WAW",
+  "observed_distance": "grid",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": true,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "STG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "void reduceSinglePass<512u, true>(int const*, int volatile*, int volatile*, int*, unsigned int)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 1,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-point",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0xab0",
+     "acquire": "0xab0",
+     "hop": "grid",
+     "release_op": "ATOMG.E.INC.STRONG.GPU",
+     "acquire_op": "ATOMG.E.INC.STRONG.GPU",
+     "release_fenced": true,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x10d0",
+     "acquire": "0x1000",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.EXCH.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x1000",
+     "acquire": "0x10d0",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1260",
+     "acquire": "0x1190",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.EXCH.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x1190",
+     "acquire": "0x1260",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x13d0",
+     "acquire": "0x1320",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.EXCH.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x1320",
+     "acquire": "0x13d0",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": true,
+     "acquire_fenced": true
+    }
+   ],
+   "handoffs_certified": false
+  },
+  "lines": [
+   "red_kernel.cu:207",
+   "red_kernel.cu:147"
+  ],
+  "key": [
+   2592,
+   5760,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-reduction-racy-large",
+  "label": "RACE",
+  "current_pc": 1824,
+  "ancient_pc": 1520,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "block",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "void reduceSinglePass<512u, true>(int const*, int volatile*, int volatile*, int*, unsigned int)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 960,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-fence",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x600",
+     "acquire": "0x6d0",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": true
+    }
+   ],
+   "handoffs_certified": true
+  },
+  "lines": [
+   "red_kernel.cu:95",
+   "red_kernel.cu:77"
+  ],
+  "key": [
+   1520,
+   1824,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-reduction-racy-large",
+  "label": "RACE",
+  "current_pc": 3776,
+  "ancient_pc": 2576,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "grid",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "void reduceSinglePass<512u, true>(int const*, int volatile*, int volatile*, int*, unsigned int)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 29,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-point",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0xa80",
+     "acquire": "0xa80",
+     "hop": "grid",
+     "release_op": "ATOMG.E.INC.STRONG.GPU",
+     "acquire_op": "ATOMG.E.INC.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": false
+    }
+   ],
+   "handoffs_certified": false
+  },
+  "lines": [
+   "red_kernel.cu:200",
+   "red_kernel.cu:147"
+  ],
+  "key": [
+   2576,
+   3776,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-reduction-racy-large",
+  "label": "RACE",
+  "current_pc": 5088,
+  "ancient_pc": 4816,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "block",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "void reduceSinglePass<512u, true>(int const*, int volatile*, int volatile*, int*, unsigned int)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 32,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-fence",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x12e0",
+     "acquire": "0x1390",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": true
+    }
+   ],
+   "handoffs_certified": true
+  },
+  "lines": [
+   "red_kernel.cu:95",
+   "red_kernel.cu:77"
+  ],
+  "key": [
+   4816,
+   5088,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-reduction-racy-small",
+  "label": "RACE",
+  "current_pc": 1824,
+  "ancient_pc": 1520,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "block",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "void reduceSinglePass<512u, true>(int const*, int volatile*, int volatile*, int*, unsigned int)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 128,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-fence",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x600",
+     "acquire": "0x6d0",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": true
+    }
+   ],
+   "handoffs_certified": true
+  },
+  "lines": [
+   "red_kernel.cu:95",
+   "red_kernel.cu:77"
+  ],
+  "key": [
+   1520,
+   1824,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-reduction-racy-small",
+  "label": "RACE",
+  "current_pc": 3776,
+  "ancient_pc": 2576,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "grid",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "void reduceSinglePass<512u, true>(int const*, int volatile*, int volatile*, int*, unsigned int)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 3,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-point",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0xa80",
+     "acquire": "0xa80",
+     "hop": "grid",
+     "release_op": "ATOMG.E.INC.STRONG.GPU",
+     "acquire_op": "ATOMG.E.INC.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": false
+    }
+   ],
+   "handoffs_certified": false
+  },
+  "lines": [
+   "red_kernel.cu:200",
+   "red_kernel.cu:147"
+  ],
+  "key": [
+   2576,
+   3776,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-reduction-racy-small",
+  "label": "RACE",
+  "current_pc": 5696,
+  "ancient_pc": 2576,
+  "space": "global",
+  "race_type": "WAW",
+  "observed_distance": "grid",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": true,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "STG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "void reduceSinglePass<512u, true>(int const*, int volatile*, int volatile*, int*, unsigned int)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 1,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-point",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0xa80",
+     "acquire": "0xa80",
+     "hop": "grid",
+     "release_op": "ATOMG.E.INC.STRONG.GPU",
+     "acquire_op": "ATOMG.E.INC.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x10a0",
+     "acquire": "0xfd0",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.EXCH.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0xfd0",
+     "acquire": "0x10a0",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1230",
+     "acquire": "0x1160",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.EXCH.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x1160",
+     "acquire": "0x1230",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1390",
+     "acquire": "0x12e0",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.EXCH.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x12e0",
+     "acquire": "0x1390",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": true
+    }
+   ],
+   "handoffs_certified": false
+  },
+  "lines": [
+   "red_kernel.cu:207",
+   "red_kernel.cu:147"
+  ],
+  "key": [
+   2576,
+   5696,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-reduction-racy-small",
+  "label": "RACE",
+  "current_pc": 5088,
+  "ancient_pc": 4816,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "block",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "void reduceSinglePass<512u, true>(int const*, int volatile*, int volatile*, int*, unsigned int)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 32,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-fence",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x12e0",
+     "acquire": "0x1390",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": true
+    }
+   ],
+   "handoffs_certified": true
+  },
+  "lines": [
+   "red_kernel.cu:95",
+   "red_kernel.cu:77"
+  ],
+  "key": [
+   4816,
+   5088,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-rule-110-norace-large",
+  "label": "CLEAN",
+  "current_pc": 5584,
+  "ancient_pc": 3472,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "grid",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "rule110Kernel(int*, int volatile*, int*, int, int)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 15359,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-point",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x1220",
+     "acquire": "0x1190",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.EXCH.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x1190",
+     "acquire": "0x1220",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1140",
+     "acquire": "0x1310",
+     "hop": "grid",
+     "release_op": "ATOMG.E.EXCH.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": true,
+     "acquire_fenced": true
+    }
+   ],
+   "handoffs_certified": false
+  },
+  "lines": [
+   "r110_kernel.cu:109",
+   "r110_kernel.cu:75"
+  ],
+  "key": [
+   3472,
+   5584,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-rule-110-norace-large",
+  "label": "CLEAN",
+  "current_pc": 5712,
+  "ancient_pc": 3472,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "grid",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "rule110Kernel(int*, int volatile*, int*, int, int)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 1,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-point",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x1220",
+     "acquire": "0x1190",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.EXCH.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x1190",
+     "acquire": "0x1220",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1140",
+     "acquire": "0x1310",
+     "hop": "grid",
+     "release_op": "ATOMG.E.EXCH.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": true,
+     "acquire_fenced": true
+    }
+   ],
+   "handoffs_certified": false
+  },
+  "lines": [
+   "r110_kernel.cu:109",
+   "r110_kernel.cu:75"
+  ],
+  "key": [
+   3472,
+   5712,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-rule-110-norace-large",
+  "label": "CLEAN",
+  "current_pc": 7680,
+  "ancient_pc": 3472,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "grid",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": true,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "rule110Kernel(int*, int volatile*, int*, int, int)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 15359,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-point",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x1220",
+     "acquire": "0x1190",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.EXCH.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x1190",
+     "acquire": "0x1220",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1140",
+     "acquire": "0x1310",
+     "hop": "grid",
+     "release_op": "ATOMG.E.EXCH.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1220",
+     "acquire": "0x1a90",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1310",
+     "acquire": "0x1b90",
+     "hop": "grid",
+     "release_op": "ATOMG.E.ADD.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": true
+    }
+   ],
+   "handoffs_certified": false
+  },
+  "lines": [
+   "r110_kernel.cu:141",
+   "r110_kernel.cu:75"
+  ],
+  "key": [
+   3472,
+   7680,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-rule-110-norace-large",
+  "label": "CLEAN",
+  "current_pc": 5712,
+  "ancient_pc": 3568,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "grid",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "rule110Kernel(int*, int volatile*, int*, int, int)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 15359,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-point",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x1220",
+     "acquire": "0x1190",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.EXCH.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x1190",
+     "acquire": "0x1220",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1140",
+     "acquire": "0x1310",
+     "hop": "grid",
+     "release_op": "ATOMG.E.EXCH.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": true,
+     "acquire_fenced": true
+    }
+   ],
+   "handoffs_certified": false
+  },
+  "lines": [
+   "r110_kernel.cu:109",
+   "r110_kernel.cu:75"
+  ],
+  "key": [
+   3568,
+   5712,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-rule-110-norace-large",
+  "label": "CLEAN",
+  "current_pc": 5840,
+  "ancient_pc": 3568,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "grid",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "rule110Kernel(int*, int volatile*, int*, int, int)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 1,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-point",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x1220",
+     "acquire": "0x1190",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.EXCH.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x1190",
+     "acquire": "0x1220",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1140",
+     "acquire": "0x1310",
+     "hop": "grid",
+     "release_op": "ATOMG.E.EXCH.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": true,
+     "acquire_fenced": true
+    }
+   ],
+   "handoffs_certified": false
+  },
+  "lines": [
+   "r110_kernel.cu:109",
+   "r110_kernel.cu:75"
+  ],
+  "key": [
+   3568,
+   5840,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-rule-110-norace-large",
+  "label": "CLEAN",
+  "current_pc": 7680,
+  "ancient_pc": 3568,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "grid",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": true,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "rule110Kernel(int*, int volatile*, int*, int, int)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 1,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-point",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x1220",
+     "acquire": "0x1190",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.EXCH.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x1190",
+     "acquire": "0x1220",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1140",
+     "acquire": "0x1310",
+     "hop": "grid",
+     "release_op": "ATOMG.E.EXCH.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1220",
+     "acquire": "0x1a90",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1310",
+     "acquire": "0x1b90",
+     "hop": "grid",
+     "release_op": "ATOMG.E.ADD.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": true
+    }
+   ],
+   "handoffs_certified": false
+  },
+  "lines": [
+   "r110_kernel.cu:141",
+   "r110_kernel.cu:75"
+  ],
+  "key": [
+   3568,
+   7680,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-rule-110-norace-large",
+  "label": "CLEAN",
+  "current_pc": 8064,
+  "ancient_pc": 3568,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "grid",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": true,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "rule110Kernel(int*, int volatile*, int*, int, int)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 15359,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-point",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x1220",
+     "acquire": "0x1190",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.EXCH.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x1190",
+     "acquire": "0x1220",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1140",
+     "acquire": "0x1310",
+     "hop": "grid",
+     "release_op": "ATOMG.E.EXCH.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1220",
+     "acquire": "0x1a90",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1310",
+     "acquire": "0x1b90",
+     "hop": "grid",
+     "release_op": "ATOMG.E.ADD.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": true
+    }
+   ],
+   "handoffs_certified": false
+  },
+  "lines": [
+   "r110_kernel.cu:141",
+   "r110_kernel.cu:75"
+  ],
+  "key": [
+   3568,
+   8064,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-rule-110-norace-large",
+  "label": "CLEAN",
+  "current_pc": 5840,
+  "ancient_pc": 3616,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "grid",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "rule110Kernel(int*, int volatile*, int*, int, int)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 15359,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-point",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x1220",
+     "acquire": "0x1190",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.EXCH.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x1190",
+     "acquire": "0x1220",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1140",
+     "acquire": "0x1310",
+     "hop": "grid",
+     "release_op": "ATOMG.E.EXCH.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": true,
+     "acquire_fenced": true
+    }
+   ],
+   "handoffs_certified": false
+  },
+  "lines": [
+   "r110_kernel.cu:109",
+   "r110_kernel.cu:75"
+  ],
+  "key": [
+   3616,
+   5840,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-rule-110-norace-large",
+  "label": "CLEAN",
+  "current_pc": 5968,
+  "ancient_pc": 3616,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "grid",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "rule110Kernel(int*, int volatile*, int*, int, int)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 1,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-point",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x1220",
+     "acquire": "0x1190",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.EXCH.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x1190",
+     "acquire": "0x1220",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1140",
+     "acquire": "0x1310",
+     "hop": "grid",
+     "release_op": "ATOMG.E.EXCH.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": true,
+     "acquire_fenced": true
+    }
+   ],
+   "handoffs_certified": false
+  },
+  "lines": [
+   "r110_kernel.cu:109",
+   "r110_kernel.cu:75"
+  ],
+  "key": [
+   3616,
+   5968,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-rule-110-norace-large",
+  "label": "CLEAN",
+  "current_pc": 8064,
+  "ancient_pc": 3616,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "grid",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": true,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "rule110Kernel(int*, int volatile*, int*, int, int)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 1,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-point",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x1220",
+     "acquire": "0x1190",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.EXCH.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x1190",
+     "acquire": "0x1220",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1140",
+     "acquire": "0x1310",
+     "hop": "grid",
+     "release_op": "ATOMG.E.EXCH.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1220",
+     "acquire": "0x1a90",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1310",
+     "acquire": "0x1b90",
+     "hop": "grid",
+     "release_op": "ATOMG.E.ADD.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": true
+    }
+   ],
+   "handoffs_certified": false
+  },
+  "lines": [
+   "r110_kernel.cu:141",
+   "r110_kernel.cu:75"
+  ],
+  "key": [
+   3616,
+   8064,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-rule-110-norace-large",
+  "label": "CLEAN",
+  "current_pc": 8448,
+  "ancient_pc": 3616,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "grid",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": true,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "rule110Kernel(int*, int volatile*, int*, int, int)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 15359,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-point",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x1220",
+     "acquire": "0x1190",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.EXCH.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x1190",
+     "acquire": "0x1220",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1140",
+     "acquire": "0x1310",
+     "hop": "grid",
+     "release_op": "ATOMG.E.EXCH.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1220",
+     "acquire": "0x1a90",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1310",
+     "acquire": "0x1b90",
+     "hop": "grid",
+     "release_op": "ATOMG.E.ADD.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": true
+    }
+   ],
+   "handoffs_certified": false
+  },
+  "lines": [
+   "r110_kernel.cu:141",
+   "r110_kernel.cu:75"
+  ],
+  "key": [
+   3616,
+   8448,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-rule-110-norace-large",
+  "label": "CLEAN",
+  "current_pc": 5968,
+  "ancient_pc": 3792,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "grid",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "rule110Kernel(int*, int volatile*, int*, int, int)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 15359,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-point",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x1220",
+     "acquire": "0x1190",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.EXCH.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x1190",
+     "acquire": "0x1220",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1140",
+     "acquire": "0x1310",
+     "hop": "grid",
+     "release_op": "ATOMG.E.EXCH.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": true,
+     "acquire_fenced": true
+    }
+   ],
+   "handoffs_certified": false
+  },
+  "lines": [
+   "r110_kernel.cu:109",
+   "r110_kernel.cu:75"
+  ],
+  "key": [
+   3792,
+   5968,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-rule-110-norace-large",
+  "label": "CLEAN",
+  "current_pc": 6512,
+  "ancient_pc": 3792,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "grid",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "rule110Kernel(int*, int volatile*, int*, int, int)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 1,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-point",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x1220",
+     "acquire": "0x1190",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.EXCH.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x1190",
+     "acquire": "0x1220",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1140",
+     "acquire": "0x1310",
+     "hop": "grid",
+     "release_op": "ATOMG.E.EXCH.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": true,
+     "acquire_fenced": true
+    }
+   ],
+   "handoffs_certified": false
+  },
+  "lines": [
+   "r110_kernel.cu:109",
+   "r110_kernel.cu:75"
+  ],
+  "key": [
+   3792,
+   6512,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-rule-110-norace-large",
+  "label": "CLEAN",
+  "current_pc": 8448,
+  "ancient_pc": 3792,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "grid",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": true,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "rule110Kernel(int*, int volatile*, int*, int, int)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 1,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-point",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x1220",
+     "acquire": "0x1190",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.EXCH.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x1190",
+     "acquire": "0x1220",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1140",
+     "acquire": "0x1310",
+     "hop": "grid",
+     "release_op": "ATOMG.E.EXCH.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1220",
+     "acquire": "0x1a90",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1310",
+     "acquire": "0x1b90",
+     "hop": "grid",
+     "release_op": "ATOMG.E.ADD.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": true
+    }
+   ],
+   "handoffs_certified": false
+  },
+  "lines": [
+   "r110_kernel.cu:141",
+   "r110_kernel.cu:75"
+  ],
+  "key": [
+   3792,
+   8448,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-rule-110-norace-large",
+  "label": "CLEAN",
+  "current_pc": 8816,
+  "ancient_pc": 3792,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "grid",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": true,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "rule110Kernel(int*, int volatile*, int*, int, int)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 15359,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-point",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x1220",
+     "acquire": "0x1190",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.EXCH.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x1190",
+     "acquire": "0x1220",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1140",
+     "acquire": "0x1310",
+     "hop": "grid",
+     "release_op": "ATOMG.E.EXCH.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1220",
+     "acquire": "0x1a90",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1310",
+     "acquire": "0x1b90",
+     "hop": "grid",
+     "release_op": "ATOMG.E.ADD.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": true
+    }
+   ],
+   "handoffs_certified": false
+  },
+  "lines": [
+   "r110_kernel.cu:141",
+   "r110_kernel.cu:75"
+  ],
+  "key": [
+   3792,
+   8816,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-rule-110-norace-large",
+  "label": "CLEAN",
+  "current_pc": 6512,
+  "ancient_pc": 4176,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "grid",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "rule110Kernel(int*, int volatile*, int*, int, int)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 4095,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-point",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x1220",
+     "acquire": "0x1190",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.EXCH.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x1190",
+     "acquire": "0x1220",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1140",
+     "acquire": "0x1310",
+     "hop": "grid",
+     "release_op": "ATOMG.E.EXCH.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": true,
+     "acquire_fenced": true
+    }
+   ],
+   "handoffs_certified": false
+  },
+  "lines": [
+   "r110_kernel.cu:109",
+   "r110_kernel.cu:75"
+  ],
+  "key": [
+   4176,
+   6512,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-rule-110-norace-large",
+  "label": "CLEAN",
+  "current_pc": 8816,
+  "ancient_pc": 4176,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "grid",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": true,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "rule110Kernel(int*, int volatile*, int*, int, int)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 1,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-point",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x1220",
+     "acquire": "0x1190",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.EXCH.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x1190",
+     "acquire": "0x1220",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1140",
+     "acquire": "0x1310",
+     "hop": "grid",
+     "release_op": "ATOMG.E.EXCH.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1220",
+     "acquire": "0x1a90",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1310",
+     "acquire": "0x1b90",
+     "hop": "grid",
+     "release_op": "ATOMG.E.ADD.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": true
+    }
+   ],
+   "handoffs_certified": false
+  },
+  "lines": [
+   "r110_kernel.cu:141",
+   "r110_kernel.cu:75"
+  ],
+  "key": [
+   4176,
+   8816,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-rule-110-norace-large",
+  "label": "CLEAN",
+  "current_pc": 9488,
+  "ancient_pc": 4176,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "grid",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": true,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "rule110Kernel(int*, int volatile*, int*, int, int)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 4095,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-point",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x1220",
+     "acquire": "0x1190",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.EXCH.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x1190",
+     "acquire": "0x1220",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1140",
+     "acquire": "0x1310",
+     "hop": "grid",
+     "release_op": "ATOMG.E.EXCH.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1220",
+     "acquire": "0x1a90",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1310",
+     "acquire": "0x1b90",
+     "hop": "grid",
+     "release_op": "ATOMG.E.ADD.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": true
+    }
+   ],
+   "handoffs_certified": false
+  },
+  "lines": [
+   "r110_kernel.cu:141",
+   "r110_kernel.cu:75"
+  ],
+  "key": [
+   4176,
+   9488,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-rule-110-norace-small",
+  "label": "CLEAN",
+  "current_pc": 6512,
+  "ancient_pc": 4176,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "block",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "rule110Kernel(int*, int volatile*, int*, int, int)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 1023,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-point",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x1220",
+     "acquire": "0x1190",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.EXCH.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x1190",
+     "acquire": "0x1220",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1a90",
+     "acquire": "0x1220",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1140",
+     "acquire": "0x1310",
+     "hop": "grid",
+     "release_op": "ATOMG.E.EXCH.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1b90",
+     "acquire": "0x1310",
+     "hop": "grid",
+     "release_op": "ATOMG.E.ADD.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": true
+    }
+   ],
+   "handoffs_certified": false
+  },
+  "lines": [
+   "r110_kernel.cu:109",
+   "r110_kernel.cu:75"
+  ],
+  "key": [
+   4176,
+   6512,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-rule-110-norace-small",
+  "label": "CLEAN",
+  "current_pc": 9488,
+  "ancient_pc": 4176,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "block",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": true,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "rule110Kernel(int*, int volatile*, int*, int, int)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 1023,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-point",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x1220",
+     "acquire": "0x1190",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.EXCH.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x1190",
+     "acquire": "0x1220",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1a90",
+     "acquire": "0x1220",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1140",
+     "acquire": "0x1310",
+     "hop": "grid",
+     "release_op": "ATOMG.E.EXCH.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1b90",
+     "acquire": "0x1310",
+     "hop": "grid",
+     "release_op": "ATOMG.E.ADD.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1190",
+     "acquire": "0x1a90",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1220",
+     "acquire": "0x1a90",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1140",
+     "acquire": "0x1b90",
+     "hop": "grid",
+     "release_op": "ATOMG.E.EXCH.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1310",
+     "acquire": "0x1b90",
+     "hop": "grid",
+     "release_op": "ATOMG.E.ADD.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": true
+    }
+   ],
+   "handoffs_certified": false
+  },
+  "lines": [
+   "r110_kernel.cu:141",
+   "r110_kernel.cu:75"
+  ],
+  "key": [
+   4176,
+   9488,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-rule-110-racy-large",
+  "label": "RACE",
+  "current_pc": 5680,
+  "ancient_pc": 3472,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "grid",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "rule110Kernel(int*, int volatile*, int*, int, int)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 1,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-point",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x1200",
+     "acquire": "0x1170",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.EXCH.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x1170",
+     "acquire": "0x1200",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1120",
+     "acquire": "0x12f0",
+     "hop": "grid",
+     "release_op": "ATOMG.E.EXCH.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": true
+    }
+   ],
+   "handoffs_certified": false
+  },
+  "lines": [
+   "r110_kernel.cu:109",
+   "r110_kernel.cu:75"
+  ],
+  "key": [
+   3472,
+   5680,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-rule-110-racy-large",
+  "label": "RACE",
+  "current_pc": 5808,
+  "ancient_pc": 3568,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "grid",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "rule110Kernel(int*, int volatile*, int*, int, int)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 1,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-point",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x1200",
+     "acquire": "0x1170",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.EXCH.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x1170",
+     "acquire": "0x1200",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1120",
+     "acquire": "0x12f0",
+     "hop": "grid",
+     "release_op": "ATOMG.E.EXCH.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": true
+    }
+   ],
+   "handoffs_certified": false
+  },
+  "lines": [
+   "r110_kernel.cu:109",
+   "r110_kernel.cu:75"
+  ],
+  "key": [
+   3568,
+   5808,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-rule-110-racy-large",
+  "label": "RACE",
+  "current_pc": 5936,
+  "ancient_pc": 3616,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "grid",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "rule110Kernel(int*, int volatile*, int*, int, int)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 1,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-point",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x1200",
+     "acquire": "0x1170",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.EXCH.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x1170",
+     "acquire": "0x1200",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1120",
+     "acquire": "0x12f0",
+     "hop": "grid",
+     "release_op": "ATOMG.E.EXCH.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": true
+    }
+   ],
+   "handoffs_certified": false
+  },
+  "lines": [
+   "r110_kernel.cu:109",
+   "r110_kernel.cu:75"
+  ],
+  "key": [
+   3616,
+   5936,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-rule-110-racy-large",
+  "label": "RACE",
+  "current_pc": 6480,
+  "ancient_pc": 3792,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "grid",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "rule110Kernel(int*, int volatile*, int*, int, int)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 1,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-point",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x1200",
+     "acquire": "0x1170",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.EXCH.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x1170",
+     "acquire": "0x1200",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1120",
+     "acquire": "0x12f0",
+     "hop": "grid",
+     "release_op": "ATOMG.E.EXCH.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": true
+    }
+   ],
+   "handoffs_certified": false
+  },
+  "lines": [
+   "r110_kernel.cu:109",
+   "r110_kernel.cu:75"
+  ],
+  "key": [
+   3792,
+   6480,
+   "global"
+  ]
+ },
+ {
+  "program": "P4-rule-110-racy-large",
+  "label": "RACE",
+  "current_pc": 6480,
+  "ancient_pc": 4176,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "grid",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "rule110Kernel(int*, int volatile*, int*, int, int)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 4095,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-point",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x1200",
+     "acquire": "0x1170",
+     "hop": "block",
+     "release_op": "ATOMG.E.ADD.STRONG.SM",
+     "acquire_op": "ATOMG.E.EXCH.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": false
+    },
+    {
+     "release": "0x1170",
+     "acquire": "0x1200",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.ADD.STRONG.SM",
+     "release_fenced": true,
+     "acquire_fenced": true
+    },
+    {
+     "release": "0x1120",
+     "acquire": "0x12f0",
+     "hop": "grid",
+     "release_op": "ATOMG.E.EXCH.STRONG.GPU",
+     "acquire_op": "ATOMG.E.ADD.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": true
+    }
+   ],
+   "handoffs_certified": false
+  },
+  "lines": [
+   "r110_kernel.cu:109",
+   "r110_kernel.cu:75"
+  ],
+  "key": [
+   4176,
+   6480,
+   "global"
+  ]
+ },
+ {
+  "program": "P5-race_interblock_blkfence_raw",
+  "label": "RACE",
+  "current_pc": 240,
+  "ancient_pc": 368,
+  "space": "global",
+  "race_type": "RAW",
+  "observed_distance": "grid",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "LDG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "kmain(unsigned int volatile*)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 1,
+  "static_proof": false,
+  "r3": {
+   "reason": "missing-hop",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x190",
+     "acquire": "0x90",
+     "hop": "grid",
+     "release_op": "ATOMG.E.EXCH.STRONG.GPU",
+     "acquire_op": "ATOMG.E.EXCH.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": false
+    }
+   ],
+   "handoffs_certified": true
+  },
+  "lines": [
+   "race_interblock_blkfence_raw.cu:32",
+   "race_interblock_blkfence_raw.cu:25"
+  ],
+  "key": [
+   240,
+   368,
+   "global"
+  ]
+ },
+ {
+  "program": "P5-race_interblock_fence_rtraw",
+  "label": "RACE",
+  "current_pc": 256,
+  "ancient_pc": 496,
+  "space": "global",
+  "race_type": "WAR",
+  "observed_distance": "grid",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "STG.E.STRONG.SYS",
+   "LDG.E.STRONG.SYS"
+  ],
+  "kernel": "kmain(unsigned int volatile*)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 1,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-point",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x1e0",
+     "acquire": "0x90",
+     "hop": "grid",
+     "release_op": "ATOMG.E.EXCH.STRONG.GPU",
+     "acquire_op": "ATOMG.E.EXCH.STRONG.GPU",
+     "release_fenced": true,
+     "acquire_fenced": false
+    }
+   ],
+   "handoffs_certified": false
+  },
+  "lines": [
+   "race_interblock_fence_rtraw.cu:36",
+   "race_interblock_fence_rtraw.cu:30"
+  ],
+  "key": [
+   256,
+   496,
+   "global"
+  ]
+ },
+ {
+  "program": "P5-race_interblock_lock-blkfence_waw",
+  "label": "RACE",
+  "current_pc": 640,
+  "ancient_pc": 336,
+  "space": "global",
+  "race_type": "WAW",
+  "observed_distance": "grid",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "STG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "kmain(unsigned int volatile*)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 1,
+  "static_proof": false,
+  "r3": {
+   "reason": "cs-unfenced",
+   "gate": [
+    "0x280"
+   ],
+   "handoffs": [
+    {
+     "release": "0x190",
+     "acquire": "0x210",
+     "hop": "grid",
+     "release_op": "ATOMG.E.EXCH.STRONG.GPU",
+     "acquire_op": "ATOMG.E.CAS.STRONG.GPU",
+     "release_fenced": true,
+     "acquire_fenced": false
+    }
+   ],
+   "handoffs_certified": true
+  },
+  "lines": [
+   "race_interblock_lock-blkfence_waw.cu:25",
+   "race_interblock_lock-blkfence_waw.cu:33"
+  ],
+  "key": [
+   336,
+   640,
+   "global"
+  ]
+ },
+ {
+  "program": "P5-race_interblock_lock-no-stf_waw",
+  "label": "RACE",
+  "current_pc": 624,
+  "ancient_pc": 336,
+  "space": "global",
+  "race_type": "WAW",
+  "observed_distance": "grid",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "STG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "kmain(unsigned int volatile*)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 1,
+  "static_proof": false,
+  "r3": {
+   "reason": "cs-unfenced",
+   "gate": [
+    "0x270"
+   ],
+   "handoffs": [
+    {
+     "release": "0x190",
+     "acquire": "0x210",
+     "hop": "grid",
+     "release_op": "ATOMG.E.EXCH.STRONG.GPU",
+     "acquire_op": "ATOMG.E.CAS.STRONG.GPU",
+     "release_fenced": true,
+     "acquire_fenced": false
+    }
+   ],
+   "handoffs_certified": true
+  },
+  "lines": [
+   "race_interblock_lock-no-stf_waw.cu:25",
+   "race_interblock_lock-no-stf_waw.cu:33"
+  ],
+  "key": [
+   336,
+   624,
+   "global"
+  ]
+ },
+ {
+  "program": "P5-race_interblock_lock-no-tf_waw",
+  "label": "RACE",
+  "current_pc": 624,
+  "ancient_pc": 336,
+  "space": "global",
+  "race_type": "WAW",
+  "observed_distance": "grid",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "STG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "kmain(unsigned int volatile*)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 1,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-fence",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x160",
+     "acquire": "0x1e0",
+     "hop": "grid",
+     "release_op": "ATOMG.E.EXCH.STRONG.GPU",
+     "acquire_op": "ATOMG.E.CAS.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": true
+    }
+   ],
+   "handoffs_certified": true
+  },
+  "lines": [
+   "race_interblock_lock-no-tf_waw.cu:25",
+   "race_interblock_lock-no-tf_waw.cu:32"
+  ],
+  "key": [
+   336,
+   624,
+   "global"
+  ]
+ },
+ {
+  "program": "P5-race_interblock_none-lock_rtraw",
+  "label": "RACE",
+  "current_pc": 832,
+  "ancient_pc": 320,
+  "space": "global",
+  "race_type": "WAR",
+  "observed_distance": "grid",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": true,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "STG.E.STRONG.SYS",
+   "LDG.E.STRONG.SYS"
+  ],
+  "kernel": "kmain(unsigned int volatile*)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 1,
+  "static_proof": false,
+  "r3": {
+   "reason": "past-release",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x1b0",
+     "acquire": "0x230",
+     "hop": "grid",
+     "release_op": "ATOMG.E.EXCH.STRONG.GPU",
+     "acquire_op": "ATOMG.E.CAS.STRONG.GPU",
+     "release_fenced": true,
+     "acquire_fenced": true
+    }
+   ],
+   "handoffs_certified": true
+  },
+  "lines": [
+   "race_interblock_none-lock_rtraw.cu:31",
+   "race_interblock_none-lock_rtraw.cu:37"
+  ],
+  "key": [
+   320,
+   832,
+   "global"
+  ]
+ },
+ {
+  "program": "P5-race_interwarp_blklock-no-stf_waw",
+  "label": "RACE",
+  "current_pc": 592,
+  "ancient_pc": 336,
+  "space": "global",
+  "race_type": "WAW",
+  "observed_distance": "block",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "STG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "kmain(unsigned int volatile*)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 1,
+  "static_proof": false,
+  "r3": {
+   "reason": "cs-unfenced",
+   "gate": [
+    "0x250"
+   ],
+   "handoffs": [
+    {
+     "release": "0x170",
+     "acquire": "0x1f0",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.CAS.STRONG.SM",
+     "release_fenced": true,
+     "acquire_fenced": false
+    }
+   ],
+   "handoffs_certified": true
+  },
+  "lines": [
+   "race_interwarp_blklock-no-stf_waw.cu:25",
+   "race_interwarp_blklock-no-stf_waw.cu:33"
+  ],
+  "key": [
+   336,
+   592,
+   "global"
+  ]
+ },
+ {
+  "program": "P5-race_interwarp_blklock-no-tf_waw",
+  "label": "RACE",
+  "current_pc": 592,
+  "ancient_pc": 336,
+  "space": "global",
+  "race_type": "WAW",
+  "observed_distance": "block",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "STG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "kmain(unsigned int volatile*)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 1,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-fence",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x160",
+     "acquire": "0x1e0",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.CAS.STRONG.SM",
+     "release_fenced": false,
+     "acquire_fenced": true
+    }
+   ],
+   "handoffs_certified": true
+  },
+  "lines": [
+   "race_interwarp_blklock-no-tf_waw.cu:25",
+   "race_interwarp_blklock-no-tf_waw.cu:32"
+  ],
+  "key": [
+   336,
+   592,
+   "global"
+  ]
+ },
+ {
+  "program": "P5-race_interwarp_dev-blklock-no-stf_waw",
+  "label": "RACE",
+  "current_pc": 592,
+  "ancient_pc": 336,
+  "space": "global",
+  "race_type": "WAW",
+  "observed_distance": "block",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "STG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "kmain(unsigned int volatile*)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 1,
+  "static_proof": false,
+  "r3": {
+   "reason": "cs-unfenced",
+   "gate": [
+    "0x250"
+   ],
+   "handoffs": [
+    {
+     "release": "0x170",
+     "acquire": "0x1f0",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.CAS.STRONG.GPU",
+     "release_fenced": true,
+     "acquire_fenced": false
+    }
+   ],
+   "handoffs_certified": true
+  },
+  "lines": [
+   "race_interwarp_dev-blklock-no-stf_waw.cu:25",
+   "race_interwarp_dev-blklock-no-stf_waw.cu:33"
+  ],
+  "key": [
+   336,
+   592,
+   "global"
+  ]
+ },
+ {
+  "program": "P5-race_interwarp_dev-blklock-no-tf_waw",
+  "label": "RACE",
+  "current_pc": 624,
+  "ancient_pc": 336,
+  "space": "global",
+  "race_type": "WAW",
+  "observed_distance": "block",
+  "strength": "none",
+  "atomic_coherence": "none",
+  "hb_chain": null,
+  "event_candidate": false,
+  "edge_rescued": false,
+  "hb_class": "latent",
+  "benign": null,
+  "verdict": "RACE",
+  "opcodes": [
+   "STG.E.STRONG.SYS",
+   "STG.E.STRONG.SYS"
+  ],
+  "kernel": "kmain(unsigned int volatile*)",
+  "kfile": "kernel_0.json",
+  "raced": false,
+  "sync_raced": true,
+  "sync_count": 1,
+  "static_proof": false,
+  "r3": {
+   "reason": "no-release-fence",
+   "gate": [],
+   "handoffs": [
+    {
+     "release": "0x160",
+     "acquire": "0x1e0",
+     "hop": "block",
+     "release_op": "ATOMG.E.EXCH.STRONG.SM",
+     "acquire_op": "ATOMG.E.CAS.STRONG.GPU",
+     "release_fenced": false,
+     "acquire_fenced": true
+    }
+   ],
+   "handoffs_certified": true
+  },
+  "lines": [
+   "race_interwarp_dev-blklock-no-tf_waw.cu:25",
+   "race_interwarp_dev-blklock-no-tf_waw.cu:32"
+  ],
+  "key": [
+   336,
+   624,
+   "global"
+  ]
+ }
+]

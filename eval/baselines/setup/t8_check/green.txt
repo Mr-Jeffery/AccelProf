@@ -1,0 +1,29 @@
+host=c20 NVIDIA GeForce RTX 4060 Ti, 8.9
+engine lib: /home/fzheng4/wt-T8/sanalyzer/t8_install/lib/libsanalyzer.so
+
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+  /home/fzheng4/wt-T8/.env/lib/python3.14/site-packages/pydot/dot_parser.py:376: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    node_stmt.setParseAction(push_node_stmt)
+
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+  /home/fzheng4/wt-T8/.env/lib/python3.14/site-packages/pydot/dot_parser.py:377: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    default_stmt.setParseAction(push_default_stmt)
+
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+  /home/fzheng4/wt-T8/.env/lib/python3.14/site-packages/pydot/dot_parser.py:379: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    subgraph.setParseAction(push_subgraph_stmt)
+
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+  /home/fzheng4/wt-T8/.env/lib/python3.14/site-packages/pydot/dot_parser.py:380: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    graph_stmt.setParseAction(push_graph_stmt)
+
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+  /home/fzheng4/wt-T8/.env/lib/python3.14/site-packages/pydot/dot_parser.py:381: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    parser.setParseAction(push_top_graph_stmt)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+XFAIL python/test_atomic_memory_model.py::test_relaxed_handoff_should_race - KNOWN UNSOUND (Phase 2): .STRONG is a coherence-scope marker present on relaxed atomics too; atomic_scope treats the unfenced relaxed flag as synchronizing, hiding this real race. Remove this xfail when the fence-aware scope fix lands.
+============ 136 passed, 1 xfailed, 8 warnings in 154.71s (0:02:34) ============
+== renamed tests collected:
+39

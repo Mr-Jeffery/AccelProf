@@ -1,0 +1,302 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 37K of event 'cycles:u'
+# Event count (approx.): 2102189612031
+#
+# Overhead      Pid:Command    Symbol                 
+# ........  .................  .......................
+#
+    13.13%  2465930:fpc-cuda   [.] _int_malloc
+            |          
+             --12.83%--_start
+                       __libc_start_main
+                       main
+                       |          
+                       |--6.56%--fpc2
+                       |          __device_stub__Z11fpc2_kernelPKmPj
+                       |          cudaLaunchKernel
+                       |          0x7fe26fc14ffc
+                       |          cuLaunchKernel
+                       |          0x7fe251fa92c7
+                       |          0x7fe251dd63ed
+                       |          0x7fe251dd5a47
+                       |          0x7fe251dc9af4
+                       |          |          
+                       |           --6.55%--0x7fe252bb9071
+                       |                     0x7fe26ea4b8a9
+                       |                     0x7fe26ea3e6a3
+                       |                     ComputeSanitizerCallback
+                       |                     LaunchEndCallback
+                       |                     |          
+                       |                      --6.50%--yosemite_gpu_data_analysis
+                       |                                yosemite::PcDependency::gpu_data_analysis
+                       |                                yosemite::HbClock::process
+                       |                                |          
+                       |                                |--4.98%--?? (inlined)
+                       |                                |          |          
+                       |                                |          |--3.15%--std::_Rb_tree<unsigned long, unsigned long, std::_Identity<unsigned long>, std::less<unsigned long>, std::allocator<unsigned long> >::_M_insert_unique<unsigned long>
+                       |                                |          |          ?? (inlined)
+                       |                                |          |          ?? (inlined)
+                       |                                |          |          ?? (inlined)
+                       |                                |          |          ?? (inlined)
+                       |                                |          |          ?? (inlined)
+                       |                                |          |          ?? (inlined)
+                       |                                |          |          operator new
+                       |                                |          |          __GI___libc_malloc (inlined)
+                       |                                |          |          _int_malloc
+                       |                                |          |          
+                       |                                |           --1.22%--__GI___libc_malloc (inlined)
+                       |                                |                     _int_malloc
+                       |                                |          
+                       |                                 --1.08%--yosemite::HbClock::complete
+                       |                                           yosemite::HbClock::fire
+                       |          
+                        --6.27%--fpc
+                                  __device_stub__Z10fpc_kernelPKmPj
+                                  cudaLaunchKernel
+                                  0x7fe26fc14ffc
+                                  cuLaunchKernel
+                                  0x7fe251fa92c7
+                                  0x7fe251dd63ed
+                                  0x7fe251dd5a47
+                                  0x7fe251dc9af4
+                                  0x7fe252bb9071
+                                  0x7fe26ea4b8a9
+                                  0x7fe26ea3e6a3
+                                  ComputeSanitizerCallback
+                                  LaunchEndCallback
+                                  |          
+                                   --6.20%--yosemite_gpu_data_analysis
+                                             yosemite::PcDependency::gpu_data_analysis
+                                             yosemite::HbClock::process
+                                             |          
+                                              --4.81%--?? (inlined)
+                                                        |          
+                                                        |--2.94%--std::_Rb_tree<unsigned long, unsigned long, std::_Identity<unsigned long>, std::less<unsigned long>, std::allocator<unsigned long> >::_M_insert_unique<unsigned long>
+                                                        |          ?? (inlined)
+                                                        |          ?? (inlined)
+                                                        |          ?? (inlined)
+                                                        |          ?? (inlined)
+                                                        |          ?? (inlined)
+                                                        |          ?? (inlined)
+                                                        |          operator new
+                                                        |          __GI___libc_malloc (inlined)
+                                                        |          _int_malloc
+                                                        |          
+                                                         --1.26%--__GI___libc_malloc (inlined)
+                                                                   _int_malloc
+     4.55%  2465930:fpc-cuda   [.] malloc_consolidate
+            |          
+             --3.44%--_start
+                       __libc_start_main
+                       main
+                       |          
+                       |--1.77%--fpc2
+                       |          __device_stub__Z11fpc2_kernelPKmPj
+                       |          cudaLaunchKernel
+                       |          0x7fe26fc14ffc
+                       |          cuLaunchKernel
+                       |          0x7fe251fa92c7
+                       |          0x7fe251dd63ed
+                       |          0x7fe251dd5a47
+                       |          0x7fe251dc9af4
+                       |          |          
+                       |           --1.77%--0x7fe252bb9071
+                       |                     0x7fe26ea4b8a9
+                       |                     0x7fe26ea3e6a3
+                       |                     ComputeSanitizerCallback
+                       |                     LaunchEndCallback
+                       |                     |          
+                       |                      --1.57%--yosemite_gpu_data_analysis
+                       |                                yosemite::PcDependency::gpu_data_analysis
+                       |                                yosemite::HbClock::process
+                       |                                |          
+                       |                                 --1.40%--yosemite::HbClock::complete
+                       |                                           yosemite::HbClock::fire
+                       |                                           |          
+                       |                                            --1.02%--?? (inlined)
+                       |                                                      ?? (inlined)
+                       |                                                      ?? (inlined)
+                       |                                                      ?? (inlined)
+                       |                                                      ?? (inlined)
+                       |                                                      operator new
+                       |                                                      __GI___libc_malloc (inlined)
+                       |                                                      _int_malloc
+                       |                                                      malloc_consolidate
+                       |          
+                        --1.66%--fpc
+                                  __device_stub__Z10fpc_kernelPKmPj
+                                  cudaLaunchKernel
+                                  0x7fe26fc14ffc
+                                  cuLaunchKernel
+                                  0x7fe251fa92c7
+                                  0x7fe251dd63ed
+                                  0x7fe251dd5a47
+                                  0x7fe251dc9af4
+                                  |          
+                                   --1.66%--0x7fe252bb9071
+                                             0x7fe26ea4b8a9
+                                             0x7fe26ea3e6a3
+                                             ComputeSanitizerCallback
+                                             LaunchEndCallback
+                                             |          
+                                              --1.48%--yosemite_gpu_data_analysis
+                                                        yosemite::PcDependency::gpu_data_analysis
+                                                        yosemite::HbClock::process
+                                                        |          
+                                                         --1.32%--yosemite::HbClock::complete
+                                                                   yosemite::HbClock::fire
+     3.43%  2465930:fpc-cuda   [.] unlink_chunk.isra.2
+            |          
+             --2.23%--malloc_consolidate
+                       unlink_chunk.isra.2
+     3.06%  2465930:fpc-cuda   [.] _int_free
+            |          
+             --2.73%--_start
+                       __libc_start_main
+                       main
+                       |          
+                       |--1.42%--fpc2
+                       |          __device_stub__Z11fpc2_kernelPKmPj
+                       |          cudaLaunchKernel
+                       |          0x7fe26fc14ffc
+                       |          cuLaunchKernel
+                       |          0x7fe251fa92c7
+                       |          0x7fe251dd63ed
+                       |          0x7fe251dd5a47
+                       |          0x7fe251dc9af4
+                       |          |          
+                       |           --1.42%--0x7fe252bb9071
+                       |                     0x7fe26ea4b8a9
+                       |                     0x7fe26ea3e6a3
+                       |                     ComputeSanitizerCallback
+                       |                     LaunchEndCallback
+                       |                     |          
+                       |                      --1.41%--yosemite_gpu_data_analysis
+                       |                                yosemite::PcDependency::gpu_data_analysis
+                       |                                yosemite::HbClock::process
+                       |                                |          
+                       |                                 --1.38%--yosemite::HbClock::complete
+                       |                                           |          
+                       |                                            --1.36%--yosemite::HbClock::fire
+                       |                                                      |          
+                       |                                                       --1.32%--?? (inlined)
+                       |                                                                 ?? (inlined)
+                       |                                                                 ?? (inlined)
+                       |                                                                 ?? (inlined)
+                       |                                                                 ?? (inlined)
+                       |                                                                 ?? (inlined)
+                       |                                                                 ?? (inlined)
+                       |                                                                 |          
+                       |                                                                  --1.31%--?? (inlined)
+                       |                                                                            |          
+                       |                                                                             --1.23%--?? (inlined)
+                       |                                                                                       ?? (inlined)
+                       |                                                                                       ?? (inlined)
+                       |                                                                                       ?? (inlined)
+                       |                                                                                       |          
+                       |                                                                                        --1.23%--?? (inlined)
+                       |                                                                                                  ?? (inlined)
+                       |                                                                                                  ?? (inlined)
+                       |                                                                                                  ?? (inlined)
+                       |                                                                                                  |          
+                       |                                                                                                   --1.19%--?? (inlined)
+                       |                                                                                                             |          
+                       |                                                                                                              --1.10%--?? (inlined)
+                       |          
+                        --1.31%--fpc
+                                  __device_stub__Z10fpc_kernelPKmPj
+                                  cudaLaunchKernel
+                                  0x7fe26fc14ffc
+                                  cuLaunchKernel
+                                  0x7fe251fa92c7
+                                  0x7fe251dd63ed
+                                  0x7fe251dd5a47
+                                  0x7fe251dc9af4
+                                  |          
+                                   --1.30%--0x7fe252bb9071
+                                             0x7fe26ea4b8a9
+                                             0x7fe26ea3e6a3
+                                             ComputeSanitizerCallback
+                                             LaunchEndCallback
+                                             |          
+                                              --1.30%--yosemite_gpu_data_analysis
+                                                        yosemite::PcDependency::gpu_data_analysis
+                                                        yosemite::HbClock::process
+                                                        |          
+                                                         --1.26%--yosemite::HbClock::complete
+                                                                   |          
+                                                                    --1.24%--yosemite::HbClock::fire
+                                                                              |          
+                                                                               --1.21%--?? (inlined)
+                                                                                         ?? (inlined)
+                                                                                         ?? (inlined)
+                                                                                         ?? (inlined)
+                                                                                         ?? (inlined)
+                                                                                         ?? (inlined)
+                                                                                         ?? (inlined)
+                                                                                         |          
+                                                                                          --1.20%--?? (inlined)
+                                                                                                    |          
+                                                                                                     --1.11%--?? (inlined)
+                                                                                                               ?? (inlined)
+                                                                                                               ?? (inlined)
+                                                                                                               ?? (inlined)
+                                                                                                               |          
+                                                                                                                --1.09%--?? (inlined)
+                                                                                                                          ?? (inlined)
+                                                                                                                          ?? (inlined)
+                                                                                                                          ?? (inlined)
+                                                                                                                          |          
+                                                                                                                           --1.05%--?? (inlined)
+     2.87%  2465930:fpc-cuda   [.] malloc
+            |          
+             --2.45%--_start
+                       __libc_start_main
+                       main
+                       |          
+                       |--1.27%--fpc
+                       |          __device_stub__Z10fpc_kernelPKmPj
+                       |          cudaLaunchKernel
+                       |          0x7fe26fc14ffc
+                       |          cuLaunchKernel
+                       |          0x7fe251fa92c7
+                       |          0x7fe251dd63ed
+                       |          0x7fe251dd5a47
+                       |          0x7fe251dc9af4
+                       |          0x7fe252bb9071
+                       |          0x7fe26ea4b8a9
+                       |          0x7fe26ea3e6a3
+                       |          ComputeSanitizerCallback
+                       |          LaunchEndCallback
+                       |          |          
+                       |           --1.25%--yosemite_gpu_data_analysis
+                       |                     yosemite::PcDependency::gpu_data_analysis
+                       |                     yosemite::HbClock::process
+                       |                     |          
+                       |                      --1.13%--?? (inlined)
+                       |          
+                        --1.18%--fpc2
+                                  __device_stub__Z11fpc2_kernelPKmPj
+                                  cudaLaunchKernel
+                                  0x7fe26fc14ffc
+                                  cuLaunchKernel
+                                  0x7fe251fa92c7
+                                  0x7fe251dd63ed
+                                  0x7fe251dd5a47
+                                  0x7fe251dc9af4
+                                  0x7fe252bb9071
+                                  0x7fe26ea4b8a9
+                                  0x7fe26ea3e6a3
+                                  ComputeSanitizerCallback
+                                  LaunchEndCallback
+                                  |          
+                                   --1.18%--yosemite_gpu_data_analysis
+                                             yosemite::PcDependency::gpu_data_analysis
+                                             yosemite::HbClock::process
+#
+# (Tip: For tracepoint events, try: perf report -s trace_fields)
+#

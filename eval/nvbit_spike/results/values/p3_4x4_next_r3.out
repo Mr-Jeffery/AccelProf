@@ -1,0 +1,17 @@
+------------- NVBit (NVidia Binary Instrumentation Tool v1.8) Loaded --------------
+NVBit core environment variables (mostly for nvbit-devs):
+ACK_CTX_INIT_LIMITATION = 0 - if set, no warning will be printed for nvbit_at_ctx_init()
+            NVDISASM = nvdisasm - override default nvdisasm found in PATH
+            NOBANNER = 0 - if set, does not print this banner
+       NO_EAGER_LOAD = 1 - lazy module loading is now turned on by default. If you see deadlocks in your tool, set NO_EAGER_LOAD to 0
+---------------------------------------------------------------------------------
+         INSTR_BEGIN = 0 - Beginning of the instruction interval where to apply instrumentation
+           INSTR_END = 4294967295 - End of the instruction interval where to apply instrumentation
+        TOOL_VERBOSE = 0 - Enable verbosity inside the tool
+           ATOM_ONLY = 0 - Instrument ATOM* only
+WARNING: Do not call CUDA memory allocation in nvbit_at_ctx_init(). It will cause deadlocks. Do them in nvbit_tool_init(). If you encounter deadlocks, remove CUDA API calls to debug.
+ATOMAFTER: value read at next instruction IPOINT_BEFORE
+----------------------------------------------------------------------------------------------------
+ATOMAFTER: CTX 0x000000000198c630 - LAUNCH - Kernel pc 0x00007fe40b27c600 - Kernel name part3(int, unsigned int*, unsigned int*, unsigned int*) - grid launch id 0 - grid size 4,1,1 - block size 128,1,1 - nregs 0 - shmem 0 - cuda stream id 0
+part3: B=4 W=4 iters=16 critical sections 256, failed CAS 8681, ok
+ORDER 1025 1537 1026 2817 1281 1538 1 2818 1282 1027 2 2561 1539 1028 3073 2562 2819 3585 1283 3 1029 2563 3329 3074 2305 4 2306 257 1284 5 2049 3841 1285 2564 1540 3586 1286 2565 3330 2050 1287 258 3075 2307 2820 1030 2051 1541 3331 3076 2052 1793 6 2308 3587 513 7 1542 1794 2053 2566 3842 1795 769 514 3077 3588 1031 8 3078 3589 2054 3332 515 2567 259 3079 1032 2568 260 1288 1033 3843 1796 1543 770 3844 1797 1544 771 3333 2309 3845 1034 3334 2569 2821 1798 261 2055 2822 772 2570 3080 2823 773 3590 1035 262 2571 3335 774 9 2824 263 2572 1289 2056 3591 1799 2310 264 3592 516 10 2825 1290 517 3336 2311 1291 3846 3337 265 518 1800 3338 1292 3847 266 519 3081 2573 267 11 3339 520 1801 12 3340 2057 2312 521 3082 13 2826 2574 268 3848 2058 775 522 1802 14 2827 3083 1293 1036 2059 3084 3849 269 3341 2313 1803 523 3342 15 2575 3850 270 1294 1037 2828 776 3343 3085 2060 777 1804 3086 3851 2314 1295 3593 3852 2315 524 3594 271 1545 2061 3087 525 3853 1038 3088 526 3854 1039 2062 1296 3855 3595 2063 16 1805 3344 3596 1546 3856 2064 2576 1040 1806 2829 3597 1547 778 527 2830 528 2316 779 2317 780 3598 1807 2318 2831 272 3599 1808 2832 1548 781 2319 3600 1549 782 2320 1550 783 1551 784 1552

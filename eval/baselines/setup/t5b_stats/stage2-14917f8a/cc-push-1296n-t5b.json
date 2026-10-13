@@ -1,0 +1,1702 @@
+{
+ "label": "cc-push-1296n-t5b",
+ "exe": "/home/fzheng4/AccelProf/eval/baselines/bin/P1/CC_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Block_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug__slower_atomic",
+ "args": "/home/fzheng4/AccelProf/eval/baselines/corpora/Indigo3Suite/inputs/undirect4dim_rand_torus_1296n_10368e.egr 1 0 1",
+ "stdin": "",
+ "mode": "vector-clock",
+ "cap_s": 300,
+ "every": 1000,
+ "node": "c76",
+ "accel_prof_home": "/home/fzheng4/AccelProf/.claude/worktrees/t5b-shared-base-clock",
+ "engine_lib": "/home/fzheng4/AccelProf/.claude/worktrees/t5b-shared-base-clock/sanalyzer/wt_install/lib/libsanalyzer.so",
+ "engine_lib_sha16": "14917f8aaa9892ac",
+ "wall_s": 70.645,
+ "peak_rss_mb": 15481.3,
+ "rc": 0,
+ "timed_out": false,
+ "kernels": [
+  {
+   "file": "kernel_0.json",
+   "bytes_on_disk": 121655,
+   "hb_stats": {
+    "hb_events": {
+     "count": 132,
+     "json_bytes": 115444,
+     "ram_bytes_est": 126592
+    },
+    "engine": {
+     "vc": {
+      "threads": 1296,
+      "entries": 1296,
+      "bases": 0,
+      "base_entries": 0,
+      "max_base": 0,
+      "delta_entries": 0,
+      "max_delta": 0,
+      "bytes_est": 164008
+     },
+     "released": {
+      "records": 0,
+      "entries": 0,
+      "own_bases": 0,
+      "delta_entries": 0,
+      "bytes_est": 0
+     },
+     "merge_memo": 0,
+     "buckets": {
+      "locations": 2593,
+      "groups": 2593,
+      "entries": 2593,
+      "bytes_est": 850504
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 1296,
+      "unique_bases": 0,
+      "base_entries": 0,
+      "bytes_est": 81064
+     },
+     "races": {
+      "records": 0,
+      "bytes_est": 0
+     },
+     "sync_pairs": 0,
+     "coherence_addrs": 0,
+     "a2": {
+      "pd_threads": 0,
+      "pd_entries": 0,
+      "pd_bases": 0,
+      "released_pd_entries": 0,
+      "windows": 0,
+      "held": 0,
+      "clusters": 0,
+      "multi": 0,
+      "cluster_clock_entries": 0
+     }
+    },
+    "rss_kb": 865412,
+    "hwm_kb": 865412
+   }
+  },
+  {
+   "file": "kernel_1.json",
+   "bytes_on_disk": 147345838,
+   "hb_stats": {
+    "hb_events": {
+     "count": 198609,
+     "json_bytes": 145948663,
+     "ram_bytes_est": 157708272
+    },
+    "engine": {
+     "vc": {
+      "threads": 663552,
+      "entries": 182058868,
+      "bases": 2191,
+      "base_entries": 181387776,
+      "max_base": 198656,
+      "delta_entries": 7540,
+      "max_delta": 96,
+      "bytes_est": 8025202544
+     },
+     "released": {
+      "records": 1297,
+      "entries": 62191519,
+      "own_bases": 866,
+      "delta_entries": 3214,
+      "bytes_est": 2718198968
+     },
+     "merge_memo": 657,
+     "buckets": {
+      "locations": 18146,
+      "groups": 20735,
+      "entries": 3355524,
+      "bytes_est": 194371128
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 663552,
+      "unique_bases": 1296,
+      "base_entries": 663552,
+      "bytes_est": 64498504
+     },
+     "races": {
+      "records": 6,
+      "bytes_est": 968
+     },
+     "sync_pairs": 4,
+     "coherence_addrs": 1297,
+     "a2": {
+      "pd_threads": 501250,
+      "pd_entries": 72599086,
+      "pd_bases": 1041,
+      "released_pd_entries": 1635034,
+      "windows": 0,
+      "held": 0,
+      "clusters": 1297,
+      "multi": 0,
+      "cluster_clock_entries": 1159680
+     }
+    },
+    "rss_kb": 15849264,
+    "hwm_kb": 15849264
+   }
+  },
+  {
+   "file": "kernel_2.json",
+   "bytes_on_disk": 146383788,
+   "hb_stats": {
+    "hb_events": {
+     "count": 194924,
+     "json_bytes": 145104290,
+     "ram_bytes_est": 156809104
+    },
+    "engine": {
+     "vc": {
+      "threads": 663552,
+      "entries": 48903521,
+      "bases": 1582,
+      "base_entries": 48233984,
+      "max_base": 186368,
+      "delta_entries": 5985,
+      "max_delta": 47,
+      "bytes_est": 2172598448
+     },
+     "released": {
+      "records": 755,
+      "entries": 2942552,
+      "own_bases": 360,
+      "delta_entries": 357,
+      "bytes_est": 127873440
+     },
+     "merge_memo": 1225,
+     "buckets": {
+      "locations": 17062,
+      "groups": 18936,
+      "entries": 3343960,
+      "bytes_est": 193392416
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 663552,
+      "unique_bases": 1296,
+      "base_entries": 663552,
+      "bytes_est": 64498504
+     },
+     "races": {
+      "records": 6,
+      "bytes_est": 968
+     },
+     "sync_pairs": 4,
+     "coherence_addrs": 755,
+     "a2": {
+      "pd_threads": 173606,
+      "pd_entries": 28623950,
+      "pd_bases": 465,
+      "released_pd_entries": 561150,
+      "windows": 0,
+      "held": 0,
+      "clusters": 755,
+      "multi": 0,
+      "cluster_clock_entries": 505344
+     }
+    },
+    "rss_kb": 15849760,
+    "hwm_kb": 15849760
+   }
+  },
+  {
+   "file": "kernel_3.json",
+   "bytes_on_disk": 84736544,
+   "hb_stats": {
+    "hb_events": {
+     "count": 111628,
+     "json_bytes": 84038130,
+     "ram_bytes_est": 94410736
+    },
+    "engine": {
+     "vc": {
+      "threads": 386048,
+      "entries": 783368,
+      "bases": 758,
+      "base_entries": 397312,
+      "max_base": 2048,
+      "delta_entries": 8,
+      "max_delta": 3,
+      "bytes_est": 65086792
+     },
+     "released": {
+      "records": 9,
+      "entries": 2060,
+      "own_bases": 4,
+      "delta_entries": 3,
+      "bytes_est": 85776
+     },
+     "merge_memo": 7,
+     "buckets": {
+      "locations": 9808,
+      "groups": 10566,
+      "entries": 1943086,
+      "bytes_est": 112207632
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 386048,
+      "unique_bases": 754,
+      "base_entries": 386048,
+      "bytes_est": 39909048
+     },
+     "races": {
+      "records": 3,
+      "bytes_est": 824
+     },
+     "sync_pairs": 2,
+     "coherence_addrs": 9,
+     "a2": {
+      "pd_threads": 2,
+      "pd_entries": 1024,
+      "pd_bases": 0,
+      "released_pd_entries": 0,
+      "windows": 0,
+      "held": 0,
+      "clusters": 9,
+      "multi": 0,
+      "cluster_clock_entries": 2048
+     }
+    },
+    "rss_kb": 15849760,
+    "hwm_kb": 15849760
+   }
+  },
+  {
+   "file": "kernel_4.json",
+   "bytes_on_disk": 908441,
+   "hb_stats": {
+    "hb_events": {
+     "count": 1184,
+     "json_bytes": 887098,
+     "ram_bytes_est": 9298896
+    },
+    "engine": {
+     "vc": {
+      "threads": 4096,
+      "entries": 8192,
+      "bases": 8,
+      "base_entries": 4096,
+      "max_base": 512,
+      "delta_entries": 0,
+      "max_delta": 0,
+      "bytes_est": 6326664
+     },
+     "released": {
+      "records": 0,
+      "entries": 0,
+      "own_bases": 0,
+      "delta_entries": 0,
+      "bytes_est": 0
+     },
+     "merge_memo": 0,
+     "buckets": {
+      "locations": 154,
+      "groups": 162,
+      "entries": 20616,
+      "bytes_est": 1202992
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 4096,
+      "unique_bases": 8,
+      "base_entries": 4096,
+      "bytes_est": 6064520
+     },
+     "races": {
+      "records": 0,
+      "bytes_est": 680
+     },
+     "sync_pairs": 0,
+     "coherence_addrs": 0,
+     "a2": {
+      "pd_threads": 0,
+      "pd_entries": 0,
+      "pd_bases": 0,
+      "released_pd_entries": 0,
+      "windows": 0,
+      "held": 0,
+      "clusters": 0,
+      "multi": 0,
+      "cluster_clock_entries": 0
+     }
+    },
+    "rss_kb": 15849904,
+    "hwm_kb": 15849904
+   }
+  }
+ ],
+ "kernel_end_lines": 5,
+ "mid_kernel": [
+  {
+   "records": 1000,
+   "rss_kb": 1024172,
+   "vc": {
+    "threads": 31968,
+    "entries": 31968,
+    "bases": 0,
+    "base_entries": 0,
+    "max_base": 0,
+    "delta_entries": 0,
+    "max_delta": 0,
+    "bytes_est": 3916760
+   },
+   "released": {
+    "records": 0,
+    "entries": 0,
+    "own_bases": 0,
+    "delta_entries": 0,
+    "bytes_est": 0
+   },
+   "merge_memo": 0,
+   "buckets": {
+    "locations": 67,
+    "groups": 67,
+    "entries": 31968,
+    "bytes_est": 1830648
+   },
+   "pending_barriers": {
+    "instances": 0,
+    "arrivals": 0,
+    "bytes_est": 0
+   },
+   "vs": {
+    "threads": 31968,
+    "unique_bases": 0,
+    "base_entries": 0,
+    "bytes_est": 1870808
+   },
+   "races": {
+    "records": 0,
+    "bytes_est": 0
+   },
+   "sync_pairs": 0,
+   "coherence_addrs": 0,
+   "a2": {
+    "pd_threads": 0,
+    "pd_entries": 0,
+    "pd_bases": 0,
+    "released_pd_entries": 0,
+    "windows": 0,
+    "held": 0,
+    "clusters": 0,
+    "multi": 0,
+    "cluster_clock_entries": 0
+   }
+  },
+  {
+   "records": 2000,
+   "rss_kb": 1028660,
+   "vc": {
+    "threads": 45856,
+    "entries": 45856,
+    "bases": 0,
+    "base_entries": 0,
+    "max_base": 0,
+    "delta_entries": 0,
+    "max_delta": 0,
+    "bytes_est": 5817704
+   },
+   "released": {
+    "records": 0,
+    "entries": 0,
+    "own_bases": 0,
+    "delta_entries": 0,
+    "bytes_est": 0
+   },
+   "merge_memo": 0,
+   "buckets": {
+    "locations": 140,
+    "groups": 140,
+    "entries": 63968,
+    "bytes_est": 3652448
+   },
+   "pending_barriers": {
+    "instances": 0,
+    "arrivals": 0,
+    "bytes_est": 0
+   },
+   "vs": {
+    "threads": 45856,
+    "unique_bases": 0,
+    "base_entries": 0,
+    "bytes_est": 2882920
+   },
+   "races": {
+    "records": 0,
+    "bytes_est": 0
+   },
+   "sync_pairs": 0,
+   "coherence_addrs": 0,
+   "a2": {
+    "pd_threads": 0,
+    "pd_entries": 0,
+    "pd_bases": 0,
+    "released_pd_entries": 0,
+    "windows": 0,
+    "held": 0,
+    "clusters": 0,
+    "multi": 0,
+    "cluster_clock_entries": 0
+   }
+  },
+  {
+   "records": 4000,
+   "rss_kb": 1033412,
+   "vc": {
+    "threads": 52224,
+    "entries": 52224,
+    "bases": 0,
+    "base_entries": 0,
+    "max_base": 0,
+    "delta_entries": 0,
+    "max_delta": 0,
+    "bytes_est": 6530920
+   },
+   "released": {
+    "records": 0,
+    "entries": 0,
+    "own_bases": 0,
+    "delta_entries": 0,
+    "bytes_est": 0
+   },
+   "merge_memo": 0,
+   "buckets": {
+    "locations": 237,
+    "groups": 237,
+    "entries": 127873,
+    "bytes_est": 7304008
+   },
+   "pending_barriers": {
+    "instances": 2,
+    "arrivals": 64,
+    "bytes_est": 3296
+   },
+   "vs": {
+    "threads": 52224,
+    "unique_bases": 0,
+    "base_entries": 0,
+    "bytes_est": 3188584
+   },
+   "races": {
+    "records": 0,
+    "bytes_est": 0
+   },
+   "sync_pairs": 0,
+   "coherence_addrs": 0,
+   "a2": {
+    "pd_threads": 0,
+    "pd_entries": 0,
+    "pd_bases": 0,
+    "released_pd_entries": 0,
+    "windows": 0,
+    "held": 0,
+    "clusters": 0,
+    "multi": 0,
+    "cluster_clock_entries": 0
+   }
+  },
+  {
+   "records": 8000,
+   "rss_kb": 1059812,
+   "vc": {
+    "threads": 52224,
+    "entries": 325120,
+    "bases": 533,
+    "base_entries": 272896,
+    "max_base": 512,
+    "delta_entries": 0,
+    "max_delta": 0,
+    "bytes_est": 17613056
+   },
+   "released": {
+    "records": 0,
+    "entries": 0,
+    "own_bases": 0,
+    "delta_entries": 0,
+    "bytes_est": 0
+   },
+   "merge_memo": 0,
+   "buckets": {
+    "locations": 679,
+    "groups": 679,
+    "entries": 198728,
+    "bytes_est": 11402856
+   },
+   "pending_barriers": {
+    "instances": 44,
+    "arrivals": 15360,
+    "bytes_est": 742208
+   },
+   "vs": {
+    "threads": 52224,
+    "unique_bases": 533,
+    "base_entries": 272896,
+    "bytes_est": 14270720
+   },
+   "races": {
+    "records": 0,
+    "bytes_est": 0
+   },
+   "sync_pairs": 0,
+   "coherence_addrs": 0,
+   "a2": {
+    "pd_threads": 0,
+    "pd_entries": 0,
+    "pd_bases": 0,
+    "released_pd_entries": 0,
+    "windows": 0,
+    "held": 0,
+    "clusters": 0,
+    "multi": 0,
+    "cluster_clock_entries": 0
+   }
+  },
+  {
+   "records": 16000,
+   "rss_kb": 1457156,
+   "vc": {
+    "threads": 60000,
+    "entries": 5130978,
+    "bases": 157,
+    "base_entries": 5068288,
+    "max_base": 52224,
+    "delta_entries": 2690,
+    "max_delta": 96,
+    "bytes_est": 232770944
+   },
+   "released": {
+    "records": 638,
+    "entries": 137550,
+    "own_bases": 181,
+    "delta_entries": 208,
+    "bytes_est": 5776896
+   },
+   "merge_memo": 292,
+   "buckets": {
+    "locations": 3062,
+    "groups": 3749,
+    "entries": 277065,
+    "bytes_est": 16574616
+   },
+   "pending_barriers": {
+    "instances": 0,
+    "arrivals": 0,
+    "bytes_est": 0
+   },
+   "vs": {
+    "threads": 60000,
+    "unique_bases": 102,
+    "base_entries": 52224,
+    "bytes_est": 5682616
+   },
+   "races": {
+    "records": 5,
+    "bytes_est": 920
+   },
+   "sync_pairs": 4,
+   "coherence_addrs": 638,
+   "a2": {
+    "pd_threads": 52224,
+    "pd_entries": 1427207,
+    "pd_bases": 128,
+    "released_pd_entries": 3072,
+    "windows": 24,
+    "held": 0,
+    "clusters": 638,
+    "multi": 1,
+    "cluster_clock_entries": 81408
+   }
+  },
+  {
+   "records": 32000,
+   "rss_kb": 2637352,
+   "vc": {
+    "threads": 120672,
+    "entries": 16685983,
+    "bases": 500,
+    "base_entries": 16559616,
+    "max_base": 102400,
+    "delta_entries": 5695,
+    "max_delta": 96,
+    "bytes_est": 748486240
+   },
+   "released": {
+    "records": 1001,
+    "entries": 802152,
+    "own_bases": 366,
+    "delta_entries": 383,
+    "bytes_est": 34863920
+   },
+   "merge_memo": 672,
+   "buckets": {
+    "locations": 5285,
+    "groups": 6388,
+    "entries": 553000,
+    "bytes_est": 32786752
+   },
+   "pending_barriers": {
+    "instances": 16,
+    "arrivals": 5760,
+    "bytes_est": 278272
+   },
+   "vs": {
+    "threads": 120672,
+    "unique_bases": 369,
+    "base_entries": 188928,
+    "bytes_est": 14847968
+   },
+   "races": {
+    "records": 6,
+    "bytes_est": 968
+   },
+   "sync_pairs": 4,
+   "coherence_addrs": 1001,
+   "a2": {
+    "pd_threads": 98470,
+    "pd_entries": 8319958,
+    "pd_bases": 245,
+    "released_pd_entries": 109074,
+    "windows": 24,
+    "held": 0,
+    "clusters": 1001,
+    "multi": 1,
+    "cluster_clock_entries": 455684
+   }
+  },
+  {
+   "records": 64000,
+   "rss_kb": 5397316,
+   "vc": {
+    "threads": 225888,
+    "entries": 41367939,
+    "bases": 1150,
+    "base_entries": 41135616,
+    "max_base": 162816,
+    "delta_entries": 6435,
+    "max_delta": 96,
+    "bytes_est": 1811826280
+   },
+   "released": {
+    "records": 1240,
+    "entries": 7513159,
+    "own_bases": 715,
+    "delta_entries": 879,
+    "bytes_est": 326849400
+   },
+   "merge_memo": 1455,
+   "buckets": {
+    "locations": 8356,
+    "groups": 9915,
+    "entries": 1095799,
+    "bytes_est": 64275192
+   },
+   "pending_barriers": {
+    "instances": 36,
+    "arrivals": 15552,
+    "bytes_est": 750528
+   },
+   "vs": {
+    "threads": 225888,
+    "unique_bases": 930,
+    "base_entries": 476160,
+    "bytes_est": 32987672
+   },
+   "races": {
+    "records": 6,
+    "bytes_est": 968
+   },
+   "sync_pairs": 4,
+   "coherence_addrs": 1240,
+   "a2": {
+    "pd_threads": 177196,
+    "pd_entries": 22834322,
+    "pd_bases": 409,
+    "released_pd_entries": 416322,
+    "windows": 33,
+    "held": 0,
+    "clusters": 1240,
+    "multi": 1,
+    "cluster_clock_entries": 1050121
+   }
+  },
+  {
+   "records": 128000,
+   "rss_kb": 11268056,
+   "vc": {
+    "threads": 441856,
+    "entries": 99750054,
+    "bases": 1700,
+    "base_entries": 99301376,
+    "max_base": 190464,
+    "delta_entries": 6822,
+    "max_delta": 96,
+    "bytes_est": 4389162968
+   },
+   "released": {
+    "records": 1296,
+    "entries": 32026540,
+    "own_bases": 938,
+    "delta_entries": 2204,
+    "bytes_est": 1394559136
+   },
+   "merge_memo": 3124,
+   "buckets": {
+    "locations": 13076,
+    "groups": 15155,
+    "entries": 2186894,
+    "bytes_est": 127114792
+   },
+   "pending_barriers": {
+    "instances": 26,
+    "arrivals": 9984,
+    "bytes_est": 482144
+   },
+   "vs": {
+    "threads": 441856,
+    "unique_bases": 1217,
+    "base_entries": 623104,
+    "bytes_est": 52214528
+   },
+   "races": {
+    "records": 6,
+    "bytes_est": 968
+   },
+   "sync_pairs": 4,
+   "coherence_addrs": 1296,
+   "a2": {
+    "pd_threads": 327716,
+    "pd_entries": 46080074,
+    "pd_bases": 703,
+    "released_pd_entries": 1075852,
+    "windows": 8,
+    "held": 0,
+    "clusters": 1296,
+    "multi": 0,
+    "cluster_clock_entries": 1369611
+   }
+  },
+  {
+   "records": 1000,
+   "rss_kb": 15849564,
+   "vc": {
+    "threads": 31968,
+    "entries": 31968,
+    "bases": 0,
+    "base_entries": 0,
+    "max_base": 0,
+    "delta_entries": 0,
+    "max_delta": 0,
+    "bytes_est": 9281992
+   },
+   "released": {
+    "records": 0,
+    "entries": 0,
+    "own_bases": 0,
+    "delta_entries": 0,
+    "bytes_est": 0
+   },
+   "merge_memo": 0,
+   "buckets": {
+    "locations": 67,
+    "groups": 67,
+    "entries": 31968,
+    "bytes_est": 1823832
+   },
+   "pending_barriers": {
+    "instances": 0,
+    "arrivals": 0,
+    "bytes_est": 0
+   },
+   "vs": {
+    "threads": 31968,
+    "unique_bases": 0,
+    "base_entries": 0,
+    "bytes_est": 7236040
+   },
+   "races": {
+    "records": 0,
+    "bytes_est": 680
+   },
+   "sync_pairs": 0,
+   "coherence_addrs": 0,
+   "a2": {
+    "pd_threads": 0,
+    "pd_entries": 0,
+    "pd_bases": 0,
+    "released_pd_entries": 0,
+    "windows": 0,
+    "held": 0,
+    "clusters": 0,
+    "multi": 0,
+    "cluster_clock_entries": 0
+   }
+  },
+  {
+   "records": 2000,
+   "rss_kb": 15849564,
+   "vc": {
+    "threads": 45856,
+    "entries": 45856,
+    "bases": 0,
+    "base_entries": 0,
+    "max_base": 0,
+    "delta_entries": 0,
+    "max_delta": 0,
+    "bytes_est": 10837448
+   },
+   "released": {
+    "records": 0,
+    "entries": 0,
+    "own_bases": 0,
+    "delta_entries": 0,
+    "bytes_est": 0
+   },
+   "merge_memo": 0,
+   "buckets": {
+    "locations": 142,
+    "groups": 142,
+    "entries": 63968,
+    "bytes_est": 3654288
+   },
+   "pending_barriers": {
+    "instances": 0,
+    "arrivals": 0,
+    "bytes_est": 0
+   },
+   "vs": {
+    "threads": 45856,
+    "unique_bases": 0,
+    "base_entries": 0,
+    "bytes_est": 7902664
+   },
+   "races": {
+    "records": 0,
+    "bytes_est": 680
+   },
+   "sync_pairs": 0,
+   "coherence_addrs": 0,
+   "a2": {
+    "pd_threads": 0,
+    "pd_entries": 0,
+    "pd_bases": 0,
+    "released_pd_entries": 0,
+    "windows": 0,
+    "held": 0,
+    "clusters": 0,
+    "multi": 0,
+    "cluster_clock_entries": 0
+   }
+  },
+  {
+   "records": 4000,
+   "rss_kb": 15849564,
+   "vc": {
+    "threads": 52224,
+    "entries": 52224,
+    "bases": 0,
+    "base_entries": 0,
+    "max_base": 0,
+    "delta_entries": 0,
+    "max_delta": 0,
+    "bytes_est": 11550664
+   },
+   "released": {
+    "records": 0,
+    "entries": 0,
+    "own_bases": 0,
+    "delta_entries": 0,
+    "bytes_est": 0
+   },
+   "merge_memo": 0,
+   "buckets": {
+    "locations": 283,
+    "groups": 283,
+    "entries": 127968,
+    "bytes_est": 7307320
+   },
+   "pending_barriers": {
+    "instances": 0,
+    "arrivals": 0,
+    "bytes_est": 0
+   },
+   "vs": {
+    "threads": 52224,
+    "unique_bases": 0,
+    "base_entries": 0,
+    "bytes_est": 8208328
+   },
+   "races": {
+    "records": 0,
+    "bytes_est": 680
+   },
+   "sync_pairs": 0,
+   "coherence_addrs": 0,
+   "a2": {
+    "pd_threads": 0,
+    "pd_entries": 0,
+    "pd_bases": 0,
+    "released_pd_entries": 0,
+    "windows": 0,
+    "held": 0,
+    "clusters": 0,
+    "multi": 0,
+    "cluster_clock_entries": 0
+   }
+  },
+  {
+   "records": 8000,
+   "rss_kb": 15849564,
+   "vc": {
+    "threads": 52224,
+    "entries": 329216,
+    "bases": 541,
+    "base_entries": 276992,
+    "max_base": 512,
+    "delta_entries": 0,
+    "max_delta": 0,
+    "bytes_est": 22799136
+   },
+   "released": {
+    "records": 0,
+    "entries": 0,
+    "own_bases": 0,
+    "delta_entries": 0,
+    "bytes_est": 0
+   },
+   "merge_memo": 0,
+   "buckets": {
+    "locations": 783,
+    "groups": 783,
+    "entries": 198892,
+    "bytes_est": 11413992
+   },
+   "pending_barriers": {
+    "instances": 43,
+    "arrivals": 14592,
+    "bytes_est": 705232
+   },
+   "vs": {
+    "threads": 52224,
+    "unique_bases": 541,
+    "base_entries": 276992,
+    "bytes_est": 19456800
+   },
+   "races": {
+    "records": 0,
+    "bytes_est": 680
+   },
+   "sync_pairs": 0,
+   "coherence_addrs": 0,
+   "a2": {
+    "pd_threads": 0,
+    "pd_entries": 0,
+    "pd_bases": 0,
+    "released_pd_entries": 0,
+    "windows": 0,
+    "held": 0,
+    "clusters": 0,
+    "multi": 0,
+    "cluster_clock_entries": 0
+   }
+  },
+  {
+   "records": 16000,
+   "rss_kb": 15849564,
+   "vc": {
+    "threads": 66624,
+    "entries": 1079073,
+    "bases": 202,
+    "base_entries": 1011712,
+    "max_base": 23552,
+    "delta_entries": 737,
+    "max_delta": 39,
+    "bytes_est": 58298344
+   },
+   "released": {
+    "records": 121,
+    "entries": 46786,
+    "own_bases": 61,
+    "delta_entries": 73,
+    "bytes_est": 1949816
+   },
+   "merge_memo": 113,
+   "buckets": {
+    "locations": 1965,
+    "groups": 2155,
+    "entries": 289475,
+    "bytes_est": 16853864
+   },
+   "pending_barriers": {
+    "instances": 8,
+    "arrivals": 3200,
+    "bytes_est": 154496
+   },
+   "vs": {
+    "threads": 66624,
+    "unique_bases": 178,
+    "base_entries": 91136,
+    "bytes_est": 12600504
+   },
+   "races": {
+    "records": 5,
+    "bytes_est": 920
+   },
+   "sync_pairs": 4,
+   "coherence_addrs": 121,
+   "a2": {
+    "pd_threads": 21028,
+    "pd_entries": 292399,
+    "pd_bases": 55,
+    "released_pd_entries": 1536,
+    "windows": 11,
+    "held": 0,
+    "clusters": 121,
+    "multi": 1,
+    "cluster_clock_entries": 32768
+   }
+  },
+  {
+   "records": 32000,
+   "rss_kb": 15849760,
+   "vc": {
+    "threads": 123456,
+    "entries": 4677881,
+    "bases": 672,
+    "base_entries": 4551680,
+    "max_base": 50688,
+    "delta_entries": 2745,
+    "max_delta": 47,
+    "bytes_est": 219741600
+   },
+   "released": {
+    "records": 267,
+    "entries": 102249,
+    "own_bases": 115,
+    "delta_entries": 94,
+    "bytes_est": 4285560
+   },
+   "merge_memo": 289,
+   "buckets": {
+    "locations": 3840,
+    "groups": 4212,
+    "entries": 569964,
+    "bytes_est": 33191040
+   },
+   "pending_barriers": {
+    "instances": 29,
+    "arrivals": 11936,
+    "bytes_est": 576176
+   },
+   "vs": {
+    "threads": 123456,
+    "unique_bases": 587,
+    "base_entries": 300544,
+    "bytes_est": 23832368
+   },
+   "races": {
+    "records": 6,
+    "bytes_est": 968
+   },
+   "sync_pairs": 4,
+   "coherence_addrs": 267,
+   "a2": {
+    "pd_threads": 40593,
+    "pd_entries": 1938107,
+    "pd_bases": 117,
+    "released_pd_entries": 2048,
+    "windows": 17,
+    "held": 0,
+    "clusters": 267,
+    "multi": 2,
+    "cluster_clock_entries": 96770
+   }
+  },
+  {
+   "records": 64000,
+   "rss_kb": 15849760,
+   "vc": {
+    "threads": 233280,
+    "entries": 19196969,
+    "bases": 974,
+    "base_entries": 18958848,
+    "max_base": 109056,
+    "delta_entries": 4841,
+    "max_delta": 47,
+    "bytes_est": 865748808
+   },
+   "released": {
+    "records": 529,
+    "entries": 519878,
+    "own_bases": 254,
+    "delta_entries": 181,
+    "bytes_est": 22179256
+   },
+   "merge_memo": 671,
+   "buckets": {
+    "locations": 7138,
+    "groups": 7914,
+    "entries": 1114397,
+    "bytes_est": 64811520
+   },
+   "pending_barriers": {
+    "instances": 31,
+    "arrivals": 13184,
+    "bytes_est": 636304
+   },
+   "vs": {
+    "threads": 233280,
+    "unique_bases": 805,
+    "base_entries": 412160,
+    "bytes_est": 33636576
+   },
+   "races": {
+    "records": 6,
+    "bytes_est": 968
+   },
+   "sync_pairs": 4,
+   "coherence_addrs": 529,
+   "a2": {
+    "pd_threads": 95834,
+    "pd_entries": 11687858,
+    "pd_bases": 282,
+    "released_pd_entries": 178171,
+    "windows": 12,
+    "held": 0,
+    "clusters": 529,
+    "multi": 1,
+    "cluster_clock_entries": 345088
+   }
+  },
+  {
+   "records": 128000,
+   "rss_kb": 15849760,
+   "vc": {
+    "threads": 450592,
+    "entries": 42799322,
+    "bases": 1518,
+    "base_entries": 42342912,
+    "max_base": 171008,
+    "delta_entries": 5818,
+    "max_delta": 47,
+    "bytes_est": 1874070296
+   },
+   "released": {
+    "records": 722,
+    "entries": 2267144,
+    "own_bases": 365,
+    "delta_entries": 310,
+    "bytes_est": 98258168
+   },
+   "merge_memo": 1093,
+   "buckets": {
+    "locations": 12328,
+    "groups": 13683,
+    "entries": 2213696,
+    "bytes_est": 128266968
+   },
+   "pending_barriers": {
+    "instances": 31,
+    "arrivals": 12864,
+    "bytes_est": 620944
+   },
+   "vs": {
+    "threads": 450592,
+    "unique_bases": 1272,
+    "base_entries": 651264,
+    "bytes_est": 53777416
+   },
+   "races": {
+    "records": 6,
+    "bytes_est": 968
+   },
+   "sync_pairs": 4,
+   "coherence_addrs": 722,
+   "a2": {
+    "pd_threads": 157251,
+    "pd_entries": 25813418,
+    "pd_bases": 434,
+    "released_pd_entries": 381434,
+    "windows": 4,
+    "held": 0,
+    "clusters": 722,
+    "multi": 0,
+    "cluster_clock_entries": 329238
+   }
+  },
+  {
+   "records": 1000,
+   "rss_kb": 15849760,
+   "vc": {
+    "threads": 31968,
+    "entries": 31968,
+    "bases": 0,
+    "base_entries": 0,
+    "max_base": 0,
+    "delta_entries": 0,
+    "max_delta": 0,
+    "bytes_est": 9281992
+   },
+   "released": {
+    "records": 0,
+    "entries": 0,
+    "own_bases": 0,
+    "delta_entries": 0,
+    "bytes_est": 0
+   },
+   "merge_memo": 0,
+   "buckets": {
+    "locations": 69,
+    "groups": 69,
+    "entries": 31968,
+    "bytes_est": 1832296
+   },
+   "pending_barriers": {
+    "instances": 0,
+    "arrivals": 0,
+    "bytes_est": 0
+   },
+   "vs": {
+    "threads": 31968,
+    "unique_bases": 0,
+    "base_entries": 0,
+    "bytes_est": 7236040
+   },
+   "races": {
+    "records": 0,
+    "bytes_est": 680
+   },
+   "sync_pairs": 0,
+   "coherence_addrs": 0,
+   "a2": {
+    "pd_threads": 0,
+    "pd_entries": 0,
+    "pd_bases": 0,
+    "released_pd_entries": 0,
+    "windows": 0,
+    "held": 0,
+    "clusters": 0,
+    "multi": 0,
+    "cluster_clock_entries": 0
+   }
+  },
+  {
+   "records": 2000,
+   "rss_kb": 15849760,
+   "vc": {
+    "threads": 45792,
+    "entries": 45792,
+    "bases": 0,
+    "base_entries": 0,
+    "max_base": 0,
+    "delta_entries": 0,
+    "max_delta": 0,
+    "bytes_est": 10830280
+   },
+   "released": {
+    "records": 0,
+    "entries": 0,
+    "own_bases": 0,
+    "delta_entries": 0,
+    "bytes_est": 0
+   },
+   "merge_memo": 0,
+   "buckets": {
+    "locations": 141,
+    "groups": 141,
+    "entries": 63968,
+    "bytes_est": 3652760
+   },
+   "pending_barriers": {
+    "instances": 0,
+    "arrivals": 0,
+    "bytes_est": 0
+   },
+   "vs": {
+    "threads": 45792,
+    "unique_bases": 0,
+    "base_entries": 0,
+    "bytes_est": 7899592
+   },
+   "races": {
+    "records": 0,
+    "bytes_est": 680
+   },
+   "sync_pairs": 0,
+   "coherence_addrs": 0,
+   "a2": {
+    "pd_threads": 0,
+    "pd_entries": 0,
+    "pd_bases": 0,
+    "released_pd_entries": 0,
+    "windows": 0,
+    "held": 0,
+    "clusters": 0,
+    "multi": 0,
+    "cluster_clock_entries": 0
+   }
+  },
+  {
+   "records": 4000,
+   "rss_kb": 15849760,
+   "vc": {
+    "threads": 52224,
+    "entries": 52224,
+    "bases": 0,
+    "base_entries": 0,
+    "max_base": 0,
+    "delta_entries": 0,
+    "max_delta": 0,
+    "bytes_est": 11550664
+   },
+   "released": {
+    "records": 0,
+    "entries": 0,
+    "own_bases": 0,
+    "delta_entries": 0,
+    "bytes_est": 0
+   },
+   "merge_memo": 0,
+   "buckets": {
+    "locations": 290,
+    "groups": 290,
+    "entries": 127968,
+    "bytes_est": 7313296
+   },
+   "pending_barriers": {
+    "instances": 0,
+    "arrivals": 0,
+    "bytes_est": 0
+   },
+   "vs": {
+    "threads": 52224,
+    "unique_bases": 0,
+    "base_entries": 0,
+    "bytes_est": 8208328
+   },
+   "races": {
+    "records": 0,
+    "bytes_est": 680
+   },
+   "sync_pairs": 0,
+   "coherence_addrs": 0,
+   "a2": {
+    "pd_threads": 0,
+    "pd_entries": 0,
+    "pd_bases": 0,
+    "released_pd_entries": 0,
+    "windows": 0,
+    "held": 0,
+    "clusters": 0,
+    "multi": 0,
+    "cluster_clock_entries": 0
+   }
+  },
+  {
+   "records": 8000,
+   "rss_kb": 15849760,
+   "vc": {
+    "threads": 52224,
+    "entries": 320512,
+    "bases": 524,
+    "base_entries": 268288,
+    "max_base": 512,
+    "delta_entries": 0,
+    "max_delta": 0,
+    "bytes_est": 22445672
+   },
+   "released": {
+    "records": 0,
+    "entries": 0,
+    "own_bases": 0,
+    "delta_entries": 0,
+    "bytes_est": 0
+   },
+   "merge_memo": 0,
+   "buckets": {
+    "locations": 754,
+    "groups": 754,
+    "entries": 198992,
+    "bytes_est": 11412016
+   },
+   "pending_barriers": {
+    "instances": 44,
+    "arrivals": 15488,
+    "bytes_est": 748352
+   },
+   "vs": {
+    "threads": 52224,
+    "unique_bases": 524,
+    "base_entries": 268288,
+    "bytes_est": 19103336
+   },
+   "races": {
+    "records": 0,
+    "bytes_est": 680
+   },
+   "sync_pairs": 0,
+   "coherence_addrs": 0,
+   "a2": {
+    "pd_threads": 0,
+    "pd_entries": 0,
+    "pd_bases": 0,
+    "released_pd_entries": 0,
+    "windows": 0,
+    "held": 0,
+    "clusters": 0,
+    "multi": 0,
+    "cluster_clock_entries": 0
+   }
+  },
+  {
+   "records": 16000,
+   "rss_kb": 15849760,
+   "vc": {
+    "threads": 73664,
+    "entries": 131009,
+    "bases": 103,
+    "base_entries": 57344,
+    "max_base": 2048,
+    "delta_entries": 1,
+    "max_delta": 1,
+    "bytes_est": 16289552
+   },
+   "released": {
+    "records": 7,
+    "entries": 2056,
+    "own_bases": 4,
+    "delta_entries": 1,
+    "bytes_est": 85096
+   },
+   "merge_memo": 4,
+   "buckets": {
+    "locations": 1794,
+    "groups": 1899,
+    "entries": 300251,
+    "bytes_est": 17415048
+   },
+   "pending_barriers": {
+    "instances": 0,
+    "arrivals": 0,
+    "bytes_est": 0
+   },
+   "vs": {
+    "threads": 73664,
+    "unique_bases": 102,
+    "base_entries": 52224,
+    "bytes_est": 11358232
+   },
+   "races": {
+    "records": 2,
+    "bytes_est": 776
+   },
+   "sync_pairs": 2,
+   "coherence_addrs": 7,
+   "a2": {
+    "pd_threads": 0,
+    "pd_entries": 0,
+    "pd_bases": 0,
+    "released_pd_entries": 0,
+    "windows": 2,
+    "held": 0,
+    "clusters": 7,
+    "multi": 0,
+    "cluster_clock_entries": 3
+   }
+  },
+  {
+   "records": 32000,
+   "rss_kb": 15849760,
+   "vc": {
+    "threads": 131168,
+    "entries": 320104,
+    "bases": 351,
+    "base_entries": 188928,
+    "max_base": 2048,
+    "delta_entries": 8,
+    "max_delta": 3,
+    "bytes_est": 28077888
+   },
+   "released": {
+    "records": 9,
+    "entries": 2060,
+    "own_bases": 4,
+    "delta_entries": 3,
+    "bytes_est": 85776
+   },
+   "merge_memo": 7,
+   "buckets": {
+    "locations": 3349,
+    "groups": 3542,
+    "entries": 587121,
+    "bytes_est": 33990656
+   },
+   "pending_barriers": {
+    "instances": 9,
+    "arrivals": 4096,
+    "bytes_est": 197616
+   },
+   "vs": {
+    "threads": 131168,
+    "unique_bases": 347,
+    "base_entries": 177664,
+    "bytes_est": 19212464
+   },
+   "races": {
+    "records": 2,
+    "bytes_est": 776
+   },
+   "sync_pairs": 2,
+   "coherence_addrs": 9,
+   "a2": {
+    "pd_threads": 2,
+    "pd_entries": 1024,
+    "pd_bases": 0,
+    "released_pd_entries": 0,
+    "windows": 0,
+    "held": 0,
+    "clusters": 9,
+    "multi": 0,
+    "cluster_clock_entries": 2048
+   }
+  },
+  {
+   "records": 64000,
+   "rss_kb": 15849760,
+   "vc": {
+    "threads": 238592,
+    "entries": 663048,
+    "bases": 811,
+    "base_entries": 424448,
+    "max_base": 2048,
+    "delta_entries": 8,
+    "max_delta": 3,
+    "bytes_est": 49673696
+   },
+   "released": {
+    "records": 9,
+    "entries": 2060,
+    "own_bases": 4,
+    "delta_entries": 3,
+    "bytes_est": 85776
+   },
+   "merge_memo": 7,
+   "buckets": {
+    "locations": 6179,
+    "groups": 6577,
+    "entries": 1145667,
+    "bytes_est": 66249432
+   },
+   "pending_barriers": {
+    "instances": 36,
+    "arrivals": 12704,
+    "bytes_est": 613824
+   },
+   "vs": {
+    "threads": 238592,
+    "unique_bases": 807,
+    "base_entries": 413184,
+    "bytes_est": 33933136
+   },
+   "races": {
+    "records": 3,
+    "bytes_est": 824
+   },
+   "sync_pairs": 2,
+   "coherence_addrs": 9,
+   "a2": {
+    "pd_threads": 2,
+    "pd_entries": 1024,
+    "pd_bases": 0,
+    "released_pd_entries": 0,
+    "windows": 0,
+    "held": 0,
+    "clusters": 9,
+    "multi": 0,
+    "cluster_clock_entries": 2048
+   }
+  },
+  {
+   "records": 1000,
+   "rss_kb": 15849760,
+   "vc": {
+    "threads": 4096,
+    "entries": 8192,
+    "bases": 8,
+    "base_entries": 4096,
+    "max_base": 512,
+    "delta_entries": 0,
+    "max_delta": 0,
+    "bytes_est": 6326664
+   },
+   "released": {
+    "records": 0,
+    "entries": 0,
+    "own_bases": 0,
+    "delta_entries": 0,
+    "bytes_est": 0
+   },
+   "merge_memo": 0,
+   "buckets": {
+    "locations": 154,
+    "groups": 159,
+    "entries": 18792,
+    "bytes_est": 1102264
+   },
+   "pending_barriers": {
+    "instances": 0,
+    "arrivals": 0,
+    "bytes_est": 0
+   },
+   "vs": {
+    "threads": 4096,
+    "unique_bases": 8,
+    "base_entries": 4096,
+    "bytes_est": 6064520
+   },
+   "races": {
+    "records": 0,
+    "bytes_est": 680
+   },
+   "sync_pairs": 0,
+   "coherence_addrs": 0,
+   "a2": {
+    "pd_threads": 0,
+    "pd_entries": 0,
+    "pd_bases": 0,
+    "released_pd_entries": 0,
+    "windows": 0,
+    "held": 0,
+    "clusters": 0,
+    "multi": 0,
+    "cluster_clock_entries": 0
+   }
+  }
+ ],
+ "elapsed_s": 70.7
+}

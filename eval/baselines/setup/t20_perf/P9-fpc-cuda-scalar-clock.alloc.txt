@@ -1,0 +1,217 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 34K of event 'cycles:u'
+# Event count (approx.): 2078593850165
+#
+# Overhead      Pid:Command         Symbol                 
+# ........  ......................  .......................
+#
+     9.03%   802872:fpc-cuda        [.] _int_malloc
+            |          
+             --8.89%--_start
+                       __libc_start_main
+                       main
+                       |          
+                       |--4.52%--fpc
+                       |          __device_stub__Z10fpc_kernelPKmPj
+                       |          cudaLaunchKernel
+                       |          0x7fedd9e14ffc
+                       |          cuLaunchKernel
+                       |          0x7fedbc1a92c7
+                       |          0x7fedbbfd63ed
+                       |          0x7fedbbfd5a47
+                       |          0x7fedbbfc9af4
+                       |          0x7fedbcdb9071
+                       |          0x7fedd8c4b8a9
+                       |          0x7fedd8c3e6a3
+                       |          ComputeSanitizerCallback
+                       |          LaunchEndCallback
+                       |          |          
+                       |           --4.47%--yosemite_gpu_data_analysis
+                       |                     yosemite::PcDependency::gpu_data_analysis
+                       |                     yosemite::HbClock::process
+                       |                     |          
+                       |                     |--3.18%--?? (inlined)
+                       |                     |          |          
+                       |                     |           --2.40%--__GI___libc_malloc (inlined)
+                       |                     |                     _int_malloc
+                       |                     |          
+                       |                      --1.04%--yosemite::HbClock::complete
+                       |                                yosemite::HbClock::fire
+                       |          
+                        --4.37%--fpc2
+                                  __device_stub__Z11fpc2_kernelPKmPj
+                                  cudaLaunchKernel
+                                  0x7fedd9e14ffc
+                                  cuLaunchKernel
+                                  0x7fedbc1a92c7
+                                  0x7fedbbfd63ed
+                                  0x7fedbbfd5a47
+                                  0x7fedbbfc9af4
+                                  0x7fedbcdb9071
+                                  0x7fedd8c4b8a9
+                                  0x7fedd8c3e6a3
+                                  ComputeSanitizerCallback
+                                  LaunchEndCallback
+                                  |          
+                                   --4.32%--yosemite_gpu_data_analysis
+                                             yosemite::PcDependency::gpu_data_analysis
+                                             yosemite::HbClock::process
+                                             |          
+                                              --3.00%--?? (inlined)
+                                                        |          
+                                                         --2.32%--__GI___libc_malloc (inlined)
+                                                                   _int_malloc
+     4.17%   802872:fpc-cuda        [.] malloc_consolidate
+            |          
+             --4.14%--_start
+                       __libc_start_main
+                       |          
+                        --4.12%--main
+                                  |          
+                                  |--2.10%--fpc
+                                  |          __device_stub__Z10fpc_kernelPKmPj
+                                  |          cudaLaunchKernel
+                                  |          0x7fedd9e14ffc
+                                  |          cuLaunchKernel
+                                  |          0x7fedbc1a92c7
+                                  |          0x7fedbbfd63ed
+                                  |          0x7fedbbfd5a47
+                                  |          0x7fedbbfc9af4
+                                  |          |          
+                                  |           --2.08%--0x7fedbcdb9071
+                                  |                     0x7fedd8c4b8a9
+                                  |                     0x7fedd8c3e6a3
+                                  |                     ComputeSanitizerCallback
+                                  |                     LaunchEndCallback
+                                  |                     |          
+                                  |                      --1.94%--yosemite_gpu_data_analysis
+                                  |                                yosemite::PcDependency::gpu_data_analysis
+                                  |                                yosemite::HbClock::process
+                                  |                                |          
+                                  |                                 --1.77%--yosemite::HbClock::complete
+                                  |                                           yosemite::HbClock::fire
+                                  |                                           |          
+                                  |                                            --1.00%--std::vector<unsigned long, std::allocator<unsigned long> >::reserve
+                                  |                                                      ?? (inlined)
+                                  |                                                      ?? (inlined)
+                                  |                                                      ?? (inlined)
+                                  |                                                      operator new
+                                  |                                                      __GI___libc_malloc (inlined)
+                                  |                                                      _int_malloc
+                                  |                                                      malloc_consolidate
+                                  |          
+                                   --2.02%--fpc2
+                                             __device_stub__Z11fpc2_kernelPKmPj
+                                             cudaLaunchKernel
+                                             0x7fedd9e14ffc
+                                             cuLaunchKernel
+                                             0x7fedbc1a92c7
+                                             0x7fedbbfd63ed
+                                             0x7fedbbfd5a47
+                                             0x7fedbbfc9af4
+                                             |          
+                                              --2.01%--0x7fedbcdb9071
+                                                        0x7fedd8c4b8a9
+                                                        0x7fedd8c3e6a3
+                                                        ComputeSanitizerCallback
+                                                        LaunchEndCallback
+                                                        |          
+                                                         --1.82%--yosemite_gpu_data_analysis
+                                                                   yosemite::PcDependency::gpu_data_analysis
+                                                                   yosemite::HbClock::process
+                                                                   |          
+                                                                    --1.68%--yosemite::HbClock::complete
+                                                                              yosemite::HbClock::fire
+     2.97%   802872:fpc-cuda        [.] unlink_chunk.isra.2
+            |          
+             --2.90%--_start
+                       __libc_start_main
+                       |          
+                        --2.89%--main
+                                  |          
+                                  |--1.54%--fpc
+                                  |          __device_stub__Z10fpc_kernelPKmPj
+                                  |          cudaLaunchKernel
+                                  |          0x7fedd9e14ffc
+                                  |          cuLaunchKernel
+                                  |          0x7fedbc1a92c7
+                                  |          0x7fedbbfd63ed
+                                  |          0x7fedbbfd5a47
+                                  |          0x7fedbbfc9af4
+                                  |          0x7fedbcdb9071
+                                  |          0x7fedd8c4b8a9
+                                  |          0x7fedd8c3e6a3
+                                  |          ComputeSanitizerCallback
+                                  |          LaunchEndCallback
+                                  |          |          
+                                  |           --1.49%--yosemite_gpu_data_analysis
+                                  |                     yosemite::PcDependency::gpu_data_analysis
+                                  |                     yosemite::HbClock::process
+                                  |          
+                                   --1.35%--fpc2
+                                             __device_stub__Z11fpc2_kernelPKmPj
+                                             cudaLaunchKernel
+                                             0x7fedd9e14ffc
+                                             cuLaunchKernel
+                                             0x7fedbc1a92c7
+                                             0x7fedbbfd63ed
+                                             0x7fedbbfd5a47
+                                             0x7fedbbfc9af4
+                                             0x7fedbcdb9071
+                                             0x7fedd8c4b8a9
+                                             0x7fedd8c3e6a3
+                                             ComputeSanitizerCallback
+                                             LaunchEndCallback
+                                             |          
+                                              --1.31%--yosemite_gpu_data_analysis
+                                                        yosemite::PcDependency::gpu_data_analysis
+                                                        yosemite::HbClock::process
+     2.30%   802872:fpc-cuda        [.] malloc
+            |          
+             --2.23%--_start
+                       __libc_start_main
+                       main
+                       |          
+                       |--1.14%--fpc
+                       |          __device_stub__Z10fpc_kernelPKmPj
+                       |          cudaLaunchKernel
+                       |          0x7fedd9e14ffc
+                       |          cuLaunchKernel
+                       |          0x7fedbc1a92c7
+                       |          0x7fedbbfd63ed
+                       |          0x7fedbbfd5a47
+                       |          0x7fedbbfc9af4
+                       |          0x7fedbcdb9071
+                       |          0x7fedd8c4b8a9
+                       |          0x7fedd8c3e6a3
+                       |          ComputeSanitizerCallback
+                       |          LaunchEndCallback
+                       |          |          
+                       |           --1.14%--yosemite_gpu_data_analysis
+                       |                     yosemite::PcDependency::gpu_data_analysis
+                       |                     yosemite::HbClock::process
+                       |          
+                        --1.08%--fpc2
+                                  __device_stub__Z11fpc2_kernelPKmPj
+                                  cudaLaunchKernel
+                                  0x7fedd9e14ffc
+                                  cuLaunchKernel
+                                  0x7fedbc1a92c7
+                                  0x7fedbbfd63ed
+                                  0x7fedbbfd5a47
+                                  0x7fedbbfc9af4
+                                  0x7fedbcdb9071
+                                  0x7fedd8c4b8a9
+                                  0x7fedd8c3e6a3
+                                  ComputeSanitizerCallback
+                                  LaunchEndCallback
+                                  yosemite_gpu_data_analysis
+                                  yosemite::PcDependency::gpu_data_analysis
+                                  yosemite::HbClock::process
+#
+# (Tip: Print event counts in CSV format with: perf stat -x,)
+#

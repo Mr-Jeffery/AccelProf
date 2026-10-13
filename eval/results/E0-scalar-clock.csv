@@ -1,0 +1,13 @@
+suite,program,variant,bug_label,input,grid,block,events,t_native,t_trace,t_engine,peak_mem_mb,reports_raw,reports_dedup,TP,FN,FP,TN,racecheck_verdict,oracle_verified,tv_violations,structural,latent,unknown_sync,notes
+E0,1dconv,norace,race-free,small,,,520,0.517,1.523,,820.4,0,0,,,0,1,,scalar-clock,0,0,0,0,mode=scalar-clock
+E0,1dconv,racy,racy,small,,,512,0.517,1.623,,817.3,1,1,1,0,,,,scalar-clock,0,0,1,0,caught-latent-only;mode=scalar-clock
+E0,graph-coloring,norace,race-free,small,,,89515,0.517,2.629,,818.5,84,6,,,1,0,,scalar-clock,0,0,84,0,mode=scalar-clock
+E0,graph-coloring,racy,racy,small,,,106928,0.517,2.68,,821.3,168,9,1,0,,,,scalar-clock,0,0,168,0,caught-latent-only;mode=scalar-clock
+E0,graph-connectivity,norace,race-free,small,,,9710,0.517,1.673,,822.1,6,6,,,1,0,,scalar-clock,0,0,6,0,mode=scalar-clock
+E0,graph-connectivity,racy,racy,small,,,9151,0.517,1.623,,818.9,9,9,1,0,,,,scalar-clock,0,0,9,0,caught-latent-only;mode=scalar-clock
+E0,matrix-multiplication,norace,race-free,small,,,190268,0.517,4.036,,1074.0,2,2,,,1,0,,scalar-clock,0,0,2,0,mode=scalar-clock
+E0,matrix-multiplication,racy,racy,small,,,189411,0.517,3.986,,1072.8,5,4,1,0,,,,scalar-clock,0,0,5,0,caught-latent-only;mode=scalar-clock
+E0,reduction,norace,race-free,small,,,889,0.517,1.573,,818.8,23,23,,,1,0,,scalar-clock,0,0,23,0,mode=scalar-clock
+E0,reduction,racy,racy,small,,,889,0.517,1.573,,818.6,25,25,1,0,,,,scalar-clock,0,0,25,0,caught-latent-only;mode=scalar-clock
+E0,rule-110,norace,race-free,small,,,28246,0.517,2.126,,819.6,16,1,,,1,0,,scalar-clock,0,0,16,0,mode=scalar-clock
+E0,rule-110,racy,racy,small,,,28223,0.517,2.126,,819.7,52,3,1,0,,,,scalar-clock,0,0,52,0,caught-latent-only;mode=scalar-clock

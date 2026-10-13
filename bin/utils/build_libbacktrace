@@ -4,7 +4,10 @@ prefix_dir=$ACCEL_PROF_DIR/build/backtrace
 
 mkdir -p $ACCEL_PROF_DIR/build/backtrace/build
 cd $ACCEL_PROF_DIR/build/backtrace/build
-$ACCEL_PROF_DIR/third_party/libbacktrace/configure --prefix=$prefix_dir --enable-shared --disable-static
+# Force libdir to lib64 so it matches the -L$(BACKTRACE_DIR)/lib64 hardcoded in
+# sanalyzer/cpp_trace/Makefile. libbacktrace's configure otherwise picks the
+# platform default (lib on some distros, lib64 on others), which breaks linking.
+$ACCEL_PROF_DIR/third_party/libbacktrace/configure --prefix=$prefix_dir --libdir=$prefix_dir/lib64 --enable-shared --disable-static
 
 make -j$(nproc)
 make install

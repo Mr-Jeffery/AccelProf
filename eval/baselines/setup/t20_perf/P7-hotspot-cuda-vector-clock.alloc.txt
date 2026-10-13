@@ -1,0 +1,118 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 13K of event 'cycles:u'
+# Event count (approx.): 920905250454
+#
+# Overhead      Pid:Command         Symbol                 
+# ........  ......................  .......................
+#
+     5.77%   802668:hotspot-cuda    [.] _int_malloc
+            |          
+             --5.51%--_start
+                       __libc_start_main
+                       main
+                       compute_tran_temp
+                       __device_stub__Z9calc_tempiPKfS0_Pfiiiifffff
+                       cudaLaunchKernel
+                       0x7f363c414ffc
+                       cuLaunchKernel
+                       0x7f361e7a92c7
+                       0x7f361e5d63ed
+                       0x7f361e5d5a47
+                       0x7f361e5c9af4
+                       0x7f361f3b9071
+                       0x7f363b24b8a9
+                       0x7f363b23e6a3
+                       ComputeSanitizerCallback
+                       LaunchEndCallback
+                       |          
+                        --5.41%--yosemite_gpu_data_analysis
+                                  yosemite::PcDependency::gpu_data_analysis
+                                  yosemite::HbClock::process
+                                  |          
+                                   --4.15%--?? (inlined)
+                                             |          
+                                             |--2.40%--__GI___libc_malloc (inlined)
+                                             |          _int_malloc
+                                             |          
+                                              --1.32%--__GI___libc_realloc (inlined)
+                                                        _int_realloc
+                                                        _int_malloc
+     4.37%   802668:hotspot-cuda    [.] malloc_consolidate
+            |          
+             --4.24%--_start
+                       __libc_start_main
+                       |          
+                        --4.21%--main
+                                  compute_tran_temp
+                                  __device_stub__Z9calc_tempiPKfS0_Pfiiiifffff
+                                  cudaLaunchKernel
+                                  0x7f363c414ffc
+                                  cuLaunchKernel
+                                  0x7f361e7a92c7
+                                  0x7f361e5d63ed
+                                  0x7f361e5d5a47
+                                  0x7f361e5c9af4
+                                  |          
+                                   --4.20%--0x7f361f3b9071
+                                             0x7f363b24b8a9
+                                             0x7f363b23e6a3
+                                             ComputeSanitizerCallback
+                                             LaunchEndCallback
+                                             |          
+                                             |--3.06%--yosemite_gpu_data_analysis
+                                             |          yosemite::PcDependency::gpu_data_analysis
+                                             |          yosemite::HbClock::process
+                                             |          |          
+                                             |           --2.19%--yosemite::HbClock::complete
+                                             |                     yosemite::HbClock::fire
+                                             |                     |          
+                                             |                      --1.94%--std::vector<unsigned long, std::allocator<unsigned long> >::reserve
+                                             |                                ?? (inlined)
+                                             |                                ?? (inlined)
+                                             |                                ?? (inlined)
+                                             |                                operator new
+                                             |                                __GI___libc_malloc (inlined)
+                                             |                                _int_malloc
+                                             |                                malloc_consolidate
+                                             |          
+                                              --1.14%--sanitizerMemcpyDeviceToHost
+                                                        |          
+                                                         --1.12%--0x7f363b351951
+                                                                   __GI___libc_malloc (inlined)
+                                                                   _int_malloc
+                                                                   malloc_consolidate
+     2.34%   802668:hotspot-cuda    [.] unlink_chunk.isra.2
+            |          
+             --2.24%--_start
+                       __libc_start_main
+                       |          
+                        --2.22%--main
+                                  compute_tran_temp
+                                  __device_stub__Z9calc_tempiPKfS0_Pfiiiifffff
+                                  cudaLaunchKernel
+                                  0x7f363c414ffc
+                                  cuLaunchKernel
+                                  0x7f361e7a92c7
+                                  0x7f361e5d63ed
+                                  0x7f361e5d5a47
+                                  0x7f361e5c9af4
+                                  0x7f361f3b9071
+                                  0x7f363b24b8a9
+                                  0x7f363b23e6a3
+                                  ComputeSanitizerCallback
+                                  LaunchEndCallback
+                                  |          
+                                   --1.95%--yosemite_gpu_data_analysis
+                                             yosemite::PcDependency::gpu_data_analysis
+                                             yosemite::HbClock::process
+                                             |          
+                                              --1.15%--yosemite::HbClock::complete
+                                                        |          
+                                                         --1.14%--yosemite::HbClock::fire
+#
+# (Tip: To add Node.js USDT(User-Level Statically Defined Tracing): perf buildid-cache --add `which node`)
+#

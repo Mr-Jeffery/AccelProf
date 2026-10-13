@@ -1,0 +1,89 @@
+{
+ "label": "reduction-norace-large-t5b",
+ "exe": "/home/fzheng4/AccelProf/eval/baselines/bin/P4/reduction_norace",
+ "args": "",
+ "stdin": "/home/fzheng4/AccelProf/eval/baselines/inputs/reduction.large.in",
+ "mode": "vector-clock",
+ "cap_s": 900,
+ "every": 0,
+ "node": "c76",
+ "accel_prof_home": "/home/fzheng4/AccelProf/.claude/worktrees/t5b-shared-base-clock",
+ "engine_lib": "/home/fzheng4/AccelProf/.claude/worktrees/t5b-shared-base-clock/sanalyzer/wt_install/lib/libsanalyzer.so",
+ "engine_lib_sha16": "14917f8aaa9892ac",
+ "wall_s": 4.275,
+ "peak_rss_mb": 1591.6,
+ "rc": 0,
+ "timed_out": false,
+ "kernels": [
+  {
+   "file": "kernel_0.json",
+   "bytes_on_disk": 50242169,
+   "hb_stats": {
+    "hb_events": {
+     "count": 38145,
+     "json_bytes": 49130630,
+     "ram_bytes_est": 52024800
+    },
+    "engine": {
+     "vc": {
+      "threads": 15360,
+      "entries": 254144,
+      "bases": 30,
+      "base_entries": 238080,
+      "max_base": 15360,
+      "delta_entries": 704,
+      "max_delta": 7,
+      "bytes_est": 13184472
+     },
+     "released": {
+      "records": 6721,
+      "entries": 52739,
+      "own_bases": 30,
+      "delta_entries": 15810,
+      "bytes_est": 4193880
+     },
+     "merge_memo": 30,
+     "buckets": {
+      "locations": 1079357,
+      "groups": 1101498,
+      "entries": 1123578,
+      "bytes_est": 359998480
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 15360,
+      "unique_bases": 30,
+      "base_entries": 15360,
+      "bytes_est": 1527064
+     },
+     "races": {
+      "records": 12,
+      "bytes_est": 1832
+     },
+     "sync_pairs": 19,
+     "coherence_addrs": 6721,
+     "a2": {
+      "pd_threads": 15360,
+      "pd_entries": 26303,
+      "pd_bases": 30,
+      "released_pd_entries": 996820,
+      "windows": 0,
+      "held": 0,
+      "clusters": 6721,
+      "multi": 0,
+      "cluster_clock_entries": 5798912
+     }
+    },
+    "rss_kb": 1626684,
+    "hwm_kb": 1626684
+   }
+  }
+ ],
+ "kernel_end_lines": 1,
+ "mid_kernel": [],
+ "elapsed_s": 4.3
+}

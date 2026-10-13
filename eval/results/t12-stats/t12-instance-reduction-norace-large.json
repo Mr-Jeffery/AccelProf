@@ -1,0 +1,81 @@
+{
+ "label": "t12-instance-reduction-norace-large",
+ "exe": "/home/fzheng4/AccelProf/eval/baselines/bin/P4/reduction_norace",
+ "args": "",
+ "stdin": "/home/fzheng4/AccelProf/eval/baselines/inputs/reduction.large.in",
+ "mode": "vector-clock",
+ "cap_s": 900,
+ "every": 0,
+ "node": "c73",
+ "accel_prof_home": "/home/fzheng4/AccelProf/.claude/worktrees/feat-instance-gate",
+ "engine_lib": "/home/fzheng4/AccelProf/.claude/worktrees/feat-instance-gate/sanalyzer/wt_install/lib/libsanalyzer.so",
+ "engine_lib_sha16": "dca547a53b233c87",
+ "wall_s": 4.977,
+ "peak_rss_mb": 1849.1,
+ "rc": 0,
+ "timed_out": false,
+ "kernels": [
+  {
+   "file": "kernel_0.json",
+   "bytes_on_disk": 50281959,
+   "hb_stats": {
+    "hb_events": {
+     "count": 38167,
+     "json_bytes": 49160947,
+     "ram_bytes_est": 52055440
+    },
+    "engine": {
+     "vc": {
+      "threads": 15360,
+      "entries": 7864320,
+      "max_entries": 512,
+      "bytes_est": 319531144
+     },
+     "released": {
+      "records": 6721,
+      "entries": 3456000,
+      "bytes_est": 140917544
+     },
+     "buckets": {
+      "locations": 1079357,
+      "groups": 1101498,
+      "entries": 1123578,
+      "bytes_est": 359998480
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 15360,
+      "unique_bases": 30,
+      "base_entries": 15360,
+      "bytes_est": 1527064
+     },
+     "races": {
+      "records": 14,
+      "bytes_est": 2056
+     },
+     "sync_pairs": 19,
+     "coherence_addrs": 6721,
+     "a2": {
+      "pd_threads": 0,
+      "pd_entries": 0,
+      "released_pd_entries": 332,
+      "windows": 0,
+      "held": 0,
+      "clusters": 6721,
+      "multi": 0,
+      "cluster_clock_entries": 3440640
+     }
+    },
+    "rss_kb": 1890436,
+    "hwm_kb": 1890436
+   }
+  }
+ ],
+ "kernel_end_lines": 1,
+ "mid_kernel": [],
+ "elapsed_s": 5.0
+}
