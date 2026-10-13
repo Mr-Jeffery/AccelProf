@@ -17,7 +17,7 @@
 #   /mnt/beegfs/$USER/cuvein_traces/final-2026-10, the tool timeout equal to the cap for every
 #   rep (--timeout-floor = --timeout-cap = CAP, 1200 s here; the 10x-native term of
 #   min(max(10 x native, floor), cap) never binds, so a TIMEOUT row always means "did not finish
-#   in CAP s"), the offline analysis capped at 3600 s (--analysis-timeout; past it a row is
+#   in CAP s"), the offline analysis capped at 14,400 s per mode (--analysis-timeout, X0's value; past it a row is
 #   ERROR analysis-timeout, never CLEAN).
 # The runtime is the main checkout RT (ACCEL_PROF_HOME: the installed libraries, bin/accelprof,
 # python/ for the verdict layer, the live manifest's binaries and corpora); the harness is this
@@ -57,16 +57,16 @@ case "$gpu" in *"4060 Ti"*", 8.9,"*) ;; *) echo "NODE-PROBLEM $(hostname): GPU [
 [ -x $CUDA_HOME/bin/nvdisasm ] && [ -f $CUDA_HOME/compute-sanitizer/libsanitizer-public.so ] \
     || { echo "NODE-PROBLEM $(hostname): no CUDA 13.3 at $CUDA_HOME"; exit 2; }
 [ -d /mnt/beegfs/$USER ] || { echo "NODE-PROBLEM $(hostname): BeeGFS not mounted"; exit 2; }
-SAN=$(ldd $RT/lib/libcompute_sanitizer.so | awk '/sanalyzer/{print $3}')
+SAN=$(ldd $RT/lib/libcompute_sanitizer.so | awk '/libsanalyzer/{print $3}')
 echo "host=$(hostname) gpu=[$gpu] mem=$(free -g | awk '/Mem:/{print $2}')G cpu=[$(lscpu | sed -n 's/^Model name: *//p')]"
-echo "job=${SLURM_JOB_ID:-} array=${SLURM_ARRAY_JOB_ID:-}_${SLURM_ARRAY_TASK_ID:-} shard=$K/$NSHARDS psets=$PSETS ids=${IDS:-}${ID_FILE:-} tag=$TAG cap=${CAP}s modes=${BASELINE_MODES:-both} store=$BASELINE_TRACE_DIR $(date -Is)"
-echo "runtime $RT HEAD=$(git -C $RT rev-parse --short=12 HEAD) libsanalyzer=$(h $SAN) ($SAN) collector=$(h $RT/lib/libcompute_sanitizer.so) fatbin=$(h $RT/nv-compute/lib/gpu_patch/gpu_patch_pc_dependency.fatbin) late=$(h $RT/nv-compute/lib/gpu_patch/gpu_patch_pc_dependency_late.fatbin)"
-echo "harness $W HEAD=$(git -C $W rev-parse --short=12 HEAD) dirty=$(git -C $W status --porcelain -uno | wc -l) $($CUDA_HOME/bin/nvcc --version | tail -1)"
-mkdir -p $W/eval/results/$RES $RT/eval/baselines/confirm_$RES
 SEL=(--pset $PSETS)
 [ -n "${IDS:-}" ] && SEL=(--id $IDS)
 [ -n "${ID_FILE:-}" ] && SEL=(--id-file $ID_FILE)
+echo "job=${SLURM_JOB_ID:-} array=${SLURM_ARRAY_JOB_ID:-}_${SLURM_ARRAY_TASK_ID:-} shard=$K/$NSHARDS select=[${SEL[*]}] tag=$TAG cap=${CAP}s modes=${BASELINE_MODES:-both} store=$BASELINE_TRACE_DIR $(date -Is)"
+echo "runtime $RT HEAD=$(git -C $RT rev-parse --short=12 HEAD) libsanalyzer=$(h $SAN) ($SAN) collector=$(h $RT/lib/libcompute_sanitizer.so) fatbin=$(h $RT/nv-compute/lib/gpu_patch/gpu_patch_pc_dependency.fatbin) late=$(h $RT/nv-compute/lib/gpu_patch/gpu_patch_pc_dependency_late.fatbin)"
+echo "harness $W HEAD=$(git -C $W rev-parse --short=12 HEAD) dirty=$(git -C $W status --porcelain -uno | wc -l) $($CUDA_HOME/bin/nvcc --version | tail -1)"
+mkdir -p $W/eval/results/$RES $RT/eval/baselines/confirm_$RES
 $PY $W/eval/baselines/parallel.py run "${SEL[@]}" --shard $K/$NSHARDS --reps 3 --confirm --keep-all \
-    --timeout-floor $CAP --timeout-cap $CAP --analysis-timeout 3600 --tag $TAG \
+    --timeout-floor $CAP --timeout-cap $CAP --analysis-timeout 14400 --tag $TAG \
     --results-dir $W/eval/results/$RES --confirm-dir $RT/eval/baselines/confirm_$RES
 echo "== done rc=$? $(date -Is)"
