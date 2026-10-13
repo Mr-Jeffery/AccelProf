@@ -166,7 +166,12 @@ def collect_one(mrow, cuda, reps, floor=120, cap=1200):
     meta.update(node=socket.gethostname(), arch=_arch(), mem_total_gb=_mem_total_gb(),
                 modes={}, store=STORE, status="collecting",
                 started=time.strftime("%Y-%m-%d %H:%M:%S"),
-                slurm_job=os.environ.get("SLURM_JOB_ID", ""))
+                slurm_job=os.environ.get("SLURM_JOB_ID", ""),
+                # X2: the chain-edge policy the vector-clock runs were asked for (T16,
+                # $YOSEMITE_HB_GATE_POLICY, passed through by blib.base_env) and whether
+                # HB_STATS was on; analyze notes the policy on every vector-clock row
+                hb_gate_policy=rc.requested_gate_policy(),
+                hb_stats=os.environ.get("YOSEMITE_HB_STATS", ""))
 
     def _write_meta():
         # written at the start and after every mode so that a shard killed by SLURM
@@ -436,7 +441,7 @@ def _analyze_capped(mode_dir, dots_dir, cap_s, mem_gb=-1):
     child (truncated kernel JSON of a partial dump) is re-raised here so analyze_one's
     handling of it is unchanged; any other exception becomes a RuntimeError -> ERROR row."""
     if not cap_s:
-        return rc._analyze_reports(mode_dir, dots_dir), ""
+        return rc._analyze_reports(mode_dir, dots_dir, with_policy=True), ""
     import multiprocessing, queue
     mem_gb = _analysis_mem_cap_gb(mem_gb)
     ctx = multiprocessing.get_context("fork")
@@ -448,7 +453,7 @@ def _analyze_capped(mode_dir, dots_dir, cap_s, mem_gb=-1):
                 import resource
                 lim = int(mem_gb * 1e9)
                 resource.setrlimit(resource.RLIMIT_AS, (lim, lim))
-            q.put(("OK", rc._analyze_reports(mode_dir, dots_dir)))
+            q.put(("OK", rc._analyze_reports(mode_dir, dots_dir, with_policy=True)))
         except MemoryError:
             os._exit(3)     # nothing can be allocated any more (not even the queue's
                             # feeder thread): exit code 3 is the OOM marker for the parent
@@ -472,12 +477,12 @@ def _analyze_capped(mode_dir, dots_dir, cap_s, mem_gb=-1):
             except queue.Empty:
                 proc.join()
                 if proc.exitcode == 3:
-                    return ([], set(), []), f"analysis-oom(cap={mem_gb:.0f}GB)"
-                return ([], set(), []), f"analysis-died(rc={proc.exitcode})"
+                    return ([], set(), [], []), f"analysis-oom(cap={mem_gb:.0f}GB)"
+                return ([], set(), [], []), f"analysis-died(rc={proc.exitcode})"
         if time.time() > deadline:
             proc.kill()
             proc.join()
-            return ([], set(), []), "analysis-timeout"
+            return ([], set(), [], []), "analysis-timeout"
     proc.join()
     if tag == "OK":
         return payload, ""
@@ -526,14 +531,14 @@ def analyze_one(idir, writer, confirm_dir, analysis_cap=0, analysis_mem=-1):
                 verdicts[mode] = "ERROR"
             continue
         # analyze the saved trace once (deterministic verdict), reuse across reps
-        ids_, pcs, raw, raw_sc, cnote = [], set(), [], [], ""
+        ids_, pcs, raw, raw_sc, cnote, dpol = [], set(), [], [], "", []
         analyzed, reason = False, ""
         partial = bool(mm.get("partial"))
         mode_dir = blib.hb_modes.resolve_dir(idir, mode)   # pre-T8 store: <id>/engine|trace-only
         if mm.get("saved") and os.path.isdir(mode_dir):
             try:
-                (ids_, pcs, raw), reason = _analyze_capped(mode_dir, dots_dir,
-                                                           analysis_cap, analysis_mem)
+                (ids_, pcs, raw, dpol), reason = _analyze_capped(mode_dir, dots_dir,
+                                                                 analysis_cap, analysis_mem)
                 analyzed = not reason
                 cnote = rc.classes_note(raw)             # T9 (D2): report classes
                 raw, raw_sc = rc.split_raw(raw)
@@ -541,6 +546,9 @@ def analyze_one(idir, writer, confirm_dir, analysis_cap=0, analysis_mem=-1):
                 if not partial:     # a killed run's last kernel JSON may be truncated
                     raise
         mode_events = mm.get("events", meta.get("events", 0) if mode == VC else "")
+        # X2: `gate_policy=<p>` on every row of a non-recorded vector-clock run (rc.policy_note:
+        # the requested policy from meta.json, cross-checked against the dumps' own)
+        pnote = rc.policy_note(meta.get("hb_gate_policy") if mode == VC else None, dpol)
         if mm.get("events_uncounted"):
             mode_events = f"{mode_events}(+{len(mm['events_uncounted'])} dumps >{COUNT_EVENTS_MAX_GB:.0f}GB uncounted)"
         for rep, rm in enumerate(reps_meta, 1):
@@ -582,6 +590,7 @@ def analyze_one(idir, writer, confirm_dir, analysis_cap=0, analysis_mem=-1):
             verdicts[mode] = verdict if mode not in verdicts or verdict == "RACE" else verdicts[mode]
             if meta.get("tool_timeout_cap") is not None:   # absent in metas before X0
                 notes = f"cap={meta['tool_timeout_cap']};{notes}"
+            notes = rc.with_policy_note(notes, pnote)
             writer.writerow(blib.row(
                 **common, mode=mode, rep=rep, verdict=verdict, reports_dedup=nd,
                 report_ids=ri, report_lines=rl, wall_s=rm.get("wall"),
@@ -593,6 +602,7 @@ def analyze_one(idir, writer, confirm_dir, analysis_cap=0, analysis_mem=-1):
                             "verdict": "RACE" if ids_ else "CLEAN", "report_ids": ids_,
                             "pcs": sorted(pcs), "lines": lines_for(pcs), "raw": raw,
                             "raw_sc": raw_sc,
+                            "gate_policy": pnote.partition("=")[2] or "recorded",
                             "scope_file": "", "pc_lines": {str(k): pcmap[k]
                                                            for k in pcs if k in pcmap}},
                            indent=2))

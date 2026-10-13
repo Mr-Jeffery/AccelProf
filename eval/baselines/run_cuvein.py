@@ -39,7 +39,7 @@ import aggregate as agg      # noqa: E402
 import host_hb               # noqa: E402  (T2: host copies / cross-stream kernels)
 
 
-def _analyze_reports(depdir, cubindir):
+def _analyze_reports(depdir, cubindir, with_policy=False):
     """Run sync_dominance.analyze over the dump and dedup RACE verdicts on
     (unordered pc pair, space). Used for BOTH modes: analyze derives the verdict
     from the trace edges, and when the dump carries HbClock's hb_races
@@ -49,7 +49,8 @@ def _analyze_reports(depdir, cubindir):
     barrier-only pass) and misses it. That is exactly the vector-clock vs
     scalar-clock surface the task compares.
 
-    -> (ids, pcs_set, raw_verdicts). ids/pcs are the RACE reports (a latent pair is a
+    -> (ids, pcs_set, raw_verdicts) (with_policy: + the sorted chain-edge policies the
+    analysed kernels' hb_races were computed under; X2, policy_note). ids/pcs are the RACE reports (a latent pair is a
     RACE: the Race u Latent operating point, D2). raw holds them with their
     `matrix_class` (the verdict-matrix class before judge's relabels, of the pair's
     strongest RACE verdict over the kernels: model_bug > structural > race (scalar-clock,
@@ -120,8 +121,42 @@ def _analyze_reports(depdir, cubindir):
         pol = next(iter(policies)) if len(policies) == 1 else "mixed"
         for r in raw:
             r["gate_policy"] = pol
-    return ids + ids_h, pcs_all | {r[p] for r in raw_h for p in ("a_pc", "b_pc") if r[p] is not None}, \
-        raw + raw_h
+    out = (ids + ids_h, pcs_all | {r[p] for r in raw_h for p in ("a_pc", "b_pc") if r[p] is not None},
+           raw + raw_h)
+    return out + (sorted(policies),) if with_policy else out
+
+
+def requested_gate_policy(env=None):
+    """X2: the chain-edge policy a vector-clock run was asked for -- $YOSEMITE_HB_GATE_POLICY,
+    which the collector reads once at start (eval/CERTAIN_CLOCK.md section 3) and blib.base_env
+    passes through. Unset or empty = recorded; any other value is kept verbatim (the collector
+    warns and uses recorded; the dumps then disagree and policy_note says so)."""
+    return (env if env is not None else os.environ).get("YOSEMITE_HB_GATE_POLICY", "") or "recorded"
+
+
+def policy_note(requested, dumps):
+    """X2: `gate_policy=<p>` for EVERY row of a non-recorded run. classes_note writes the marker
+    off the reports, so a CLEAN, TIMEOUT or ERROR row of a certain-policy run carried none and
+    make_tables read it as a recorded row (outside the Race (sound) column). `requested` = the
+    policy the run was asked for (meta.json `hb_gate_policy`; None for scalar-clock mode, which
+    has no chain edge, and for metas written before X2); `dumps` = the policies the analysed
+    kernel JSONs say their hb_races were computed under (_analyze_reports(with_policy=True)).
+    A disagreement is `gate_policy=mismatch(...)`, which make_tables never reads as certain.
+    '' for a recorded row (unnoted, as before: every existing row reads as recorded)."""
+    d = sorted(set(dumps or ()))
+    if requested and d and d != [requested]:
+        return f"gate_policy=mismatch(requested:{requested}/dumps:{'+'.join(d)})"
+    p = (d[0] if len(d) == 1 else "mixed") if d else requested
+    return f"gate_policy={p}" if p and p != "recorded" else ""
+
+
+def with_policy_note(notes, pnote):
+    """`notes` with classes_note's `gate_policy=` token (if any) replaced by pnote, appended
+    last; notes unchanged when pnote is ''."""
+    if not pnote:
+        return notes
+    kept = [t for t in (notes or "").split(";") if t and not t.startswith("gate_policy=")]
+    return ";".join(kept + [pnote])
 
 
 # strength of a RACE report's class for the per-pair dedup (the pair counts as a race of
@@ -268,7 +303,7 @@ def run_one(mrow, modes, cuda, writer, confirm_dir, cap=1200):
             depdir = deps[-1] if deps else ""
             kjs = glob.glob(f"{depdir}/kernel_*.json") if depdir else []
             notes = ""
-            raw, raw_sc = [], []
+            raw, raw_sc, dpol = [], [], []
             if to:
                 verdict, ids, pcs = "TIMEOUT", [], set()
             elif not kjs:
@@ -280,7 +315,7 @@ def run_one(mrow, modes, cuda, writer, confirm_dir, cap=1200):
                 # finished before that. A race it shows is a race; it is never CLEAN.
                 complete = rc == native_rc
                 try:
-                    ids, pcs, raw = _analyze_reports(depdir, cubindir)
+                    ids, pcs, raw, dpol = _analyze_reports(depdir, cubindir, with_policy=True)
                 except ValueError:
                     if complete:
                         raise
@@ -296,6 +331,10 @@ def run_one(mrow, modes, cuda, writer, confirm_dir, cap=1200):
                         verdict = "ERROR"
                         notes = f"incomplete-trace(rc={rc};nkernels={len(kjs)})"
             notes = f"cap={cap};{notes}"
+            # X2: every row of a non-recorded run says so, CLEAN/TIMEOUT/ERROR included
+            pnote = policy_note(requested_gate_policy(env) if mode == blib.hb_modes.VECTOR_CLOCK
+                                else None, dpol)
+            notes = with_policy_note(notes, pnote)
             writer.writerow(blib.row(
                 **common, mode=mode, rep=rep, verdict=verdict,
                 reports_dedup=len(ids), report_ids=" ".join(ids),
@@ -310,6 +349,7 @@ def run_one(mrow, modes, cuda, writer, confirm_dir, cap=1200):
                                 "verdict": verdict, "report_ids": ids,
                                 "pcs": sorted(pcs), "lines": lines_for(pcs),
                                 "raw": raw, "raw_sc": raw_sc, "scope_file": scope,
+                                "gate_policy": pnote.partition("=")[2] or "recorded",
                                 "pc_lines": {str(k): v for k, v in pcmap.items()
                                              if k in pcs}}, indent=2))
     # tidy trace dirs (bulky)
