@@ -22,7 +22,10 @@ Consumes the confirmation JSONs written by run_cuvein.py --confirm, the reduced
 per-tool verdicts (from eval/results/baselines-*.csv), and the manifest labels.
 Writes eval/results/baselines-disagreements.csv. Runs anywhere (no GPU).
 
-    .env/bin/python eval/baselines/classify_endpoints.py
+    .env/bin/python eval/baselines/classify_endpoints.py [--confirm DIR]
+
+--confirm DIR (X1): the confirmation JSONs of a sweep that wrote them elsewhere
+(parallel.py --confirm-dir, e.g. confirm_final); default eval/baselines/confirm.
 """
 import csv
 import glob
@@ -39,6 +42,8 @@ _sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.dirname
 import hb_modes  # noqa: E402  (vector-clock / scalar-clock; legacy names accepted with a warning)
 VC, SC = hb_modes.VECTOR_CLOCK, hb_modes.SCALAR_CLOCK
 CONFIRM = f"{HERE}/confirm"
+if "--confirm" in _sys.argv:          # X1: the sweep's own confirm dir
+    CONFIRM = _sys.argv[_sys.argv.index("--confirm") + 1]
 SCOPE_ORD = {"none": 0, "warp": 1, "block": 2, "grid": 3}
 
 

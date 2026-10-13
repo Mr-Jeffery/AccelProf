@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+#SBATCH --job-name=x1-final
+#SBATCH --partition=rtx4060ti16g
+#SBATCH --exclude=c54,c2,c21,c37
+#SBATCH --exclusive
+#SBATCH --nodes=1 --ntasks=1
+#SBATCH --time=1-00:00:00
+#SBATCH --array=0-47
+#SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/final-%A_%a.log
+# X1, the final recording (eval/FINAL_SWEEP.md). Every number in the paper's evaluation comes
+# from it: ONE runtime (the T16 + T20 install recorded in d38d057: libsanalyzer 2201fcb7,
+# collector ee78cb89, fatbin a2d7368b; the X0 verdict layer of cuVein 4094187) and ONE
+# configuration for every row:
+#   BASELINE_HB_DUMP=0 (no hb_events, HbClock's aggregates only), YOSEMITE_HB_STATS=1 (hb_stats
+#   per kernel JSON), both modes in ONE job per shard (collect_one wipes <store>/<id>; per-mode
+#   jobs would clobber each other -- p_evcand.sh), --reps 3, --confirm, --keep-all into
+#   /mnt/beegfs/$USER/cuvein_traces/final-2026-10, the tool timeout equal to the cap for every
+#   rep (--timeout-floor = --timeout-cap = CAP, 1200 s here; the 10x-native term of
+#   min(max(10 x native, floor), cap) never binds, so a TIMEOUT row always means "did not finish
+#   in CAP s"), the offline analysis capped at 3600 s (--analysis-timeout; past it a row is
+#   ERROR analysis-timeout, never CLEAN).
+# The runtime is the main checkout RT (ACCEL_PROF_HOME: the installed libraries, bin/accelprof,
+# python/ for the verdict layer, the live manifest's binaries and corpora); the harness is this
+# file's checkout W (branch eval/final-sweep). Shard CSVs -> W/eval/results/$RES/, confirmation
+# JSONs -> RT/eval/baselines/confirm_$RES/ (untracked, outlives the worktree), logs -> RT's
+# build_logs/final-*.log.
+#   main (P1,P3,P4,P5,P6,P7,P9, 595 programs):   sbatch eval/baselines/setup/p_final.sh
+#   PI (4,130 programs):  PSETS=PI NSHARDS=64 TAG=finalpi sbatch --array=0-63 -J x1-final-pi \
+#                           -o <RT>/eval/baselines/setup/build_logs/finalpi-%A_%a.log eval/baselines/setup/p_final.sh
+#   one shard again (node failure): the same PSETS/NSHARDS/TAG with --array=k. The shard split is
+#     k/NSHARDS, never SLURM_ARRAY_TASK_COUNT (a resubmitted subset would re-split; T20 gotcha).
+#     Pass -x on the command line only as the FULL exclude list (it replaces the one above).
+#   dry run (step 1): IDS=<id,id,...> NSHARDS=1 TAG=final-dryrun RES=final-dryrun \
+#                     STORE_TAG=final-2026-10-dryrun sbatch --array=0 eval/baselines/setup/p_final.sh
+set -u
+W=${W:-/home/fzheng4/AccelProf/.claude/worktrees/wt-x1}
+RT=/home/fzheng4/AccelProf
+source $W/eval/baselines/setup/home_quota_guard.sh
+PSETS=${PSETS:-P1,P3,P4,P5,P6,P7,P9}; NSHARDS=${NSHARDS:-48}; TAG=${TAG:-final}
+K=${SHARD:-${SLURM_ARRAY_TASK_ID:?}}
+CAP=${CAP:-1200}; STORE_TAG=${STORE_TAG:-final-2026-10}; RES=${RES:-final}
+cd $RT || exit 1
+# no detector knob from the submitting shell may leak in: defaults only
+for v in $(env | /usr/bin/grep -o '^\(CUVEIN\|YOSEMITE\)_[A-Z0-9_]*'); do unset $v; done
+unset BASELINE_MODES BASELINE_TRACE_ALLOW_NONBEEGFS
+[ -n "${MODES:-}" ] && export BASELINE_MODES=$MODES
+export ACCEL_PROF_HOME=$RT CUDA_HOME=/usr/local/cuda-13.3
+source eval/baselines/gpu_env.sh
+export PATH=/usr/local/cuda-13.3/bin:$PATH
+export LD_LIBRARY_PATH=/opt/ohpc/pub/compiler/gcc/12.4.0/lib64:${LD_LIBRARY_PATH:-}
+export BASELINE_HB_DUMP=0 YOSEMITE_HB_STATS=1
+export BASELINE_TRACE_DIR=/mnt/beegfs/$USER/cuvein_traces/$STORE_TAG
+h() { sha256sum "$1" | cut -c1-16; }
+# node problems are not program failures: exit 2 before any row is written (resubmit elsewhere)
+gpu=$(nvidia-smi --query-gpu=name,compute_cap,driver_version --format=csv,noheader 2>&1 | head -1)
+case "$gpu" in *"4060 Ti"*", 8.9,"*) ;; *) echo "NODE-PROBLEM $(hostname): GPU [$gpu]"; exit 2;; esac
+[ -x $CUDA_HOME/bin/nvdisasm ] && [ -f $CUDA_HOME/compute-sanitizer/libsanitizer-public.so ] \
+    || { echo "NODE-PROBLEM $(hostname): no CUDA 13.3 at $CUDA_HOME"; exit 2; }
+[ -d /mnt/beegfs/$USER ] || { echo "NODE-PROBLEM $(hostname): BeeGFS not mounted"; exit 2; }
+SAN=$(ldd $RT/lib/libcompute_sanitizer.so | awk '/sanalyzer/{print $3}')
+echo "host=$(hostname) gpu=[$gpu] mem=$(free -g | awk '/Mem:/{print $2}')G cpu=[$(lscpu | sed -n 's/^Model name: *//p')]"
+echo "job=${SLURM_JOB_ID:-} array=${SLURM_ARRAY_JOB_ID:-}_${SLURM_ARRAY_TASK_ID:-} shard=$K/$NSHARDS psets=$PSETS ids=${IDS:-}${ID_FILE:-} tag=$TAG cap=${CAP}s modes=${BASELINE_MODES:-both} store=$BASELINE_TRACE_DIR $(date -Is)"
+echo "runtime $RT HEAD=$(git -C $RT rev-parse --short=12 HEAD) libsanalyzer=$(h $SAN) ($SAN) collector=$(h $RT/lib/libcompute_sanitizer.so) fatbin=$(h $RT/nv-compute/lib/gpu_patch/gpu_patch_pc_dependency.fatbin) late=$(h $RT/nv-compute/lib/gpu_patch/gpu_patch_pc_dependency_late.fatbin)"
+echo "harness $W HEAD=$(git -C $W rev-parse --short=12 HEAD) dirty=$(git -C $W status --porcelain -uno | wc -l) $($CUDA_HOME/bin/nvcc --version | tail -1)"
+mkdir -p $W/eval/results/$RES $RT/eval/baselines/confirm_$RES
+SEL=(--pset $PSETS)
+[ -n "${IDS:-}" ] && SEL=(--id $IDS)
+[ -n "${ID_FILE:-}" ] && SEL=(--id-file $ID_FILE)
+$PY $W/eval/baselines/parallel.py run "${SEL[@]}" --shard $K/$NSHARDS --reps 3 --confirm --keep-all \
+    --timeout-floor $CAP --timeout-cap $CAP --analysis-timeout 3600 --tag $TAG \
+    --results-dir $W/eval/results/$RES --confirm-dir $RT/eval/baselines/confirm_$RES
+echo "== done rc=$? $(date -Is)"
