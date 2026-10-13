@@ -29,7 +29,10 @@ gap to NVBit, T15 (late ordering key) added, the T11 lead from ECL-GC recorded; 
 "explanation" withdrawn (schedule determinism; the NVBit gap unexplained), T5b and T12 merged
 with their numbers, D11's list extended, the R1 same-pc over-claim and the R3 landing hole
 closed, T4 reframed as no-dump mode and put on the critical path, T16 (the certain clock) and
-T17 (the `HbEngine` rename) added. If HEAD has moved, re-read `eval/BASELINES_SUMMARY.md`,
+T17 (the `HbEngine` rename) added; and on 2026-10-05 after T-H, T18, T4 and T19 finished:
+home moved to BeeGFS, the late key compiled out, no-dump mode merged and installed, flat
+buckets measured (merge decided), the two bucket shapes and the cap policy recorded as
+limitations, T20 (per-thread lookups) added, the `kernel_pc` default-path bug found. If HEAD has moved, re-read `eval/BASELINES_SUMMARY.md`,
 `eval/FIX_REPORT.md`, `eval/FP_DIAGNOSIS.md` and `git log` before starting.
 
 ---
@@ -68,13 +71,21 @@ submission, the last three weeks of which are writing. The proof document
 (`design/proof/hb_proof.tex`, revision 2026-09-26) is frozen except for the items its
 "Order of work" lists; agents do not extend it (no I7 re-proof, no discharge of MM1–MM3,
 no separate PTX-bridge proof) unless a brief says so. Code lands in this order: T6 (doc
-review, done) → T3b, T9, T10, T14, T15, T5b, T12 (done, merged at 7849a70) → T17 (rename,
-half a day) → T4 (no-dump mode, the critical path) with T11 and T16 alongside → the mode
-comparison, the tables and one baseline re-run. T1b, T7, I6, the `bar.arrive` flag, the
+review, done) → T3b, T9, T10, T14, T15, T5b, T12, T17, T18, T4 (done, merged at d67ed41)
+→ T19 (merge decided 10-05) → T20 (per-thread lookups) with T11 and T16 alongside → the
+mode comparison, the tables and one baseline re-run. T1b, T7, I6, the `bar.arrive` flag, the
 access-size check and the value-recording collector are after the submission. When a task can finish without a GPU
 (re-scores, census-style measurements), it does.
 
 ### A2. Environment (NCSU ARC SLURM cluster)
+**Home layout since T-H (2026-10-01).** Kept traces (`traces_keep*`), corpora, the
+SuperCollider zip and NVBit tarballs, and `~/.accel_scratch` live under
+`/mnt/beegfs/fzheng4/home_archive` behind symlinks in home; the symlinks **dangle on the
+login node** (no BeeGFS mount there), so any step that reads them runs on a `normal` or GPU
+node. `--keep-mismatch <tag>` writes to BeeGFS `keep/<tag>` (home needs `--keep-home`);
+`home_quota_guard.sh`, sourced by every `p_*.sh`, aborts above 35 GB. Home is ~10 GB;
+`~/stage`, `~/t17-stage`, `~/t17-docs`, `~/incoming`, `~/.debug`, `setup/tools` are
+Jeffery's to prune.
 
 **A2.1 Nodes — from `sinfo` on 2026-09-22.** The compute-capability column is the
 expected value for the partition's GPU; confirm it on the node with
@@ -181,11 +192,13 @@ see T0 for why the previous "keep every trace" attempt lost data and for the pol
       python/test_coherent_ldst.py python/test_atomic_memory_model.py \
       python/test_barrier_exit.py python/test_hb_substitutions.py python/test_cp_async.py
   ```
-  Expected (after the T3b + T9 merge): everything passes, exactly one xfail
-  (`test_relaxed_handoff_should_race`, the documented I4 case, until T12). A new failure
-  is never "unrelated". The GPU halves of `test_barrier_exit.py` and `test_cp_async.py`
-  skip on a runtime built before their change — a skip there means the installed
-  `libsanalyzer.so` is stale, not that the test is fine.
+  Expected (since T18 + T4, installed runtime d67ed41): 305 passed, 2 skipped (the
+  ScoR-parametrised gate tests, run afterwards: 55/55), plus `test_no_dump.py` 27/27; no
+  xfail. A new failure is never "unrelated". The GPU halves of `test_barrier_exit.py`,
+  `test_cp_async.py`, the late-key and the no-dump tests skip on a runtime built before
+  their change — a skip there means the installed runtime is stale, not that the test is
+  fine. Litmus assertions are A2-aware (below): unflagged reports must match the label;
+  flagged extras are allowed and must carry `a2_uncertain` equal to their count.
 - Verdict deltas are reported, never hidden: for any change that can flip a verdict,
   produce a before/after table over the kept traces (`compare_fpfix.py --before … --after-glob …`)
   and list every true positive lost and every new false positive by program.
@@ -214,6 +227,22 @@ see T0 for why the previous "keep every trace" attempt lost data and for the pol
   missing on one side of a hand-off) is not suppressed and not relabelled silently: it
   gets a footnote hook in `make_tables.py` with the PTX reason and, where available,
   a baseline that agrees (D11).
+- A collector feature costs nothing when it is off. Any addition to the device patch
+  (T15's late key was the first) is selected at module load or compiled out behind a
+  build flag, never a runtime branch in the record callback: the instrumentation's
+  timing decides which schedule a kernel lands in (A2), and the 10-01 install showed a
+  dormant feature moving four litmus verdicts (T18 fixed it).
+- Litmus expectations are expectations about a schedule, so the tests assert on the
+  unflagged reports: for ScoR's kernels, which the project does not change, unflagged
+  reports match the label and flagged extras are allowed; for the project's own litmus
+  kernels, the hand-off order is forced (a spin on a flag) so RMW windows cannot overlap
+  and the verdict is schedule-independent.
+- Installing a merge rebuilds **both** components from the merged tree whenever
+  `nv-compute/gpu_src` changed (`git diff --stat`); "the collector is unchanged, copy the
+  library" is a claim to verify, not a habit. The install commit records the three hashes.
+- The default tool path's `kernel_pc` field is uninitialised in `sanalyzer` (`event.h:83`)
+  and prints heap garbage, so byte-identity checks of the default path compare modulo it
+  until the one-line fix lands (T20 step 0); tell Yanbo — upstream has the same line.
 - Distinguish in every report: **proved-in-effect** (an invariant checked over N real
   traces), **tested** (a specific verdict asserted), **assumed/unverified**.
 - Persisted artifact names (CSV column names and values, kept-trace directory names,
@@ -311,10 +340,14 @@ Two things surfaced while reading the code that the plan has to carry:
 | T14 | — | A2 in the tables: the `a2_uncertain` report flag (D15) and the offline RMW window count over the kept dumps; no verdict change | Sonnet · implementer, Opus · review of the flag's definition | no (kept dumps) | T9 ✓ | `feat/a2-flag` ✓ done 2026-09-29 (2c979fd; `design/a2_flag.md`, `eval/A2_WINDOWS.md`): flag moves 0 of 558 verdicts; 397/397 programs with cross-warp RMWs have overlapping windows; 432,810 DR instances flagged in 34 programs; 3 race-free ScoR programs' Race-alone verdicts rest on flagged reports only; Sanitizer's own inversion rate 11 / 32 / 28 % at 2 / 4 / 16 warps; green set 250 + 1 — **merge pending** |
 | T15 | — | late ordering key for the HB records, measured before adoption | Sonnet · implementer | yes (one node) | T14 ✓ | `perf/late-seq` ✓ done 2026-09-29 (55fe57c; `eval/LATE_SEQ.md`): behind `YOSEMITE_HB_LATE_SEQ=atomic|timer`; cuts lock-hand-off inversions ~12 % (14.3→12.7 % at 4 warps, 16.6→14.7 % at 16); `%globaltimer` ties 87 %; **not adopted, off by default**; the dual-key dump (`bpos`, `lkey`) kept for measurement — merged de565c0; its collector and fatbin installed with the T17 merge (b6c9055) |
 | T5b | 5 | shared-base main clock for vector-clock mode's runtime | Sonnet · implementer, Opus · reviewer | yes | T1a ✓, T9 ✓ | `perf/shared-base-clock` ✓ done 2026-09-30, merged b3bfdf3 (`eval/MEMORY_FOOTPRINT.md` §7): no clock value changes; green set 287 + 1; implementation == specification on 60/60 programs, 410 kernels; tiled_gemm `vc` 67 M → 131 k entries (4.5 → 1.95 GB), reduction-large 7.2 → 1.3 GB, CC push 1296n from OOM at 119.7 GB to 17.9 s / 6.9 GB; 25 of the 48 non-barrier timeout programs finish under 120 s; the 10 barrier-only programs cannot be reached by any clock change — 9 do not finish in scalar-clock mode either (100–252 GB of `hb_events` in 1,200 s, or OOM): **trace volume bounds both modes → T4** |
-| T4 | 4 | **no-dump mode** (reframed 2026-09-30, on the critical path): both clocks computed during the run, only the per-pc-pair aggregates the verdict layer reads written at kernel end; lossless dump kept for programs that can replay; then the nine barrier-only programs and HeCBench in both modes; optional second half: streaming binary encoding for the mid-size suites | design: Opus · impl: Sonnet | yes (the timeout set, then P7/P9) | T5b ✓, T12 ✓, T17 | `feat/no-dump` |
-| T16 | — | the certain clock: accept a chain edge only when the two RMW windows do not overlap; a third operating point "Race (sound)" in the tables; no GPU — **decision pending** | Sonnet · implementer, Opus · one-paragraph soundness note | no (kept dumps) | T14 ✓ | `feat/certain-clock` |
-| T17 | — | rename `HbEngine` and its identifiers to the mode vocabulary (D17: `HbClock`); `YOSEMITE_HB_NO_ENGINE` retired with a warning; readers accept both spellings of any persisted field; historical reports untouched; no value changes | Sonnet | no | T12 ✓ merged | `chore/rename-hb-clock` ✓ done 2026-09-30 (663a288, merged b6c9055 with T15's de565c0): on the old collector green set 305 + 2 skipped, gate 55/55, re-score P1–P7/P9 byte-identical; merged runtime installed 2026-10-01 (libsanalyzer 6134effc, collector f2933966, fatbin e9634312): crs-cuda CLEAN both modes, gate 55/55, but green set **4 failed** / 301 — the T15 collector puts the lock litmus (`none-lock_rtraw`, `lock_waw`) in a schedule with an A2 inversion; every new report is `a2_uncertain` — **open, Jeffery** |
-| T7 | 7 (opt.) | profile `sync_dominance.py` on the P9-mr trace; port the hot pass only if profiling says so — after the submission unless T4's reader needs it | Sonnet · profiler; Opus if a C++ port is warranted | no | T4 | `perf/analysis-hotpath` |
+| T-H | — | home quota recovery: kept stores, corpora and scratch to BeeGFS behind symlinks; stale worktrees archived; `--keep-mismatch` to BeeGFS; 35 GB quota guard | Sonnet | no | — | `infra/home-cleanup` ✓ done 2026-10-01 (2601690, merged 8f6d889): home 37.8 → 10.1 GB |
+| T18 | — | late-key gating and A2-aware litmus: T15's device code compiled out of the default fatbin; litmus tests assert on unflagged reports; the project's own litmus kernels force their hand-off order | Sonnet | yes | T17 ✓ | `fix/late-seq-gating` ✓ done 2026-10-01 (69d9594, merged with T4 at d67ed41): default fatbin back to a2d7368b, pre-T15 schedule returns, green set 305 + 2 with and without `LATE_SEQ`; `eval/A2_WINDOWS.md` §10 — the inverted schedule's extra reports are flagged, the correct schedule's rtraw report is an unflagged `latent-sc` |
+| T4 | 4 | **no-dump mode**: both clocks during the run, per-pc-pair aggregates only at kernel end, lossless dump kept for programs that can replay | design: Opus · impl: Sonnet | yes | T5b ✓, T12 ✓, T17 ✓, T18 ✓ | `feat/no-dump` ✓ done 2026-10-05 (0d40d7c, merged d67ed41; `eval/NO_DUMP.md`): parity 799/799 kernel JSONs over 56 programs × 2 modes; new verdicts on the realistic suites (P9-gpp 73 GB TIMEOUT → CLEAN 115 s / 2.8 GB, P7-bezier ERROR 103 GB → CLEAN, P9-crs CLEAN both modes, P9-overlap, P7-backprop, hotspot), P1/P4 RSS 6–25 GB → ~1 GB; **acceptance bar not met**: of the ten barrier-only programs only hotspot finishes at 1,200 s, lavaMD and srad at ~1 h, stencil1d (174 GB) and particlefilter (122 GB) exceed the node — the per-(location, thread) bucket term (see the 10-05 status); P9-fpc scalar-clock now pays its real cost (the 258 s "CLEAN" with the dump was the static leg alone); P9-mr's ERROR is the harness's 3,600 s analysis cap |
+| T16 | — | the certain clock: accept a chain edge only when the two RMW windows do not overlap; a third operating point "Race (sound)" in the tables; no GPU — **decision pending** | Sonnet · implementer, Opus · one-paragraph soundness note | no (kept dumps) | T14 ✓, T4 ✓ (the aggregates carry per-edge window overlap and the edge-acceptance policy is a runtime parameter — verify in `eval/NO_DUMP.md` §1 before starting; if not, that is step 0) | `feat/certain-clock` |
+| T17 | — | rename `HbEngine` and its identifiers to the mode vocabulary (D17: `HbClock`); `YOSEMITE_HB_NO_ENGINE` retired with a warning; readers accept both spellings of any persisted field; historical reports untouched; no value changes | Sonnet | no | T12 ✓ merged | `chore/rename-hb-clock` ✓ done 2026-09-30 (663a288, merged b6c9055 with T15's de565c0): on the old collector green set 305 + 2 skipped, gate 55/55, re-score P1–P7/P9 byte-identical; merged runtime installed 2026-10-01 (libsanalyzer 6134effc, collector f2933966, fatbin e9634312): crs-cuda CLEAN both modes, gate 55/55, but green set **4 failed** / 301 — the T15 collector puts the lock litmus (`none-lock_rtraw`, `lock_waw`) in a schedule with an A2 inversion; every new report is `a2_uncertain` — decided 10-01: no rollback; fixed by T18 |
+| T19 | — | flat bucket representation: 20-byte slots in one array per location behind a directory of 128-byte address segments (v4 of four layouts tried) | Sonnet | yes (one node; 188 GB node for stencil1d/particlefilter) | T4 ✓ | `perf/flat-buckets` ✓ done 2026-10-05 (0e526a2; `eval/FLAT_BUCKETS.md`): parity clean (green set + gate + no-dump 332 passed; implementation == specification 59/59, 394 kernels; aggregates == records 805/805; no verdict moves on T4's 65 programs); faster on every step-5 program (hotspot 499 → 212 s, fpc 1,237 → 730 s, now under the cap; the rest 15–67 %); bucket bytes 27–41 % of before (the ≤ 25 % bar assumed 110 B/entry, true only for sparse locations); stencil1d's kernels now complete in both modes (111 / 130 GiB) but it launches 1,000 of them at ~20 min each; particlefilter needs >160 GB of entries under any per-entry layout; **lavaMD slower**: 22 % scalar-clock (3,162 → 3,858 s), ≥ 54 % vector-clock (killed at 5,400 s) — cause in the per-thread lookups every layout shares (`vs`/`rmw_thr` hash maps per lane, `rmw_note`'s linear search), located, not fixed (T20). **Merge decided 2026-10-05 (D18)** |
+| T20 | — | per-thread lookups: the per-thread maps (`vs`, `rmw_thr`, …) as arrays indexed by a dense flat thread index; `rmw_note` indexed, not scanned; T4's R3 bookkeeping cost measured and cut; the previous kernel's state recycled instead of freed on the critical path; `kernel_pc` initialised | Sonnet; Opus for the design of the thread index | yes (one node) | T19 merged | `perf/thread-index` |
+| T7 | 7 (opt.) | profile `sync_dominance.py` on the P9-mr trace (the 3,600 s analysis cap) — after the submission; the runtime-side profiling T7 was to do is done by T19 and acted on by T20 | Sonnet · profiler | no | T4 ✓ | `perf/analysis-hotpath` |
 
 **Status 2026-09-24** (`cuVein` at 3331d35): T0, T8, T5a, T2, T3, T1a are merged. What
 they changed for the remaining tasks: the two modes are now `vector-clock` /
@@ -504,9 +537,34 @@ released by a plain or `volatile` store (proof §5, R3b); vector-clock mode stil
 the pair when the run shows it unordered. (5) Not re-scored: P9 fpc-cuda and mr-cuda (4 h
 analysis cap, as in T9-0).
 
-Remaining order: merge `perf/late-seq`; T17 (the rename, while `pc_dependency_analysis.cpp`
-is quiet); T4 (no-dump mode) with T11 (`tv_check` — the trace-validity counts over every
-kept store are still owed) and T16 (if decided) alongside; then the mode comparison on
+**Status 2026-10-05** (`cuVein` at the merge of T18 + T4, d67ed41, plus T-H at 8f6d889;
+installed runtime built from d67ed41 on c26 — libsanalyzer 9ae97c27, collector 1c896ce0,
+default fatbin a2d7368b, late fatbin e9634312, backups `*.pre-merge-d67ed41-*`; the install
+commit 59b239a is on `origin/chore/install-d67ed41`, to be fast-forwarded onto `cuVein` by
+Jeffery; green set 305 + 2 then 55/55, `test_no_dump.py` 27/27, no-dump spot check equal).
+T19 is on `perf/flat-buckets` (0e526a2), parity clean, merge decided (D18); the installed
+runtime is still d67ed41's until it is merged and rebuilt. **What bounds the reference mode
+now, measured** (`eval/NO_DUMP.md` §4, `eval/FLAT_BUCKETS.md`): (1) two bucket shapes —
+*many threads, each its own locations* (stencil1d: entries ≈ lane accesses, 905 M entries
+at 32 M records; its kernels now complete under T19 but there are 1,000 of them at ~20 min)
+and *few locations, thousands of readers each* (particlefilter: 2 G entries on 234 K
+locations, ~8,800 threads per location — the broadcast-read regime, where the
+per-(location, thread) state Theorem "Sound" requires is threads × locations, the same
+term as FastTrack's read vector; no per-entry layout fits it on a node); (2) time —
+`HbClock` consumes 10⁸–10⁹ lane accesses at roughly 0.5–1 µs each, now dominated by
+per-lane per-thread hash lookups, T4's R3 bookkeeping and freeing the previous kernel's
+state at each start (T19's profile; T20's targets). **Cap policy for the paper**: the
+reference (vector-clock) mode is reported at a 5,400 s cap and the scalar-clock mode at
+1,200 s, stated as such; a verdict that is only the static leg (fpc before T4) is never
+reported as a mode's verdict. **Limitations, not tasks**: particlefilter (the shape and the
+number), stencil1d (kernels completed under the cap and why not the rest), the two P9
+programs under the analysis cap. **Also found**: the default path's `kernel_pc` is
+uninitialised (`event.h:83`) — one-line fix in T20, and a note to Yanbo.
+
+Remaining order: Jeffery fast-forwards the install commit and merges `perf/flat-buckets`,
+rebuilds both components, installs, green set, pushes; then T20 (per-thread lookups;
+lavaMD back under T4's times is its bar) with T11 (`tv_check` — the trace-validity counts
+over every kept store are still owed) and T16 (if decided) alongside; then the mode comparison on
 every suite both modes now run, the tables at both operating points with the `latent`,
 `sc`, `a2_uncertain` (and, if T16, "Race (sound)") columns and ScoR's ScoRD-notion column,
 one baseline re-run and `BASELINES.md` regenerated, overhead in both modes; then a
@@ -630,6 +688,12 @@ atomic chains.
   no GPU. Recommended: yes — it is the cleanest sentence the paper can make about the
   execution. Default if unanswered: build it behind a switch, report the column, decide on
   the numbers.
+- **D18** (T19, decided 2026-10-05): merge the flat buckets despite the lavaMD
+  regression. Parity is clean on three references, every other measured program is faster
+  (hotspot 2.4×, fpc under the cap), memory is 2.5–3.7× smaller, and the regression's
+  cause is in the per-thread lookups that every layout shares (T19's profile), which T20
+  fixes on its own. Until T20, lavaMD's vector-clock verdict is the one not available
+  (killed at 5,400 s; scalar-clock finishes).
 - **D17** (T17): the replacement name for `HbEngine`. Proposal `VectorClockAnalysis`
   (parallel to `PcDependency` in the same file); alternative `HbVectorClock` with
   `HbScalarClock` for `barrier_only_pairs`, symmetric with the docs. Jeffery's advisor
@@ -1547,7 +1611,11 @@ all 10 barrier-only programs of `engine_timeout_ids.txt` and at least half of th
 finish under the 120 s cap; `tv_violation` still 0. Report `eval/MEMORY_FOOTPRINT.md`
 §"After the fix".
 
-### T4 — No-dump mode: both clocks during the run, aggregates only (reframed 2026-09-30)
+### T4 — No-dump mode: both clocks during the run, aggregates only (reframed 2026-09-30) — done
+**Done 2026-10-05** (0d40d7c, merged d67ed41; `eval/NO_DUMP.md`). The acceptance bar on the
+barrier-only set was not met for the reasons in the 10-05 status paragraph; the optional
+second half (streaming encoding) and the two A2-gap tail steps were not done. Kept for
+reference.
 Branch `feat/no-dump`. Design note: Opus. Implementation: Sonnet. GPU: the timeout set
 first, then P7 and P9. After T5b, T12 and T17. **This is the critical path**: it is the only
 route to vector-clock and scalar-clock verdicts on the realistic suites before the
@@ -1593,6 +1661,47 @@ Steps
 
 Acceptance: step 3's parity holds; at least the nine barrier-only programs produce
 verdicts in both modes; `hb_events` is never written lossy. Report: `eval/NO_DUMP.md`.
+No `Co-Authored-By` trailer.
+
+### T20 — Per-thread lookups: the per-access microsecond, and lavaMD
+Branch `perf/thread-index`, from `cuVein` with T19 merged. Models: Opus (design of the
+thread index, half a page), Sonnet (implementation). GPU: one node; lavaMD and hotspot on
+the same node as T19's measurements (`rtx4060ti16g` mixes Zen 2 and Zen 4 hosts — up to
+2× on cross-node wall times; always same-node A/B). **No value, verdict or output changes;
+parity is the acceptance.**
+
+Context. T19's profiles (`eval/FLAT_BUCKETS.md`) put the remaining per-lane-access cost in
+three places that every bucket layout shares: per-lane per-thread hash lookups (`vs`,
+`rmw_thr` and the other per-thread maps keyed by thread id), `rmw_note`'s linear search,
+T4's R3 bookkeeping (the per-pc release/acquire points taken from the trace), and freeing
+the previous kernel's state at each kernel start. lavaMD got 22 % slower in scalar-clock
+mode and ≥ 54 % in vector-clock mode under T19 for these reasons, not for the buckets.
+
+Steps
+0. Initialise `kernel_pc` (`sanalyzer` `event.h:83`) so the default tool path is
+   deterministic; byte-identity checks become exact from here on. One line; note it to
+   Yanbo (upstream has the same line).
+1. Design note `design/thread_index.md`: thread ids are dense within a kernel (block ×
+   warp × lane), so every per-thread map becomes an array indexed by a flat thread index
+   assigned at first sight, with the id → index map kept once; which maps change (`vs`,
+   `rmw_thr`, the window bookkeeping, the possible-clock deltas, the held acquires);
+   `rmw_note` keyed by the same index with the last RMW per thread kept directly; where
+   T4's R3 bookkeeping spends its time and what of it can be deferred to kernel end;
+   recycling the previous kernel's arrays (clear, don't free) or freeing them off the
+   drain path. Say what the memory cost of dense arrays is for the largest grids
+   (pathfinder: 100 M threads) and whether a two-level index is needed.
+2. Implement in `HbClock` for both clocks; `hb_oracle.py` untouched.
+3. Parity: green set + gate + `test_no_dump.py` (332 passed, 2 skipped), implementation ==
+   specification on T5b's 60-program set, aggregates == records on T4's 20, no verdict
+   moves on a re-score of one kept program per suite; default path byte-identical (exact,
+   after step 0).
+4. Time, same node, before/after with `HB_STATS`: lavaMD (both modes; the bar is T4's
+   3,162 / 3,505 s or better), hotspot, fpc, CC push 1296n, tiled_gemm, and the 5,400 s
+   barrier-only set (`setup/t4_long.sh`) to report which now finish and at what time.
+   Attribute what remains with `perf`.
+
+Acceptance: step 3 clean; lavaMD at or under T4's times in both modes; no program slower
+than under T19. Report: `eval/THREAD_INDEX.md`; one line in `eval/MEMORY_FOOTPRINT.md`.
 No `Co-Authored-By` trailer.
 
 ### T16 — The certain clock: a sound operating point without values (decision D16)
