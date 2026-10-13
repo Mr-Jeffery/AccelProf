@@ -61,7 +61,7 @@ def cmd_check(a):
     bad = []
     nprog = nker = nrec = 0
     chain = defaultdict(int)
-    stats_logs = 0
+    nstats = 0      # kernel JSONs carrying HB_STATS (YOSEMITE_HB_STATS=1 writes `hb_stats` into each)
     for pid in _programs(a.store):
         meta = json.load(open(f"{a.store}/{pid}/meta.json"))
         nprog += 1
@@ -69,10 +69,6 @@ def cmd_check(a):
             bad.append(f"{pid}: meta.json hb_gate_policy={meta.get('hb_gate_policy')!r}")
         if meta.get("hb_dump") not in (False, 0):
             bad.append(f"{pid}: meta.json hb_dump={meta.get('hb_dump')!r} (expected no-dump)")
-        if glob.glob(f"{a.store}/{pid}/logs/{VC}_rep*.txt") and any(
-                "gate_policy" in open(f, errors="replace").read()
-                for f in glob.glob(f"{a.store}/{pid}/logs/{VC}_rep*.txt")):
-            stats_logs += 1
         for kj in _kernel_jsons(a.store, pid):
             nker += 1
             try:
@@ -82,6 +78,11 @@ def cmd_check(a):
                 continue
             if j.get("hb_gate_policy") != a.policy:
                 bad.append(f"{pid}/{os.path.basename(kj)}: hb_gate_policy={j.get('hb_gate_policy')!r}")
+            st = (j.get("hb_stats") or {}).get("hb_clock")
+            if st is not None:
+                nstats += 1
+                if st.get("gate_policy") != a.policy:
+                    bad.append(f"{pid}/{os.path.basename(kj)}: hb_stats gate_policy={st.get('gate_policy')!r}")
             if "hb_events" in j:
                 bad.append(f"{pid}/{os.path.basename(kj)}: carries hb_events (expected no-dump)")
             for r in j.get("hb_races") or ():
@@ -107,7 +108,7 @@ def cmd_check(a):
     print(f"check {a.store} policy={a.policy}: {nprog} programs, {nker} vector-clock kernel JSONs, "
           f"{nrec} hb_races records; {len(vrows)} vector-clock rows {dict(by_verdict)}"
           f"{f', {len(other)} rows of another mode' if other else ''}; "
-          f"HB_STATS output in the logs of {stats_logs} programs; hb_chain summed {dict(chain)}")
+          f"HB_STATS (hb_stats.hb_clock) in {nstats} of {nker} kernel JSONs; hb_chain summed {dict(chain)}")
     for b in bad:
         print("  VIOLATION", b)
     print(f"check: {len(bad)} violations")
