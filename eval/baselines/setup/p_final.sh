@@ -30,6 +30,7 @@
 #   one shard again (node failure): the same PSETS/NSHARDS/TAG with --array=k. The shard split is
 #     k/NSHARDS, never SLURM_ARRAY_TASK_COUNT (a resubmitted subset would re-split; T20 gotcha).
 #     Pass -x on the command line only as the FULL exclude list (it replaces the one above).
+#   REPS=<n> (default 3; only the 24 h pass, p_final_24h.sh, sets 1 -- 2026-10-14, Jeffery's choice)
 #   dry run (step 1): IDS=<id,id,...> NSHARDS=1 TAG=final-dryrun RES=final-dryrun \
 #                     STORE_TAG=final-2026-10-dryrun sbatch --array=0 eval/baselines/setup/p_final.sh
 set -u
@@ -62,11 +63,11 @@ echo "host=$(hostname) gpu=[$gpu] mem=$(free -g | awk '/Mem:/{print $2}')G cpu=[
 SEL=(--pset $PSETS)
 [ -n "${IDS:-}" ] && SEL=(--id $IDS)
 [ -n "${ID_FILE:-}" ] && SEL=(--id-file $ID_FILE)
-echo "job=${SLURM_JOB_ID:-} array=${SLURM_ARRAY_JOB_ID:-}_${SLURM_ARRAY_TASK_ID:-} shard=$K/$NSHARDS select=[${SEL[*]}] tag=$TAG cap=${CAP}s modes=${BASELINE_MODES:-both} store=$BASELINE_TRACE_DIR $(date -Is)"
+echo "job=${SLURM_JOB_ID:-} array=${SLURM_ARRAY_JOB_ID:-}_${SLURM_ARRAY_TASK_ID:-} partition=${SLURM_JOB_PARTITION:-} shard=$K/$NSHARDS select=[${SEL[*]}] tag=$TAG cap=${CAP}s reps=${REPS:-3} modes=${BASELINE_MODES:-both} store=$BASELINE_TRACE_DIR $(date -Is)"
 echo "runtime $RT HEAD=$(git -C $RT rev-parse --short=12 HEAD) libsanalyzer=$(h $SAN) ($SAN) collector=$(h $RT/lib/libcompute_sanitizer.so) fatbin=$(h $RT/nv-compute/lib/gpu_patch/gpu_patch_pc_dependency.fatbin) late=$(h $RT/nv-compute/lib/gpu_patch/gpu_patch_pc_dependency_late.fatbin)"
 echo "harness $W HEAD=$(git -C $W rev-parse --short=12 HEAD) dirty=$(git -C $W status --porcelain -uno | wc -l) $($CUDA_HOME/bin/nvcc --version | tail -1)"
 mkdir -p $W/eval/results/$RES $RT/eval/baselines/confirm_$RES
-$PY $W/eval/baselines/parallel.py run "${SEL[@]}" --shard $K/$NSHARDS --reps 3 --confirm --keep-all \
+$PY $W/eval/baselines/parallel.py run "${SEL[@]}" --shard $K/$NSHARDS --reps ${REPS:-3} --confirm --keep-all \
     --timeout-floor $CAP --timeout-cap $CAP --analysis-timeout 14400 --tag $TAG \
     --results-dir $W/eval/results/$RES --confirm-dir $RT/eval/baselines/confirm_$RES
 echo "== done rc=$? $(date -Is)"
