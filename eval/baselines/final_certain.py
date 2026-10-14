@@ -121,29 +121,42 @@ def _confirm(cdir, pid):
     return json.load(open(p)) if os.path.exists(p) else None
 
 
+# strength of a report's class when one pc pair has several deduped reports (one per space label)
+_RANK = {"latent-sc": 0, "latent": 1, "sc": 2, "race": 3, "structural": 4, "model_bug": 5}
+
+
 def _pairs(conf):
-    """{(a_pc, b_pc, space): (verdict-set, matrix_class, conflict_class)} of a confirm detail."""
+    """{(a_pc, b_pc): (matrix_class, conflict_class, spaces)} of a confirm detail, keyed on the
+    unordered pc pair. The harness's dedup key adds the memory space of the report's *current*
+    pc (aggregate._dedup_key), which flips with the pair's orientation in the run (seen here:
+    the same WAW pair labelled shared in one recording and global in the other), so the space is
+    kept as an attribute, not as part of the key; a pair with several labels keeps its
+    strongest class."""
     out = {}
     for r in (conf.get("raw") or []) + (conf.get("raw_sc") or []):
         if r.get("a_pc") is None or r.get("b_pc") is None:
             continue      # T2 host reports: no pc pair
-        a, b = sorted((r["a_pc"], r["b_pc"]))
-        k = (a, b, _space(r.get("space")))
-        out[k] = (r.get("matrix_class") or ("sc" if r.get("verdict") == "SC" else "race"),
-                  r.get("conflict_class") or ("SC" if r.get("verdict") == "SC" else ""))
+        k = tuple(sorted((r["a_pc"], r["b_pc"])))
+        m = r.get("matrix_class") or ("sc" if r.get("verdict") == "SC" else "race")
+        c = r.get("conflict_class") or ("SC" if r.get("verdict") == "SC" else "")
+        old = out.get(k)
+        sp = (old[2] if old else frozenset()) | {_space(r.get("space"))}
+        if old is None or _RANK.get(m, 0) > _RANK.get(old[0], 0):
+            out[k] = (m, c, sp)
+        else:
+            out[k] = (old[0], old[1], sp)
     return out
 
 
 def _instances(store, pid):
-    """{(a_pc, b_pc, space): [count, a2_uncertain, {class: count}]} over the program's
-    vector-clock kernel JSONs (the hb_races aggregates)."""
+    """{(a_pc, b_pc): [count, a2_uncertain, {class: count}]} over the program's
+    vector-clock kernel JSONs (the hb_races aggregates), keyed like _pairs."""
     inst = defaultdict(lambda: [0, 0, defaultdict(int)])
     for kj in _kernel_jsons(store, pid):
         for r in json.load(open(kj)).get("hb_races") or ():
             if r.get("a_pc") is None or r.get("b_pc") is None:
                 continue
-            a, b = sorted((r["a_pc"], r["b_pc"]))
-            x = inst[(a, b, _space(r.get("space")))]
+            x = inst[tuple(sorted((r["a_pc"], r["b_pc"])))]
             n = int(r.get("count", 1))
             x[0] += n
             x[1] += int(r.get("a2_uncertain", 0))
@@ -160,7 +173,7 @@ def _chain(store, pid):
 
 
 def _fmt_pair(k):
-    return f"{k[2]}:{hex(k[0])}-{hex(k[1])}"
+    return f"{hex(k[0])}-{hex(k[1])}"
 
 
 def cmd_invariant(a):
@@ -194,8 +207,8 @@ def cmd_invariant(a):
             viol.append(f"{pid}: confirm gate_policy certain-side={cc.get('gate_policy')!r} "
                         f"recorded-side={cv.get('gate_policy')!r}")
         pc, pv = _pairs(cc), _pairs(cv)
-        core_c = {k for k, (m, _) in pc.items() if m in RACE_CLS | SC_CLS}
-        core_v = {k for k, (m, _) in pv.items() if m in RACE_CLS | SC_CLS}
+        core_c = {k for k, (m, *_) in pc.items() if m in RACE_CLS | SC_CLS}
+        core_v = {k for k, (m, *_) in pv.items() if m in RACE_CLS | SC_CLS}
         lost = sorted(core_v - core_c)            # the invariant: must be empty
         lost_all = sorted(set(pv) - set(pc))      # the same at Race u Latent
         added = sorted(core_c - core_v)
@@ -204,7 +217,8 @@ def cmd_invariant(a):
         for k in added:
             n, f, by = ic.get(k, [0, 0, {}])
             unflag_added += n - f
-            added_rows.append(dict(id=pid, pair=_fmt_pair(k), certain_class=pc[k][0],
+            added_rows.append(dict(id=pid, pair=_fmt_pair(k), space="/".join(sorted(pc[k][2])),
+                                   certain_class=pc[k][0],
                                    conflict=pc[k][1] or "/".join(sorted(by)),
                                    recorded_class=pv[k][0] if k in pv else "—",
                                    instances=n, a2_uncertain=f, all_flagged=n > 0 and f == n,
@@ -213,7 +227,10 @@ def cmd_invariant(a):
         unfl_diff = sum((ic.get(k, [0, 0])[0] - ic.get(k, [0, 0])[1])
                         != (iv.get(k, [0, 0])[0] - iv.get(k, [0, 0])[1]) for k in common)
         ch = _chain(a.certain_store, pid)
-        rec.update(status="VIOLATION" if lost else "ok",
+        # the same pc pair reported under both policies with another space label (the dedup
+        # label's orientation dependence; not a lost or an added report)
+        flips = sorted(k for k in set(pc) & set(pv) if pc[k][2] != pv[k][2])
+        rec.update(status="VIOLATION" if lost else "ok", label_flips=len(flips),
                    rep_recorded=len(core_v), rep_certain=len(core_c), added=len(added),
                    added_dr=sum(pc[k][0] in RACE_CLS for k in added),
                    added_sc=sum(pc[k][0] in SC_CLS for k in added),
@@ -231,20 +248,21 @@ def cmd_invariant(a):
         per.append(rec)
         tot["comparable"] += 1
         tot["added"] += len(added)
+        tot["label_flips"] += len(flips)
         tot["added_unflagged_instances"] += unflag_added
         tot["violations"] += bool(lost)
         tot["moved_race_alone"] += rec["recorded_race_alone"] != rec["certain_race_alone"]
         tot["moved_r_u_l"] += rec["recorded"] != rec["certain"]
     cols = ["id", "pset", "label", "status", "recorded", "certain", "recorded_race_alone",
             "certain_race_alone", "rep_recorded", "rep_certain", "added", "added_dr", "added_sc",
-            "added_unflagged_instances", "lost", "lost_r_u_l", "common_unflagged_differ",
+            "added_unflagged_instances", "lost", "lost_r_u_l", "common_unflagged_differ", "label_flips",
             "chain_edges", "chain_uncertain", "chain_refused", "chain_unsafe", "chain_open", "note"]
     with open(f"{a.out}/per_program.csv", "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=cols, extrasaction="ignore")
         w.writeheader()
         for r in per:
             w.writerow(r)
-    acols = ["id", "pair", "certain_class", "conflict", "recorded_class", "instances",
+    acols = ["id", "pair", "space", "certain_class", "conflict", "recorded_class", "instances",
              "a2_uncertain", "all_flagged", "classes"]
     with open(f"{a.out}/added_pairs.csv", "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=acols)
@@ -252,7 +270,8 @@ def cmd_invariant(a):
         for r in added_rows:
             w.writerow(r)
     print(f"invariant: {tot['comparable']} programs comparable, {tot['not-comparable']} not; "
-          f"violations (Race u Strong conflict) {tot['violations']}; added pc pairs {tot['added']} "
+          f"violations (Race u Strong conflict, pc-pair level) {tot['violations']}; pairs reported "
+          f"under both with another space label {tot['label_flips']}; added pc pairs {tot['added']} "
           f"({sum(r['all_flagged'] for r in added_rows)} with every instance a2_uncertain, "
           f"{tot['added_unflagged_instances']} unflagged instances); verdicts moved: Race alone "
           f"{tot['moved_race_alone']}, Race u Latent {tot['moved_r_u_l']}")
