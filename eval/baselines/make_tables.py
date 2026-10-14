@@ -1525,6 +1525,21 @@ def sound_points_section(runs, meta, man):
         "P7/P9 programs (`crs`, `overlap`, `gpp`, `backprop`) under both policies, CLEAN under "
         "both. Programs of these suites that have no kept vector-clock dump are not covered by "
         "the re-score.")
+    # (c) a Race (sound) positive resting only on A2-uncertain reports (T14's `a2` reading of the
+    # certain row's own notes): the hand-off the certain clock refused is what orders them
+    a2only = []
+    for (i, t, m), r in sorted(runs.items()):
+        if t != "cuvein-certain" or m != VC or race_alone_verdict(r) != "RACE":
+            continue
+        a2, cls = report_a2(r), report_classes(r) or {}
+        if a2 is not None and sum(cls.get(k, 0) for k in RACE_CLASSES) <= a2[0]:
+            a2only.append(f"`{i}` (labelled {man.get(i, {}).get('label', '') or 'unlabelled'})")
+    if a2only:
+        out[-1] += (" (c) Race (sound) positives every Race report of which is `a2_uncertain` (each "
+                    "of its DR instances is ordered by a hand-off whose RMW windows overlap, which "
+                    "the certain clock refuses; the recorded order orders it): " + ", ".join(a2only)
+                    + ". Such a positive is the certain clock's completeness price, not a race the "
+                    "recorded clock missed; `eval/FINAL_CERTAIN.md` names the pairs.")
     return "\n".join(out)
 
 
