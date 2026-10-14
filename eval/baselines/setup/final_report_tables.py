@@ -4,6 +4,7 @@
   .env/bin/python eval/baselines/setup/final_report_tables.py \
       --merged eval/results/baselines-cuvein.csv --first eval/results/final \
       --long eval/results/final-long,eval/results/final-long-sc --diagnose eval/results/baselines-diagnose.csv \
+      --h24 eval/results/final-24h-vc,eval/results/final-24h-sc \
       [--sacct <file of `sacct -X -n -P -o JobID,JobName,NodeList,Start,End,ElapsedRaw,State`>]
 
 Verdicts per (id, mode) are collapsed as make_tables.load_runs does (any RACE > any CLEAN >
@@ -53,6 +54,7 @@ def main():
     ap.add_argument("--first", required=True)
     ap.add_argument("--long", default="")
     ap.add_argument("--diagnose", default="")
+    ap.add_argument("--h24", default="", help="the 24 h pass's raw shard-CSV dirs (all keys, kept or not)")
     ap.add_argument("--sacct", default="")
     a = ap.parse_args()
     man = [r for r in csv.DictReader(open(a.manifest, newline="")) if r["pset"] in PSETS]
@@ -140,6 +142,30 @@ def main():
             if n:
                 print(f"\nLong pass, {mode}: {n} ids; " +
                       ", ".join(f"{v} {fin[(mode, v)]}" for v in ORDER if fin[(mode, v)]))
+
+    # the 24 h pass (one rep): every key it ran, whether its row was kept in the merged CSV
+    h24 = collapse([r for d in (a.h24.split(",") if a.h24 else []) if d
+                    for f in sorted(glob.glob(f"{d}/baselines-cuvein-shard*.csv"))
+                    for r in csv.DictReader(open(f, newline=""))])
+    if h24:
+        merged = {k: v for k, v in col.items()}
+        print("\n| id | mode | 5,400 s verdict | 24 h verdict | wall (s) | peak MB | rc | node | in the merged CSV |")
+        print("|---|---|---|---|---|---|---|---|---|")
+        cnt = collections.Counter()
+        for k in sorted(h24, key=lambda k: (k[1] != "vector-clock", k[0])):
+            r = h24[k]["reps"][0]
+            lv = longr.get(k)
+            node = re.search(r"node=(c\d+)", r["notes"] or "")
+            kept = h24[k]["verdict"] in ("RACE", "CLEAN", "TIMEOUT")
+            cnt[(k[1], h24[k]["verdict"])] += 1
+            print(f"| {k[0]} | {k[1]} | {lv['verdict'] if lv else '—'} | {h24[k]['verdict']} | {r['wall_s']} | "
+                  f"{(_f(r['peak_mb']) or 0):,.0f} | {r['rc']} | {node.group(1) if node else '—'} | "
+                  f"{'24 h row' if kept else '5,400 s rows kept (24 h run: ' + h24[k]['verdict'] + ')'} |")
+        for mode in MODES:
+            n = sum(c for (m, v), c in cnt.items() if m == mode)
+            if n:
+                print(f"\n24 h pass, {mode}: {n} keys; " +
+                      ", ".join(f"{v} {cnt[(mode, v)]}" for v in ORDER if cnt[(mode, v)]))
 
     # node-hours
     if a.sacct:
