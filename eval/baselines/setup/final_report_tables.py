@@ -3,7 +3,7 @@
 
   .env/bin/python eval/baselines/setup/final_report_tables.py \
       --merged eval/results/baselines-cuvein.csv --first eval/results/final \
-      --long eval/results/final-long --diagnose eval/results/baselines-diagnose.csv \
+      --long eval/results/final-long,eval/results/final-long-sc --diagnose eval/results/baselines-diagnose.csv \
       [--sacct <file of `sacct -X -n -P -o JobID,JobName,NodeList,Start,End,ElapsedRaw,State`>]
 
 Verdicts per (id, mode) are collapsed as make_tables.load_runs does (any RACE > any CLEAN >
@@ -60,8 +60,9 @@ def main():
     col = collapse(rows)
     first = collapse([r for f in sorted(glob.glob(f"{a.first}/baselines-cuvein-shard*.csv"))
                       for r in csv.DictReader(open(f, newline=""))])
-    longr = collapse([r for f in sorted(glob.glob(f"{a.long}/baselines-cuvein-shard*.csv"))
-                      for r in csv.DictReader(open(f, newline=""))]) if a.long else {}
+    longr = collapse([r for d in (a.long.split(",") if a.long else []) if d
+                      for f in sorted(glob.glob(f"{d}/baselines-cuvein-shard*.csv"))
+                      for r in csv.DictReader(open(f, newline=""))])
 
     # coverage
     missing = [(m["id"], mode) for m in man for mode in MODES if (m["id"], mode) not in col]
@@ -118,10 +119,10 @@ def main():
 
     # long pass
     if longr:
-        print("\n| id | first pass (1,200 s): verdict, rep walls (s) | long pass (5,400 s): verdict | rep walls (s) | median wall (s) | peak MB | node |")
-        print("|---|---|---|---|---|---|---|")
+        print("\n| id | mode | first pass (1,200 s): verdict, rep walls (s) | long pass (5,400 s): verdict | rep walls (s) | median wall (s) | peak MB | node |")
+        print("|---|---|---|---|---|---|---|---|")
         fin = collections.Counter()
-        for k in sorted(longr):
+        for k in sorted(longr, key=lambda k: (k[1] != "vector-clock", k[0])):
             i, mode = k
             fv = first.get(k)
             lv = longr[k]
@@ -131,11 +132,14 @@ def main():
             med = statistics.median([x for x in lw if x is not None]) if any(x is not None for x in lw) else None
             pk = max((_f(r["peak_mb"]) or 0) for r in lv["reps"])
             node = re.search(r"node=(c\d+)", ";".join(r["notes"] for r in lv["reps"]))
-            fin[lv["verdict"]] += 1
-            print(f"| {i} | {fv['verdict'] if fv else '—'}: {fw} | {lv['verdict']} | {lws} | "
+            fin[(mode, lv["verdict"])] += 1
+            print(f"| {i} | {mode} | {fv['verdict'] if fv else '—'}: {fw} | {lv['verdict']} | {lws} | "
                   f"{med if med is not None else '—'} | {pk:,.0f} | {node.group(1) if node else '—'} |")
-        print(f"\nLong pass: {len(longr)} (id, vector-clock) keys; " +
-              ", ".join(f"{v} {fin[v]}" for v in ORDER if fin[v]))
+        for mode in MODES:
+            n = sum(c for (m, v), c in fin.items() if m == mode)
+            if n:
+                print(f"\nLong pass, {mode}: {n} ids; " +
+                      ", ".join(f"{v} {fin[(mode, v)]}" for v in ORDER if fin[(mode, v)]))
 
     # node-hours
     if a.sacct:

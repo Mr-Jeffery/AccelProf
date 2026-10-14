@@ -56,6 +56,8 @@ X1 (the final no-dump recording; every row at a timeout equal to the cap, i.e. t
                         makes progress but is longer than the cap
       no-kernel-in-cap  TIMEOUT with no kernel finished and < 32 GB RSS: the first kernel
                         alone exceeds the cap (a hang is not distinguished from a long kernel)
+  needs-sm90        (any mode) a missing-exe row: the 16 cuHadron bulkcpy/dsmem targets need sm_90
+                    and were never built for the sm_89 nodes
 """
 import csv
 import glob
@@ -92,6 +94,8 @@ def classify(r, manifest_label, other_mode_row=None):
     dump = float(kv.get("dump_mb", 0) or 0)
     if v in ("RACE", "CLEAN"):
         return "resolved"
+    if "missing-exe" in (r["notes"] or ""):
+        return "needs-sm90"         # X1: the binary was never built for the sm_89 nodes
     if nrc != 0:
         # a native exec failure while the SAME program's tool run in the other
         # mode reached a verdict is a launch artefact of that node, not the app

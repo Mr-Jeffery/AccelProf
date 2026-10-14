@@ -3,8 +3,9 @@
 
   .env/bin/python eval/baselines/setup/final_sanity.py --merged eval/results/baselines-cuvein.csv \
       --store /mnt/beegfs/$USER/cuvein_traces/final-2026-10:1200 \
-      --store /mnt/beegfs/$USER/cuvein_traces/final-2026-10-long:5400 \
-      --long-results eval/results/final-long --out eval/results/final/sanity.json
+      --store /mnt/beegfs/$USER/cuvein_traces/final-2026-10-long:5400:eval/results/final-long \
+      --store /mnt/beegfs/$USER/cuvein_traces/final-2026-10-long-sc:5400:eval/results/final-long-sc \
+      --out eval/results/final/sanity.json
 
 (a) every <store>/<id>/meta.json: hb_dump false, the frozen runtime hashes (FROZEN), status
     done, arch 8.9, no excluded node, the store's cap as tool_timeout_cap AND as tool_timeout
@@ -14,8 +15,9 @@
 (d) no merged RACE/CLEAN row rests on the static leg alone: a vector-clock row needs hb_races
     in every saved kernel JSON of its mode, a scalar-clock row hb_sync_pass (the barrier-only
     pass's stand-in without a dump); a row that lacks it is listed (it should be ERROR).
-The (id, mode) -> store mapping: the long store for every (id, vector-clock) the long pass
-recorded (--long-results), the main store otherwise -- the same rule as merge --override.
+--store DIR:CAP[:RESULTS]: the (id, mode) -> store mapping: a store given with RESULTS (a shard-CSV
+directory) owns every (id, mode) those CSVs hold; the first store owns the rest -- the same rule as
+merge --override.
 """
 import argparse
 import collections
@@ -36,15 +38,16 @@ NEED = {"vector-clock": ("hb_aggregates", "hb_sync_pass", "hb_rmw_points", "hb_s
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--merged", required=True)
-    ap.add_argument("--store", action="append", required=True, help="DIR:CAP")
-    ap.add_argument("--long-results", default="")
+    ap.add_argument("--store", action="append", required=True, help="DIR:CAP[:RESULTS]")
     ap.add_argument("--out", required=True)
     a = ap.parse_args()
-    stores = [(s.rsplit(":", 1)[0], int(s.rsplit(":", 1)[1])) for s in a.store]
-    long_keys = set()
-    if a.long_results:
-        for f in glob.glob(f"{a.long_results}/baselines-cuvein-shard*.csv"):
-            long_keys |= {(r["id"], r["mode"]) for r in csv.DictReader(open(f, newline=""))}
+    stores, owner = [], {}
+    for spec in a.store:
+        parts = spec.split(":")
+        stores.append((parts[0], int(parts[1])))
+        if len(parts) > 2:
+            for f in glob.glob(f"{parts[2]}/baselines-cuvein-shard*.csv"):
+                owner.update({(r["id"], r["mode"]): parts[0] for r in csv.DictReader(open(f, newline=""))})
 
     res = dict(meta=collections.Counter(), meta_bad=[], kernels=collections.Counter(),
                kernel_bad=[], tv=collections.defaultdict(list), static_only=[],
@@ -114,7 +117,6 @@ def main():
                                               f"missing {dict(summ['missing'])} of {len(kjs)}"])
 
     main_store = stores[0][0]
-    long_store = stores[1][0] if len(stores) > 1 else main_store
     rows = list(csv.DictReader(open(a.merged, newline="")))
     seen = set()
     for r in rows:
@@ -122,7 +124,7 @@ def main():
         if not r["mode"] or key in seen:
             continue
         seen.add(key)
-        store = long_store if key in long_keys else main_store
+        store = owner.get(key, main_store)
         s = kinfo.get((store, r["id"], r["mode"]))
         if s and s["tv"]:
             res["tv"][f"{r['pset']}|{r['mode']}"].append([r["id"], len(s["tv"]), s["n"], s["tv"][0][1]])
