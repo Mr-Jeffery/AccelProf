@@ -9,6 +9,7 @@
 # recordings differ beyond the policy's own effect, recorded with the lossless dump under both
 # policies and replayed by hb_oracle.py under both. Installed runtime (the freeze).
 #   W=<worktree> sbatch [-w c74] eval/baselines/setup/x2_same_trace.sh
+#   PIN8G=1 sbatch -p rtx4060ti8g -w c26 eval/baselines/setup/x2_same_trace.sh   (an 8g node)
 set -u
 W=${W:-/home/fzheng4/AccelProf/.claude/worktrees/wt-x2}; REPS=${REPS:-3}
 IDS=${IDS:-P4-reduction-norace-small,P4-matrix-multiplication-racy-small,P4-rule-110-racy-small,P4-graph-coloring-racy-large,P4-graph-connectivity-racy-large,P4-uts-racy-small,P4-uts-norace-small,P5-race_interblock_none-lock_rtraw,P5-norace_interblock_lock_waw}
@@ -16,6 +17,8 @@ cd $W || exit 1
 source eval/baselines/setup/home_quota_guard.sh
 export ACCEL_PROF_HOME=$W CUDA_HOME=${CUDA_HOME:-/usr/local/cuda-13.3}
 source eval/baselines/gpu_env.sh
+# rtx4060ti8g nodes may carry a second, older GPU: PIN8G=1 exposes only the sm_89 one
+[ -n "${PIN8G:-}" ] && source eval/baselines/setup/pin8g.sh
 export PATH=$CUDA_HOME/bin:$PATH
 export LD_LIBRARY_PATH=/opt/ohpc/pub/compiler/gcc/12.4.0/lib64:${LD_LIBRARY_PATH:-}
 unset YOSEMITE_HB_LATE_SEQ YOSEMITE_HB_NO_ENGINE YOSEMITE_HB_GATE YOSEMITE_HB_GATE_POLICY \
