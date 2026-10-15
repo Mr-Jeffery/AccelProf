@@ -23,7 +23,7 @@ def show(path):
     if sh:
         print(f"  sharded {sh['shards']} drain {sh.get('drain_s', float('nan')):.2f}s "
               f"route {sh['route_s']:.2f}s wait {sh['wait_s']:.2f}s bcast {sh.get('bcast')} "
-              f"busy {[round(x, 2) for x in sh['busy_s']]}{bal}")
+              f"busy {[round(x, 2) for x in sh['busy_s']]} stall {[round(x, 2) for x in sh.get('stall_s', [])]}{bal}")
     if s:
         print(f"  buckets {s.get('buckets')} vs {s.get('vs')} sync_pairs {s.get('sync_pairs')}")
 

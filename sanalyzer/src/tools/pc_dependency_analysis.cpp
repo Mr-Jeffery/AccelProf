@@ -2684,7 +2684,14 @@ struct ShardPool {
     // YOSEMITE_HB_SHARD_INLINE_MAX=0 sends every drain to the threads (the tests' small kernels)
     uint64_t inline_max = 4096;
     std::vector<std::unique_ptr<HbClock>> shards;
-    std::vector<std::vector<uint64_t>> ents;                // per shard: flags | k << 32 | own lanes
+    // per shard, per chunk of CHUNK records: entries flags | k << 32 | own lanes. The router
+    // publishes a chunk (routed) as soon as it is routed, so the shards run behind it
+    static constexpr uint64_t CHUNK = 32768;
+    std::vector<std::vector<std::vector<uint64_t>>> cents;
+    std::atomic<uint64_t> routed{0};
+    uint64_t nchunks = 0;
+    std::mutex cmu;
+    std::condition_variable ccv;
     std::vector<uint32_t> order_copy;                       // T15's order, kept for the threads
     const MemoryAccess* buf = nullptr;
     const uint32_t* order = nullptr;
@@ -2697,6 +2704,7 @@ struct ShardPool {
     std::condition_variable cv, rcv, done_cv;
     uint64_t gen = 0, rgen = 0;
     unsigned pending = 0;
+    bool routing = false;                                   // the router is on a drain (mu)
     bool in_flight = false;                                 // touched by the drain thread only
     bool active = false;                                    // this process's pass is sharded
     // HB_STATS, per kernel: the drain thread's time in gpu_data_analysis (drain_s: the HB pass, the
@@ -2705,7 +2713,7 @@ struct ShardPool {
     // pipeline records), each shard's busy time, lanes checked, monitored records, R3 lanes
     double drain_s = 0, route_s = 0, wait_s = 0;
     uint64_t bcast = 0;
-    std::vector<double> busy_s;
+    std::vector<double> busy_s, stall_s;
     std::vector<uint64_t> lanes, tv_recs, rmw_lanes;
 
     void start(unsigned nshards, const char* scope_file) {
@@ -2716,8 +2724,9 @@ struct ShardPool {
             shards.back()->load_scopes(scope_file);
             shards.back()->quiet = true;
         }
-        ents.resize(n);
+        cents.resize(n);
         busy_s.assign(n, 0.0);
+        stall_s.assign(n, 0.0);
         lanes.assign(n, 0); tv_recs.assign(n, 0); rmw_lanes.assign(n, 0);
         for (unsigned i = 0; i < n; ++i) workers.emplace_back([this, i] { work(i); });
         router = std::thread([this] { route_loop(); });
@@ -2755,18 +2764,20 @@ struct ShardPool {
     // the shard keeping the warp's R3 points (an entry with no lanes if it owns none)
     void route() {
         const auto t0 = Clock_::now();
-        for (auto& e : ents) e.clear();
         const auto* apcs = shards[0]->async_pcs;
         uint32_t masks[64] = {};
         uint64_t extra[64] = {};
-        for (uint64_t k = 0; k < size; ++k) {
+        for (uint64_t c = 0; c < nchunks; ++c) {
+        for (unsigned s = 0; s < n; ++s) cents[s][c].clear();
+        const uint64_t kend = std::min(size, (c + 1) * CHUNK);
+        for (uint64_t k = c * CHUNK; k < kend; ++k) {
             const MemoryAccess& a = buf[order ? order[k] : k];
             const uint64_t kk = k << 32;
             if (a.type == MemoryType::Local) continue;
             const unsigned tv = tv_of(a.ctaId);
             tv_recs[tv] += 1;
             if (a.type != MemoryType::Global && a.type != MemoryType::Shared) {
-                for (unsigned s = 0; s < n; ++s) ents[s].push_back(kk | (s == tv ? HbClock::ENT_TV : 0));
+                for (unsigned s = 0; s < n; ++s) cents[s][c].push_back(kk | (s == tv ? HbClock::ENT_TV : 0));
                 bcast += 1;
                 continue;
             }
@@ -2804,18 +2815,47 @@ struct ShardPool {
             extra[rm] |= HbClock::ENT_RMW;
             for (uint64_t t = touched; t != 0; t &= (t - 1)) {
                 const unsigned s = static_cast<unsigned>(__builtin_ctzll(t));
-                ents[s].push_back(extra[s] | kk | masks[s]);
+                cents[s][c].push_back(extra[s] | kk | masks[s]);
                 lanes[s] += static_cast<uint64_t>(__builtin_popcount(masks[s]));
                 masks[s] = 0;
                 extra[s] = 0;
             }
         }
+        {
+            std::lock_guard<std::mutex> l(cmu);
+            routed.store(c + 1, std::memory_order_release);
+        }
+        ccv.notify_all();
+        }
         route_s += std::chrono::duration<double>(Clock_::now() - t0).count();
     }
+    // a shard's drain: its entries chunk by chunk, each once the router has published it
     void run(unsigned i) {
-        const auto t0 = Clock_::now();
-        shards[i]->process_entries(buf, order, ents[i].data(), ents[i].size(), seq_base);
-        busy_s[i] += std::chrono::duration<double>(Clock_::now() - t0).count();
+        double busy = 0, stall = 0;
+        for (uint64_t c = 0; c < nchunks; ++c) {
+            auto t0 = Clock_::now();
+            if (routed.load(std::memory_order_acquire) <= c) {
+                std::unique_lock<std::mutex> l(cmu);
+                ccv.wait(l, [&] { return routed.load(std::memory_order_acquire) > c; });
+                const auto t1 = Clock_::now();
+                stall += std::chrono::duration<double>(t1 - t0).count();
+                t0 = t1;
+            }
+            const auto& e = cents[i][c];
+            shards[i]->process_entries(buf, order, e.data(), e.size(), seq_base);
+            busy += std::chrono::duration<double>(Clock_::now() - t0).count();
+        }
+        busy_s[i] += busy;
+        stall_s[i] += stall;
+    }
+    void prepare(const MemoryAccess* b, uint64_t sz, const uint32_t* ord) {
+        if (ord != nullptr) { order_copy.assign(ord, ord + sz); order = order_copy.data(); }
+        else order = nullptr;
+        buf = b;
+        size = sz;
+        nchunks = (sz + CHUNK - 1) / CHUNK;
+        for (auto& v : cents) if (v.size() < nchunks) v.resize(nchunks);
+        routed.store(0, std::memory_order_relaxed);
     }
     void work(unsigned i) {
         uint64_t seen = 0;
@@ -2830,8 +2870,8 @@ struct ShardPool {
             if (--pending == 0) done_cv.notify_one();
         }
     }
-    // the router: routes the drain while the drain thread runs the PCDepGraph pass, then starts
-    // the shards
+    // the router: routes the drain chunk by chunk while the shards process the chunks routed so
+    // far and the drain thread runs the PCDepGraph pass
     void route_loop() {
         uint64_t seen = 0;
         for (;;) {
@@ -2841,19 +2881,14 @@ struct ShardPool {
                 seen = rgen;
             }
             route();
-            {
-                std::lock_guard<std::mutex> l(mu);
-                ++gen;
-            }
-            cv.notify_all();
+            std::lock_guard<std::mutex> l(mu);
+            routing = false;
+            done_cv.notify_one();
         }
     }
     void dispatch(const MemoryAccess* b, uint64_t sz, const uint32_t* ord) {
         join();
-        if (ord != nullptr) { order_copy.assign(ord, ord + sz); order = order_copy.data(); }
-        else order = nullptr;
-        buf = b;
-        size = sz;
+        prepare(b, sz, ord);
         if (sz < inline_max) {
             route();
             for (unsigned i = 0; i < n; ++i) run(i);
@@ -2863,16 +2898,19 @@ struct ShardPool {
         {
             std::lock_guard<std::mutex> l(mu);
             pending = n;
+            routing = true;
             ++rgen;
+            ++gen;
         }
         in_flight = true;
         rcv.notify_one();
+        cv.notify_all();
     }
     void join() {
         if (!in_flight) return;
         const auto t0 = Clock_::now();
         std::unique_lock<std::mutex> l(mu);
-        done_cv.wait(l, [&] { return pending == 0; });
+        done_cv.wait(l, [&] { return pending == 0 && !routing; });
         in_flight = false;
         seq_base += size;
         wait_s += std::chrono::duration<double>(Clock_::now() - t0).count();
@@ -2884,6 +2922,7 @@ struct ShardPool {
         drain_s = route_s = wait_s = 0;
         bcast = 0;
         std::fill(busy_s.begin(), busy_s.end(), 0.0);
+        std::fill(stall_s.begin(), stall_s.end(), 0.0);
         for (auto* v : {&lanes, &tv_recs, &rmw_lanes}) std::fill(v->begin(), v->end(), 0);
     }
     // kernel end: the shards' results into the emitter `out` (the singleton, which processed no
@@ -2915,6 +2954,7 @@ struct ShardPool {
             o << "]";
         };
         list("busy_s", busy_s);
+        list("stall_s", stall_s);
         list("lanes", lanes);
         list("tv_records", tv_recs);
         list("rmw_lanes", rmw_lanes);
