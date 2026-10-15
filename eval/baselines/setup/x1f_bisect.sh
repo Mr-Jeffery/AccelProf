@@ -18,7 +18,9 @@
 # YOSEMITE_HB_NO_ENGINE=1 where the candidate has no YOSEMITE_HB_MODE, YOSEMITE_HB_DUMP=0 where it
 # has the switch, YOSEMITE_HB_STATS=1 everywhere -- X1's configuration where the candidate has it).
 # Culprit = the first candidate whose scalar-clock bfs run takes >= 60 s or hits the cap; then
-# P7-nbody-cuda scalar-clock at 600 s on the culprit and on its predecessor. Controls on the
+# P7-nbody-cuda scalar-clock at 600 s on the culprit and on its predecessor. Also recorded: the first
+# candidate whose vector-clock bfs run hits the 600 s cap, and nbody vector-clock at 600 s on it and on
+# its predecessor (pre-T4 scalar-clock mode only dumps the trace, so the two crossings can differ). Controls on the
 # installed runtime itself: bfs both modes, and bfs scalar-clock without YOSEMITE_HB_STATS.
 # Same node for every run (c60-c72, EPYC 8124P, the hosts of X1's knn and nbody rows).
 #   sbatch eval/baselines/setup/x1f_bisect.sh          (CANDS="<c> ..." to override the list)
@@ -86,23 +88,28 @@ run() {   # id mode commit|installed name cap [extra x1f_run flags]
   tail -1 $OUT/$name.driver.txt
 }
 
-slow() {  # $1 = summary json -> exit 0 if wall >= 60 s or timed out
-  $PY -c "import json,sys; d=json.load(open(sys.argv[1])); sys.exit(0 if (d['timed_out'] or (isinstance(d['wall'],(int,float)) and d['wall']>=60)) else 1)" "$1"
+slow() {  # $1 = summary json, $2 = threshold (s) -> exit 0 if wall >= threshold or timed out
+  $PY -c "import json,sys; d=json.load(open(sys.argv[1])); sys.exit(0 if (d['timed_out'] or (isinstance(d['wall'],(int,float)) and d['wall']>=float(sys.argv[2]))) else 1)" "$1" "$2"
 }
 
 run P7-bfs-cuda scalar-clock installed bfs-sc-installed 600 --hb-stats
 run P7-bfs-cuda vector-clock installed bfs-vc-installed 600 --hb-stats
 run P7-bfs-cuda scalar-clock installed bfs-sc-installed-nostats 600
-prev=""; culprit=""; before=""
+prev=""; culprit=""; before=""; vculprit=""; vbefore=""
 for c in $CANDS; do
   build $c || { echo "SKIP $c (build failed)"; continue; }
   run P7-bfs-cuda scalar-clock $c bfs-sc-$c 600
   run P7-bfs-cuda vector-clock $c bfs-vc-$c 600
-  if [ -z "$culprit" ] && [ -f $OUT/bfs-sc-$c.json ] && slow $OUT/bfs-sc-$c.json; then culprit=$c; before=$prev; fi
+  if [ -z "$culprit" ] && [ -f $OUT/bfs-sc-$c.json ] && slow $OUT/bfs-sc-$c.json 60; then culprit=$c; before=$prev; fi
+  if [ -z "$vculprit" ] && [ -f $OUT/bfs-vc-$c.json ] && slow $OUT/bfs-vc-$c.json 600; then vculprit=$c; vbefore=$prev; fi
   prev=$c
 done
 echo "== culprit (first scalar-clock bfs run >= 60 s or capped): [${culprit}] predecessor [${before}]"
+echo "== vector-clock: first bfs run at the 600 s cap: [${vculprit}] predecessor [${vbefore}]"
 for c in $culprit $before; do
   [ -n "$c" ] && run P7-nbody-cuda scalar-clock $c nbody-sc-$c 600
+done
+for c in $vculprit $vbefore; do
+  [ -n "$c" ] && run P7-nbody-cuda vector-clock $c nbody-vc-$c 600
 done
 echo "== done $(date -Is)"
