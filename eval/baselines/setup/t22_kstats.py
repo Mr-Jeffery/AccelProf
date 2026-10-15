@@ -21,7 +21,8 @@ def show(path):
     print(f"{path}: events {t.get('hb_events_count')} lanes {t.get('hb_lanes_count')} "
           f"pairs {len(t.get('hb_sync_pass', []))} tv {t.get('tv_violation', '-')!r}")
     if sh:
-        print(f"  sharded {sh['shards']} route {sh['route_s']:.2f}s wait {sh['wait_s']:.2f}s "
+        print(f"  sharded {sh['shards']} drain {sh.get('drain_s', float('nan')):.2f}s "
+              f"route {sh['route_s']:.2f}s wait {sh['wait_s']:.2f}s bcast {sh.get('bcast')} "
               f"busy {[round(x, 2) for x in sh['busy_s']]}{bal}")
     if s:
         print(f"  buckets {s.get('buckets')} vs {s.get('vs')} sync_pairs {s.get('sync_pairs')}")

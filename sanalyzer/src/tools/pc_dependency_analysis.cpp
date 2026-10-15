@@ -1630,27 +1630,46 @@ struct HbClock {
             process_one<ROLE_SERIAL>(buf[order ? order[i] : i], 0);
         }
     }
-    // T22 (eval/SHARDED_SYNC.md): the sharded scalar-clock pass runs the same per-record step in
-    // two roles beside the serial one. A shard (ROLE_SHARD) keeps the clocks -- the barrier,
-    // syncwarp and exit assembly and the cp.async agents, from every such record -- and Check and
-    // the buckets for the lanes `own_lanes` names, those whose locations it owns; R3's trace points
-    // and the trace-validity monitor are per thread or per record, not per location, so they are
-    // the control's (ROLE_CONTROL), which sees every record and keeps no clock and no bucket.
-    // ROLE_SERIAL is the serial pass, the code before T22.
-    static constexpr int ROLE_SERIAL = 0, ROLE_CONTROL = 1, ROLE_SHARD = 2;
-    // a shard's part of a drain: entries (k << 32 | own lanes), k the record's drain position
+    // T22 (eval/SHARDED_SYNC.md): the sharded scalar-clock pass runs the same per-record step as a
+    // shard (ROLE_SHARD; ROLE_SERIAL is the serial pass, the code before T22). A shard keeps the
+    // clocks -- the barrier, syncwarp and exit assembly and the cp.async agents, from every such
+    // record -- and Check and the buckets for the lanes `own_lanes` names, those whose locations
+    // it owns. What is per thread or per block rather than per location goes, record by record,
+    // to one shard: the trace-validity monitor of a block's records (TV flag; its state is per
+    // block or warp, and the assembly it reads is every shard's) and R3's trace points of a
+    // warp's lanes (RMW flag; per thread).
+    static constexpr int ROLE_SERIAL = 0, ROLE_SHARD = 2;
+    static constexpr uint64_t ENT_TV = uint64_t(1) << 63, ENT_RMW = uint64_t(1) << 62;
+    static constexpr uint64_t ENT_POS = (uint64_t(1) << 30) - 1;
+    bool strict_cfg = true;                                 // a shard's YOSEMITE_HB_STRICT
+    bool rmw_now = false;                                   // this record's R3 points are ours
+    uint64_t tv_seq = UINT64_MAX;                           // position of tv_violation's record
+    // a shard's part of a drain: entries (flags | k << 32 | own lanes), k the record's position
     void process_entries(const MemoryAccess* buf, const uint32_t* order, const uint64_t* ents,
                          size_t n, uint64_t seq_base) {
         for (size_t i = 0; i < n; ++i) {
-            const uint64_t k = ents[i] >> 32;
+            const uint64_t e = ents[i], k = (e >> 32) & ENT_POS;
             cur_seq = seq_base + k;
-            process_one<ROLE_SHARD>(buf[order ? order[k] : k], static_cast<uint32_t>(ents[i]));
+            strict = strict_cfg && (e & ENT_TV) != 0;
+            rmw_now = (e & ENT_RMW) != 0;
+            const bool had = !tv_violation.empty();
+            process_one<ROLE_SHARD>(buf[order ? order[k] : k], static_cast<uint32_t>(e));
+            if (!had && !tv_violation.empty()) tv_seq = cur_seq;
         }
     }
-    void process_control(const MemoryAccess* buf, uint64_t size, const uint32_t* order) {
-        for (uint64_t k = 0; k < size; ++k) process_one<ROLE_CONTROL>(buf[order ? order[k] : k], 0);
+    // the shards' R3 trace points, merged into this (the emitter's, empty) table after each
+    // shard's rmw_finish: per pc the union of the RMW pcs, stranded / orphan if in any shard --
+    // each is a union over threads, and every thread's lanes went to one shard
+    void merge_rmw_points(const HbClock& s) {
+        for (const auto& kv : s.rmw_pts) {
+            RmwPc& m = rmw_pts[kv.first];
+            m.rel.insert(kv.second.rel.begin(), kv.second.rel.end());
+            m.acq.insert(kv.second.acq.begin(), kv.second.acq.end());
+            m.stranded = m.stranded || kv.second.stranded;
+            m.orphan = m.orphan || kv.second.orphan;
+        }
     }
-    // the shards' hb_sync_pass, merged into this (the control's, empty) map: a pc pair's conflicts
+    // the shards' hb_sync_pass, merged into this (the emitter's, empty) map: a pc pair's conflicts
     // are found in the shards owning their locations, so counts add and the widest distance wins;
     // its first conflict is the one found at the earliest record (all conflicts one record finds
     // on one pair have the same pcs: the record's own and the pair's other one)
@@ -1699,7 +1718,6 @@ struct HbClock {
                 note_pc(a.ctaId, a.warpId, sm, pc);                  // T12
             }
             if (a.type == MemoryType::PipelineCommit || a.type == MemoryType::PipelineWait) {
-                if constexpr (Role == ROLE_CONTROL) return;          // T22: clocks only
                 for (uint32_t m = a.active_mask; m != 0; m &= (m - 1)) {   // T1a
                     const Tid t = tid_of(a.ctaId, a.warpId, static_cast<uint32_t>(__builtin_ctz(m)));
                     if (a.type == MemoryType::PipelineCommit) async_commit(t);
@@ -1794,17 +1812,18 @@ struct HbClock {
                 const uint32_t lane = static_cast<uint32_t>(__builtin_ctz(lm));
                 const Tid t0 = tid_of(a.ctaId, a.warpId, lane);
                 if constexpr (Role == ROLE_SHARD) {
-                    // T22: a lane another shard owns -- only its clock effect (a cp.async copy
-                    // joins t0's clock into its agent's, which every shard keeps)
+                    // T22: R3's trace points if the warp's lanes are this shard's; a lane another
+                    // shard owns -- only its clock effect (a cp.async copy joins t0's clock into
+                    // its agent's, which every shard keeps)
+                    if (rmw_now) rmw_note(t0, pc, is_atomic, rpt);
                     if (((own_lanes >> lane) & 1u) == 0) {
                         if (is_async) async_issue(t0, agent_of(t0));
                         continue;
                     }
                 }
                 if (open_lanes & (1u << lane)) a2_close(t0, pc + 1);   // T14
-                if constexpr (Role != ROLE_SHARD)
+                if constexpr (Role == ROLE_SERIAL)
                     rmw_note(t0, pc, is_atomic, rpt);               // T4: R3's trace points
-                if constexpr (Role == ROLE_CONTROL) continue;       // T22: no clock, no bucket
                 uint32_t prev = 0;                                  // T12: t0's previous record
                 if (lpc != nullptr) {
                     uint32_t& lp = (*lpc)[lane];
@@ -2640,12 +2659,12 @@ std::unique_ptr<HbClock>& hb_clock_singleton() {
 // location; unset or 1 is the serial pass. Detect(T, sync) is invariant under any partition of
 // the locations (hb_proof.tex, Remark "Partition by location"): its clocks are a function of the
 // arrival, exit and cp.async records, and Check inspects one location's buckets. N shard HbClocks
-// each see every one of those records and the memory lanes of the locations they own; the control
-// -- the singleton -- sees every record for R3's trace points and the trace-validity monitor. A
-// drain is routed on the drain thread, run by the N + 1 instances on their own threads beside the
-// PCDepGraph pass, and joined before gpu_data_analysis returns (the collector reuses the buffer).
-// At kernel end the shards' sync pairs are merged into the control's, which emits as the serial
-// pass does. Vector-clock mode ignores the knob. Read once.
+// each see every one of those records and the memory lanes of the locations they own; the trace-
+// validity monitor of a block and R3's trace points of a warp are each one shard's. A router
+// thread routes a drain while the drain thread runs the PCDepGraph pass, the N shards run on their
+// own threads, and the drain is joined before gpu_data_analysis returns (the collector reuses the
+// buffer). At kernel end the shards' results are merged into the singleton, which emits as the
+// serial pass does. Vector-clock mode ignores the knob. Read once.
 static unsigned hb_shards_requested() {
     static const unsigned n = [] {
         const uint32_t v = read_env_u32("YOSEMITE_HB_SHARDS", 1);
@@ -2660,33 +2679,37 @@ static unsigned hb_shards_requested() {
 
 struct ShardPool {
     using Clock_ = std::chrono::steady_clock;
-    // a drain below inline_max records runs on the caller, not worth a wake-up;
+    unsigned n = 0;
+    // a drain below inline_max records is routed and run on the caller, not worth the wake-ups;
     // YOSEMITE_HB_SHARD_INLINE_MAX=0 sends every drain to the threads (the tests' small kernels)
     uint64_t inline_max = 4096;
-    unsigned n = 0;
-    HbClock* control = nullptr;
     std::vector<std::unique_ptr<HbClock>> shards;
-    std::vector<std::vector<uint64_t>> ents;                // per shard: k << 32 | own lanes
-    std::vector<uint32_t> order_copy;                       // T15's order outlives the caller's
+    std::vector<std::vector<uint64_t>> ents;                // per shard: flags | k << 32 | own lanes
+    std::vector<uint32_t> order_copy;                       // T15's order, kept for the threads
     const MemoryAccess* buf = nullptr;
     const uint32_t* order = nullptr;
     uint64_t size = 0, seq_base = 0;                        // seq_base: drain positions so far
+    unsigned rmw_bits = 5;                                  // R3 points: chunks of 2^rmw_bits threads
+    uint64_t block_threads = 1024;                          // the kernel's block size rounded to 32
     std::vector<std::thread> workers;
+    std::thread router;
     std::mutex mu;
-    std::condition_variable cv, done_cv;
-    uint64_t gen = 0;
+    std::condition_variable cv, rcv, done_cv;
+    uint64_t gen = 0, rgen = 0;
     unsigned pending = 0;
     bool in_flight = false;                                 // touched by the drain thread only
     bool active = false;                                    // this process's pass is sharded
-    // HB_STATS: per kernel, the routing and join-wait time on the drain thread, each instance's
-    // busy time (control last) and the lanes each shard was routed
-    double route_s = 0, wait_s = 0;
+    // HB_STATS, per kernel: the drain thread's time in gpu_data_analysis (drain_s: the HB pass, the
+    // PCDepGraph pass and the join), the router's time, the drain thread's wait for the shards
+    // after the PCDepGraph pass (wait_s), the records every shard replays (bcast: arrivals, exits,
+    // pipeline records), each shard's busy time, lanes checked, monitored records, R3 lanes
+    double drain_s = 0, route_s = 0, wait_s = 0;
+    uint64_t bcast = 0;
     std::vector<double> busy_s;
-    std::vector<uint64_t> lanes;
+    std::vector<uint64_t> lanes, tv_recs, rmw_lanes;
 
-    void start(unsigned nshards, HbClock* ctl, const char* scope_file) {
+    void start(unsigned nshards, const char* scope_file) {
         n = nshards;
-        control = ctl;
         inline_max = read_env_u32("YOSEMITE_HB_SHARD_INLINE_MAX", 4096);
         for (unsigned i = 0; i < n; ++i) {
             shards.push_back(std::make_unique<HbClock>());
@@ -2694,72 +2717,104 @@ struct ShardPool {
             shards.back()->quiet = true;
         }
         ents.resize(n);
-        busy_s.assign(n + 1, 0.0);
-        lanes.assign(n, 0);
-        for (unsigned i = 0; i <= n; ++i) workers.emplace_back([this, i] { work(i); });
+        busy_s.assign(n, 0.0);
+        lanes.assign(n, 0); tv_recs.assign(n, 0); rmw_lanes.assign(n, 0);
+        for (unsigned i = 0; i < n; ++i) workers.emplace_back([this, i] { work(i); });
+        router = std::thread([this] { route_loop(); });
     }
+    static uint64_t mix(uint64_t x) {                       // murmur3's fmix64
+        x ^= x >> 33; x *= 0xff51afd7ed558ccdULL;
+        x ^= x >> 33; x *= 0xc4ceb9fe1a85ec53ULL;
+        return x ^ (x >> 33);
+    }
+    unsigned pick(uint64_t h) const { return static_cast<unsigned>(((h >> 32) * n) >> 32); }
     // a 128-byte segment of one (space, block) -> its shard: a function of the location, so every
     // record of a location reaches the same shard; a warp's coalesced access is one segment. Not
     // FlatBuckets::mix, whose low bits index each shard's own segment directory.
     unsigned shard_of(uint64_t hi, uint64_t seg) const {
-        uint64_t x = seg * 0x9e3779b97f4a7c15ULL ^ (hi * 0xc2b2ae3d27d4eb4fULL);
-        x ^= x >> 33; x *= 0xff51afd7ed558ccdULL;
-        x ^= x >> 33; x *= 0xc4ceb9fe1a85ec53ULL;
-        x ^= x >> 33;
-        return static_cast<unsigned>(((x >> 32) * n) >> 32);
+        return pick(mix(seg * 0x9e3779b97f4a7c15ULL ^ (hi * 0xc2b2ae3d27d4eb4fULL)));
+    }
+    // the shard that monitors a block's records, and the one keeping R3's points of a warp's
+    // threads: chunks of 2^rmw_bits consecutive thread indices (ThreadArray's), so a large grid's
+    // rmw_thr pages are not touched by every shard
+    unsigned tv_of(uint64_t block) const { return pick(mix(block ^ 0x5851f42d4c957f2dULL)); }
+    unsigned rmw_of(uint64_t block, uint32_t warp) const {
+        return pick(mix(((block * block_threads + (uint64_t(warp) << 5)) >> rmw_bits) + 0x2545f4914f6cdd1dULL));
+    }
+    // kernel start: the grid decides the R3 chunk -- at least 64 chunks per shard, between a warp
+    // (2^5) and a ThreadArray page (2^14)
+    void kernel(uint64_t ctas, uint64_t bthreads) {
+        block_threads = bthreads == 0 ? 1024 : std::min<uint64_t>(1024, (bthreads + 31) & ~uint64_t(31));
+        const uint64_t total = std::max<uint64_t>(1, ctas) * block_threads;
+        rmw_bits = 5;
+        while (rmw_bits < 14 && (total >> (rmw_bits + 1)) >= uint64_t(64) * n) ++rmw_bits;
     }
     // every arrival, exit and pipeline record to every shard; a memory record's lanes to the
-    // shards owning their locations; a cp.async copy to every shard (each issue joins the
-    // agent's clock), with the lanes it owns
-    void route(const MemoryAccess* b, uint64_t sz, const uint32_t* ord) {
+    // shards owning their locations, a cp.async copy to every shard (each issue joins the agent's
+    // clock) with the lanes it owns; the TV flag on the block's monitoring shard, the RMW flag on
+    // the shard keeping the warp's R3 points (an entry with no lanes if it owns none)
+    void route() {
+        const auto t0 = Clock_::now();
         for (auto& e : ents) e.clear();
-        const auto* apcs = control->async_pcs;
+        const auto* apcs = shards[0]->async_pcs;
         uint32_t masks[64] = {};
-        for (uint64_t k = 0; k < sz; ++k) {
-            const MemoryAccess& a = b[ord ? ord[k] : k];
+        uint64_t extra[64] = {};
+        for (uint64_t k = 0; k < size; ++k) {
+            const MemoryAccess& a = buf[order ? order[k] : k];
             const uint64_t kk = k << 32;
             if (a.type == MemoryType::Local) continue;
+            const unsigned tv = tv_of(a.ctaId);
+            tv_recs[tv] += 1;
             if (a.type != MemoryType::Global && a.type != MemoryType::Shared) {
-                for (auto& e : ents) e.push_back(kk);
+                for (unsigned s = 0; s < n; ++s) ents[s].push_back(kk | (s == tv ? HbClock::ENT_TV : 0));
+                bcast += 1;
                 continue;
             }
             const uint32_t m = a.active_mask;
+            const unsigned rm = rmw_of(a.ctaId, a.warpId);
+            rmw_lanes[rm] += static_cast<uint64_t>(__builtin_popcount(m));
             const bool async = !apcs->empty()
                 && apcs->count(static_cast<uint32_t>(a.pc & 0x00FFFFFFu)) != 0;
-            if (m == 0) continue;
-            const uint64_t hi = a.type == MemoryType::Shared ? ((uint64_t(1) << 63) | a.ctaId) : 0;
-            const uint64_t s0 = a.addresses[__builtin_ctz(m)] >> 7;
-            bool one = true;
-            for (uint32_t r = m & (m - 1); r != 0 && one; r &= (r - 1))
-                one = (a.addresses[__builtin_ctz(r)] >> 7) == s0;
-            if (one && !async) {
-                const unsigned s = shard_of(hi, s0);
-                ents[s].push_back(kk | m);
-                lanes[s] += static_cast<uint64_t>(__builtin_popcount(m));
-                continue;
-            }
-            uint64_t touched = 0, cseg = ~uint64_t(0);
-            unsigned cs = 0;
-            for (uint32_t r = m; r != 0; r &= (r - 1)) {
-                const uint32_t l = static_cast<uint32_t>(__builtin_ctz(r));
-                const uint64_t sg = a.addresses[l] >> 7;
-                if (sg != cseg) { cseg = sg; cs = shard_of(hi, sg); }
-                masks[cs] |= 1u << l;
-                touched |= uint64_t(1) << cs;
+            uint64_t touched = 0;
+            if (m != 0) {
+                const uint64_t hi = a.type == MemoryType::Shared ? ((uint64_t(1) << 63) | a.ctaId) : 0;
+                const uint64_t s0 = a.addresses[__builtin_ctz(m)] >> 7;
+                bool one = true;
+                for (uint32_t r = m & (m - 1); r != 0 && one; r &= (r - 1))
+                    one = (a.addresses[__builtin_ctz(r)] >> 7) == s0;
+                if (one) {
+                    const unsigned s = shard_of(hi, s0);
+                    masks[s] = m;
+                    touched = uint64_t(1) << s;
+                } else {
+                    uint64_t cseg = ~uint64_t(0);
+                    unsigned cs = 0;
+                    for (uint32_t r = m; r != 0; r &= (r - 1)) {
+                        const uint32_t l = static_cast<uint32_t>(__builtin_ctz(r));
+                        const uint64_t sg = a.addresses[l] >> 7;
+                        if (sg != cseg) { cseg = sg; cs = shard_of(hi, sg); }
+                        masks[cs] |= 1u << l;
+                        touched |= uint64_t(1) << cs;
+                    }
+                }
             }
             if (async) touched = n == 64 ? ~uint64_t(0) : (uint64_t(1) << n) - 1;
+            touched |= (uint64_t(1) << tv) | (uint64_t(1) << rm);
+            extra[tv] |= HbClock::ENT_TV;
+            extra[rm] |= HbClock::ENT_RMW;
             for (uint64_t t = touched; t != 0; t &= (t - 1)) {
                 const unsigned s = static_cast<unsigned>(__builtin_ctzll(t));
-                ents[s].push_back(kk | masks[s]);
+                ents[s].push_back(extra[s] | kk | masks[s]);
                 lanes[s] += static_cast<uint64_t>(__builtin_popcount(masks[s]));
                 masks[s] = 0;
+                extra[s] = 0;
             }
         }
+        route_s += std::chrono::duration<double>(Clock_::now() - t0).count();
     }
     void run(unsigned i) {
         const auto t0 = Clock_::now();
-        if (i < n) shards[i]->process_entries(buf, order, ents[i].data(), ents[i].size(), seq_base);
-        else control->process_control(buf, size, order);
+        shards[i]->process_entries(buf, order, ents[i].data(), ents[i].size(), seq_base);
         busy_s[i] += std::chrono::duration<double>(Clock_::now() - t0).count();
     }
     void work(unsigned i) {
@@ -2775,27 +2830,43 @@ struct ShardPool {
             if (--pending == 0) done_cv.notify_one();
         }
     }
+    // the router: routes the drain while the drain thread runs the PCDepGraph pass, then starts
+    // the shards
+    void route_loop() {
+        uint64_t seen = 0;
+        for (;;) {
+            {
+                std::unique_lock<std::mutex> l(mu);
+                rcv.wait(l, [&] { return rgen > seen; });
+                seen = rgen;
+            }
+            route();
+            {
+                std::lock_guard<std::mutex> l(mu);
+                ++gen;
+            }
+            cv.notify_all();
+        }
+    }
     void dispatch(const MemoryAccess* b, uint64_t sz, const uint32_t* ord) {
         join();
-        const auto t0 = Clock_::now();
-        route(b, sz, ord);
         if (ord != nullptr) { order_copy.assign(ord, ord + sz); order = order_copy.data(); }
         else order = nullptr;
         buf = b;
         size = sz;
-        route_s += std::chrono::duration<double>(Clock_::now() - t0).count();
         if (sz < inline_max) {
-            for (unsigned i = 0; i <= n; ++i) run(i);
+            route();
+            for (unsigned i = 0; i < n; ++i) run(i);
             seq_base += sz;
             return;
         }
         {
             std::lock_guard<std::mutex> l(mu);
-            pending = n + 1;
-            ++gen;
+            pending = n;
+            ++rgen;
         }
         in_flight = true;
-        cv.notify_all();
+        rcv.notify_one();
     }
     void join() {
         if (!in_flight) return;
@@ -2806,21 +2877,48 @@ struct ShardPool {
         seq_base += size;
         wait_s += std::chrono::duration<double>(Clock_::now() - t0).count();
     }
-    void reset_kernel() {
+    void reset_kernel(uint64_t ctas, uint64_t bthreads) {
         join();
+        kernel(ctas, bthreads);
         seq_base = 0;
-        route_s = wait_s = 0;
+        drain_s = route_s = wait_s = 0;
+        bcast = 0;
         std::fill(busy_s.begin(), busy_s.end(), 0.0);
-        std::fill(lanes.begin(), lanes.end(), 0);
+        for (auto* v : {&lanes, &tv_recs, &rmw_lanes}) std::fill(v->begin(), v->end(), 0);
     }
-    void stats(std::ostream& o) const {
-        control->stats(o, &shards);
-        o << ", \"sharded\": {\"shards\": " << n << ", \"route_s\": " << route_s
-          << ", \"wait_s\": " << wait_s << ", \"busy_s\": [";
-        for (unsigned i = 0; i <= n; ++i) o << (i ? ", " : "") << busy_s[i];
-        o << "], \"lanes\": [";
-        for (unsigned i = 0; i < n; ++i) o << (i ? ", " : "") << lanes[i];
-        o << "]}";
+    // kernel end: the shards' results into the emitter `out` (the singleton, which processed no
+    // record): sync pairs, R3 points (after each shard's rmw_finish), the first trace-validity
+    // violation by record position, and the assembly state the end-of-kernel check reads (every
+    // shard's is the same: each replays every arrival and exit)
+    void merge_into(HbClock& out) {
+        join();
+        const HbClock* first_tv = nullptr;
+        for (const auto& s : shards) {
+            out.merge_sync_pairs(*s);
+            s->rmw_finish();
+            out.merge_rmw_points(*s);
+            if (!s->tv_violation.empty() && (first_tv == nullptr || s->tv_seq < first_tv->tv_seq))
+                first_tv = s.get();
+        }
+        if (first_tv != nullptr) out.tv_violation = first_tv->tv_violation;
+        out.pending_barriers = shards[0]->pending_barriers;
+        out.exited_count = shards[0]->exited_count;
+    }
+    void stats(std::ostream& o, const HbClock& out) const {
+        out.stats(o, &shards);
+        o << ", \"sharded\": {\"shards\": " << n << ", \"drain_s\": " << drain_s
+          << ", \"route_s\": " << route_s << ", \"wait_s\": " << wait_s
+          << ", \"bcast\": " << bcast << ", \"rmw_bits\": " << rmw_bits;
+        auto list = [&](const char* name, const auto& v) {
+            o << ", \"" << name << "\": [";
+            for (size_t i = 0; i < v.size(); ++i) o << (i ? ", " : "") << v[i];
+            o << "]";
+        };
+        list("busy_s", busy_s);
+        list("lanes", lanes);
+        list("tv_records", tv_recs);
+        list("rmw_lanes", rmw_lanes);
+        o << "}";
     }
 };
 // never destroyed: its workers wait on it until the process ends (as host_op_log)
@@ -2834,7 +2932,13 @@ ShardPool* hb_shards_active() {
 }
 // gpu_data_analysis: the drain's shards finish before the collector reuses the buffer
 struct HbShardJoin {
-    ~HbShardJoin() { if (ShardPool* p = hb_shards_active()) p->join(); }
+    ShardPool* p = hb_shards_active();
+    std::chrono::steady_clock::time_point t0 = std::chrono::steady_clock::now();
+    ~HbShardJoin() {
+        if (p == nullptr) return;
+        p->join();
+        p->drain_s += std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count();
+    }
 };
 }  // namespace
 
@@ -2843,7 +2947,7 @@ static void hb_clock_select_kernel(const std::string& kernel_name) {
     auto& hc = hb_clock_singleton();
     if (hc) hc->select_kernel(kernel_name);
     if (ShardPool* p = hb_shards_active())                  // T22
-        for (auto& s : p->shards) s->select_kernel(kernel_name);
+        for (auto& sh : p->shards) sh->select_kernel(kernel_name);
 }
 
 void PcDependency::hb_clock_process(const MemoryAccess* buffer, uint64_t size,
@@ -2878,8 +2982,7 @@ void PcDependency::hb_clock_reset() {
     hc->stats_every = read_env_u32("YOSEMITE_HB_STATS_EVERY", 0);
     hc->next_snapshot = hc->stats_every;
     // T22: YOSEMITE_HB_SHARDS=N > 1 shards the sync instance by location in scalar-clock mode;
-    // the singleton becomes the control (no sync clock and no bucket of its own: its
-    // sync_only_pass is false until emit merges the shards' pairs into it)
+    // the singleton processes no record and receives the shards' results at kernel end
     const unsigned nsh = hb_shards_requested();
     static bool told = false;
     if (nsh > 1 && !told) {
@@ -2898,22 +3001,22 @@ void PcDependency::hb_clock_reset() {
         ShardPool*& pool = hb_shard_pool();
         if (pool == nullptr) {
             pool = new ShardPool();
-            pool->start(nsh, hc.get(), std::getenv("YOSEMITE_ATOMIC_SCOPE_FILE"));
+            pool->start(nsh, std::getenv("YOSEMITE_ATOMIC_SCOPE_FILE"));
             fprintf(stderr, "[cuVein] scalar-clock pass sharded by location: %u shards\n", nsh);
         }
         pool->active = true;
-        pool->reset_kernel();
-        hc->sync_only_pass = false;
+        pool->reset_kernel(_current_kernel_cta_count, _current_block_thread_count);
         hc->stats_every = hc->next_snapshot = 0;
-        for (auto& s : pool->shards) {
-            s->reap_async = hc->reap_async;
-            s->reset(_current_block_thread_count);
-            s->block_thread_count = _current_block_thread_count;
-            s->strict = false;                              // the monitor is the control's
-            s->sync_only_pass = true;
-            s->certain = hc->certain;
-            s->vector_pass = false;
-            s->stats_every = s->next_snapshot = 0;
+        for (auto& sh : pool->shards) {
+            sh->reap_async = hc->reap_async;
+            sh->reset(_current_block_thread_count);
+            sh->block_thread_count = _current_block_thread_count;
+            sh->strict_cfg = hc->strict;                    // applied to its monitored records
+            sh->tv_seq = UINT64_MAX;
+            sh->sync_only_pass = true;
+            sh->certain = hc->certain;
+            sh->vector_pass = false;
+            sh->stats_every = sh->next_snapshot = 0;
         }
     }
 }
@@ -2924,11 +3027,7 @@ void PcDependency::hb_clock_emit(std::ofstream& jout) {
     // that the verdict matrix would act on; an absent key sends sync_dominance down its
     // static-only path, where hb_sync_pass stands in for the offline pass (T4).
     auto& hc = hb_clock_singleton();
-    if (ShardPool* p = hb_shards_active()) {                // T22: the shards' pairs, merged
-        p->join();
-        for (const auto& s : p->shards) hc->merge_sync_pairs(*s);
-        hc->sync_only_pass = true;
-    }
+    if (ShardPool* p = hb_shards_active()) p->merge_into(*hc);   // T22: the shards' results
     if (hc) hc->emit(jout);
 }
 
@@ -2958,7 +3057,7 @@ void hb_stats_emit(std::ostream& jout, const std::vector<std::string>& ev,
     auto& hc = hb_clock_singleton();
     if (ShardPool* p = hb_shards_active()) {                // T22: summed over the shards
         o << "{";
-        p->stats(o);
+        p->stats(o, *hc);
         o << "}";
     } else if (hc) {                        // T4: the sync instance in scalar-clock mode too
         o << "{";
