@@ -51,6 +51,8 @@ def summarise(path):
             bigk = sorted(k for k, v in r["k"].items() if v["events"] >= 0.9 * big["events"])
             ivs = [r["mt"][b] - r["mt"][a] for a, b in zip(bigk, bigk[1:]) if a in r["mt"] and b in r["mt"]]
             # an iteration = the big kernel's period (other kernels in between included)
+        if not ivs and len(ks) > 2:   # no stats (unreadable kernel JSON): every kernel after the first
+            ivs = [r["mt"][b] - r["mt"][a] for a, b in zip(ks[1:], ks[2:])]
         med = statistics.median(ivs) if ivs else None
         s = f"{r['id']} N={r['n']}: {len(ks)} kernels;"
         if med is not None:

@@ -11,7 +11,12 @@ import sys
 
 
 def show(path):
-    t = json.load(open(path))
+    try:
+        t = json.load(open(path))
+    except json.JSONDecodeError as e:   # a kernel being written when a timeout killed the run
+        raw = open(path, "rb").read()
+        print(f"{path}: not JSON ({e}); {len(raw)} bytes, ends {raw[-60:]!r}")
+        return
     s = (t.get("hb_stats") or {}).get("hb_clock") or {}
     sh = s.get("sharded")
     lanes = sh.get("lanes") if sh else None

@@ -1,0 +1,75 @@
+#!/usr/bin/env python3
+"""T22 inspections on BeeGFS (run on a compute node):
+  shards <store> <N>     every scalar-clock kernel JSON: does hb_stats carry `sharded` with N shards?
+  unreadable <dir>       kernel JSONs that do not parse: size, kernel id, the last bytes
+  mem <dir>...           per kernel: buckets bytes, vs bytes / threads / bases, rss and hwm at kernel end
+"""
+import glob
+import json
+import os
+import sys
+
+
+def kjs(d):
+    return sorted(glob.glob(os.path.join(d, "**", "kernel_*.json"), recursive=True))
+
+
+def load(p):
+    try:
+        return json.load(open(p))
+    except json.JSONDecodeError:
+        return None
+
+
+def shards(store, n):
+    ok = bad = unread = 0
+    for p in kjs(store):
+        if "/scalar-clock" not in p:
+            continue
+        t = load(p)
+        if t is None:
+            unread += 1
+            continue
+        sh = ((t.get("hb_stats") or {}).get("hb_clock") or {}).get("sharded")
+        if sh and sh.get("shards") == n:
+            ok += 1
+        else:
+            bad += 1
+            print("not sharded:", p)
+    print(f"{store}: {ok} kernel JSONs sharded with N={n}, {bad} not, {unread} unreadable")
+
+
+def unreadable(d):
+    files = kjs(d)
+    ids = [int(os.path.basename(p)[7:-5]) for p in files]
+    for p in files:
+        if load(p) is None:
+            raw = open(p, "rb").read()
+            k = int(os.path.basename(p)[7:-5])
+            closed = raw.endswith(b"}\n")
+            print(f"{p}: kernel {k} of max id {max(ids)}, {len(raw)} bytes, "
+                  f"ends {raw[-120:]!r}, closed {closed}")
+
+
+def mem(*dirs):
+    for d in dirs:
+        for p in kjs(d):
+            t = load(p)
+            if t is None:
+                continue
+            s = t.get("hb_stats") or {}
+            h = s.get("hb_clock") or {}
+            b, v = h.get("buckets") or {}, h.get("vs") or {}
+            if t.get("hb_events_count", 0) < 10 ** 6:
+                continue
+            print(f"{p}: events {t.get('hb_events_count')} buckets {b.get('bytes', 0) / 2**30:.2f} GiB "
+                  f"({b.get('entries')} entries) vs {v.get('bytes_est', 0) / 2**30:.2f} GiB "
+                  f"(threads {v.get('threads')}, bases {v.get('unique_bases')}) "
+                  f"rss {s.get('rss_kb', 0) / 2**20:.2f} GiB hwm {s.get('hwm_kb', 0) / 2**20:.2f} GiB")
+            break   # the first big kernel of each run
+
+
+if __name__ == "__main__":
+    cmd, *a = sys.argv[1:]
+    {"shards": lambda: shards(a[0], int(a[1])), "unreadable": lambda: unreadable(a[0]),
+     "mem": lambda: mem(*a)}[cmd]()
