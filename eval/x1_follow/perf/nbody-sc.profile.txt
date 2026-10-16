@@ -1,0 +1,99 @@
+timeout 1500 perf record -F 49 --call-graph dwarf,16384 -o /mnt/beegfs/fzheng4/x1_follow/perf/P7-nbody-cuda-scalar-clock/work/perf.data -- accelprof -v -t pc_dependency_analysis -n 1 ./nbody-cuda 16000 10
+rc=124
+    95.14%  libsanalyzer.so          [.] yosemite::HbClock::process                                                                                                                                                                                                                                                                                                                                                                                                                                       -      -            
+            |          
+             --94.40%--?? (inlined)
+                       |          
+                       |--87.28%--?? (inlined)
+                       |          |          
+                       |          |--45.66%--yosemite::HbClock::process
+                       |          |          yosemite::PcDependency::gpu_data_analysis
+                       |          |          yosemite_gpu_data_analysis
+                       |          |          LaunchEndCallback
+                       |          |          ComputeSanitizerCallback
+                       |          |          0x7ff28283e6a3
+                       |          |          0x7ff28284b8a9
+                       |          |          0x7ff267191c68
+                       |          |          0x7ff2661b4044
+                       |          |          0x7ff2661b495f
+                       |          |          0x7ff2661b5518
+                       |          |          0x7ff266380797
+                       |          |          cuLaunchKernel
+                       |          |          0x7ff283a14ffc
+                       |          |          cudaLaunchKernel
+                       |          |          __device_stub__Z20accelerate_particlesP8Particleiff
+                       |          |          GSimulation::Start
+                       |          |          main
+                       |          |          __libc_start_main
+                       |          |          _start
+                       |          |          
+                       |           --41.62%--?? (inlined)
+                       |                     |          
+                       |                      --39.79%--yosemite::HbClock::process
+                       |                                yosemite::PcDependency::gpu_data_analysis
+                       |                                yosemite_gpu_data_analysis
+                       |                                LaunchEndCallback
+                       |                                ComputeSanitizerCallback
+                       |                                0x7ff28283e6a3
+                       |                                0x7ff28284b8a9
+                       |                                0x7ff267191c68
+                       |                                0x7ff2661b4044
+                       |                                0x7ff2661b495f
+                       |                                0x7ff2661b5518
+                       |                                0x7ff266380797
+                       |                                cuLaunchKernel
+                       |                                0x7ff283a14ffc
+                       |                                cudaLaunchKernel
+                       |                                __device_stub__Z20accelerate_particlesP8Particleiff
+                       |                                GSimulation::Start
+                       |                                main
+                       |                                __libc_start_main
+                       |                                _start
+                       |          
+                       |--4.13%--yosemite::HbClock::FlatBuckets::own_slot(yosemite::HbClock::LocSlots&, unsigned char, unsigned int)::{lambda(yosemite::HbClock::Slot const&, unsigned long)#1}::operator() (inlined)
+                       |          ?? (inlined)
+                       |          ?? (inlined)
+                       |          ?? (inlined)
+                       |          ?? (inlined)
+                       |          yosemite::HbClock::process
+                       |          yosemite::PcDependency::gpu_data_analysis
+                       |          yosemite_gpu_data_analysis
+                       |          LaunchEndCallback
+                       |          ComputeSanitizerCallback
+                       |          0x7ff28283e6a3
+                       |          0x7ff28284b8a9
+                       |          0x7ff267191c68
+                       |          0x7ff2661b4044
+                       |          0x7ff2661b495f
+                       |          0x7ff2661b5518
+                       |          0x7ff266380797
+                       |          cuLaunchKernel
+                       |          0x7ff283a14ffc
+                       |          cudaLaunchKernel
+                       |          __device_stub__Z20accelerate_particlesP8Particleiff
+                       |          GSimulation::Start
+                       |          main
+                       |          __libc_start_main
+                       |          _start
+                       |          
+                        --2.99%--yosemite::HbClock::process
+                                  yosemite::PcDependency::gpu_data_analysis
+                                  yosemite_gpu_data_analysis
+                                  LaunchEndCallback
+                                  ComputeSanitizerCallback
+                                  0x7ff28283e6a3
+                                  0x7ff28284b8a9
+                                  0x7ff267191c68
+                                  0x7ff2661b4044
+                                  0x7ff2661b495f
+                                  0x7ff2661b5518
+                                  0x7ff266380797
+                                  cuLaunchKernel
+                                  0x7ff283a14ffc
+                                  cudaLaunc
+Warning:
+Processed 129735 events and lost 2 chunks!
+
+Check IO/CPU overload!
+
+

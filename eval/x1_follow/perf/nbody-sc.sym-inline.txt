@@ -1,0 +1,89 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 73K of event 'cycles:u'
+# Event count (approx.): 4442875573932
+#
+# Overhead  Symbol                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+# ........  ...................................................................................................................................................................................................................................................................................................................................................................................................................................................................
+#
+    95.14%  [.] yosemite::HbClock::process
+            |
+            ---LaunchEndCallback
+               yosemite_gpu_data_analysis
+               yosemite::PcDependency::gpu_data_analysis
+               yosemite::HbClock::process
+               |          
+                --94.70%--?? (inlined)
+                          |          
+                           --91.41%--?? (inlined)
+                                     |          
+                                      --45.75%--?? (inlined)
+                                                |          
+                                                 --5.96%--?? (inlined)
+                                                           |          
+                                                           |--4.13%--yosemite::HbClock::FlatBuckets::own_slot(yosemite::HbClock::LocSlots&, unsigned char, unsigned int)::{lambda(yosemite::HbClock::Slot const&, unsigned long)#1}::operator() (inlined)
+                                                           |          ?? (inlined)
+                                                           |          
+                                                            --1.62%--?? (inlined)
+
+     1.40%  [.] yosemite::HbClock::ThreadArray<yosemite::HbClock::SyncClock>::at
+            |
+            ---LaunchEndCallback
+               yosemite_gpu_data_analysis
+               yosemite::PcDependency::gpu_data_analysis
+               yosemite::HbClock::process
+               ?? (inlined)
+               ?? (inlined)
+               ?? (inlined)
+
+     0.91%  [.] yosemite::HbClock::rmw_note
+            |
+            ---LaunchEndCallback
+               yosemite_gpu_data_analysis
+               yosemite::PcDependency::gpu_data_analysis
+               yosemite::HbClock::process
+               yosemite::HbClock::rmw_note
+               |          
+                --0.67%--?? (inlined)
+
+     0.61%  [.] std::__insertion_sort<yosemite::HbClock::Slot*, __gnu_cxx::__ops::_Iter_comp_iter<yosemite::HbClock::FlatBuckets::merge_tail(yosemite::HbClock::LocSlots&)::{lambda(yosemite::HbClock::Slot const&, yosemite::HbClock::Slot const&)#1}> >
+            |
+            ---LaunchEndCallback
+               yosemite_gpu_data_analysis
+               yosemite::PcDependency::gpu_data_analysis
+               yosemite::HbClock::process
+               ?? (inlined)
+               ?? (inlined)
+               ?? (inlined)
+               ?? (inlined)
+               ?? (inlined)
+               ?? (inlined)
+               |          
+                --0.54%--?? (inlined)
+
+     0.43%  [.] __memmove_avx512_unaligned_erms
+            |
+            ---LaunchEndCallback
+               yosemite_gpu_data_analysis
+               yosemite::PcDependency::gpu_data_analysis
+               yosemite::HbClock::process
+               ?? (inlined)
+
+     0.35%  [.] yosemite::HbClock::FlatBuckets::seg_find
+            |
+            ---LaunchEndCallback
+               yosemite_gpu_data_analysis
+               yosemite::PcDependency::gpu_data_analysis
+               yosemite::HbClock::process
+               ?? (inlined)
+               ?? (inlined)
+               yosemite::HbClock::FlatBuckets::seg_find
+
+
+
+#
+# (Tip: Sample related events with: perf record -e '{cycles,instructions}:S')
+#
