@@ -143,7 +143,54 @@ rows). Whether anything but display depends on that number — read from the cod
 So no verdict, class or table cell depends on the sync-pass counts; they appear as
 `contested_weight` of event-stream candidates and in the census script's display column.
 
-{{SLOTS}}
+### 2.2 Slots tested per access: bfs and nbody at the installed runtime (private build)
+
+Requested 2026-10-16: on bfs at the current runtime (the T20 build), count the bucket slots
+Check tests per access, beside `conflict()`, in a private build only (no commit); the same for
+nbody's main kernel. **Build:** `git archive cuVein sanalyzer` (= the installed libsanalyzer's
+source: `git diff ba99486 cuVein -- sanalyzer` is empty) into a scratch directory outside the repo,
+patched there only — in `HbClock::check()`: per kernel, `accesses` (Check calls, one per lane
+access), `in_bucket` (the slots of the location's bucket when Check met one), `visited` (slots the
+loop reaches after the whole-key-group skip: read meets read, or two RMWs whose scope makes them
+morally strong), `tested` (`conflict()` calls: visited minus the accessor's own slot and morally
+strong RMW pairs), the largest bucket Check met (its size, the access's pc, the location), and at
+kernel end the largest bucket with its slots' pcs and keys; written into `hb_stats.hb_clock`.
+libsanalyzer `5a0442ca409571d3`, collector relinked `bdd364de89a3b185`, installed fatbins; serial
+pass (no sharding), scalar-clock mode, no dump, `HB_STATS`, c28. bfs full run, 5,400 s cap (job
+313217: RACE, 31 reports, 842.8 s, 24 kernels — X1's row: RACE, 31, 1,507 s on c74); nbody 1,800 s
+cap, which holds its first six launches (job 313218). Printout `setup/t22_slots.txt`
+(`t22_inspect.py slots`). Keys: `kind << 3 | (scope + 1)` — 8 = weak write, 0 = weak read.
+
+| program | kernel | name | records | accesses (lanes) | slots tested (`conflict()` calls) | tested / access | largest bucket met (slots) | access pc there | address | largest bucket at kernel end: slots, slot pcs |
+|---|---|---|---|---|---|---|---|---|---|---|
+| bfs | 0–23 even | `Kernel` (12 launches) | 62,525 – 1,881,112 | 1.0 – 11.3 M | 0 – 2,764,634 | ≤ 0.2 | ≤ 14 | various | various | ≤ 15, mixed reads |
+| bfs | 1, 3, 5, 7 | `Kernel2` | 62,521 – 65,951 | ≈ 1.0 M | 3 / 276 / 8,911 / 318,801 | ≤ 0.3 | 2 / 23 / 133 / 798 | 0x160 | 0x7ff29b9e8800 (global) | +1, all pc 0x160, key 8 |
+| bfs | 9 | `Kernel2` | 81,116 | 1,018,284 | 10,444,735 | 10.3 | 4,570 | 0x160 | 0x7ff29b9e8800 | 4,571, all 0x160 |
+| bfs | 11 | `Kernel2` | 142,441 | 1,101,708 | 323,253,451 | 293.4 | 25,426 | 0x160 | 0x7ff29b9e8800 | 25,427, all 0x160 |
+| bfs | **13** | `Kernel2` | 215,886 | 1,525,044 | **8,614,659,430** | **5,648.8** | **131,260** | 0x160 | 0x7ff29b9e8800 | 131,261, all 0x160 |
+| bfs | **15** | `Kernel2` | 218,756 | 2,803,400 | **101,632,635,825** | **36,253.3** | **450,849** | 0x160 | 0x7ff29b9e8800 | 450,850, all 0x160 |
+| bfs | **17** | `Kernel2` | 218,751 | 2,478,512 | **68,312,244,378** | **27,561.8** | **369,627** | 0x160 | 0x7ff29b9e8800 | 369,628, all 0x160 |
+| bfs | 19, 21, 23 | `Kernel2` | 124,721 / 62,646 / 62,506 | ≈ 1.0 M | 149,169,628 / 406 / 0 | 139.5 / 0.0 / 0.0 | 17,272 / 28 / 0 | 0x160 | 0x7ff29b9e8800 | 17,273 / 29 / 1 |
+| bfs | **all 24** | | 7,436,165 | 48,792,045 | **179,046,138,430** | **3,669.6** | | | | |
+| nbody | 0, 3 | `accelerate_particles` | 32,005,004 each | 1,024,144,000 each | **0** (48,000 visited) | **0.0** | 16,000 | 0x230 | 0x7fc27b036ad8 | 16,000, all pc 0x290, key 0 (at 0x7fc27b01c88c) |
+| nbody | 1, 4 | `update_particles` | 10,504 | 320,000 | 0 (144,000 visited) | 0.0 | 1 | 0x200 | 0x7fc27b04f600 | 2 |
+| nbody | 2, 5 | `accumulate_energy` | 20,004 | 20,003 | 0 (8,004 visited) | 0.0 | 2 | 0x2f0 | 0x7fc27b09c400 | 2 |
+
+Full per-kernel rows (incl. slots in the buckets met and visited): `setup/t22_slots.txt`.
+{{PCMAP}}
+
+Reading. **bfs:** of the 179,046,138,430 slots tested, `Kernel2` holds 179,042,735,844 (99.998 %)
+and its launches 13, 15, 17 alone 178,559,539,633 (99.73 %); the largest bucket of every `Kernel2`
+launch is the same global location, `0x7ff29b9e8800`, holding one weak-write slot per thread that
+has written it at pc 0x160 — it grows by one slot per writing thread (end size = largest met + 1) to
+450,850 slots in launch 15, and a write there tests every other writer's slot: 36,253 slots per access
+averaged over all of launch 15's accesses. This is X1-follow §2's `*d_over = 1` (`bfs.cu:59`, one byte
+written by every frontier thread), which T4 put on the scalar-clock path. The `Kernel` launches test
+≤ 0.2 slots per access. **nbody:** `accelerate_particles` tests **no** slot: its accesses are reads,
+the bucket they meet holds reads only (key 0), and Check skips the read–read key group whole —
+8.19·10¹² slots sit in the buckets met (≈ 8,000 per access, 16,000 = one per thread at most) but only
+48,000 are visited. nbody's time is therefore not the conflict test: X1-follow §3 places 80 % of it
+in the bucket insertion (`merge_tail`), which this counter does not count.
 
 ## 3. Verification A — the green set (tested)
 
