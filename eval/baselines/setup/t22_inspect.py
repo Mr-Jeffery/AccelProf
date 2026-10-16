@@ -69,7 +69,32 @@ def mem(*dirs):
             break   # the first big kernel of each run
 
 
+def slots(*dirs):
+    """the private SLOTCOUNT build's hb_stats.hb_clock.slotcount, per kernel: accesses Check ran
+    for (lane accesses), slots of the buckets met, visited (after the key-group skip), tested
+    (conflict() calls), the largest bucket met (size, the access's pc, address) and at kernel end
+    (size, address, its slots' pcs and keys)"""
+    for d in dirs:
+        for p in sorted(kjs(d), key=lambda x: int(os.path.basename(x)[7:-5])):
+            t = load(p)
+            if t is None:
+                print(f"{p}: unreadable")
+                continue
+            sc = ((t.get("hb_stats") or {}).get("hb_clock") or {}).get("slotcount")
+            if sc is None:
+                continue
+            a = sc["accesses"] or 1
+            pcs = sorted(sc.get("end_max_pcs", {}).items(), key=lambda kv: -kv[1])[:6]
+            print(f"{os.path.basename(p)} {t['kernel']['kernel_name'][:40]}: events {t.get('hb_events_count')} "
+                  f"accesses {sc['accesses']} in_bucket {sc['in_bucket']} visited {sc['visited']} "
+                  f"tested {sc['tested']} tested/access {sc['tested'] / a:.1f} visited/access "
+                  f"{sc['visited'] / a:.1f} | max met {sc['max_met']} at pc {hex(sc['max_met_pc'])} "
+                  f"addr {hex(sc['max_met_addr'])} space {sc['max_met_space']} block {sc['max_met_block']} "
+                  f"| end max {sc.get('end_max')} addr {hex(sc.get('end_max_addr', 0))} space "
+                  f"{sc.get('end_max_space')} pcs {[(hex(int(k)), v) for k, v in pcs]} keys {sc.get('end_max_keys')}")
+
+
 if __name__ == "__main__":
     cmd, *a = sys.argv[1:]
     {"shards": lambda: shards(a[0], int(a[1])), "unreadable": lambda: unreadable(a[0]),
-     "mem": lambda: mem(*a)}[cmd]()
+     "mem": lambda: mem(*a), "slots": lambda: slots(*a)}[cmd]()

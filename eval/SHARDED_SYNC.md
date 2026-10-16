@@ -109,6 +109,42 @@ and `kernel_trace_flush`):
 | `hb_events_count`, `hb_lanes_count`, `hb_aggregates`, `hb_async`, `hb_exits` | drain thread (unchanged) | — |
 | `hb_stats.hb_clock` (HB_STATS only) | all | buckets and sync clocks summed over the shards (`vs.threads` = max), the rest the singleton's; plus `sharded`: `shards`, `drain_s`, `route_s`, `wait_s`, `bcast`, `rmw_bits`, per shard `busy_s`, `stall_s`, `lanes`, `tv_records`, `rmw_lanes`. |
 
+### 2.1 Who reads the per-pair instance counts
+
+The merge sums `count` (the third element of `hb_races_sync_only` rows and of `hb_sync_pass`
+rows). Whether anything but display depends on that number — read from the code at `cuVein`
+4094187 (no `python/` or `eval/` change on this branch touches these readers):
+
+- **`python/sync_dominance.py` (`analyze`)** — `hb_races_sync_only` is reduced to the set of its pc
+  pairs, `sync_pcsets = {frozenset((a, b)) for a, b, _ in sync_only}`: the count is dropped.
+  `hb_sync_pass` goes through `aggregated_sync_pass()` into `(pairs, dist, order)`; `analyze`
+  uses the keys (`sync_pcsets`, the barrier-ordered test of `_hb_class` and of the static-only
+  path), `dist` (`observed_dyn`, the widest observed distance) and `order` (the orientation of an
+  event-stream candidate). The count enters at exactly one place: an event-stream candidate is
+  judged with `judge(cur, anc, dist, n, …)`, where `n` is the pass's count (or, in vector-clock
+  mode, the summed `count` of its `hb_races` records), and `judge` writes that argument only into
+  the verdict record's `contested_weight` field. `weight` is not passed to `eng.ordered()`,
+  `_hb_class()`, `CLASS_VERDICT`, the benign tag or the lock-step relabel; edge-based verdicts take
+  their `contested_weight` from the PCDepGraph edge's histogram, not from the pass.
+- **`eval/baselines/make_tables.py`** — reads none of `hb_sync_pass`, `hb_races_sync_only` or
+  `contested_weight` (no occurrence); its tables count programs and pc pairs.
+- **`eval/LATENT_CENSUS.md` / `eval/baselines/latent_census.py`** — the script keeps
+  `sync_count` (the `hb_races_sync_only` count of a verdict's pair) and prints it in the
+  "barrier-pass conflicts" column of its generated latent-pair tables; nothing computes with it,
+  and the report `eval/LATENT_CENSUS.md` neither shows nor uses it.
+- Elsewhere the counts are compared, not used: `setup/t4_parity.py` (`contested_weight` is one
+  field of its verdict key; the aggregates' counts are part of the equality check),
+  `t5b_parity.py`, `t16_parity.py`, `nodump_spot_cmp.py`, `a2_window_count.py`.
+- Not asked, for completeness: the vector-clock `hb_races[*].count` is read by `_a2_flag` (a pair is
+  `a2_uncertain` iff its flagged instances reach the summed count), which feeds the
+  `a2_uncertain=<k>:<m>` row note and `make_tables.py`'s informational A2 column — never a verdict
+  or class. Scalar-clock mode writes no `hb_races`.
+
+So no verdict, class or table cell depends on the sync-pass counts; they appear as
+`contested_weight` of event-stream candidates and in the census script's display column.
+
+{{SLOTS}}
+
 ## 3. Verification A — the green set (tested)
 
 `setup/t22_check.sh`, job 312955 (c28, final build), the merge-check protocol: (0) the default tool
@@ -241,7 +277,32 @@ The N=32 heartwall run's kept partial dump contains one kernel JSON that does no
 inside `hb_rmw_points` without the closing brace — the 900 s kill landed while it was being written
 (`t22_inspect.py unreadable`, job 313068). The N=16 run has no such file.
 
-{{C}}
+### 5.2 Step C — heartwall and knn, X1 inputs, full runs
+
+Released by Jeffery on 2026-10-16 (X1-follow's bisect: scalar-clock mode flat through T15, its only
+crossing at T4 — the first online sync pass, not a regression — and the vector-clock culprit at T9
+cannot change the scalar-clock N=1 baseline). `setup/t22_perf.sh`: the harness, scalar-clock mode,
+no dump, `HB_STATS`, one rep, cap = floor = 86,400 s (X1's 24 h pass), c28. N=1 is X1's own 24 h
+row (not repeated: it is 9–12 h per program; the same-node N=1 per-kernel time is §5.1's). "Peak" is
+the harness's peak of summed VmRSS (X1's column).
+
+| program | N | host | tool wall | native | events | µs / event | peak (MB) | verdict | vs X1 N=1 |
+|---|---|---|---|---|---|---|---|---|---|
+| heartwall | 1 (X1, final-24h-sc) | c52 (EPYC 9115) | 32,057.2 s | 0.778 s | 8,071,484,636 | 3.972 | 6,186 | RACE, 2 | — |
+| heartwall | **32** | c28 (EPYC 9745) | **2,014.8 s** | 0.820 s | 8,071,484,636 | **0.250** | 6,390 | RACE, 2 | 15.9× (cross-host) |
+| heartwall | 8 | c28 | {{HW8}} | | | | | | |
+| knn | 1 (X1, final-24h-sc) | c66 (EPYC 8124P) | 44,762.4 s | 13.744 s | 11,144,912,500 | 4.016 | 20,558 | CLEAN | — |
+| knn | **32** | c28 | **4,361.4 s** | 6.427 s | 11,144,912,500 | **0.391** | 41,537 | CLEAN | 10.3× (cross-host) |
+| knn | 8 | c28 | {{KN8}} | | | | | | |
+
+Same events and same verdicts as X1's rows (heartwall 104 kernels, knn 300). Cross-host caveat: the
+same-node per-kernel ratios of §5.1 (heartwall 376 → 20 s per big kernel at N=32, 18.8×; knn 378 → 49 s
+per iteration at N=16) are the like-for-like numbers; the walls above compare c28 with X1's hosts.
+X1-follow's collector-only runs (`YOSEMITE_HB_TRACE` unset, `-n 1`, c66/c61, EPYC 8124P) took 2,345 s
+(heartwall) and 3,304 s (knn) — the collector plus the single-worker PCDepGraph pass, a floor the
+sharded pass cannot go below on those hosts.
+
+{{CTL}}
 
 ## 6. Memory
 
