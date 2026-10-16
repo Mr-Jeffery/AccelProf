@@ -92,7 +92,7 @@ which is `{this}` in the serial pass (same output).
    kernel, a floor above the shards at N ≥ 16 (§5.1). They are now distributed by block / warp
    chunk (§1.3).
 3. *cp.async copies* go to every shard (their issue is a clock operation); the brief lists only
-   arrivals and exits. The proof remark says the same (§7).
+   arrivals and exits. The proof remark says the same (§8).
 4. *`hb_stats`* differs from the serial pass by design: sums over the shards plus a `sharded` block
    (§2). It is diagnostic; no verdict reads it.
 
@@ -177,7 +177,13 @@ cap, which holds its first six launches (job 313218). Printout `setup/t22_slots.
 | nbody | 2, 5 | `accumulate_energy` | 20,004 | 20,003 | 0 (8,004 visited) | 0.0 | 2 | 0x2f0 | 0x7fc27b09c400 | 2 |
 
 Full per-kernel rows (incl. slots in the buckets met and visited): `setup/t22_slots.txt`.
-{{PCMAP}}
+The hot pcs, from `nvdisasm -c -g` of the cubins extracted from the two binaries
+(`eval/baselines/bin/P7/{bfs,nbody}-cuda`, on c58): bfs `Kernel2` +0x160 is `STG.E.U8 [R2.64], R0`
+at `HeCBench/src/bfs-cuda/bfs.cu:59`, `*d_over=1;`; nbody `accelerate_particles` +0x230 and +0x290
+are `LDG.E R33, [R4.64+0x78]` and `LDG.E R12, [R4.64+0x4c]` at
+`HeCBench/src/nbody-cuda/GSimulationKernels.hpp:16`, `auto pj = p[j];` (every thread loads every
+particle, n = 16,000). (A first attempt, job 313254, printed no instruction: its function-name
+lookup failed; the lines above were taken by hand from the full listing.)
 
 Reading. **bfs:** of the 179,046,138,430 slots tested, `Kernel2` holds 179,042,735,844 (99.998 %)
 and its launches 13, 15, 17 alone 178,559,539,633 (99.73 %); the largest bucket of every `Kernel2`
@@ -337,10 +343,10 @@ the harness's peak of summed VmRSS (X1's column).
 |---|---|---|---|---|---|---|---|---|---|
 | heartwall | 1 (X1, final-24h-sc) | c52 (EPYC 9115) | 32,057.2 s | 0.778 s | 8,071,484,636 | 3.972 | 6,186 | RACE, 2 | — |
 | heartwall | **32** | c28 (EPYC 9745) | **2,014.8 s** | 0.820 s | 8,071,484,636 | **0.250** | 6,390 | RACE, 2 | 15.9× (cross-host) |
-| heartwall | 8 | c28 | {{HW8}} | | | | | | |
+| heartwall | 8 | c28 | 4,951.4 s | 0.870 s | 8,071,484,636 | 0.613 | 6,319 | RACE, 2 | 6.5× (cross-host) |
 | knn | 1 (X1, final-24h-sc) | c66 (EPYC 8124P) | 44,762.4 s | 13.744 s | 11,144,912,500 | 4.016 | 20,558 | CLEAN | — |
 | knn | **32** | c28 | **4,361.4 s** | 6.427 s | 11,144,912,500 | **0.391** | 41,537 | CLEAN | 10.3× (cross-host) |
-| knn | 8 | c28 | {{KN8}} | | | | | | |
+| knn | 8 | c28 | 6,758.6 s | 6.582 s | 11,144,912,500 | 0.606 | 24,960 | CLEAN | 6.6× (cross-host) |
 
 Same events and same verdicts as X1's rows (heartwall 104 kernels, knn 300). Cross-host caveat: the
 same-node per-kernel ratios of §5.1 (heartwall 376 → 20 s per big kernel at N=32, 18.8×; knn 378 → 49 s
@@ -349,7 +355,22 @@ X1-follow's collector-only runs (`YOSEMITE_HB_TRACE` unset, `-n 1`, c66/c61, EPY
 (heartwall) and 3,304 s (knn) — the collector plus the single-worker PCDepGraph pass, a floor the
 sharded pass cannot go below on those hosts.
 
-{{CTL}}
+**Controls** (two short programs from X1's 4–5× band; 3 reps each at N = 1, 8, 32, cap 1,200 s,
+c28, job 313143): no regression at N > 1.
+
+| program | events | N=1 walls (s) | N=8 | N=32 | verdict (all reps) | peak (MB), N=1 / 8 / 32 |
+|---|---|---|---|---|---|---|
+| P5-norace_interblock_atom (X1: 4.9×) | 4 | 3.673, 0.768, 0.819 | 0.868, 0.818, 0.718 | 1.119, 0.718, 0.768 | CLEAN | 791–845 / 673–843 / 789–845 |
+| P1-CC_CUDA_V_Topo_Push_…_Warp_…-slower_atomic-1296n (X1: 4.9×) | 93,477 / 85,410 / 93,828 | 1.168, 1.118, 1.068 | 1.069, 1.269, 1.118 | 1.068, 1.169, 1.068 | RACE, 4 | 847–851 / 863–867 / 923–927 |
+
+Medians: 0.819 / 0.818 / 0.768 s and 1.118 / 1.118 / 1.068 s. (The 3.673 s first rep at N=1 is
+the first launch after the build; it is not repeated.) The P1 program's event count differs run
+to run (atomics-driven worklist), not with N. Native 0.217 s for both.
+
+**Choice of N.** On c28 (128 cores) N=32 is the fastest measured on both programs (heartwall per
+big kernel: 49 / 27 / 20 s at N = 8 / 16 / 32, §5.1; full runs 4,951 vs 2,015 s; knn 6,759 vs
+4,361 s), so step D uses N=32. On a 16-core rtx4060ti16g host the shards would share 16 cores with the
+router, the PCDepGraph worker and the collector's threads; no run there was possible (§0).
 
 ## 6. Memory
 
@@ -376,7 +397,45 @@ all N). It is small for grids of thousands of threads (heartwall) and grows with
 +0.63 GiB per shard). Larger grids (pathfinder: 100 M threads) were not measured here. The R3 points' per-thread state is not replicated (each warp
 chunk's in one shard), and the monitor's state is per block in one shard.
 
-{{D}}
+## 7. Step D — the X1 partial rows, scalar-clock mode, N = 32
+
+Released by Jeffery on 2026-10-16 for every partial row except bfs and nbody. X1's scalar-clock rows
+that are partial at their last cap (`final-24h-sc`, with X1-follow's `partial:` notes): particlefilter,
+stencil1d, expdist, atomicCAS. The other rows the brief named are finished in scalar-clock mode in
+X1 and were not re-recorded ("do not re-record finished rows"): heartwall (RACE, 32,057 s) and knn
+(CLEAN, 44,762 s) — run in full in step C anyway; tridiagonal (RACE, 36,768 s); pathfinder (RACE,
+19,225 s); bfs (RACE, 1,507 s at the 5,400 s pass) and nbody (CLEAN, 8,015 s), which are also gated.
+**Cap:** c28 is admitted only by `rtx4060ti8g` (1-day job limit; `all` and `qc` refuse the submission,
+`max` does not contain c28), so the tool cap is 84,600 s, 1,800 s under X1's 86,400 s, to leave the
+harness's native runs, sidecar and analysis inside one job — a shorter cap can only make a row
+harder to finish. `setup/t22_perf.sh`, harness, no dump, `HB_STATS`, one rep.
+
+| program | X1 N=1 (final-24h-sc) | T22 N=32 (c28) | note now |
+|---|---|---|---|
+| P9-expdist-cuda | TIMEOUT, 86,400 s, partial: 32 kernels; peak 9,912 MB (5,400 s pass: 0 kernels) | **RACE, 22 reports, 3,387.7 s, 40 kernels, 1,652,680,826 events (2.05 µs/event), peak 18,173 MB** | finished: the partial note goes |
+| P7-particlefilter-cuda | RACE, 31 (partial: OOM after 3 kernels, 5,791 s, peak 186,169 MB on c66, a 188 GB host) | RACE, 31 (partial(rc=1): **OOM after 3 kernels, 915.0 s, peak 757,785 MB** on c28, 755 GB) | still partial: "partial: OOM after 3 of ? kernels, 915 s, cap=84600" |
+| P7-stencil1d-cuda | TIMEOUT, 86,400 s, partial: 147 kernels; peak 84,061 MB | {{STENCIL}} | |
+| P9-atomicCAS-cuda | TIMEOUT, 86,400 s, partial: 60,000 kernels; peak 908 MB | {{ATOMICCAS}} | |
+
+particlefilter: the run reached the same 3 completed kernels and the same 31 reports as X1's, and ran
+out of memory in the 4th kernel on a node with four times the memory; the memory growth inside that
+kernel cannot be attributed from these runs (no kernel-end statistics for an unfinished kernel, and
+`YOSEMITE_HB_STATS_EVERY` is ignored with sharding — §1). It grew at ≈ 830 MB/s against X1's ≈ 32 MB/s;
+whether the sharded pass holds more per record than the serial one there (allocator arenas of 32
+threads, per-shard slot-array slack) is **not measured**.
+
+## 8. Proof
+
+`design/proof/hb_proof.tex`: one remark after Corollary "The sync instance", Remark "Partition by
+location" (`\label{rem:partition}`): under M = sync the clocks and the assembly state are written only
+at exits, barrier arrivals, syncwarps, commits, waits and copy issues; a memory record on ℓ reads the
+clocks and B_ℓ and writes B_ℓ alone; so runs that each process every such record and the memory
+records of one part of a partition of the locations compute, by induction on seq, the serial clocks
+and the serial buckets of their part, and their reports union to Rep of the sync instance; the
+per-pair aggregate is then the runs' sum, maximum and seq-earliest; it does not extend to M = vec
+(an RMW joins Ch_ℓ into clk[t]). The document compiles (TeX Live 2026, `pdflatex` twice: 20 pages,
+no undefined reference; the same font-shape warnings as the cuVein version, 19 pages). **For
+Jeffery's check**; no other proof change.
 
 ## 9. What remains unverified
 
@@ -390,9 +449,9 @@ chunk's in one shard), and the monitor's state is per block in one shard.
   and by the synthetic traces (B3). `test_cp_async.py` records in vector-clock mode only (its
   scalar-clock view is derived offline), so the green set does not exercise the sharded copy path.
 - Hosts: every GPU run is on c28 (Turin, 128 hardware threads in the job); the rtx4060ti16g hosts
-  (16 cores) were allocated. {{HOSTNOTE}}
+  (16 cores) were allocated. Step C's and D's walls are c28's (EPYC 9745) against X1's N=1 rows on c52 (EPYC 9115) and c66 (EPYC 8124P): those ratios are cross-host; §5.1's same-node per-kernel ratios are like for like. N=16 on a 16-core host (the core-count case of the brief) was not run.
 - `hb_stats` of a sharded run is a sum, not the serial pass's numbers (by design, §2).
-- The proof remark (§7) is checked by Jeffery, not by a second reader here.
+- The proof remark (§8) is checked by Jeffery, not by a second reader here.
 
 ## 10. Commands
 
@@ -416,5 +475,16 @@ sbatch -p rtx4060ti8g -w c28 --export=ALL,RUNS="P7-heartwall-cuda:16 P7-heartwal
   P7-heartwall-cuda:8",CAP=900,TAG=t22-diag3 -o <log> eval/baselines/setup/t22_diag.sh
 .env/bin/python eval/baselines/setup/t22_diag_summary.py <diag logs>
 sbatch -p rtx4060ti8g -w c28 -o <log> eval/baselines/setup/t22_inspect.sh
-{{CCMD}}
+# C (c28, partition rtx4060ti8g, one job per pair; N=1 is X1's row)
+sbatch -p rtx4060ti8g -w c28 --export=ALL,RUNS="P7-heartwall-cuda:32 P9-knn-cuda:32",CAP=86400,TAG=t22-perf \
+  -o <log> eval/baselines/setup/t22_perf.sh          # and RUNS="P7-heartwall-cuda:8 P9-knn-cuda:8"
+sbatch -p rtx4060ti8g -w c28 --export=ALL,RUNS="P5-norace_interblock_atom:1:3 …:8:3 …:32:3 <P1 id>:1:3 …",\
+  CAP=1200,TAG=t22-ctl -o <log> eval/baselines/setup/t22_perf.sh
+# D (one job per program, chained)
+sbatch -p rtx4060ti8g -w c28 --time=1-00:00:00 --export=ALL,RUNS="P9-expdist-cuda:32",CAP=84600,TAG=t22-d \
+  -o <log> eval/baselines/setup/t22_perf.sh          # particlefilter, stencil1d, atomicCAS likewise
+# 2.2 (private counter build: an export of cuVein's sanalyzer/ patched outside the repo)
+W=<scratch> sbatch -p rtx4060ti8g -w c28 eval/baselines/setup/t22_build.sh
+W=<scratch> RUNS="P7-bfs-cuda:1" CAP=5400 TAG=t22-slot sbatch … eval/baselines/setup/t22_perf.sh   # nbody: CAP=1800
+sbatch -p rtx4060ti8g -w c28 eval/baselines/setup/t22_slots.sh
 ```
