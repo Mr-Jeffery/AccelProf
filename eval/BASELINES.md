@@ -58,26 +58,17 @@ Every program that was ERROR/TIMEOUT in scalar-clock mode (plus all of P7) was r
 
 | mode | cause | n |
 |---|---|---|
-| vector-clock | hb-clock-hang | 1 |
-| vector-clock | hb-state-memory | 4 |
+| vector-clock | hb-state-memory | 2 |
 | vector-clock | needs-sm90 | 16 |
 | vector-clock | no-kernel-in-cap | 1 |
-| vector-clock | resolved | 2 |
-| vector-clock | time-cap | 5 |
-| scalar-clock | hb-state-memory | 2 |
+| scalar-clock | hb-state-memory | 1 |
 | scalar-clock | needs-sm90 | 16 |
-| scalar-clock | no-kernel-in-cap | 1 |
-| scalar-clock | resolved | 3 |
-| scalar-clock | time-cap | 7 |
+| scalar-clock | time-cap | 2 |
 
-**cuVein-attributable (collector-fail/hang/memory/oom + trace-disk-full + hb-clock-hang + analysis-oom/timeout): 1 of 58 (program,mode) rows.**
+**cuVein-attributable (collector-fail/hang/memory/oom + trace-disk-full + hb-clock-hang + analysis-oom/timeout): 0 of 38 (program,mode) rows.**
 
 | pset | program | mode | verdict | cause | native_rc | timeout_s | dump_mb | peak_mb | wall_s | native_wall_s | evidence |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| P6 | asyncmemcpy/kernel_memcpy_dtoh_race | vector-clock | TIMEOUT | hb-state-memory | 0 | 5400 | 0.0 | 37132.8 | 5400.005 | 1.721 | ./asyncmemcpy__kernel_memcpy_dtoh_race__fixed.sm86.out  / Running the pc_dependency_analysis tool for asyncmemcpy__kerne |
-| P6 | asyncmemcpy/kernel_memcpy_dtoh_race | scalar-clock | RACE | resolved | 0 |  |  | 65897.3 | 4601.344 | 1.721 | events=423624704 |
-| P6 | asyncmemcpy/kernel_memcpy_dtoh_race | vector-clock | TIMEOUT | hb-state-memory | 0 | 5400 | 0.0 | 37158.1 | 5400.016 | 1.671 | ./asyncmemcpy__kernel_memcpy_dtoh_race__racy.sm86.out  / Running the pc_dependency_analysis tool for asyncmemcpy__kernel |
-| P6 | asyncmemcpy/kernel_memcpy_dtoh_race | scalar-clock | RACE | resolved | 0 |  |  | 65893.2 | 4607.817 | 1.671 | events=423624704 |
 | P6 | bulkcpy/global_readwrite_race | vector-clock | ERROR | needs-sm90 | 0 |  |  |  |  |  |  |
 | P6 | bulkcpy/global_readwrite_race | scalar-clock | ERROR | needs-sm90 | 0 |  |  |  |  |  |  |
 | P6 | bulkcpy/global_readwrite_race | vector-clock | ERROR | needs-sm90 | 0 |  |  |  |  |  |  |
@@ -110,28 +101,12 @@ Every program that was ERROR/TIMEOUT in scalar-clock mode (plus all of P7) was r
 | P6 | dsmem/shared_writewrite_race | scalar-clock | ERROR | needs-sm90 | 0 |  |  |  |  |  |  |
 | P6 | dsmem/shared_writewrite_race | vector-clock | ERROR | needs-sm90 | 0 |  |  |  |  |  |  |
 | P6 | dsmem/shared_writewrite_race | scalar-clock | ERROR | needs-sm90 | 0 |  |  |  |  |  |  |
-| P7 | bfs-cuda | vector-clock | TIMEOUT | hb-clock-hang | 0 | 5400 | 0.6 | 1552.5 | 5400.019 | 1.421 | ./bfs-cuda ../data/bfs/graph1MW_6.txt / Running the pc_dependency_analysis tool for bfs-cuda... |
-| P7 | bfs-cuda | scalar-clock | RACE | resolved | 0 |  |  | 1718.2 | 1506.976 | 1.421 | events=7436165 |
-| P7 | haversine-cuda | vector-clock | CLEAN | resolved | 0 |  |  | 9517.2 | 4984.198 | 2.521 | events=629145600 |
-| P7 | haversine-cuda | scalar-clock | TIMEOUT | time-cap | 0 | 5400 | 2.2 | 8328.4 | 5400.006 | 3.575 | ./haversine-cuda /home/fzheng4/AccelProf/eval/baselines/corpora/HeCBench/src/geodesic-cuda/locations.txt 100 / Running t |
-| P7 | heartwall-cuda | vector-clock | TIMEOUT | time-cap | 0 | 5400 | 7.7 | 6178.8 | 5400.006 | 0.87 | ./heartwall-cuda 104 / Running the pc_dependency_analysis tool for heartwall-cuda... |
-| P7 | heartwall-cuda | scalar-clock | TIMEOUT | time-cap | 0 | 5400 | 15.4 | 6182.4 | 5400.004 | 0.771 | ./heartwall-cuda 104 / Running the pc_dependency_analysis tool for heartwall-cuda... |
-| P7 | nbody-cuda | vector-clock | TIMEOUT | time-cap | 0 | 5400 | 0.8 | 28999.0 | 5400.005 | 12.139 | ./nbody-cuda 16000 10 / Running the pc_dependency_analysis tool for nbody-cuda... |
-| P7 | nbody-cuda | scalar-clock | TIMEOUT | time-cap | 0 | 5400 | 0.8 | 28986.7 | 5400.004 | 12.141 | ./nbody-cuda 16000 10 / Running the pc_dependency_analysis tool for nbody-cuda... |
-| P7 | particlefilter-cuda | vector-clock | RACE | resolved | 0 |  |  | 185440.8 | 5320.796 | 1.219 | events=5643848 |
-| P7 | particlefilter-cuda | scalar-clock | TIMEOUT | hb-state-memory | 0 | 5400 | 0.2 | 185879.1 | 5401.937 | 1.22 | ./particlefilter-cuda -x 128 -y 128 -z 10 -np 400000 / Running the pc_dependency_analysis tool for particlefilter-cuda.. |
-| P7 | pathfinder-cuda | vector-clock | TIMEOUT | time-cap | 0 | 5400 | 0.9 | 16639.2 | 5400.005 | 1.52 | ./pathfinder-cuda 100000 1000 5 / Running the pc_dependency_analysis tool for pathfinder-cuda... |
-| P7 | pathfinder-cuda | scalar-clock | TIMEOUT | time-cap | 0 | 5400 | 1.3 | 5908.3 | 5400.006 | 1.471 | ./pathfinder-cuda 100000 1000 5 / Running the pc_dependency_analysis tool for pathfinder-cuda... |
-| P7 | stencil1d-cuda | vector-clock | TIMEOUT | hb-state-memory | 0 | 5400 | 0.4 | 98193.3 | 5400.005 | 4.877 | ./stencil1d-cuda 134217728 1000 / Running the pc_dependency_analysis tool for stencil1d-cuda... |
-| P7 | stencil1d-cuda | scalar-clock | TIMEOUT | hb-state-memory | 0 | 5400 | 0.5 | 83717.6 | 5400.018 | 4.877 | ./stencil1d-cuda 134217728 1000 / Running the pc_dependency_analysis tool for stencil1d-cuda... |
+| P7 | stencil1d-cuda | vector-clock | TIMEOUT | hb-state-memory | 0 | 86400 | 7.5 | 98494.6 | 86400.019 | 5.532 | ./stencil1d-cuda 134217728 1000 / Running the pc_dependency_analysis tool for stencil1d-cuda... |
+| P7 | stencil1d-cuda | scalar-clock | TIMEOUT | hb-state-memory | 0 | 86400 | 9.1 | 84060.7 | 86400.005 | 5.028 | ./stencil1d-cuda 134217728 1000 / Running the pc_dependency_analysis tool for stencil1d-cuda... |
 | P9 | atomicCAS-cuda | vector-clock | TIMEOUT | hb-state-memory | 0 | 5400 | 36.5 | 99252.8 | 5400.005 | 3.775 | ./atomicCAS-cuda 10000 / Running the pc_dependency_analysis tool for atomicCAS-cuda... |
-| P9 | atomicCAS-cuda | scalar-clock | TIMEOUT | time-cap | 0 | 5400 | 131.8 | 898.3 | 5400.005 | 3.773 | ./atomicCAS-cuda 10000 / Running the pc_dependency_analysis tool for atomicCAS-cuda... |
-| P9 | expdist-cuda | vector-clock | TIMEOUT | no-kernel-in-cap | 0 | 5400 | 0.0 | 12813.2 | 5400.014 | 2.173 | ./expdist-cuda 10000 10 / Running the pc_dependency_analysis tool for expdist-cuda... |
-| P9 | expdist-cuda | scalar-clock | TIMEOUT | no-kernel-in-cap | 0 | 5400 | 0.0 | 6419.0 | 5400.019 | 2.122 | ./expdist-cuda 10000 10 / Running the pc_dependency_analysis tool for expdist-cuda... |
-| P9 | knn-cuda | vector-clock | TIMEOUT | time-cap | 0 | 5400 | 2.4 | 21780.4 | 5400.005 | 13.594 | ./knn-cuda 100 / Running the pc_dependency_analysis tool for knn-cuda... |
-| P9 | knn-cuda | scalar-clock | TIMEOUT | time-cap | 0 | 5400 | 3.2 | 20086.2 | 5400.019 | 13.793 | ./knn-cuda 100 / Running the pc_dependency_analysis tool for knn-cuda... |
-| P9 | tridiagonal-cuda | vector-clock | TIMEOUT | time-cap | 0 | 5400 | 2.6 | 8744.0 | 5400.007 | 0.721 | ./tridiagonal-cuda -num_systems=30000 / Running the pc_dependency_analysis tool for tridiagonal-cuda... |
-| P9 | tridiagonal-cuda | scalar-clock | TIMEOUT | time-cap | 0 | 5400 | 3.7 | 8327.7 | 5400.008 | 0.67 | ./tridiagonal-cuda -num_systems=30000 / Running the pc_dependency_analysis tool for tridiagonal-cuda... |
+| P9 | atomicCAS-cuda | scalar-clock | TIMEOUT | time-cap | 0 | 86400 | 197.5 | 908.1 | 86400.03 | 3.936 | ./atomicCAS-cuda 10000 / Running the pc_dependency_analysis tool for atomicCAS-cuda... |
+| P9 | expdist-cuda | vector-clock | TIMEOUT | no-kernel-in-cap | 0 | 86400 | 0.0 | 20364.1 | 86400.015 | 2.231 | ./expdist-cuda 10000 10 / Running the pc_dependency_analysis tool for expdist-cuda... |
+| P9 | expdist-cuda | scalar-clock | TIMEOUT | time-cap | 0 | 86400 | 5.2 | 9912.1 | 86400.016 | 2.24 | ./expdist-cuda 10000 10 / Running the pc_dependency_analysis tool for expdist-cuda... |
 
 ## 2. Verdicts per program set
 
@@ -147,7 +122,7 @@ SuperCollider appears here only through P6: its compiler pass is not distributed
 
 | tool | TP | FN | FP | TN | err/TO | precision | recall | F1 | FP rate | geomean× | median peak MB |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| cuVein-VC | 1937 | 170 | 19 | 1549 | 2 | 0.99 | 0.92 | 0.95 | 0.01 | 5.3 | 849 |
+| cuVein-VC | 1938 | 170 | 20 | 1549 | 0 | 0.99 | 0.92 | 0.95 | 0.01 | 5.4 | 849 |
 | cuVein-SC | 1937 | 171 | 19 | 1550 | 0 | 0.99 | 0.92 | 0.95 | 0.01 | 5.2 | 848 |
 | racecheck | 288 | 1819 | 0 | 1569 | 17 | 1.00 | 0.14 | 0.24 | 0.00 | 2.8 | — |
 | HiRace | 1714 | 148 | 0 | 1260 | 0 | 1.00 | 0.92 | 0.96 | 0.00 | 1.0 | 103 |
@@ -159,12 +134,12 @@ Agreement with cuVein-VC on programs where both tools reached a verdict:
 
 | other tool | programs | agree | cuVein-VC RACE, other CLEAN | cuVein-VC CLEAN, other RACE |
 |---|---|---|---|---|
-| cuVein-SC | 4683 | 99% | 2 | 0 |
-| racecheck | 4682 | 49% | 2373 | 0 |
+| cuVein-SC | 4685 | 99% | 2 | 0 |
+| racecheck | 4684 | 49% | 2375 | 0 |
 | HiRace | 4130 | 95% | 185 | 0 |
-| iGUARD | 4681 | 75% | 259 | 893 |
-| SuperCollider | 131 | 91% | 7 | 4 |
-| compute-sanitizer(any) | 4683 | 57% | 1781 | 219 |
+| iGUARD | 4683 | 75% | 261 | 893 |
+| SuperCollider | 133 | 90% | 9 | 4 |
+| compute-sanitizer(any) | 4685 | 57% | 1783 | 219 |
 
 ### SuperCollider-matched sets (P6 cuHadron + its 99-test subset of PI Indigo original + P9 HeCBench-10)
 
@@ -172,8 +147,8 @@ The only programs SuperCollider ships instrumented. Every other tool ran our own
 
 | tool | TP | FN | FP | TN | err/TO | precision | recall | F1 | FP rate | geomean× | median peak MB |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| cuVein-VC | 50 | 8 | 0 | 69 | 6 | 1.00 | 0.86 | 0.93 | 0.00 | 6.4 | 848 |
-| cuVein-SC | 51 | 8 | 1 | 69 | 4 | 0.98 | 0.86 | 0.92 | 0.01 | 6.8 | 848 |
+| cuVein-VC | 52 | 9 | 1 | 69 | 2 | 0.98 | 0.85 | 0.91 | 0.01 | 8.0 | 848 |
+| cuVein-SC | 52 | 9 | 1 | 69 | 2 | 0.98 | 0.85 | 0.91 | 0.01 | 7.6 | 848 |
 | racecheck | 7 | 54 | 0 | 70 | 18 | 1.00 | 0.11 | 0.21 | 0.00 | 3.2 | — |
 | HiRace | 43 | 2 | 0 | 44 | 0 | 1.00 | 0.96 | 0.98 | 0.00 | 1.1 | 103 |
 | iGUARD | 41 | 19 | 29 | 40 | 20 | 0.59 | 0.68 | 0.63 | 0.42 | 2.7 | 172 |
@@ -184,12 +159,12 @@ Agreement with cuVein-VC on programs where both tools reached a verdict:
 
 | other tool | programs | agree | cuVein-VC RACE, other CLEAN | cuVein-VC CLEAN, other RACE |
 |---|---|---|---|---|
-| cuVein-SC | 137 | 100% | 0 | 0 |
-| racecheck | 137 | 64% | 48 | 0 |
+| cuVein-SC | 141 | 100% | 0 | 0 |
+| racecheck | 139 | 64% | 50 | 0 |
 | HiRace | 99 | 95% | 4 | 0 |
-| iGUARD | 135 | 69% | 9 | 32 |
-| SuperCollider | 137 | 91% | 7 | 4 |
-| compute-sanitizer(any) | 137 | 65% | 42 | 5 |
+| iGUARD | 138 | 68% | 12 | 32 |
+| SuperCollider | 141 | 90% | 9 | 5 |
+| compute-sanitizer(any) | 139 | 64% | 44 | 5 |
 
 ### cuVein vs SuperCollider, program by program (matched sets)
 
@@ -197,17 +172,19 @@ Programs where exactly one of the two reports a race, split by who the label fav
 
 | set | cuVein mode | both RACE | both CLEAN | cuVein only (label RACE / CLEAN / none) | SuperCollider only (label RACE / CLEAN / none) | cuVein ERR/TO where SC has a verdict | SC ERR/TO where cuVein has a verdict |
 |---|---|---|---|---|---|---|---|
-| P6 | vector-clock | 5 | 22 | 1 / 0 / 0 | 4 / 0 / 0 | 2 | 0 |
+| P6 | vector-clock | 5 | 22 | 2 / 1 / 0 | 4 / 0 / 0 | 0 | 0 |
 | P6 | scalar-clock | 5 | 22 | 2 / 1 / 0 | 4 / 0 / 0 | 0 | 0 |
 | PI Indigo original — SuperCollider's 99-test subset (view) | vector-clock | 42 | 51 | 4 / 0 / 2 | 0 / 0 / 0 | 0 | 0 |
 | PI Indigo original — SuperCollider's 99-test subset (view) | scalar-clock | 42 | 51 | 4 / 0 / 2 | 0 / 0 / 0 | 0 | 0 |
-| P9 | vector-clock | 1 | 5 | 0 / 0 / 0 | 0 / 0 / 0 | 4 | 0 |
-| P9 | scalar-clock | 1 | 5 | 0 / 0 / 0 | 0 / 0 / 0 | 4 | 0 |
+| P9 | vector-clock | 2 | 5 | 0 / 0 / 0 | 1 / 0 / 0 | 2 | 0 |
+| P9 | scalar-clock | 2 | 5 | 0 / 0 / 0 | 1 / 0 / 0 | 2 | 0 |
 
-<details><summary>11 split programs (cuVein vector-clock vs SuperCollider)</summary>
+<details><summary>14 split programs (cuVein vector-clock vs SuperCollider)</summary>
 
 | set | program | build | label | who reports |
 |---|---|---|---|---|
+| P6 | asyncmemcpy/kernel_memcpy_dtoh_race | fixed | CLEAN | cuVein only |
+| P6 | asyncmemcpy/kernel_memcpy_dtoh_race | racy | RACE | cuVein only |
 | P6 | asyncmemcpy/memcpy_htod_kernel_race | racy | RACE | SuperCollider only |
 | P6 | hostdevice/global_writeread_race | racy | RACE | SuperCollider only |
 | P6 | hostdevice/global_writewrite_race | racy | RACE | SuperCollider only |
@@ -219,6 +196,7 @@ Programs where exactly one of the two reports a race, split by who the label fav
 | PI@sc | pull_node_neighbors_block_cond_syncBug | sc-subset | RACE | cuVein only |
 | PI@sc | pull_node_neighbors_block_persistent_cond_syncBug | sc-subset | RACE | cuVein only |
 | PI@sc | pull_node_neighbors_block_persistent_reverse_cond_syncBug | sc-subset | RACE | cuVein only |
+| P9 | knn-cuda | default | RACE | SuperCollider only |
 
 </details>
 
@@ -256,22 +234,22 @@ Current rows: HEAD: 40941876e5ca39120954a65d20a924e4a1462d20 (cuVein) working-tr
 | P5 ScoR micro + canary | scalar-clock | current | 2 | 17 | 0 | 14 | 0 | 1.00 | 0.11 | 4.6 |
 | P6 cuHadron | vector-clock | fe694b5 | 5 | 6 | 0 | 19 | 4 | 1.00 | 0.45 | 5.7 |
 | P6 cuHadron | vector-clock | 2026-09-18 | 5 | 6 | 0 | 19 | 4 | 1.00 | 0.45 | 7.0 |
-| P6 cuHadron | vector-clock | current | 6 | 6 | 0 | 20 | 2 | 1.00 | 0.50 | 5.4 |
+| P6 cuHadron | vector-clock | current | 7 | 6 | 1 | 20 | 0 | 0.88 | 0.54 | 5.4 |
 | P6 cuHadron | scalar-clock | fe694b5 | 5 | 7 | 0 | 20 | 2 | 1.00 | 0.42 | 5.7 |
 | P6 cuHadron | scalar-clock | 2026-09-18 | 5 | 7 | 0 | 20 | 2 | 1.00 | 0.42 | 6.8 |
 | P6 cuHadron | scalar-clock | current | 7 | 6 | 1 | 20 | 0 | 0.88 | 0.54 | 5.6 |
-| P7 HeCBench (overhead) | vector-clock | fe694b5 | 0 | 0 | 0 | 0 | 9 |  |  | 525.7 |
-| P7 HeCBench (overhead) | vector-clock | 2026-09-18 | 0 | 0 | 0 | 0 | 11 |  |  | 204.9 |
-| P7 HeCBench (overhead) | vector-clock | current | 0 | 0 | 0 | 0 | 5 |  |  | 334.2 |
-| P7 HeCBench (overhead) | scalar-clock | fe694b5 | 0 | 0 | 0 | 0 | 8 |  |  | 3.6 |
-| P7 HeCBench (overhead) | scalar-clock | 2026-09-18 | 0 | 0 | 0 | 0 | 10 |  |  | 37.5 |
-| P7 HeCBench (overhead) | scalar-clock | current | 0 | 0 | 0 | 0 | 6 |  |  | 174.8 |
+| P7 HeCBench (overhead) | vector-clock | fe694b5 | 0 | 0 | 0 | 0 | 9 |  |  | 92.1 |
+| P7 HeCBench (overhead) | vector-clock | 2026-09-18 | 0 | 0 | 0 | 0 | 11 |  |  | 164.5 |
+| P7 HeCBench (overhead) | vector-clock | current | 0 | 0 | 0 | 0 | 1 |  |  | 950.1 |
+| P7 HeCBench (overhead) | scalar-clock | fe694b5 | 0 | 0 | 0 | 0 | 8 |  |  | 12.1 |
+| P7 HeCBench (overhead) | scalar-clock | 2026-09-18 | 0 | 0 | 0 | 0 | 10 |  |  | 54.8 |
+| P7 HeCBench (overhead) | scalar-clock | current | 0 | 0 | 0 | 0 | 1 |  |  | 458.1 |
 | P9 HeCBench — SuperCollider's 10-app subset | vector-clock | fe694b5 | 0 | 0 | 1 | 1 | 8 | 0.00 |  | 262.1 |
 | P9 HeCBench — SuperCollider's 10-app subset | vector-clock | 2026-09-18 | 0 | 0 | 1 | 1 | 8 | 0.00 |  | 366.5 |
-| P9 HeCBench — SuperCollider's 10-app subset | vector-clock | current | 1 | 0 | 0 | 5 | 4 | 1.00 | 1.00 | 76.7 |
+| P9 HeCBench — SuperCollider's 10-app subset | vector-clock | current | 2 | 1 | 0 | 5 | 2 | 1.00 | 0.67 | 76.7 |
 | P9 HeCBench — SuperCollider's 10-app subset | scalar-clock | fe694b5 | 0 | 0 | 2 | 2 | 6 | 0.00 |  | 120.6 |
 | P9 HeCBench — SuperCollider's 10-app subset | scalar-clock | 2026-09-18 | 0 | 0 | 1 | 3 | 6 | 0.00 |  | 115.9 |
-| P9 HeCBench — SuperCollider's 10-app subset | scalar-clock | current | 1 | 0 | 0 | 5 | 4 | 1.00 | 1.00 | 137.2 |
+| P9 HeCBench — SuperCollider's 10-app subset | scalar-clock | current | 2 | 1 | 0 | 5 | 2 | 1.00 | 0.67 | 137.2 |
 
 Verdict flips per program (fe694b5 → current), by mode:
 
@@ -280,9 +258,8 @@ Verdict flips per program (fe694b5 → current), by mode:
 | CLEAN → RACE | 2 | 1 |
 | ERROR → CLEAN | 2 | 2 |
 | RACE → CLEAN | 121 | 125 |
-| RACE → TIMEOUT | 1 | 1 |
-| TIMEOUT → CLEAN | 15 | 3 |
-| TIMEOUT → RACE | 24 | 3 |
+| TIMEOUT → CLEAN | 17 | 6 |
+| TIMEOUT → RACE | 29 | 6 |
 
 <details><summary>flipped programs (fe694b5 → current)</summary>
 
@@ -541,8 +518,6 @@ Verdict flips per program (fe694b5 → current), by mode:
 | RACE → CLEAN | scalar-clock | `P5-race_interwarp_none-lock_waw` | RACE |
 | RACE → CLEAN | scalar-clock | `P9-crs-cuda` | CLEAN |
 | RACE → CLEAN | scalar-clock | `P9-fpc-cuda` | CLEAN |
-| RACE → TIMEOUT | vector-clock | `P7-bfs-cuda` |  |
-| RACE → TIMEOUT | scalar-clock | `P7-particlefilter-cuda` |  |
 | TIMEOUT → CLEAN | vector-clock | `P1-BFS_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoOverflowBug_NoLivelockBug-slower_atomic-1296n` | CLEAN |
 | TIMEOUT → CLEAN | vector-clock | `P4-graph-coloring-norace-large` | CLEAN |
 | TIMEOUT → CLEAN | vector-clock | `P4-graph-connectivity-norace-large` | CLEAN |
@@ -555,12 +530,17 @@ Verdict flips per program (fe694b5 → current), by mode:
 | TIMEOUT → CLEAN | vector-clock | `P7-haversine-cuda` |  |
 | TIMEOUT → CLEAN | vector-clock | `P7-hotspot-cuda` |  |
 | TIMEOUT → CLEAN | vector-clock | `P7-lavaMD-cuda` |  |
+| TIMEOUT → CLEAN | vector-clock | `P7-nbody-cuda` |  |
 | TIMEOUT → CLEAN | vector-clock | `P7-srad-cuda` |  |
 | TIMEOUT → CLEAN | vector-clock | `P9-fpc-cuda` | CLEAN |
 | TIMEOUT → CLEAN | vector-clock | `P9-gpp-cuda` | CLEAN |
+| TIMEOUT → CLEAN | vector-clock | `P9-knn-cuda` | RACE |
 | TIMEOUT → CLEAN | scalar-clock | `P7-bitonic-sort-cuda` |  |
+| TIMEOUT → CLEAN | scalar-clock | `P7-haversine-cuda` |  |
 | TIMEOUT → CLEAN | scalar-clock | `P7-lavaMD-cuda` |  |
+| TIMEOUT → CLEAN | scalar-clock | `P7-nbody-cuda` |  |
 | TIMEOUT → CLEAN | scalar-clock | `P7-srad-cuda` |  |
+| TIMEOUT → CLEAN | scalar-clock | `P9-knn-cuda` | RACE |
 | TIMEOUT → RACE | vector-clock | `P1-CC_CUDA_V_Data_Pull_Determ_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-default-1296n` | RACE |
 | TIMEOUT → RACE | vector-clock | `P1-CC_CUDA_V_Data_Pull_Determ_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-slower_atomic-1296n` | RACE |
 | TIMEOUT → RACE | vector-clock | `P1-CC_CUDA_V_Data_Pull_Determ_IntType_Persist_RaceBug_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-default-1296n` | RACE |
@@ -584,10 +564,18 @@ Verdict flips per program (fe694b5 → current), by mode:
 | TIMEOUT → RACE | vector-clock | `P4-matrix-multiplication-racy-large` | RACE |
 | TIMEOUT → RACE | vector-clock | `P4-uts-racy-large` | RACE |
 | TIMEOUT → RACE | vector-clock | `P4-uts-racy-small` | RACE |
+| TIMEOUT → RACE | vector-clock | `P6-asyncmemcpy-kernel_memcpy_dtoh_race-fixed` | CLEAN |
+| TIMEOUT → RACE | vector-clock | `P6-asyncmemcpy-kernel_memcpy_dtoh_race-racy` | RACE |
+| TIMEOUT → RACE | vector-clock | `P7-heartwall-cuda` |  |
+| TIMEOUT → RACE | vector-clock | `P7-pathfinder-cuda` |  |
 | TIMEOUT → RACE | vector-clock | `P9-dxtc2-cuda` | RACE |
+| TIMEOUT → RACE | vector-clock | `P9-tridiagonal-cuda` | RACE |
 | TIMEOUT → RACE | scalar-clock | `P6-asyncmemcpy-kernel_memcpy_dtoh_race-fixed` | CLEAN |
 | TIMEOUT → RACE | scalar-clock | `P6-asyncmemcpy-kernel_memcpy_dtoh_race-racy` | RACE |
+| TIMEOUT → RACE | scalar-clock | `P7-heartwall-cuda` |  |
+| TIMEOUT → RACE | scalar-clock | `P7-pathfinder-cuda` |  |
 | TIMEOUT → RACE | scalar-clock | `P9-dxtc2-cuda` | RACE |
+| TIMEOUT → RACE | scalar-clock | `P9-tridiagonal-cuda` | RACE |
 
 </details>
 
@@ -598,9 +586,8 @@ Verdict flips per program (2026-09-18 → current), by mode:
 | CLEAN → RACE | 2 | 1 |
 | ERROR → CLEAN | 0 | 1 |
 | RACE → CLEAN | 19 | 20 |
-| RACE → TIMEOUT | 1 | 1 |
-| TIMEOUT → CLEAN | 18 | 5 |
-| TIMEOUT → RACE | 26 | 3 |
+| TIMEOUT → CLEAN | 20 | 8 |
+| TIMEOUT → RACE | 31 | 6 |
 
 <details><summary>flipped programs (2026-09-18 → current)</summary>
 
@@ -649,8 +636,6 @@ Verdict flips per program (2026-09-18 → current), by mode:
 | RACE → CLEAN | scalar-clock | `P5-race_interwarp_none-blklock_waw` | RACE |
 | RACE → CLEAN | scalar-clock | `P5-race_interwarp_none-lock_waw` | RACE |
 | RACE → CLEAN | scalar-clock | `P9-crs-cuda` | CLEAN |
-| RACE → TIMEOUT | vector-clock | `P7-bfs-cuda` |  |
-| RACE → TIMEOUT | scalar-clock | `P7-particlefilter-cuda` |  |
 | TIMEOUT → CLEAN | vector-clock | `P1-BFS_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoOverflowBug_NoLivelockBug-slower_atomic-1296n` | CLEAN |
 | TIMEOUT → CLEAN | vector-clock | `P4-graph-coloring-norace-large` | CLEAN |
 | TIMEOUT → CLEAN | vector-clock | `P4-graph-connectivity-norace-large` | CLEAN |
@@ -665,15 +650,20 @@ Verdict flips per program (2026-09-18 → current), by mode:
 | TIMEOUT → CLEAN | vector-clock | `P7-hotspot-cuda` |  |
 | TIMEOUT → CLEAN | vector-clock | `P7-lavaMD-cuda` |  |
 | TIMEOUT → CLEAN | vector-clock | `P7-mandelbrot-cuda` |  |
+| TIMEOUT → CLEAN | vector-clock | `P7-nbody-cuda` |  |
 | TIMEOUT → CLEAN | vector-clock | `P7-srad-cuda` |  |
 | TIMEOUT → CLEAN | vector-clock | `P9-fpc-cuda` | CLEAN |
 | TIMEOUT → CLEAN | vector-clock | `P9-gpp-cuda` | CLEAN |
+| TIMEOUT → CLEAN | vector-clock | `P9-knn-cuda` | RACE |
 | TIMEOUT → CLEAN | vector-clock | `P9-mr-cuda` | CLEAN |
 | TIMEOUT → CLEAN | scalar-clock | `P7-bezier-surface-cuda` |  |
 | TIMEOUT → CLEAN | scalar-clock | `P7-bitonic-sort-cuda` |  |
+| TIMEOUT → CLEAN | scalar-clock | `P7-haversine-cuda` |  |
 | TIMEOUT → CLEAN | scalar-clock | `P7-lavaMD-cuda` |  |
 | TIMEOUT → CLEAN | scalar-clock | `P7-mandelbrot-cuda` |  |
+| TIMEOUT → CLEAN | scalar-clock | `P7-nbody-cuda` |  |
 | TIMEOUT → CLEAN | scalar-clock | `P7-srad-cuda` |  |
+| TIMEOUT → CLEAN | scalar-clock | `P9-knn-cuda` | RACE |
 | TIMEOUT → RACE | vector-clock | `P1-CC_CUDA_V_Data_Pull_Determ_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-default-1296n` | RACE |
 | TIMEOUT → RACE | vector-clock | `P1-CC_CUDA_V_Data_Pull_Determ_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-slower_atomic-1296n` | RACE |
 | TIMEOUT → RACE | vector-clock | `P1-CC_CUDA_V_Data_Pull_Determ_IntType_Persist_RaceBug_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-default-1296n` | RACE |
@@ -699,10 +689,18 @@ Verdict flips per program (2026-09-18 → current), by mode:
 | TIMEOUT → RACE | vector-clock | `P4-matrix-multiplication-racy-large` | RACE |
 | TIMEOUT → RACE | vector-clock | `P4-uts-racy-large` | RACE |
 | TIMEOUT → RACE | vector-clock | `P4-uts-racy-small` | RACE |
+| TIMEOUT → RACE | vector-clock | `P6-asyncmemcpy-kernel_memcpy_dtoh_race-fixed` | CLEAN |
+| TIMEOUT → RACE | vector-clock | `P6-asyncmemcpy-kernel_memcpy_dtoh_race-racy` | RACE |
+| TIMEOUT → RACE | vector-clock | `P7-heartwall-cuda` |  |
+| TIMEOUT → RACE | vector-clock | `P7-pathfinder-cuda` |  |
 | TIMEOUT → RACE | vector-clock | `P9-dxtc2-cuda` | RACE |
+| TIMEOUT → RACE | vector-clock | `P9-tridiagonal-cuda` | RACE |
 | TIMEOUT → RACE | scalar-clock | `P6-asyncmemcpy-kernel_memcpy_dtoh_race-fixed` | CLEAN |
 | TIMEOUT → RACE | scalar-clock | `P6-asyncmemcpy-kernel_memcpy_dtoh_race-racy` | RACE |
+| TIMEOUT → RACE | scalar-clock | `P7-heartwall-cuda` |  |
+| TIMEOUT → RACE | scalar-clock | `P7-pathfinder-cuda` |  |
 | TIMEOUT → RACE | scalar-clock | `P9-dxtc2-cuda` | RACE |
+| TIMEOUT → RACE | scalar-clock | `P9-tridiagonal-cuda` | RACE |
 
 </details>
 
@@ -718,13 +716,13 @@ Cell = `TP/(TP+FN), FP/(FP+TN), TO, ERR`: TP/(TP+FN) over the suite's racy-label
 | ECL race-free graph codes (CC / MIS / MST, generated from Indigo3) — 60 programs | -, 16/60, 0, 0 | -, 16/60, 0, 0 | -, 0/60, 0, 0 | -, 0/60, 0, 0 | - | -, 48/60, 0, 0 | - | **cuVein-VC** — FP 16: same-pc write-write of the same value (idempotent `updated = true`) (16)<br>**cuVein-SC** — FP 16: same-pc write-write of the same value (idempotent `updated = true`) (16)<br>**iGUARD** — FP 48, by iGUARD report class: Missing blkfence (32); Missing gpufence (11); Missing blkfence + Missing gpufence (5) |
 | ScoR applications — 28 program-inputs (7 codes) | 14/14, 2/14, 0, 0 | 14/14, 2/14, 0, 0 | 0/13, 0/14, 1, 0 | 8/14, 8/14, 0, 0 | - | 12/14, 7/14, 0, 0 | - | **cuVein-VC** — FP 2: plain conflicting accesses that did race in the run (suite labels the program race-free) (2)<br>**cuVein-SC** — FP 2: latent report on a barrier/lock idiom (not raced dynamically, no static proof) (2)<br>**racecheck** — FN 13: race on global/device memory — racecheck only tracks `__shared__` memory (9); `__shared__`-memory race not reported (4). TO/ERR 1: exceeded the time cap (1)<br>**sanitizer(any)** — FN 6: race on global/device memory — racecheck only tracks `__shared__` memory (4); `__shared__`-memory race not reported (2). FP 8: flagged by initcheck (not a data-race report) (8)<br>**iGUARD** — FN 2: `__shared__` memory is not tracked by iGUARD (1); race not reported (only cudaMalloc-tracked global memory is checked) (1). FP 7, by iGUARD report class: Missing blkfence + Missing gpufence (4); Missing warpsync (2); Missing gpufence (1) |
 | ScoR micro-benchmarks + canary — 33 programs | 3/19, 1/14, 0, 0 | 2/19, 0/14, 0, 0 | 0/19, 0/14, 0, 0 | 6/19, 5/14, 0, 0 | - | 14/19, 1/14, 0, 0 | - | **cuVein-VC** — FN 16: race not reported (`race_interblock_blkfence_raw`) (1); race not reported (`race_interblock_fence_rtraw`) (1); race not reported (`race_interblock_lock-blkfence_waw`) (1); race not reported (`race_interblock_lock-no-stf_waw`) (1); race not reported (`race_interblock_lock-no-tf_waw`) (1); race not reported (`race_interblock_none-atom_waw`) (1); race not reported (`race_interblock_none-lock_rtraw`) (1); race not reported (`race_interblock_none-lock_waw`) (1); race not reported (`race_interwarp_blklock-no-stf_waw`) (1); race not reported (`race_interwarp_blklock-no-tf_waw`) (1); race not reported (`race_interwarp_dev-blklock-no-stf_waw`) (1); race not reported (`race_interwarp_dev-blklock-no-tf_waw`) (1); race not reported (`race_interwarp_none-atom_waw`) (1); race not reported (`race_interwarp_none-blkatom_waw`) (1); race not reported (`race_interwarp_none-blklock_waw`) (1); race not reported (`race_interwarp_none-lock_waw`) (1). FP 1: plain conflicting accesses that did race in the run (suite labels the program race-free) (1)<br>**cuVein-SC** — FN 17: PC-level dedup hides the pair (scalar-clock leg only; vector-clock catches it) (1); race not reported (`race_interblock_blkfence_raw`) (1); race not reported (`race_interblock_fence_rtraw`) (1); race not reported (`race_interblock_lock-blkfence_waw`) (1); race not reported (`race_interblock_lock-no-stf_waw`) (1); race not reported (`race_interblock_lock-no-tf_waw`) (1); race not reported (`race_interblock_none-atom_waw`) (1); race not reported (`race_interblock_none-lock_rtraw`) (1); race not reported (`race_interblock_none-lock_waw`) (1); race not reported (`race_interwarp_blklock-no-stf_waw`) (1); race not reported (`race_interwarp_blklock-no-tf_waw`) (1); race not reported (`race_interwarp_dev-blklock-no-stf_waw`) (1); race not reported (`race_interwarp_dev-blklock-no-tf_waw`) (1); race not reported (`race_interwarp_none-atom_waw`) (1); race not reported (`race_interwarp_none-blkatom_waw`) (1); race not reported (`race_interwarp_none-blklock_waw`) (1); race not reported (`race_interwarp_none-lock_waw`) (1)<br>**racecheck** — FN 19: race on global/device memory — racecheck only tracks `__shared__` memory (19)<br>**sanitizer(any)** — FN 13: race on global/device memory — racecheck only tracks `__shared__` memory (13). FP 5: flagged by initcheck (not a data-race report) (5)<br>**iGUARD** — FN 5: race not reported (only cudaMalloc-tracked global memory is checked) (5). FP 1, by iGUARD report class: Missing lock (1) |
-| cuHadron — 50 program-inputs (25 codes) | 6/12, 0/20, 2, 16 | 7/13, 1/21, 0, 16 | 4/13, 0/21, 0, 16 | 5/13, 0/21, 0, 16 | - | 1/12, 4/20, 2, 16 | 9/13, 0/21, 0, 16 | **cuVein-VC** — FN 6: host-vs-device access (outside kernel HB model) (3); cross-stream / inter-kernel race (out of cuVein's scope, footnote 7) (2); host-API `cudaMemcpyAsync`-vs-kernel race (out of cuVein's scope, footnote 7) (1). TO/ERR 18: binary needs sm_90 (not buildable/runnable on the sm_89 nodes) (16); hb-state-memory (2)<br>**cuVein-SC** — FN 6: host-vs-device access (outside kernel HB model) (3); cross-stream / inter-kernel race (out of cuVein's scope, footnote 7) (2); host-API `cudaMemcpyAsync`-vs-kernel race (out of cuVein's scope, footnote 7) (1). FP 1: latent report on a barrier/lock idiom (not raced dynamically, no static proof) + same-pc write-write of the same value (idempotent `updated = true`) (1). TO/ERR 16: binary needs sm_90 (not buildable/runnable on the sm_89 nodes) (16)<br>**racecheck** — FN 9: race on global/device memory — racecheck only tracks `__shared__` memory (8); `__shared__`-memory race not reported (1). TO/ERR 16: binary needs sm_90 (not buildable/runnable on the sm_89 nodes) (16)<br>**sanitizer(any)** — FN 8: race on global/device memory — racecheck only tracks `__shared__` memory (7); `__shared__`-memory race not reported (1). TO/ERR 16: binary needs sm_90 (not buildable/runnable on the sm_89 nodes) (16)<br>**iGUARD** — FN 11: `__shared__` memory is not tracked by iGUARD (5); host-vs-device race (host side not instrumented) (3); memcpy-vs-kernel race (memcpy side not instrumented) (2); cross-stream / inter-kernel race not reported (1). FP 4, by iGUARD report class: Missing blkfence (4). TO/ERR 18: binary needs sm_90 (not buildable/runnable on the sm_89 nodes) (16); exceeded the time cap (2)<br>**SuperCollider** — FN 4: not detectable by design (DMA / CPU-side access; artifact README) (2); race never manifested in the 5 attempts (probabilistic redundant-read detection) (2). TO/ERR 16: binary needs sm_90 (not buildable/runnable on the sm_89 nodes) (16) |
-| HeCBench overhead set (unlabelled real applications) — 14 programs | -, -, 5, 0 | -, -, 6, 0 | -, -, 1, 0 | -, -, 0, 0 | - | - | - | **cuVein-VC** — TO/ERR 5: time-cap (3); hb-clock-hang (1); hb-state-memory (1)<br>**cuVein-SC** — TO/ERR 6: time-cap (4); hb-state-memory (2)<br>**racecheck** — TO/ERR 1: exceeded the time cap (1) |
-| HeCBench — SuperCollider's 10-application subset — 10 programs | 1/1, 0/5, 4, 0 | 1/1, 0/5, 4, 0 | 0/3, 0/5, 2, 0 | 0/3, 0/5, 2, 0 | - | 0/3, 3/5, 2, 0 | 5/5, 0/5, 0, 0 | **cuVein-VC** — TO/ERR 4: time-cap (2); hb-state-memory (1); no-kernel-in-cap (1)<br>**cuVein-SC** — TO/ERR 4: time-cap (3); no-kernel-in-cap (1)<br>**racecheck** — FN 3: race on global/device memory — racecheck only tracks `__shared__` memory (3). TO/ERR 2: exceeded the time cap (2)<br>**sanitizer(any)** — FN 3: race on global/device memory — racecheck only tracks `__shared__` memory (3). TO/ERR 2: exceeded the time cap (2)<br>**iGUARD** — FN 3: race not reported (only cudaMalloc-tracked global memory is checked) (3). FP 3, by iGUARD report class: Missing gpufence (3). TO/ERR 2: exceeded the time cap (2) |
-| **All pre-registered labelled suites (Indigo3 + Indigo original + ECL + ScoR applications + ScoR micro-benchmarks + cuHadron)** | 1937/2107, 19/1568, 2, 16 | 1937/2108, 19/1569, 0, 16 | 288/2107, 0/1569, 1, 16 | 307/2108, 37/1569, 0, 16 | 1714/1862, 0/1260, 0, 0 | 1761/2107, 794/1568, 2, 16 | 48/58, 0/65, 0, 16 | sum of the rows above |
-| **SuperCollider-matched suites (cuHadron + the 99-test subset view of the Indigo original suite + HeCBench 10-application subset)** | 50/58, 0/69, 6, 16 | 51/59, 1/70, 4, 16 | 7/61, 0/70, 2, 16 | 8/61, 0/70, 2, 16 | 43/45, 0/44, 0, 0 | 41/60, 29/69, 4, 16 | 53/63, 0/70, 0, 16 | sum of the rows above |
+| cuHadron — 50 program-inputs (25 codes) | 7/13, 1/21, 0, 16 | 7/13, 1/21, 0, 16 | 4/13, 0/21, 0, 16 | 5/13, 0/21, 0, 16 | - | 1/12, 4/20, 2, 16 | 9/13, 0/21, 0, 16 | **cuVein-VC** — FN 6: host-vs-device access (outside kernel HB model) (3); cross-stream / inter-kernel race (out of cuVein's scope, footnote 7) (2); host-API `cudaMemcpyAsync`-vs-kernel race (out of cuVein's scope, footnote 7) (1). FP 1: same-pc write-write of the same value (idempotent `updated = true`) + plain conflicting accesses that did race in the run (suite labels the program race-free) (1). TO/ERR 16: binary needs sm_90 (not buildable/runnable on the sm_89 nodes) (16)<br>**cuVein-SC** — FN 6: host-vs-device access (outside kernel HB model) (3); cross-stream / inter-kernel race (out of cuVein's scope, footnote 7) (2); host-API `cudaMemcpyAsync`-vs-kernel race (out of cuVein's scope, footnote 7) (1). FP 1: latent report on a barrier/lock idiom (not raced dynamically, no static proof) + same-pc write-write of the same value (idempotent `updated = true`) (1). TO/ERR 16: binary needs sm_90 (not buildable/runnable on the sm_89 nodes) (16)<br>**racecheck** — FN 9: race on global/device memory — racecheck only tracks `__shared__` memory (8); `__shared__`-memory race not reported (1). TO/ERR 16: binary needs sm_90 (not buildable/runnable on the sm_89 nodes) (16)<br>**sanitizer(any)** — FN 8: race on global/device memory — racecheck only tracks `__shared__` memory (7); `__shared__`-memory race not reported (1). TO/ERR 16: binary needs sm_90 (not buildable/runnable on the sm_89 nodes) (16)<br>**iGUARD** — FN 11: `__shared__` memory is not tracked by iGUARD (5); host-vs-device race (host side not instrumented) (3); memcpy-vs-kernel race (memcpy side not instrumented) (2); cross-stream / inter-kernel race not reported (1). FP 4, by iGUARD report class: Missing blkfence (4). TO/ERR 18: binary needs sm_90 (not buildable/runnable on the sm_89 nodes) (16); exceeded the time cap (2)<br>**SuperCollider** — FN 4: not detectable by design (DMA / CPU-side access; artifact README) (2); race never manifested in the 5 attempts (probabilistic redundant-read detection) (2). TO/ERR 16: binary needs sm_90 (not buildable/runnable on the sm_89 nodes) (16) |
+| HeCBench overhead set (unlabelled real applications) — 14 programs | -, -, 1, 0 | -, -, 1, 0 | -, -, 1, 0 | -, -, 0, 0 | - | - | - | **cuVein-VC** — TO/ERR 1: hb-state-memory (1)<br>**cuVein-SC** — TO/ERR 1: hb-state-memory (1)<br>**racecheck** — TO/ERR 1: exceeded the time cap (1) |
+| HeCBench — SuperCollider's 10-application subset — 10 programs | 2/3, 0/5, 2, 0 | 2/3, 0/5, 2, 0 | 0/3, 0/5, 2, 0 | 0/3, 0/5, 2, 0 | - | 0/3, 3/5, 2, 0 | 5/5, 0/5, 0, 0 | **cuVein-VC** — FN 1: race not reported (`knn-cuda`) (1). TO/ERR 2: hb-state-memory (1); no-kernel-in-cap (1)<br>**cuVein-SC** — FN 1: race not reported (`knn-cuda`) (1). TO/ERR 2: time-cap (2)<br>**racecheck** — FN 3: race on global/device memory — racecheck only tracks `__shared__` memory (3). TO/ERR 2: exceeded the time cap (2)<br>**sanitizer(any)** — FN 3: race on global/device memory — racecheck only tracks `__shared__` memory (3). TO/ERR 2: exceeded the time cap (2)<br>**iGUARD** — FN 3: race not reported (only cudaMalloc-tracked global memory is checked) (3). FP 3, by iGUARD report class: Missing gpufence (3). TO/ERR 2: exceeded the time cap (2) |
+| **All pre-registered labelled suites (Indigo3 + Indigo original + ECL + ScoR applications + ScoR micro-benchmarks + cuHadron)** | 1938/2108, 20/1569, 0, 16 | 1937/2108, 19/1569, 0, 16 | 288/2107, 0/1569, 1, 16 | 307/2108, 37/1569, 0, 16 | 1714/1862, 0/1260, 0, 0 | 1761/2107, 794/1568, 2, 16 | 48/58, 0/65, 0, 16 | sum of the rows above |
+| **SuperCollider-matched suites (cuHadron + the 99-test subset view of the Indigo original suite + HeCBench 10-application subset)** | 52/61, 1/70, 2, 16 | 52/61, 1/70, 2, 16 | 7/61, 0/70, 2, 16 | 8/61, 0/70, 2, 16 | 43/45, 0/44, 0, 0 | 41/60, 29/69, 4, 16 | 53/63, 0/70, 0, 16 | sum of the rows above |
 
-Footnotes: (1) HiRace is source-level and has no usable instrumenter (its `src/clang` prototype only rewrites kernel params named `data1`/`data2`, emits an API the shipped runtime does not have and needs an LLVM source tree to build); it runs only on the 590 IndigoSuite codes its artifact ships hand-instrumented, which are exactly the Indigo original suite. (2) SuperCollider's compiler pass is not distributed; it exists only as pre-instrumented binaries for cuHadron and its own Indigo/HeCBench subsets. (3) iGUARD was not run on the HeCBench overhead set. (4) 16 cuHadron targets need sm_90 and count as ERR for every tool that was pointed at them. (5) Programs without a racy/race-free label are in neither ratio: Indigo original suite 1008, Indigo original suite — SuperCollider's 99-test subset on its own input 10, HeCBench overhead set 14 (HeCBench overhead apps are unlabelled; Indigo `boundsBug` codes are out-of-bounds bugs, excluded by both the HiRace and the SuperCollider artifact's ground truth). (6) HeCBench-subset labels are the SuperCollider paper's racy/race-free flags, not an independent oracle. (7) Two cuHadron categories are out of cuVein's scope (user decision, 2026-09-21); their rows are kept, not excluded, because the labels apply to every detector. `asyncmemcpy/*` races a host-API `cudaMemcpyAsync` against a kernel on another stream: the collector's async-copy tracer covers the in-kernel `cp.async` instruction (the `memcpy/*` tests, which cuVein does run), and the race tool consumes no host memcpy events. `interkernel/*` races two kernels on different streams: the happens-before model is per kernel launch. cuVein verdicts on them: asyncmemcpy vector-clock: CLEAN 2, TO/ERR 2; asyncmemcpy scalar-clock: CLEAN 2, RACE 2; interkernel vector-clock: CLEAN 4; interkernel scalar-clock: CLEAN 4 (4 program-inputs per category). Their failures are trace volume of the kernels themselves (`kernel_memcpy_dtoh_race`: 64M threads × 201 writes ≈ 1.3e10 traced accesses; `memcpy_htod_kernel_race`: ≈ 2.6e8 reads, vector-clock mode only; `interkernel/global_writewrite_race`: ≈ 1.1e8 events, finishes only with the 20-minute cap). Not re-run for that reason: the longer-cap diagnose re-runs of `kernel_memcpy_dtoh_race` (cancelled after node failures on c3, c2, c75), the `memcpy_htod_kernel_race-fixed` row lost to a full scratch disk on c37, and the `interkernel/global_writewrite_race-fixed` diagnose task that was OOM-killed on c53. (9) Labelled race-free, reported under the instance gate (T12, D11): PTX section 8.7.1 gives no ordering where one side of a hand-off has no fence of sufficient scope. `P4-reduction-norace-small`: the ticket `atomicInc` is followed by the shared store `amLast` with no fence in between (the program relies on the `__syncthreads()` after it) (also reported by iguard); `P4-reduction-norace-large`: the ticket `atomicInc`, as in the small input (also reported by iguard); `P5-norace_interblock_fence_raw`: the consumer spins on the flag with a relaxed `atomicExch` and has no fence before it reads the volatile data (SC) (no baseline reports it); `P5-norace_interwarp_fence_raw`: the consumer spins on the flag with a relaxed `atomicExch` and has no fence before it reads the volatile data (SC) (no baseline reports it); `P5-norace_interwarp_blkfence_raw`: the consumer spins on the flag with a relaxed `atomicExch` and has no fence before it reads the volatile data (SC) (no baseline reports it); `P5-norace_interwarp-block_fence_hrf-indirect`: the consumer spins on the flag with a relaxed `atomicAdd` and has no fence before it updates the volatile data (SC) (no baseline reports it); `P5-norace_interwarp-block_fence-atom_hrd-indirect`: the consumer spins on the flag with a relaxed `atomicAdd` and has no fence before it does a block-scope `atomicExch` on data the other block writes with a device-scope one (not morally strong: DR) (no baseline reports it). (8) **Are the Indigo-original FNs racy?** The suite labels a CODE racy (a planted `atomicBug`/`guardBug`/`syncBug`), but whether two threads actually conflict depends on the input graph. `oracle_pi/oracle_pi.py` (→ `eval/results/baselines-pi-oracle.csv`) decides it per (code, input) independently of every detector: the unmodified source is compiled for the CPU with an access-logging `data_t`, each GPU thread runs as a fiber with `__syncthreads` barriers and warp collectives emulated, under 3 thread schedules, and a row is CONFLICT iff two different threads touch one location, at least one writes, not both atomic, with no barrier/collective between them (source-level: an elided store still counts). Checked inputs: `DAG_100n_100e`, `DAG_5n_5e`, `counterDAG_5n_5e` (every FN of cuVein and HiRace is on these). Result: 148 of 798 racy-labelled rows have NO conflicting access on their input (e.g. `DAG_5n_5e` has every edge pointing to a lower vertex id, so a `cond` variant's `if (i < nei)` is never true and the buggy update is never reached; with `guardBug` the unguarded write only happens when the compared value is larger, which it never is there; the 4 rows on `DAG_100n_100e` are block-per-vertex codes launched with SuperCollider's 4 blocks, so only vertices 0–3 run and they update two different elements, one thread each); 0 of 540 bug-free rows show a conflict. FN split per detector — cuVein (vector-clock): 148 not racy on the input, 0 real misses; cuVein (scalar-clock): 148 not racy on the input, 0 real misses; compute-sanitizer racecheck: 148 not racy on the input, 530 real misses, 904 on inputs not checked; compute-sanitizer (any of memcheck / racecheck / synccheck / initcheck): 148 not racy on the input, 530 real misses, 904 on inputs not checked; HiRace: 148 not racy on the input, 0 real misses; iGUARD: 148 not racy on the input, 144 real misses, 32 on inputs not checked; SuperCollider: 2 not racy on the input, 4 real misses. So the FN cells of cuVein (both modes) and HiRace on this suite contain no missed race: on input-level truth their recall is 100% and the label-based ratio under-states it. The label-based cells are kept as pre-registered.
+Footnotes: (1) HiRace is source-level and has no usable instrumenter (its `src/clang` prototype only rewrites kernel params named `data1`/`data2`, emits an API the shipped runtime does not have and needs an LLVM source tree to build); it runs only on the 590 IndigoSuite codes its artifact ships hand-instrumented, which are exactly the Indigo original suite. (2) SuperCollider's compiler pass is not distributed; it exists only as pre-instrumented binaries for cuHadron and its own Indigo/HeCBench subsets. (3) iGUARD was not run on the HeCBench overhead set. (4) 16 cuHadron targets need sm_90 and count as ERR for every tool that was pointed at them. (5) Programs without a racy/race-free label are in neither ratio: Indigo original suite 1008, Indigo original suite — SuperCollider's 99-test subset on its own input 10, HeCBench overhead set 14 (HeCBench overhead apps are unlabelled; Indigo `boundsBug` codes are out-of-bounds bugs, excluded by both the HiRace and the SuperCollider artifact's ground truth). (6) HeCBench-subset labels are the SuperCollider paper's racy/race-free flags, not an independent oracle. (7) Two cuHadron categories are out of cuVein's scope (user decision, 2026-09-21); their rows are kept, not excluded, because the labels apply to every detector. `asyncmemcpy/*` races a host-API `cudaMemcpyAsync` against a kernel on another stream: the collector's async-copy tracer covers the in-kernel `cp.async` instruction (the `memcpy/*` tests, which cuVein does run), and the race tool consumes no host memcpy events. `interkernel/*` races two kernels on different streams: the happens-before model is per kernel launch. cuVein verdicts on them: asyncmemcpy vector-clock: CLEAN 2, RACE 2; asyncmemcpy scalar-clock: CLEAN 2, RACE 2; interkernel vector-clock: CLEAN 4; interkernel scalar-clock: CLEAN 4 (4 program-inputs per category). Their failures are trace volume of the kernels themselves (`kernel_memcpy_dtoh_race`: 64M threads × 201 writes ≈ 1.3e10 traced accesses; `memcpy_htod_kernel_race`: ≈ 2.6e8 reads, vector-clock mode only; `interkernel/global_writewrite_race`: ≈ 1.1e8 events, finishes only with the 20-minute cap). Not re-run for that reason: the longer-cap diagnose re-runs of `kernel_memcpy_dtoh_race` (cancelled after node failures on c3, c2, c75), the `memcpy_htod_kernel_race-fixed` row lost to a full scratch disk on c37, and the `interkernel/global_writewrite_race-fixed` diagnose task that was OOM-killed on c53. (9) Labelled race-free, reported under the instance gate (T12, D11): PTX section 8.7.1 gives no ordering where one side of a hand-off has no fence of sufficient scope. `P4-reduction-norace-small`: the ticket `atomicInc` is followed by the shared store `amLast` with no fence in between (the program relies on the `__syncthreads()` after it) (also reported by iguard); `P4-reduction-norace-large`: the ticket `atomicInc`, as in the small input (also reported by iguard); `P5-norace_interblock_fence_raw`: the consumer spins on the flag with a relaxed `atomicExch` and has no fence before it reads the volatile data (SC) (no baseline reports it); `P5-norace_interwarp_fence_raw`: the consumer spins on the flag with a relaxed `atomicExch` and has no fence before it reads the volatile data (SC) (no baseline reports it); `P5-norace_interwarp_blkfence_raw`: the consumer spins on the flag with a relaxed `atomicExch` and has no fence before it reads the volatile data (SC) (no baseline reports it); `P5-norace_interwarp-block_fence_hrf-indirect`: the consumer spins on the flag with a relaxed `atomicAdd` and has no fence before it updates the volatile data (SC) (no baseline reports it); `P5-norace_interwarp-block_fence-atom_hrd-indirect`: the consumer spins on the flag with a relaxed `atomicAdd` and has no fence before it does a block-scope `atomicExch` on data the other block writes with a device-scope one (not morally strong: DR) (no baseline reports it). (8) **Are the Indigo-original FNs racy?** The suite labels a CODE racy (a planted `atomicBug`/`guardBug`/`syncBug`), but whether two threads actually conflict depends on the input graph. `oracle_pi/oracle_pi.py` (→ `eval/results/baselines-pi-oracle.csv`) decides it per (code, input) independently of every detector: the unmodified source is compiled for the CPU with an access-logging `data_t`, each GPU thread runs as a fiber with `__syncthreads` barriers and warp collectives emulated, under 3 thread schedules, and a row is CONFLICT iff two different threads touch one location, at least one writes, not both atomic, with no barrier/collective between them (source-level: an elided store still counts). Checked inputs: `DAG_100n_100e`, `DAG_5n_5e`, `counterDAG_5n_5e` (every FN of cuVein and HiRace is on these). Result: 148 of 798 racy-labelled rows have NO conflicting access on their input (e.g. `DAG_5n_5e` has every edge pointing to a lower vertex id, so a `cond` variant's `if (i < nei)` is never true and the buggy update is never reached; with `guardBug` the unguarded write only happens when the compared value is larger, which it never is there; the 4 rows on `DAG_100n_100e` are block-per-vertex codes launched with SuperCollider's 4 blocks, so only vertices 0–3 run and they update two different elements, one thread each); 0 of 540 bug-free rows show a conflict. FN split per detector — cuVein (vector-clock): 148 not racy on the input, 0 real misses; cuVein (scalar-clock): 148 not racy on the input, 0 real misses; compute-sanitizer racecheck: 148 not racy on the input, 530 real misses, 904 on inputs not checked; compute-sanitizer (any of memcheck / racecheck / synccheck / initcheck): 148 not racy on the input, 530 real misses, 904 on inputs not checked; HiRace: 148 not racy on the input, 0 real misses; iGUARD: 148 not racy on the input, 144 real misses, 32 on inputs not checked; SuperCollider: 2 not racy on the input, 4 real misses. So the FN cells of cuVein (both modes) and HiRace on this suite contain no missed race: on input-level truth their recall is 100% and the label-based ratio under-states it. The label-based cells are kept as pre-registered.
 
 ### HiRace artifact Table 1, reproduced verbatim (`make table1`)
 
@@ -768,8 +766,8 @@ FP = race-free program reported RACE; FN = racy program not reported. Denominato
 | P3 | 16/60 / 0/0 (0) | 16/60 / 0/0 (0) | — | 48/60 / 0/0 (0) | — | 0/60 / 0/0 (0) | none |
 | P4 | 2/14 / 14/14 (0) | 2/14 / 14/14 (0) | — | 7/14 / 12/14 (0) | — | 8/14 / 8/14 (0) | none |
 | P5 | 1/14 / 3/19 (0) | 0/14 / 2/19 (0) | — | 1/14 / 14/19 (0) | — | 5/14 / 6/19 (0) | **VC** (16) — no hint: `race_interblock_blkfence_raw`, `race_interblock_fence_rtraw`, `race_interblock_lock-blkfence_waw`, `race_interblock_lock-no-stf_waw`, `race_interblock_lock-no-tf_waw`, `race_interblock_none-atom_waw`, `race_interblock_none-lock_rtraw`, `race_interblock_none-lock_waw`, `race_interwarp_blklock-no-stf_waw`, `race_interwarp_blklock-no-tf_waw`, `race_interwarp_dev-blklock-no-stf_waw`, `race_interwarp_dev-blklock-no-tf_waw`, `race_interwarp_none-atom_waw`, `race_interwarp_none-blkatom_waw`, `race_interwarp_none-blklock_waw`, `race_interwarp_none-lock_waw`<br>**SC** (17) — PC-level dedup hides the pair (scalar-clock leg only; vector-clock catches it): `canary_pc_level_false_negative`; no hint: `race_interblock_blkfence_raw`, `race_interblock_fence_rtraw`, `race_interblock_lock-blkfence_waw`, `race_interblock_lock-no-stf_waw`, `race_interblock_lock-no-tf_waw`, `race_interblock_none-atom_waw`, `race_interblock_none-lock_rtraw`, `race_interblock_none-lock_waw`, `race_interwarp_blklock-no-stf_waw`, `race_interwarp_blklock-no-tf_waw`, `race_interwarp_dev-blklock-no-stf_waw`, `race_interwarp_dev-blklock-no-tf_waw`, `race_interwarp_none-atom_waw`, `race_interwarp_none-blkatom_waw`, `race_interwarp_none-blklock_waw`, `race_interwarp_none-lock_waw` |
-| P6 | 0/20 / 6/12 (2) | 1/21 / 7/13 (0) | — | 4/20 / 1/12 (18) | 0/21 / 9/13 (16) | 0/21 / 5/13 (16) | **VC** (6) — host-API `cudaMemcpyAsync`-vs-kernel race (out of cuVein's scope, footnote 7): `asyncmemcpy/memcpy_htod_kernel_race`; host-vs-device access (outside kernel HB model): `hostdevice/global_readwrite_race`, `hostdevice/global_writeread_race`, `hostdevice/global_writewrite_race`; cross-stream / inter-kernel race (out of cuVein's scope, footnote 7): `interkernel/global_readwrite_race`, `interkernel/global_writewrite_race`<br>**SC** (6) — host-API `cudaMemcpyAsync`-vs-kernel race (out of cuVein's scope, footnote 7): `asyncmemcpy/memcpy_htod_kernel_race`; host-vs-device access (outside kernel HB model): `hostdevice/global_readwrite_race`, `hostdevice/global_writeread_race`, `hostdevice/global_writewrite_race`; cross-stream / inter-kernel race (out of cuVein's scope, footnote 7): `interkernel/global_readwrite_race`, `interkernel/global_writewrite_race` |
-| P9 | 0/5 / 1/1 (4) | 0/5 / 1/1 (4) | — | 3/5 / 0/3 (2) | 0/5 / 5/5 (0) | 0/5 / 0/3 (2) | none |
+| P6 | 1/21 / 7/13 (0) | 1/21 / 7/13 (0) | — | 4/20 / 1/12 (18) | 0/21 / 9/13 (16) | 0/21 / 5/13 (16) | **VC** (6) — host-API `cudaMemcpyAsync`-vs-kernel race (out of cuVein's scope, footnote 7): `asyncmemcpy/memcpy_htod_kernel_race`; host-vs-device access (outside kernel HB model): `hostdevice/global_readwrite_race`, `hostdevice/global_writeread_race`, `hostdevice/global_writewrite_race`; cross-stream / inter-kernel race (out of cuVein's scope, footnote 7): `interkernel/global_readwrite_race`, `interkernel/global_writewrite_race`<br>**SC** (6) — host-API `cudaMemcpyAsync`-vs-kernel race (out of cuVein's scope, footnote 7): `asyncmemcpy/memcpy_htod_kernel_race`; host-vs-device access (outside kernel HB model): `hostdevice/global_readwrite_race`, `hostdevice/global_writeread_race`, `hostdevice/global_writewrite_race`; cross-stream / inter-kernel race (out of cuVein's scope, footnote 7): `interkernel/global_readwrite_race`, `interkernel/global_writewrite_race` |
+| P9 | 0/5 / 2/3 (2) | 0/5 / 2/3 (2) | — | 3/5 / 0/3 (2) | 0/5 / 5/5 (0) | 0/5 / 0/3 (2) | **VC** (1) — no hint: `knn-cuda`<br>**SC** (1) — no hint: `knn-cuda` |
 
 ### cuVein at two operating points (D2)
 
@@ -787,12 +785,12 @@ Race u Latent = the program verdict the harness records (a Latent report counts,
 | P4 | cuVein-SC | 2/14 / 14/14 | 0 / 0 | 2/14 / 14/14 | 0 / 0 | 0 | 12 | 0 | 0 |
 | P5 | cuVein-VC | 1/14 / 3/19 | 0 / 0 | 1/14 / 3/19 | 0 / 0 | 0 | 21 | 0 | 0 |
 | P5 | cuVein-SC | 0/14 / 2/19 | 0 / 0 | 0/14 / 2/19 | 0 / 0 | 0 | 17 | 0 | 0 |
-| P6 | cuVein-VC | 0/20 / 6/12 | 0 / 0 | 0/20 / 6/12 | 0 / 0 | 0 | 0 | 0 | 0 |
+| P6 | cuVein-VC | 1/21 / 7/13 | 0 / 0 | 1/21 / 7/13 | 0 / 0 | 0 | 0 | 0 | 0 |
 | P6 | cuVein-SC | 1/21 / 7/13 | 0 / 0 | 1/21 / 7/13 | 0 / 0 | 0 | 0 | 0 | 0 |
 | P7 | cuVein-VC | 0/0 / 0/0 | 0 / 0 | 0/0 / 0/0 | 0 / 0 | 0 | 0 | 0 | 0 |
 | P7 | cuVein-SC | 0/0 / 0/0 | 0 / 0 | 0/0 / 0/0 | 0 / 0 | 0 | 0 | 0 | 0 |
-| P9 | cuVein-VC | 0/5 / 1/1 | 0 / 0 | 0/5 / 1/1 | 0 / 0 | 0 | 0 | 0 | 0 |
-| P9 | cuVein-SC | 0/5 / 1/1 | 0 / 0 | 0/5 / 1/1 | 0 / 0 | 0 | 0 | 0 | 0 |
+| P9 | cuVein-VC | 0/5 / 2/3 | 0 / 0 | 0/5 / 2/3 | 0 / 0 | 0 | 0 | 0 | 0 |
+| P9 | cuVein-SC | 0/5 / 2/3 | 0 / 0 | 0/5 / 2/3 | 0 / 0 | 0 | 0 | 0 | 0 |
 
 ### cuVein false positives by report class and root cause
 
@@ -805,6 +803,7 @@ A program counts as FP above on ANY RACE verdict. `structural-FP` = programs wit
 | P4 | vector-clock | 2 | 2 | 0 | other (2) |
 | P4 | scalar-clock | 2 | 0 | 2 | RC2 (2) |
 | P5 | vector-clock | 1 | 1 | 0 | other (1) |
+| P6 | vector-clock | 1 | 1 | 0 | RC4+other (1) |
 | P6 | scalar-clock | 1 | 0 | 1 | RC2+RC4 (1) |
 
 ### Bug class × tool (P1 Indigo3 + P2 Indigo)
@@ -5544,12 +5543,12 @@ _Counts:_ cuVein-VC RACE 4 / CLEAN 29 / TO 0 / ERR 0; cuVein-SC RACE 2 / CLEAN 3
 
 ### P6 cuHadron
 
-_Counts:_ cuVein-VC RACE 6 / CLEAN 26 / TO 2 / ERR 0; cuVein-SC RACE 8 / CLEAN 26 / TO 0 / ERR 0; racecheck RACE 4 / CLEAN 30 / TO 0 / ERR 16; iGUARD RACE 5 / CLEAN 27 / TO 2 / ERR 16; SuperCollider RACE 9 / CLEAN 25 / TO 0 / ERR 16; memcheck* FLAG 0 / CLEAN 34 / TO 0 / ERR 16; synccheck* FLAG 0 / CLEAN 34 / TO 0 / ERR 16; initcheck* FLAG 1 / CLEAN 33 / TO 0 / ERR 16
+_Counts:_ cuVein-VC RACE 8 / CLEAN 26 / TO 0 / ERR 0; cuVein-SC RACE 8 / CLEAN 26 / TO 0 / ERR 0; racecheck RACE 4 / CLEAN 30 / TO 0 / ERR 16; iGUARD RACE 5 / CLEAN 27 / TO 2 / ERR 16; SuperCollider RACE 9 / CLEAN 25 / TO 0 / ERR 16; memcheck* FLAG 0 / CLEAN 34 / TO 0 / ERR 16; synccheck* FLAG 0 / CLEAN 34 / TO 0 / ERR 16; initcheck* FLAG 1 / CLEAN 33 / TO 0 / ERR 16
 
 | program | build | input | oracle | cuVein-VC | cuVein-SC | racecheck | HiRace | iGUARD | SuperCollider | memcheck* | synccheck* | initcheck* |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| asyncmemcpy/kernel_memcpy_dtoh_race | fixed | default | CLEAN | TO | RACE(44) | CLEAN | — | CLEAN | CLEAN | clean | clean | clean |
-| asyncmemcpy/kernel_memcpy_dtoh_race | racy | default | RACE | TO | RACE(44) | CLEAN | — | CLEAN | CLEAN | clean | clean | clean |
+| asyncmemcpy/kernel_memcpy_dtoh_race | fixed | default | CLEAN | RACE(44) | RACE(44) | CLEAN | — | CLEAN | CLEAN | clean | clean | clean |
+| asyncmemcpy/kernel_memcpy_dtoh_race | racy | default | RACE | RACE(44) | RACE(44) | CLEAN | — | CLEAN | CLEAN | clean | clean | clean |
 | asyncmemcpy/memcpy_htod_kernel_race | fixed | default | CLEAN | CLEAN | CLEAN | CLEAN | — | CLEAN | CLEAN | clean | clean | clean |
 | asyncmemcpy/memcpy_htod_kernel_race | racy | default | RACE | CLEAN | CLEAN | CLEAN | — | CLEAN | RACE(1) | clean | clean | clean |
 | bulkcpy/global_readwrite_race | fixed[needs-sm90] | default | CLEAN | — | — | ERR | — | ERR | ERR | ERR | ERR | ERR |
@@ -5601,28 +5600,28 @@ _Counts:_ cuVein-VC RACE 6 / CLEAN 26 / TO 2 / ERR 0; cuVein-SC RACE 8 / CLEAN 2
 
 ### P7 HeCBench (overhead)
 
-_Counts:_ cuVein-VC RACE 1 / CLEAN 8 / TO 5 / ERR 0; cuVein-SC RACE 1 / CLEAN 7 / TO 6 / ERR 0; racecheck RACE 0 / CLEAN 13 / TO 1 / ERR 0; memcheck* FLAG 0 / CLEAN 14 / TO 0 / ERR 0; synccheck* FLAG 0 / CLEAN 14 / TO 0 / ERR 0; initcheck* FLAG 2 / CLEAN 12 / TO 0 / ERR 0
+_Counts:_ cuVein-VC RACE 4 / CLEAN 9 / TO 1 / ERR 0; cuVein-SC RACE 4 / CLEAN 9 / TO 1 / ERR 0; racecheck RACE 0 / CLEAN 13 / TO 1 / ERR 0; memcheck* FLAG 0 / CLEAN 14 / TO 0 / ERR 0; synccheck* FLAG 0 / CLEAN 14 / TO 0 / ERR 0; initcheck* FLAG 2 / CLEAN 12 / TO 0 / ERR 0
 
 | program | build | input | oracle | cuVein-VC | cuVein-SC | racecheck | HiRace | iGUARD | SuperCollider | memcheck* | synccheck* | initcheck* |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | backprop-cuda | default | default |  | CLEAN | CLEAN | CLEAN | — | — | — | clean | clean | clean |
 | bezier-surface-cuda | default | default |  | CLEAN | CLEAN | CLEAN | — | — | — | clean | clean | clean |
-| bfs-cuda | default | default |  | TO | RACE(31) | CLEAN | — | — | — | clean | clean | clean |
+| bfs-cuda | default | default |  | RACE(31) | RACE(31) | CLEAN | — | — | — | clean | clean | clean |
 | bitonic-sort-cuda | default | default |  | CLEAN | CLEAN | CLEAN | — | — | — | clean | clean | clean |
-| haversine-cuda | default | default |  | CLEAN | TO | CLEAN | — | — | — | clean | clean | clean |
-| heartwall-cuda | default | default |  | TO | TO | CLEAN | — | — | — | clean | clean | clean |
+| haversine-cuda | default | default |  | CLEAN | CLEAN | CLEAN | — | — | — | clean | clean | clean |
+| heartwall-cuda | default | default |  | RACE(2) | RACE(2) | CLEAN | — | — | — | clean | clean | clean |
 | hotspot-cuda | default | default |  | CLEAN | CLEAN | CLEAN | — | — | — | clean | clean | clean |
 | lavaMD-cuda | default | default |  | CLEAN | CLEAN | CLEAN | — | — | — | clean | clean | clean |
 | mandelbrot-cuda | default | default |  | CLEAN | CLEAN | CLEAN | — | — | — | clean | clean | clean |
-| nbody-cuda | default | default |  | TO | TO | CLEAN | — | — | — | clean | clean | clean |
-| particlefilter-cuda | default | default |  | RACE(31) | TO | CLEAN | — | — | — | clean | clean | FLAG(0) |
-| pathfinder-cuda | default | default |  | TO | TO | TO | — | — | — | clean | clean | FLAG(0) |
+| nbody-cuda | default | default |  | CLEAN | CLEAN | CLEAN | — | — | — | clean | clean | clean |
+| particlefilter-cuda | default | default |  | RACE(31) | RACE(31) | CLEAN | — | — | — | clean | clean | FLAG(0) |
+| pathfinder-cuda | default | default |  | RACE(1) | RACE(1) | TO | — | — | — | clean | clean | FLAG(0) |
 | srad-cuda | default | default |  | CLEAN | CLEAN | CLEAN | — | — | — | clean | clean | clean |
 | stencil1d-cuda | default | default |  | TO | TO | CLEAN | — | — | — | clean | clean | clean |
 
 ### P9 HeCBench — SuperCollider's 10-app subset
 
-_Counts:_ cuVein-VC RACE 1 / CLEAN 5 / TO 4 / ERR 0; cuVein-SC RACE 1 / CLEAN 5 / TO 4 / ERR 0; racecheck RACE 0 / CLEAN 8 / TO 2 / ERR 0; iGUARD RACE 3 / CLEAN 5 / TO 2 / ERR 0; SuperCollider RACE 5 / CLEAN 5 / TO 0 / ERR 0; memcheck* FLAG 0 / CLEAN 10 / TO 0 / ERR 0; synccheck* FLAG 0 / CLEAN 10 / TO 0 / ERR 0; initcheck* FLAG 0 / CLEAN 10 / TO 0 / ERR 0
+_Counts:_ cuVein-VC RACE 2 / CLEAN 6 / TO 2 / ERR 0; cuVein-SC RACE 2 / CLEAN 6 / TO 2 / ERR 0; racecheck RACE 0 / CLEAN 8 / TO 2 / ERR 0; iGUARD RACE 3 / CLEAN 5 / TO 2 / ERR 0; SuperCollider RACE 5 / CLEAN 5 / TO 0 / ERR 0; memcheck* FLAG 0 / CLEAN 10 / TO 0 / ERR 0; synccheck* FLAG 0 / CLEAN 10 / TO 0 / ERR 0; initcheck* FLAG 0 / CLEAN 10 / TO 0 / ERR 0
 
 | program | build | input | oracle | cuVein-VC | cuVein-SC | racecheck | HiRace | iGUARD | SuperCollider | memcheck* | synccheck* | initcheck* |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
@@ -5632,10 +5631,10 @@ _Counts:_ cuVein-VC RACE 1 / CLEAN 5 / TO 4 / ERR 0; cuVein-SC RACE 1 / CLEAN 5 
 | expdist-cuda | default | sc-artifact | RACE | TO | TO | CLEAN | — | CLEAN | RACE(0) | clean | clean | clean |
 | fpc-cuda | default | sc-artifact | CLEAN | CLEAN | CLEAN | CLEAN | — | RACE(2) | CLEAN | clean | clean | clean |
 | gpp-cuda | default | sc-artifact | CLEAN | CLEAN | CLEAN | CLEAN | — | RACE(6) | CLEAN | clean | clean | clean |
-| knn-cuda | default | sc-artifact | RACE | TO | TO | TO | — | TO | RACE(5) | clean | clean | clean |
+| knn-cuda | default | sc-artifact | RACE | CLEAN | CLEAN | TO | — | TO | RACE(5) | clean | clean | clean |
 | mr-cuda | default | sc-artifact | CLEAN | CLEAN | CLEAN | CLEAN | — | RACE(4) | CLEAN | clean | clean | clean |
 | overlap-cuda | default | sc-artifact | CLEAN | CLEAN | CLEAN | CLEAN | — | CLEAN | CLEAN | clean | clean | clean |
-| tridiagonal-cuda | default | sc-artifact | RACE | TO | TO | TO | — | CLEAN | RACE(3) | clean | clean | clean |
+| tridiagonal-cuda | default | sc-artifact | RACE | RACE(24) | RACE(24) | TO | — | CLEAN | RACE(3) | clean | clean | clean |
 
 ## 3. Disagreements
 
@@ -5647,16 +5646,16 @@ Race-capable tools only (cuVein vector-clock/scalar-clock, racecheck, HiRace, iG
 | cuvein/vector-clock | hirace | weak-vs-weak | none | 1042 |
 | cuvein/vector-clock | iguard | unresolved | none | 896 |
 | cuvein/vector-clock | iguard | weak-vs-weak | fence-chain | 4 |
-| cuvein/vector-clock | iguard | weak-vs-weak | none | 640 |
+| cuvein/vector-clock | iguard | weak-vs-weak | none | 752 |
 | cuvein/vector-clock | racecheck | weak-vs-weak | fence-chain | 33 |
-| cuvein/vector-clock | racecheck | weak-vs-weak | none | 17470 |
-| cuvein/vector-clock | supercollider | unresolved | none | 4 |
-| cuvein/vector-clock | supercollider | weak-vs-weak | none | 23 |
+| cuvein/vector-clock | racecheck | weak-vs-weak | none | 17591 |
+| cuvein/vector-clock | supercollider | unresolved | none | 5 |
+| cuvein/vector-clock | supercollider | weak-vs-weak | none | 111 |
 | cuvein/scalar-clock | hirace | weak-vs-weak | none | 1042 |
 | cuvein/scalar-clock | iguard | unresolved | none | 896 |
-| cuvein/scalar-clock | iguard | weak-vs-weak | none | 728 |
-| cuvein/scalar-clock | racecheck | weak-vs-weak | none | 17522 |
-| cuvein/scalar-clock | supercollider | unresolved | none | 4 |
+| cuvein/scalar-clock | iguard | weak-vs-weak | none | 752 |
+| cuvein/scalar-clock | racecheck | weak-vs-weak | none | 17555 |
+| cuvein/scalar-clock | supercollider | unresolved | none | 5 |
 | cuvein/scalar-clock | supercollider | weak-vs-weak | none | 111 |
 | hirace | iguard | unresolved | none | 1128 |
 | hirace | racecheck | unresolved | none | 1955 |
@@ -5665,7 +5664,7 @@ Race-capable tools only (cuVein vector-clock/scalar-clock, racecheck, HiRace, iG
 | iguard | supercollider | unresolved | none | 48 |
 | racecheck | supercollider | unresolved | none | 53 |
 
-<details><summary>First 2000 of 46771 disagreement rows (complete list: `eval/results/baselines-disagreements.csv`)</summary>
+<details><summary>First 2000 of 47151 disagreement rows (complete list: `eval/results/baselines-disagreements.csv`)</summary>
 
 | program | tool_a | verdict_a | tool_b | verdict_b | category | mechanism | ptx_871_match | suite_label_match |
 |---|---|---|---|---|---|---|---|---|
@@ -7678,15 +7677,15 @@ Ratio = tool wall / native wall of the same program (median of reps). TIMEOUT/ER
 
 | tool/mode | n / geomean× — P1+P7 | n / geomean× — PI Indigo original | n / geomean× — P6+PI@sc+P9 (SuperCollider-matched) | n / geomean× — P9 HeCBench-10 only (seconds-long apps) | n / geomean× — all |
 |---|---|---|---|---|---|
-| cuVein-VC | 409 / 7.7 | 4130 / 5.1 | 137 / 6.4 | 6 / 713.9 | 4698 / 5.4 |
-| cuVein-SC | 408 / 6.6 | 4130 / 5.0 | 139 / 6.8 | 6 / 467.1 | 4699 / 5.2 |
-| racecheck | 413 / 3.9 | 4130 / 2.7 | 141 / 3.2 | 8 / 91.8 | 4705 / 2.8 |
+| cuVein-VC | 413 / 8.2 | 4130 / 5.1 | 141 / 8.0 | 8 / 1519.0 | 4706 / 5.5 |
+| cuVein-SC | 413 / 7.1 | 4130 / 5.0 | 141 / 7.6 | 8 / 1052.5 | 4706 / 5.3 |
+| racecheck | 413 / 3.9 | 4130 / 2.7 | 141 / 3.2 | 8 / 91.2 | 4705 / 2.8 |
 | HiRace | 0 / — | 4130 / 1.0 | 99 / 1.1 | 0 / — | 4130 / 1.0 |
-| iGUARD | 400 / 3.1 | 4130 / 2.2 | 139 / 2.7 | 8 / 34.5 | 4691 / 2.3 |
+| iGUARD | 400 / 3.1 | 4130 / 2.2 | 139 / 2.7 | 8 / 33.4 | 4691 / 2.3 |
 | SuperCollider | 0 / — | 99 / 1.0 | 143 / 1.2 | 10 / 2.3 | 143 / 1.2 |
-| memcheck* | 414 / 3.6 | 4130 / 2.9 | 143 / 2.6 | 10 / 4.0 | 4709 / 3.0 |
-| synccheck* | 414 / 3.1 | 4130 / 2.3 | 143 / 2.4 | 10 / 4.7 | 4709 / 2.4 |
-| initcheck* | 414 / 3.4 | 4130 / 2.3 | 143 / 2.5 | 10 / 2.8 | 4709 / 2.4 |
+| memcheck* | 414 / 3.6 | 4130 / 2.9 | 143 / 2.6 | 10 / 3.9 | 4709 / 3.0 |
+| synccheck* | 414 / 3.1 | 4130 / 2.3 | 143 / 2.4 | 10 / 4.5 | 4709 / 2.4 |
+| initcheck* | 414 / 3.4 | 4130 / 2.3 | 143 / 2.5 | 10 / 2.7 | 4709 / 2.4 |
 
 ## 4a. Overhead per detector per test suite (min / max / avg / mid)
 
@@ -7700,10 +7699,10 @@ Slowdown = tool wall / native wall of the same program and input (median of reps
 | ECL race-free graph codes (CC / MIS / MST, generated from Indigo3) — 60 programs | 4.0× / 50.4× / 7.6× / 5.3× (6.1×), n=60 | 3.8× / 16.1× / 5.6× / 5.1× (5.4×), n=60 | 2.1× / 10.2× / 3.7× / 3.3× (3.6×), n=60 | 2.8× / 10.2× / 4.3× / 4.0× (4.2×), n=60 | - | 1.9× / 4.3× / 3.0× / 3.3× (3.0×), n=60 | - |
 | ScoR applications — 28 program-inputs (7 codes) | 4.2× / 2330.7× / 186.1× / 15.0× (25.5×), n=28 | 4.0× / 105.0× / 17.7× / 6.8× (9.3×), n=28 | 3.3× / 17.6× / 7.2× / 6.0× (6.5×), n=27 | 4.0× / 2765.3× / 112.2× / 8.6× (12.5×), n=28 | - | 2.1× / 14.9× / 4.4× / 3.5× (3.8×), n=28 | - |
 | ScoR micro-benchmarks + canary — 33 programs | 3.5× / 7.7× / 4.8× / 4.7× (4.8×), n=33 | 3.3× / 6.0× / 4.6× / 4.7× (4.6×), n=33 | 2.3× / 9.8× / 4.1× / 3.7× (3.8×), n=33 | 2.8× / 10.8× / 5.1× / 4.8× (4.8×), n=33 | - | 1.4× / 2.8× / 2.1× / 2.1× (2.1×), n=33 | - |
-| cuHadron — 50 program-inputs (25 codes) | 1.5× / 193.2× / 16.9× / 4.7× (5.9×), n=32 | 1.4× / 3926.8× / 243.6× / 4.7× (8.2×), n=34 | 0.9× / 10.3× / 2.9× / 2.6× (2.5×), n=34 | 1.1× / 54.7× / 6.5× / 3.3× (3.8×), n=34 | - | 1.6× / 24.4× / 4.9× / 2.1× (3.1×), n=32 | 1.0× / 60.0× / 5.1× / 1.0× (1.7×), n=34 |
-| HeCBench overhead set (unlabelled real applications) — 14 programs | 25.6× / 6793.8× / 2215.6× / 1782.4× (646.7×), n=9 | 19.2× / 7976.8× / 1783.3× / 661.0× (413.4×), n=8 | 1.0× / 1770.9× / 206.5× / 20.0× (24.5×), n=13 | 1.2× / 1770.9× / 269.1× / 71.7× (53.0×), n=14 | - | - | - |
-| HeCBench — SuperCollider's 10-application subset — 10 programs | 30.8× / 10214.8× / 3071.3× / 612.9× (713.9×), n=6 | 28.1× / 6225.5× / 1946.2× / 265.6× (467.1×), n=6 | 4.4× / 2216.6× / 397.0× / 134.8× (91.8×), n=8 | 4.4× / 2216.6× / 397.0× / 134.8× (91.8×), n=8 | - | 3.4× / 1408.3× / 246.2× / 27.6× (34.5×), n=8 | 1.0× / 16.5× / 4.0× / 1.4× (2.3×), n=10 |
-| **All suites** | 1.5× / 10214.8× / 15.7× / 5.2× (5.4×), n=4698 | 1.4× / 7976.8× / 12.7× / 5.2× (5.2×), n=4699 | 0.9× / 2216.6× / 4.1× / 2.7× (2.8×), n=4705 | 1.1× / 2765.3× / 6.7× / 2.9× (3.6×), n=4707 | 0.8× / 1.5× / 1.0× / 1.0× (1.0×), n=4130 | 1.4× / 1408.3× / 2.8× / 2.4× (2.3×), n=4691 | 1.0× / 60.0× / 2.2× / 1.0× (1.2×), n=143 |
+| cuHadron — 50 program-inputs (25 codes) | 1.5× / 12436.1× / 737.6× / 4.8× (9.2×), n=34 | 1.4× / 3926.8× / 243.6× / 4.7× (8.2×), n=34 | 0.9× / 10.3× / 2.9× / 2.6× (2.5×), n=34 | 1.1× / 54.7× / 6.5× / 3.3× (3.8×), n=34 | - | 1.6× / 24.4× / 4.9× / 2.1× (3.1×), n=32 | 1.0× / 60.0× / 5.1× / 1.0× (1.7×), n=34 |
+| HeCBench overhead set (unlabelled real applications) — 14 programs | 25.6× / 45725.8× / 7082.8× / 1977.1× (1404.9×), n=13 | 19.2× / 41204.6× / 5895.0× / 1839.5× (1152.2×), n=13 | 1.0× / 1770.9× / 206.6× / 20.0× (25.4×), n=13 | 1.2× / 1770.9× / 265.3× / 70.3× (54.6×), n=14 | - | - | - |
+| HeCBench — SuperCollider's 10-application subset — 10 programs | 30.8× / 50696.8× / 9168.4× / 2529.7× (1519.0×), n=8 | 28.1× / 43876.0× / 7357.1× / 1797.0× (1052.5×), n=8 | 4.4× / 2216.6× / 395.9× / 130.3× (91.2×), n=8 | 4.4× / 2216.6× / 395.9× / 130.3× (91.2×), n=8 | - | 3.2× / 1408.3× / 244.6× / 27.6× (33.4×), n=8 | 1.0× / 16.5× / 4.0× / 1.4× (2.3×), n=10 |
+| **All suites** | 1.5× / 50696.8× / 47.8× / 5.2× (5.5×), n=4706 | 1.4× / 43876.0× / 35.9× / 5.2× (5.3×), n=4706 | 0.9× / 2216.6× / 4.1× / 2.7× (2.8×), n=4705 | 1.1× / 2765.3× / 6.6× / 2.9× (3.6×), n=4707 | 0.8× / 1.5× / 1.0× / 1.0× (1.0×), n=4130 | 1.4× / 1408.3× / 2.8× / 2.4× (2.3×), n=4691 | 1.0× / 60.0× / 2.2× / 1.0× (1.2×), n=143 |
 
 HiRace's slowdown is its hand-instrumented twin vs the uninstrumented build of the same code, same input and launch. iGUARD was not run on the HeCBench overhead set; SuperCollider exists only for cuHadron and its own two subsets.
 
@@ -7723,12 +7722,12 @@ Peak RSS = max over a program's reps of the accelprof process tree's resident se
 | P4 ScoR apps | scalar-clock | 28 | 848 / 857 / 897 / 1,171 | 1.01× | 0 |
 | P5 ScoR micro + canary | vector-clock | 33 | 845 / 850 / 850 / 853 | 1.00× | 0 |
 | P5 ScoR micro + canary | scalar-clock | 33 | 657 / 849 / 839 / 851 | 1.00× | 0 |
-| P6 cuHadron | vector-clock | 32 | 844 / 850 / 1,067 / 21,861 | 1.00× | 2, 37,743 |
+| P6 cuHadron | vector-clock | 34 | 844 / 851 / 1,368 / 71,942 | 1.00× | 0 |
 | P6 cuHadron | scalar-clock | 34 | 845 / 851 / 1,353 / 65,897 | 1.00× | 0 |
-| P7 HeCBench (overhead) | vector-clock | 9 | 1,073 / 9,191 / 6,266 / 185,441 | 10.82× | 5, 98,199 |
-| P7 HeCBench (overhead) | scalar-clock | 8 | 1,041 / 1,494 / 2,986 / 22,652 | 1.76× | 6, 185,961 |
-| P9 HeCBench — SuperCollider's 10-app subset | vector-clock | 6 | 890 / 2,140 / 1,841 / 2,874 | 2.52× | 4, 99,522 |
-| P9 HeCBench — SuperCollider's 10-app subset | scalar-clock | 6 | 881 / 1,715 / 1,588 / 2,650 | 2.02× | 4, 20,086 |
+| P7 HeCBench (overhead) | vector-clock | 13 | 1,073 / 9,191 / 6,936 / 185,441 | 10.82× | 1, 98,495 |
+| P7 HeCBench (overhead) | scalar-clock | 13 | 1,041 / 6,186 / 5,963 / 186,168 | 7.28× | 1, 84,061 |
+| P9 HeCBench — SuperCollider's 10-app subset | vector-clock | 8 | 890 / 2,615 / 3,136 / 22,198 | 3.08× | 2, 99,522 |
+| P9 HeCBench — SuperCollider's 10-app subset | scalar-clock | 8 | 881 / 1,881 / 2,764 / 20,558 | 2.21× | 2, 9,912 |
 | E0 ScoR apps | vector-clock | 6 | 958 / 963 / 1,327 / 2,529 | 1.18× | 0 |
 | E0 ScoR apps | scalar-clock | 12 | 817 / 820 / 857 / 1,074 | 1.00× | 0 |
 | E1 Indigo3 (stratified) | vector-clock | 100 | 817 / 826 / 827 / 850 | 1.01× | 0 |
@@ -7779,31 +7778,31 @@ Peak RSS = max over a program's reps of the accelprof process tree's resident se
 | P4-uts-norace-small | CLEAN 883 | CLEAN 862 | 1.0× |
 | P4-uts-racy-large | RACE 1,245 | RACE 927 | 1.3× |
 | P4-uts-racy-small | RACE 884 | RACE 859 | 1.0× |
-| P6-asyncmemcpy-kernel_memcpy_dtoh_race-fixed | TIMEOUT 37,332 | RACE 65,897 | 0.6× |
-| P6-asyncmemcpy-kernel_memcpy_dtoh_race-racy | TIMEOUT 37,743 | RACE 65,894 | 0.6× |
+| P6-asyncmemcpy-kernel_memcpy_dtoh_race-fixed | RACE 71,937 | RACE 65,897 | 1.1× |
+| P6-asyncmemcpy-kernel_memcpy_dtoh_race-racy | RACE 71,942 | RACE 65,894 | 1.1× |
 | P6-asyncmemcpy-memcpy_htod_kernel_race-racy | CLEAN 21,860 | CLEAN 21,858 | 1.0× |
 | P6-interkernel-global_writewrite_race-fixed | CLEAN 864 | CLEAN 868 | 1.0× |
 | P6-interkernel-global_writewrite_race-racy | CLEAN 864 | CLEAN 863 | 1.0× |
 | P7-bezier-surface-cuda | CLEAN 16,716 | CLEAN 16,723 | 1.0× |
 | P7-bitonic-sort-cuda | CLEAN 9,191 | CLEAN 5,582 | 1.6× |
-| P7-haversine-cuda | CLEAN 9,565 | TIMEOUT 8,328 | 1.1× |
-| P7-heartwall-cuda | TIMEOUT 6,181 | TIMEOUT 6,190 | 1.0× |
+| P7-haversine-cuda | CLEAN 9,565 | CLEAN 8,348 | 1.1× |
+| P7-heartwall-cuda | RACE 6,194 | RACE 6,186 | 1.0× |
 | P7-hotspot-cuda | CLEAN 1,154 | CLEAN 1,095 | 1.1× |
 | P7-lavaMD-cuda | CLEAN 23,009 | CLEAN 22,652 | 1.0× |
 | P7-mandelbrot-cuda | CLEAN 1,455 | CLEAN 1,269 | 1.1× |
-| P7-nbody-cuda | TIMEOUT 29,001 | TIMEOUT 28,987 | 1.0× |
-| P7-particlefilter-cuda | RACE 185,441 | TIMEOUT 185,961 | 1.0× |
-| P7-pathfinder-cuda | TIMEOUT 16,639 | TIMEOUT 5,918 | 2.8× |
+| P7-nbody-cuda | CLEAN 29,294 | CLEAN 29,226 | 1.0× |
+| P7-particlefilter-cuda | RACE 185,441 | RACE 186,168 | 1.0× |
+| P7-pathfinder-cuda | RACE 17,592 | RACE 6,779 | 2.6× |
 | P7-srad-cuda | CLEAN 1,073 | CLEAN 1,041 | 1.0× |
-| P7-stencil1d-cuda | TIMEOUT 98,199 | TIMEOUT 83,745 | 1.2× |
-| P9-atomicCAS-cuda | TIMEOUT 99,522 | TIMEOUT 899 | 110.7× |
+| P7-stencil1d-cuda | TIMEOUT 98,495 | TIMEOUT 84,061 | 1.2× |
+| P9-atomicCAS-cuda | TIMEOUT 99,522 | TIMEOUT 908 | 109.6× |
 | P9-dxtc2-cuda | RACE 2,874 | RACE 2,650 | 1.1× |
-| P9-expdist-cuda | TIMEOUT 12,981 | TIMEOUT 6,703 | 1.9× |
+| P9-expdist-cuda | TIMEOUT 20,364 | TIMEOUT 9,912 | 2.1× |
 | P9-fpc-cuda | CLEAN 2,822 | CLEAN 1,660 | 1.7× |
 | P9-gpp-cuda | CLEAN 1,872 | CLEAN 1,770 | 1.1× |
-| P9-knn-cuda | TIMEOUT 21,785 | TIMEOUT 20,086 | 1.1× |
+| P9-knn-cuda | CLEAN 22,198 | CLEAN 20,558 | 1.1× |
 | P9-mr-cuda | CLEAN 890 | CLEAN 881 | 1.0× |
-| P9-tridiagonal-cuda | TIMEOUT 8,744 | TIMEOUT 8,333 | 1.0× |
+| P9-tridiagonal-cuda | RACE 10,810 | RACE 10,360 | 1.0× |
 
 ## 5. Pre-registered expectations (computed)
 

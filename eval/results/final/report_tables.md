@@ -1,4 +1,4 @@
-Coverage: 4725 manifest ids x 2 modes; missing (id, mode): 0; ids in the CSV not in the manifest: 0; CSV rows 28270.
+Coverage: 4725 manifest ids x 2 modes; missing (id, mode): 0; ids in the CSV not in the manifest: 0; CSV rows 28230.
 
 | suite | programs | rows | mode | CLEAN | RACE | TIMEOUT | ERROR | cap (s) |
 |---|---|---|---|---|---|---|---|---|
@@ -10,32 +10,26 @@ Coverage: 4725 manifest ids x 2 modes; missing (id, mode): 0; ids in the CSV not
 |  |  |  | scalar-clock | 12 | 16 | 0 | 0 | 1200 |
 | P5 | 33 | 198 | vector-clock | 29 | 4 | 0 | 0 | 1200 |
 |  |  |  | scalar-clock | 31 | 2 | 0 | 0 | 1200 |
-| P6 | 50 | 220 | vector-clock | 26 | 6 | 2 | 16 | 1200/5400 |
+| P6 | 50 | 216 | vector-clock | 26 | 8 | 0 | 16 | 1200/86400 |
 |  |  |  | scalar-clock | 26 | 8 | 0 | 16 | 1200/5400 |
-| P7 | 14 | 84 | vector-clock | 8 | 1 | 5 | 0 | 1200/5400 |
-|  |  |  | scalar-clock | 7 | 1 | 6 | 0 | 1200/5400 |
-| P9 | 10 | 60 | vector-clock | 5 | 1 | 4 | 0 | 1200/5400 |
-|  |  |  | scalar-clock | 5 | 1 | 4 | 0 | 1200/5400 |
+| P7 | 14 | 62 | vector-clock | 9 | 4 | 1 | 0 | 1200/5400/86400 |
+|  |  |  | scalar-clock | 9 | 4 | 1 | 0 | 1200/5400/86400 |
+| P9 | 10 | 46 | vector-clock | 6 | 2 | 2 | 0 | 1200/5400/86400 |
+|  |  |  | scalar-clock | 6 | 2 | 2 | 0 | 1200/5400/86400 |
 | PI | 4130 | 24780 | vector-clock | 1710 | 2420 | 0 | 0 | 1200 |
 |  |  |  | scalar-clock | 1710 | 2420 | 0 | 0 | 1200 |
-| all | 4725 | 28270 | vector-clock | 2034 | 2664 | 11 | 16 | |
-|  |  |  | scalar-clock | 2035 | 2664 | 10 | 16 | |
+| all | 4725 | 28230 | vector-clock | 2036 | 2670 | 3 | 16 | |
+|  |  |  | scalar-clock | 2038 | 2668 | 3 | 16 | |
 
 | suite | mode | verdict | reason class | (id, mode) |
 |---|---|---|---|---|
 | P6 | scalar-clock | ERROR | needs-sm90 | 16 |
 | P6 | vector-clock | ERROR | needs-sm90 | 16 |
-| P6 | vector-clock | TIMEOUT | hb-state-memory | 2 |
-| P7 | scalar-clock | TIMEOUT | hb-state-memory | 2 |
-| P7 | scalar-clock | TIMEOUT | time-cap | 4 |
-| P7 | vector-clock | TIMEOUT | hb-clock-hang | 1 |
+| P7 | scalar-clock | TIMEOUT | hb-state-memory | 1 |
 | P7 | vector-clock | TIMEOUT | hb-state-memory | 1 |
-| P7 | vector-clock | TIMEOUT | time-cap | 3 |
-| P9 | scalar-clock | TIMEOUT | no-kernel-in-cap | 1 |
-| P9 | scalar-clock | TIMEOUT | time-cap | 3 |
+| P9 | scalar-clock | TIMEOUT | time-cap | 2 |
 | P9 | vector-clock | TIMEOUT | hb-state-memory | 1 |
 | P9 | vector-clock | TIMEOUT | no-kernel-in-cap | 1 |
-| P9 | vector-clock | TIMEOUT | time-cap | 2 |
 
 | id | mode | first pass (1,200 s): verdict, rep walls (s) | long pass (5,400 s): verdict | rep walls (s) | median wall (s) | peak MB | node |
 |---|---|---|---|---|---|---|---|
@@ -81,14 +75,43 @@ Long pass, vector-clock: 19 ids; RACE 2, CLEAN 6, TIMEOUT 11
 
 Long pass, scalar-clock: 18 ids; RACE 4, CLEAN 4, TIMEOUT 10
 
+| id | mode | 5,400 s verdict | 24 h verdict | wall (s) | peak MB | rc | node | in the merged CSV |
+|---|---|---|---|---|---|---|---|---|
+| P6-asyncmemcpy-kernel_memcpy_dtoh_race-fixed | vector-clock | TIMEOUT | RACE | 14534.817 | 71,937 | 0 | c61 | 24 h row |
+| P6-asyncmemcpy-kernel_memcpy_dtoh_race-racy | vector-clock | TIMEOUT | RACE | 14550.27 | 71,942 | 0 | c60 | 24 h row |
+| P7-bfs-cuda | vector-clock | TIMEOUT | RACE | 6289.863 | 1,808 | 0 | c51 | 24 h row |
+| P7-heartwall-cuda | vector-clock | TIMEOUT | RACE | 35574.705 | 6,194 | 0 | c58 | 24 h row |
+| P7-nbody-cuda | vector-clock | TIMEOUT | CLEAN | 8197.555 | 29,294 | 0 | c62 | 24 h row |
+| P7-pathfinder-cuda | vector-clock | TIMEOUT | RACE | 28386.115 | 17,592 | 0 | c63 | 24 h row |
+| P7-stencil1d-cuda | vector-clock | TIMEOUT | TIMEOUT | 86400.019 | 98,495 | 124 | — | 24 h row |
+| P9-atomicCAS-cuda | vector-clock | TIMEOUT | ERROR | 17624.601 | 186,308 | 1 | — | 5,400 s rows kept (24 h run: ERROR) |
+| P9-expdist-cuda | vector-clock | TIMEOUT | TIMEOUT | 86400.015 | 20,364 | 124 | — | 24 h row |
+| P9-knn-cuda | vector-clock | TIMEOUT | CLEAN | 57215.724 | 22,198 | 0 | c62 | 24 h row |
+| P9-tridiagonal-cuda | vector-clock | TIMEOUT | RACE | 42483.9 | 10,810 | 0 | c61 | 24 h row |
+| P7-haversine-cuda | scalar-clock | TIMEOUT | CLEAN | 6931.599 | 8,348 | 0 | c63 | 24 h row |
+| P7-heartwall-cuda | scalar-clock | TIMEOUT | RACE | 32057.217 | 6,186 | 0 | c52 | 24 h row |
+| P7-nbody-cuda | scalar-clock | TIMEOUT | CLEAN | 8014.964 | 29,226 | 0 | c66 | 24 h row |
+| P7-particlefilter-cuda | scalar-clock | TIMEOUT | RACE | 5791.383 | 186,168 | 1 | c66 | 24 h row |
+| P7-pathfinder-cuda | scalar-clock | TIMEOUT | RACE | 19225.434 | 6,779 | 0 | c77 | 24 h row |
+| P7-stencil1d-cuda | scalar-clock | TIMEOUT | TIMEOUT | 86400.005 | 84,061 | 124 | — | 24 h row |
+| P9-atomicCAS-cuda | scalar-clock | TIMEOUT | TIMEOUT | 86400.03 | 908 | 124 | — | 24 h row |
+| P9-expdist-cuda | scalar-clock | TIMEOUT | TIMEOUT | 86400.016 | 9,912 | 124 | — | 24 h row |
+| P9-knn-cuda | scalar-clock | TIMEOUT | CLEAN | 44762.407 | 20,558 | 0 | c66 | 24 h row |
+| P9-tridiagonal-cuda | scalar-clock | TIMEOUT | RACE | 36768.052 | 10,360 | 0 | c61 | 24 h row |
+
+24 h pass, vector-clock: 11 keys; RACE 6, CLEAN 2, TIMEOUT 2, ERROR 1
+
+24 h pass, scalar-clock: 10 keys; RACE 4, CLEAN 3, TIMEOUT 3
+
 | job name | node-hours | nodes | first start | last end |
 |---|---|---|---|---|
 | x1-dryrun | 0.3 | 1 | 2026-10-13T17:13:13 | 2026-10-13T17:33:50 |
 | x1-dryrun2 | 0.3 | 1 | 2026-10-13T17:31:11 | 2026-10-13T17:51:34 |
 | x1-final | 48.6 | 12 | 2026-10-13T17:32:21 | 2026-10-14T00:06:22 |
+| x1-final-24h | 233.3 | 11 | 2026-10-14T14:23:22 | 2026-10-16T08:39:26 |
 | x1-final-long | 73.9 | 12 | 2026-10-13T21:35:08 | 2026-10-14T06:51:21 |
 | x1-final-long-sc | 66.3 | 14 | 2026-10-14T02:02:40 | 2026-10-14T12:23:09 |
 | x1-final-pi | 11.5 | 7 | 2026-10-13T20:20:26 | 2026-10-13T22:36:33 |
 | x1-post | 0.1 | 1 | 2026-10-14T12:24:10 | 2026-10-14T12:27:42 |
 | x1-sanity1 | 0.1 | 1 | 2026-10-14T00:07:31 | 2026-10-14T00:11:10 |
-| all | 201.1 | 15 | 2026-10-13T17:13:13 | 2026-10-14T12:27:42 |
+| all | 434.4 | 15 | 2026-10-13T17:13:13 | 2026-10-16T08:39:26 |
