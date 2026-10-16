@@ -1,0 +1,154 @@
+{
+ "id": "P7-nbody-cuda",
+ "name": "nbody-sc-0a25f7d",
+ "config": "scalar-clock",
+ "workers": "1",
+ "cap": 600,
+ "runtime": "/mnt/beegfs/fzheng4/x1_follow/bisect/0a25f7d/rt",
+ "mode_knob": "mode",
+ "no_dump": false,
+ "hb_stats": true,
+ "node": "c66",
+ "cpu": "AMD EPYC 8124P 16-Core Processor",
+ "nproc": 32,
+ "slurm_job": "312742",
+ "started": "2026-10-16 01:53:17",
+ "native": [
+  {
+   "wall": 12.089,
+   "rc": 0,
+   "timed_out": false
+  },
+  {
+   "wall": 12.14,
+   "rc": 0,
+   "timed_out": false
+  },
+  {
+   "wall": 12.14,
+   "rc": 0,
+   "timed_out": false
+  }
+ ],
+ "sidecar_rc": 0,
+ "sidecar": "/mnt/beegfs/fzheng4/x1_follow/bisect/runs/nbody-sc-0a25f7d/work/cubins/atomic_scope.cand.txt",
+ "scope_file": true,
+ "env": {
+  "ACCEL_PROF_HOME": "/mnt/beegfs/fzheng4/x1_follow/bisect/0a25f7d/rt",
+  "CUVEIN_HOME": "/mnt/beegfs/fzheng4/x1_follow/bisect/0a25f7d/rt",
+  "YOSEMITE_HB_TRACE": "1",
+  "YOSEMITE_HB_MODE": "scalar-clock",
+  "YOSEMITE_ATOMIC_SCOPE_FILE": "/mnt/beegfs/fzheng4/x1_follow/bisect/runs/nbody-sc-0a25f7d/work/cubins/atomic_scope.cand.txt",
+  "YOSEMITE_HB_STATS": "1"
+ },
+ "libs": "/mnt/beegfs/fzheng4/x1_follow/bisect/0a25f7d/san-install/lib/libsanalyzer.so\n/home/fzheng4/AccelProf/build/sanalyzer/cpp_trace/lib/libcpp_trace.so\n/home/fzheng4/AccelProf/build/sanalyzer/py_frame/lib/libpy_frame.so",
+ "cmd": "accelprof -v -t pc_dependency_analysis -n 1 ./nbody-cuda 16000 10",
+ "wall": 600.092,
+ "peak_mb_sumrss": 44348.3,
+ "maxrss_mb_hwm": 44345.2,
+ "maxrss_mb_rusage": 140.5,
+ "rc": 124,
+ "timed_out": true,
+ "t0": 1792130036.375318,
+ "finished": "2026-10-16 02:03:56",
+ "kernels": [
+  {
+   "file": "kernel_0.json",
+   "t": 218.625,
+   "mb": 44150.07,
+   "hb_events_count": null,
+   "seq_records": 32005004,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_1.json",
+   "t": 218.625,
+   "mb": 13.84,
+   "hb_events_count": null,
+   "seq_records": 10504,
+   "hb_stats": {
+    "hb_events": {
+     "count": 10504,
+     "json_bytes": 13748574,
+     "ram_bytes_est": 1087717840
+    },
+    "hb_clock": null,
+    "rss_kb": 45409516,
+    "hwm_kb": 45409516
+   }
+  },
+  {
+   "file": "kernel_2.json",
+   "t": 218.625,
+   "mb": 3.39,
+   "hb_events_count": null,
+   "seq_records": 20004,
+   "hb_stats": {
+    "hb_events": {
+     "count": 20004,
+     "json_bytes": 3214479,
+     "ram_bytes_est": 1077262448
+    },
+    "hb_clock": null,
+    "rss_kb": 45409516,
+    "hwm_kb": 45409516
+   }
+  },
+  {
+   "file": "kernel_3.json",
+   "t": 427.625,
+   "mb": 44150.07,
+   "hb_events_count": null,
+   "seq_records": 32005004,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_4.json",
+   "t": 428.625,
+   "mb": 13.84,
+   "hb_events_count": null,
+   "seq_records": 10504,
+   "hb_stats": {
+    "hb_events": {
+     "count": 10504,
+     "json_bytes": 13748574,
+     "ram_bytes_est": 1087717984
+    },
+    "hb_clock": null,
+    "rss_kb": 45409516,
+    "hwm_kb": 45409516
+   }
+  },
+  {
+   "file": "kernel_5.json",
+   "t": 428.625,
+   "mb": 3.39,
+   "hb_events_count": null,
+   "seq_records": 20004,
+   "hb_stats": {
+    "hb_events": {
+     "count": 20004,
+     "json_bytes": 3214479,
+     "ram_bytes_est": 1077262448
+    },
+    "hb_clock": null,
+    "rss_kb": 45409516,
+    "hwm_kb": 45409516
+   }
+  },
+  {
+   "file": "kernel_6.json",
+   "t": 599.625,
+   "mb": 27046.97,
+   "hb_events_count": null,
+   "seq_records": 19609470,
+   "hb_stats": null
+  }
+ ],
+ "nkernels": 7,
+ "vlog_mb": 0.01,
+ "drains": 50,
+ "drained_records": 93431152,
+ "hb_events_count": null,
+ "tool_tail": "./nbody-cuda 16000 10\nstdout redirect: /mnt/beegfs/fzheng4/x1_follow/bisect/runs/nbody-sc-0a25f7d/work/nbody-cuda.accelprof.log\nRunning the pc_dependency_analysis tool for nbody-cuda...\nfatal: not a git repository (or any parent up to mount point /mnt)\nStopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).\nfatal: not a git repository (or any parent up to mount point /mnt)\nStopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set)."
+}

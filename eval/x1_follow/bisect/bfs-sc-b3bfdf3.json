@@ -1,0 +1,389 @@
+{
+ "id": "P7-bfs-cuda",
+ "name": "bfs-sc-b3bfdf3",
+ "config": "scalar-clock",
+ "workers": "1",
+ "cap": 600,
+ "runtime": "/mnt/beegfs/fzheng4/x1_follow/bisect/b3bfdf3/rt",
+ "mode_knob": "mode",
+ "no_dump": false,
+ "hb_stats": true,
+ "node": "c66",
+ "cpu": "AMD EPYC 8124P 16-Core Processor",
+ "nproc": 32,
+ "slurm_job": "312742",
+ "started": "2026-10-15 23:25:07",
+ "native": [
+  {
+   "wall": 1.118,
+   "rc": 0,
+   "timed_out": false
+  },
+  {
+   "wall": 1.018,
+   "rc": 0,
+   "timed_out": false
+  },
+  {
+   "wall": 1.068,
+   "rc": 0,
+   "timed_out": false
+  }
+ ],
+ "sidecar_rc": 0,
+ "sidecar": "/mnt/beegfs/fzheng4/x1_follow/bisect/runs/bfs-sc-b3bfdf3/work/cubins/atomic_scope.cand.txt",
+ "scope_file": true,
+ "env": {
+  "ACCEL_PROF_HOME": "/mnt/beegfs/fzheng4/x1_follow/bisect/b3bfdf3/rt",
+  "CUVEIN_HOME": "/mnt/beegfs/fzheng4/x1_follow/bisect/b3bfdf3/rt",
+  "YOSEMITE_HB_TRACE": "1",
+  "YOSEMITE_HB_MODE": "scalar-clock",
+  "YOSEMITE_ATOMIC_SCOPE_FILE": "/mnt/beegfs/fzheng4/x1_follow/bisect/runs/bfs-sc-b3bfdf3/work/cubins/atomic_scope.cand.txt",
+  "YOSEMITE_HB_STATS": "1"
+ },
+ "libs": "/mnt/beegfs/fzheng4/x1_follow/bisect/b3bfdf3/san-install/lib/libsanalyzer.so\n/home/fzheng4/AccelProf/build/sanalyzer/cpp_trace/lib/libcpp_trace.so\n/home/fzheng4/AccelProf/build/sanalyzer/py_frame/lib/libpy_frame.so",
+ "cmd": "accelprof -v -t pc_dependency_analysis -n 1 ./bfs-cuda ../data/bfs/graph1MW_6.txt",
+ "wall": 19.488,
+ "peak_mb_sumrss": 1754.5,
+ "maxrss_mb_hwm": 1751.5,
+ "maxrss_mb_rusage": 1751.5,
+ "rc": 0,
+ "timed_out": false,
+ "t0": 1792121112.410556,
+ "finished": "2026-10-15 23:25:31",
+ "kernels": [
+  {
+   "file": "kernel_0.json",
+   "t": 1.589,
+   "mb": 46.21,
+   "hb_events_count": null,
+   "seq_records": 62525,
+   "hb_stats": {
+    "hb_events": {
+     "count": 62525,
+     "json_bytes": 45818426,
+     "ram_bytes_est": 49100752
+    },
+    "engine": null,
+    "rss_kb": 976648,
+    "hwm_kb": 976648
+   }
+  },
+  {
+   "file": "kernel_1.json",
+   "t": 1.589,
+   "mb": 46.2,
+   "hb_events_count": null,
+   "seq_records": 62521,
+   "hb_stats": {
+    "hb_events": {
+     "count": 62521,
+     "json_bytes": 45817721,
+     "ram_bytes_est": 49100128
+    },
+    "engine": null,
+    "rss_kb": 978960,
+    "hwm_kb": 978960
+   }
+  },
+  {
+   "file": "kernel_2.json",
+   "t": 1.589,
+   "mb": 46.26,
+   "hb_events_count": null,
+   "seq_records": 62644,
+   "hb_stats": {
+    "hb_events": {
+     "count": 62644,
+     "json_bytes": 45838541,
+     "ram_bytes_est": 49123184
+    },
+    "engine": null,
+    "rss_kb": 995608,
+    "hwm_kb": 995608
+   }
+  },
+  {
+   "file": "kernel_3.json",
+   "t": 1.589,
+   "mb": 46.22,
+   "hb_events_count": null,
+   "seq_records": 62616,
+   "hb_stats": {
+    "hb_events": {
+     "count": 62616,
+     "json_bytes": 45832599,
+     "ram_bytes_est": 49116544
+    },
+    "engine": null,
+    "rss_kb": 995608,
+    "hwm_kb": 995608
+   }
+  },
+  {
+   "file": "kernel_4.json",
+   "t": 2.589,
+   "mb": 46.37,
+   "hb_events_count": null,
+   "seq_records": 63276,
+   "hb_stats": {
+    "hb_events": {
+     "count": 63276,
+     "json_bytes": 45945784,
+     "ram_bytes_est": 49241472
+    },
+    "engine": null,
+    "rss_kb": 1025004,
+    "hwm_kb": 1025004
+   }
+  },
+  {
+   "file": "kernel_5.json",
+   "t": 2.589,
+   "mb": 46.29,
+   "hb_events_count": null,
+   "seq_records": 63076,
+   "hb_stats": {
+    "hb_events": {
+     "count": 63076,
+     "json_bytes": 45906018,
+     "ram_bytes_est": 49197648
+    },
+    "engine": null,
+    "rss_kb": 1025004,
+    "hwm_kb": 1025004
+   }
+  },
+  {
+   "file": "kernel_6.json",
+   "t": 2.589,
+   "mb": 47.01,
+   "hb_events_count": null,
+   "seq_records": 66828,
+   "hb_stats": {
+    "hb_events": {
+     "count": 66828,
+     "json_bytes": 46557121,
+     "ram_bytes_est": 52010688
+    },
+    "engine": null,
+    "rss_kb": 1049312,
+    "hwm_kb": 1049312
+   }
+  },
+  {
+   "file": "kernel_7.json",
+   "t": 3.589,
+   "mb": 46.76,
+   "hb_events_count": null,
+   "seq_records": 65951,
+   "hb_stats": {
+    "hb_events": {
+     "count": 65951,
+     "json_bytes": 46361250,
+     "ram_bytes_est": 51798704
+    },
+    "engine": null,
+    "rss_kb": 1049312,
+    "hwm_kb": 1049312
+   }
+  },
+  {
+   "file": "kernel_8.json",
+   "t": 3.589,
+   "mb": 50.73,
+   "hb_events_count": null,
+   "seq_records": 87850,
+   "hb_stats": {
+    "hb_events": {
+     "count": 87850,
+     "json_bytes": 50144817,
+     "ram_bytes_est": 55957984
+    },
+    "engine": null,
+    "rss_kb": 1058884,
+    "hwm_kb": 1058884
+   }
+  },
+  {
+   "file": "kernel_9.json",
+   "t": 3.589,
+   "mb": 49.3,
+   "hb_events_count": null,
+   "seq_records": 81116,
+   "hb_stats": {
+    "hb_events": {
+     "count": 81116,
+     "json_bytes": 48806339,
+     "ram_bytes_est": 54501152
+    },
+    "engine": null,
+    "rss_kb": 1058884,
+    "hwm_kb": 1058884
+   }
+  },
+  {
+   "file": "kernel_10.json",
+   "t": 4.589,
+   "mb": 70.95,
+   "hb_events_count": null,
+   "seq_records": 200258,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_11.json",
+   "t": 4.589,
+   "mb": 60.5,
+   "hb_events_count": null,
+   "seq_records": 142441,
+   "hb_stats": {
+    "hb_events": {
+     "count": 142441,
+     "json_bytes": 59637394,
+     "ram_bytes_est": 70535616
+    },
+    "engine": null,
+    "rss_kb": 1086500,
+    "hwm_kb": 1086500
+   }
+  },
+  {
+   "file": "kernel_12.json",
+   "t": 5.589,
+   "mb": 165.7,
+   "hb_events_count": null,
+   "seq_records": 697358,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_13.json",
+   "t": 6.589,
+   "mb": 86.76,
+   "hb_events_count": null,
+   "seq_records": 215886,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_14.json",
+   "t": 8.589,
+   "mb": 419.93,
+   "hb_events_count": null,
+   "seq_records": 1631641,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_15.json",
+   "t": 9.589,
+   "mb": 136.87,
+   "hb_events_count": null,
+   "seq_records": 218756,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_16.json",
+   "t": 13.589,
+   "mb": 696.75,
+   "hb_events_count": null,
+   "seq_records": 1881112,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_17.json",
+   "t": 14.589,
+   "mb": 124.24,
+   "hb_events_count": null,
+   "seq_records": 218751,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_18.json",
+   "t": 16.589,
+   "mb": 382.43,
+   "hb_events_count": null,
+   "seq_records": 1021846,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_19.json",
+   "t": 17.589,
+   "mb": 56.92,
+   "hb_events_count": null,
+   "seq_records": 124721,
+   "hb_stats": {
+    "hb_events": {
+     "count": 124721,
+     "json_bytes": 56163371,
+     "ram_bytes_est": 125496352
+    },
+    "engine": null,
+    "rss_kb": 1793500,
+    "hwm_kb": 1793500
+   }
+  },
+  {
+   "file": "kernel_20.json",
+   "t": 17.589,
+   "mb": 73.65,
+   "hb_events_count": null,
+   "seq_records": 217110,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_21.json",
+   "t": 18.589,
+   "mb": 46.22,
+   "hb_events_count": null,
+   "seq_records": 62646,
+   "hb_stats": {
+    "hb_events": {
+     "count": 62646,
+     "json_bytes": 45837110,
+     "ram_bytes_est": 114133296
+    },
+    "engine": null,
+    "rss_kb": 1793500,
+    "hwm_kb": 1793500
+   }
+  },
+  {
+   "file": "kernel_22.json",
+   "t": 18.589,
+   "mb": 46.24,
+   "hb_events_count": null,
+   "seq_records": 62730,
+   "hb_stats": {
+    "hb_events": {
+     "count": 62730,
+     "json_bytes": 45851352,
+     "ram_bytes_est": 114148944
+    },
+    "engine": null,
+    "rss_kb": 1793500,
+    "hwm_kb": 1793500
+   }
+  },
+  {
+   "file": "kernel_23.json",
+   "t": 18.589,
+   "mb": 46.19,
+   "hb_events_count": null,
+   "seq_records": 62506,
+   "hb_stats": {
+    "hb_events": {
+     "count": 62506,
+     "json_bytes": 45815438,
+     "ram_bytes_est": 114109152
+    },
+    "engine": null,
+    "rss_kb": 1793500,
+    "hwm_kb": 1793500
+   }
+  }
+ ],
+ "nkernels": 24,
+ "vlog_mb": 0.03,
+ "drains": 24,
+ "drained_records": 7436165,
+ "hb_events_count": null,
+ "tool_tail": "./bfs-cuda ../data/bfs/graph1MW_6.txt\nstdout redirect: /mnt/beegfs/fzheng4/x1_follow/bisect/runs/bfs-sc-b3bfdf3/work/bfs-cuda.accelprof.log\nRunning the pc_dependency_analysis tool for bfs-cuda...\nfatal: not a git repository (or any parent up to mount point /mnt)\nStopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).\nfatal: not a git repository (or any parent up to mount point /mnt)\nStopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set)."
+}

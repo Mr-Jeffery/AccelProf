@@ -1,0 +1,180 @@
+{
+ "id": "P7-bfs-cuda",
+ "name": "bfs-sc-installed-nostats",
+ "config": "scalar-clock",
+ "workers": "1",
+ "cap": 600,
+ "runtime": "/home/fzheng4/AccelProf",
+ "mode_knob": "mode",
+ "no_dump": true,
+ "hb_stats": false,
+ "node": "c66",
+ "cpu": "AMD EPYC 8124P 16-Core Processor",
+ "nproc": 32,
+ "slurm_job": "312742",
+ "started": "2026-10-15 22:13:37",
+ "native": [
+  {
+   "wall": 1.068,
+   "rc": 0,
+   "timed_out": false
+  },
+  {
+   "wall": 1.068,
+   "rc": 0,
+   "timed_out": false
+  },
+  {
+   "wall": 1.069,
+   "rc": 0,
+   "timed_out": false
+  }
+ ],
+ "scope_file": true,
+ "env": {
+  "ACCEL_PROF_HOME": "/home/fzheng4/AccelProf",
+  "CUVEIN_HOME": "/home/fzheng4/AccelProf",
+  "YOSEMITE_HB_TRACE": "1",
+  "YOSEMITE_HB_MODE": "scalar-clock",
+  "YOSEMITE_HB_DUMP": "0",
+  "YOSEMITE_ATOMIC_SCOPE_FILE": "/mnt/beegfs/fzheng4/x1_follow/bisect/runs/bfs-sc-installed-nostats/work/cubins/atomic_scope.txt"
+ },
+ "libs": "/home/fzheng4/AccelProf/build/sanalyzer/lib/libsanalyzer.so\n/home/fzheng4/AccelProf/build/sanalyzer/cpp_trace/lib/libcpp_trace.so\n/home/fzheng4/AccelProf/build/sanalyzer/py_frame/lib/libpy_frame.so",
+ "cmd": "accelprof -v -t pc_dependency_analysis -n 1 ./bfs-cuda ../data/bfs/graph1MW_6.txt",
+ "wall": 600.028,
+ "peak_mb_sumrss": 1433.7,
+ "maxrss_mb_hwm": 1459.1,
+ "maxrss_mb_rusage": 174.0,
+ "rc": 124,
+ "timed_out": true,
+ "t0": 1792116821.275522,
+ "finished": "2026-10-15 22:23:41",
+ "kernels": [
+  {
+   "file": "kernel_0.json",
+   "t": 1.724,
+   "mb": 0.01,
+   "hb_events_count": 62525,
+   "seq_records": null,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_1.json",
+   "t": 1.724,
+   "mb": 0.01,
+   "hb_events_count": 62521,
+   "seq_records": null,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_2.json",
+   "t": 1.724,
+   "mb": 0.04,
+   "hb_events_count": 62644,
+   "seq_records": null,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_3.json",
+   "t": 2.724,
+   "mb": 0.01,
+   "hb_events_count": 62616,
+   "seq_records": null,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_4.json",
+   "t": 2.724,
+   "mb": 0.05,
+   "hb_events_count": 63276,
+   "seq_records": null,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_5.json",
+   "t": 2.724,
+   "mb": 0.01,
+   "hb_events_count": 63076,
+   "seq_records": null,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_6.json",
+   "t": 2.724,
+   "mb": 0.05,
+   "hb_events_count": 66828,
+   "seq_records": null,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_7.json",
+   "t": 3.724,
+   "mb": 0.01,
+   "hb_events_count": 65951,
+   "seq_records": null,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_8.json",
+   "t": 3.724,
+   "mb": 0.06,
+   "hb_events_count": 87850,
+   "seq_records": null,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_9.json",
+   "t": 3.724,
+   "mb": 0.01,
+   "hb_events_count": 81116,
+   "seq_records": null,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_10.json",
+   "t": 4.724,
+   "mb": 0.07,
+   "hb_events_count": 200258,
+   "seq_records": null,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_11.json",
+   "t": 7.724,
+   "mb": 0.01,
+   "hb_events_count": 142441,
+   "seq_records": null,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_12.json",
+   "t": 8.724,
+   "mb": 0.07,
+   "hb_events_count": 697358,
+   "seq_records": null,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_13.json",
+   "t": 75.724,
+   "mb": 0.01,
+   "hb_events_count": 215886,
+   "seq_records": null,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_14.json",
+   "t": 77.724,
+   "mb": 0.07,
+   "hb_events_count": 1631641,
+   "seq_records": null,
+   "hb_stats": null
+  }
+ ],
+ "nkernels": 15,
+ "vlog_mb": 0.02,
+ "drains": 15,
+ "drained_records": 3565987,
+ "hb_events_count": 3565987,
+ "tool_tail": "./bfs-cuda ../data/bfs/graph1MW_6.txt\nstdout redirect: /mnt/beegfs/fzheng4/x1_follow/bisect/runs/bfs-sc-installed-nostats/work/bfs-cuda.accelprof.log\nRunning the pc_dependency_analysis tool for bfs-cuda..."
+}

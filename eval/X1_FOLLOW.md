@@ -119,7 +119,128 @@ short programs the wall is dominated by the fixed start-up, so their µs / event
 - No collector-only run was killed; nothing to report on where a run stopped.
 
 
-{{S2}}
+## 2. The bfs bisect
+
+**Candidates** (`git log --first-parent cuVein`, b7d463e..ba99486): every first-parent commit that
+changes `sanalyzer/`, `nv-compute/` or `bin/` — 20 merges, from the head-to-head eval merge of 09-22
+(`b7d463e`, the Sept-22 runtime) to the T16 + T20 merge (`ba99486`). This list contains the T5b
+(`b3bfdf3`), T18 (`0a25f7d`), T4 (`d67ed41`), T19 (`3c7eefd`), T16 (`d3f1e98`) and T20 (`ba99486`) merges
+the brief names, and the T3b/T9/T10/T14/T12/T15/T17 merges between them. The install commits (`96698c1`
+for `b6c9055`, `59b239a` for `d67ed41`, `bc9e4b0`/`d38d057` for `ba99486`) change no file under those three
+directories (`git diff --stat` empty), so the merge's build is the install's code; installs recorded only
+in CLAUDE.md (75f46012 at `6c34736` = `870dbb6`'s tree, e527875d at `7849a70`) are covered by those
+merges. X0 (`4094187`) changes none of the three directories either.
+
+**Method** (`setup/x1f_bisect.sh`, job 312742, c66 — EPYC 8124P, driver 595.58.03 — 2026-10-15 21:53 to
+10-16 02:29, every run on that one host): per candidate, `git archive <c> sanalyzer nv-compute bin python`
+into `/mnt/beegfs/$USER/x1_follow/bisect/<c>/`, both components built there with
+`install_merged.sh`'s recipe (GCC 12.4, CUDA 13.3, `-g -mtune=znver4`; 13–22 s per candidate), a private
+runtime prefix (the candidate's `bin/accelprof`, its collector linked with RPATH to its own
+`libsanalyzer.so` — checked with `ldd` before every run — its `gpu_patch_pc_dependency.fatbin`, the
+installed runtime's other fatbins by symlink); the installed runtime was never touched. Then
+`x1f_run.py`: P7-bfs-cuda (`../data/bfs/graph1MW_6.txt`), 3 native runs, one tool run per mode at a
+600 s cap, `-n 1`, the candidate's own `atomic_scope_sidecar.py` over the same CFG dots. Mode knob:
+`YOSEMITE_HB_NO_ENGINE=1` on `b7d463e` (no `YOSEMITE_HB_MODE` there), `YOSEMITE_HB_MODE` from T8 on;
+`YOSEMITE_HB_DUMP=0` from T4 on (before T4 the switch does not exist and every HB run dumps
+`hb_events`); `YOSEMITE_HB_STATS=1` everywhere (X1's configuration; absent before T5a). The
+scratch builds reproduce the installed device patches byte for byte where a backup exists (`b7d463e`'s
+fatbin = `ef6c993d`, the backup `gpu_patch_pc_dependency.fatbin.pre-t1a-ef6c993d`; from T1a on
+`a2d7368b` = the installed one, except `de565c0`/`b6c9055` = `e9634312`, the T15 fatbin installed at T17); the host libraries are
+not byte-identical to the backed-up installs (different build environment). Kernel times = deltas of
+the kernel JSONs' mtimes (1 s resolution); "kernels" = kernel JSONs on disk at the end (in a capped
+run the last one may be a write cut by the kill). The Sept-22 rows of the superseded CSV on the same
+CPU type (c69, EPYC 8124P) were 15.6 s scalar-clock / 71.4 s vector-clock (medians of 3 reps; the c0 rows
+12.1 / 54.9 s) with 24 kernels; the `b7d463e` build gives 18.6 / 75.3 s here (one run each).
+
+Where X1's bfs time is (X1's own kernel JSONs, `x1_meta.json`): 24 kernels, `Kernel` and `Kernel2`
+alternating; launches 13, 15 and 17 are `Kernel2` and hold 72 + 841 + 566 s of the 1,507 s scalar-clock
+5,400 s row (c74) and 304 + 3,558 + 2,389 s of the 6,290 s vector-clock 24 h row (c51), with 215,886,
+218,756 and 218,751 events. `Kernel2` (`HeCBench/src/bfs-cuda/bfs.cu:48–62`, `eval/x1_follow/src_excerpts.txt`)
+runs, for every frontier thread, `d_graph_mask[tid]=1; d_graph_visited[tid]=1; *d_over=1;
+d_updatind_graph_mask[tid]=0;` — line 59 is one byte written by every thread of the frontier.
+
+**The full sequence** (`eval/x1_follow/table2.md`, `setup/x1f_table2.py`; JSON and logs
+`eval/x1_follow/bisect/`):
+
+| # | commit | date | merge | scalar-clock mode at this commit | knobs | bfs SC wall (s) | SC kernels | SC Kernel2 #13 / #15 (s) | bfs VC wall (s) | VC kernels | VC Kernel2 #13 / #15 (s) |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 0 | `d38d057 (= ba99486 build)` | 2026-10-13 | installed runtime (X1) | sync instance online | MODE, DUMP=0, STATS | **600.1 (cap)** | 15/24 | 69 / not reached | **600.0 (cap)** | 15/24 | 483 / not reached |
+| 1 | `b7d463e` | 2026-09-22 | Sept-22 runtime (eval merge) | records dumped only (no HbClock) | NO_ENGINE, dump | 18.6 | 24/24 | 0 / 0 | 75.3 | 24/24 | 2 / 4 |
+| 2 | `1a45653` | 2026-09-23 | T8 | records dumped only (no HbClock) | MODE, dump | 18.6 | 24/24 | 0 / 0 | 75.1 | 24/24 | 3 / 4 |
+| 3 | `6d843e3` | 2026-09-23 | T5a | records dumped only (no HbClock) | MODE, dump, STATS | 18.6 | 24/24 | 0 / 1 | 80.7 | 24/24 | 2 / 4 |
+| 4 | `07d2798` | 2026-09-23 | T2 | records dumped only (no HbClock) | MODE, dump, STATS | 18.6 | 24/24 | 0 / 0 | 81.6 | 24/24 | 3 / 5 |
+| 5 | `bc32a1f` | 2026-09-23 | T1a | records dumped only (no HbClock) | MODE, dump, STATS | 18.9 | 24/24 | 1 / 1 | 80.3 | 24/24 | 3 / 5 |
+| 6 | `3331d35` | 2026-09-23 | T1a review | records dumped only (no HbClock) | MODE, dump, STATS | 18.3 | 24/24 | 0 / 1 | 80.8 | 24/24 | 3 / 5 |
+| 7 | `0b64d34` | 2026-09-28 | T3b | records dumped only (no HbClock) | MODE, dump, STATS | 19.1 | 24/24 | 0 / 1 | 83.3 | 24/24 | 3 / 4 |
+| 8 | `ebc464f` | 2026-09-28 | T9 | records dumped only (no HbClock) | MODE, dump, STATS | 19.2 | 24/24 | 0 / 0 | **600.1 (cap)** | 15/24 | 316 / not reached |
+| 9 | `870dbb6` | 2026-09-28 | T3b×T9 fix | records dumped only (no HbClock) | MODE, dump, STATS | 19.0 | 24/24 | 1 / 1 | **600.1 (cap)** | 15/24 | 323 / not reached |
+| 10 | `33a985c` | 2026-09-29 | T14 | records dumped only (no HbClock) | MODE, dump, STATS | 19.0 | 24/24 | 1 / 1 | **600.0 (cap)** | 13/24 | not reached / not reached |
+| 11 | `be82754` | 2026-09-29 | T10 | records dumped only (no HbClock) | MODE, dump, STATS | 19.2 | 24/24 | 1 / 1 | **600.0 (cap)** | 13/24 | not reached / not reached |
+| 12 | `b3bfdf3` | 2026-09-30 | T5b | records dumped only (no HbClock) | MODE, dump, STATS | 19.5 | 24/24 | 1 / 1 | **600.1 (cap)** | 13/24 | not reached / not reached |
+| 13 | `7849a70` | 2026-09-30 | T12 | records dumped only (no HbClock) | MODE, dump, STATS | 19.1 | 24/24 | 0 / 1 | **600.0 (cap)** | 15/24 | 457 / not reached |
+| 14 | `de565c0` | 2026-09-30 | T15 | records dumped only (no HbClock) | MODE, dump, STATS | 19.4 | 24/24 | 1 / 1 | **600.1 (cap)** | 15/24 | 447 / not reached |
+| 15 | `b6c9055` | 2026-10-01 | T17 | records dumped only (no HbClock) | MODE, dump, STATS | 19.3 | 24/24 | 0 / 1 | **600.0 (cap)** | 15/24 | 440 / not reached |
+| 16 | `0a25f7d` | 2026-10-05 | T18 | records dumped only (no HbClock) | MODE, dump, STATS | 19.3 | 24/24 | 1 / 0 | **600.0 (cap)** | 15/24 | 444 / not reached |
+| 17 | `d67ed41` | 2026-10-05 | T4 | sync instance online (T4) | MODE, DUMP=0, STATS | **600.1 (cap)** | 15/24 | 209 / not reached | **600.1 (cap)** | 15/24 | 428 / not reached |
+| 18 | `3c7eefd` | 2026-10-10 | T19 | sync instance online (T4) | MODE, DUMP=0, STATS | **600.1 (cap)** | 15/24 | 82 / not reached | **600.0 (cap)** | 15/24 | 495 / not reached |
+| 19 | `d3f1e98` | 2026-10-11 | T16 | sync instance online (T4) | MODE, DUMP=0, STATS | **600.1 (cap)** | 15/24 | 83 / not reached | **600.1 (cap)** | 15/24 | 492 / not reached |
+| 20 | `ba99486` | 2026-10-12 | T20 | sync instance online (T4) | MODE, DUMP=0, STATS | **600.0 (cap)** | 15/24 | 67 / not reached | **600.0 (cap)** | 15/24 | 487 / not reached |
+| — | `installed`, YOSEMITE_HB_STATS unset | | control | sync instance online | MODE, DUMP=0 | **600.0 (cap)** | 15/24 | 67 / not reached | | | |
+
+| nbody run | wall (s) | kernels finished | per-kernel time of the finished kernels (s) | µs / event of finished `accelerate_particles` launches |
+|---|---|---|---|---|
+| nbody-sc-0a25f7d | 600.1 (cap) | 6 + #6 truncated at the kill (19,609,470 records) | #0: 219, #1: 0, #2: 0, #3: 209, #4: 1, #5: 0 | #0: 6.84, #3: 6.53 |
+| nbody-sc-d67ed41 | 600.1 (cap) | 6 | #0: 230, #1: 43, #2: 0, #3: 216, #4: 43, #5: 0 | #0: 7.19, #3: 6.75 |
+| nbody-vc-0b64d34 | 600.0 (cap) | 3 | #0: 416, #1: 45, #2: 0 | #0: 13.00 |
+| nbody-vc-ebc464f | 600.1 (cap) | 3 | #0: 431, #1: 43, #2: 0 | #0: 13.47 |
+
+**Scalar-clock crossing (the brief's criterion): `d67ed41`, the T4 merge (feat/no-dump, 2026-10-05).**
+bfs scalar-clock is 18.3–19.5 s on all 16 builds from `b7d463e` to `0a25f7d` (T18) and hits the 600 s cap
+with 15 of 24 kernels on `d67ed41` and on every later build; `Kernel2` #13 takes 0–1 s before and 209 s
+at `d67ed41` (82, 83, 67 s on T19, T16, T20; 67–69 s on the installed runtime, 72 s in X1). Not
+monotone in that per-kernel time (T19 recovers part of it), monotone in the wall at this cap. **What
+the commit changed on the per-event path (from the diff `0a25f7d..d67ed41` of
+`pc_dependency_analysis.cpp`):** before T4 the drain called `HbClock` only outside scalar-clock mode —
+`if (!hb_scalar_clock_mode()) hb_clock_process(accesses_buffer, size, order);` in
+`PcDependency::gpu_data_analysis` — so a scalar-clock run recorded and dumped `hb_events` and nothing
+else (the barrier-only pass ran afterwards in Python, outside the tool's wall). T4 calls
+`hb_clock_process` unconditionally and sets `vector_pass = !hb_scalar_clock_mode()` in
+`hb_clock_reset`, so scalar-clock mode now runs `HbClock`'s sync instance (`Detect(T, sync)`) on every
+drained record during the run: each access goes through `check()` (`d67ed41:1316`), which visits every
+other thread's entry in every conflicting key group of the location's buckets and, per entry, compares
+the entry's scalar epoch with the accessor's sync clock (`p.sclock > vs_get(obs, p_tid)`, `:981`; the
+vector test at `:970` is skipped with `vector_pass` false), then writes the accessor's own entry
+(`g.by_tid[t] = Entry{…}`, `:1325`). The scalar-clock tool wall therefore includes, from T4 on, the
+per-location bucket scan that vector-clock mode has run since T9.
+
+**Vector-clock crossing (recorded beside it): `ebc464f`, the T9 merge (fix/publish-then-tick,
+2026-09-28).** bfs vector-clock is 75–83 s with 24 kernels on the 7 builds `b7d463e`…`0b64d34` and hits
+the cap from `ebc464f` on (15 kernels; 13 on T14, T10, T5b; 15 again from T12); `Kernel2` #13 takes 2–3 s
+before and 316 s at `ebc464f` (323–495 s later; not reached within 600 s on T14, T10, T5b) — not monotone
+in kernels finished (T12 partly recovers from T14–T5b). **What T9 changed on the per-event path (diff
+`0b64d34..ebc464f`):** `HbEngine` kept per location one `last_write` (`std::map<Loc, Writer>`) and a
+reader map (`std::map<Loc, std::unordered_map<Tid, Reader>>`) that every write cleared, so a write was
+checked against one last writer and the reads since it. T9 (I2, buckets) replaced both by
+`std::map<Loc, std::vector<KeyGroup>>`, one `std::unordered_map<Tid, Entry>` per (kind, scope) key,
+holding one entry per thread that is replaced by the same thread and never cleared; the new `check()`
+walks every other thread's entry of every conflicting key group and calls `conflict()` per entry —
+the FastTrack-style epoch test `p.clock > clk_get(vc[obs], p_tid)` (one entry of the accessor's
+sparse clock) plus `p.sclock > vs_get(obs, p_tid)`, and on a report a `race_index` lookup and count.
+A write to a location that many threads write (`*d_over`) is thereby checked against every earlier
+writer's entry instead of one.
+
+**nbody on the crossing builds** (same host, same 600 s cap; per-kernel times as above):
+
+- scalar-clock, `0a25f7d` (before T4, dump only) vs `d67ed41` (T4): `accelerate_particles` launches 0 and
+  3 take 219 / 209 s and 230 / 216 s — **6.84 / 6.53 and 7.19 / 6.75 µs/event**;
+- vector-clock, `0b64d34` (before T9) vs `ebc464f` (T9): launch 0 takes 416 s and 431 s — **13.00 and
+  13.47 µs/event** (both builds also dump `hb_events`, 44 GB of JSON per launch).
+- X1's 25 µs/event (795–802 s per launch, scalar-clock, c66 — the same host — on the installed
+  `ba99486` runtime) therefore **does not appear at either crossing commit**; at T4 nbody is at
+  6.8–7.2 µs/event. Which commit between `d67ed41` and `ba99486` brings it to 25 µs/event: **missing**
+  (not run; the three builds `3c7eefd`, `d3f1e98`, `ba99486` are kept under
+  `/mnt/beegfs/fzheng4/x1_follow/bisect/`).
+
 
 ## 3. Where nbody's time goes (scalar-clock, installed runtime)
 
