@@ -334,4 +334,36 @@ accesses), i.e. readers per location in the thousands (the maximum itself is not
 
 ## 5. What remains unverified
 
-{{UNVERIFIED}}
+- **Single runs.** Every X1-follow measurement is one run per configuration (X1's rows are medians of
+  3 reps, or one rep in the 24 h pass). Run-to-run spread of the X1-follow walls is not measured.
+- **Cross-host comparisons.** heartwall's X1 rows ran on EPYC 9115 hosts (c58, c52) and its
+  collector-only runs on EPYC 8124P hosts; T20 measured up to 2× between host types. knn, nbody and the
+  bisect are same-type (8124P), the bisect and the nbody profile on one host (c66, driver 595.58.03,
+  the one host with that driver).
+- **The default worker count** is `std::thread::hardware_concurrency()` by the code; the analyzer does
+  not print it. The thread counts (36 vs 6) are one `ps` snapshot each. Those snapshots were taken with
+  `srun --overlap` steps inside jobs 312732/312733; a project memory written the same day by another
+  session records that the end of such a step once cut a harness job's BeeGFS access. Both jobs
+  completed and read their BeeGFS kernel JSONs afterwards (104 kernels each); no effect observed.
+- **`-v`.** The X1-follow runs send the app's stdout to a file (X1: `/dev/null`); the effect on wall
+  time is not measured (one ~0.65 MB log for heartwall).
+- **MaxRSS of X1's rows** is not recorded (the harness keeps the summed-VmRSS peak); the memory column
+  mixes the two measures and says which is which.
+- **nbody profile.** It covers the first 1,500 s (kernels 0–2, part of 3), perf lost 2 chunks, and
+  33.85 points of `slot_order` are attributed to `merge_tail` by elimination, not by a named frame.
+  The Sanitizer callback runs on the same thread as the analysis, so their split is not measured.
+  Max readers per location: not recorded by HB_STATS.
+- **Where nbody reaches 25 µs/event** between `d67ed41` (6.8–7.2) and `ba99486` (25): not measured.
+- **Bisect builds** reproduce the historical device patches byte for byte where a backup exists, but
+  not the host libraries (different build environment; the historical installs used, at times, the
+  conda compiler). The historical installs also mixed components from different commits (e.g. the
+  T3b + T9 install replaced only `libsanalyzer`); every bisect runtime builds both components from one
+  commit. The per-kernel times have the stores' 1 s mtime resolution; in a capped run the last kernel
+  JSON may be a write cut by the kill (nbody `0a25f7d` #6, excluded).
+- **Part 4.** "OOM" means SIGKILL ("Killed" in the accelprof stderr) with the peak at 185–186 GB of the
+  node's 202 GB `MemTotal`; the kernel log (`dmesg`) of those nodes was not read. M is taken from a
+  complete X1 run of the same program in any store and mode; for every program with a partial row all
+  its complete runs have the same count (109 other programs — data-dependent graph codes of P1/P3/P4 —
+  finish with different counts in different complete runs); "?" where no X1 run of the program completed. N counts kernel JSONs at
+  the end of the run; the last one may be a truncated write.
+
