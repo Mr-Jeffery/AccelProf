@@ -7,6 +7,13 @@ not the PCDepGraph worker pool (`-n 1` stays). Written 2026-10-15/16. Facts only
 **proved-in-effect** = an invariant checked over the stated traces; **tested** = a specific result
 asserted by a test; **assumed/unverified** = said so.
 
+**Summary for Jeffery.** At N = 32 on c28 (128 cores), scalar-clock heartwall finishes in 2,015 s
+against X1's 32,057 s (15.9×, cross-host; 18.8× per big kernel on the same node) and knn in
+4,361 s against 44,762 s (10.3×, cross-host), parity 477/477 kernel JSONs, controls unchanged.
+Of X1's partial scalar-clock rows, expdist now finishes (RACE 22, 3,388 s); particlefilter is
+still partial (OOM after 3 kernels, on a 755 GB node); **stencil1d and atomicCAS are still
+running** at the time of this report (§7) and their rows are filled when the jobs end.
+
 ## 0. Runtime and hardware
 
 Code: `48f1ff7` (first design), `3cf25a1` (router thread; monitor and R3 points distributed),
@@ -401,7 +408,8 @@ chunk's in one shard), and the monitor's state is per block in one shard.
 
 Released by Jeffery on 2026-10-16 for every partial row except bfs and nbody. X1's scalar-clock rows
 that are partial at their last cap (`final-24h-sc`, with X1-follow's `partial:` notes): particlefilter,
-stencil1d, expdist, atomicCAS. The other rows the brief named are finished in scalar-clock mode in
+stencil1d, expdist, atomicCAS. State at 2026-10-16 18:41: expdist and particlefilter done,
+stencil1d running, atomicCAS queued behind it. The other rows the brief named are finished in scalar-clock mode in
 X1 and were not re-recorded ("do not re-record finished rows"): heartwall (RACE, 32,057 s) and knn
 (CLEAN, 44,762 s) — run in full in step C anyway; tridiagonal (RACE, 36,768 s); pathfinder (RACE,
 19,225 s); bfs (RACE, 1,507 s at the 5,400 s pass) and nbody (CLEAN, 8,015 s), which are also gated.
@@ -414,8 +422,8 @@ harder to finish. `setup/t22_perf.sh`, harness, no dump, `HB_STATS`, one rep.
 |---|---|---|---|
 | P9-expdist-cuda | TIMEOUT, 86,400 s, partial: 32 kernels; peak 9,912 MB (5,400 s pass: 0 kernels) | **RACE, 22 reports, 3,387.7 s, 40 kernels, 1,652,680,826 events (2.05 µs/event), peak 18,173 MB** | finished: the partial note goes |
 | P7-particlefilter-cuda | RACE, 31 (partial: OOM after 3 kernels, 5,791 s, peak 186,169 MB on c66, a 188 GB host) | RACE, 31 (partial(rc=1): **OOM after 3 kernels, 915.0 s, peak 757,785 MB** on c28, 755 GB) | still partial: "partial: OOM after 3 of ? kernels, 915 s, cap=84600" |
-| P7-stencil1d-cuda | TIMEOUT, 86,400 s, partial: 147 kernels; peak 84,061 MB | {{STENCIL}} | |
-| P9-atomicCAS-cuda | TIMEOUT, 86,400 s, partial: 60,000 kernels; peak 908 MB | {{ATOMICCAS}} | |
+| P7-stencil1d-cuda | TIMEOUT, 86,400 s, partial: 147 kernels; peak 84,061 MB | **running** (job 313229, started 2026-10-16 07:59; 223 of 1,000 kernels at 10.7 h, ≈ 172 s per kernel; the 84,600 s cap ends ≈ 07:30 on 10-17) | pending; at this rate ≈ 490 kernels by the cap, so expected still partial (X1: 147) |
+| P9-atomicCAS-cuda | TIMEOUT, 86,400 s, partial: 60,000 kernels; peak 908 MB | **queued** (job 313230, chained after stencil1d; ends by ≈ 08:00 on 10-18 at the latest) | pending |
 
 particlefilter: the run reached the same 3 completed kernels and the same 31 reports as X1's, and ran
 out of memory in the 4th kernel on a node with four times the memory; the memory growth inside that
@@ -450,6 +458,8 @@ Jeffery's check**; no other proof change.
   scalar-clock view is derived offline), so the green set does not exercise the sharded copy path.
 - Hosts: every GPU run is on c28 (Turin, 128 hardware threads in the job); the rtx4060ti16g hosts
   (16 cores) were allocated. Step C's and D's walls are c28's (EPYC 9745) against X1's N=1 rows on c52 (EPYC 9115) and c66 (EPYC 8124P): those ratios are cross-host; §5.1's same-node per-kernel ratios are like for like. N=16 on a 16-core host (the core-count case of the brief) was not run.
+- Step D for stencil1d and atomicCAS: still running / queued at this report (§7); their verdicts,
+  walls and peaks are not in it.
 - `hb_stats` of a sharded run is a sum, not the serial pass's numbers (by design, §2).
 - The proof remark (§8) is checked by Jeffery, not by a second reader here.
 
