@@ -109,7 +109,30 @@ and `kernel_trace_flush`):
 | `hb_events_count`, `hb_lanes_count`, `hb_aggregates`, `hb_async`, `hb_exits` | drain thread (unchanged) | — |
 | `hb_stats.hb_clock` (HB_STATS only) | all | buckets and sync clocks summed over the shards (`vs.threads` = max), the rest the singleton's; plus `sharded`: `shards`, `drain_s`, `route_s`, `wait_s`, `bcast`, `rmw_bits`, per shard `busy_s`, `stall_s`, `lanes`, `tv_records`, `rmw_lanes`. |
 
-{{A}}
+## 3. Verification A — the green set (tested)
+
+`setup/t22_check.sh`, job 312955 (c28, final build), the merge-check protocol: (0) the default tool
+path; (1a) the CLAUDE.md A4 files + `test_instance_gate.py`; (1b) `test_instance_gate.py` alone on
+the fresh artifacts (the ScoR-parametrised gate tests); (1c) `test_no_dump.py`; every trace
+re-recorded, the knob exported for the whole pytest run (vector-clock recordings ignore it).
+
+| configuration | (1a) | (1b) | (1c) |
+|---|---|---|---|
+| `YOSEMITE_HB_SHARDS` unset (serial) | **312 passed, 2 skipped** | **55 passed** | **31 passed** |
+| `YOSEMITE_HB_SHARDS=8`, `YOSEMITE_HB_SHARD_INLINE_MAX=0` (every drain through the threads) | **312 passed, 2 skipped** | **55 passed** | **31 passed** |
+| `YOSEMITE_HB_SHARDS=8` (default inline threshold) | **312 passed, 2 skipped** | **55 passed** | **31 passed** |
+
+These are X0's merge-check counts (`eval/AGGREGATES_DEFAULT.md`: 312 + 2 skipped, 55/55, 31/31).
+(0) Default path (no `YOSEMITE_HB_TRACE`), `race_interblock_none-lock_rtraw` and
+`norace_interblock_atom`: installed runtime vs this one identical, and two runs of this one byte for
+byte (`t20_default_compare.py`: ALL IDENTICAL; `kernel_pc` 0).
+
+That the scalar-clock recordings of the sharded configurations ran sharded: the green set's
+pytest temp dirs are node-local, so `setup/t22_confirm.sh` (job 313074) re-ran `test_no_dump.py` with
+`YOSEMITE_HB_SHARDS=8 YOSEMITE_HB_SHARD_INLINE_MAX=0` and the temp dirs kept: 31 passed; of its 8
+recordings' accelprof logs, the 4 scalar-clock ones contain `scalar-clock pass sharded by location:
+8 shards` and the 4 vector-clock ones `YOSEMITE_HB_SHARDS=8 ignored: vector-clock mode runs the serial
+pass`.
 
 ## 4. Verification B — parity within one run, and across shard counts
 
@@ -132,7 +155,8 @@ event-candidate diagnostics.
 | **62** (the 3 TIMEOUTs left no dump) | **477** | **477** | **0** | 52 (crs-cuda 26, overlap 20, backprop 2, 1dconv-norace-large 1, matrix-multiplication-norace-small 1, hostdevice WW fixed 1, interkernel RW racy 1) |
 
 Table per program: `setup/t22_parity/t22-parity-b/table.md`.
-{{SHARDCHECK}}
+Every one of the store's 496 scalar-clock kernel JSONs (the 477 above plus the TIMEOUTs' partial
+dumps) carries `hb_stats.hb_clock.sharded` with `shards: 8` (`setup/t22_inspect.py shards`, job 313068).
 
 **B2. The same trace at N = 1, 2, 8, 32** (proved-in-effect on these kernels). A GPU re-recording is
 another execution (warp interleavings differ run to run), so the cross-N comparison replays one
@@ -210,14 +234,62 @@ PCDepGraph on the drain thread ≈ drain − wait = 16 s (heartwall) / 20 s (knn
 plus the collector's time outside the drains.
 
 The N=32 heartwall run's kept partial dump contains one kernel JSON that does not parse
-(`JSONDecodeError … char 958932`): the run was killed by the 900 s timeout; {{TRUNC}}.
+(`JSONDecodeError … char 958932`): it is `kernel_46.json`, the run's last kernel, 958,932 bytes ending
+inside `hb_rmw_points` without the closing brace — the 900 s kill landed while it was being written
+(`t22_inspect.py unreadable`, job 313068). The N=16 run has no such file.
 
 {{C}}
 
-{{MEM}}
+## 6. Memory
+
+The brief expected no change in total memory. Measured: the buckets do not change — they are
+partitioned, and their sum over the shards equals the serial pass's (knn's 99.9 M-record kernel:
+17.41 GiB and 729,808,896 entries at N = 1, 8, 16; heartwall's: 5.02 GiB, 205,357,670 entries at
+N = 1, 8, 16) — but **every shard keeps every thread's sync clock** (the brief's design: its own
+per-thread epoch array and barrier assembly), so that term is multiplied by N. `HB_STATS` of the
+first big kernel (`t22_inspect.py mem`, job 313068; c28, the §5.1 runs):
+
+| program | N | threads | sync clocks (`vs.bytes_est`, summed over shards) | buckets | RSS at kernel end | harness peak (summed VmRSS) |
+|---|---|---|---|---|---|---|
+| knn | 1 | 16,777,216 | 0.63 GiB | 17.41 GiB | 19.43 GiB | 20,034 MB |
+| knn | 8 | 16,777,216 | 5.05 GiB | 17.41 GiB | 24.24 GiB | 24,895 MB |
+| knn | 16 | 16,777,216 | 10.09 GiB | 17.41 GiB | 29.57 GiB | 30,343 MB |
+| heartwall | 1 | 13,056 | < 0.01 GiB | 5.02 GiB | 5.96 GiB | 6,114 MB |
+| heartwall | 8 | 13,056 | < 0.01 GiB | 5.02 GiB | 6.05 GiB | 6,237 MB |
+| heartwall | 16 | 13,056 | 0.01 GiB | 5.02 GiB | 6.09 GiB | 6,302 MB |
+
+So the extra memory is (N − 1) × the serial pass's sync-clock state (≈ 40 B per thread of the grid:
+T20's dense 24-byte `SyncClock` pages plus one 16-byte base entry per thread), plus the routing
+entries of one drain in flight (8 bytes per record per shard it reaches; the broadcast records reach
+all N). It is small for grids of thousands of threads (heartwall) and grows with the grid (knn:
++0.63 GiB per shard). Larger grids (pathfinder: 100 M threads) were not measured here. The R3 points' per-thread state is not replicated (each warp
+chunk's in one shard), and the monitor's state is per block in one shard.
 
 {{D}}
 
 {{UNVERIFIED}}
 
-{{COMMANDS}}
+## 10. Commands
+
+```
+# private runtime (GPU-partition node: the collector relink needs /usr/local/cuda/compute-sanitizer)
+sbatch -p rtx4060ti8g -w c28 -o <W>/eval/baselines/setup/build_logs/t22-build-%j.log eval/baselines/setup/t22_build.sh
+# A: default path + green set at N=1, N=8 threaded, N=8
+sbatch -p rtx4060ti8g -w c28 -o <log> eval/baselines/setup/t22_check.sh
+BASETEMP=<dir> sbatch -p rtx4060ti8g -w c28 -o <log> eval/baselines/setup/t22_confirm.sh
+# B1: record, then compare (32 comparers)
+sbatch -p rtx4060ti8g -w c28 --array=0 --time=12:00:00 --export=ALL,W=<W>,TAG=t22-parity-b,\
+  IDS=eval/baselines/setup/t5b_parity_ids.txt,BASELINE_MODES=scalar-clock,FLOOR=120,YOSEMITE_HB_SHARDS=8,\
+  YOSEMITE_HB_STATS=1 -o <log> eval/baselines/setup/p_t5b_timeout.sh
+sbatch -p rtx4060ti8g -w c28 --export=ALL,TAG=t22-parity-b,PAR=32,CAP=7200 -o <log> eval/baselines/setup/t22_parity_cmp.sh
+# B2: cross-N replay; B3: synthetic traces (login node)
+sbatch -p rtx4060ti8g -w c28 --export=ALL,STORE=/mnt/beegfs/$USER/cuvein_traces/t22-parity-b,NPICK=3,\
+  NS="1 2 8 32",OUT=/mnt/beegfs/$USER/t22-replay-b -o <log> eval/baselines/setup/t22_replay/crossn.sh
+OUT=<dir> SEEDS=100 bash eval/baselines/setup/t22_replay/synth_run.sh
+# 5.1 diagnostics; inspections
+sbatch -p rtx4060ti8g -w c28 --export=ALL,RUNS="P7-heartwall-cuda:16 P7-heartwall-cuda:32 P9-knn-cuda:16 \
+  P7-heartwall-cuda:8",CAP=900,TAG=t22-diag3 -o <log> eval/baselines/setup/t22_diag.sh
+.env/bin/python eval/baselines/setup/t22_diag_summary.py <diag logs>
+sbatch -p rtx4060ti8g -w c28 -o <log> eval/baselines/setup/t22_inspect.sh
+{{CCMD}}
+```
