@@ -194,7 +194,10 @@ at N=1 (the reference, the serial pass) and at N = 2, 8, 32, threaded and inline
 (`setup/t22_replay/synth_run.sh`, login node): **105 traces (5 + 100 random seeds) × 6 configurations,
 0 differences** on build `d9c16d82` (and 25 × 6 on `718fb158`). The random traces carry 209–250
 sync pairs and 20 R3 pcs each; the TV cases' `tv_violation` strings are reproduced exactly,
-including which of two violations is first.
+including which of two violations is first. A second generation adds cp.async copies (8 % of the
+non-RMW accesses: shared writes at an `# async` pc, a commit after 60 % of them, `wait_group 0` or
+`1` before 70 % of the barrier arrivals): again **105 × 6, 0 differences**; e.g. seeds 0/1/2 carry
+268/265/266 pairs, 19/19/16 of them on the copy's pc.
 
 ## 5. Performance
 
@@ -267,7 +270,21 @@ chunk's in one shard), and the monitor's state is per block in one shard.
 
 {{D}}
 
-{{UNVERIFIED}}
+## 9. What remains unverified
+
+- **Assumed:** the drain buffer stays valid and unchanged until `gpu_data_analysis` returns (the
+  collector refills it only after the call: `nv-compute/src/compute_sanitizer.cpp`, the pc_dependency
+  drain loop); the sharded pass reads it in place and joins before returning.
+- The sharded pass under T15's late key (`YOSEMITE_HB_LATE_SEQ`, a separate fatbin, off by
+  default): the order array is copied and honoured in routing, but no run used it.
+- cp.async copies: covered by two recorded programs of B1 (P6 memcpy global RW fixed and shared WW
+  racy: one LDGSTS pc each, 1 / 2 commit and wait records; `setup/t22_async_check.sh`, job 313080)
+  and by the synthetic traces (B3). `test_cp_async.py` records in vector-clock mode only (its
+  scalar-clock view is derived offline), so the green set does not exercise the sharded copy path.
+- Hosts: every GPU run is on c28 (Turin, 128 hardware threads in the job); the rtx4060ti16g hosts
+  (16 cores) were allocated. {{HOSTNOTE}}
+- `hb_stats` of a sharded run is a sum, not the serial pass's numbers (by design, §2).
+- The proof remark (§7) is checked by Jeffery, not by a second reader here.
 
 ## 10. Commands
 

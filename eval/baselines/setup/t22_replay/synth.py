@@ -16,9 +16,10 @@ import sys
 
 NAME = "synth"
 HDR = struct.Struct("<BxxxIQIIII")
-GLOBAL, SHARED, EXIT, BARRIER, SYNCWARP = 0, 1, 3, 4, 5
+GLOBAL, SHARED, EXIT, BARRIER, SYNCWARP, COMMIT, WAIT = 0, 1, 3, 4, 5, 6, 7
 WRITE, ATOMIC = 0x2, 0x4
 RMW_PCS = (0x900, 0x910)
+ASYNC_PC = 0x880                    # a cp.async (LDGSTS) copy: the sidecar's `# async` line
 
 
 class Trace:
@@ -130,6 +131,17 @@ def random_case(out, seed, blocks=7, warps=4, phases=5):
             mask = FULL if r.random() < 0.7 else r.getrandbits(32) | 1
             n = bin(mask).count("1")
             atom = r.random() < 0.1
+            copy = not atom and r.random() < 0.08
+            if copy:                      # a cp.async copy into shared memory, then maybe a commit
+                base = 0x100 * r.randrange(4)
+                addrs = ([base + 4 * i for i in range(n)] if r.random() < 0.5
+                         else [4 * r.randrange(96) for _ in range(n)])
+                t.mem(b, w, ASYNC_PC, mask, addrs, space=SHARED, kind="write")
+                if r.random() < 0.6:
+                    t.sync(COMMIT, b, w, 0x890, mask)
+                if pos[k] >= len(prog[k]) and k in live:
+                    live.remove(k)
+                continue
             if atom:
                 pc = RMW_PCS[ph % 2]
                 kind, space = "atomic", GLOBAL
@@ -149,6 +161,8 @@ def random_case(out, seed, blocks=7, warps=4, phases=5):
             t.sync(SYNCWARP, b, w, 0x2000 + op[1], FULL, FULL)
         elif op[0] == "bar":
             ph = op[1]
+            if r.random() < 0.7:          # cp.async.wait_group 0 (or 1) before the barrier
+                t.sync(WAIT, b, w, 0x8a0, FULL, 0 if r.random() < 0.8 else 1)
             t.sync(BARRIER, b, w, 0x3000 + 0x10 * ph, FULL, 0, 0)
             arrived.setdefault((b, ph), set()).add(w)
             waiting[k] = ph
@@ -183,6 +197,7 @@ def main(out, seeds=20):
         f.write(f"# kernel {NAME}\n")
         for pc in RMW_PCS:
             f.write(f"{pc} 3 rmw {NAME}\n")
+        f.write(f"# async {ASYNC_PC} {NAME}\n")
     tv_cases(out)
     for s in range(seeds):
         random_case(out, s)
