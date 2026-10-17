@@ -1,0 +1,23 @@
+c13
+ok   loop with a barrier: loop-carried (want loop-carried) {'loop_header': 'B1#0', 'loop_nodes': 3}
+ok   loop without a barrier: other (want other) {'between': []}
+ok   warpsync between: partial participation (want partial participation) {'between': ['0x10 WARPSYNC'], 'partial': ['0x10 WARPSYNC']}
+ok   bar with a count: partial participation (want partial participation) {'between': ['0x10 BAR.SYNC.DEFER_BLOCKING'], 'partial': ['0x10 BAR.SYNC.DEFER_BLOCKING count=0x40']}
+ok   bar.red with a predicate: other (want other) {'between': ['0x10 BAR.RED.POPC.DEFER_BLOCKING']}
+ok   exit path skipping the barrier: early exit (want early exit) {'between': ['0x20 BAR.SYNC.DEFER_BLOCKING'], 'early_exit_pc': '0x10', 'early_exit_barrier': '0x20'}
+ok   barrier in one arm: branch arm (want branch arm) {'between': ['0x10 BAR.SYNC.DEFER_BLOCKING'], 'not_postdom': ['0x10']}
+ok   straight line: other (want other) {'between': ['0x10 BAR.SYNC.DEFER_BLOCKING']}
+ok   guard exit before u: other (want other) {'between': ['0x20 BAR.SYNC.DEFER_BLOCKING']}
+ok   guard exit between u and the barrier: early exit (want early exit) {'between': ['0x20 BAR.SYNC.DEFER_BLOCKING'], 'early_exit_pc': '0x10', 'early_exit_barrier': '0x20'}
+ok   loop beats warpsync: loop-carried (want loop-carried) {'loop_header': 'B1#0', 'loop_nodes': 5}
+11/11 passed
+distinct dot files 858, with BAR/WARPSYNC 233
+704 ('BAR.SYNC.DEFER_BLOCKING', ('imm0',))
+168 ('WARPSYNC', ('immN',))
+49 ('WARPSYNC', ('reg',))
+40 ('BAR.SYNC', ('imm0',))
+16 ('BAR.RED.OR.DEFER_BLOCKING', ('imm0', 'pred'))
+8 ('BAR.RED.POPC.DEFER_BLOCKING', ('imm0', 'pred'))
+EXIT/RET placement (guarded/plain, position in the basic block):
+1874 ('guarded', 'last')
+1312 ('plain', 'last')

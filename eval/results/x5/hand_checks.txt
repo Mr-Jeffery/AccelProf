@@ -1,0 +1,922 @@
+
+====================================================================================================
+P1 / other: P1-CC_CUDA_V_Data_Pull_Determ_IntType_NonPersist_RaceBug_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-default-100n  vector-clock  pair 0x140 -> 0x320  shared WAW  classes barrier-ordered
+detail {"between":[]}
+kernel _Z14cc_vertex_data8ECLgraphPiS0_PKiiS0_S0_iS0_  blocks 35  entry .text._Z14cc_vertex_data8ECLgraphPiS0_PKiiS0_S0_iS0_
+
+== pc 0x140 is in block BB0; successors ['.L_x_1', 'BB1']
+    0070:   IMAD.MOV.U32 R2, RZ, RZ, 0x4 ;
+    0080:   ULDC.64 UR4, c[0x0][0x118] ;
+    0090:   IMAD.WIDE.U32 R8, R9, R2, c[0x0][0x190] ;
+    00a0:   LDG.E R5, [R8.64] ;
+    00b0:   IMAD.WIDE R12, R5, R2, c[0x0][0x168] ;
+    00c0:   LDG.E R3, [R12.64] ;
+    00d0:   LDG.E R0, [R12.64+0x4] ;
+    00e0:   LOP3.LUT P0, R14, R7, 0x1f, RZ, 0xc0, !PT ;
+    00f0:   IMAD.WIDE R10, R5, R2, c[0x0][0x180] ;
+    0100:   SHF.R.U32.HI R7, RZ, 0x5, R7 ;
+    0110:   BSSY B0, `(.L_x_0) ;
+    0120:   LDG.E R4, [R10.64] ;
+    0130:   SHF.R.S32.HI R6, RZ, 0x1f, R5 ;
+    0140:   @!P0 STS.U8 [R7], RZ ;
+    0150:   NOP ;
+    0160:   IMAD.IADD R9, R3, 0x1, R14 ;
+    0170:   ISETP.GE.AND P1, PT, R9, R0, PT ;
+    0180:   @P1 BRA `(.L_x_1) ;
+
+== pc 0x320 is in block .L_x_4; successors ['.L_x_4', '.L_x_3']
+    0230:   LDG.E R11, [R14.64] ;
+    0240:   IMAD.WIDE R12, R11.reuse, R2, c[0x0][0x180] ;
+    0250:   SHF.R.S32.HI R16, RZ, 0x1f, R11 ;
+    0260:   LEA R10, P2, R11.reuse, c[0x0][0x188], 0x2 ;
+    0270:   LDG.E R17, [R12.64] ;
+    0280:   LEA.HI.X R11, R11, c[0x0][0x18c], R16, 0x2, P2 ;
+    0290:   LDG.E R16, [R10.64] ;
+    02a0:   IADD3 R8, R8, -0x1, RZ ;
+    02b0:   IADD3 R9, R9, 0x20, RZ ;
+    02c0:   ISETP.NE.AND P4, PT, R8, RZ, PT ;
+    02d0:   ISETP.GT.AND P2, PT, R4, R17.reuse, PT ;
+    02e0:   ISETP.GT.AND P3, PT, R16, R17, PT ;
+    02f0:   IMAD.MOV.U32 R16, RZ, RZ, 0x1 ;
+    0300:   @P2 PRMT R13, R16, 0x7610, R13 ;
+    0310:   @P2 IMAD.MOV.U32 R4, RZ, RZ, R17 ;
+    0320:   @P2 STS.U8 [R7], R13 ;
+    0330:   @P3 STG.E [R10.64], R17 ;
+    0340:   IADD3 R14, P3, R14, 0x80, RZ ;
+    0350:   IMAD.X R15, RZ, RZ, R15, P3 ;
+    0360:   @P4 BRA `(.L_x_4) ;
+
+== BAR / WARPSYNC / EXIT / RET of the kernel
+    0060:   @P0 EXIT ;   [.text._Z14cc_vertex_data8ECLgraphPiS0_PKiiS0_S0_iS0_]
+    07b0:   @!P1 EXIT ;   [.L_x_0]
+    0820:   @P0 EXIT ;   [BB4]
+    0b10:   @!P0 EXIT ;   [.L_x_6]
+    10d0:   EXIT ;   [BB13]
+
+== block successors
+    .text._Z14cc_vertex_data8ECLgraphPiS0_PKiiS0_S0_iS0_ (0x0-0x60) -> ['BB0']
+    BB0 (0x70-0x180) -> ['.L_x_1', 'BB1']
+    BB1 (0x190-0x1f0) -> ['.L_x_3', 'BB2']
+    BB2 (0x200-0x220) -> ['.L_x_4']
+    .L_x_4 (0x230-0x360) -> ['.L_x_4', '.L_x_3']
+    .L_x_3 (0x370-0x370) -> ['.L_x_2']
+    .L_x_2 (0x380-0x380) -> ['.L_x_1', 'BB3']
+    BB3 (0x390-0x390) -> ['.L_x_5']
+    .L_x_5 (0x3a0-0x760) -> ['.L_x_5', '.L_x_1']
+    .L_x_1 (0x770-0x770) -> ['.L_x_0']
+    .L_x_0 (0x780-0x7b0) -> ['BB4']
+    BB4 (0x7c0-0x820) -> ['BB5']
+    BB5 (0x830-0x870) -> ['.L_x_7', 'BB6']
+    BB6 (0x880-0x8c0) -> ['.L_x_10']
+    .L_x_10 (0x8d0-0x990) -> ['.L_x_9', 'BB7']
+    BB7 (0x9a0-0xa80) -> ['.L_x_9']
+    .L_x_9 (0xa90-0xa90) -> ['.L_x_8']
+    .L_x_8 (0xaa0-0xac0) -> ['.L_x_10', '.L_x_7']
+    .L_x_7 (0xad0-0xad0) -> ['.L_x_6']
+    .L_x_6 (0xae0-0xb10) -> ['BB8']
+    BB8 (0xb20-0xb40) -> ['.L_x_19']
+    .L_x_19 (0xb50-0xbd0) -> ['.L_x_12', 'BB9']
+    BB9 (0xbe0-0xca0) -> ['.L_x_12']
+    .L_x_12 (0xcb0-0xcb0) -> ['.L_x_11']
+    .L_x_11 (0xcc0-0xd10) -> ['.L_x_14', 'BB10']
+    BB10 (0xd20-0xde0) -> ['.L_x_14']
+    .L_x_14 (0xdf0-0xdf0) -> ['.L_x_13']
+    .L_x_13 (0xe00-0xe50) -> ['.L_x_16', 'BB11']
+    BB11 (0xe60-0xf20) -> ['.L_x_16']
+    .L_x_16 (0xf30-0xf30) -> ['.L_x_15']
+    .L_x_15 (0xf40-0xf90) -> ['.L_x_18', 'BB12']
+    BB12 (0xfa0-0x1060) -> ['.L_x_18']
+    .L_x_18 (0x1070-0x1070) -> ['.L_x_17']
+    .L_x_17 (0x1080-0x10c0) -> ['.L_x_19', 'BB13']
+    BB13 (0x10d0-0x10d0) -> []
+
+====================================================================================================
+P1 / loop-carried: P1-CC_CUDA_V_Data_Pull_Determ_IntType_Persist_RaceBug_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-default-100n  vector-clock  pair 0xf0 -> 0x910  shared RAW  classes barrier-ordered
+detail {"loop_header":".L_x_24#0","loop_nodes":49}
+kernel _Z14cc_vertex_data8ECLgraphPiS0_PKiiS0_S0_iS0_  blocks 46  entry .text._Z14cc_vertex_data8ECLgraphPiS0_PKiiS0_S0_iS0_
+
+== pc 0xf0 is in block .L_x_24; successors ['.L_x_2', 'BB1']
+    0070:   IMAD.MOV.U32 R5, RZ, RZ, 0x4 ;
+    0080:   IMAD.WIDE R10, R2, R5, c[0x0][0x190] ;
+    0090:   LDG.E R6, [R10.64] ;
+    00a0:   ISETP.NE.AND P0, PT, R0, RZ, PT ;
+    00b0:   IMAD.WIDE R16, R6, R5, c[0x0][0x168] ;
+    00c0:   LDG.E R7, [R16.64] ;
+    00d0:   LDG.E R4, [R16.64+0x4] ;
+    00e0:   IMAD.WIDE R14, R6, R5, c[0x0][0x180] ;
+    00f0:   @!P0 STS.U8 [RZ], RZ ;
+    0100:   YIELD ;
+    0110:   WARPSYNC 0xffffffff ;
+    0120:   IADD3 R2, R2, c[0x0][0xc], RZ ;
+    0130:   LDG.E R8, [R14.64] ;
+    0140:   BSSY B0, `(.L_x_1) ;
+    0150:   SHF.R.S32.HI R9, RZ, 0x1f, R6 ;
+    0160:   BAR.SYNC.DEFER_BLOCKING 0x0 ;
+    0170:   ISETP.GE.AND P1, PT, R2, c[0x0][0x198], PT ;
+    0180:   IMAD.IADD R13, R7, 0x1, R0 ;
+    0190:   ISETP.GE.AND P0, PT, R13, R4, PT ;
+    01a0:   @P0 BRA `(.L_x_2) ;
+
+== pc 0x910 is in block .L_x_1; successors ['.L_x_6', 'BB6']
+    0900:   BAR.SYNC.DEFER_BLOCKING 0x0 ;
+    0910:   LDS.U8 R10, [RZ] ;
+    0920:   ISETP.NE.AND P0, PT, R10, RZ, PT ;
+    0930:   @!P0 BRA `(.L_x_6) ;
+
+== BAR / WARPSYNC / EXIT / RET of the kernel
+    0110:   WARPSYNC 0xffffffff ;   [.L_x_24]
+    0160:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [.L_x_24]
+    0900:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [.L_x_1]
+    1480:   WARPSYNC 0xffffffff ;   [.L_x_0]
+    1490:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [.L_x_0]
+    14a0:   EXIT ;   [.L_x_0]
+
+== block successors
+    .text._Z14cc_vertex_data8ECLgraphPiS0_PKiiS0_S0_iS0_ (0x0-0x30) -> ['.L_x_0', 'BB0']
+    BB0 (0x40-0x60) -> ['.L_x_24']
+    .L_x_24 (0x70-0x1a0) -> ['.L_x_2', 'BB1']
+    BB1 (0x1b0-0x200) -> ['.L_x_4', 'BB2']
+    BB2 (0x210-0x320) -> ['.L_x_4', 'BB3']
+    BB3 (0x330-0x420) -> ['.L_x_4', 'BB4']
+    BB4 (0x430-0x510) -> ['.L_x_4']
+    .L_x_4 (0x520-0x520) -> ['.L_x_3']
+    .L_x_3 (0x530-0x540) -> ['.L_x_2', 'BB5']
+    BB5 (0x550-0x550) -> ['.L_x_5']
+    .L_x_5 (0x560-0x8e0) -> ['.L_x_5', '.L_x_2']
+    .L_x_2 (0x8f0-0x8f0) -> ['.L_x_1']
+    .L_x_1 (0x900-0x930) -> ['.L_x_6', 'BB6']
+    BB6 (0x940-0x9c0) -> ['.L_x_7', 'BB7']
+    BB7 (0x9d0-0xa00) -> ['.L_x_8', 'BB8']
+    BB8 (0xa10-0xab0) -> ['.L_x_10', 'BB9']
+    BB9 (0xac0-0xb80) -> ['.L_x_10']
+    .L_x_10 (0xb90-0xb90) -> ['.L_x_9']
+    .L_x_9 (0xba0-0xbb0) -> ['.L_x_8', 'BB10']
+    BB10 (0xbc0-0xc20) -> ['.L_x_12', 'BB11']
+    BB11 (0xc30-0xcf0) -> ['.L_x_12']
+    .L_x_12 (0xd00-0xd00) -> ['.L_x_11']
+    .L_x_11 (0xd10-0xd20) -> ['.L_x_8', 'BB12']
+    BB12 (0xd30-0xd80) -> ['.L_x_14', 'BB13']
+    BB13 (0xd90-0xe50) -> ['.L_x_14']
+    .L_x_14 (0xe60-0xe60) -> ['.L_x_13']
+    .L_x_13 (0xe70-0xe70) -> ['.L_x_8']
+    .L_x_8 (0xe80-0xeb0) -> ['.L_x_7', 'BB14']
+    BB14 (0xec0-0xed0) -> ['.L_x_23']
+    .L_x_23 (0xee0-0xf70) -> ['.L_x_16', 'BB15']
+    BB15 (0xf80-0x1040) -> ['.L_x_16']
+    .L_x_16 (0x1050-0x1050) -> ['.L_x_15']
+    .L_x_15 (0x1060-0x10b0) -> ['.L_x_18', 'BB16']
+    BB16 (0x10c0-0x1180) -> ['.L_x_18']
+    .L_x_18 (0x1190-0x1190) -> ['.L_x_17']
+    .L_x_17 (0x11a0-0x11f0) -> ['.L_x_20', 'BB17']
+    BB17 (0x1200-0x12c0) -> ['.L_x_20']
+    .L_x_20 (0x12d0-0x12d0) -> ['.L_x_19']
+    .L_x_19 (0x12e0-0x1350) -> ['.L_x_22', 'BB18']
+    BB18 (0x1360-0x1420) -> ['.L_x_22']
+    .L_x_22 (0x1430-0x1430) -> ['.L_x_21']
+    .L_x_21 (0x1440-0x1440) -> ['.L_x_23', '.L_x_7']
+    .L_x_7 (0x1450-0x1450) -> ['.L_x_6']
+    .L_x_6 (0x1460-0x1460) -> ['.L_x_0', 'BB19']
+    BB19 (0x1470-0x1470) -> ['.L_x_24']
+    .L_x_0 (0x1480-0x14a0) -> []
+
+====================================================================================================
+P3 / other: P3-CC_CUDA_V_Data_Pull_Determ_IntType_NonPersist_Atomic_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-100n  vector-clock  pair 0x140 -> 0x340  shared WAW  classes barrier-ordered
+detail {"between":[]}
+kernel _Z14cc_vertex_data8ECLgraphPiS0_PKiiS0_S0_iS0_  blocks 37  entry .text._Z14cc_vertex_data8ECLgraphPiS0_PKiiS0_S0_iS0_
+
+== pc 0x140 is in block BB0; successors ['.L_x_1', 'BB1']
+    0070:   IMAD.MOV.U32 R8, RZ, RZ, 0x4 ;
+    0080:   ULDC.64 UR4, c[0x0][0x118] ;
+    0090:   IMAD.WIDE.U32 R10, R11, R8, c[0x0][0x190] ;
+    00a0:   LDG.E R2, [R10.64] ;
+    00b0:   IMAD.WIDE R14, R2, R8, c[0x0][0x168] ;
+    00c0:   LDG.E R3, [R14.64] ;
+    00d0:   LDG.E R0, [R14.64+0x4] ;
+    00e0:   LOP3.LUT P0, R16, R5, 0x1f, RZ, 0xc0, !PT ;
+    00f0:   IMAD.WIDE R12, R2, R8, c[0x0][0x180] ;
+    0100:   SHF.R.U32.HI R6, RZ, 0x5, R5 ;
+    0110:   BSSY B0, `(.L_x_0) ;
+    0120:   LDG.E R4, [R12.64] ;
+    0130:   SHF.R.S32.HI R5, RZ, 0x1f, R2 ;
+    0140:   @!P0 STS.U8 [R6], RZ ;
+    0150:   NOP ;
+    0160:   IMAD.IADD R7, R3, 0x1, R16 ;
+    0170:   ISETP.GE.AND P1, PT, R7, R0, PT ;
+    0180:   @P1 BRA `(.L_x_1) ;
+
+== pc 0x340 is in block .L_x_4; successors ['.L_x_4', '.L_x_3']
+    0230:   LDG.E R15, [R12.64] ;
+    0240:   IMAD.WIDE R10, R15, R8, c[0x0][0x180] ;
+    0250:   LD.E.STRONG.SYS R11, [R10.64] ;
+    0260:   SHF.R.S32.HI R16, RZ, 0x1f, R15 ;
+    0270:   YIELD ;
+    0280:   LEA R14, P2, R15, c[0x0][0x188], 0x2 ;
+    0290:   LEA.HI.X R15, R15, c[0x0][0x18c], R16, 0x2, P2 ;
+    02a0:   IMAD.MOV.U32 R16, RZ, RZ, 0x1 ;
+    02b0:   IADD3 R9, R9, -0x1, RZ ;
+    02c0:   ISETP.NE.AND P4, PT, R9, RZ, PT ;
+    02d0:   IADD3 R12, P3, R12, 0x80, RZ ;
+    02e0:   IADD3 R7, R7, 0x20, RZ ;
+    02f0:   IMAD.X R13, RZ, RZ, R13, P3 ;
+    0300:   ISETP.GT.AND P2, PT, R4, R11, PT ;
+    0310:   RED.E.MIN.S32.STRONG.GPU [R14.64], R11 ;
+    0320:   @P2 PRMT R15, R16, 0x7610, R15 ;
+    0330:   @P2 IMAD.MOV.U32 R4, RZ, RZ, R11 ;
+    0340:   @P2 STS.U8 [R6], R15 ;
+    0350:   @P4 BRA `(.L_x_4) ;
+
+== BAR / WARPSYNC / EXIT / RET of the kernel
+    0060:   @P0 EXIT ;   [.text._Z14cc_vertex_data8ECLgraphPiS0_PKiiS0_S0_iS0_]
+    0760:   @!P1 EXIT ;   [.L_x_6]
+    07b0:   @P0 EXIT ;   [BB5]
+    0ab0:   @!P0 EXIT ;   [.L_x_7]
+    1080:   EXIT ;   [BB14]
+
+== block successors
+    .text._Z14cc_vertex_data8ECLgraphPiS0_PKiiS0_S0_iS0_ (0x0-0x60) -> ['BB0']
+    BB0 (0x70-0x180) -> ['.L_x_1', 'BB1']
+    BB1 (0x190-0x1f0) -> ['.L_x_3', 'BB2']
+    BB2 (0x200-0x220) -> ['.L_x_4']
+    .L_x_4 (0x230-0x350) -> ['.L_x_4', '.L_x_3']
+    .L_x_3 (0x360-0x360) -> ['.L_x_2']
+    .L_x_2 (0x370-0x370) -> ['.L_x_1', 'BB3']
+    BB3 (0x380-0x380) -> ['.L_x_5']
+    .L_x_5 (0x390-0x6e0) -> ['.L_x_5', '.L_x_1']
+    .L_x_1 (0x6f0-0x6f0) -> ['.L_x_0']
+    .L_x_0 (0x700-0x700) -> ['.L_x_6', 'BB4']
+    BB4 (0x710-0x720) -> ['.L_x_6']
+    .L_x_6 (0x730-0x760) -> ['BB5']
+    BB5 (0x770-0x7b0) -> ['BB6']
+    BB6 (0x7c0-0x800) -> ['.L_x_8', 'BB7']
+    BB7 (0x810-0x850) -> ['.L_x_11']
+    .L_x_11 (0x860-0x930) -> ['.L_x_10', 'BB8']
+    BB8 (0x940-0xa20) -> ['.L_x_10']
+    .L_x_10 (0xa30-0xa30) -> ['.L_x_9']
+    .L_x_9 (0xa40-0xa60) -> ['.L_x_11', '.L_x_8']
+    .L_x_8 (0xa70-0xa70) -> ['.L_x_7']
+    .L_x_7 (0xa80-0xab0) -> ['BB9']
+    BB9 (0xac0-0xaf0) -> ['.L_x_20']
+    .L_x_20 (0xb00-0xb80) -> ['.L_x_13', 'BB10']
+    BB10 (0xb90-0xc50) -> ['.L_x_13']
+    .L_x_13 (0xc60-0xc60) -> ['.L_x_12']
+    .L_x_12 (0xc70-0xcc0) -> ['.L_x_15', 'BB11']
+    BB11 (0xcd0-0xd90) -> ['.L_x_15']
+    .L_x_15 (0xda0-0xda0) -> ['.L_x_14']
+    .L_x_14 (0xdb0-0xe00) -> ['.L_x_17', 'BB12']
+    BB12 (0xe10-0xed0) -> ['.L_x_17']
+    .L_x_17 (0xee0-0xee0) -> ['.L_x_16']
+    .L_x_16 (0xef0-0xf40) -> ['.L_x_19', 'BB13']
+    BB13 (0xf50-0x1010) -> ['.L_x_19']
+    .L_x_19 (0x1020-0x1020) -> ['.L_x_18']
+    .L_x_18 (0x1030-0x1070) -> ['.L_x_20', 'BB14']
+    BB14 (0x1080-0x1080) -> []
+
+====================================================================================================
+P3 / loop-carried: P3-CC_CUDA_V_Data_Pull_Determ_IntType_Persist_Atomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n  vector-clock  pair 0xf0 -> 0x870  shared RAW  classes barrier-ordered
+detail {"loop_header":".L_x_23#0","loop_nodes":50}
+kernel _Z14cc_vertex_data8ECLgraphPiS0_PKiiS0_S0_iS0_  blocks 45  entry .text._Z14cc_vertex_data8ECLgraphPiS0_PKiiS0_S0_iS0_
+
+== pc 0xf0 is in block .L_x_23; successors ['.L_x_1', 'BB1']
+    0070:   IMAD.MOV.U32 R5, RZ, RZ, 0x4 ;
+    0080:   IMAD.WIDE R10, R2, R5, c[0x0][0x190] ;
+    0090:   LDG.E R6, [R10.64] ;
+    00a0:   ISETP.NE.AND P0, PT, R0, RZ, PT ;
+    00b0:   IMAD.WIDE R16, R6, R5, c[0x0][0x168] ;
+    00c0:   LDG.E R7, [R16.64] ;
+    00d0:   LDG.E R4, [R16.64+0x4] ;
+    00e0:   IMAD.WIDE R14, R6, R5, c[0x0][0x180] ;
+    00f0:   @!P0 STS.U8 [RZ], RZ ;
+    0100:   YIELD ;
+    0110:   WARPSYNC 0xffffffff ;
+    0120:   IADD3 R2, R2, c[0x0][0xc], RZ ;
+    0130:   LDG.E R8, [R14.64] ;
+    0140:   SHF.R.S32.HI R9, RZ, 0x1f, R6 ;
+    0150:   BAR.SYNC.DEFER_BLOCKING 0x0 ;
+    0160:   ISETP.GE.AND P1, PT, R2, c[0x0][0x198], PT ;
+    0170:   IMAD.IADD R13, R7, 0x1, R0 ;
+    0180:   ISETP.GE.AND P0, PT, R13, R4, PT ;
+    0190:   @P0 BRA `(.L_x_1) ;
+
+== pc 0x870 is in block .L_x_1; successors ['.L_x_5', 'BB6']
+    0850:   WARPSYNC 0xffffffff ;
+    0860:   BAR.SYNC.DEFER_BLOCKING 0x0 ;
+    0870:   LDS.U8 R10, [RZ] ;
+    0880:   ISETP.NE.AND P0, PT, R10, RZ, PT ;
+    0890:   @!P0 BRA `(.L_x_5) ;
+
+== BAR / WARPSYNC / EXIT / RET of the kernel
+    0110:   WARPSYNC 0xffffffff ;   [.L_x_23]
+    0150:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [.L_x_23]
+    0850:   WARPSYNC 0xffffffff ;   [.L_x_1]
+    0860:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [.L_x_1]
+    13c0:   WARPSYNC 0xffffffff ;   [.L_x_0]
+    13d0:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [.L_x_0]
+    13e0:   EXIT ;   [.L_x_0]
+
+== block successors
+    .text._Z14cc_vertex_data8ECLgraphPiS0_PKiiS0_S0_iS0_ (0x0-0x30) -> ['.L_x_0', 'BB0']
+    BB0 (0x40-0x60) -> ['.L_x_23']
+    .L_x_23 (0x70-0x190) -> ['.L_x_1', 'BB1']
+    BB1 (0x1a0-0x1f0) -> ['.L_x_3', 'BB2']
+    BB2 (0x200-0x2f0) -> ['.L_x_3', 'BB3']
+    BB3 (0x300-0x3e0) -> ['.L_x_3', 'BB4']
+    BB4 (0x3f0-0x4b0) -> ['.L_x_3']
+    .L_x_3 (0x4c0-0x4c0) -> ['.L_x_2']
+    .L_x_2 (0x4d0-0x4e0) -> ['.L_x_1', 'BB5']
+    BB5 (0x4f0-0x4f0) -> ['.L_x_4']
+    .L_x_4 (0x500-0x840) -> ['.L_x_4', '.L_x_1']
+    .L_x_1 (0x850-0x890) -> ['.L_x_5', 'BB6']
+    BB6 (0x8a0-0x900) -> ['.L_x_6', 'BB7']
+    BB7 (0x910-0x940) -> ['.L_x_7', 'BB8']
+    BB8 (0x950-0x9f0) -> ['.L_x_9', 'BB9']
+    BB9 (0xa00-0xac0) -> ['.L_x_9']
+    .L_x_9 (0xad0-0xad0) -> ['.L_x_8']
+    .L_x_8 (0xae0-0xaf0) -> ['.L_x_7', 'BB10']
+    BB10 (0xb00-0xb60) -> ['.L_x_11', 'BB11']
+    BB11 (0xb70-0xc30) -> ['.L_x_11']
+    .L_x_11 (0xc40-0xc40) -> ['.L_x_10']
+    .L_x_10 (0xc50-0xc60) -> ['.L_x_7', 'BB12']
+    BB12 (0xc70-0xcc0) -> ['.L_x_13', 'BB13']
+    BB13 (0xcd0-0xd90) -> ['.L_x_13']
+    .L_x_13 (0xda0-0xda0) -> ['.L_x_12']
+    .L_x_12 (0xdb0-0xdb0) -> ['.L_x_7']
+    .L_x_7 (0xdc0-0xdf0) -> ['.L_x_6', 'BB14']
+    BB14 (0xe00-0xe10) -> ['.L_x_22']
+    .L_x_22 (0xe20-0xeb0) -> ['.L_x_15', 'BB15']
+    BB15 (0xec0-0xf80) -> ['.L_x_15']
+    .L_x_15 (0xf90-0xf90) -> ['.L_x_14']
+    .L_x_14 (0xfa0-0xff0) -> ['.L_x_17', 'BB16']
+    BB16 (0x1000-0x10c0) -> ['.L_x_17']
+    .L_x_17 (0x10d0-0x10d0) -> ['.L_x_16']
+    .L_x_16 (0x10e0-0x1130) -> ['.L_x_19', 'BB17']
+    BB17 (0x1140-0x1200) -> ['.L_x_19']
+    .L_x_19 (0x1210-0x1210) -> ['.L_x_18']
+    .L_x_18 (0x1220-0x1290) -> ['.L_x_21', 'BB18']
+    BB18 (0x12a0-0x1360) -> ['.L_x_21']
+    .L_x_21 (0x1370-0x1370) -> ['.L_x_20']
+    .L_x_20 (0x1380-0x1380) -> ['.L_x_22', '.L_x_6']
+    .L_x_6 (0x1390-0x1390) -> ['.L_x_5']
+    .L_x_5 (0x13a0-0x13a0) -> ['.L_x_0', 'BB19']
+    BB19 (0x13b0-0x13b0) -> ['.L_x_23']
+    .L_x_0 (0x13c0-0x13e0) -> []
+
+====================================================================================================
+P4 / partial participation: P4-graph-coloring-norace-large  vector-clock  pair 0x160 -> 0x4d0  global WAR  classes barrier-ordered
+detail {"between":["0x460 BAR.SYNC.DEFER_BLOCKING","0x4f0 BAR.SYNC.DEFER_BLOCKING","0x530 BAR.SYNC.DEFER_BLOCKING","0x6d0 WARPSYNC","0x710 BAR.SYNC.DEFER_BLOCKING"],"partial":["0x6d0 WARPSYNC"],"full_bar_between":4}
+kernel _Z18assignColorsKernelPiS_S_S_S_S_S_S_  blocks 28  entry _Z18assignColorsKernelPiS_S_S_S_S_S_S_
+
+== pc 0x160 is in block .L_x_30; successors ['BB25']
+    0140:   BAR.SYNC.DEFER_BLOCKING 0x0 ;
+    0150:   LDG.E R6, [R10.64] ;
+    0160:   LDG.E R9, [R4.64] ;
+    0170:   ISETP.GE.AND P1, PT, R9, R6, PT ;
+    0180:   @P1 EXIT ;
+
+== pc 0x4d0 is in block BB32; successors ['.L_x_38']
+    0490:   IMAD.MOV.U32 R8, RZ, RZ, 0x4 ;
+    04a0:   IMAD.MOV.U32 R11, RZ, RZ, 0x100 ;
+    04b0:   IMAD.WIDE R8, R7, R8, c[0x0][0x160] ;
+    04c0:   ATOMG.E.ADD.STRONG.GPU PT, R9, [R8.64], R11 ;
+    04d0:   STG.E [R4.64], R9 ;
+
+== BAR / WARPSYNC / EXIT / RET of the kernel
+    0140:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [.L_x_30]
+    0180:   @P1 EXIT ;   [.L_x_30]
+    0460:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [.L_x_32]
+    04f0:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [.L_x_37]
+    0530:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [BB33]
+    06d0:   WARPSYNC 0xffffffff ;   [.L_x_40]
+    0710:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [.L_x_40]
+    07b0:   EXIT ;   [BB36]
+
+== block successors
+    _Z18assignColorsKernelPiS_S_S_S_S_S_S_ (0x0-0xc0) -> ['.L_x_31', 'BB24']
+    BB24 (0xd0-0x120) -> ['.L_x_31']
+    .L_x_31 (0x130-0x130) -> ['.L_x_30']
+    .L_x_30 (0x140-0x180) -> ['BB25']
+    BB25 (0x190-0x190) -> ['.L_x_43']
+    .L_x_43 (0x1a0-0x1d0) -> ['.L_x_33', 'BB26']
+    BB26 (0x1e0-0x220) -> ['.L_x_34', 'BB27']
+    BB27 (0x230-0x240) -> ['.L_x_33', 'BB28']
+    BB28 (0x250-0x300) -> ['.L_x_36']
+    .L_x_36 (0x310-0x320) -> ['.L_x_35', 'BB29']
+    BB29 (0x330-0x360) -> ['.L_x_36', 'BB30']
+    BB30 (0x370-0x380) -> ['.L_x_33']
+    .L_x_35 (0x390-0x3a0) -> ['.L_x_33', 'BB31']
+    BB31 (0x3b0-0x420) -> ['.L_x_33']
+    .L_x_34 (0x430-0x440) -> ['.L_x_33']
+    .L_x_33 (0x450-0x450) -> ['.L_x_32']
+    .L_x_32 (0x460-0x480) -> ['.L_x_38', 'BB32']
+    BB32 (0x490-0x4d0) -> ['.L_x_38']
+    .L_x_38 (0x4e0-0x4e0) -> ['.L_x_37']
+    .L_x_37 (0x4f0-0x520) -> ['.L_x_39', 'BB33']
+    BB33 (0x530-0x540) -> ['.L_x_40', 'BB34']
+    BB34 (0x550-0x560) -> ['.L_x_42']
+    .L_x_42 (0x570-0x670) -> ['.L_x_42', 'BB35']
+    BB35 (0x680-0x680) -> ['.L_x_41']
+    .L_x_41 (0x690-0x6c0) -> ['.L_x_40']
+    .L_x_40 (0x6d0-0x780) -> ['.L_x_39']
+    .L_x_39 (0x790-0x7a0) -> ['.L_x_43', 'BB36']
+    BB36 (0x7b0-0x7b0) -> []
+
+====================================================================================================
+P4 / loop-carried: P4-graph-coloring-norace-large  vector-clock  pair 0x500 -> 0x6b0  global WAR  classes barrier-ordered
+detail {"loop_header":".L_x_43#0","loop_nodes":32}
+kernel _Z18assignColorsKernelPiS_S_S_S_S_S_S_  blocks 28  entry _Z18assignColorsKernelPiS_S_S_S_S_S_S_
+
+== pc 0x500 is in block .L_x_37; successors ['.L_x_39', 'BB33']
+    04f0:   BAR.SYNC.DEFER_BLOCKING 0x0 ;
+    0500:   LDG.E R11, [R4.64] ;
+    0510:   ISETP.GE.AND P1, PT, R11, R6, PT ;
+    0520:   @!P1 BRA `(.L_x_39) ;
+
+== pc 0x6b0 is in block .L_x_41; successors ['.L_x_40']
+    0690:   IMAD.MOV.U32 R7, RZ, RZ, 0x100 ;
+    06a0:   ATOMG.E.ADD.STRONG.GPU PT, R11, [R10.64], R7 ;
+    06b0:   STG.E [R4.64], R11 ;
+    06c0:   ATOMG.E.EXCH.STRONG.SM PT, RZ, [R2.64], R15 ;
+
+== BAR / WARPSYNC / EXIT / RET of the kernel
+    0140:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [.L_x_30]
+    0180:   @P1 EXIT ;   [.L_x_30]
+    0460:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [.L_x_32]
+    04f0:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [.L_x_37]
+    0530:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [BB33]
+    06d0:   WARPSYNC 0xffffffff ;   [.L_x_40]
+    0710:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [.L_x_40]
+    07b0:   EXIT ;   [BB36]
+
+== block successors
+    _Z18assignColorsKernelPiS_S_S_S_S_S_S_ (0x0-0xc0) -> ['.L_x_31', 'BB24']
+    BB24 (0xd0-0x120) -> ['.L_x_31']
+    .L_x_31 (0x130-0x130) -> ['.L_x_30']
+    .L_x_30 (0x140-0x180) -> ['BB25']
+    BB25 (0x190-0x190) -> ['.L_x_43']
+    .L_x_43 (0x1a0-0x1d0) -> ['.L_x_33', 'BB26']
+    BB26 (0x1e0-0x220) -> ['.L_x_34', 'BB27']
+    BB27 (0x230-0x240) -> ['.L_x_33', 'BB28']
+    BB28 (0x250-0x300) -> ['.L_x_36']
+    .L_x_36 (0x310-0x320) -> ['.L_x_35', 'BB29']
+    BB29 (0x330-0x360) -> ['.L_x_36', 'BB30']
+    BB30 (0x370-0x380) -> ['.L_x_33']
+    .L_x_35 (0x390-0x3a0) -> ['.L_x_33', 'BB31']
+    BB31 (0x3b0-0x420) -> ['.L_x_33']
+    .L_x_34 (0x430-0x440) -> ['.L_x_33']
+    .L_x_33 (0x450-0x450) -> ['.L_x_32']
+    .L_x_32 (0x460-0x480) -> ['.L_x_38', 'BB32']
+    BB32 (0x490-0x4d0) -> ['.L_x_38']
+    .L_x_38 (0x4e0-0x4e0) -> ['.L_x_37']
+    .L_x_37 (0x4f0-0x520) -> ['.L_x_39', 'BB33']
+    BB33 (0x530-0x540) -> ['.L_x_40', 'BB34']
+    BB34 (0x550-0x560) -> ['.L_x_42']
+    .L_x_42 (0x570-0x670) -> ['.L_x_42', 'BB35']
+    BB35 (0x680-0x680) -> ['.L_x_41']
+    .L_x_41 (0x690-0x6c0) -> ['.L_x_40']
+    .L_x_40 (0x6d0-0x780) -> ['.L_x_39']
+    .L_x_39 (0x790-0x7a0) -> ['.L_x_43', 'BB36']
+    BB36 (0x7b0-0x7b0) -> []
+
+====================================================================================================
+P6 / other: P6-memcpy-shared_writewrite_race-racy  vector-clock  pair 0x70 -> 0xb0  shared RAW  classes barrier-ordered
+detail {"between":["0xa0 BAR.SYNC.DEFER_BLOCKING"]}
+kernel _Z16data_race_kernelPi  blocks 1  entry _Z16data_race_kernelPi
+
+== pc 0x70 is in block _Z16data_race_kernelPi; successors []
+    0000:   MOV R1, c[0x0][0x28] ;
+    0010:   S2R R2, SR_TID.X ;
+    0020:   MOV R3, 0x4 ;
+    0030:   ULDC.64 UR4, c[0x0][0x118] ;
+    0040:   SHF.L.U32 R0, R2, 0x2, RZ ;
+    0050:   IMAD.WIDE R2, R2, R3, c[0x0][0x160] ;
+    0060:   LOP3.LUT R5, R0, 0x7c, RZ, 0xc0, !PT ;
+    0070:   LDGSTS.E [R5], [R2.64] ;
+    0080:   LDGDEPBAR ;
+    0090:   DEPBAR.LE SB0, 0x0 ;
+    00a0:   BAR.SYNC.DEFER_BLOCKING 0x0 ;
+    00b0:   LDS R7, [R5] ;
+    00c0:   STG.E [R2.64], R7 ;
+    00d0:   EXIT ;
+
+== pc 0xb0 is in block _Z16data_race_kernelPi; successors []
+    0000:   MOV R1, c[0x0][0x28] ;
+    0010:   S2R R2, SR_TID.X ;
+    0020:   MOV R3, 0x4 ;
+    0030:   ULDC.64 UR4, c[0x0][0x118] ;
+    0040:   SHF.L.U32 R0, R2, 0x2, RZ ;
+    0050:   IMAD.WIDE R2, R2, R3, c[0x0][0x160] ;
+    0060:   LOP3.LUT R5, R0, 0x7c, RZ, 0xc0, !PT ;
+    0070:   LDGSTS.E [R5], [R2.64] ;
+    0080:   LDGDEPBAR ;
+    0090:   DEPBAR.LE SB0, 0x0 ;
+    00a0:   BAR.SYNC.DEFER_BLOCKING 0x0 ;
+    00b0:   LDS R7, [R5] ;
+    00c0:   STG.E [R2.64], R7 ;
+    00d0:   EXIT ;
+
+== BAR / WARPSYNC / EXIT / RET of the kernel
+    00a0:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [_Z16data_race_kernelPi]
+    00d0:   EXIT ;   [_Z16data_race_kernelPi]
+
+== block successors
+    _Z16data_race_kernelPi (0x0-0xd0) -> []
+
+====================================================================================================
+P7 / loop-carried: P7-srad-cuda  vector-clock  pair 0xab0 -> 0xa80  shared RAW  classes barrier-ordered
+detail {"loop_header":".L_x_34#0","loop_nodes":6}
+kernel _Z6reduceliiPfS_  blocks 27  entry _Z6reduceliiPfS_
+
+== pc 0xab0 is in block BB28; successors ['.L_x_33']
+    0a40:   LEA.HI R11, R9, R9, RZ, 0x1 ;
+    0a50:   SHF.R.U32.HI R11, RZ, 0x1, R11 ;
+    0a60:   IADD3 R12, -R11, R0, RZ ;
+    0a70:   LDS R11, [R0.X4] ;
+    0a80:   LDS R14, [R12.X4] ;
+    0a90:   FADD R11, R11, R14 ;
+    0aa0:   LDS R14, [R0.X4+0x400] ;
+    0ab0:   STS [R0.X4], R11 ;
+    0ac0:   LDS R13, [R12.X4+0x400] ;
+    0ad0:   FADD R13, R13, R14 ;
+    0ae0:   STS [R0.X4+0x400], R13 ;
+
+== pc 0xa80 is in block BB28; successors ['.L_x_33']
+    0a40:   LEA.HI R11, R9, R9, RZ, 0x1 ;
+    0a50:   SHF.R.U32.HI R11, RZ, 0x1, R11 ;
+    0a60:   IADD3 R12, -R11, R0, RZ ;
+    0a70:   LDS R11, [R0.X4] ;
+    0a80:   LDS R14, [R12.X4] ;
+    0a90:   FADD R11, R11, R14 ;
+    0aa0:   LDS R14, [R0.X4+0x400] ;
+    0ab0:   STS [R0.X4], R11 ;
+    0ac0:   LDS R13, [R12.X4+0x400] ;
+    0ad0:   FADD R13, R13, R14 ;
+    0ae0:   STS [R0.X4+0x400], R13 ;
+
+== BAR / WARPSYNC / EXIT / RET of the kernel
+    0140:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [_Z6reduceliiPfS_]
+    0280:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [BB25]
+    0320:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [BB25]
+    03c0:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [BB25]
+    0460:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [BB25]
+    0500:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [BB25]
+    05a0:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [BB25]
+    0640:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [BB25]
+    06d0:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [BB25]
+    06f0:   @P0 EXIT ;   [BB25]
+    0740:   EXIT ;   [BB26]
+    0b10:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [.L_x_32]
+    0b60:   @P0 EXIT ;   [.L_x_31]
+    16f0:   EXIT ;   [.L_x_35]
+    17c0:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [.L_x_29]
+    1860:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [.L_x_29]
+    1900:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [.L_x_29]
+    19a0:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [.L_x_29]
+    1a40:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [.L_x_29]
+    1ae0:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [.L_x_29]
+    1b80:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [.L_x_29]
+    1c20:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [.L_x_29]
+    1c30:   @P0 EXIT ;   [.L_x_29]
+    1c80:   EXIT ;   [BB36]
+
+== block successors
+    _Z6reduceliiPfS_ (0x0-0x160) -> ['.L_x_29', 'BB24']
+    BB24 (0x170-0x1b0) -> ['.L_x_30', 'BB25']
+    BB25 (0x1c0-0x6f0) -> ['BB26']
+    BB26 (0x700-0x740) -> []
+    .L_x_30 (0x750-0x860) -> ['.L_x_31', 'BB27']
+    BB27 (0x870-0x890) -> ['.L_x_34']
+    .L_x_34 (0x8a0-0xa30) -> ['.L_x_33', 'BB28']
+    BB28 (0xa40-0xae0) -> ['.L_x_33']
+    .L_x_33 (0xaf0-0xaf0) -> ['.L_x_32']
+    .L_x_32 (0xb00-0xb30) -> ['.L_x_34', '.L_x_31']
+    .L_x_31 (0xb40-0xb60) -> ['BB29']
+    BB29 (0xb70-0xbc0) -> ['.L_x_35', 'BB30']
+    BB30 (0xbd0-0xc40) -> ['.L_x_36', 'BB31']
+    BB31 (0xc50-0xcb0) -> ['.L_x_37']
+    .L_x_37 (0xcc0-0xdb0) -> ['.L_x_37', '.L_x_36']
+    .L_x_36 (0xdc0-0xdc0) -> ['.L_x_38', 'BB32']
+    BB32 (0xdd0-0xe60) -> ['.L_x_39', 'BB33']
+    BB33 (0xe70-0xe80) -> ['.L_x_40']
+    .L_x_40 (0xe90-0x12f0) -> ['.L_x_40', '.L_x_39']
+    .L_x_39 (0x1300-0x1320) -> ['.L_x_41', 'BB34']
+    BB34 (0x1330-0x1580) -> ['.L_x_41']
+    .L_x_41 (0x1590-0x15a0) -> ['.L_x_38', 'BB35']
+    BB35 (0x15b0-0x16a0) -> ['.L_x_38']
+    .L_x_38 (0x16b0-0x16c0) -> ['.L_x_35']
+    .L_x_35 (0x16d0-0x16f0) -> []
+    .L_x_29 (0x1700-0x1c30) -> ['BB36']
+    BB36 (0x1c40-0x1c80) -> []
+
+====================================================================================================
+P9 / branch arm: P9-crs-cuda  vector-clock  pair 0x460 -> 0x810  shared WAR  classes barrier-ordered
+detail {"between":["0x380 BAR.SYNC.DEFER_BLOCKING","0x3c0 BAR.SYNC.DEFER_BLOCKING","0x3f0 BAR.SYNC.DEFER_BLOCKING","0x590 BAR.SYNC.DEFER_BLOCKING"],"not_postdom":["0x380","0x3c0","0x3f0"]}
+kernel _Z27gcrs_m_1_w_4_coding_dotprodiiPKlPlPKji  blocks 8  entry _Z27gcrs_m_1_w_4_coding_dotprodiiPKlPlPKji
+
+== pc 0x460 is in block .L_x_72; successors ['.L_x_72', '.L_x_71']
+    0270:   LDG.E.64.CONSTANT R12, [R2.64] ;
+    0280:   IMAD.MOV.U32 R15, RZ, RZ, 0x4 ;
+    0290:   LDG.E.64.CONSTANT R18, [R16.64] ;
+    02a0:   IMAD.WIDE R14, R20, R15, c[0x0][0x178] ;
+    02b0:   LDG.E.CONSTANT R4, [R14.64] ;
+    02c0:   LDG.E.CONSTANT R33, [R14.64+0x4] ;
+    02d0:   LDG.E.CONSTANT R36, [R14.64+0x8] ;
+    02e0:   LDG.E.CONSTANT R29, [R14.64+0xc] ;
+    02f0:   LDG.E.CONSTANT R28, [R14.64+0x10] ;
+    0300:   LDG.E.CONSTANT R30, [R14.64+0x14] ;
+    0310:   LDG.E.CONSTANT R32, [R14.64+0x18] ;
+    0320:   LDG.E.CONSTANT R34, [R14.64+0x1c] ;
+    0330:   IADD3 R26, R26, 0x2, RZ ;
+    0340:   IMAD.WIDE R16, R27, 0x8, R16 ;
+    0350:   IADD3 R20, R20, 0x8, RZ ;
+    0360:   IMAD.WIDE R2, R27, 0x8, R2 ;
+    0370:   STS.64 [R21.X8], R12 ;
+    0380:   BAR.SYNC.DEFER_BLOCKING 0x0 ;
+    0390:   LOP3.LUT R37, R4, R23, RZ, 0xc0, !PT ;
+    03a0:   LDS.128 R8, [R24] ;
+    03b0:   LDS.128 R4, [R24+0x10] ;
+    03c0:   BAR.SYNC.DEFER_BLOCKING 0x0 ;
+    03d0:   SHF.R.U32.HI R37, RZ, R22, R37 ;
+    03e0:   STS.64 [R21.X8], R18 ;
+    03f0:   BAR.SYNC.DEFER_BLOCKING 0x0 ;
+    0400:   IADD3 R37, P1, RZ, -R37, RZ ;
+    0410:   LOP3.LUT R33, R33, R23, RZ, 0xc0, !PT ;
+    0420:   LOP3.LUT R31, R31, R8, R37, 0x78, !PT ;
+    0430:   IMAD.X R8, RZ, RZ, -0x1, P1 ;
+    0440:   SHF.R.U32.HI R33, RZ, R22, R33 ;
+    0450:   LOP3.LUT R9, R35, R9, R8, 0x78, !PT ;
+    0460:   LDS.128 R12, [R24] ;
+    0470:   LOP3.LUT R35, R36, R23, RZ, 0xc0, !PT ;
+    0480:   IADD3 R33, P1, RZ, -R33, RZ ;
+    0490:   SHF.R.U32.HI R35, RZ, R22, R35 ;
+    04a0:   LOP3.LUT R31, R31, R10, R33, 0x78, !PT ;
+    04b0:   IMAD.X R10, RZ, RZ, -0x1, P1 ;
+    04c0:   IADD3 R35, P1, RZ, -R35, RZ ;
+    04d0:   LOP3.LUT R29, R29, R23, RZ, 0xc0, !PT ;
+    04e0:   LOP3.LUT R9, R9, R11, R10, 0x78, !PT ;
+    04f0:   IMAD.X R8, RZ, RZ, -0x1, P1 ;
+    0500:   SHF.R.U32.HI R29, RZ, R22, R29 ;
+    0510:   LOP3.LUT R19, R31, R4, R35, 0x78, !PT ;
+    0520:   LOP3.LUT R31, R28, R23, RZ, 0xc0, !PT ;
+    0530:   IADD3 R29, P1, RZ, -R29, RZ ;
+    0540:   LOP3.LUT R5, R9, R5, R8, 0x78, !PT ;
+    0550:   LDS.128 R8, [R24+0x10] ;
+    0560:   SHF.R.U32.HI R31, RZ, R22, R31 ;
+    0570:   LOP3.LUT R29, R19, R6, R29, 0x78, !PT ;
+    0580:   IMAD.X R6, RZ, RZ, -0x1, P1 ;
+    0590:   BAR.SYNC.DEFER_BLOCKING 0x0 ;
+    05a0:   IADD3 R31, P1, RZ, -R31, RZ ;
+    05b0:   LOP3.LUT R19, R30, R23, RZ, 0xc0, !PT ;
+    05c0:   LOP3.LUT R5, R5, R7, R6, 0x78, !PT ;
+    05d0:   LOP3.LUT R31, R29, R12, R31, 0x78, !PT ;
+    05e0:   IMAD.X R12, RZ, RZ, -0x1, P1 ;
+    05f0:   SHF.R.U32.HI R19, RZ, R22, R19 ;
+    0600:   LOP3.LUT R13, R5, R13, R12, 0x78, !PT ;
+    0610:   LOP3.LUT R5, R32, R23, RZ, 0xc0, !PT ;
+    0620:   IADD3 R19, P1, RZ, -R19, RZ ;
+    0630:   SHF.R.U32.HI R5, RZ, R22, R5 ;
+    0640:   LOP3.LUT R31, R31, R14, R19, 0x78, !PT ;
+    0650:   IMAD.X R14, RZ, RZ, -0x1, P1 ;
+    0660:   IADD3 R5, P1, RZ, -R5, RZ ;
+    0670:   IMAD.IADD R6, R25, 0x1, R26 ;
+    0680:   LOP3.LUT R7, R34, R23, RZ, 0xc0, !PT ;
+    0690:   IMAD.X R4, RZ, RZ, -0x1, P1 ;
+    06a0:   ISETP.NE.AND P1, PT, R6, RZ, PT ;
+    06b0:   SHF.R.U32.HI R7, RZ, R22, R7 ;
+    06c0:   LOP3.LUT R15, R13, R15, R14, 0x78, !PT ;
+    06d0:   IADD3 R7, P2, RZ, -R7, RZ ;
+    06e0:   LOP3.LUT R31, R31, R8, R5, 0x78, !PT ;
+    06f0:   LOP3.LUT R9, R15, R9, R4, 0x78, !PT ;
+    0700:   IMAD.X R35, RZ, RZ, -0x1, P2 ;
+    0710:   LOP3.LUT R31, R31, R10, R7, 0x78, !PT ;
+    0720:   LOP3.LUT R35, R9, R11, R35, 0x78, !PT ;
+    0730:   @P1 BRA `(.L_x_72) ;
+
+== pc 0x810 is in block BB47; successors ['.L_x_70']
+    0750:   IMAD R3, R26, c[0x0][0x180], RZ ;
+    0760:   IADD3 R4, P0, R0, R3, RZ ;
+    0770:   LEA.HI.X.SX32 R3, R3, RZ, 0x1, P0 ;
+    0780:   LEA R2, P0, R4, c[0x0][0x168], 0x3 ;
+    0790:   LEA.HI.X R3, R4, c[0x0][0x16c], R3, 0x3, P0 ;
+    07a0:   LDG.E.64.CONSTANT R2, [R2.64] ;
+    07b0:   IMAD.MOV.U32 R13, RZ, RZ, 0x4 ;
+    07c0:   IMAD.WIDE R12, R20, R13, c[0x0][0x178] ;
+    07d0:   LDG.E.CONSTANT R14, [R12.64] ;
+    07e0:   LDG.E.CONSTANT R16, [R12.64+0x4] ;
+    07f0:   LDG.E.CONSTANT R18, [R12.64+0x8] ;
+    0800:   LDG.E.CONSTANT R20, [R12.64+0xc] ;
+    0810:   STS.64 [R21.X8], R2 ;
+    0820:   BAR.SYNC.DEFER_BLOCKING 0x0 ;
+    0830:   LOP3.LUT R15, R14, R23, RZ, 0xc0, !PT ;
+    0840:   SHF.R.U32.HI R15, RZ, R22.reuse, R15 ;
+    0850:   LOP3.LUT R17, R16, R23, RZ, 0xc0, !PT ;
+    0860:   IADD3 R14, P0, RZ, -R15, RZ ;
+    0870:   SHF.R.U32.HI R17, RZ, R22, R17 ;
+    0880:   LOP3.LUT R15, R18, R23.reuse, RZ, 0xc0, !PT ;
+    0890:   LOP3.LUT R23, R20, R23, RZ, 0xc0, !PT ;
+    08a0:   SHF.R.U32.HI R15, RZ, R22.reuse, R15 ;
+    08b0:   LDS.128 R4, [R24] ;
+    08c0:   SHF.R.U32.HI R23, RZ, R22, R23 ;
+    08d0:   LDS.128 R8, [R24+0x10] ;
+    08e0:   LOP3.LUT R31, R31, R4, R14, 0x78, !PT ;
+    08f0:   IMAD.X R4, RZ, RZ, -0x1, P0 ;
+    0900:   BAR.SYNC.DEFER_BLOCKING 0x0 ;
+    0910:   IADD3 R17, P0, RZ, -R17, RZ ;
+    0920:   LOP3.LUT R5, R35, R5, R4, 0x78, !PT ;
+    0930:   IMAD.X R2, RZ, RZ, -0x1, P0 ;
+    0940:   IADD3 R15, P0, RZ, -R15, RZ ;
+    0950:   LOP3.LUT R31, R31, R6, R17, 0x78, !PT ;
+    0960:   LOP3.LUT R7, R5, R7, R2, 0x78, !PT ;
+    0970:   IMAD.X R2, RZ, RZ, -0x1, P0 ;
+    0980:   IADD3 R23, P0, RZ, -R23, RZ ;
+    0990:   LOP3.LUT R31, R31, R8, R15, 0x78, !PT ;
+    09a0:   LOP3.LUT R9, R7, R9, R2, 0x78, !PT ;
+    09b0:   IMAD.X R35, RZ, RZ, -0x1, P0 ;
+    09c0:   LOP3.LUT R31, R31, R10, R23, 0x78, !PT ;
+    09d0:   LOP3.LUT R35, R9, R11, R35, 0x78, !PT ;
+
+== BAR / WARPSYNC / EXIT / RET of the kernel
+    0080:   @P0 EXIT ;   [_Z27gcrs_m_1_w_4_coding_dotprodiiPKlPlPKji]
+    0380:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [.L_x_72]
+    03c0:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [.L_x_72]
+    03f0:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [.L_x_72]
+    0590:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [.L_x_72]
+    0820:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [BB47]
+    0900:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [BB47]
+    0a20:   EXIT ;   [.L_x_70]
+
+== block successors
+    _Z27gcrs_m_1_w_4_coding_dotprodiiPKlPlPKji (0x0-0x80) -> ['BB44']
+    BB44 (0x90-0xe0) -> ['.L_x_70', 'BB45']
+    BB45 (0xf0-0x1a0) -> ['.L_x_71', 'BB46']
+    BB46 (0x1b0-0x260) -> ['.L_x_72']
+    .L_x_72 (0x270-0x730) -> ['.L_x_72', '.L_x_71']
+    .L_x_71 (0x740-0x740) -> ['.L_x_70', 'BB47']
+    BB47 (0x750-0x9d0) -> ['.L_x_70']
+    .L_x_70 (0x9e0-0xa20) -> []
+
+====================================================================================================
+PI / loop-carried: PI-conditional_edge_neighbors_block-DAG_100n_100e  vector-clock  pair 0x2a0 -> 0x280  shared RAW  classes barrier-ordered
+detail {"loop_header":".L_x_4#0","loop_nodes":3}
+kernel _Z11test_kernelPiS_S_S_i  blocks 10  entry _Z11test_kernelPiS_S_S_i
+
+== pc 0x2a0 is in block .L_x_4; successors ['.L_x_4', '.L_x_3']
+    0240:   ISETP.GE.AND P1, PT, R9, R3, PT ;
+    0250:   @!P1 IMAD R4, R3, 0x4, R0 ;
+    0260:   @!P1 LDS R2, [R9.X4] ;
+    0270:   SHF.R.U32.HI R3, RZ, 0x1, R3 ;
+    0280:   @!P1 LDS R5, [R4] ;
+    0290:   @!P1 IMNMX R2, R2, R5, !PT ;
+    02a0:   @!P1 STS [R9.X4], R2 ;
+    02b0:   BAR.SYNC.DEFER_BLOCKING 0x0 ;
+    02c0:   ISETP.NE.AND P1, PT, R3, RZ, PT ;
+    02d0:   @P1 BRA `(.L_x_4) ;
+
+== pc 0x280 is in block .L_x_4; successors ['.L_x_4', '.L_x_3']
+    0240:   ISETP.GE.AND P1, PT, R9, R3, PT ;
+    0250:   @!P1 IMAD R4, R3, 0x4, R0 ;
+    0260:   @!P1 LDS R2, [R9.X4] ;
+    0270:   SHF.R.U32.HI R3, RZ, 0x1, R3 ;
+    0280:   @!P1 LDS R5, [R4] ;
+    0290:   @!P1 IMNMX R2, R2, R5, !PT ;
+    02a0:   @!P1 STS [R9.X4], R2 ;
+    02b0:   BAR.SYNC.DEFER_BLOCKING 0x0 ;
+    02c0:   ISETP.NE.AND P1, PT, R3, RZ, PT ;
+    02d0:   @P1 BRA `(.L_x_4) ;
+
+== BAR / WARPSYNC / EXIT / RET of the kernel
+    0050:   @P0 EXIT ;   [_Z11test_kernelPiS_S_S_i]
+    0060:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [BB0]
+    01e0:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [.L_x_0]
+    02b0:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [.L_x_4]
+    02e0:   @P0 EXIT ;   [.L_x_3]
+    0330:   EXIT ;   [BB3]
+
+== block successors
+    _Z11test_kernelPiS_S_S_i (0x0-0x50) -> ['BB0']
+    BB0 (0x60-0x100) -> ['.L_x_1', 'BB1']
+    BB1 (0x110-0x110) -> ['.L_x_2']
+    .L_x_2 (0x120-0x190) -> ['.L_x_2', '.L_x_1']
+    .L_x_1 (0x1a0-0x1a0) -> ['.L_x_0']
+    .L_x_0 (0x1b0-0x220) -> ['.L_x_3', 'BB2']
+    BB2 (0x230-0x230) -> ['.L_x_4']
+    .L_x_4 (0x240-0x2d0) -> ['.L_x_4', '.L_x_3']
+    .L_x_3 (0x2e0-0x2e0) -> ['BB3']
+    BB3 (0x2f0-0x330) -> []
+
+====================================================================================================
+PI / early exit: PI-conditional_edge_neighbors_block_shfl-DAG_100n_100e  vector-clock  pair 0x80 -> 0x2b0  shared WAW  classes barrier-ordered
+detail {"between":["0xa0 BAR.SYNC.DEFER_BLOCKING"],"early_exit_pc":"0x90","early_exit_barrier":"0xa0"}
+kernel _Z11test_kernelPiS_S_S_i  blocks 8  entry _Z11test_kernelPiS_S_S_i
+
+== pc 0x80 is in block _Z11test_kernelPiS_S_S_i; successors ['BB0']
+    0000:   IMAD.MOV.U32 R1, RZ, RZ, c[0x0][0x28] ;
+    0010:   S2R R11, SR_TID.X ;
+    0020:   S2R R3, SR_CTAID.X ;
+    0030:   SHF.R.U32.HI R0, RZ, 0x5, R11 ;
+    0040:   IMAD.SHL.U32 R2, R11, 0x4, RZ ;
+    0050:   ISETP.NE.AND P0, PT, R0, RZ, PT ;
+    0060:   ISETP.GE.AND P1, PT, R3, c[0x0][0x180], PT ;
+    0070:   LOP3.LUT R6, R2, 0x7c, RZ, 0xc0, !PT ;
+    0080:   @!P0 STS [R6], RZ ;
+    0090:   @P1 EXIT ;
+
+== pc 0x2b0 is in block .L_x_0; successors ['BB2']
+    0200:   SHFL.BFLY PT, R2, R9, 0x1, 0x1f ;
+    0210:   LOP3.LUT P1, RZ, R11, 0x1f, RZ, 0xc0, !PT ;
+    0220:   IMNMX R2, R2, R9, !PT ;
+    0230:   SHFL.BFLY PT, R3, R2, 0x2, 0x1f ;
+    0240:   IMNMX R3, R2, R3, !PT ;
+    0250:   SHFL.BFLY PT, R4, R3, 0x4, 0x1f ;
+    0260:   IMNMX R4, R3, R4, !PT ;
+    0270:   SHFL.BFLY PT, R5, R4, 0x8, 0x1f ;
+    0280:   IMNMX R5, R4, R5, !PT ;
+    0290:   SHFL.BFLY PT, R8, R5, 0x10, 0x1f ;
+    02a0:   IMNMX R7, R5, R8, !PT ;
+    02b0:   @!P1 STS [R0.X4], R7 ;
+    02c0:   BAR.SYNC.DEFER_BLOCKING 0x0 ;
+    02d0:   @P0 EXIT ;
+
+== BAR / WARPSYNC / EXIT / RET of the kernel
+    0090:   @P1 EXIT ;   [_Z11test_kernelPiS_S_S_i]
+    00a0:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [BB0]
+    02c0:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [.L_x_0]
+    02d0:   @P0 EXIT ;   [.L_x_0]
+    0380:   @P1 EXIT ;   [BB2]
+    0430:   EXIT ;   [BB3]
+
+== block successors
+    _Z11test_kernelPiS_S_S_i (0x0-0x90) -> ['BB0']
+    BB0 (0xa0-0x140) -> ['.L_x_1', 'BB1']
+    BB1 (0x150-0x160) -> ['.L_x_2']
+    .L_x_2 (0x170-0x1e0) -> ['.L_x_2', '.L_x_1']
+    .L_x_1 (0x1f0-0x1f0) -> ['.L_x_0']
+    .L_x_0 (0x200-0x2d0) -> ['BB2']
+    BB2 (0x2e0-0x380) -> ['BB3']
+    BB3 (0x390-0x430) -> []
+
+====================================================================================================
+PI / partial participation: PI-conditional_edge_neighbors_block_shfl_persistent-DAG_100n_100e  vector-clock  pair 0x80 -> 0x2f0  shared WAW  classes barrier-ordered
+detail {"between":["0xc0 WARPSYNC","0xd0 BAR.SYNC.DEFER_BLOCKING","0x300 BAR.SYNC.DEFER_BLOCKING"],"partial":["0xc0 WARPSYNC"],"full_bar_between":2}
+kernel _Z11test_kernelPiS_S_S_i  blocks 23  entry _Z11test_kernelPiS_S_S_i
+
+== pc 0x80 is in block _Z11test_kernelPiS_S_S_i; successors ['BB0']
+    0000:   IMAD.MOV.U32 R1, RZ, RZ, c[0x0][0x28] ;
+    0010:   S2R R2, SR_TID.X ;
+    0020:   S2R R3, SR_CTAID.X ;
+    0030:   SHF.R.U32.HI R0, RZ, 0x5, R2 ;
+    0040:   IMAD.SHL.U32 R4, R2, 0x4, RZ ;
+    0050:   ISETP.NE.AND P0, PT, R0, RZ, PT ;
+    0060:   ISETP.GE.AND P1, PT, R3, c[0x0][0x180], PT ;
+    0070:   LOP3.LUT R4, R4, 0x7c, RZ, 0xc0, !PT ;
+    0080:   @!P0 STS [R4], RZ ;
+    0090:   @P1 EXIT ;
+
+== pc 0x2f0 is in block .L_x_0; successors ['.L_x_4', 'BB2']
+    0210:   SHFL.BFLY PT, R5, R10, 0x1, 0x1f ;
+    0220:   LOP3.LUT P2, RZ, R2, 0x1f, RZ, 0xc0, !PT ;
+    0230:   BSSY B0, `(.L_x_3) ;
+    0240:   IADD3 R3, R3, c[0x0][0xc], RZ ;
+    0250:   ISETP.GE.AND P1, PT, R3, c[0x0][0x180], PT ;
+    0260:   IMNMX R5, R5, R10, !PT ;
+    0270:   SHFL.BFLY PT, R6, R5, 0x2, 0x1f ;
+    0280:   IMNMX R6, R5, R6, !PT ;
+    0290:   SHFL.BFLY PT, R7, R6, 0x4, 0x1f ;
+    02a0:   IMNMX R7, R6, R7, !PT ;
+    02b0:   SHFL.BFLY PT, R8, R7, 0x8, 0x1f ;
+    02c0:   IMNMX R8, R7, R8, !PT ;
+    02d0:   SHFL.BFLY PT, R9, R8, 0x10, 0x1f ;
+    02e0:   IMNMX R9, R8, R9, !PT ;
+    02f0:   @!P2 STS [R0.X4], R9 ;
+    0300:   BAR.SYNC.DEFER_BLOCKING 0x0 ;
+    0310:   @P0 BRA `(.L_x_4) ;
+
+== BAR / WARPSYNC / EXIT / RET of the kernel
+    0090:   @P1 EXIT ;   [_Z11test_kernelPiS_S_S_i]
+    00c0:   WARPSYNC 0xffffffff ;   [.L_x_7]
+    00d0:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [.L_x_7]
+    0300:   BAR.SYNC.DEFER_BLOCKING 0x0 ;   [.L_x_0]
+    04d0:   EXIT ;   [BB6]
+
+== block successors
+    _Z11test_kernelPiS_S_S_i (0x0-0x90) -> ['BB0']
+    BB0 (0xa0-0xa0) -> ['.L_x_7']
+    .L_x_7 (0xb0-0x160) -> ['.L_x_1', 'BB1']
+    BB1 (0x170-0x170) -> ['.L_x_2']
+    .L_x_2 (0x180-0x1f0) -> ['.L_x_2', '.L_x_1']
+    .L_x_1 (0x200-0x200) -> ['.L_x_0']
+    .L_x_0 (0x210-0x310) -> ['.L_x_4', 'BB2']
+    BB2 (0x320-0x350) -> ['.L_x_5', 'BB3']
+    BB3 (0x360-0x360) -> ['.L_x_8']
+    .L_x_8 (0x370-0x380) -> ['.L_x_6', 'BB4']
+    BB4 (0x390-0x3f0) -> ['.L_x_9']
+    .L_x_9 (0x400-0x410) -> ['.L_x_4', 'BB5']
+    BB5 (0x420-0x4a0) -> ['.L_x_4']
+    .L_x_4 (0x4b0-0x4b0) -> ['.L_x_3']
+    .L_x_3 (0x4c0-0x4c0) -> ['.L_x_7', 'BB6']
+    BB6 (0x4d0-0x4d0) -> []
+    .L_x_5 (0x4e0-0x500) -> ['BB7']
+    BB7 (0x510-0x520) -> ['.L_x_8']
+    .L_x_6 (0x530-0x560) -> ['BB8']
+    BB8 (0x570-0x5a0) -> ['BB9']
+    BB9 (0x5b0-0x5e0) -> ['BB10']
+    BB10 (0x5f0-0x630) -> ['BB11']
+    BB11 (0x640-0x650) -> ['.L_x_9']

@@ -1,0 +1,14 @@
+Keys in the plan (a recording and a confirm file): 9412; analysed without error: 1; failed: 0; not yet run: 9411.
+Keys present in more than one shard output (deduplicated by (program, mode)): 1; duplicates whose pair bins / counts / confirm check differ from the first copy: 0.
+
+### Table 1 -- barrier-ordered pairs by suite, mode and CFG bin
+
+| suite | mode | confirm files re-analysed | files with >=1 pair | pairs | loop-carried | partial participation | early exit | branch arm | other | pairs also seen in another class |
+|---|---|---|---|---|---|---|---|---|---|---|
+| P4 | vector-clock | 1 | 1 | 6 | 3 | 3 | 0 | 0 | 0 | 0 |
+| all | vector-clock | 1 | 1 | 6 | 3 | 3 | 0 | 0 | 0 | 0 |
+
+A pair is one (kernel, ancient pc, current pc, space class) over all launches of the recording; "also seen in another class" counts pairs that were barrier-ordered in one launch and in another hb_class in a different launch.
+
+CSV rows for the key:
+6
