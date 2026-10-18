@@ -11,6 +11,8 @@
 # (over the flagged kernels).
 #   SCAN=<name>         (required)
 #   OUT=<name>          eval/results/t23/diff/<name>/shard<K>.jsonl   (default: SCAN)
+#   ALL=1 [MAXMB=n]     every scanned kernel, not only the flagged ones (the check of the scan's
+#                       necessary condition), skipping kernel JSONs over n MB
 #   W=<checkout>        whose t23_closure.py and python/ run (default: the task worktree)
 W=${W:-/home/fzheng4/wt-t23}
 cd "$W" || exit 1
@@ -22,7 +24,7 @@ mkdir -p "$OUTD"
 echo "host=$(hostname) date=$(date -Is) scan=$SCAN shard=$K/$N head=$(git rev-parse HEAD)"
 env | grep -E '^(CUVEIN_|YOSEMITE_)' | sort
 .env/bin/python eval/baselines/setup/t23_closure.py diff "$W"/eval/results/t23/scan/$SCAN/shard*.jsonl \
-    --shard "$K/$N" --out "$OUTD/shard$K.jsonl"
+    --shard "$K/$N" ${ALL:+--all} ${MAXMB:+--max-mb $MAXMB} --out "$OUTD/shard$K.jsonl"
 rc=$?
 echo "done rc=$rc date=$(date -Is)"
 exit $rc

@@ -207,12 +207,17 @@ def _analyze(dot, kj, closure):
 
 
 def cmd_diff(a):
-    recs = [r for r in _load_jsonl(a.files) if r.get("growth_cas")]
-    recs = _shard(recs, a.shard)
+    # default: the kernels the scan flagged; --all: every scanned kernel, the check that the scan's
+    # necessary condition (a closure pair naming a CAS pc) lets nothing through (size-capped)
+    keep = (lambda r: r.get("status") == "scanned") if a.all else (lambda r: r.get("growth_cas"))
+    recs = _shard([r for r in _load_jsonl(a.files) if keep(r)], a.shard)
     n_moved = 0
     with open(a.out, "w") as out:
         for r in recs:
             head = {k: r[k] for k in ("tag", "id", "mode", "kernel", "path")}
+            if a.max_mb and os.path.getsize(r["path"]) > a.max_mb * 2 ** 20:
+                out.write(json.dumps({**head, "skipped": f"kernel JSON over {a.max_mb} MB"}) + "\n")
+                continue
             try:
                 old, new = _analyze(r["dot"], r["path"], False), _analyze(r["dot"], r["path"], True)
             except Exception as ex:             # recorded, counted by `summary`
@@ -263,8 +268,6 @@ def cmd_scansummary(a):
         c["cas-kernels"] += bool(r.get("cas_pcs"))
         c["growth-kernels"] += bool(r.get("growth"))
         c["growth-with-a-CAS-kernels"] += bool(r.get("growth_cas"))
-        if r["status"] != "scanned":
-            c["tasks-" + r["status"]] += 0
     for tag, c in sorted(by.items()):
         print(tag + ": " + ", ".join(f"{k}={v}" for k, v in sorted(c.items()) if v))
 
@@ -272,8 +275,11 @@ def cmd_scansummary(a):
 def cmd_summary(a):
     kernels = moved_k = fired_k = moves = 0
     by = Counter()
-    anomalies = []
+    anomalies, skipped = [], 0
     for r in _load_jsonl(a.files):
+        if r.get("skipped"):
+            skipped += 1
+            continue
         if r.get("anomaly"):
             anomalies.append(r)
             continue
@@ -286,7 +292,7 @@ def cmd_summary(a):
                 m["new"]["hb_class"])] += 1
     print(f"kernels analyzed twice: {kernels}; closure fired in {fired_k}; "
           f"verdicts moved in {moved_k} kernels ({moves} verdict records); anomalies: "
-          f"{len(anomalies)}")
+          f"{len(anomalies)}; skipped (size cap): {skipped}")
     for (mode, ov, oc, nv, nc), n in sorted(by.items()):
         print(f"  {mode}: {ov}/{oc} -> {nv}/{nc}: {n}")
 
@@ -308,6 +314,8 @@ def main():
     d = sub.add_parser("diff")
     d.add_argument("files", nargs="+")
     d.add_argument("--shard")
+    d.add_argument("--all", action="store_true", help="every scanned kernel, not only the flagged")
+    d.add_argument("--max-mb", type=int, default=0, help="skip kernel JSONs larger than this")
     d.add_argument("--out", required=True)
     d.set_defaults(fn=cmd_diff)
     ss = sub.add_parser("scan-summary")
