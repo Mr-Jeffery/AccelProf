@@ -356,7 +356,7 @@ above is its rerun on a 188 GB host (job 314681).
 | program | X1 | now (N=16) | host | peak MB | row |
 |---|---|---|---|---|---|
 | P7-particlefilter | OOM after 3 of ?, 5,791 s, RACE 31 (c66, peak 186,169) | OOM after 3 of ?, 214.2 s, RACE 31 kept | c60 (188 GB) | 169,322 | partial |
-| P7-stencil1d | TIMEOUT, 147 of ? (peak 84,061) | cut by the 18:00 shutdown: 149 of ? complete at 29,169 s (snapshot 14:26) | c60 | missing | partial (cut by the shutdown, not by the cap) |
+| P7-stencil1d | TIMEOUT, 147 of ? (peak 84,061) | cut by the 18:00 shutdown: **196 of ? complete at 38,172 s** (snapshot 16:56; ~195 s per kernel) | c60 | missing | partial (cut by the shutdown, not by the cap) |
 | P9-atomicCAS | TIMEOUT, 60,000 of ? (peak 908) | cut by the 18:00 shutdown: 60,000 of ? at 26,723 s — the 60,000th written 5,352 s into the run, none since | c64 | missing | partial (cut by the shutdown, not by the cap) |
 | P9-expdist | TIMEOUT, 32 of ? (peak 9,912) | **RACE 22, 2,142.3 s** | c63 | 13,772 | **finishes** |
 
@@ -384,8 +384,8 @@ particlefilter is out of memory at any N (X1 too). Small grids pay little: heart
 
 ### II.13 What is done, and what the 2026-10-18 18:00 cluster shutdown cut
 
-The ARC cluster shuts down at 18:00 EDT on 2026-10-18; the final commit is made before 17:30, with the
-runs below still going. Their state was recorded inside their own allocations
+The ARC cluster shuts down at 18:00 EDT on 2026-10-18; the final commit is made at about 17:10, with the
+last three runs below still going (they are killed at 18:00). Their state was recorded inside their own allocations
 (`srun --jobid=<job> --overlap … setup/t22c_snapshot.sh`: the store's kernel JSONs' write times and
 aggregates, `kstats-cut.txt` in the results directory; stencil1d's kernel JSONs also as
 `cut-kernels-*.tar.gz`).
@@ -394,8 +394,8 @@ aggregates, `kstats-cut.txt` in the results directory; stencil1d's kernel JSONs 
 |---|---|---|---|
 | step C heartwall N=1 | 314326, c66, 10-17 22:50 | snapshot 14:25: 100 of 104 at 56,078 s; **finished at 15:13: RACE 2, 57,990.5 s** | complete (II.10) |
 | T20-id parity, bfs kernels 15 and 17 | 314586, c17, 10-17 23:47 | the Python record replay of both still running after 14.7 h; nothing written | missing |
-| step D stencil1d, 84,600 s | 314673, c60, 10-18 06:20 | 149 of ? kernels at 29,169 s (snapshot 14:26) | partial, cut by the shutdown |
-| step D atomicCAS, 84,600 s | 314674, c64, 10-18 06:59 | 60,000 of ? kernels at 26,723 s; the 60,000th at 5,352 s, none after | partial, cut by the shutdown |
+| step D stencil1d, 84,600 s | 314673, c60, 10-18 06:20 | 149 of ? at 29,169 s (14:26, `kstats-cut-snap1.txt`); **196 of ? at 38,172 s** (16:56, `kstats-cut.txt`, kernel JSONs in `cut-kernels-final.tar.gz`) | partial, cut by the shutdown |
+| step D atomicCAS, 84,600 s | 314674, c64, 10-18 06:59 | 60,000 of ? kernels at 26,723 s (14:24, `kstats-cut.txt.gz`); the 60,000th at 5,352 s, none after; a second snapshot at 16:56 was killed by its own 7-minute limit while listing the 60,000 files | partial, cut by the shutdown |
 
 Peaks of the cut runs are missing (the harness reports its peak at the end).
 
