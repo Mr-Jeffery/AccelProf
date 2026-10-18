@@ -1,4 +1,480 @@
-# T22 — the sharded scalar-clock sync pass
+# T22 — the sharded scalar-clock sync pass, and two insert/scan fixes
+
+Branch `perf/sharded-sync-pass`. Part I (2026-10-15/16, `1ce4389` and before): the sharded scalar-clock
+pass (`YOSEMITE_HB_SHARDS`). Part II (T22 cont., 2026-10-17/18, this commit): two fixes to HbClock's
+bucket insert and scan paths — an adaptive tail (Fix 1) and an early exit in Check (Fix 2), both in
+scalar-clock mode only — their parity, and steps C and D re-run with them. Unmerged and uninstalled
+(Jeffery merges and installs). Facts only; legend: **proved-in-effect** = an invariant checked over the
+stated traces; **tested** = a specific result asserted by a test; **assumed/unverified** = said so.
+
+**Two lines for Jeffery.** Speedup at N = 16 on 16-core hosts, final build, N=1 → 16 on one host type:
+knn 6.2× (46,577 → 7,568 s), nbody 9.8× (3,783 → 387 s; 20.7× against X1's 8,015 s), bfs 2.8× (Fix 2 alone
+1,841 → 39.5 s at N=1), heartwall 4,664 s at N=16 (N=1 cut by the shutdown); pathfinder is slower at N=16
+than at N=1.
+Rows that now finish at X1's caps: 7 of 18 at 1,200 s (asyncmemcpy dtoh fixed and racy, bfs, lavaMD,
+nbody, srad, dxtc2), 4 of 10 at 5,400 s (haversine, expdist; heartwall and nbody derived), 1 of 4 at 24 h
+(expdist); stencil1d's and atomicCAS's 24 h rows were cut by the 18:00 shutdown, particlefilter is OOM.
+
+**State at the final commit (2026-10-18, before the 18:00 ARC shutdown).** Done: both fixes, parity
+(green set; T20 ids 503 of 505 kernel JSONs compared, 0 mismatches; 150 synthetic traces), thresholds,
+step C except heartwall N=1, step D's 1,200 s and 5,400 s rows and two of four 24 h rows. Cut by the
+shutdown: heartwall N=1, bfs kernels 15/17's record-replay comparison, the 24 h rows of stencil1d and
+atomicCAS (II.13).
+
+## Part II — T22 cont.: two insert/scan fixes (2026-10-17/18)
+
+Freeze exception as Part I's (HbClock's sync pass and its bucket insert/scan paths under `sanalyzer/`,
+no value change, parity required). Nothing under `nv-compute/`, `python/hb_oracle.py`, `bin/` or the
+default tool path changed. **Vector-clock mode runs exactly Part I's code**: both fixes are taken only
+when the vector clock does not run (II.0); verified byte for byte on 150 synthetic traces (II.7).
+
+### II.0 Scope: both fixes in scalar-clock mode only (Jeffery, 2026-10-17)
+
+**Fix 2.** The brief gave the early exit to both clocks once it was confirmed that no verdict, class or
+table uses the per-pair instance counts beyond display, and said to stop and ask otherwise. The check,
+on the code at `1ce4389`:
+
+- *Scalar-clock counts* (`hb_sync_pass`; vector-clock mode's `hb_races_sync_only`) — display only, as
+  Part I §2.1 found: `sync_dominance.analyze` keeps only the pair set of `hb_races_sync_only`
+  (`python/sync_dominance.py:1307`); of `hb_sync_pass` it uses the keys, the widest distance and the
+  orientation, and the count reaches only `judge(…, weight=n)` → the verdict field `contested_weight`
+  of an event-stream candidate (`:1540–1549`, `:1491`). `eval/baselines/make_tables.py` reads none of
+  them; `eval/LATENT_CENSUS.md` uses no count (`latent_census.py` prints `sync_count` in a display column).
+- *Vector-clock counts* (`hb_races[*].count` with `a2_uncertain`) — **a table uses them**: `_a2_flag`
+  (`python/sync_dominance.py:1204–1214`) sets a pair's `a2_uncertain` iff `sum(a2_uncertain) >=
+  sum(count)` over the pair's class records; the flag becomes the row note `a2_uncertain=<k>:<m>`, and
+  `make_tables.py` `operating_points_section` (`:630–647`) counts a program whose positive rests only on
+  such reports in the `a2` columns instead of TP/FP. An early exit counts both numbers over the visited
+  instances only, so the flag could turn true and move a program between those columns.
+- The green set compares the counts exactly in both clocks: `test_hb_clock_matches_specification`
+  (`python/test_sync_dominance.py:191–230`, `python/test_coherent_ldst.py:158–166`: `hb_races` with
+  `count` and `a2_uncertain`, and `hb_races_sync_only`, against `hb_oracle.py`, which is frozen) and
+  `python/test_no_dump.py` (`hb_sync_pass` against the records' `barrier_only_pairs`; `contested_weight`
+  in the full verdict key).
+
+Asked before any code was written (the evidence above, sent to Jeffery on 2026-10-17). **Jeffery: "Scalar
+clock only"** — the early exit runs only when the vector clock does not; vector-clock mode stays
+byte-identical (`hb_races`, `a2_uncertain`, `hb_races_sync_only`), the oracle gate is unchanged and
+`hb_oracle.py` stays frozen; only `test_no_dump.py`'s two scalar-clock comparisons (each pair's count,
+and `contested_weight`) become `<=`, every other field exact.
+
+**Fix 1.** The brief does not restrict it to a mode, but in vector-clock mode the order in which Check
+visits a location's slots (the sorted prefix, then the tail in arrival order) decides which instance
+becomes an `hb_races` record's example — its `a_tid`, and the order of the records in the file — and a
+longer tail changes that order. No consumer reads the example beyond its pcs and distance (the gate
+test does not compare it), but it is output. **Jeffery: "Keep scalar-only"** — the tail grows only in
+scalar-clock mode, where no output of Check depends on the visit order (sums, maxima, the record's own
+pcs); vector-clock mode keeps the fixed 8-slot tail.
+
+### II.1 Fix 1 — adaptive tail
+
+X1-follow §3: nbody's `accelerate_particles` spends 44.5 % of the run in `merge_tail`'s merge and 38 % in
+`slot_order` — T19's 8-slot arrival tail merged into a sorted prefix of ~9,000 reader slots every 8 inserts.
+
+**Rule** (`tail_cap`). A location whose sorted prefix holds P slots keeps an arrival-order tail of up to
+t slots, t = the largest power of two ≤ `TAIL_MAX` with t² ≤ `TAIL_C` · P, at least 8; at t it is sorted
+and merged into the prefix (T19's merge, its buffer now 256 slots). **`TAIL_C` = 4, `TAIL_MAX` = 256**
+(II.6): t = 8 for P < 64, 16 from 64, 32 from 256, 64 from 1,024, 128 from 4,096, 256 from 16,384.
+`own_slot` (binary search of the prefix, linear scan of the tail) and Check's tail scan are unchanged in
+kind; entries, keys, `conflict()`'s test and the prefix's layout are unchanged. Per inserted slot the
+merge moves ~P/t prefix slots and each lookup scans ~t/2 tail slots, least near t ≈ √P.
+
+### II.2 Fix 2 — early exit in Check (`check_sync`)
+
+X1-follow §2 and Part I §2.2: bfs's `*d_over = 1;` (`Kernel2` +0x160) leaves one weak-write slot per
+writing thread on one word (450,850 in launch 15) and each write tests every earlier writer's slot —
+179·10⁹ `conflict()` calls in 24 launches.
+
+In scalar-clock mode, for a location of ≥ 64 slots (below that, Part I's full scan):
+1. **Widest class first.** The slots are taken by distance class to the accessor t — other block, same
+   block other warp, same warp (`thread_distance` 3, 2, 1). In the sorted prefix a key run's inline tids
+   (< 2³¹) are the tids themselves, so t's block and t's warp are each one contiguous range of the run
+   (binary search); wide-coded tids (async agents) sort after them and the tail is unsorted, so those
+   slots are classed one by one.
+2. **Skip a pc that has conflicted.** A slot whose pc already gave a conflict in this Check is skipped;
+   the others are tested as before (`conflict()` now returns whether the sync-only clock found the pair
+   unordered).
+3. **Exit.** An array of ≥ 64 slots carries a 36-byte `PcSum` after its capacity: the pcs ever written to
+   its read slots and to its other slots, up to 4 each, else "many" — added on append and when a slot is
+   overwritten with a new pc, never removed, so a superset of the pcs the slots hold. Check ends when every
+   pc t's key can conflict with (non-read slots' pcs; for a write or an RMW the read slots' too) has given
+   a conflict; a read on a location whose non-read set is empty returns at once. With "many" the scan
+   continues (step 2 still skips).
+
+What is kept (II.3): per Check and earlier pc p, a conflict with p is found iff the full scan finds one,
+and the first one found is at the widest distance at which any p-slot is unordered — so `hb_sync_pass`
+keeps its pairs, each pair's widest distance and the pcs of its seq-first conflict; its count becomes the
+number of (lane access, earlier pc) with a conflict, a lower bound of the full scan's (lane access, slot)
+count. `hb_rmw_points`, `tv_violation`, `hb_events_count` and `hb_lanes_count` are not touched. Cost: the
+binary searches; 36 bytes per array of ≥ 64 slots (counted in `hb_stats` `buckets.bytes`); a PcSum update
+per insert into such an array.
+
+### II.3 Proof remark (early exit)
+
+Let a be a memory record on ℓ with pc q. Check(a) of the sync instance adds a triple (b, a) for every
+bucket entry b on ℓ whose key conflicts with a's, b not a's own entry, not two morally strong RMWs, b
+unordered with a under the sync clock. For an earlier pc p let D_p(a) = { dist(b, a) : (b, a) added,
+pc(b) = p }. The aggregate of the pair {p, q} depends on Check(a) only through: whether D_p(a) ≠ ∅ (the
+pair), max D_p(a) (the widest distance), and — if a is the seq-least record with D_p(a) ≠ ∅ — the pcs of
+its triples, (p, q) for every triple of that Check (the orientation). `check_sync` visits the classes in
+the order 3, 2, 1 and tests every slot whose pc has no conflict yet in this Check; hence for each p it
+finds a conflict iff D_p(a) ≠ ∅, first at the widest class c with an unordered p-slot, c = max D_p(a). It
+stops early only when every pc of a superset of the pcs a's key can meet has a conflict, after which
+every remaining slot would be skipped. So it adds exactly one triple per (a, p) with D_p(a) ≠ ∅, at
+distance max D_p(a): pairs, widest distances and seq-first pcs are those of Rep of the sync instance, and
+the count |{(a, p) : D_p(a) ≠ ∅}| is at most |Rep| for the pair. Remark "Partition by location"
+(`hb_proof.tex`, `rem:partition`) is per Check, so it carries over to the sharded pass unchanged (II.7 (b):
+every shard count gives the same counts). The adaptive tail changes no bucket content, only the order
+Check visits it in, which no scalar-clock output depends on. *Not added to `hb_proof.tex`* (frozen):
+`rem:partition`'s last sentences describe the full scan's count ("the number of triples"); with Fix 2 the
+implementation's count is the one above — a sentence for Jeffery to add if he wants it there.
+
+### II.4 Runtimes
+
+`eval/baselines/setup/t22c_build.sh`, job 314173 (c61, GCC 12.4.0, `-g -O3 -mtune=znver4`, 0 warnings),
+as Part I's `t22_build.sh` (collector relinked from the d67ed41 objects with RPATH to the library):
+
+| build | libsanalyzer sha256[:16] | collector | used for |
+|---|---|---|---|
+| **final** (this tree, `TAIL_C`=4, `TAIL_MAX`=256) | `502028a87d54301c` | `bf629f05757b1d73` (`wt_rt_lib`) | everything below unless stated |
+| tune (this tree, `-DHB_TAIL_TUNE`: the tail rule from `YOSEMITE_HB_TAIL_C/_MAX`) | `e4937471878b2fdc` | `00c2d0ddd91ccd74` (mirror `rt-tune`) | II.6 only |
+| old (Part I's `b6a615e`, kept) | `d9c16d82d2465602` | `f9f583bafbdb8df2` (mirror `rt-old`) | before/after on one node |
+| installed (not touched) | `2201fcb7d57ae783` | | |
+
+The mirrors (`/mnt/beegfs/fzheng4/t22c/rt-{old,tune}`) symlink every top-level entry of the worktree except
+`lib`, so the harness runs them unchanged. Hosts: GPU partition `rtx4060ti16g` — EPYC 8124P (c60–c66,
+188 GB) and, for some jobs, EPYC 7302P (c40, c78, 125 GB; my exclusion list missed them); every row names
+its node.
+
+### II.5 Verification A — the green set at N=1 and N=8 (tested)
+
+`setup/t22_check.sh`, job 314190 (c66, final build): (0) the default tool path, installed runtime vs this
+one and two runs of this one byte for byte; then per configuration (1a) the CLAUDE.md A4 files +
+`test_instance_gate.py`, (1b) `test_instance_gate.py` alone on the fresh artifacts (the gate tests),
+(1c) `test_no_dump.py` (with the two scalar-clock `<=` comparisons, II.0), and (1d) the new
+`test_sync_shapes.py` (II.9); every trace re-recorded, the knob exported for the whole pytest run.
+
+| configuration | (1a) | (1b) | (1c) | (1d) |
+|---|---|---|---|---|
+| `YOSEMITE_HB_SHARDS` unset (serial) | **312 passed, 2 skipped** | **55 passed** | **31 passed** | **4 passed** |
+| `YOSEMITE_HB_SHARDS=8`, `YOSEMITE_HB_SHARD_INLINE_MAX=0` | **312 passed, 2 skipped** | **55 passed** | **31 passed** | **4 passed** |
+| `YOSEMITE_HB_SHARDS=8` | **312 passed, 2 skipped** | **55 passed** | **31 passed** | **4 passed** |
+
+X0's merge-check counts (312 + 2, 55, 31) plus the new test. (0): ALL IDENTICAL (`kernel_pc` 0).
+
+### II.6 Verification B — the T20 parity ids, recorded with the dump (proved-in-effect)
+
+**Recording** (`p_t5b_timeout.sh`, job 314192, c66, 47 min): the 65 ids of `setup/t5b_parity_ids.txt`,
+scalar-clock mode, dump on, `YOSEMITE_HB_SHARDS=8`, `HB_STATS`, the 120 s floor, one rep; store
+`cuvein_traces/t22c-parity` (35.9 GB), rows `eval/results/t22c-parity/`: 37 CLEAN, 26 RACE, 2 TIMEOUT
+(P6 interkernel WW racy, P7 particlefilter), 0 ERROR. Against Part I's recording of the same ids (B1):
+P7 bfs now finishes (RACE 31, 23.3 s; Part I: TIMEOUT at 120 s), and P4 graph-coloring-racy-small
+reports 12 (Part I: 13) — two GPU executions of a schedule-dependent racy kernel; within this recording
+its aggregates and its records agree (below).
+
+**Comparison** (`t22_parity_cmp.sh` → `t4_parity.py compare --counts-le`, job 314193, c66, 12 processes,
+7,200 s per program): every kernel JSON's `hb_sync_pass` against `barrier_only_pairs` of the same
+recording's records with the cutoff lifted — pairs, widest distance and first pcs equal, each count
+`1 <= aggregate <= records` — `hb_rmw_points == trace_rmw_points`, and `analyze()` from the aggregates
+against `CUVEIN_PREFER_RECORDS=1` on every verdict field (`contested_weight` as aggregates `<=`
+records), `skipped_edges` and the candidate diagnostics.
+
+| programs | kernel JSONs | equal | MISMATCH | not compared in 314193 | above the 5 M-lane cutoff |
+|---|---|---|---|---|---|
+| 63 | **505** | **495 + 8** | **0** | 2 (bfs kernels 15 and 17: cut by the shutdown, II.13) | 52 |
+
+The 10 not compared in 314193 are P7 bfs kernels 14–23: the program's 7,200 s ran out in the record
+replay (Python's `barrier_only_pairs` tests every earlier writer of the flag word, 179·10⁹ pair tests over
+the run). They were compared one process per kernel with no cap (`setup/t22c_parity_kernels.py`, the same
+`compare_kernel`): jobs 314587 (c9; kernels 14, 16, 18, 20, 22 — all equal, counts equal: these
+`Kernel` launches have no location of ≥ 64 slots with a conflict) and 314586 (c17; kernels 15, 17, 19, 21,
+23 — 19, 21 and 23 equal; 15 and 17 were still in the Python record replay when the 18:00 shutdown came, so they are not compared). Kernel 19: aggregate count 19,225 against the records' 149,169,628, pairs and distance
+equal. Table per program: the log of 314193; per kernel: `setup/t22_parity/t22c-parity/`.
+
+**Cross-N on recorded traces** (Part I's B2, the new build): `t22_replay/crossn.sh` job 314588 (c9; the
+three kernels `pick.py` picks: P7 bfs k16, P4 matrix-multiplication-norace-small k0, PI
+push_node_neighbors…_200n_1000e k0) and `replay_run.sh` job 314589 (c8; P7 bfs k13 and k15) — each
+replayed at N = 1, 2, 8, 32, every drain threaded, against the recording's own aggregates: **all EQUAL**,
+counts included.
+
+**Before/after on one input** (job 314620, c58, EPYC 9115): the same packed bfs launches through the old
+(`b6a615e`) and the new library at N=1:
+
+| bfs launch | slots on the flag word (Part I §2.2) | old: replay time, `hb_sync_pass` | new: replay time, `hb_sync_pass` |
+|---|---|---|---|
+| 13 | 131,261 | 46.4 s, `[352, 352, 8614659430, 3, 352, 352]` | **0.375 s**, `[352, 352, 133213, 3, 352, 352]` |
+| 15 | 450,850 | 520.8 s, `[352, 352, 101632635825, 3, 352, 352]` | **0.667 s**, `[352, 352, 452802, 3, 352, 352]` |
+
+(0x160 = 352. The old counts equal Part I §2.2's slot-test counts of those launches.)
+
+### II.7 Verification B3 — synthetic traces (tested)
+
+`setup/t22c_synth.sh`, job 314188 (c19, 11 min): `t22_replay/synth.py` writes Part I's 105 traces (5
+trace-validity cases, 100 random seeds) and two new families for the shapes the fixes act on — 40
+`dense` (1,536 threads on 8 global and 8 shared words per block; broadcast accesses at per-word pcs, so
+the exit test applies, and coalesced/scattered ones at per-phase pcs, so some words list more than four
+pcs; reads, writes, RMWs, cp.async copies with commits and waits, syncwarps, barriers, early exits) and 5
+`bcast` (20,480 threads: every warp reads 4 particle words with every lane at one pc each, a barrier, every
+lane writes one flag word at one pc, a few single-lane writes to a particle word, a barrier, a read of the
+flag by some warps). Per trace, through `replay.cpp`: (a) the old library at N=1 (the full scan) as the
+reference, the new one at N=1 and at N = 2, 8, 32 threaded and inline — `cmp.py --le` (hb_sync_pass equal
+but each count `1 <= new <= old`; every other field equal); (b) the new one's six configurations against
+its N=1, exact, counts included; (c) vector-clock mode, N=1, old vs new kernel JSON byte for byte.
+
+| family | traces | (a) equal, counts `<=` | (b) equal | (c) vector-clock identical | traces whose count dropped | summed count old → new |
+|---|---|---|---|---|---|---|
+| trace-validity | 5 | 35/35 | 30/30 | 5/5 | 0 (no pairs) | 0 → 0 |
+| random | 100 | 700/700 | 600/600 | 100/100 | 100 | 11,326,765 → 6,886,727 |
+| dense | 40 | 280/280 | 240/240 | 40/40 | 40 | 115,353,171 → 4,569,235 |
+| bcast | 5 | 35/35 | 30/30 | 5/5 | 5 | 1,481,561,214 → 203,061 |
+| **all** | **150** | **1,050/1,050** | **900/900** | **150/150** | | |
+
+### II.8 Thresholds — Fix 1 measured on nbody (job 314189)
+
+c60 (EPYC 8124P, X1's nbody host type), scalar-clock mode, N=1, the harness with no dump, `HB_STATS`, cap
+1,200 s, one run per variant one after the other; the tune runtime (both fixes, the tail rule from the
+environment) and the old one. "Period" = the interval between consecutive `accelerate_particles` kernel
+JSONs (one launch of it plus `update_particles` and `accumulate_energy`, ≤ 1 s together); "first" = the
+first launch's JSON from the variant's start (includes the harness's native run and sidecar, ~20 s).
+
+| variant | tail rule | first `accelerate_particles` (s) | period (s) | launches within 1,200 s |
+|---|---|---|---|---|
+| old (`b6a615e`) | 8 | 850 | — | 1 |
+| Fix 2 alone (`4:8`) | 8 | 847 | — | 1 |
+| `1:256` | t² ≤ P, ≤ 256 | 331 | 306–307 | 3 |
+| **`4:256`** (chosen) | t² ≤ 4P, ≤ 256 | **287** | **266–267** | 4 |
+| `16:256` | t² ≤ 16P, ≤ 256 | 290 | 266–268 | 4 |
+| `4:64` | t² ≤ 4P, ≤ 64 | 323 | 300–301 | 3 |
+
+`4:256` and `16:256` tie; nbody's prefixes stay below 16,384 slots, so `4:256` uses tails of at most 128
+there and `16:256` of 256. X1's scalar-clock nbody launch took 795–802 s on c66 (same host type); Fix 2
+alone changes nothing on nbody (its accesses are reads, whose Check was already short). `4:256` was the
+built default, so the final build is the one measured, without a rebuild.
+
+### II.9 Method regression — the bfs and nbody shapes (tested)
+
+`python/testdata/flag_writers.cu` (bfs's `*d_over = 1`: every thread of 16 × 256 writes one flag word,
+thread 0 of each block reads it after a barrier) and `python/testdata/broadcast_read.cu` (nbody's
+`p[j]`: 1,024 threads each read all 1,024 particle words, then the last thread stores to `m[0]` with no
+grid-wide synchronisation), with `python/test_sync_shapes.py`: recorded in scalar-clock mode with the
+dump (`getall.sh`), the test asserts, by role (opcode access kinds, not pc offsets): **flag_writers** —
+exactly two pairs, the flag store with itself and the flag store with the flag load, both at grid
+distance; **broadcast_read** — exactly one pair, the `m[j]` load with the `m[0]` store, at grid distance;
+for both, `hb_sync_pass` equals `barrier_only_pairs` of the same recording's records in pairs, distances
+and first pcs with each count `1 <= aggregate <= records`, and for the flag the aggregate count is
+strictly below the records' (the exit ran). 4 passed at each green-set configuration (II.5).
+
+### II.10 Step C — heartwall, knn, bfs, nbody at N = 1, 8, 16; the controls
+
+`setup/t22c_runs.sh` (groups of `t22_perf.sh` runs: the harness, scalar-clock mode, no dump, `HB_STATS`,
+one rep, cap 84,600 s), jobs 314326–314330. N = 16 is the core count of every host used (EPYC 8124P,
+c60–c66; EPYC 7302P, c40). Same events and verdicts as X1's rows throughout.
+
+| program | host | N=1 | N=8 | **N=16** | N=1 / N=16 | X1 N=1 (host) | peak MB at N=1 / 8 / 16 |
+|---|---|---|---|---|---|---|---|
+| heartwall (RACE 2, 104 kernels, 8,071,484,636 events) | c66 (N=1), c63 (N=8, 16) — 8124P | running at the commit (100 of 104 kernels at 56,078 s) | 7,137.7 s | **4,663.9 s** | missing (N=1 cut, II.13) | 32,057.2 s (c52, 9115) | — / 6,405 / 6,363 |
+| knn (CLEAN, 300 kernels, 11,144,912,500 events) | c62 (N=1), c60 (N=8, 16) — 8124P | 46,577.1 s | 8,857.3 s | **7,567.6 s** | **6.2×** | 44,762.4 s (c66, 8124P) | 20,433 / 25,035 / 30,383 |
+| bfs (RACE 31, 24 kernels, 7,436,165 events) | c40 (7302P) | 39.5 s | 14.1 s | **13.9 s** | 2.8× | 1,506.5 s (c74, 7302P; 5,400 s pass) | 1,814 / 2,051 / 2,379 |
+| nbody (CLEAN, 30 kernels, 320,355,120 events) | c40 (7302P) | 3,783.0 s | 559.1 s | **387.4 s** | 9.8× | 8,015.0 s (c66, 8124P; 24 h pass) | 28,946 / 23,753 / 23,989 |
+| bfs, **old build** (`b6a615e`), same node | c40 | 1,841.5 s | | | | | 1,718 |
+
+- **Fixes alone (N=1, same node):** bfs 1,841.5 → 39.5 s (46.6×; Fix 2). nbody: launch period 800 → 266 s
+  on c60 (II.8; Fix 1). knn N=1 is unchanged by the fixes (46,577 s against X1's 44,762 s on the same host
+  type: its buckets are not of either shape).
+- **Sharding with the fixes** (N=1 → 16, same host type): knn 6.2×, nbody 9.8×, heartwall missing (N=1 cut, II.13), bfs
+  2.8× (13.9 s; most of it is now the collector and the PCDepGraph pass).
+- **Choice of N for step D: 16** — the fastest of 8 and 16 on all four programs. (Part I measured N = 32 on
+  c28's 128 cores; here every host has 16.)
+- Against Part I (c28, `b6a615e`): heartwall N=8 4,951 s and N=32 2,015 s; knn N=8 6,759 s and N=32
+  4,361 s — c28 is a 128-core EPYC 9745, so those are not comparable with the 16-core hosts here.
+
+**Controls** (job 314330, c40, cap 1,200 s, 3 reps per N): no regression at N > 1.
+
+| program | N=1 walls (s) | N=8 | N=16 | verdict (all reps) |
+|---|---|---|---|---|
+| P5-norace_interblock_atom | 1.120, 1.171, 0.970 | 1.021, 1.070, 0.970 | 1.070, 1.120, 0.970 | CLEAN |
+| P1-CC_CUDA_V_Topo_Push_…_Warp_…-slower_atomic-1296n | 1.772, 1.521, 1.320 | 1.472, 1.421, 1.321 | 1.273, 1.471, 1.221 | RACE, 4 |
+
+### II.11 Step D — every scalar-clock partial row of X1, at N = 16 and X1's caps
+
+The scalar-clock rows of `eval/x1_follow/partial_rows.csv` (branch `eval/final-sweep`): 18 programs at the
+1,200 s pass (3 reps each), 10 at the 5,400 s pass (3 reps), 4 at the 24 h pass (1 rep). Each re-recorded
+row is **one run at that row's cap** (`t22c_runs.sh`, tags `t22c-d1200`, `t22c-d5400`, `t22c-d84600`; the
+24 h rows at 84,600 s, the 1-day partition limit less the harness's own time, as Part I), N = 16, final
+build, one rep. Two rows are **derived** instead, each from a run that finished within that row's cap
+(its per-kernel completion times show all of it finished): heartwall at 5,400 s (step C's N=16 run) and
+nbody at 5,400 s (the 1,200 s run). "k of M" = complete kernel JSONs at the end of the run (a kernel being
+written when the cap struck is not counted; `kstats.txt` in each results directory); M as X1-follow's
+("?" where no complete run is known). X1's notes are X1-follow's.
+
+**1,200 s rows** (X1: `final`, 3 reps; now: `eval/results/t22c-d1200-<id>-n16/`)
+
+| program | X1 (3 reps) | now (N=16) | host | peak MB | row |
+|---|---|---|---|---|---|
+| P6-asyncmemcpy dtoh_race-fixed | TIMEOUT, 0 of 1 | **RACE 44, 681.1 s** | c78 | 92,962 | **finishes** |
+| P6-asyncmemcpy dtoh_race-racy | TIMEOUT, 0 of 1 | **RACE 44, 684.0 s** | c78 | 92,961 | **finishes** |
+| P7-bfs | TIMEOUT, 17 of 24 | **RACE 31, 11.8 s** | c78 | 2,409 | **finishes** |
+| P7-bitonic-sort | TIMEOUT, 79 / 80 / 79 of 325 | TIMEOUT, 202 of 325 | c78 | 17,692 | partial |
+| P7-haversine | TIMEOUT, 24 / 24 / 25 of 100 | TIMEOUT, 29 of 100 | c78 | 13,785 | partial |
+| P7-heartwall | TIMEOUT, 3 of 104 | TIMEOUT, 22 of 104 | c78 | 6,365 | partial |
+| P7-lavaMD | TIMEOUT, 0 of 1 | **CLEAN, 214.3 s** | c63 | 25,389 | **finishes** |
+| P7-mandelbrot | TIMEOUT, 333 / 350 / 356 of 1,001 | TIMEOUT, 660 of 1,001 | c63 | 2,334 | partial |
+| P7-nbody | TIMEOUT, 3 of 30 | **CLEAN, 295.4 s** | c63 | 24,018 | **finishes** |
+| P7-particlefilter | TIMEOUT, 3 of ? | OOM after 3 of ?, 227.0 s, RACE 31 kept | c63 (188 GB) | 185,376 | partial |
+| P7-pathfinder | TIMEOUT, 14 of 200 | TIMEOUT, **11** of 200 | c63 | 67,933 | partial (fewer, below) |
+| P7-srad | TIMEOUT, 3,842 / 3,871 / 3,869 of 6,002 | **CLEAN, 689.5 s** | c63 | 1,225 | **finishes** |
+| P7-stencil1d | TIMEOUT, 3 of ? | TIMEOUT, 5 of ? | c64 | 167,903 | partial |
+| P9-atomicCAS | TIMEOUT, 10,436 / 10,210 / 10,308 of ? | TIMEOUT, 13,715 of ? | c64 | 949 | partial |
+| P9-dxtc2 | TIMEOUT, 46 of 100 | **RACE 3, 571.6 s** | c64 | 3,512 | **finishes** |
+| P9-expdist | TIMEOUT, 0 of ? | TIMEOUT, 22 of ? | c64 | 13,727 | partial |
+| P9-knn | TIMEOUT, 6 of 300 | TIMEOUT, 45 of 300 | c64 | 30,379 | partial |
+| P9-tridiagonal | TIMEOUT, 9 of 1,111 | TIMEOUT, 61 of 1,111 | c64 | 11,391 | partial |
+
+**5,400 s rows** (X1: `final-long-sc`, 3 reps; now: `eval/results/t22c-d5400-<id>-n16/`)
+
+| program | X1 (3 reps) | now (N=16) | host | peak MB | row |
+|---|---|---|---|---|---|
+| P7-haversine | TIMEOUT, 63 / 67 / 63 of 100 | **CLEAN, 4,085.1 s** | c78 | 14,025 | **finishes** |
+| P7-heartwall | TIMEOUT, 17 of 104 | **RACE 2, 4,663.9 s** — derived from `t22c-c-P7-heartwall-cuda-n16` (cap 84,600 s, all 104 kernels by 4,663.9 s) | c63 | 6,363 | **finishes** (derived) |
+| P7-nbody | TIMEOUT, 18 of 30 | **CLEAN, 295.4 s** — derived from `t22c-d1200-P7-nbody-cuda-n16` (all 30 by 295.4 s) | c63 | 24,018 | **finishes** (derived) |
+| P7-particlefilter | TIMEOUT, 3 of ? (5,401–5,402 s) | OOM after 3 of ?, 201.3 s, RACE 31 kept | c78 (125 GB) | 118,793 | partial |
+| P7-pathfinder | TIMEOUT, 55 / 55 / 53 of 200 | TIMEOUT, **42** of 200 | c78 | 68,052 | partial (fewer) |
+| P7-stencil1d | TIMEOUT, 8 of ? | TIMEOUT, 27 of ? | c63 (188 GB) | 168,249 | partial |
+| P9-atomicCAS | TIMEOUT, 40,480 / 40,666 / 40,000 of ? | TIMEOUT, 47,959 of ? | c40 | 987 | partial |
+| P9-expdist | TIMEOUT, 0 of ? | **RACE 22, 2,704.8 s** | c40 | 13,769 | **finishes** |
+| P9-knn | TIMEOUT, 33 of 300 | TIMEOUT, 213 of 300 | c63 | 30,383 | partial |
+| P9-tridiagonal | TIMEOUT, 38 / 39 / 37 of 1,111 | TIMEOUT, 270 of 1,111 | c78 | 12,309 | partial |
+
+stencil1d's first 5,400 s run (job 314671, c40, 125 GB) was killed by the OOM killer after 157.6 s with no
+kernel JSON (peak 125,874 MB; kept as `eval/results/t22c-d5400-c40oom-P7-stencil1d-cuda-n16/`); the row
+above is its rerun on a 188 GB host (job 314681).
+
+**24 h rows** (X1: `final-24h-sc`, cap 86,400 s, 1 rep; now cap 84,600 s: `eval/results/t22c-d84600-<id>-n16/`)
+
+| program | X1 | now (N=16) | host | peak MB | row |
+|---|---|---|---|---|---|
+| P7-particlefilter | OOM after 3 of ?, 5,791 s, RACE 31 (c66, peak 186,169) | OOM after 3 of ?, 214.2 s, RACE 31 kept | c60 (188 GB) | 169,322 | partial |
+| P7-stencil1d | TIMEOUT, 147 of ? (peak 84,061) | cut by the 18:00 shutdown: 149 of ? complete at 29,169 s (snapshot 14:26) | c60 | missing | partial (cut by the shutdown, not by the cap) |
+| P9-atomicCAS | TIMEOUT, 60,000 of ? (peak 908) | cut by the 18:00 shutdown: 60,000 of ? at 26,723 s — the 60,000th written 5,352 s into the run, none since | c64 | missing | partial (cut by the shutdown, not by the cap) |
+| P9-expdist | TIMEOUT, 32 of ? (peak 9,912) | **RACE 22, 2,142.3 s** | c63 | 13,772 | **finishes** |
+
+**Rows that now finish:** 7 of 18 at 1,200 s (asyncmemcpy dtoh fixed and racy, bfs, lavaMD, nbody, srad,
+dxtc2), 4 of 10 at 5,400 s (haversine, expdist; heartwall and nbody derived), 1 of 4 at 24 h
+(expdist; stencil1d and atomicCAS cut by the shutdown, particlefilter OOM). Every finished row's verdict and report count equal X1's finished row of the same
+program in a longer pass (asyncmemcpy RACE 44, bfs RACE 31, lavaMD CLEAN, nbody CLEAN, srad CLEAN, dxtc2
+RACE 3, haversine CLEAN, heartwall RACE 2) or, for expdist (no X1 row finished), Part I's N=32 row (RACE 22).
+
+**Rows that got worse: pathfinder.** At N=16 it completes fewer kernels than X1 at N=1 (11 vs 14 at
+1,200 s; 42 vs 53–55 at 5,400 s), with 68 GB against X1's 5.8–5.9 GB. A same-host-type control (job
+314685, c62, 1,200 s): **N=1: 14 kernels, 5,761 MB; N=8: 15, 34,913 MB**; N=16 (c63): 11, 67,933 MB. Its grid
+is large (`pathfinder-cuda 100000 1000 5`), and every shard keeps every thread's sync clock and barrier
+assembly (Part I §6: ≈ 40 B per thread per shard) — memory that grows with N and work per kernel that
+grows with it. N=8 is the best of the three here; the step D rows above stay at the chosen N=16 as the
+brief asks.
+
+### II.12 Memory at N = 16
+
+Part I §6's term — every shard holds every thread's sync clock — decides the large-grid programs' peaks:
+stencil1d 167.9–168.2 GB at N=16 (X1 N=1: 83.7–84.1 GB; killed on a 125 GB node), pathfinder 68 GB (5.8 GB),
+the asyncmemcpy dtoh pair 93 GB (X1's finished 5,400 s rows: 65.9 GB), knn 30.4 GB (20.4 GB at N=1).
+particlefilter is out of memory at any N (X1 too). Small grids pay little: heartwall 6.4 GB at N=16 (X1:
+6.2 GB), bfs 2.4 GB (1.8 GB at N=1), nbody 24.0 GB (28.9 GB at N=1 — the buckets dominate there).
+
+### II.13 What is done, and what the 2026-10-18 18:00 cluster shutdown cut
+
+The ARC cluster shuts down at 18:00 EDT on 2026-10-18; the final commit is made before 17:30, with the
+runs below still going. Their state was recorded inside their own allocations
+(`srun --jobid=<job> --overlap … setup/t22c_snapshot.sh`: the store's kernel JSONs' write times and
+aggregates, `kstats-cut.txt` in the results directory; stencil1d's kernel JSONs also as
+`cut-kernels-*.tar.gz`).
+
+| run | job, node, start | recorded state | row |
+|---|---|---|---|
+| step C heartwall N=1 | 314326, c66, 10-17 22:50 | 100 of 104 kernels at 56,078 s (snapshot 14:25), ~560 s per kernel | cut: wall and verdict missing |
+| T20-id parity, bfs kernels 15 and 17 | 314586, c17, 10-17 23:47 | the Python record replay of both still running after 14.7 h; nothing written | missing |
+| step D stencil1d, 84,600 s | 314673, c60, 10-18 06:20 | 149 of ? kernels at 29,169 s (snapshot 14:26) | partial, cut by the shutdown |
+| step D atomicCAS, 84,600 s | 314674, c64, 10-18 06:59 | 60,000 of ? kernels at 26,723 s; the 60,000th at 5,352 s, none after | partial, cut by the shutdown |
+
+Peaks of the cut runs are missing (the harness reports its peak at the end).
+
+**Done:** both fixes; the scope decision; thresholds (II.8); parity A (green set at N=1, 8 threaded, 8),
+B (T20 ids: 503 of 505 kernel JSONs compared, 0 mismatches; cross-N replays; old-vs-new replays), B3 (150
+synthetic traces × 7 configurations + vector-clock identity); the two regression kernels; step C except as
+listed; step D's 1,200 s and 5,400 s rows (all), and the 24 h rows of particlefilter and expdist.
+
+### II.14 Job notes
+
+- **313229** (Part I's step D, old build `b6a615e`, stencil1d N=32, c28): TIMEOUT at 84,600.0 s, peak
+  257,832.5 MB (`eval/results/t22-d-P7-stencil1d-cuda-n32/`); kernels completed: missing (the store was
+  not read).
+- **313230** (Part I's step D atomicCAS, old build): cancelled while pending on 2026-10-17 — it would have
+  loaded the private library that this task rebuilt in place, and step D was re-run with the fixes.
+- **314320–314324**: step C's first submission, cancelled before any started — the wrapper read its run
+  list from `GROUPS`, which bash reserves for the user's group ids; resubmitted as 314326–314330 with
+  `RUNGROUPS`.
+- **Hosts.** My exclusion list for "EPYC 8124P only" missed c39/c40/c78 (EPYC 7302P, 125 GB): step C's
+  small-program job (314330) and the step D jobs 314667, 314670, 314671 ran there; every row names its node.
+  stencil1d's 5,400 s row was re-run on a 188 GB host (314681) after the OOM on c40 (314671).
+- **The `host=` line of 314586/314587's logs** shows the laptop's hostname: the `--wrap` command expanded
+  `$(hostname)` before ssh; sacct has the nodes (c17, c9).
+- **atomicCAS** stops making progress after its 60,000th kernel: at 84,600 s cap (job 314674) the 60,000th
+  kernel JSON was written 5,352 s into the run and none since (snapshot at 26,723 s); X1's 24 h row also
+  ends at "60000 of ?". The kernel after it was not identified.
+
+### II.15 What remains unverified
+
+- **Cut runs** (II.13): heartwall's N=1 wall, if the snapshot is all there is; bfs kernels 15 and 17 of
+  the T20 recording are not compared against the record replay (their aggregates equal the cross-N
+  replays of the same records at N = 1, 2, 8, 32 and the old library's pairs and distance — II.6 — but the
+  Python record replay did not finish); the 24 h stencil1d and atomicCAS rows are partial by the shutdown,
+  not by the cap.
+- **Single runs.** Every step C and D row is one run (X1: 3 reps at 1,200 s and 5,400 s). Run-to-run spread
+  not measured here; Part I's controls showed a few % on the short programs.
+- **Hosts.** Step C's heartwall and knn N=1 vs N=16 are on different nodes of one host type (EPYC 8124P);
+  bfs and nbody on one node of another (7302P). X1's rows ran on c52 (9115), c66 (8124P), c74 (7302P).
+- **pathfinder at N=16** is slower than at N=1 and N=8 (II.11); the cause is inferred from the memory term
+  (Part I §6), not profiled.
+- **The proof remark** (II.3) is checked by Jeffery, not by a second reader here; `hb_proof.tex` unchanged.
+- **Vector-clock mode** is shown unchanged on 150 synthetic traces (byte for byte) and by the green set; no
+  recorded vector-clock program was replayed old against new.
+- `hb_stats` `buckets.bytes` in scalar-clock mode now includes the PcSums (36 bytes per array of ≥ 64 slots).
+
+### II.16 Commands
+
+```
+# runtimes (final, tune, old) and the harness mirrors
+sbatch -p normal -o <log> eval/baselines/setup/t22c_build.sh
+# A: green set at N=1, 8 threaded, 8 (+ test_sync_shapes.py)
+sbatch -p rtx4060ti16g -x c54,c2,c37 -o <log> eval/baselines/setup/t22_check.sh
+# B: T20 ids recorded with the dump at N=8, then compared (counts <=)
+sbatch -p rtx4060ti16g -x c54,c2,c37 --array=0 --time=12:00:00 --export=ALL,W=<W>,TAG=t22c-parity,\
+  IDS=eval/baselines/setup/t5b_parity_ids.txt,BASELINE_MODES=scalar-clock,FLOOR=120,YOSEMITE_HB_SHARDS=8,\
+  YOSEMITE_HB_STATS=1 -o <log> eval/baselines/setup/p_t5b_timeout.sh
+sbatch -p normal --export=ALL,TAG=t22c-parity,PAR=12,CAP=7200,LE=1 -o <log> eval/baselines/setup/t22_parity_cmp.sh
+.env/bin/python eval/baselines/setup/t22c_parity_kernels.py --store /mnt/beegfs/$USER/cuvein_traces/t22c-parity \
+  --id P7-bfs-cuda --kernels 15,17,19,21,23 --out eval/baselines/setup/t22_parity/t22c-parity/bfs-odd.json
+.env/bin/python eval/baselines/setup/t22c_parity_sum.py eval/baselines/setup/t22_parity/t22c-parity/*.json
+# B: cross-N replays; old vs new on bfs launches 13 and 15
+sbatch -p normal --export=ALL,STORE=<store>,NPICK=3,NS="1 2 8 32",OUT=<dir> eval/baselines/setup/t22_replay/crossn.sh
+sbatch -p normal --export=ALL,STORE=<store>,KERNELS="P7-bfs-cuda/scalar-clock/kernel_13.json …kernel_15.json",\
+  NS="1 2 8 32",INLINE0=1,OUT=<dir> eval/baselines/setup/t22_replay/replay_run.sh
+# B3: synthetic traces (old vs new, six configurations, vector-clock identity)
+sbatch -p normal --export=ALL,OUT=/mnt/beegfs/$USER/t22c/synth -o <log> eval/baselines/setup/t22c_synth.sh
+# thresholds
+sbatch -p rtx4060ti16g -x <non-8124P> --export=ALL,VARIANTS="old 4:8 1:256 4:256 16:256 4:64",CAP=1200 \
+  -o <log> eval/baselines/setup/t22c_tune.sh
+# C and D (one RUNGROUPS per job; see the logs in setup/t22c_logs for each job's groups)
+sbatch -p rtx4060ti16g -x <hosts> --export=ALL,RUNGROUPS="final|84600|t22c-c|P7-heartwall-cuda:16 P7-heartwall-cuda:8" \
+  -o <log> eval/baselines/setup/t22c_runs.sh
+sbatch -p rtx4060ti16g -x c2,c37,c54 --export=ALL,RUNGROUPS="final|1200|t22c-d1200|P7-bfs-cuda:16 …" \
+  -o <log> eval/baselines/setup/t22c_runs.sh
+# snapshot of a run before the shutdown
+srun --jobid=<job> --overlap -N1 -n1 -t 00:06:00 bash eval/baselines/setup/t22c_snapshot.sh <tag>-<id>-n<N> <start epoch> [1]
+```
+
+---
+
+## Part I — the sharded scalar-clock sync pass (2026-10-15/16, build b6a615e)
 
 Branch `perf/sharded-sync-pass` from `cuVein` 4094187 (X0 merged). Unmerged and uninstalled (the
 merge and install are Jeffery's). Freeze exception of the brief: only HbClock's sync pass under
@@ -14,7 +490,7 @@ Of X1's partial scalar-clock rows, expdist now finishes (RACE 22, 3,388 s); part
 still partial (OOM after 3 kernels, on a 755 GB node); **stencil1d and atomicCAS are still
 running** at the time of this report (§7) and their rows are filled when the jobs end.
 
-## 0. Runtime and hardware
+### 0. Runtime and hardware
 
 Code: `48f1ff7` (first design), `3cf25a1` (router thread; monitor and R3 points distributed),
 `b6a615e` (chunked routing; **the build every verification below uses**). Private runtime as T20's
@@ -35,7 +511,7 @@ so every GPU run so far is on **c28** (partition rtx4060ti8g: RTX 4060 Ti 8 GB, 
 580.65.06; AMD Turin, `nproc` 128 in the job, 755 GB). The rtx4060ti16g hosts have 16 cores
 (2 × 8). CPU-only replays ran on c28 or, for the small synthetic traces, the login node.
 
-## 1. Design as built
+### 1. Design as built
 
 **Knob.** `YOSEMITE_HB_SHARDS=N` (read once; 2..64, above 64 clamped with a notice). Unset, 0 or 1:
 the serial pass, unchanged (the per-record step became `process_one<ROLE_SERIAL>`, the same code;
@@ -103,7 +579,7 @@ which is `{this}` in the serial pass (same output).
 4. *`hb_stats`* differs from the serial pass by design: sums over the shards plus a `sharded` block
    (§2). It is diagnostic; no verdict reads it.
 
-## 2. Merge rules per field
+### 2. Merge rules per field
 
 The aggregates scalar-clock mode writes (`python/test_no_dump.py::test_dump_carries_the_aggregates`
 and `kernel_trace_flush`):
@@ -116,7 +592,7 @@ and `kernel_trace_flush`):
 | `hb_events_count`, `hb_lanes_count`, `hb_aggregates`, `hb_async`, `hb_exits` | drain thread (unchanged) | — |
 | `hb_stats.hb_clock` (HB_STATS only) | all | buckets and sync clocks summed over the shards (`vs.threads` = max), the rest the singleton's; plus `sharded`: `shards`, `drain_s`, `route_s`, `wait_s`, `bcast`, `rmw_bits`, per shard `busy_s`, `stall_s`, `lanes`, `tv_records`, `rmw_lanes`. |
 
-### 2.1 Who reads the per-pair instance counts
+#### 2.1 Who reads the per-pair instance counts
 
 The merge sums `count` (the third element of `hb_races_sync_only` rows and of `hb_sync_pass`
 rows). Whether anything but display depends on that number — read from the code at `cuVein`
@@ -150,7 +626,7 @@ rows). Whether anything but display depends on that number — read from the cod
 So no verdict, class or table cell depends on the sync-pass counts; they appear as
 `contested_weight` of event-stream candidates and in the census script's display column.
 
-### 2.2 Slots tested per access: bfs and nbody at the installed runtime (private build)
+#### 2.2 Slots tested per access: bfs and nbody at the installed runtime (private build)
 
 Requested 2026-10-16: on bfs at the current runtime (the T20 build), count the bucket slots
 Check tests per access, beside `conflict()`, in a private build only (no commit); the same for
@@ -205,7 +681,7 @@ the bucket they meet holds reads only (key 0), and Check skips the read–read k
 48,000 are visited. nbody's time is therefore not the conflict test: X1-follow §3 places 80 % of it
 in the bucket insertion (`merge_tail`), which this counter does not count.
 
-## 3. Verification A — the green set (tested)
+### 3. Verification A — the green set (tested)
 
 `setup/t22_check.sh`, job 312955 (c28, final build), the merge-check protocol: (0) the default tool
 path; (1a) the CLAUDE.md A4 files + `test_instance_gate.py`; (1b) `test_instance_gate.py` alone on
@@ -230,7 +706,7 @@ recordings' accelprof logs, the 4 scalar-clock ones contain `scalar-clock pass s
 8 shards` and the 4 vector-clock ones `YOSEMITE_HB_SHARDS=8 ignored: vector-clock mode runs the serial
 pass`.
 
-## 4. Verification B — parity within one run, and across shard counts
+### 4. Verification B — parity within one run, and across shard counts
 
 **B1. Sharded aggregates == the replay of the same run's records** (proved-in-effect; the T20
 method, `eval/THREAD_INDEX.md` §2). The 65 T20 parity ids (`setup/t5b_parity_ids.txt`) recorded in
@@ -295,9 +771,9 @@ non-RMW accesses: shared writes at an `# async` pc, a commit after 60 % of them,
 `1` before 70 % of the barrier arrivals): again **105 × 6, 0 differences**; e.g. seeds 0/1/2 carry
 268/265/266 pairs, 19/19/16 of them on the copy's pc.
 
-## 5. Performance
+### 5. Performance
 
-### 5.1 Design diagnostics (c28, 900 s cap, not step C)
+#### 5.1 Design diagnostics (c28, 900 s cap, not step C)
 
 Before step C, short same-node runs (`setup/t22_diag.sh`: the harness, scalar-clock mode, no dump,
 `HB_STATS`, one rep, 900 s cap; partial dumps kept) decided the design. "Period" = the median
@@ -337,7 +813,7 @@ The N=32 heartwall run's kept partial dump contains one kernel JSON that does no
 inside `hb_rmw_points` without the closing brace — the 900 s kill landed while it was being written
 (`t22_inspect.py unreadable`, job 313068). The N=16 run has no such file.
 
-### 5.2 Step C — heartwall and knn, X1 inputs, full runs
+#### 5.2 Step C — heartwall and knn, X1 inputs, full runs
 
 Released by Jeffery on 2026-10-16 (X1-follow's bisect: scalar-clock mode flat through T15, its only
 crossing at T4 — the first online sync pass, not a regression — and the vector-clock culprit at T9
@@ -379,7 +855,7 @@ big kernel: 49 / 27 / 20 s at N = 8 / 16 / 32, §5.1; full runs 4,951 vs 2,015 s
 4,361 s), so step D uses N=32. On a 16-core rtx4060ti16g host the shards would share 16 cores with the
 router, the PCDepGraph worker and the collector's threads; no run there was possible (§0).
 
-## 6. Memory
+### 6. Memory
 
 The brief expected no change in total memory. Measured: the buckets do not change — they are
 partitioned, and their sum over the shards equals the serial pass's (knn's 99.9 M-record kernel:
@@ -404,7 +880,7 @@ all N). It is small for grids of thousands of threads (heartwall) and grows with
 +0.63 GiB per shard). Larger grids (pathfinder: 100 M threads) were not measured here. The R3 points' per-thread state is not replicated (each warp
 chunk's in one shard), and the monitor's state is per block in one shard.
 
-## 7. Step D — the X1 partial rows, scalar-clock mode, N = 32
+### 7. Step D — the X1 partial rows, scalar-clock mode, N = 32
 
 Released by Jeffery on 2026-10-16 for every partial row except bfs and nbody. X1's scalar-clock rows
 that are partial at their last cap (`final-24h-sc`, with X1-follow's `partial:` notes): particlefilter,
@@ -425,6 +901,8 @@ harder to finish. `setup/t22_perf.sh`, harness, no dump, `HB_STATS`, one rep.
 | P7-stencil1d-cuda | TIMEOUT, 86,400 s, partial: 147 kernels; peak 84,061 MB | **running** (job 313229, started 2026-10-16 07:59; 223 of 1,000 kernels at 10.7 h, ≈ 172 s per kernel; the 84,600 s cap ends ≈ 07:30 on 10-17) | pending; at this rate ≈ 490 kernels by the cap, so expected still partial (X1: 147) |
 | P9-atomicCAS-cuda | TIMEOUT, 86,400 s, partial: 60,000 kernels; peak 908 MB | **queued** (job 313230, chained after stencil1d; ends by ≈ 08:00 on 10-18 at the latest) | pending |
 
+*Update 2026-10-17/18 (Part II, II.14):* stencil1d (job 313229) ended TIMEOUT at 84,600.0 s, peak 257,832.5 MB; atomicCAS (job 313230) was cancelled before it started; step D was re-run with the fixes at N = 16 and X1's caps (Part II, II.11).
+
 particlefilter: the run reached the same 3 completed kernels and the same 31 reports as X1's, and ran
 out of memory in the 4th kernel on a node with four times the memory; the memory growth inside that
 kernel cannot be attributed from these runs (no kernel-end statistics for an unfinished kernel, and
@@ -432,7 +910,7 @@ kernel cannot be attributed from these runs (no kernel-end statistics for an unf
 whether the sharded pass holds more per record than the serial one there (allocator arenas of 32
 threads, per-shard slot-array slack) is **not measured**.
 
-## 8. Proof
+### 8. Proof
 
 `design/proof/hb_proof.tex`: one remark after Corollary "The sync instance", Remark "Partition by
 location" (`\label{rem:partition}`): under M = sync the clocks and the assembly state are written only
@@ -445,7 +923,7 @@ per-pair aggregate is then the runs' sum, maximum and seq-earliest; it does not 
 no undefined reference; the same font-shape warnings as the cuVein version, 19 pages). **For
 Jeffery's check**; no other proof change.
 
-## 9. What remains unverified
+### 9. What remains unverified
 
 - **Assumed:** the drain buffer stays valid and unchanged until `gpu_data_analysis` returns (the
   collector refills it only after the call: `nv-compute/src/compute_sanitizer.cpp`, the pc_dependency
@@ -463,7 +941,7 @@ Jeffery's check**; no other proof change.
 - `hb_stats` of a sharded run is a sum, not the serial pass's numbers (by design, §2).
 - The proof remark (§8) is checked by Jeffery, not by a second reader here.
 
-## 10. Commands
+### 10. Commands
 
 ```
 # private runtime (GPU-partition node: the collector relink needs /usr/local/cuda/compute-sanitizer)
