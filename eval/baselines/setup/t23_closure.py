@@ -18,6 +18,7 @@ records show the two pcs on one address.
   t23_closure.py scan --rtraw-root <dir> --out scan.jsonl          # X4's <label>/<node>/{cfg,runK}
   t23_closure.py ids  scan.jsonl [...]                              # programs with a growth pair
   t23_closure.py diff scan.jsonl [...] --out moves.jsonl [--shard K/N]
+  t23_closure.py scan-summary scan.jsonl [...]                      # counts per store
   t23_closure.py summary moves.jsonl [...]
 
 A harness store is <store>/<id>/{dots/*.dot, <mode>/kernel_*.json} (parallel.py analyze's layout).
@@ -98,10 +99,19 @@ def scan_task(task):
     if not any(t in Path(p).read_text(errors="replace") for p in dot_paths for t in _ATOMIC_TEXT):
         yield {**base, "status": "no-atomic-opcode", "kernels": len(task["kernels"])}
         return
-    dots = [(p, sd.parse_dot(p)) for p in dot_paths]
+    dots = []
+    for p in dot_paths:
+        try:
+            dots.append((p, sd.parse_dot(p)))
+        except sd.AlignmentError:      # a dot with no kernel cluster: analyze() skips it too
+            continue
     for kj in task["kernels"]:
         rec = {**base, "kernel": os.path.basename(kj), "path": kj}
-        trace = json.loads(Path(kj).read_text())
+        try:
+            trace = json.loads(Path(kj).read_text())
+        except (OSError, ValueError) as ex:     # a partial / unreadable kernel JSON: recorded
+            yield {**rec, "status": "error", "error": repr(ex)[:300]}
+            continue
         al = _aligned(dots, trace)
         if al is None:
             yield {**rec, "status": "no-aligned-dot"}
@@ -135,14 +145,20 @@ def cmd_scan(a):
         modes = a.modes.split(",")
         tasks = list(_harness_tasks(a.store, _read_ids(a.ids) if a.ids else None, modes))
     tasks = _shard(tasks, a.shard)
-    n = 0
+    n = errors = 0
     with open(a.out, "w") as out:
         for t in tasks:
-            for rec in scan_task(t):
+            try:
+                recs = list(scan_task(t))
+            except Exception as ex:     # recorded, never swallowed: the summary counts them
+                recs = [{**{k: t[k] for k in ("tag", "id", "mode")}, "status": "error",
+                         "error": repr(ex)[:300]}]
+            errors += sum(r["status"] == "error" for r in recs)
+            for rec in recs:
                 out.write(json.dumps(rec) + "\n")
                 n += 1
             out.flush()
-    print(f"scan: {len(tasks)} (program, mode) tasks, {n} records -> {a.out}")
+    print(f"scan: {len(tasks)} (program, mode) tasks, {n} records, {errors} errors -> {a.out}")
 
 
 def _load_jsonl(paths):
@@ -192,9 +208,14 @@ def cmd_diff(a):
     n_moved = 0
     with open(a.out, "w") as out:
         for r in recs:
-            old, new = _analyze(r["dot"], r["path"], False), _analyze(r["dot"], r["path"], True)
-            ov, nv = old["verdicts"], new["verdicts"]
             head = {k: r[k] for k in ("tag", "id", "mode", "kernel", "path")}
+            try:
+                old, new = _analyze(r["dot"], r["path"], False), _analyze(r["dot"], r["path"], True)
+            except Exception as ex:             # recorded, counted by `summary`
+                out.write(json.dumps({**head, "anomaly": "analyze raised", "error": repr(ex)[:300]})
+                          + "\n")
+                continue
+            ov, nv = old["verdicts"], new["verdicts"]
             if len(ov) != len(nv) or any((x["current_pc"], x["ancient_pc"]) !=
                                          (y["current_pc"], y["ancient_pc"])
                                          for x, y in zip(ov, nv)):
@@ -227,6 +248,21 @@ def cmd_diff(a):
             out.write(json.dumps(rec) + "\n")
             out.flush()
     print(f"diff: {len(recs)} kernels analyzed twice, {n_moved} verdicts moved -> {a.out}")
+
+
+def cmd_scansummary(a):
+    by = defaultdict(Counter)
+    for r in _load_jsonl(a.files):
+        c = by[r["tag"]]
+        c["records"] += 1
+        c[r["status"]] += 1
+        c["cas-kernels"] += bool(r.get("cas_pcs"))
+        c["growth-kernels"] += bool(r.get("growth"))
+        c["growth-with-a-CAS-kernels"] += bool(r.get("growth_cas"))
+        if r["status"] != "scanned":
+            c["tasks-" + r["status"]] += 0
+    for tag, c in sorted(by.items()):
+        print(tag + ": " + ", ".join(f"{k}={v}" for k, v in sorted(c.items()) if v))
 
 
 def cmd_summary(a):
@@ -270,6 +306,9 @@ def main():
     d.add_argument("--shard")
     d.add_argument("--out", required=True)
     d.set_defaults(fn=cmd_diff)
+    ss = sub.add_parser("scan-summary")
+    ss.add_argument("files", nargs="+")
+    ss.set_defaults(fn=cmd_scansummary)
     m = sub.add_parser("summary")
     m.add_argument("files", nargs="+")
     m.set_defaults(fn=cmd_summary)

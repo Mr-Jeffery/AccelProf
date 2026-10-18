@@ -23,4 +23,6 @@ echo "host=$(hostname) date=$(date -Is) scan=$SCAN shard=$K/$N head=$(git rev-pa
 env | grep -E '^(CUVEIN_|YOSEMITE_)' | sort
 .env/bin/python eval/baselines/setup/t23_closure.py diff "$W"/eval/results/t23/scan/$SCAN/shard*.jsonl \
     --shard "$K/$N" --out "$OUTD/shard$K.jsonl"
-echo "done rc=$? date=$(date -Is)"
+rc=$?
+echo "done rc=$rc date=$(date -Is)"
+exit $rc

@@ -26,4 +26,6 @@ SRC=(--store "/mnt/beegfs/fzheng4/cuvein_traces/$STORE")
 echo "host=$(hostname) date=$(date -Is) store=$STORE shard=$K/$N head=$(git rev-parse HEAD)"
 .env/bin/python eval/baselines/setup/t23_closure.py scan "${SRC[@]}" --shard "$K/$N" \
     --out "$OUTD/shard$K.jsonl"
-echo "done rc=$? date=$(date -Is)"
+rc=$?
+echo "done rc=$rc date=$(date -Is)"
+exit $rc
