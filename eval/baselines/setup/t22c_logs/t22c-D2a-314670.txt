@@ -1,0 +1,70 @@
+host=c78 nproc=16 Model name: AMD EPYC 7302P 16-Core Processor 2026-10-18T05:37:34-04:00
+######## runtime final (W=/home/fzheng4/AccelProf/.claude/worktrees/wt-t22) cap 5400 tag t22c-d5400 runs: P7-haversine-cuda:16 P7-pathfinder-cuda:16 P9-tridiagonal-cuda:16 P7-particlefilter-cuda:16   2026-10-18T05:37:34-04:00
+host=c78 nproc=16 mem=125G Model name: AMD EPYC 7302P 16-Core Processor NVIDIA GeForce RTX 4060 Ti, 8.9, 580.82.07 HEAD=1ce4389 dirty=7 libsanalyzer 502028a87d54301c
+cdc5a70a8c3f4fb4
+8c0560eed583b31e
+==== P7-haversine-cuda YOSEMITE_HB_SHARDS=16 reps 1 cap 5400 2026-10-18T05:37:34-04:00
+[run 1/1] P7-haversine-cuda
+run: 1 programs -> /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-d5400-P7-haversine-cuda-n16/baselines-cuvein-shardt22c-d5400-P7-haversine-cuda-n16all.csv
+kept traces: 0.00 GB in /mnt/beegfs/fzheng4/cuvein_traces/t22c-d5400-P7-haversine-cuda-n16
+P7-haversine-cuda,scalar-clock,1,CLEAN,0,4085.072,3.524,14025.2,cap=5400;node=c78;arch=8.9;events=629145600;nkernels=100
+==== P7-pathfinder-cuda YOSEMITE_HB_SHARDS=16 reps 1 cap 5400 2026-10-18T06:47:28-04:00
+[run 1/1] P7-pathfinder-cuda
+run: 1 programs -> /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-d5400-P7-pathfinder-cuda-n16/baselines-cuvein-shardt22c-d5400-P7-pathfinder-cuda-n16all.csv
+kept traces: 0.00 GB in /mnt/beegfs/fzheng4/cuvein_traces/t22c-d5400-P7-pathfinder-cuda-n16
+P7-pathfinder-cuda,scalar-clock,1,TIMEOUT,0,5400.005,1.571,68051.7,cap=5400;timeout=5400s;dump_mb=1.0;err=./pathfinder-cuda 100000 1000 5 | Running the pc_dependency_analysis tool for pathfinder-cuda...
+==== P9-tridiagonal-cuda YOSEMITE_HB_SHARDS=16 reps 1 cap 5400 2026-10-18T08:17:32-04:00
+[run 1/1] P9-tridiagonal-cuda
+run: 1 programs -> /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-d5400-P9-tridiagonal-cuda-n16/baselines-cuvein-shardt22c-d5400-P9-tridiagonal-cuda-n16all.csv
+kept traces: 0.00 GB in /mnt/beegfs/fzheng4/cuvein_traces/t22c-d5400-P9-tridiagonal-cuda-n16
+P9-tridiagonal-cuda,scalar-clock,1,TIMEOUT,0,5400.02,0.971,12309.0,cap=5400;timeout=5400s;dump_mb=30.5;err=./tridiagonal-cuda -num_systems=30000 | Running the pc_dependency_analysis tool for tridiagonal-cuda...
+==== P7-particlefilter-cuda YOSEMITE_HB_SHARDS=16 reps 1 cap 5400 2026-10-18T09:47:46-04:00
+[run 1/1] P7-particlefilter-cuda
+run: 1 programs -> /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-d5400-P7-particlefilter-cuda-n16/baselines-cuvein-shardt22c-d5400-P7-particlefilter-cuda-n16all.csv
+kept traces: 0.00 GB in /mnt/beegfs/fzheng4/cuvein_traces/t22c-d5400-P7-particlefilter-cuda-n16
+P7-particlefilter-cuda,scalar-clock,1,RACE,31,201.276,1.222,118793.1,cap=5400;node=c78;arch=8.9;events=5643848;nkernels=3;partial(rc=1);classes=race:31
+== done 2026-10-18T09:51:22-04:00
+== /mnt/beegfs/fzheng4/cuvein_traces/t22c-d5400-P7-haversine-cuda-n16
+  kernel_0.json    1792316312.0         -  events 6291456 compute_haversine_distance(double4 const pairs 0 count 0 locs 37748742 entries 110458026 bytes 5883770000
+  kernel_1.json    1792316356.0      44.0  events 6291456 compute_haversine_distance(double4 const pairs 0 count 0 locs 37748742 entries 110458026 bytes 5883770000
+  kernel_2.json    1792316398.0      42.0  events 6291456 compute_haversine_distance(double4 const pairs 0 count 0 locs 37748742 entries 110458026 bytes 5883770000
+  kernel_3.json    1792316441.0      43.0  events 6291456 compute_haversine_distance(double4 const pairs 0 count 0 locs 37748742 entries 110458026 bytes 5883770000
+  kernel_4.json    1792316482.0      41.0  events 6291456 compute_haversine_distance(double4 const pairs 0 count 0 locs 37748742 entries 110458026 bytes 5883770000
+  kernel_5.json    1792316523.0      41.0  events 6291456 compute_haversine_distance(double4 const pairs 0 count 0 locs 37748742 entries 110458026 bytes 5883770000
+  kernel_6.json    1792316563.0      40.0  events 6291456 compute_haversine_distance(double4 const pairs 0 count 0 locs 37748742 entries 110458026 bytes 5883770000
+  kernel_7.json    1792316604.0      41.0  events 6291456 compute_haversine_distance(double4 const pairs 0 count 0 locs 37748742 entries 110458026 bytes 5883770000
+  kernel_8.json    1792316646.0      42.0  events 6291456 compute_haversine_distance(double4 const pairs 0 count 0 locs 37748742 entries 110458026 bytes 5883770000
+  kernel_9.json    1792316686.0      40.0  events 6291456 compute_haversine_distance(double4 const pairs 0 count 0 locs 37748742 entries 110458026 bytes 5883770000
+  kernel_10.json   1792316726.0      40.0  events 6291456 compute_haversine_distance(double4 const pairs 0 count 0 locs 37748742 entries 110458026 bytes 5883770000
+  ... (100 kernel JSONs: /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-d5400-P7-haversine-cuda-n16/kstats.txt)
+== /mnt/beegfs/fzheng4/cuvein_traces/t22c-d5400-P7-pathfinder-cuda-n16
+  kernel_0.json    1792320613.0         -  events 35325026 pathfinder(int const*, int const*, int*, pairs 1 count 8588 locs 907498 entries 1333695 bytes 65684416
+  kernel_1.json    1792320750.0     137.0  events 35325026 pathfinder(int const*, int const*, int*, pairs 1 count 5435 locs 907514 entries 1333695 bytes 65684848
+  kernel_2.json    1792320881.0     131.0  events 35325026 pathfinder(int const*, int const*, int*, pairs 1 count 4698 locs 907516 entries 1333695 bytes 65685440
+  kernel_3.json    1792321010.0     129.0  events 35325026 pathfinder(int const*, int const*, int*, pairs 1 count 4363 locs 907515 entries 1333695 bytes 65684848
+  kernel_4.json    1792321138.0     128.0  events 35325026 pathfinder(int const*, int const*, int*, pairs 1 count 4025 locs 907522 entries 1333695 bytes 65684960
+  kernel_5.json    1792321266.0     128.0  events 35325026 pathfinder(int const*, int const*, int*, pairs 1 count 3929 locs 907521 entries 1333695 bytes 65684880
+  kernel_6.json    1792321395.0     129.0  events 35325026 pathfinder(int const*, int const*, int*, pairs 1 count 3806 locs 907525 entries 1333695 bytes 65685696
+  kernel_7.json    1792321523.0     128.0  events 35325026 pathfinder(int const*, int const*, int*, pairs 1 count 3666 locs 907525 entries 1333695 bytes 65685504
+  kernel_8.json    1792321651.0     128.0  events 35325026 pathfinder(int const*, int const*, int*, pairs 1 count 3541 locs 907525 entries 1333695 bytes 65685344
+  kernel_9.json    1792321777.0     126.0  events 35325026 pathfinder(int const*, int const*, int*, pairs 1 count 3449 locs 907525 entries 1333695 bytes 65685040
+  kernel_10.json   1792321902.0     125.0  events 35325026 pathfinder(int const*, int const*, int*, pairs 1 count 3303 locs 907524 entries 1333695 bytes 65685184
+  ... (42 kernel JSONs: /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-d5400-P7-pathfinder-cuda-n16/kstats.txt)
+== /mnt/beegfs/fzheng4/cuvein_traces/t22c-d5400-P9-tridiagonal-cuda-n16
+  kernel_0.json    1792325904.0         -  events 16740000 pcr_small_systems_kernel(float const*, f pairs 0 count 0 locs 38400000 entries 232500000 bytes 7120295936
+  kernel_1.json    1792325929.0      25.0  events 16740000 pcr_small_systems_kernel(float const*, f pairs 0 count 0 locs 38400000 entries 232500000 bytes 7120295936
+  kernel_2.json    1792325953.0      24.0  events 16740000 pcr_small_systems_kernel(float const*, f pairs 0 count 0 locs 38400000 entries 232500000 bytes 7120295936
+  kernel_3.json    1792325976.0      23.0  events 16740000 pcr_small_systems_kernel(float const*, f pairs 0 count 0 locs 38400000 entries 232500000 bytes 7120295936
+  kernel_4.json    1792325999.0      23.0  events 16740000 pcr_small_systems_kernel(float const*, f pairs 0 count 0 locs 38400000 entries 232500000 bytes 7120295936
+  kernel_5.json    1792326022.0      23.0  events 16740000 pcr_small_systems_kernel(float const*, f pairs 0 count 0 locs 38400000 entries 232500000 bytes 7120295936
+  kernel_6.json    1792326045.0      23.0  events 16740000 pcr_small_systems_kernel(float const*, f pairs 0 count 0 locs 38400000 entries 232500000 bytes 7120295936
+  kernel_7.json    1792326068.0      23.0  events 16740000 pcr_small_systems_kernel(float const*, f pairs 0 count 0 locs 38400000 entries 232500000 bytes 7120295936
+  kernel_8.json    1792326090.0      22.0  events 16740000 pcr_small_systems_kernel(float const*, f pairs 0 count 0 locs 38400000 entries 232500000 bytes 7120295936
+  kernel_9.json    1792326114.0      24.0  events 16740000 pcr_small_systems_kernel(float const*, f pairs 0 count 0 locs 38400000 entries 232500000 bytes 7120295936
+  kernel_10.json   1792326136.0      22.0  events 16740000 pcr_small_systems_kernel(float const*, f pairs 0 count 0 locs 38400000 entries 232500000 bytes 7120295936
+  ... (270 kernel JSONs: /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-d5400-P9-tridiagonal-cuda-n16/kstats.txt)
+== /mnt/beegfs/fzheng4/cuvein_traces/t22c-d5400-P7-particlefilter-cuda-n16
+  kernel_0.json    1792331289.0         -  events 4711005 kernel_likelihood(float*, float*, float  pairs 0 count 0 locs 30803036 entries 143400320 bytes 4016880880
+  kernel_1.json    1792331289.0       0.0  events 1565 kernel_sum(float*, int)                  pairs 0 count 0 locs 1563 entries 1564 bytes 1018400
+  kernel_2.json    1792331292.0       3.0  events 931278 kernel_normalize_weights(float*, float c pairs 31 count 399746 locs 1203128 entries 2806256 bytes 113086864
+== done 2026-10-18T09:51:24-04:00
