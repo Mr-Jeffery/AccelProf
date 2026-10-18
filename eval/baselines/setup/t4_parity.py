@@ -12,8 +12,13 @@ The dump side runs with CUVEIN_BARRIER_PASS_MAX_LANES lifted, so a kernel above 
 production cutoff (5 M lane-accesses) is compared on its content; `over_cutoff` marks it (in
 production the records give R3 no trace points and no offline pass there, the aggregates do).
 
-  compare  --store <store> --out <json> [--shard k/n] [--cap <s per program>]
+  compare  --store <store> --out <json> [--shard k/n] [--cap <s per program>] [--counts-le]
   table    <json>...                      -> the per-program / per-mode table
+
+--counts-le (T22, scalar-clock mode only): Check stops scanning a pc at its first conflict, so
+each hb_sync_pass count is compared as 1 <= aggregate <= records and contested_weight as
+aggregates <= records; every other field exactly. The kernel's summed counts are recorded
+(`counts`: [aggregates, records]).
 """
 import argparse
 import glob
@@ -31,12 +36,28 @@ MODES = ("vector-clock", "scalar-clock")
 CUTOFF = 5_000_000
 
 
-def _vkey(v):
+def _vkey(v, weight=True):
     return (frozenset((v["current_pc"], v["ancient_pc"])), v["verdict"], v.get("hb_class"),
             v.get("conflict_class"), v["race_type"], v.get("matrix_class"),
-            v["observed_distance"], v["contested_weight"], bool(v.get("event_candidate")),
+            v["observed_distance"], v["contested_weight"] if weight else None,
+            bool(v.get("event_candidate")),
             bool(v.get("edge_rescued")), v.get("a2_uncertain"), v.get("model_bug"),
             tuple(v["hb_chain"]) if v.get("hb_chain") else None, v["strength"])
+
+
+def _sync_le(agg, rec):
+    """T22 --counts-le: (pairs, dist, order) equal except each count, 1 <= agg <= rec."""
+    if agg is None:
+        return False
+    (ap, ad, ao), (rp, rd, ro) = agg, rec
+    return set(ap) == set(rp) and ad == rd and ao == ro and all(1 <= ap[k] <= rp[k] for k in ap)
+
+
+def _verdicts_le(rec, agg):
+    """T22 --counts-le: every verdict field equal except contested_weight, agg <= rec."""
+    kr = sorted((str(_vkey(v, False)), v["contested_weight"]) for v in rec)
+    ka = sorted((str(_vkey(v, False)), v["contested_weight"]) for v in agg)
+    return [k for k, _ in kr] == [k for k, _ in ka] and all(a <= r for (_, r), (_, a) in zip(kr, ka))
 
 
 def _analyze(dots, kj, prefer):
@@ -56,7 +77,7 @@ def _analyze(dots, kj, prefer):
     return None, None
 
 
-def compare_kernel(dots, kj):
+def compare_kernel(dots, kj, counts_le=False):
     t = json.load(open(kj))
     r = {"kernel": os.path.basename(kj), "events": sd.event_count(t), "lanes": sd.lane_count(t)}
     if not t.get("hb_events"):
@@ -82,15 +103,19 @@ def compare_kernel(dots, kj):
     pairs = sd.barrier_only_pairs(plain, rmw_all, coh_all, None, dist, order,
                                   sd.dump_async_pcs(eng, t))
     agg_sync = sd.aggregated_sync_pass(t)
-    ok = {"sync": agg_sync == (pairs, dist, order),
+    ok = {"sync": _sync_le(agg_sync, (pairs, dist, order)) if counts_le
+                  else agg_sync == (pairs, dist, order),
           "rmw": sd.aggregated_rmw_points(t) == sd.trace_rmw_points(plain, set(rmw_all), None),
-          "verdicts": sorted(map(str, map(_vkey, rep_a["verdicts"])))
+          "verdicts": _verdicts_le(rep_a["verdicts"], rep_b["verdicts"]) if counts_le
+                      else sorted(map(str, map(_vkey, rep_a["verdicts"])))
                       == sorted(map(str, map(_vkey, rep_b["verdicts"]))),
           "skipped": rep_a["skipped_edges"] == rep_b["skipped_edges"],
           "candidates": rep_a["diagnostics"]["event_candidates"]
                         == rep_b["diagnostics"]["event_candidates"]}
     if t.get("hb_races_sync_only") is not None:
         ok["sync_only_triples"] = t["hb_races_sync_only"] == [[a, b, n] for a, b, n, *_ in t["hb_sync_pass"]]
+    if counts_le and agg_sync is not None:
+        r["counts"] = [sum(agg_sync[0].values()), sum(pairs.values())]
     r.update(status="ok" if all(ok.values()) else "MISMATCH", checks=ok,
              pairs=len(pairs), verdicts=len(rep_a["verdicts"]),
              sync_diff=_diff(agg_sync, (pairs, dist, order)) if not ok["sync"] else None,
@@ -117,10 +142,11 @@ def _vdiff(a, b):
     return {"records_only": sorted(ka - kb)[:5], "aggregates_only": sorted(kb - ka)[:5]}
 
 
-def compare_program(idir, cap):
+def compare_program(idir, cap, counts_le=False):
     dots = sorted(glob.glob(f"{idir}/dots/*.dot"))
     out = {"id": os.path.basename(idir), "modes": {}}
     for mode in MODES:
+        le = counts_le and mode == "scalar-clock"
         t0 = time.time()
         res = []
         for kj in sorted(glob.glob(f"{idir}/{mode}/kernel_*.json"),
@@ -129,7 +155,7 @@ def compare_program(idir, cap):
                 res.append({"kernel": os.path.basename(kj), "status": "cap"})
                 continue
             try:
-                res.append(compare_kernel(dots, kj))
+                res.append(compare_kernel(dots, kj, le))
             except Exception as e:   # a malformed dump is a finding, not a crash of the shard
                 res.append({"kernel": os.path.basename(kj), "status": f"error:{type(e).__name__}:{e}"[:200]})
         if res:
@@ -149,7 +175,7 @@ def cmd_compare(a):
     results = []
     for i, _id in enumerate(ids):
         print(f"[{i + 1}/{len(ids)}] {_id}", flush=True)
-        results.append(compare_program(f"{a.store}/{_id}", a.cap))
+        results.append(compare_program(f"{a.store}/{_id}", a.cap, a.counts_le))
         json.dump(results, open(a.out, "w"), indent=1)
     print(f"{len(results)} program(s) -> {a.out}")
 
@@ -195,6 +221,8 @@ def main(argv=None):
     c.add_argument("--shard", default="")
     c.add_argument("--ids", default="", help="comma list: only these program ids")
     c.add_argument("--cap", type=int, default=3600, help="seconds per program and mode")
+    c.add_argument("--counts-le", action="store_true",
+                   help="T22: scalar-clock counts and contested_weight as aggregates <= records")
     c.set_defaults(fn=cmd_compare)
     t = sub.add_parser("table")
     t.add_argument("files", nargs="+")

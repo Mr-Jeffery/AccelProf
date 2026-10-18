@@ -6,7 +6,8 @@
 # path (no YOSEMITE_HB_TRACE), the installed runtime vs the worktree's, on two ScoR programs (as
 # t20_check.sh: up to device addresses and dist histograms; then two worktree runs byte for
 # byte); then the merge-check protocol -- (1a) the CLAUDE.md A4 files + test_instance_gate.py,
-# (1b) test_instance_gate.py alone on the fresh artifacts, (1c) test_no_dump.py -- every trace
+# (1b) test_instance_gate.py alone on the fresh artifacts, (1c) test_no_dump.py, (1d) T22 cont.'s
+# test_sync_shapes.py -- every trace
 # re-recorded, once per configuration in CONFIGS:
 #   1        YOSEMITE_HB_SHARDS unset (the serial pass)
 #   8t       YOSEMITE_HB_SHARDS=8, YOSEMITE_HB_SHARD_INLINE_MAX=0 (every drain through the threads)
@@ -65,5 +66,7 @@ for cfg in ${CONFIGS:-1 8t 8}; do
   $PY -m pytest python/test_instance_gate.py -q -p no:cacheprovider 2>&1 | tail -3
   echo "== (1c) test_no_dump.py"
   $PY -m pytest python/test_no_dump.py -q -rfExXs -p no:cacheprovider 2>&1 | tail -8
+  echo "== (1d) test_sync_shapes.py (T22 cont.: the bfs and nbody shapes)"
+  $PY -m pytest python/test_sync_shapes.py -q -rfExXs -p no:cacheprovider 2>&1 | tail -8
 done
 echo "== done $(date -Is)"
