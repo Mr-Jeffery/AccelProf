@@ -397,3 +397,17 @@ def test_r3_declines_write_before_lock_on_a_real_trace(monkeypatch, tmp_path):
     monkeypatch.setenv("CUVEIN_R3_BEFORE_ACQUIRE", "0")    # without the decline R3 certifies it
     assert all(v["verdict"] == "ORDERED" and v["hb_chain"] for v in
                _pair_verdicts(dots, traces[0], pair) + _pair_verdicts(dots, sc, pair))
+
+
+def test_r3_location_classes_are_transitive():
+    """T23: the pairs of observed atomic edges are not a location relation (0x330 ~ 0x1b0 and
+    0x1b0 ~ 0x230 do not make 0x330 ~ 0x230); the gates of R3 read the connected components.
+    The edges are X4's A2-inverted rtraw trace (eval/FINAL_RTRAW.md section 6); 0x400 shares
+    no edge with any of them."""
+    g = _graph({"B": [(0x400, "STG.E"), (0x410, "EXIT")]}, [])
+    atom = {pc: sd.GRID for pc in (0xb0, 0x230, 0x1b0, 0x330)}
+    g.attach_trace(atom, [], atom, {frozenset((0xb0, 0x230)), frozenset((0x230,)),
+                                    frozenset((0x230, 0x1b0)), frozenset((0x1b0, 0x330))})
+    assert g.same_location(0x330, 0x230) and g.same_location(0x230, 0x330)
+    assert g.same_location(0x330, 0xb0) and g.same_location(0xb0, 0x1b0)
+    assert not g.same_location(0x330, 0x400) and not g.same_location(0x500, 0x600)

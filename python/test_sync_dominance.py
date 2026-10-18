@@ -436,3 +436,56 @@ def test_intersubwarp_readwrite():
                if v["verdict"] == "ORDERED" and v["strength"] == "block"
                and v["ordering_syncs"]]
     assert ordered, "expected a barrier-ordered pair"
+
+
+# T23 (eval/R3_CLOSURE.md; eval/FINAL_RTRAW.md section 6): X4's A2-inverted recording of ScoR
+# race_interblock_none-lock_rtraw (c58, schedule C: block 0's winning CAS is recorded before
+# block 1's unlock). R3's chain 0x1b0 -> 0x330 certified the racy pair (block 1's read 0x140,
+# block 0's write 0x340 after its own unlock): the landing rule asked whether a CAS shares
+# 0x330's location by the OBSERVED edge pairs, no edge joins 0x330 to a CAS pc, and the
+# relation (0x330 ~ 0x1b0 ~ 0x230) was not transitive. The two dumps and the CFG are X4's own
+# files (python/testdata/r3_closure/README.md). The data is volatile, so under the default
+# strength policy the pair is a Strong conflict (SC); where volatile data is weak it is a RACE.
+# It must be reported in both modes on both verdict paths: the runtime's aggregates, and the
+# replay of hb_events that is the parity reference.
+_R3C = Path(__file__).resolve().parent / "testdata" / "r3_closure"
+_R3C_DOT = _R3C / "race_interblock_none-lock_rtraw.sm_89.dot"
+_R3C_PAIR = frozenset((0x140, 0x340))
+
+
+@pytest.mark.parametrize("path", ["aggregates", "records"])
+@pytest.mark.parametrize("dump,mode,strip", [
+    ("scalar_clock_c58_run20.json", hb_modes.SCALAR_CLOCK, False),   # X4's scalar-clock recording
+    ("vector_clock_c58_run3.json", hb_modes.VECTOR_CLOCK, False),    # X4's vector-clock recording
+    ("vector_clock_c58_run3.json", hb_modes.SCALAR_CLOCK, True),     # that dump read as scalar-clock
+], ids=["scalar-clock-recording", "vector-clock-recording", "vector-dump-read-as-scalar-clock"])
+def test_r3_landing_closure_on_the_a2_inverted_rtraw(dump, mode, strip, path, tmp_path,
+                                                     monkeypatch):
+    for k in ("CUVEIN_EVENT_CANDIDATES", "CUVEIN_R3_PAST_RELEASE", "CUVEIN_R3_LANDING",
+              "CUVEIN_R3_BEFORE_ACQUIRE", "CUVEIN_R3_LOC_CLOSURE", "CUVEIN_BARRIER_PASS",
+              "CUVEIN_PREFER_AGGREGATES"):
+        monkeypatch.delenv(k, raising=False)
+    if path == "records":
+        monkeypatch.setenv("CUVEIN_PREFER_RECORDS", "1")
+    else:
+        monkeypatch.delenv("CUVEIN_PREFER_RECORDS", raising=False)
+    tj = json.loads((_R3C / dump).read_text())
+    assert tj.get("hb_events") and "hb_sync_pass" in tj and "hb_rmw_points" in tj, \
+        "both verdict paths need their input"
+    if strip:      # what YOSEMITE_HB_MODE=scalar-clock writes: no HbClock keys
+        for k in ("hb_races", "hb_races_sync_only", "coherence_profile"):
+            tj.pop(k, None)
+    assert ("hb_races" in tj) == (mode == hb_modes.VECTOR_CLOCK)
+    trace = tmp_path / "kernel_0.json"
+    trace.write_text(json.dumps(tj))
+
+    rep = sd.analyze(_R3C_DOT, trace)
+    pair = [v for v in rep["verdicts"]
+            if frozenset((v["current_pc"], v["ancient_pc"])) == _R3C_PAIR]
+    assert len(pair) == 1, f"{mode}/{path}: {len(pair)} verdicts for the pair"
+    v = pair[0]
+    assert v["race_type"] in ("WAR", "RAW") and v["space"] == "global"
+    want = "SC" if _volatile_is_strong() else "RACE"
+    assert v["verdict"] == want and v["hb_chain"] is None, (
+        f"{mode}/{path}: the pair reads {v['verdict']} via chain {v['hb_chain']} "
+        f"(class {v['hb_class']}); want {want} and no chain")
