@@ -601,7 +601,8 @@ class HBGraph:
         hops (anc, cur, d), coh = {pc -> coherent-access scope} for R2 (atom plus the
         .STRONG loads/stores; defaults to atom), same_loc = {frozenset{pc_a, pc_b}}
         atomic pairs observed on one location at ANY distance, intra-thread included
-        (the evidence that an EXCH rewrites the word a CAS acquired). release_points (T12)
+        (the evidence that an EXCH rewrites the word a CAS acquired; T23: R3's gates read its
+        connected components, same_location). release_points (T12)
         = {non-atomic pc u: frozenset of the pcs of the PO-next RMW of u's thread after each
         observed instance of u, or None if some instance has none} from the trace; None
         keeps the region-dominance release point (release_scope). acquire_points (T12) = the
@@ -611,8 +612,48 @@ class HBGraph:
         self.sync_edges = sync_edges
         self.coh = atom if coh is None else coh
         self.same_loc = same_loc or set()
+        self._loc_class = self._location_classes(self.same_loc)       # T23: once per kernel
+        self._loc_closure = os.environ.get("CUVEIN_R3_LOC_CLOSURE", "1") != "0"
+        self.closure_hits = set()   # T23: gate firings only the closure decided (ordered resets)
         self.release_points = release_points
         self.acquire_points = acquire_points
+
+    @staticmethod
+    def _location_classes(pairs):
+        """T23: union-find over the pcs the pairs join -> {pc: class representative}, the
+        connected components of the observed one-location relation. A pc no pair names has no
+        class; a pair of one pc (a pc that met itself) gives that pc a class of its own."""
+        parent = {}
+
+        def find(x):
+            while parent.setdefault(x, x) != x:
+                x = parent[x]
+            return x
+
+        for pair in pairs:
+            first, *rest = sorted(pair)
+            for pc in rest:
+                parent[find(pc)] = find(first)
+            find(first)
+        return {pc: find(pc) for pc in list(parent)}
+
+    def same_location(self, a, b, gate=None):
+        """T23: do the atomic pcs a and b touch one location, by the trace's evidence? The
+        evidence, same_loc, holds the pc pairs of observed atomic edges, and an edge pair is not
+        a location relation: on an A2-inverted lock trace the unlock 0x330 shares an edge with
+        the unlock 0x1b0, 0x1b0 with the CAS 0x230, and 0x330 with no CAS (eval/FINAL_RTRAW.md
+        section 6). R3's gates (_before_acquire, _past_release) ask this of a chain's landing,
+        so they read its connected components. At pc level a component can join locations a pc
+        touches only some of, the over-approximation R3 makes everywhere: the closure only adds
+        pairs, so a gate declines more chains and no chain is certified that was not before.
+        $CUVEIN_R3_LOC_CLOSURE=0 reads the edge pairs only (the pre-T23 rule; ablation)."""
+        if not self._loc_closure:
+            return frozenset((a, b)) in self.same_loc
+        ca = self._loc_class.get(a)
+        hit = ca is not None and ca == self._loc_class.get(b)
+        if hit and frozenset((a, b)) not in self.same_loc:      # the closure answered, not an edge
+            self.closure_hits.add((gate, min(a, b), max(a, b)))
+        return hit
 
     # -- R1: sync dominance (static) ------------------------------------------
     def dominance(self, u, v):
@@ -718,8 +759,8 @@ class HBGraph:
         if os.environ.get("CUVEIN_R3_BEFORE_ACQUIRE", "1") == "0":
             return False
         return any("CAS" in self.pc_opcode[c].split(".") and c != u
-                   and (c == rel or frozenset((c, rel)) in self.same_loc)
                    and self.po(u, c) and (c == rel or self.po(c, rel))
+                   and (c == rel or self.same_location(c, rel, "before_acquire"))
                    for c in self.atom)
 
     def _past_release(self, acq, cur):
@@ -738,17 +779,18 @@ class HBGraph:
         and a multi-thread rtraw was certified). A flag location no CAS touches is a
         dataflow hand-off and stays ungated. $CUVEIN_R3_PAST_RELEASE=0 disables the gate
         (ablation). The mirror (an access BEFORE its thread's own acquire) is
-        _before_acquire."""
+        _before_acquire. T23: "on the location" is read over the location classes of the trace
+        (same_location), not over the pairs of observed edges."""
         if acq is None or os.environ.get("CUVEIN_R3_PAST_RELEASE", "1") == "0":
             return False
         if "CAS" not in self.pc_opcode[acq].split("."):
             if os.environ.get("CUVEIN_R3_LANDING", "1") == "0":   # pre-T12 (ablation)
                 return False
             return self.po(acq, cur) and any(
-                "CAS" in self.pc_opcode[c].split(".") and frozenset((c, acq)) in self.same_loc
+                "CAS" in self.pc_opcode[c].split(".") and self.same_location(c, acq, "landing")
                 for c in self.atom)
-        return any(r != acq and r != cur and frozenset((acq, r)) in self.same_loc
-                   and self.po(acq, r) and self.po(r, cur) for r in self.atom)
+        return any(r != acq and r != cur and self.po(acq, r) and self.po(r, cur)
+                   and self.same_location(acq, r, "released") for r in self.atom)
 
     def chain(self, anc, cur):
         """Scoped happens-before path anc -> cur: a release side (fence-certified
@@ -868,7 +910,12 @@ class HBGraph:
         distance d, i.e. the pair's DR/SC class.
 
         static=False for a warp-same-instruction multi-lane write: no static sync
-        (R1) or chain (R3) can intervene within one instruction."""
+        (R1) or chain (R3) can intervene within one instruction.
+        T23: loc_closure = [(gate, pc, pc)]: the gate firings of this query that the closure of
+        same_loc decided (no observed edge joins the two pcs) -- the reason a chain the edge
+        pairs alone would have certified is declined. A firing is not always the one that
+        decided the pair: another chain may exist, or the edge pairs may fire the same gate."""
+        self.closure_hits = set()
         if not static:
             strength, syncs = NONE, []
         elif cur == anc:
@@ -886,7 +933,8 @@ class HBGraph:
                 # replay (accelprof -n 1); stay direction-agnostic otherwise
                 chain = self.chain(anc, cur) or self.chain(cur, anc)
         return {"strength": strength, "syncs": syncs,
-                "coherence": coherence, "chain": chain}
+                "coherence": coherence, "chain": chain,
+                "loc_closure": sorted(self.closure_hits)}
 
 
 def thread_distance(t1, t2):
@@ -1506,6 +1554,9 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
             "assumption": assumption,
             "verdict": verdict,
         })
+        if ev["loc_closure"]:   # T23: only where the closure answered a gate (additive key)
+            verdicts[-1]["r3_loc_closure"] = [[g, hex(a), hex(b)]
+                                              for g, a, b in ev["loc_closure"]]
 
 
     for e in trace.get("edges", []):
