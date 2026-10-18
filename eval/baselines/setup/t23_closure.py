@@ -36,7 +36,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parents[2] / "python"))
 import sync_dominance as sd  # noqa: E402
 
-_ATOMIC_TEXT = ("ATOM", "RED.")        # cheap superset test on a dot's text
+_ATOMIC_TEXT = ("ATOM", "RED.")        # cheap superset tests on a dot's text (atomic, CAS)
 
 
 def _harness_tasks(store, ids, modes):
@@ -96,8 +96,12 @@ def scan_task(task):
     if not dot_paths:
         yield {**base, "status": "no-dot"}
         return
-    if not any(t in Path(p).read_text(errors="replace") for p in dot_paths for t in _ATOMIC_TEXT):
+    texts = [Path(p).read_text(errors="replace") for p in dot_paths]
+    if not any(t in tx for tx in texts for t in _ATOMIC_TEXT):
         yield {**base, "status": "no-atomic-opcode", "kernels": len(task["kernels"])}
+        return
+    if not any(".CAS" in tx for tx in texts):   # every gate query names a CAS pc: nothing can move
+        yield {**base, "status": "no-cas-opcode", "kernels": len(task["kernels"])}
         return
     dots = []
     for p in dot_paths:
