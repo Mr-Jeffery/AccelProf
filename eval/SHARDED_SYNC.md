@@ -184,10 +184,13 @@ records), `skipped_edges` and the candidate diagnostics.
 The 10 not compared in 314193 are P7 bfs kernels 14–23: the program's 7,200 s ran out in the record
 replay (Python's `barrier_only_pairs` tests every earlier writer of the flag word, 179·10⁹ pair tests over
 the run). They were compared one process per kernel with no cap (`setup/t22c_parity_kernels.py`, the same
-`compare_kernel`): jobs 314587 (c9; kernels 14, 16, 18, 20, 22 — all equal, counts equal: these
-`Kernel` launches have no location of ≥ 64 slots with a conflict) and 314586 (c17; kernels 15, 17, 19, 21,
-23 — 19, 21 and 23 equal; 15 and 17 were still in the Python record replay when the 18:00 shutdown came, so they are not compared). Kernel 19: aggregate count 19,225 against the records' 149,169,628, pairs and distance
-equal. Table per program: the log of 314193; per kernel: `setup/t22_parity/t22c-parity/`.
+`compare_kernel`): jobs 314587 (c9; kernels 14, 16, 18, 20, 22 — all equal, counts equal too: no Check of
+these `Kernel` launches skipped a slot) and 314586 (c17; kernels 15, 17, 19, 21, 23 — 19, 21 and 23 equal;
+15 and 17 were still in the Python record replay when the 18:00 shutdown came, so they are not compared).
+Kernel 19: aggregate count 19,225 against the records' 149,169,628, pairs and distance equal. Over the 500
+kernel JSONs compared by 314193 and 314587 the summed `hb_sync_pass` counts are 26,952,010 (aggregates)
+against 11,358,901,109 (records), lower in 138 kernels (`setup/t22c_parity_sum.py`, job 314752). Table per
+program: `setup/t22c_logs/t22c-parity-cmp-314193.txt`; per kernel: `setup/t22_parity/t22c-parity/`.
 
 **Cross-N on recorded traces** (Part I's B2, the new build): `t22_replay/crossn.sh` job 314588 (c9; the
 three kernels `pick.py` picks: P7 bfs k16, P4 matrix-multiplication-norace-small k0, PI
