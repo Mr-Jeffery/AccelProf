@@ -1,0 +1,150 @@
+[
+ {
+  "id": "P4-1dconv-racy-small",
+  "modes": {
+   "scalar-clock": {
+    "kernels": [
+     {
+      "kernel": "kernel_0.json",
+      "events": 512,
+      "lanes": 1024,
+      "over_cutoff": false,
+      "status": "ok",
+      "checks": {
+       "sync": true,
+       "rmw": true,
+       "verdicts": true,
+       "skipped": true,
+       "candidates": true
+      },
+      "pairs": 0,
+      "verdicts": 0,
+      "sync_diff": null,
+      "verdict_diff": null
+     },
+     {
+      "kernel": "kernel_1.json",
+      "events": 960,
+      "lanes": 15342,
+      "over_cutoff": false,
+      "status": "ok",
+      "checks": {
+       "sync": true,
+       "rmw": true,
+       "verdicts": true,
+       "skipped": true,
+       "candidates": true
+      },
+      "pairs": 1,
+      "verdicts": 1,
+      "sync_diff": null,
+      "verdict_diff": null
+     }
+    ],
+    "secs": 2.6
+   }
+  }
+ },
+ {
+  "id": "P5-norace_interwarp_blkfence_raw",
+  "modes": {
+   "scalar-clock": {
+    "kernels": [
+     {
+      "kernel": "kernel_0.json",
+      "events": 9,
+      "lanes": 6,
+      "over_cutoff": false,
+      "status": "ok",
+      "checks": {
+       "sync": true,
+       "rmw": true,
+       "verdicts": true,
+       "skipped": true,
+       "candidates": true
+      },
+      "pairs": 1,
+      "verdicts": 1,
+      "sync_diff": null,
+      "verdict_diff": null
+     }
+    ],
+    "secs": 0.2
+   }
+  }
+ },
+ {
+  "id": "P5-race_interblock_blkatom",
+  "modes": {
+   "scalar-clock": {
+    "kernels": [
+     {
+      "kernel": "kernel_0.json",
+      "events": 4,
+      "lanes": 2,
+      "over_cutoff": false,
+      "status": "ok",
+      "checks": {
+       "sync": true,
+       "rmw": true,
+       "verdicts": true,
+       "skipped": true,
+       "candidates": true
+      },
+      "pairs": 1,
+      "verdicts": 1,
+      "sync_diff": null,
+      "verdict_diff": null
+     }
+    ],
+    "secs": 0.1
+   }
+  }
+ },
+ {
+  "id": "P7-backprop-cuda",
+  "modes": {
+   "scalar-clock": {
+    "kernels": [
+     {
+      "kernel": "kernel_0.json",
+      "events": 970752,
+      "lanes": 12648448,
+      "over_cutoff": true,
+      "status": "ok",
+      "checks": {
+       "sync": true,
+       "rmw": true,
+       "verdicts": true,
+       "skipped": true,
+       "candidates": true
+      },
+      "pairs": 0,
+      "verdicts": 4,
+      "sync_diff": null,
+      "verdict_diff": null
+     },
+     {
+      "kernel": "kernel_1.json",
+      "events": 262149,
+      "lanes": 6291520,
+      "over_cutoff": true,
+      "status": "ok",
+      "checks": {
+       "sync": true,
+       "rmw": true,
+       "verdicts": true,
+       "skipped": true,
+       "candidates": true
+      },
+      "pairs": 0,
+      "verdicts": 0,
+      "sync_diff": null,
+      "verdict_diff": null
+     }
+    ],
+    "secs": 156.8
+   }
+  }
+ }
+]
