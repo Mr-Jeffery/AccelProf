@@ -350,17 +350,54 @@ struct HbClock {
     // location one malloc'd array: [0, nsorted) sorted by (key, tid) -- each key group a run
     // -- then an arrival-order tail of < TAIL slots, merged into the prefix when it fills.
     // The locations are indexed by 128-byte segments (FlatBuckets; no output iterates it).
+    // T22 (scalar-clock mode only, `adaptive`): the tail grows with the prefix (tail_cap) and
+    // an array of >= SUM_MIN slots carries a PcSum after its capacity (check_sync's exit test).
     struct Slot { uint32_t tid, clock, sclock, pc; uint8_t key, pad[3]; };
     static_assert(sizeof(Slot) == 20, "Slot is 20 bytes");
     struct LocSlots { Slot* p = nullptr; uint32_t n = 0, nsorted = 0; };
     static constexpr uint32_t TAIL = 8;
+    // T22: the tail of a prefix of P slots holds up to the largest power of two m <= TAIL_MAX
+    // with m * m <= TAIL_C * P (at least TAIL): the merge's cost per slot (~P / m prefix moves)
+    // against the tail's linear scans (~m per lookup)
+    static constexpr uint32_t TAIL_MAX = 256;
+#ifdef HB_TAIL_TUNE                                         // measurement builds only
+    static uint32_t tail_c() {
+        static const uint32_t c = [] {
+            const char* e = std::getenv("YOSEMITE_HB_TAIL_C");
+            return e ? static_cast<uint32_t>(std::strtoul(e, nullptr, 10)) : 4u;
+        }();
+        return c;
+    }
+    static uint32_t tail_max() {
+        static const uint32_t m = [] {
+            const char* e = std::getenv("YOSEMITE_HB_TAIL_MAX");
+            const uint32_t v = e ? static_cast<uint32_t>(std::strtoul(e, nullptr, 10)) : TAIL_MAX;
+            return std::min(std::max(v, TAIL), TAIL_MAX);
+        }();
+        return m;
+    }
+#else
+    static constexpr uint32_t tail_c() { return 4; }
+    static constexpr uint32_t tail_max() { return TAIL_MAX; }
+#endif
+    static uint32_t tail_cap(uint32_t nsorted) {
+        uint32_t m = TAIL;
+        while (m < tail_max() && uint64_t(2 * m) * (2 * m) <= uint64_t(tail_c()) * nsorted) m *= 2;
+        return m;
+    }
+    // T22: the pcs written to a location's slots since its array reached SUM_MIN slots (a
+    // superset of the pcs its slots hold: added, never removed), read keys and the others
+    // apart, K of each; n_r / n_w = OVER when more were written. Not in vector-clock mode.
+    static constexpr uint32_t SUM_MIN = 64, SUM_K = 4;
+    static constexpr uint8_t OVER = 0xff;
+    struct PcSum { uint8_t n_r, n_w, pad[2]; uint32_t r[SUM_K], w[SUM_K]; };
     static uint8_t slot_key(uint8_t kind, int scope) {
         return static_cast<uint8_t>((kind << 3) | (scope + 1));
     }
     static uint8_t key_kind(uint8_t key) { return key >> 3; }
     static int key_scope(uint8_t key) { return static_cast<int>(key & 7) - 1; }
     static uint64_t slot_order(const Slot& s) { return (uint64_t(s.key) << 32) | s.tid; }
-    static uint32_t cap_of(uint32_t n) {                    // capacity held at n slots
+    static constexpr uint32_t cap_of(uint32_t n) {          // capacity held at n slots
         if (n == 0) return 0;
         uint64_t c = 2;
         while (c < n) c += c / 2;
@@ -536,19 +573,47 @@ struct HbClock {
                 if (s->key == key && s->tid == tid) return s;
             return nullptr;
         }
-        static void append(LocSlots& ls, const Slot& s) {
+        // T22: an adaptive array (scalar-clock mode) of n >= SUM_MIN slots keeps its PcSum
+        // right after its capacity
+        static bool has_sum(uint32_t n) { return n >= SUM_MIN; }
+        static PcSum* sum_of(const LocSlots& ls) {
+            return reinterpret_cast<PcSum*>(reinterpret_cast<char*>(ls.p)
+                                            + size_t(cap_of(ls.n)) * sizeof(Slot));
+        }
+        static void sum_add(PcSum& m, uint8_t key, uint32_t pc) {
+            const bool rd = key_kind(key) == KIND_R;
+            uint8_t& n = rd ? m.n_r : m.n_w;
+            uint32_t* v = rd ? m.r : m.w;
+            if (n == OVER) return;
+            for (uint8_t i = 0; i < n; ++i) if (v[i] == pc) return;
+            if (n == SUM_K) { n = OVER; return; }
+            v[n++] = pc;
+        }
+        static void append(LocSlots& ls, const Slot& s, bool adaptive = false) {
             if (ls.n == cap_of(ls.n)) {
-                const uint32_t nc = cap_of(ls.n + 1);
-                Slot* np = static_cast<Slot*>(std::realloc(ls.p, size_t(nc) * sizeof(Slot)));
+                const uint32_t oc = cap_of(ls.n), nc = cap_of(ls.n + 1);
+                const bool had = adaptive && has_sum(ls.n), has = adaptive && has_sum(ls.n + 1);
+                Slot* np = static_cast<Slot*>(std::realloc(ls.p, size_t(nc) * sizeof(Slot)
+                                                           + (has ? sizeof(PcSum) : 0)));
                 if (np == nullptr) {
                     std::cerr << "[HB_CLOCK] out of memory growing a location's buckets to "
                               << nc << " slots" << std::endl;
                     std::abort();
                 }
                 ls.p = np;
+                char* const base = reinterpret_cast<char*>(np);
+                if (had) {
+                    std::memmove(base + size_t(nc) * sizeof(Slot), base + size_t(oc) * sizeof(Slot),
+                                 sizeof(PcSum));
+                } else if (has) {                           // the array reaches SUM_MIN slots
+                    PcSum m{};
+                    for (uint32_t i = 0; i < ls.n; ++i) sum_add(m, np[i].key, np[i].pc);
+                    std::memcpy(base + size_t(nc) * sizeof(Slot), &m, sizeof(PcSum));
+                }
             }
             ls.p[ls.n++] = s;
-            if (ls.n - ls.nsorted == TAIL) merge_tail(ls);
+            if (adaptive && has_sum(ls.n)) sum_add(*sum_of(ls), s.key, s.pc);
+            if (ls.n - ls.nsorted == (adaptive ? tail_cap(ls.nsorted) : TAIL)) merge_tail(ls);
         }
         // sort the tail and merge it into the prefix from the back, without allocating: the
         // cost is the tail plus the prefix slots that order after its smallest slot, so a
@@ -556,7 +621,7 @@ struct HbClock {
         static void merge_tail(LocSlots& ls) {
             Slot* const p = ls.p;
             const uint32_t m = ls.n - ls.nsorted;
-            Slot tmp[TAIL];
+            Slot tmp[TAIL_MAX];
             std::memcpy(tmp, p + ls.nsorted, size_t(m) * sizeof(Slot));
             std::sort(tmp, tmp + m, [](const Slot& a, const Slot& b) { return slot_order(a) < slot_order(b); });
             int64_t i = int64_t(ls.nsorted) - 1, j = int64_t(m) - 1, k = int64_t(ls.n) - 1;
@@ -1413,7 +1478,8 @@ struct HbClock {
     // gw (T12): t's RMW window with a pending acquire J -- a conflict J would order is held
     // there (reported iff acq(r) = 0); the flag decision of any other waits for the gate.
     // ov / os (T20): obs's two clocks when the caller has them (Check: obs = t throughout)
-    void conflict(uint64_t addr, int space, uint64_t loc_block, Tid p_tid, const Entry& p,
+    // -> whether the sync-only clock found the pair unordered (T22: check_sync's exit)
+    bool conflict(uint64_t addr, int space, uint64_t loc_block, Tid p_tid, const Entry& p,
                   Tid t, uint32_t pc, uint8_t kind, bool sc, Tid obs, Win* gw = nullptr,
                   const VClock* ov = nullptr, const SyncClock* os = nullptr) {
         if (vector_pass && p.clock > (ov != nullptr ? *ov : V(obs)).get(p_tid)) {
@@ -1433,7 +1499,9 @@ struct HbClock {
             if (sp.count == 0) { sp.first_pc = p.pc; sp.second_pc = pc; sp.first_seq = cur_seq; }   // T4: first conflict
             sp.count += 1;
             sp.dist = std::max(sp.dist, thread_distance(p_tid & ~ASYNC_BIT, t & ~ASYNC_BIT));
+            return true;
         }
+        return false;
     }
     // count one reportable record pair in its aggregate -> the aggregate's index
     size_t report(uint64_t addr, int space, uint64_t loc_block, Tid p_tid, const Entry& p,
@@ -1465,6 +1533,10 @@ struct HbClock {
                uint8_t kind, int scope, uint32_t pc, Win* gw = nullptr) {
         const LocSlots* ls = buckets.find(loc);
         if (ls == nullptr) return;
+        if (!vector_pass && sync_only_pass && FlatBuckets::has_sum(ls->n)) {   // T22
+            check_sync(*ls, addr, space, loc_block, t, kind, scope, pc);
+            return;
+        }
         const uint64_t tb = block_of(t);
         // T20: t's clocks once per Check, not once per slot (t exists in both: own / owns ran)
         const VClock* ov = vector_pass ? &V(t) : nullptr;
@@ -1502,6 +1574,127 @@ struct HbClock {
             const uint8_t gk = key_kind(p[i].key);
             const int gs = key_scope(p[i].key);
             if (!skip(gk, gs)) visit(p[i], gk, gs);
+        }
+    }
+    // T22 (scalar-clock mode, a location of >= SUM_MIN slots): Check with an early exit. The
+    // slots are taken by distance class to t, widest first -- other block, same block other
+    // warp, same warp -- and a slot whose pc already conflicted in this Check is skipped; the
+    // Check ends once every pc the location's PcSum lists for t's conflicting keys has. Per pc
+    // a conflict is found iff the full scan finds one, the first at the widest distance that
+    // has one, so hb_sync_pass keeps its pairs, distances and first pcs; its count becomes the
+    // number of (lane access, earlier pc) with a conflict, a lower bound of the full scan's.
+    void check_sync(const LocSlots& ls, uint64_t addr, int space, uint64_t loc_block, Tid t,
+                    uint8_t kind, int scope, uint32_t pc) {
+        const uint64_t tb = block_of(t);
+        const Tid tm = t & ~ASYNC_BIT;
+        const SyncClock* os = &vs[t];
+        const PcSum& sum = *FlatBuckets::sum_of(ls);
+        // the pcs t's key can conflict with: the non-read slots', and for a write or an RMW
+        // the read slots' too (a superset of those the location holds)
+        uint32_t want[2 * SUM_K];
+        uint32_t nwant = 0;
+        const bool known = sum.n_w != OVER && (kind == KIND_R || sum.n_r != OVER);
+        if (known) {
+            for (uint8_t i = 0; i < sum.n_w; ++i) want[nwant++] = sum.w[i];
+            if (kind != KIND_R)
+                for (uint8_t i = 0; i < sum.n_r; ++i)
+                    if (std::find(want, want + nwant, sum.r[i]) == want + nwant) want[nwant++] = sum.r[i];
+            if (nwant == 0) return;                         // a read among reads only
+        }
+        static constexpr uint32_t FOUND_MAX = 32;
+        uint32_t found[FOUND_MAX];
+        uint32_t nfound = 0, last = 0;
+        bool has_last = false;
+        auto is_found = [&](uint32_t q) {
+            if (has_last && q == last) return true;
+            for (uint32_t i = 0; i < nfound; ++i)
+                if (found[i] == q) { last = q; has_last = true; return true; }
+            return false;
+        };
+        auto mark = [&](uint32_t q) {                       // -> every wanted pc found
+            if (nfound < FOUND_MAX) found[nfound++] = q;
+            last = q; has_last = true;
+            if (!known) return false;
+            for (uint32_t i = 0; i < nwant; ++i)
+                if (std::find(found, found + nfound, want[i]) == found + nfound) return false;
+            return true;
+        };
+        auto skip = [&](uint8_t gkind, int gscope) {        // check()'s whole-group skip
+            if (kind == KIND_R && gkind == KIND_R) return true;
+            return kind == KIND_RMW && gkind == KIND_RMW && gscope >= 0 && scope >= 0
+                   && std::min(gscope, scope) == SCOPE_GRID;
+        };
+        // check()'s visit; -> the sync-only clock found the pair unordered
+        auto test = [&](const Slot& s, Tid u, uint8_t gkind, int gscope) {
+            if (u == t) return false;
+            const bool both_rmw = kind == KIND_RMW && gkind == KIND_RMW;
+            const uint8_t label = gkind == KIND_R ? RK_WAR : kind == KIND_RMW ? RK_ATOMIC
+                                : kind == KIND_W ? RK_WAW : RK_RAW;
+            const bool strong = morally_strong(gscope, block_of(u), scope, tb);
+            if (strong && both_rmw) return false;
+            const Entry e{s.clock, s.sclock, s.pc};
+            return conflict(addr, space, loc_block, u, e, t, pc, label, strong, t, nullptr,
+                            nullptr, os);
+        };
+        // the sorted prefix's key runs, each split by t's block and warp: inline tids (< 2^31)
+        // are the tids themselves, so a block's or a warp's are one range of the run;
+        // wide-coded tids (async agents) sort after them and are classed one by one
+        struct Run { uint32_t i, lb, lw, uw, ub, jw, j; uint8_t gk; int gs; };
+        Run runs[32];
+        uint32_t nrun = 0;
+        const Slot* const p = ls.p;
+        auto lower = [&](uint32_t a, uint32_t b, uint64_t v) {   // first slot with tid >= v
+            return static_cast<uint32_t>(std::lower_bound(p + a, p + b, v,
+                [](const Slot& s, uint64_t w) { return s.tid < w; }) - p);
+        };
+        for (uint32_t i = 0; i < ls.nsorted;) {
+            const uint8_t k = p[i].key;
+            const uint32_t j = static_cast<uint32_t>(std::upper_bound(
+                p + i, p + ls.nsorted, k,
+                [](uint8_t w, const Slot& s) { return w < s.key; }) - p);
+            const uint8_t gk = key_kind(k);
+            const int gs = key_scope(k);
+            if (!skip(gk, gs)) {
+                Run r{i, 0, 0, 0, 0, lower(i, j, 0x80000000u), j, gk, gs};
+                const uint64_t bb = (tm >> 10) << 10, wb = (tm >> 5) << 5;
+                r.lb = lower(i, r.jw, bb);
+                r.ub = lower(r.lb, r.jw, bb + 1024);
+                r.lw = lower(r.lb, r.ub, wb);
+                r.uw = lower(r.lw, r.ub, wb + 32);
+                runs[nrun++] = r;
+            }
+            i = j;
+        }
+        auto range = [&](uint32_t a, uint32_t b, uint8_t gk, int gs) {   // -> done
+            for (uint32_t x = a; x < b; ++x) {
+                const Slot& s = p[x];
+                if (is_found(s.pc)) continue;
+                if (test(s, Tid(s.tid), gk, gs) && mark(s.pc)) return true;
+            }
+            return false;
+        };
+        auto classed = [&](uint32_t a, uint32_t b, uint8_t c, bool tail) {   // -> done
+            for (uint32_t x = a; x < b; ++x) {
+                const Slot& s = p[x];
+                const uint8_t gk = key_kind(s.key);
+                const int gs = key_scope(s.key);
+                if (tail && skip(gk, gs)) continue;
+                if (is_found(s.pc)) continue;
+                const Tid u = buckets.dec(s.tid);
+                if (thread_distance(u & ~ASYNC_BIT, tm) != c) continue;
+                if (test(s, u, gk, gs) && mark(s.pc)) return true;
+            }
+            return false;
+        };
+        for (uint8_t c = 3; c >= 1; --c) {                  // grid, block, warp
+            for (uint32_t ri = 0; ri < nrun; ++ri) {
+                const Run& r = runs[ri];
+                const bool done = c == 3 ? range(r.i, r.lb, r.gk, r.gs) || range(r.ub, r.jw, r.gk, r.gs)
+                                : c == 2 ? range(r.lb, r.lw, r.gk, r.gs) || range(r.uw, r.ub, r.gk, r.gs)
+                                         : range(r.lw, r.uw, r.gk, r.gs);
+                if (done || classed(r.jw, r.j, c, false)) return;
+            }
+            if (classed(ls.nsorted, ls.n, c, true)) return;
         }
     }
     // an epoch is stored in 32 bits; a larger one is a hard error, never a wrap
@@ -1899,8 +2092,13 @@ struct HbClock {
                     conflict(addr, space, a.ctaId, t, e, t, pc, RK_WAW, false, t0);
                 }
                 const uint32_t c32 = epoch32(clk, t), s32 = epoch32(sclk, t);
-                if (mine != nullptr) { mine->clock = c32; mine->sclock = s32; mine->pc = pc; }
-                else FlatBuckets::append(ls, Slot{stid, c32, s32, pc, skey, {0, 0, 0}});
+                if (mine != nullptr) {
+                    if (!vector_pass && mine->pc != pc && FlatBuckets::has_sum(ls.n))   // T22
+                        FlatBuckets::sum_add(*FlatBuckets::sum_of(ls), skey, pc);
+                    mine->clock = c32; mine->sclock = s32; mine->pc = pc;
+                } else {
+                    FlatBuckets::append(ls, Slot{stid, c32, s32, pc, skey, {0, 0, 0}}, !vector_pass);
+                }
                 if (is_atomic && vector_pass) {
                     // I1 (D1): publish the pre-tick clock -- the RMW's own epoch is clk, so a
                     // later acquirer is ordered after the RMW, not after t's next accesses --
@@ -2035,7 +2233,8 @@ struct HbClock {
                 bk_locs += 1;
                 bk_old += mchunk(32 + OLD_NODE_VALUE);
                 bk_entries += ls.n;
-                bk_bytes += mchunk(uint64_t(cap_of(ls.n)) * sizeof(Slot));
+                bk_bytes += mchunk(uint64_t(cap_of(ls.n)) * sizeof(Slot)
+                                   + (!h->vector_pass && FlatBuckets::has_sum(ls.n) ? sizeof(PcSum) : 0));
                 uint32_t per_key[32] = {0};
                 for (uint32_t i = 0; i < ls.n; ++i) per_key[ls.p[i].key & 31] += 1;
                 uint32_t groups = 0;
@@ -2241,6 +2440,9 @@ struct HbClock {
         jout << (first_addr ? "}" : "\n  }");
     }
 };
+// T22: an array reaches SUM_MIN slots in a reallocation, which places its PcSum
+static_assert(HbClock::cap_of(HbClock::SUM_MIN - 1) == HbClock::SUM_MIN - 1,
+              "SUM_MIN - 1 is a capacity");
 
 }  // namespace yosemite
 
