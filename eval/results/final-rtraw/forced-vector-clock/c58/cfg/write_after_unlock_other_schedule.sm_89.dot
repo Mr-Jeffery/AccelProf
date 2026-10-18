@@ -1,0 +1,50 @@
+digraph f {
+subgraph "cluster__Z5kmainPVj" {
+node [fontname="Courier",fontsize=10,shape=Mrecord];
+"_Z5kmainPVj"
+[label="{<entry>	.global		_Z5kmainPVj\l	.type		_Z5kmainPVj,@function\l	.size		_Z5kmainPVj,(.L_x_7\ -\ _Z5kmainPVj)\l	.other		_Z5kmainPVj,\<no\ object\>\l_Z5kmainPVj:\l.text._Z5kmainPVj:\l0000:\ \ \ IMAD.MOV.U32\ R1,\ RZ,\ RZ,\ c\[0x0\]\[0x28\]\ ;\l0010:\ \ \ S2UR\ UR4,\ SR_CTAID.X\ ;\l0020:\ \ \ ISETP.NE.AND\ P0,\ PT,\ RZ,\ UR4,\ PT\ ;\l0030:\ \ \ ULDC.64\ UR4,\ c\[0x0\]\[0x118\]\ ;\l|<exit0>0040:\ \ \ @!P0\ BRA\ `(.L_x_0)\ ;\l}"]
+"_Z5kmainPVj":exit0:e -> ".L_x_0":entry:n [style=solid];
+"_Z5kmainPVj":exit0:s -> "BB0":entry:n [style=solid];
+node [fontname="Courier",fontsize=10,shape=Mrecord];
+"BB0"
+[label="{<entry>0050:\ \ \ S2R\ R5,\ SR_LANEID\ ;\l0060:\ \ \ IMAD.MOV.U32\ R2,\ RZ,\ RZ,\ c\[0x4\]\[0x10\]\ ;\l0070:\ \ \ MOV\ R3,\ c\[0x4\]\[0x14\]\ ;\l}"]
+"BB0":entry:s -> ".L_x_1":entry:n [style=solid];
+node [fontname="Courier",fontsize=10,shape=Mrecord];
+".L_x_1"
+[label="{<entry>.L_x_1:\l0080:\ \ \ VOTEU.ANY\ UR6,\ UPT,\ PT\ ;\l0090:\ \ \ FLO.U32\ R0,\ UR6\ ;\l00a0:\ \ \ ISETP.EQ.U32.AND\ P0,\ PT,\ R0,\ R5,\ PT\ ;\l00b0:\ \ \ @P0\ ATOMG.E.ADD.STRONG.GPU\ PT,\ R7,\ \[R2.64\],\ RZ\ ;\l00c0:\ \ \ SHFL.IDX\ PT,\ R7,\ R7,\ R0,\ 0x1f\ ;\l00d0:\ \ \ ISETP.NE.AND\ P0,\ PT,\ R7,\ RZ,\ PT\ ;\l|<exit0>00e0:\ \ \ @!P0\ BRA\ `(.L_x_1)\ ;\l}"]
+".L_x_1":exit0:e -> ".L_x_1":entry:n [style=solid];
+".L_x_1":exit0:s -> "BB1":entry:n [style=solid];
+node [fontname="Courier",fontsize=10,shape=Mrecord];
+"BB1"
+[label="{<entry>00f0:\ \ \ BSSY\ B0,\ `(.L_x_2)\ ;\l0100:\ \ \ IMAD.MOV.U32\ R2,\ RZ,\ RZ,\ c\[0x4\]\[0x0\]\ ;\l0110:\ \ \ MOV\ R5,\ 0x1\ ;\l0120:\ \ \ IMAD.MOV.U32\ R3,\ RZ,\ RZ,\ c\[0x4\]\[0x4\]\ ;\l}"]
+"BB1":entry:s -> ".L_x_3":entry:n [style=solid];
+node [fontname="Courier",fontsize=10,shape=Mrecord];
+".L_x_3"
+[label="{<entry>.L_x_3:\l0130:\ \ \ IMAD.MOV.U32\ R4,\ RZ,\ RZ,\ RZ\ ;\l0140:\ \ \ YIELD\ ;\l0150:\ \ \ ATOMG.E.CAS.STRONG.GPU\ PT,\ R0,\ \[R2\],\ R4,\ R5\ ;\l0160:\ \ \ ISETP.NE.AND\ P0,\ PT,\ R0,\ RZ,\ PT\ ;\l|<exit0>0170:\ \ \ @P0\ BRA\ `(.L_x_3)\ ;\l}"]
+".L_x_3":exit0:e -> ".L_x_3":entry:n [style=solid];
+".L_x_3":exit0:s -> "BB2":entry:n [style=solid];
+node [fontname="Courier",fontsize=10,shape=Mrecord];
+"BB2"
+[label="{<entry>0180:\ \ \ BSYNC\ B0\ ;\l}"]
+"BB2":entry:s -> ".L_x_2":entry:n [style=solid];
+node [fontname="Courier",fontsize=10,shape=Mrecord];
+".L_x_2"
+[label="{<entry>.L_x_2:\l0190:\ \ \ IMAD.MOV.U32\ R4,\ RZ,\ RZ,\ c\[0x0\]\[0x160\]\ ;\l01a0:\ \ \ MOV\ R5,\ c\[0x0\]\[0x164\]\ ;\l01b0:\ \ \ MEMBAR.SC.GPU\ ;\l01c0:\ \ \ ERRBAR;\l01d0:\ \ \ CCTL.IVALL\ ;\l01e0:\ \ \ LDG.E.STRONG.SYS\ R5,\ \[R4.64\]\ ;\l01f0:\ \ \ IMAD.MOV.U32\ R6,\ RZ,\ RZ,\ c\[0x4\]\[0x8\]\ ;\l0200:\ \ \ MOV\ R7,\ c\[0x4\]\[0xc\]\ ;\l0210:\ \ \ STG.E\ \[R6.64\],\ R5\ ;\l0220:\ \ \ MEMBAR.SC.GPU\ ;\l0230:\ \ \ ERRBAR;\l0240:\ \ \ CCTL.IVALL\ ;\l0250:\ \ \ ATOMG.E.EXCH.STRONG.GPU\ PT,\ RZ,\ \[R2.64\],\ RZ\ ;\l|<exit0>0260:\ \ \ EXIT\ ;\l}"]
+node [fontname="Courier",fontsize=10,shape=Mrecord];
+".L_x_0"
+[label="{<entry>.L_x_0:\l0270:\ \ \ BSSY\ B0,\ `(.L_x_4)\ ;\l0280:\ \ \ IMAD.MOV.U32\ R2,\ RZ,\ RZ,\ c\[0x4\]\[0x0\]\ ;\l0290:\ \ \ MOV\ R3,\ c\[0x4\]\[0x4\]\ ;\l02a0:\ \ \ IMAD.MOV.U32\ R13,\ RZ,\ RZ,\ 0x1\ ;\l}"]
+".L_x_0":entry:s -> ".L_x_5":entry:n [style=solid];
+node [fontname="Courier",fontsize=10,shape=Mrecord];
+".L_x_5"
+[label="{<entry>.L_x_5:\l02b0:\ \ \ MOV\ R12,\ RZ\ ;\l02c0:\ \ \ YIELD\ ;\l02d0:\ \ \ ATOMG.E.CAS.STRONG.GPU\ PT,\ R0,\ \[R2\],\ R12,\ R13\ ;\l02e0:\ \ \ ISETP.NE.AND\ P0,\ PT,\ R0,\ RZ,\ PT\ ;\l|<exit0>02f0:\ \ \ @P0\ BRA\ `(.L_x_5)\ ;\l}"]
+".L_x_5":exit0:e -> ".L_x_5":entry:n [style=solid];
+".L_x_5":exit0:s -> "BB3":entry:n [style=solid];
+node [fontname="Courier",fontsize=10,shape=Mrecord];
+"BB3"
+[label="{<entry>0300:\ \ \ BSYNC\ B0\ ;\l}"]
+"BB3":entry:s -> ".L_x_4":entry:n [style=solid];
+node [fontname="Courier",fontsize=10,shape=Mrecord];
+".L_x_4"
+[label="{<entry>.L_x_4:\l0310:\ \ \ IMAD.MOV.U32\ R4,\ RZ,\ RZ,\ c\[0x0\]\[0x160\]\ ;\l0320:\ \ \ MOV\ R5,\ c\[0x0\]\[0x164\]\ ;\l0330:\ \ \ MEMBAR.SC.GPU\ ;\l0340:\ \ \ ERRBAR;\l0350:\ \ \ CCTL.IVALL\ ;\l0360:\ \ \ LDG.E.STRONG.SYS\ R11,\ \[R4.64\]\ ;\l0370:\ \ \ IMAD.MOV.U32\ R6,\ RZ,\ RZ,\ c\[0x4\]\[0x8\]\ ;\l0380:\ \ \ MOV\ R7,\ c\[0x4\]\[0xc\]\ ;\l0390:\ \ \ IMAD.MOV.U32\ R8,\ RZ,\ RZ,\ c\[0x4\]\[0x10\]\ ;\l03a0:\ \ \ MOV\ R9,\ c\[0x4\]\[0x14\]\ ;\l03b0:\ \ \ STG.E\ \[R6.64\],\ R11\ ;\l03c0:\ \ \ MEMBAR.SC.GPU\ ;\l03d0:\ \ \ ERRBAR;\l03e0:\ \ \ CCTL.IVALL\ ;\l03f0:\ \ \ ATOMG.E.EXCH.STRONG.GPU\ PT,\ RZ,\ \[R2.64\],\ RZ\ ;\l0400:\ \ \ STG.E.STRONG.SYS\ \[R4.64\],\ R13\ ;\l0410:\ \ \ ATOMG.E.EXCH.STRONG.GPU\ PT,\ RZ,\ \[R8.64\],\ R13\ ;\l|<exit0>0420:\ \ \ EXIT\ ;\l}"]
+}
+}
