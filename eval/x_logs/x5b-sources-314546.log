@@ -1,0 +1,166 @@
+=== CC_CUDA_V_Data_Pull_Determ_IntType_NonPersist_Atomic_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug
+--- /mnt/beegfs/fzheng4/home_archive/eval_baselines/corpora/Indigo3Suite/generatedCodes/CUDA/CC-CUDA/CC_CUDA_V_Data_Pull_Determ_IntType_NonPersist_Atomic_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug.cu (2288027ddcb4)
+62: static __global__ void cc_vertex_data(const ECLgraph g, data_type* const label, data_type* const label_n, const int* const wl1, const int wl1size, int* const wl2, int* const wl2size, const int iter, int* const time)
+71:     __shared__ bool updated[ThreadsPerBlock / WarpSize];
+74:     if (lane == 0) updated[warp] = false;
+75:     __syncwarp();
+76:     for (int i = beg + threadIdx.x % WarpSize; i < end; i += WarpSize) {
+81:         updated[warp] = true;
+85:     __syncwarp();
+86:     if (updated[warp]) {
+89:         for (int j = beg; j < end; j++) {
+=== CC_CUDA_V_Data_Pull_Determ_IntType_NonPersist_CudaAtomic_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug
+--- /mnt/beegfs/fzheng4/home_archive/eval_baselines/corpora/Indigo3Suite/generatedCodes/CUDA/CC-CUDA/CC_CUDA_V_Data_Pull_Determ_IntType_NonPersist_CudaAtomic_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug.cu (20cfb9c65ce2)
+63: static __global__ void cc_vertex_data(const ECLgraph g, data_type* const label, data_type* const label_n, const int* const wl1, const int wl1size, int* const wl2, int* const wl2size, const int iter, int* const time)
+72:     __shared__ bool updated[ThreadsPerBlock / WarpSize];
+75:     if (lane == 0) updated[warp] = false;
+76:     __syncwarp();
+77:     for (int i = beg + threadIdx.x % WarpSize; i < end; i += WarpSize) {
+82:         updated[warp] = true;
+86:     __syncwarp();
+87:     if (updated[warp]) {
+90:         for (int j = beg; j < end; j++) {
+=== CC_CUDA_V_Data_Pull_Determ_IntType_NonPersist_RaceBug_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug
+--- /mnt/beegfs/fzheng4/home_archive/eval_baselines/corpora/Indigo3Suite/generatedCodes/CUDA/CC-CUDA/CC_CUDA_V_Data_Pull_Determ_IntType_NonPersist_RaceBug_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug.cu (1fa47f6902a5)
+66: static __global__ void cc_vertex_data(const ECLgraph g, data_type* const label, data_type* const label_n, const int* const wl1, const int wl1size, int* const wl2, int* const wl2size, const int iter, int* const time)
+76:     __shared__ bool updated[ThreadsPerBlock / WarpSize];
+79:     if (lane == 0) updated[warp] = false;
+80:     __syncwarp();
+81:     for (int i = beg + threadIdx.x % WarpSize; i < end; i += WarpSize) {
+88:         updated[warp] = true;
+93:     __syncwarp();
+94:     if (updated[warp]) {
+98:         for (int j = beg; j < end; j++) {
+=== CC_CUDA_V_Data_Pull_Determ_IntType_Persist_Atomic_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug
+--- /mnt/beegfs/fzheng4/home_archive/eval_baselines/corpora/Indigo3Suite/generatedCodes/CUDA/CC-CUDA/CC_CUDA_V_Data_Pull_Determ_IntType_Persist_Atomic_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug.cu (c3461f7c9357)
+62: static __global__ void cc_vertex_data(const ECLgraph g, data_type* const label, data_type* const label_n, const int* const wl1, const int wl1size, int* const wl2, int* const wl2size, const int iter, int* const time)
+66:   for (int idx = tid; idx < N; idx += gridDim.x * (ThreadsPerBlock / WarpSize)) {
+71:     __shared__ bool updated[ThreadsPerBlock / WarpSize];
+74:     if (lane == 0) updated[warp] = false;
+75:     __syncwarp();
+76:     for (int i = beg + threadIdx.x % WarpSize; i < end; i += WarpSize) {
+81:         updated[warp] = true;
+85:     __syncwarp();
+86:     if (updated[warp]) {
+89:         for (int j = beg; j < end; j++) {
+98:   __syncwarp();
+=== CC_CUDA_V_Data_Pull_Determ_IntType_Persist_CudaAtomic_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug
+--- /mnt/beegfs/fzheng4/home_archive/eval_baselines/corpora/Indigo3Suite/generatedCodes/CUDA/CC-CUDA/CC_CUDA_V_Data_Pull_Determ_IntType_Persist_CudaAtomic_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug.cu (beaa1f0581a0)
+63: static __global__ void cc_vertex_data(const ECLgraph g, data_type* const label, data_type* const label_n, const int* const wl1, const int wl1size, int* const wl2, int* const wl2size, const int iter, int* const time)
+67:   for (int idx = tid; idx < N; idx += gridDim.x * (ThreadsPerBlock / WarpSize)) {
+72:     __shared__ bool updated[ThreadsPerBlock / WarpSize];
+75:     if (lane == 0) updated[warp] = false;
+76:     __syncwarp();
+77:     for (int i = beg + threadIdx.x % WarpSize; i < end; i += WarpSize) {
+82:         updated[warp] = true;
+86:     __syncwarp();
+87:     if (updated[warp]) {
+90:         for (int j = beg; j < end; j++) {
+99:   __syncwarp();
+=== CC_CUDA_V_Data_Pull_Determ_IntType_Persist_RaceBug_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug
+--- /mnt/beegfs/fzheng4/home_archive/eval_baselines/corpora/Indigo3Suite/generatedCodes/CUDA/CC-CUDA/CC_CUDA_V_Data_Pull_Determ_IntType_Persist_RaceBug_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug.cu (0db4e96bc49c)
+66: static __global__ void cc_vertex_data(const ECLgraph g, data_type* const label, data_type* const label_n, const int* const wl1, const int wl1size, int* const wl2, int* const wl2size, const int iter, int* const time)
+70:   for (int idx = tid; idx < N; idx += gridDim.x * (ThreadsPerBlock / WarpSize)) {
+76:     __shared__ bool updated[ThreadsPerBlock / WarpSize];
+79:     if (lane == 0) updated[warp] = false;
+80:     __syncwarp();
+81:     for (int i = beg + threadIdx.x % WarpSize; i < end; i += WarpSize) {
+88:         updated[warp] = true;
+93:     __syncwarp();
+94:     if (updated[warp]) {
+98:         for (int j = beg; j < end; j++) {
+107:   __syncwarp();
+=== CC_CUDA_V_Data_Pull_NonDeterm_IntType_NonPersist_Atomic_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug
+--- /mnt/beegfs/fzheng4/home_archive/eval_baselines/corpora/Indigo3Suite/generatedCodes/CUDA/CC-CUDA/CC_CUDA_V_Data_Pull_NonDeterm_IntType_NonPersist_Atomic_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug.cu (aafafe0c8eed)
+61: static __global__ void cc_vertex_data(const ECLgraph g, data_type* const label, const int* const wl1, const int wl1size, int* const wl2, int* const wl2size, const int iter, int* const time)
+70:     __shared__ bool updated[ThreadsPerBlock / WarpSize];
+73:     if (lane == 0) updated[warp] = false;
+74:     __syncwarp();
+75:     for (int i = beg + threadIdx.x % WarpSize; i < end; i += WarpSize) {
+80:         updated[warp] = true;
+83:     __syncwarp();
+84:     if (updated[warp]) {
+87:         for (int j = beg; j < end; j++) {
+=== CC_CUDA_V_Data_Pull_NonDeterm_IntType_NonPersist_CudaAtomic_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug
+--- /mnt/beegfs/fzheng4/home_archive/eval_baselines/corpora/Indigo3Suite/generatedCodes/CUDA/CC-CUDA/CC_CUDA_V_Data_Pull_NonDeterm_IntType_NonPersist_CudaAtomic_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug.cu (c1aba88b6148)
+62: static __global__ void cc_vertex_data(const ECLgraph g, data_type* const label, const int* const wl1, const int wl1size, int* const wl2, int* const wl2size, const int iter, int* const time)
+71:     __shared__ bool updated[ThreadsPerBlock / WarpSize];
+74:     if (lane == 0) updated[warp] = false;
+75:     __syncwarp();
+76:     for (int i = beg + threadIdx.x % WarpSize; i < end; i += WarpSize) {
+81:         updated[warp] = true;
+84:     __syncwarp();
+85:     if (updated[warp]) {
+88:         for (int j = beg; j < end; j++) {
+=== CC_CUDA_V_Data_Pull_NonDeterm_IntType_NonPersist_RaceBug_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug
+--- /mnt/beegfs/fzheng4/home_archive/eval_baselines/corpora/Indigo3Suite/generatedCodes/CUDA/CC-CUDA/CC_CUDA_V_Data_Pull_NonDeterm_IntType_NonPersist_RaceBug_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug.cu (87ad0f805eea)
+64: static __global__ void cc_vertex_data(const ECLgraph g, data_type* const label, const int* const wl1, const int wl1size, int* const wl2, int* const wl2size, const int iter, int* const time)
+74:     __shared__ bool updated[ThreadsPerBlock / WarpSize];
+77:     if (lane == 0) updated[warp] = false;
+78:     __syncwarp();
+79:     for (int i = beg + threadIdx.x % WarpSize; i < end; i += WarpSize) {
+86:         updated[warp] = true;
+89:     __syncwarp();
+90:     if (updated[warp]) {
+94:         for (int j = beg; j < end; j++) {
+=== CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug
+--- /mnt/beegfs/fzheng4/home_archive/eval_baselines/corpora/Indigo3Suite/generatedCodes/CUDA/CC-CUDA/CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug.cu (fd478c958145)
+61: static __global__ void cc_vertex_data(const ECLgraph g, data_type* const label, const int* const wl1, const int wl1size, int* const wl2, int* const wl2size, const int iter, int* const time)
+65:   for (int idx = tid; idx < N; idx += gridDim.x * (ThreadsPerBlock / WarpSize)) {
+70:     __shared__ bool updated[ThreadsPerBlock / WarpSize];
+73:     if (lane == 0) updated[warp] = false;
+74:     __syncwarp();
+75:     for (int i = beg + threadIdx.x % WarpSize; i < end; i += WarpSize) {
+80:         updated[warp] = true;
+83:     __syncwarp();
+84:     if (updated[warp]) {
+87:         for (int j = beg; j < end; j++) {
+96:   __syncwarp();
+=== CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug
+--- /mnt/beegfs/fzheng4/home_archive/eval_baselines/corpora/Indigo3Suite/generatedCodes/CUDA/CC-CUDA/CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug.cu (19ef640a9632)
+62: static __global__ void cc_vertex_data(const ECLgraph g, data_type* const label, const int* const wl1, const int wl1size, int* const wl2, int* const wl2size, const int iter, int* const time)
+66:   for (int idx = tid; idx < N; idx += gridDim.x * (ThreadsPerBlock / WarpSize)) {
+71:     __shared__ bool updated[ThreadsPerBlock / WarpSize];
+74:     if (lane == 0) updated[warp] = false;
+75:     __syncwarp();
+76:     for (int i = beg + threadIdx.x % WarpSize; i < end; i += WarpSize) {
+81:         updated[warp] = true;
+84:     __syncwarp();
+85:     if (updated[warp]) {
+88:         for (int j = beg; j < end; j++) {
+97:   __syncwarp();
+=== CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_RaceBug_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug
+--- /mnt/beegfs/fzheng4/home_archive/eval_baselines/corpora/Indigo3Suite/generatedCodes/CUDA/CC-CUDA/CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_RaceBug_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug.cu (18834ad496fd)
+64: static __global__ void cc_vertex_data(const ECLgraph g, data_type* const label, const int* const wl1, const int wl1size, int* const wl2, int* const wl2size, const int iter, int* const time)
+68:   for (int idx = tid; idx < N; idx += gridDim.x * (ThreadsPerBlock / WarpSize)) {
+74:     __shared__ bool updated[ThreadsPerBlock / WarpSize];
+77:     if (lane == 0) updated[warp] = false;
+78:     __syncwarp();
+79:     for (int i = beg + threadIdx.x % WarpSize; i < end; i += WarpSize) {
+86:         updated[warp] = true;
+89:     __syncwarp();
+90:     if (updated[warp]) {
+94:         for (int j = beg; j < end; j++) {
+103:   __syncwarp();
+=== CC_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug
+--- /mnt/beegfs/fzheng4/home_archive/eval_baselines/corpora/Indigo3Suite/generatedCodes/CUDA/CC-CUDA/CC_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug.cu (968313a4f8b1)
+65: static __global__ void cc_vertex_data(const ECLgraph g, data_type* const label, const int* const wl1, const int wl1size, int* const wl2, int* const wl2size, const int iter, int* const time)
+78:     __shared__ bool updated[ThreadsPerBlock / WarpSize];
+79:     if (lane == 0) updated[warp] = false;
+80:     __syncwarp();
+81:     for (int i = beg + threadIdx.x % WarpSize; i < end; i += WarpSize) {
+92:         updated[warp] = true;
+95:     __syncwarp();
+97:       if (updated[warp]) {
+=== CC_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_Persist_RaceBug_Warp_NonDup_NoNbrBoundsBug_NoBoundsBug_NoLivelockBug_NoFieldBug
+--- /mnt/beegfs/fzheng4/home_archive/eval_baselines/corpora/Indigo3Suite/generatedCodes/CUDA/CC-CUDA/CC_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_Persist_RaceBug_Warp_NonDup_NoNbrBoundsBug_NoBoundsBug_NoLivelockBug_NoFieldBug.cu (2613e92cd154)
+65: static __global__ void cc_vertex_data(const ECLgraph g, data_type* const label, const int* const wl1, const int wl1size, int* const wl2, int* const wl2size, const int iter, int* const time)
+69:   for (int idx = tid; idx < N; idx += gridDim.x * (ThreadsPerBlock / WarpSize)) {
+78:     __shared__ bool updated[ThreadsPerBlock / WarpSize];
+79:     if (lane == 0) updated[warp] = false;
+80:     __syncwarp();
+81:     for (int i = beg + threadIdx.x % WarpSize; i < end; i += WarpSize) {
+92:         updated[warp] = true;
+95:     __syncwarp();
+97:       if (updated[warp]) {
+103:     __syncwarp();

@@ -1,0 +1,504 @@
+== evcand vector-clock kernel_0.json dot=9b2663413e6e {'hb_async': None, 'hb_exits': None, 'hb_gate': None, 'hb_aggregates': None} events=10
+   races [('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None)]
+   sync_only [[112, 112, 32]] sync_pass None
+   census {('barrier', '0xa0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 139615780470784), (1, 139615780470788), (2, 139615780470792)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 139615780470784), (1, 139615780470788), (2, 139615780470792)]}
+== evcand scalar-clock kernel_0.json dot=9b2663413e6e {'hb_async': None, 'hb_exits': None, 'hb_gate': None, 'hb_aggregates': None} events=10
+   races []
+   sync_only None sync_pass None
+   census {('barrier', '0xa0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140148524187648), (1, 140148524187652), (2, 140148524187656)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140148524187648), (1, 140148524187652), (2, 140148524187656)]}
+== final-2026-10-view vector-clock kernel_0.json dot=9b2663413e6e {'hb_async': 1, 'hb_exits': 1, 'hb_gate': 'instance', 'hb_aggregates': 1} events=absent
+   races [('0x70', '0x70', 'WAW', 'ab', 32)]
+   sync_only [[112, 112, 32]] sync_pass [[112, 112, 32, 2, 112, 112]]
+== final-2026-10-view scalar-clock kernel_0.json dot=9b2663413e6e {'hb_async': 1, 'hb_exits': 1, 'hb_gate': None, 'hb_aggregates': 1} events=absent
+   races []
+   sync_only None sync_pass [[112, 112, 32, 2, 112, 112]]
+== final-2026-10 vector-clock kernel_0.json dot=9b2663413e6e {'hb_async': 1, 'hb_exits': 1, 'hb_gate': 'instance', 'hb_aggregates': 1} events=absent
+   races [('0x70', '0x70', 'WAW', 'ab', 32)]
+   sync_only [[112, 112, 32]] sync_pass [[112, 112, 32, 2, 112, 112]]
+== final-2026-10 scalar-clock kernel_0.json dot=9b2663413e6e {'hb_async': 1, 'hb_exits': 1, 'hb_gate': None, 'hb_aggregates': 1} events=absent
+   races []
+   sync_only None sync_pass [[112, 112, 32, 2, 112, 112]]
+== t10-after vector-clock kernel_0.json dot=9b2663413e6e {'hb_async': None, 'hb_exits': None, 'hb_gate': None, 'hb_aggregates': None} events=10
+   races [('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None)]
+   sync_only [[112, 112, 32]] sync_pass None
+   census {('barrier', '0xa0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 139615780470784), (1, 139615780470788), (2, 139615780470792)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 139615780470784), (1, 139615780470788), (2, 139615780470792)]}
+== t10-after scalar-clock kernel_0.json dot=9b2663413e6e {'hb_async': None, 'hb_exits': None, 'hb_gate': None, 'hb_aggregates': None} events=10
+   races []
+   sync_only None sync_pass None
+   census {('barrier', '0xa0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140148524187648), (1, 140148524187652), (2, 140148524187656)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140148524187648), (1, 140148524187652), (2, 140148524187656)]}
+== t12-after vector-clock kernel_0.json dot=9b2663413e6e {'hb_async': None, 'hb_exits': None, 'hb_gate': None, 'hb_aggregates': None} events=10
+   races [('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None)]
+   sync_only [[112, 112, 32]] sync_pass None
+   census {('barrier', '0xa0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 139615780470784), (1, 139615780470788), (2, 139615780470792)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 139615780470784), (1, 139615780470788), (2, 139615780470792)]}
+== t12-after scalar-clock kernel_0.json dot=9b2663413e6e {'hb_async': None, 'hb_exits': None, 'hb_gate': None, 'hb_aggregates': None} events=10
+   races []
+   sync_only None sync_pass None
+   census {('barrier', '0xa0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140148524187648), (1, 140148524187652), (2, 140148524187656)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140148524187648), (1, 140148524187652), (2, 140148524187656)]}
+== t12-parity vector-clock kernel_0.json dot=9b2663413e6e {'hb_async': 1, 'hb_exits': 1, 'hb_gate': 'instance', 'hb_aggregates': None} events=16
+   races [('0x70', '0x70', 'WAW', 'ab', 32)]
+   sync_only [[112, 112, 32]] sync_pass None
+   census {('pipeline_commit', '0x80'): 2, ('pipeline_wait', '0x90'): 2, ('barrier', '0xa0'): 2, ('exit', '0xd0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140206170701824), (1, 140206170701828), (2, 140206170701832)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 128, 'type': 'pipeline_commit', 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 144, 'type': 'pipeline_wait', 'groups': 0, 'active_mask': 4294967295}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 10, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 12, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140206170701824), (1, 140206170701828), (2, 140206170701832)]}
+   {'seq': 14, 'block': 0, 'warp': 0, 'pc': 208, 'type': 'exit', 'active_mask': 4294967295}
+== t14-after vector-clock kernel_0.json dot=9b2663413e6e {'hb_async': None, 'hb_exits': None, 'hb_gate': None, 'hb_aggregates': None} events=10
+   races [('0x70', '0x70', 'WAW', None, 32)]
+   sync_only [[112, 112, 32]] sync_pass None
+   census {('barrier', '0xa0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 139615780470784), (1, 139615780470788), (2, 139615780470792)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 139615780470784), (1, 139615780470788), (2, 139615780470792)]}
+== t14-after scalar-clock kernel_0.json dot=9b2663413e6e {'hb_async': None, 'hb_exits': None, 'hb_gate': None, 'hb_aggregates': None} events=10
+   races []
+   sync_only None sync_pass None
+   census {('barrier', '0xa0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140148524187648), (1, 140148524187652), (2, 140148524187656)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140148524187648), (1, 140148524187652), (2, 140148524187656)]}
+== t16-certain-exits vector-clock kernel_0.json dot=9b2663413e6e {'hb_async': 1, 'hb_exits': 1, 'hb_gate': 'instance', 'hb_aggregates': None} events=16
+   races [('0x70', '0x70', 'WAW', 'ab', 32)]
+   sync_only [[112, 112, 32]] sync_pass [[112, 112, 32, 2, 112, 112]]
+   census {('pipeline_commit', '0x80'): 2, ('pipeline_wait', '0x90'): 2, ('barrier', '0xa0'): 2, ('exit', '0xd0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140000414924800), (1, 140000414924804), (2, 140000414924808)]}
+   {'seq': 3, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 128, 'type': 'pipeline_commit', 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 144, 'type': 'pipeline_wait', 'groups': 0, 'active_mask': 4294967295}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 10, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 12, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140000414924800), (1, 140000414924804), (2, 140000414924808)]}
+   {'seq': 14, 'block': 0, 'warp': 0, 'pc': 208, 'type': 'exit', 'active_mask': 4294967295}
+== t16-certain-exits scalar-clock kernel_0.json dot=9b2663413e6e {'hb_async': 1, 'hb_exits': 1, 'hb_gate': None, 'hb_aggregates': None} events=16
+   races []
+   sync_only None sync_pass [[112, 112, 32, 2, 112, 112]]
+   census {('pipeline_commit', '0x80'): 2, ('pipeline_wait', '0x90'): 2, ('barrier', '0xa0'): 2, ('exit', '0xd0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140466217549824), (1, 140466217549828), (2, 140466217549832)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 128, 'type': 'pipeline_commit', 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 144, 'type': 'pipeline_wait', 'groups': 0, 'active_mask': 4294967295}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 10, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 12, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140466217549824), (1, 140466217549828), (2, 140466217549832)]}
+   {'seq': 14, 'block': 0, 'warp': 0, 'pc': 208, 'type': 'exit', 'active_mask': 4294967295}
+== t16-certain vector-clock kernel_0.json dot=9b2663413e6e {'hb_async': None, 'hb_exits': None, 'hb_gate': None, 'hb_aggregates': None} events=10
+   races [('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None)]
+   sync_only [[112, 112, 32]] sync_pass None
+   census {('barrier', '0xa0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 139615780470784), (1, 139615780470788), (2, 139615780470792)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 139615780470784), (1, 139615780470788), (2, 139615780470792)]}
+== t16-certain scalar-clock kernel_0.json dot=9b2663413e6e {'hb_async': None, 'hb_exits': None, 'hb_gate': None, 'hb_aggregates': None} events=10
+   races []
+   sync_only None sync_pass None
+   census {('barrier', '0xa0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140148524187648), (1, 140148524187652), (2, 140148524187656)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140148524187648), (1, 140148524187652), (2, 140148524187656)]}
+== t16-recorded-exits vector-clock kernel_0.json dot=9b2663413e6e {'hb_async': 1, 'hb_exits': 1, 'hb_gate': 'instance', 'hb_aggregates': None} events=16
+   races [('0x70', '0x70', 'WAW', 'ab', 32)]
+   sync_only [[112, 112, 32]] sync_pass [[112, 112, 32, 2, 112, 112]]
+   census {('pipeline_commit', '0x80'): 2, ('pipeline_wait', '0x90'): 2, ('barrier', '0xa0'): 2, ('exit', '0xd0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140000414924800), (1, 140000414924804), (2, 140000414924808)]}
+   {'seq': 3, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 128, 'type': 'pipeline_commit', 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 144, 'type': 'pipeline_wait', 'groups': 0, 'active_mask': 4294967295}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 10, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 12, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140000414924800), (1, 140000414924804), (2, 140000414924808)]}
+   {'seq': 14, 'block': 0, 'warp': 0, 'pc': 208, 'type': 'exit', 'active_mask': 4294967295}
+== t16-recorded-exits scalar-clock kernel_0.json dot=9b2663413e6e {'hb_async': 1, 'hb_exits': 1, 'hb_gate': None, 'hb_aggregates': None} events=16
+   races []
+   sync_only None sync_pass [[112, 112, 32, 2, 112, 112]]
+   census {('pipeline_commit', '0x80'): 2, ('pipeline_wait', '0x90'): 2, ('barrier', '0xa0'): 2, ('exit', '0xd0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140466217549824), (1, 140466217549828), (2, 140466217549832)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 128, 'type': 'pipeline_commit', 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 144, 'type': 'pipeline_wait', 'groups': 0, 'active_mask': 4294967295}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 10, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 12, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140466217549824), (1, 140466217549828), (2, 140466217549832)]}
+   {'seq': 14, 'block': 0, 'warp': 0, 'pc': 208, 'type': 'exit', 'active_mask': 4294967295}
+== t19-parity-v2 vector-clock kernel_0.json dot=9b2663413e6e {'hb_async': 1, 'hb_exits': 1, 'hb_gate': 'instance', 'hb_aggregates': None} events=16
+   races [('0x70', '0x70', 'WAW', 'ab', 32)]
+   sync_only [[112, 112, 32]] sync_pass [[112, 112, 32, 2, 112, 112]]
+   census {('pipeline_commit', '0x80'): 2, ('pipeline_wait', '0x90'): 2, ('barrier', '0xa0'): 2, ('exit', '0xd0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 139711041503232), (1, 139711041503236), (2, 139711041503240)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 128, 'type': 'pipeline_commit', 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 144, 'type': 'pipeline_wait', 'groups': 0, 'active_mask': 4294967295}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 10, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 12, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 139711041503232), (1, 139711041503236), (2, 139711041503240)]}
+   {'seq': 14, 'block': 0, 'warp': 0, 'pc': 208, 'type': 'exit', 'active_mask': 4294967295}
+== t19-parity-v2 scalar-clock kernel_0.json dot=9b2663413e6e {'hb_async': 1, 'hb_exits': 1, 'hb_gate': None, 'hb_aggregates': None} events=16
+   races []
+   sync_only None sync_pass [[112, 112, 32, 2, 112, 112]]
+   census {('pipeline_commit', '0x80'): 2, ('pipeline_wait', '0x90'): 2, ('barrier', '0xa0'): 2, ('exit', '0xd0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140516146544640), (1, 140516146544644), (2, 140516146544648)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 128, 'type': 'pipeline_commit', 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 144, 'type': 'pipeline_wait', 'groups': 0, 'active_mask': 4294967295}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 10, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 12, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140516146544640), (1, 140516146544644), (2, 140516146544648)]}
+   {'seq': 14, 'block': 0, 'warp': 0, 'pc': 208, 'type': 'exit', 'active_mask': 4294967295}
+== t19-parity-v3 vector-clock kernel_0.json dot=9b2663413e6e {'hb_async': 1, 'hb_exits': 1, 'hb_gate': 'instance', 'hb_aggregates': None} events=16
+   races [('0x70', '0x70', 'WAW', 'ab', 32)]
+   sync_only [[112, 112, 32]] sync_pass [[112, 112, 32, 2, 112, 112]]
+   census {('pipeline_commit', '0x80'): 2, ('pipeline_wait', '0x90'): 2, ('barrier', '0xa0'): 2, ('exit', '0xd0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140040680243200), (1, 140040680243204), (2, 140040680243208)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 128, 'type': 'pipeline_commit', 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 144, 'type': 'pipeline_wait', 'groups': 0, 'active_mask': 4294967295}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 10, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 12, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140040680243200), (1, 140040680243204), (2, 140040680243208)]}
+   {'seq': 14, 'block': 0, 'warp': 0, 'pc': 208, 'type': 'exit', 'active_mask': 4294967295}
+== t19-parity-v3 scalar-clock kernel_0.json dot=9b2663413e6e {'hb_async': 1, 'hb_exits': 1, 'hb_gate': None, 'hb_aggregates': None} events=16
+   races []
+   sync_only None sync_pass [[112, 112, 32, 2, 112, 112]]
+   census {('pipeline_commit', '0x80'): 2, ('pipeline_wait', '0x90'): 2, ('barrier', '0xa0'): 2, ('exit', '0xd0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 139857674371072), (1, 139857674371076), (2, 139857674371080)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 128, 'type': 'pipeline_commit', 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 144, 'type': 'pipeline_wait', 'groups': 0, 'active_mask': 4294967295}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 10, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 12, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 139857674371072), (1, 139857674371076), (2, 139857674371080)]}
+   {'seq': 14, 'block': 0, 'warp': 0, 'pc': 208, 'type': 'exit', 'active_mask': 4294967295}
+== t19-parity-v4 vector-clock kernel_0.json dot=9b2663413e6e {'hb_async': 1, 'hb_exits': 1, 'hb_gate': 'instance', 'hb_aggregates': None} events=16
+   races [('0x70', '0x70', 'WAW', 'ab', 32)]
+   sync_only [[112, 112, 32]] sync_pass [[112, 112, 32, 2, 112, 112]]
+   census {('pipeline_commit', '0x80'): 2, ('pipeline_wait', '0x90'): 2, ('barrier', '0xa0'): 2, ('exit', '0xd0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 139819556536320), (1, 139819556536324), (2, 139819556536328)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 128, 'type': 'pipeline_commit', 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 144, 'type': 'pipeline_wait', 'groups': 0, 'active_mask': 4294967295}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 10, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 12, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 139819556536320), (1, 139819556536324), (2, 139819556536328)]}
+   {'seq': 14, 'block': 0, 'warp': 0, 'pc': 208, 'type': 'exit', 'active_mask': 4294967295}
+== t19-parity-v4 scalar-clock kernel_0.json dot=9b2663413e6e {'hb_async': 1, 'hb_exits': 1, 'hb_gate': None, 'hb_aggregates': None} events=16
+   races []
+   sync_only None sync_pass [[112, 112, 32, 2, 112, 112]]
+   census {('pipeline_commit', '0x80'): 2, ('pipeline_wait', '0x90'): 2, ('barrier', '0xa0'): 2, ('exit', '0xd0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 139892570980352), (1, 139892570980356), (2, 139892570980360)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 128, 'type': 'pipeline_commit', 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 144, 'type': 'pipeline_wait', 'groups': 0, 'active_mask': 4294967295}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 10, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 12, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 139892570980352), (1, 139892570980356), (2, 139892570980360)]}
+   {'seq': 14, 'block': 0, 'warp': 0, 'pc': 208, 'type': 'exit', 'active_mask': 4294967295}
+== t19-parity vector-clock kernel_0.json dot=9b2663413e6e {'hb_async': 1, 'hb_exits': 1, 'hb_gate': 'instance', 'hb_aggregates': None} events=16
+   races [('0x70', '0x70', 'WAW', 'ab', 32)]
+   sync_only [[112, 112, 32]] sync_pass [[112, 112, 32, 2, 112, 112]]
+   census {('pipeline_commit', '0x80'): 2, ('pipeline_wait', '0x90'): 2, ('barrier', '0xa0'): 2, ('exit', '0xd0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140000414924800), (1, 140000414924804), (2, 140000414924808)]}
+   {'seq': 3, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 128, 'type': 'pipeline_commit', 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 144, 'type': 'pipeline_wait', 'groups': 0, 'active_mask': 4294967295}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 10, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 12, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140000414924800), (1, 140000414924804), (2, 140000414924808)]}
+   {'seq': 14, 'block': 0, 'warp': 0, 'pc': 208, 'type': 'exit', 'active_mask': 4294967295}
+== t19-parity scalar-clock kernel_0.json dot=9b2663413e6e {'hb_async': 1, 'hb_exits': 1, 'hb_gate': None, 'hb_aggregates': None} events=16
+   races []
+   sync_only None sync_pass [[112, 112, 32, 2, 112, 112]]
+   census {('pipeline_commit', '0x80'): 2, ('pipeline_wait', '0x90'): 2, ('barrier', '0xa0'): 2, ('exit', '0xd0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140466217549824), (1, 140466217549828), (2, 140466217549832)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 128, 'type': 'pipeline_commit', 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 144, 'type': 'pipeline_wait', 'groups': 0, 'active_mask': 4294967295}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 10, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 12, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140466217549824), (1, 140466217549828), (2, 140466217549832)]}
+   {'seq': 14, 'block': 0, 'warp': 0, 'pc': 208, 'type': 'exit', 'active_mask': 4294967295}
+== t1a-p56 vector-clock kernel_0.json dot=9b2663413e6e {'hb_async': 1, 'hb_exits': None, 'hb_gate': None, 'hb_aggregates': None} events=14
+   races [('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None)]
+   sync_only [[112, 112, 32]] sync_pass None
+   census {('pipeline_commit', '0x80'): 2, ('pipeline_wait', '0x90'): 2, ('barrier', '0xa0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140651974885376), (1, 140651974885380), (2, 140651974885384)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 128, 'type': 'pipeline_commit', 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 144, 'type': 'pipeline_wait', 'groups': 0, 'active_mask': 4294967295}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 10, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 12, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140651974885376), (1, 140651974885380), (2, 140651974885384)]}
+== t1a-p56 scalar-clock kernel_0.json dot=9b2663413e6e {'hb_async': 1, 'hb_exits': None, 'hb_gate': None, 'hb_aggregates': None} events=14
+   races []
+   sync_only None sync_pass None
+   census {('pipeline_commit', '0x80'): 2, ('pipeline_wait', '0x90'): 2, ('barrier', '0xa0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140040948678656), (1, 140040948678660), (2, 140040948678664)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 128, 'type': 'pipeline_commit', 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 144, 'type': 'pipeline_wait', 'groups': 0, 'active_mask': 4294967295}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 10, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 12, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140040948678656), (1, 140040948678660), (2, 140040948678664)]}
+== t20-parity vector-clock kernel_0.json dot=9b2663413e6e {'hb_async': 1, 'hb_exits': 1, 'hb_gate': 'instance', 'hb_aggregates': None} events=16
+   races [('0x70', '0x70', 'WAW', 'ab', 32)]
+   sync_only [[112, 112, 32]] sync_pass [[112, 112, 32, 2, 112, 112]]
+   census {('pipeline_commit', '0x80'): 2, ('pipeline_wait', '0x90'): 2, ('barrier', '0xa0'): 2, ('exit', '0xd0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140249791463424), (1, 140249791463428), (2, 140249791463432)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 128, 'type': 'pipeline_commit', 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 144, 'type': 'pipeline_wait', 'groups': 0, 'active_mask': 4294967295}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 10, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 12, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140249791463424), (1, 140249791463428), (2, 140249791463432)]}
+   {'seq': 14, 'block': 0, 'warp': 0, 'pc': 208, 'type': 'exit', 'active_mask': 4294967295}
+== t20-parity scalar-clock kernel_0.json dot=9b2663413e6e {'hb_async': 1, 'hb_exits': 1, 'hb_gate': None, 'hb_aggregates': None} events=16
+   races []
+   sync_only None sync_pass [[112, 112, 32, 2, 112, 112]]
+   census {('pipeline_commit', '0x80'): 2, ('pipeline_wait', '0x90'): 2, ('barrier', '0xa0'): 2, ('exit', '0xd0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 139938741878784), (1, 139938741878788), (2, 139938741878792)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 128, 'type': 'pipeline_commit', 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 144, 'type': 'pipeline_wait', 'groups': 0, 'active_mask': 4294967295}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 10, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 12, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 139938741878784), (1, 139938741878788), (2, 139938741878792)]}
+   {'seq': 14, 'block': 0, 'warp': 0, 'pc': 208, 'type': 'exit', 'active_mask': 4294967295}
+== t20-parity2 vector-clock kernel_0.json dot=9b2663413e6e {'hb_async': 1, 'hb_exits': 1, 'hb_gate': 'instance', 'hb_aggregates': None} events=16
+   races [('0x70', '0x70', 'WAW', 'ab', 32)]
+   sync_only [[112, 112, 32]] sync_pass [[112, 112, 32, 2, 112, 112]]
+   census {('pipeline_commit', '0x80'): 2, ('pipeline_wait', '0x90'): 2, ('barrier', '0xa0'): 2, ('exit', '0xd0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 139662723121152), (1, 139662723121156), (2, 139662723121160)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 128, 'type': 'pipeline_commit', 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 144, 'type': 'pipeline_wait', 'groups': 0, 'active_mask': 4294967295}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 10, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 12, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 139662723121152), (1, 139662723121156), (2, 139662723121160)]}
+   {'seq': 14, 'block': 0, 'warp': 0, 'pc': 208, 'type': 'exit', 'active_mask': 4294967295}
+== t20-parity2 scalar-clock kernel_0.json dot=9b2663413e6e {'hb_async': 1, 'hb_exits': 1, 'hb_gate': None, 'hb_aggregates': None} events=16
+   races []
+   sync_only None sync_pass [[112, 112, 32, 2, 112, 112]]
+   census {('pipeline_commit', '0x80'): 2, ('pipeline_wait', '0x90'): 2, ('barrier', '0xa0'): 2, ('exit', '0xd0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140514032615424), (1, 140514032615428), (2, 140514032615432)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 128, 'type': 'pipeline_commit', 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 144, 'type': 'pipeline_wait', 'groups': 0, 'active_mask': 4294967295}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 10, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 12, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140514032615424), (1, 140514032615428), (2, 140514032615432)]}
+   {'seq': 14, 'block': 0, 'warp': 0, 'pc': 208, 'type': 'exit', 'active_mask': 4294967295}
+== t22-parity-b scalar-clock kernel_0.json dot=9b2663413e6e {'hb_async': 1, 'hb_exits': 1, 'hb_gate': None, 'hb_aggregates': None} events=16
+   races []
+   sync_only None sync_pass [[112, 112, 32, 2, 112, 112]]
+   census {('pipeline_commit', '0x80'): 2, ('pipeline_wait', '0x90'): 2, ('barrier', '0xa0'): 2, ('exit', '0xd0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140097387233280), (1, 140097387233284), (2, 140097387233288)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 128, 'type': 'pipeline_commit', 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 144, 'type': 'pipeline_wait', 'groups': 0, 'active_mask': 4294967295}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 10, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 12, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140097387233280), (1, 140097387233284), (2, 140097387233288)]}
+   {'seq': 14, 'block': 0, 'warp': 0, 'pc': 208, 'type': 'exit', 'active_mask': 4294967295}
+== t22c-parity scalar-clock kernel_0.json dot=9b2663413e6e {'hb_async': 1, 'hb_exits': 1, 'hb_gate': None, 'hb_aggregates': None} events=16
+   races []
+   sync_only None sync_pass [[112, 112, 32, 2, 112, 112]]
+   census {('pipeline_commit', '0x80'): 2, ('pipeline_wait', '0x90'): 2, ('barrier', '0xa0'): 2, ('exit', '0xd0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140623420063744), (1, 140623420063748), (2, 140623420063752)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 128, 'type': 'pipeline_commit', 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 144, 'type': 'pipeline_wait', 'groups': 0, 'active_mask': 4294967295}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 10, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 12, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140623420063744), (1, 140623420063748), (2, 140623420063752)]}
+   {'seq': 14, 'block': 0, 'warp': 0, 'pc': 208, 'type': 'exit', 'active_mask': 4294967295}
+== t4-parity vector-clock kernel_0.json dot=9b2663413e6e {'hb_async': 1, 'hb_exits': 1, 'hb_gate': 'instance', 'hb_aggregates': None} events=16
+   races [('0x70', '0x70', 'WAW', 'ab', 32)]
+   sync_only [[112, 112, 32]] sync_pass [[112, 112, 32, 2, 112, 112]]
+   census {('pipeline_commit', '0x80'): 2, ('pipeline_wait', '0x90'): 2, ('barrier', '0xa0'): 2, ('exit', '0xd0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 139825093017600), (1, 139825093017604), (2, 139825093017608)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 128, 'type': 'pipeline_commit', 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 144, 'type': 'pipeline_wait', 'groups': 0, 'active_mask': 4294967295}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 10, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 12, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 139825093017600), (1, 139825093017604), (2, 139825093017608)]}
+   {'seq': 14, 'block': 0, 'warp': 0, 'pc': 208, 'type': 'exit', 'active_mask': 4294967295}
+== t4-parity scalar-clock kernel_0.json dot=9b2663413e6e {'hb_async': 1, 'hb_exits': 1, 'hb_gate': None, 'hb_aggregates': None} events=16
+   races []
+   sync_only None sync_pass [[112, 112, 32, 2, 112, 112]]
+   census {('pipeline_commit', '0x80'): 2, ('pipeline_wait', '0x90'): 2, ('barrier', '0xa0'): 2, ('exit', '0xd0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140157114122240), (1, 140157114122244), (2, 140157114122248)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 128, 'type': 'pipeline_commit', 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 144, 'type': 'pipeline_wait', 'groups': 0, 'active_mask': 4294967295}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 10, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 12, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140157114122240), (1, 140157114122244), (2, 140157114122248)]}
+   {'seq': 14, 'block': 0, 'warp': 0, 'pc': 208, 'type': 'exit', 'active_mask': 4294967295}
+== t5b-before-parity vector-clock kernel_0.json dot=9b2663413e6e {'hb_async': 1, 'hb_exits': 1, 'hb_gate': None, 'hb_aggregates': None} events=16
+   races [('0x70', '0x70', 'WAW', 'ab', 32)]
+   sync_only [[112, 112, 32]] sync_pass None
+   census {('pipeline_commit', '0x80'): 2, ('pipeline_wait', '0x90'): 2, ('barrier', '0xa0'): 2, ('exit', '0xd0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 139902066884608), (1, 139902066884612), (2, 139902066884616)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 128, 'type': 'pipeline_commit', 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 144, 'type': 'pipeline_wait', 'groups': 0, 'active_mask': 4294967295}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 10, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 12, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 139902066884608), (1, 139902066884612), (2, 139902066884616)]}
+   {'seq': 14, 'block': 0, 'warp': 0, 'pc': 208, 'type': 'exit', 'active_mask': 4294967295}
+== t5b-final-parity vector-clock kernel_0.json dot=9b2663413e6e {'hb_async': 1, 'hb_exits': 1, 'hb_gate': None, 'hb_aggregates': None} events=16
+   races [('0x70', '0x70', 'WAW', 'ab', 32)]
+   sync_only [[112, 112, 32]] sync_pass None
+   census {('pipeline_commit', '0x80'): 2, ('pipeline_wait', '0x90'): 2, ('barrier', '0xa0'): 2, ('exit', '0xd0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140481384153088), (1, 140481384153092), (2, 140481384153096)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 128, 'type': 'pipeline_commit', 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 144, 'type': 'pipeline_wait', 'groups': 0, 'active_mask': 4294967295}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 10, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 12, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140481384153088), (1, 140481384153092), (2, 140481384153096)]}
+   {'seq': 14, 'block': 0, 'warp': 0, 'pc': 208, 'type': 'exit', 'active_mask': 4294967295}
+== t5b-parity vector-clock kernel_0.json dot=9b2663413e6e {'hb_async': 1, 'hb_exits': 1, 'hb_gate': None, 'hb_aggregates': None} events=16
+   races [('0x70', '0x70', 'WAW', 'ab', 32)]
+   sync_only [[112, 112, 32]] sync_pass None
+   census {('pipeline_commit', '0x80'): 2, ('pipeline_wait', '0x90'): 2, ('barrier', '0xa0'): 2, ('exit', '0xd0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140325624479744), (1, 140325624479748), (2, 140325624479752)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 128, 'type': 'pipeline_commit', 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 144, 'type': 'pipeline_wait', 'groups': 0, 'active_mask': 4294967295}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 10, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 12, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140325624479744), (1, 140325624479748), (2, 140325624479752)]}
+   {'seq': 14, 'block': 0, 'warp': 0, 'pc': 208, 'type': 'exit', 'active_mask': 4294967295}
+== t5b-vs-parity vector-clock kernel_0.json dot=9b2663413e6e {'hb_async': 1, 'hb_exits': 1, 'hb_gate': None, 'hb_aggregates': None} events=16
+   races [('0x70', '0x70', 'WAW', 'ab', 32)]
+   sync_only [[112, 112, 32]] sync_pass None
+   census {('pipeline_commit', '0x80'): 2, ('pipeline_wait', '0x90'): 2, ('barrier', '0xa0'): 2, ('exit', '0xd0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140682207428608), (1, 140682207428612), (2, 140682207428616)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 128, 'type': 'pipeline_commit', 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 144, 'type': 'pipeline_wait', 'groups': 0, 'active_mask': 4294967295}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 10, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 12, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140682207428608), (1, 140682207428612), (2, 140682207428616)]}
+   {'seq': 14, 'block': 0, 'warp': 0, 'pc': 208, 'type': 'exit', 'active_mask': 4294967295}
+== t9-after vector-clock kernel_0.json dot=9b2663413e6e {'hb_async': None, 'hb_exits': None, 'hb_gate': None, 'hb_aggregates': None} events=10
+   races [('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None)]
+   sync_only [[112, 112, 32]] sync_pass None
+   census {('barrier', '0xa0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 139615780470784), (1, 139615780470788), (2, 139615780470792)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 139615780470784), (1, 139615780470788), (2, 139615780470792)]}
+== t9-after scalar-clock kernel_0.json dot=9b2663413e6e {'hb_async': None, 'hb_exits': None, 'hb_gate': None, 'hb_aggregates': None} events=10
+   races []
+   sync_only None sync_pass None
+   census {('barrier', '0xa0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140148524187648), (1, 140148524187652), (2, 140148524187656)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140148524187648), (1, 140148524187652), (2, 140148524187656)]}
+== t9-before vector-clock kernel_0.json dot=9b2663413e6e {'hb_async': None, 'hb_exits': None, 'hb_gate': None, 'hb_aggregates': None} events=10
+   races [('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None), ('0x70', '0x70', 'WAW', None, None)]
+   sync_only [[112, 112, 32]] sync_pass None
+   census {('barrier', '0xa0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 139615780470784), (1, 139615780470788), (2, 139615780470792)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 139615780470784), (1, 139615780470788), (2, 139615780470792)]}
+== t9-before scalar-clock kernel_0.json dot=9b2663413e6e {'hb_async': None, 'hb_exits': None, 'hb_gate': None, 'hb_aggregates': None} events=10
+   races []
+   sync_only None sync_pass None
+   census {('barrier', '0xa0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140148524187648), (1, 140148524187652), (2, 140148524187656)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140148524187648), (1, 140148524187652), (2, 140148524187656)]}
+== t9-eval-main vector-clock kernel_0.json dot=9b2663413e6e {'hb_async': 1, 'hb_exits': None, 'hb_gate': None, 'hb_aggregates': None} events=14
+   races [('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None)]
+   sync_only [[112, 112, 32]] sync_pass None
+   census {('pipeline_commit', '0x80'): 2, ('pipeline_wait', '0x90'): 2, ('barrier', '0xa0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 139865190563840), (1, 139865190563844), (2, 139865190563848)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 128, 'type': 'pipeline_commit', 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 144, 'type': 'pipeline_wait', 'groups': 0, 'active_mask': 4294967295}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 10, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 12, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 139865190563840), (1, 139865190563844), (2, 139865190563848)]}
+== t9-eval-main scalar-clock kernel_0.json dot=9b2663413e6e {'hb_async': 1, 'hb_exits': None, 'hb_gate': None, 'hb_aggregates': None} events=14
+   races []
+   sync_only None sync_pass None
+   census {('pipeline_commit', '0x80'): 2, ('pipeline_wait', '0x90'): 2, ('barrier', '0xa0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140315289714688), (1, 140315289714692), (2, 140315289714696)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 128, 'type': 'pipeline_commit', 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 144, 'type': 'pipeline_wait', 'groups': 0, 'active_mask': 4294967295}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 10, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 12, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140315289714688), (1, 140315289714692), (2, 140315289714696)]}
+== t9-eval-t9 vector-clock kernel_0.json dot=9b2663413e6e {'hb_async': 1, 'hb_exits': None, 'hb_gate': None, 'hb_aggregates': None} events=14
+   races [('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None), ('0x70', '0x70', 'WAW', 'ab', None)]
+   sync_only [[112, 112, 32]] sync_pass None
+   census {('pipeline_commit', '0x80'): 2, ('pipeline_wait', '0x90'): 2, ('barrier', '0xa0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 139743689965568), (1, 139743689965572), (2, 139743689965576)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 128, 'type': 'pipeline_commit', 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 144, 'type': 'pipeline_wait', 'groups': 0, 'active_mask': 4294967295}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 10, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 12, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 139743689965568), (1, 139743689965572), (2, 139743689965576)]}
+== t9-eval-t9 scalar-clock kernel_0.json dot=9b2663413e6e {'hb_async': 1, 'hb_exits': None, 'hb_gate': None, 'hb_aggregates': None} events=14
+   races []
+   sync_only None sync_pass None
+   census {('pipeline_commit', '0x80'): 2, ('pipeline_wait', '0x90'): 2, ('barrier', '0xa0'): 2}
+   {'seq': 0, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'read', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140468801241088), (1, 140468801241092), (2, 140468801241096)]}
+   {'seq': 2, 'block': 0, 'warp': 0, 'pc': 112, 'type': 'write', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 4, 'block': 0, 'warp': 0, 'pc': 128, 'type': 'pipeline_commit', 'active_mask': 4294967295}
+   {'seq': 6, 'block': 0, 'warp': 0, 'pc': 144, 'type': 'pipeline_wait', 'groups': 0, 'active_mask': 4294967295}
+   {'seq': 8, 'block': 0, 'warp': 0, 'pc': 160, 'type': 'barrier', 'thread_count': 0, 'bar_index': 0, 'active_mask': 4294967295}
+   {'seq': 10, 'block': 0, 'warp': 0, 'pc': 176, 'type': 'read', 'space': 'shared', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 0), (1, 4), (2, 8)]}
+   {'seq': 12, 'block': 0, 'warp': 0, 'pc': 192, 'type': 'write', 'space': 'global', 'size': 4, 'active_mask': 4294967295, 'lanes': [(0, 140468801241088), (1, 140468801241092), (2, 140468801241096)]}

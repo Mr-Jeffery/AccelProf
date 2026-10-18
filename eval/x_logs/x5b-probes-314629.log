@@ -1,0 +1,195 @@
+== x5b_probe_dots.sh
+evcand dot=09d6cf420c1a size=1574863 events=1 meta=
+t9-after dot=09d6cf420c1a size=2822038 events=1 meta=
+t10-after dot=09d6cf420c1a size=2822038 events=1 meta=
+t12-after dot=09d6cf420c1a size=1043133 events=1 meta=
+t14-after dot=09d6cf420c1a size=920197 events=0 meta=
+t16-certain dot=09d6cf420c1a size=1043941 events=1 meta=
+final-2026-10 dot=09d6cf420c1a size=67616 events=0 meta="libsanalyzer": "2201fcb7d57ae783"
+----
+static __global__ void cc_vertex_data(const ECLgraph g, data_type* const label, data_type* const label_n, const int* const wl1, const int wl1size, int* const wl2, int* const wl2size, const int iter, int* const time)
+{
+  const int N = wl1size;
+  int idx = (threadIdx.x + blockIdx.x * ThreadsPerBlock) / WarpSize;
+  if (idx < N) {
+    const int v = wl1[idx];
+    // RaceBug here
+    data_type d = label[v];
+    const int beg = g.nindex[v];
+    const int end = g.nindex[v + 1];
+    __shared__ bool updated[ThreadsPerBlock / WarpSize];
+    const int warp = threadIdx.x / WarpSize;
+    const int lane = threadIdx.x % WarpSize;
+    if (lane == 0) updated[warp] = false;
+    __syncwarp();
+    for (int i = beg + threadIdx.x % WarpSize; i < end; i += WarpSize) {
+      const int src = g.nlist[i];
+      // RaceBug here
+      const data_type new_label = label[src];
+      if (d > new_label) {
+        // RaceBug here
+        d = new_label;
+        updated[warp] = true;
+      }
+      // RaceBug here
+      if (label_n[src] > new_label) label_n[src] = new_label;
+    }
+    __syncwarp();
+    if (updated[warp]) {
+      // RaceBug here
+      if (label_n[v] > d) label_n[v] = d;
+      if (lane == 0) {
+        for (int j = beg; j < end; j++) {
+          const int n = g.nlist[j];
+          if (atomicMax(&time[n], iter) < iter) {
+            wl2[atomicAdd(wl2size, 1)] = n;
+          }
+        }
+      }
+    }
+  }
+}
+    cc_vertex_data<<<blocks, ThreadsPerBlock>>>(g, d_label, d_label_new, d_wl1, wlsize, d_wl2, d_wl2size, iter, d_time);
+
+    if (cudaSuccess != cudaMemcpy(&wlsize, d_wl2size, sizeof(int), cudaMemcpyDeviceToHost)) fprintf(stderr, "ERROR: copying of wlsize from device failed\n");
+    SWAP(d_wl1, d_wl2);
+    SWAP(d_wl1size, d_wl2size);
+    SWAP(d_label, d_label_new);
+  } while (wlsize > 0);
+
+  cudaDeviceSynchronize();
+  gettimeofday(&end, NULL);
+
+  double runtime = end.tv_sec + end.tv_usec / 1000000.0 - start.tv_sec - start.tv_usec / 1000000.0;
+  CheckCuda();
+  printf("iterations: %d\n", iter);
+
+  if (cudaSuccess != cudaMemcpy(label, d_label_new, g.nodes * sizeof(data_type), cudaMemcpyDeviceToHost)) fprintf(stderr, "ERROR: copying of label from device failed\n");
+
+  cudaFree(d_label);
+  cudaFree(d_wl1);
+  cudaFree(d_wl1size);
+  cudaFree(d_wl2);
+  cudaFree(d_wl2size);
+  return runtime;
+}
+== x5b_probe_p6.sh
+/mnt/beegfs/fzheng4/cuvein_traces/final-2026-10-view/P6-memcpy-shared_writewrite_race-racy/:
+total 8
+drwxr-xr-x    2 fzheng4 ncsu    4 Oct 16 17:34 .
+drwxr-xr-x 4727 fzheng4 ncsu 4725 Oct 16 17:34 ..
+lrwxrwxrwx    1 fzheng4 ncsu   90 Oct 16 17:34 dots -> /mnt/beegfs/fzheng4/cuvein_traces/final-2026-10/P6-memcpy-shared_writewrite_race-racy/dots
+lrwxrwxrwx    1 fzheng4 ncsu   95 Oct 16 17:34 meta.json -> /mnt/beegfs/fzheng4/cuvein_traces/final-2026-10/P6-memcpy-shared_writewrite_race-racy/meta.json
+lrwxrwxrwx    1 fzheng4 ncsu   98 Oct 16 17:34 scalar-clock -> /mnt/beegfs/fzheng4/cuvein_traces/final-2026-10/P6-memcpy-shared_writewrite_race-racy/scalar-clock
+lrwxrwxrwx    1 fzheng4 ncsu   98 Oct 16 17:34 vector-clock -> /mnt/beegfs/fzheng4/cuvein_traces/final-2026-10/P6-memcpy-shared_writewrite_race-racy/vector-clock
+
+/mnt/beegfs/fzheng4/cuvein_traces/final-2026-10-view/P6-memcpy-shared_writewrite_race-racy/dots/:
+total 2
+drwxr-xr-x 2 fzheng4 ncsu   1 Oct 13 22:03 .
+drwxr-xr-x 6 fzheng4 ncsu   5 Oct 13 22:03 ..
+-rw-r--r-- 1 fzheng4 ncsu 967 Oct 13 22:03 shared_writewrite_race.sm_89.dot
+
+/mnt/beegfs/fzheng4/cuvein_traces/final-2026-10-view/P6-memcpy-shared_writewrite_race-racy/vector-clock/:
+total 8
+drwxr-xr-x 2 fzheng4 ncsu    1 Oct 13 22:03 .
+drwxr-xr-x 6 fzheng4 ncsu    5 Oct 13 22:03 ..
+-rw-r--r-- 1 fzheng4 ncsu 6749 Oct 13 22:03 kernel_0.json
+== vector-clock /mnt/beegfs/fzheng4/cuvein_traces/final-2026-10-view/P6-memcpy-shared_writewrite_race-racy/vector-clock/kernel_0.json
+data_race_kernel(int*) [1, 1, 1] [64, 1, 1]
+races [{'addr': 0, 'space': 'shared', 'loc_block': 0, 'a_tid': 0, 'a_pc': 112, 'b_tid': 32, 'b_pc': 112, 'kind': 'WAW', 'class': 'DR', 'dist': 'block', 'async': 'ab', 'count': 32, 'a2_uncertain': 0, 'gate_policy': 'recorded'}]
+sync_only [[112, 112, 32]]
+sync_pass [[112, 112, 32, 2, 112, 112]]
+async 1 events False 16
+edge 0x70 -> 0x70 {'intra_thread': 0, 'intra_instance_launch': 0, 'intra_warp': 0, 'intra_block': 32, 'intra_grid': 0}
+edge 0x70 -> 0xb0 {'intra_thread': 0, 'intra_instance_launch': 0, 'intra_warp': 0, 'intra_block': 32, 'intra_grid': 0}
+edge 0xb0 -> 0xb0 {'intra_thread': 0, 'intra_instance_launch': 0, 'intra_warp': 0, 'intra_block': 32, 'intra_grid': 0}
+edge 0x70 -> 0xc0 {'intra_thread': 64, 'intra_instance_launch': 0, 'intra_warp': 0, 'intra_block': 0, 'intra_grid': 0}
+== scalar-clock /mnt/beegfs/fzheng4/cuvein_traces/final-2026-10-view/P6-memcpy-shared_writewrite_race-racy/scalar-clock/kernel_0.json
+data_race_kernel(int*) [1, 1, 1] [64, 1, 1]
+races None
+sync_only None
+sync_pass [[112, 112, 32, 2, 112, 112]]
+async 1 events False 16
+edge 0x70 -> 0x70 {'intra_thread': 0, 'intra_instance_launch': 0, 'intra_warp': 0, 'intra_block': 32, 'intra_grid': 0}
+edge 0x70 -> 0xb0 {'intra_thread': 0, 'intra_instance_launch': 0, 'intra_warp': 0, 'intra_block': 32, 'intra_grid': 0}
+edge 0xb0 -> 0xb0 {'intra_thread': 0, 'intra_instance_launch': 0, 'intra_warp': 0, 'intra_block': 32, 'intra_grid': 0}
+edge 0x70 -> 0xc0 {'intra_thread': 64, 'intra_instance_launch': 0, 'intra_warp': 0, 'intra_block': 0, 'intra_grid': 0}
+-- confirm_final/P6-memcpy-shared_writewrite_race-racy__cuvein__scalar-clock.json
+{
+  "id": "P6-memcpy-shared_writewrite_race-racy",
+  "tool": "cuvein",
+  "mode": "scalar-clock",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0x70-0x70:WAW"
+  ],
+  "pcs": [
+    112
+  ],
+  "lines": "shared_writewrite_race.cu:54",
+  "raw": [
+    {
+      "a_pc": 112,
+      "b_pc": 112,
+      "space": "shared",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "112": "shared_writewrite_race.cu:54"
+  }
+}
+-- confirm_final/P6-memcpy-shared_writewrite_race-racy__cuvein__vector-clock.json
+{
+  "id": "P6-memcpy-shared_writewrite_race-racy",
+  "tool": "cuvein",
+  "mode": "vector-clock",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0x70-0x70:WAW"
+  ],
+  "pcs": [
+    112
+  ],
+  "lines": "shared_writewrite_race.cu:54",
+  "raw": [
+    {
+      "a_pc": 112,
+      "b_pc": 112,
+      "space": "shared",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": "structural",
+      "hb_chain": null,
+      "matrix_class": "structural",
+      "conflict_class": "DR",
+      "a2": "robust",
+      "model_bug": false,
+      "gate_policy": "recorded"
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "112": "shared_writewrite_race.cu:54"
+  }
+}
+store t16-certain dot=9b2663413e6e events=1
+store t16-certain-exits dot=9b2663413e6e events=1
+store t1a-p56 dot=9b2663413e6e events=1
+store t12-after dot=9b2663413e6e events=1
+store evcand dot=9b2663413e6e events=1
+X1 dot=9b2663413e6e
+/home/fzheng4/AccelProf/cuHadron/bulkcpy/shared_writewrite_race_g2s.cu
+/home/fzheng4/AccelProf/cuHadron/dsmem/shared_writewrite_race.cu
+/home/fzheng4/AccelProf/cuHadron/intersubwarp/shared_writewrite_race.cu
+/home/fzheng4/AccelProf/cuHadron/memcpy/shared_writewrite_race.cu

@@ -1,0 +1,22 @@
+node c17 job 314538 shard 4 piece 6 (rows 52::64) 2026-10-17T22:00:17-04:00
+1a2f1dacb9ca8571ca7639884e5b18465fc44e8d
+130 rows in the `other` bin; shard 52/64
+Traceback (most recent call last):
+  File "/home/fzheng4/wt-x5-byte-pairs/eval/baselines/setup/x5b_byte_pairs.py", line 267, in <module>
+    main()
+    ~~~~^^
+  File "/home/fzheng4/wt-x5-byte-pairs/eval/baselines/setup/x5b_byte_pairs.py", line 253, in main
+    rec["events"] = event_facts(dot, ls, u, v, key, cut_pcs)
+                    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fzheng4/wt-x5-byte-pairs/eval/baselines/setup/x5b_byte_pairs.py", line 187, in event_facts
+    r, s = oracle_pair(dot, kj, key)
+           ~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/fzheng4/wt-x5-byte-pairs/eval/baselines/setup/x5b_byte_pairs.py", line 155, in oracle_pair
+    rep = ho.analyze(dot, kj)
+  File "/home/fzheng4/wt-x5-byte-pairs/python/hb_oracle.py", line 676, in analyze
+    sync_group(tids)
+    ~~~~~~~~~~^^^^^^
+  File "/home/fzheng4/wt-x5-byte-pairs/python/hb_oracle.py", line 329, in sync_group
+    nv = VC(j)
+MemoryError
+done 2026-10-17T22:26:25-04:00

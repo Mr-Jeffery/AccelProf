@@ -1,0 +1,27 @@
+shared-only records 130 (the merged set); full-replay records 114; rows with both 106; rows without a full replay 16; full-replay rows missing from the shared-only set 0
+
+rows with both: barrier-only clock answers and trace facts differ in 2; vector-clock answers differ in 2
+
+- SYNC DIFF ('P6-memcpy-shared_writewrite_race-racy', 'scalar-clock', '0x70', '0xb0'): full {'launches': 1, 'recorded_sync_only_true': 0, 'removed_sync_only_true': {'0x80+0x90+0xa0': 1, '0x80': 0, '0x90': 0, '0xa0': 1}, 'sync_records': {'0xa0 barrier': 2}, 'same_byte': 1, 'other_bytes': 0} / shared-only {'launches': 1, 'recorded_sync_only_true': 0, 'removed_sync_only_true': {'0x80+0x90+0xa0': 1, '0x80': 1, '0x90': 1, '0xa0': 1}, 'sync_records': {'0x80 pipeline_commit': 2, '0x90 pipeline_wait': 2, '0xa0 barrier': 2}, 'same_byte': 1, 'other_bytes': 0}
+- SYNC DIFF ('P6-memcpy-shared_writewrite_race-racy', 'vector-clock', '0x70', '0xb0'): full {'launches': 1, 'recorded_sync_only_true': 0, 'removed_sync_only_true': {'0x80+0x90+0xa0': 1, '0x80': 0, '0x90': 0, '0xa0': 1}, 'sync_records': {'0xa0 barrier': 2}, 'same_byte': 1, 'other_bytes': 0} / shared-only {'launches': 1, 'recorded_sync_only_true': 0, 'removed_sync_only_true': {'0x80+0x90+0xa0': 1, '0x80': 1, '0x90': 1, '0xa0': 1}, 'sync_records': {'0x80 pipeline_commit': 2, '0x90 pipeline_wait': 2, '0xa0 barrier': 2}, 'same_byte': 1, 'other_bytes': 0}
+- races differ ('P6-memcpy-shared_writewrite_race-racy', 'scalar-clock', '0x70', '0xb0'): full {'recorded_races_true': 0, 'removed_races_true': {'0x80+0x90+0xa0': 1, '0x80': 0, '0x90': 0, '0xa0': 1}} / shared-only {'recorded_races_true': 0, 'removed_races_true': {'0x80+0x90+0xa0': 1, '0x80': 1, '0x90': 1, '0xa0': 1}}
+- races differ ('P6-memcpy-shared_writewrite_race-racy', 'vector-clock', '0x70', '0xb0'): full {'recorded_races_true': 0, 'removed_races_true': {'0x80+0x90+0xa0': 1, '0x80': 0, '0x90': 0, '0xa0': 1}} / shared-only {'recorded_races_true': 0, 'removed_races_true': {'0x80+0x90+0xa0': 1, '0x80': 1, '0x90': 1, '0xa0': 1}}
+
+rows without a full replay:
+
+- ('P1-CC_CUDA_V_Data_Pull_Determ_IntType_Persist_RaceBug_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-default-1296n', 'scalar-clock', '0x130', '0x380')
+- ('P1-CC_CUDA_V_Data_Pull_Determ_IntType_Persist_RaceBug_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-default-1296n', 'scalar-clock', '0x380', '0xa30')
+- ('P1-CC_CUDA_V_Data_Pull_Determ_IntType_Persist_RaceBug_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-slower_atomic-1296n', 'scalar-clock', '0x130', '0x380')
+- ('P1-CC_CUDA_V_Data_Pull_Determ_IntType_Persist_RaceBug_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-slower_atomic-1296n', 'scalar-clock', '0x380', '0xa30')
+- ('P1-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_RaceBug_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-default-1296n', 'scalar-clock', '0x130', '0x330')
+- ('P1-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_RaceBug_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-default-1296n', 'scalar-clock', '0x330', '0x1330')
+- ('P1-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_RaceBug_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-slower_atomic-1296n', 'scalar-clock', '0x130', '0x330')
+- ('P1-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_RaceBug_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-slower_atomic-1296n', 'scalar-clock', '0x330', '0x1330')
+- ('P1-CC_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_Persist_RaceBug_Warp_NonDup_NoNbrBoundsBug_NoBoundsBug_NoLivelockBug_NoFieldBug-default-1296n', 'scalar-clock', '0x100', '0x3a0')
+- ('P1-CC_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_Persist_RaceBug_Warp_NonDup_NoNbrBoundsBug_NoBoundsBug_NoLivelockBug_NoFieldBug-default-1296n', 'scalar-clock', '0x3a0', '0x13a0')
+- ('P1-CC_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_Persist_RaceBug_Warp_NonDup_NoNbrBoundsBug_NoBoundsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n', 'scalar-clock', '0x100', '0x3a0')
+- ('P1-CC_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_Persist_RaceBug_Warp_NonDup_NoNbrBoundsBug_NoBoundsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n', 'scalar-clock', '0x3a0', '0x13a0')
+- ('P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_NonPersist_CudaAtomic_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-100n', 'scalar-clock', '0x170', '0x340')
+- ('P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_NonPersist_CudaAtomic_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-100n', 'scalar-clock', '0x340', '0x8d0')
+- ('P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n', 'scalar-clock', '0x1e0', '0x420')
+- ('P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n', 'scalar-clock', '0x420', '0xcc0')
