@@ -17,7 +17,7 @@ W=${W:-/home/fzheng4/wt-t23}
 cd "$W" || exit 1
 source eval/baselines/setup/home_quota_guard.sh
 : "${STORE:?set STORE=<store tag>}"
-N=${SLURM_ARRAY_TASK_COUNT:-1}; K=${SLURM_ARRAY_TASK_ID:-0}
+N=${NSHARDS:-${SLURM_ARRAY_TASK_COUNT:-1}}; K=${SLURM_ARRAY_TASK_ID:-0}
 OUTD=$W/eval/results/t23/scan/${OUT:-$STORE}
 mkdir -p "$OUTD"
 SRC=(--store "/mnt/beegfs/fzheng4/cuvein_traces/$STORE")

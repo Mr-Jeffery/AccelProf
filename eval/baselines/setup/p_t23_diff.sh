@@ -18,7 +18,7 @@ W=${W:-/home/fzheng4/wt-t23}
 cd "$W" || exit 1
 source eval/baselines/setup/home_quota_guard.sh
 : "${SCAN:?set SCAN=<scan name>}"
-N=${SLURM_ARRAY_TASK_COUNT:-1}; K=${SLURM_ARRAY_TASK_ID:-0}
+N=${NSHARDS:-${SLURM_ARRAY_TASK_COUNT:-1}}; K=${SLURM_ARRAY_TASK_ID:-0}
 OUTD=$W/eval/results/t23/diff/${OUT:-$SCAN}
 mkdir -p "$OUTD"
 echo "host=$(hostname) date=$(date -Is) scan=$SCAN shard=$K/$N head=$(git rev-parse HEAD)"
