@@ -8,18 +8,16 @@ scalar-clock mode only — their parity, and steps C and D re-run with them. Unm
 stated traces; **tested** = a specific result asserted by a test; **assumed/unverified** = said so.
 
 **Two lines for Jeffery.** Speedup at N = 16 on 16-core hosts, final build, N=1 → 16 on one host type:
-knn 6.2× (46,577 → 7,568 s), nbody 9.8× (3,783 → 387 s; 20.7× against X1's 8,015 s), bfs 2.8× (Fix 2 alone
-1,841 → 39.5 s at N=1), heartwall 4,664 s at N=16 (N=1 cut by the shutdown); pathfinder is slower at N=16
-than at N=1.
+heartwall 12.4× (57,991 → 4,664 s), knn 6.2× (46,577 → 7,568 s), nbody 9.8× (3,783 → 387 s; 20.7× against
+X1's 8,015 s), bfs 2.8× (and Fix 2 alone 1,841 → 39.5 s at N=1); pathfinder is slower at N=16 than at N=1.
 Rows that now finish at X1's caps: 7 of 18 at 1,200 s (asyncmemcpy dtoh fixed and racy, bfs, lavaMD,
 nbody, srad, dxtc2), 4 of 10 at 5,400 s (haversine, expdist; heartwall and nbody derived), 1 of 4 at 24 h
 (expdist); stencil1d's and atomicCAS's 24 h rows were cut by the 18:00 shutdown, particlefilter is OOM.
 
 **State at the final commit (2026-10-18, before the 18:00 ARC shutdown).** Done: both fixes, parity
 (green set; T20 ids 503 of 505 kernel JSONs compared, 0 mismatches; 150 synthetic traces), thresholds,
-step C except heartwall N=1, step D's 1,200 s and 5,400 s rows and two of four 24 h rows. Cut by the
-shutdown: heartwall N=1, bfs kernels 15/17's record-replay comparison, the 24 h rows of stencil1d and
-atomicCAS (II.13).
+step C (all of it), step D's 1,200 s and 5,400 s rows and two of four 24 h rows. Cut by the shutdown:
+bfs kernels 15/17's record-replay comparison and the 24 h rows of stencil1d and atomicCAS (II.13).
 
 ## Part II — T22 cont.: two insert/scan fixes (2026-10-17/18)
 
@@ -272,7 +270,7 @@ c60–c66; EPYC 7302P, c40). Same events and verdicts as X1's rows throughout.
 
 | program | host | N=1 | N=8 | **N=16** | N=1 / N=16 | X1 N=1 (host) | peak MB at N=1 / 8 / 16 |
 |---|---|---|---|---|---|---|---|
-| heartwall (RACE 2, 104 kernels, 8,071,484,636 events) | c66 (N=1), c63 (N=8, 16) — 8124P | running at the commit (100 of 104 kernels at 56,078 s) | 7,137.7 s | **4,663.9 s** | missing (N=1 cut, II.13) | 32,057.2 s (c52, 9115) | — / 6,405 / 6,363 |
+| heartwall (RACE 2, 104 kernels, 8,071,484,636 events) | c66 (N=1), c63 (N=8, 16) — 8124P | 57,990.5 s | 7,137.7 s | **4,663.9 s** | **12.4×** | 32,057.2 s (c52, 9115) | 6,242 / 6,405 / 6,363 |
 | knn (CLEAN, 300 kernels, 11,144,912,500 events) | c62 (N=1), c60 (N=8, 16) — 8124P | 46,577.1 s | 8,857.3 s | **7,567.6 s** | **6.2×** | 44,762.4 s (c66, 8124P) | 20,433 / 25,035 / 30,383 |
 | bfs (RACE 31, 24 kernels, 7,436,165 events) | c40 (7302P) | 39.5 s | 14.1 s | **13.9 s** | 2.8× | 1,506.5 s (c74, 7302P; 5,400 s pass) | 1,814 / 2,051 / 2,379 |
 | nbody (CLEAN, 30 kernels, 320,355,120 events) | c40 (7302P) | 3,783.0 s | 559.1 s | **387.4 s** | 9.8× | 8,015.0 s (c66, 8124P; 24 h pass) | 28,946 / 23,753 / 23,989 |
@@ -280,9 +278,10 @@ c60–c66; EPYC 7302P, c40). Same events and verdicts as X1's rows throughout.
 
 - **Fixes alone (N=1, same node):** bfs 1,841.5 → 39.5 s (46.6×; Fix 2). nbody: launch period 800 → 266 s
   on c60 (II.8; Fix 1). knn N=1 is unchanged by the fixes (46,577 s against X1's 44,762 s on the same host
-  type: its buckets are not of either shape).
-- **Sharding with the fixes** (N=1 → 16, same host type): knn 6.2×, nbody 9.8×, heartwall missing (N=1 cut, II.13), bfs
-  2.8× (13.9 s; most of it is now the collector and the PCDepGraph pass).
+  type: its buckets are not of either shape). heartwall N=1 took 57,990.5 s on c66 (8124P) against X1's
+  32,057.2 s on c52 (EPYC 9115) — a cross-host pair; no same-host N=1 run before the fixes exists.
+- **Sharding with the fixes** (N=1 → 16, same host type, different nodes for heartwall and knn): heartwall
+  12.4×, knn 6.2×, nbody 9.8×, bfs 2.8× (13.9 s; most of it is now the collector and the PCDepGraph pass).
 - **Choice of N for step D: 16** — the fastest of 8 and 16 on all four programs. (Part I measured N = 32 on
   c28's 128 cores; here every host has 16.)
 - Against Part I (c28, `b6a615e`): heartwall N=8 4,951 s and N=32 2,015 s; knn N=8 6,759 s and N=32
@@ -390,7 +389,7 @@ aggregates, `kstats-cut.txt` in the results directory; stencil1d's kernel JSONs 
 
 | run | job, node, start | recorded state | row |
 |---|---|---|---|
-| step C heartwall N=1 | 314326, c66, 10-17 22:50 | 100 of 104 kernels at 56,078 s (snapshot 14:25), ~560 s per kernel | cut: wall and verdict missing |
+| step C heartwall N=1 | 314326, c66, 10-17 22:50 | snapshot 14:25: 100 of 104 at 56,078 s; **finished at 15:13: RACE 2, 57,990.5 s** | complete (II.10) |
 | T20-id parity, bfs kernels 15 and 17 | 314586, c17, 10-17 23:47 | the Python record replay of both still running after 14.7 h; nothing written | missing |
 | step D stencil1d, 84,600 s | 314673, c60, 10-18 06:20 | 149 of ? kernels at 29,169 s (snapshot 14:26) | partial, cut by the shutdown |
 | step D atomicCAS, 84,600 s | 314674, c64, 10-18 06:59 | 60,000 of ? kernels at 26,723 s; the 60,000th at 5,352 s, none after | partial, cut by the shutdown |
@@ -399,8 +398,8 @@ Peaks of the cut runs are missing (the harness reports its peak at the end).
 
 **Done:** both fixes; the scope decision; thresholds (II.8); parity A (green set at N=1, 8 threaded, 8),
 B (T20 ids: 503 of 505 kernel JSONs compared, 0 mismatches; cross-N replays; old-vs-new replays), B3 (150
-synthetic traces × 7 configurations + vector-clock identity); the two regression kernels; step C except as
-listed; step D's 1,200 s and 5,400 s rows (all), and the 24 h rows of particlefilter and expdist.
+synthetic traces × 7 configurations + vector-clock identity); the two regression kernels; step C (all);
+step D's 1,200 s and 5,400 s rows (all), and the 24 h rows of particlefilter and expdist.
 
 ### II.14 Job notes
 
@@ -423,11 +422,10 @@ listed; step D's 1,200 s and 5,400 s rows (all), and the 24 h rows of particlefi
 
 ### II.15 What remains unverified
 
-- **Cut runs** (II.13): heartwall's N=1 wall, if the snapshot is all there is; bfs kernels 15 and 17 of
-  the T20 recording are not compared against the record replay (their aggregates equal the cross-N
-  replays of the same records at N = 1, 2, 8, 32 and the old library's pairs and distance — II.6 — but the
-  Python record replay did not finish); the 24 h stencil1d and atomicCAS rows are partial by the shutdown,
-  not by the cap.
+- **Cut runs** (II.13): bfs kernels 15 and 17 of the T20 recording are not compared against the Python
+  record replay (kernel 15's aggregates equal its cross-N replays at N = 1, 2, 8, 32 and, in pairs and
+  distance, the old library's replay of the same records — II.6; kernel 17 has neither check); the 24 h
+  stencil1d and atomicCAS rows are partial by the shutdown, not by the cap.
 - **Single runs.** Every step C and D row is one run (X1: 3 reps at 1,200 s and 5,400 s). Run-to-run spread
   not measured here; Part I's controls showed a few % on the short programs.
 - **Hosts.** Step C's heartwall and knn N=1 vs N=16 are on different nodes of one host type (EPYC 8124P);
