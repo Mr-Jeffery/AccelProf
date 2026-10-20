@@ -43,5 +43,13 @@
   "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against ggml/src/ggml-cuda/common.cuh and softmax.cu@0b14b87 (buggy) and @9bd4c09 (fixed) and the sm_89 SASS of the build on 2026-10-20",
   "open_questions": [
     "The regex -p 'ne=\\[1024,16,1,1\\],mask=0,sinks=0' matches two test cases (scale 1.0 and 0.1), both launching soft_max_f32<true,1024,1024,float>; the same pair also exists in the other block_size > 32 instances of the template (e.g. <true,512,512>, <true,0,0>) which this driver does not launch."
-  ]
+  ],
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "confirmed",
+    "changes": [],
+    "notes": "Checked at 0b14b87: soft_max_f32 calls block_reduce twice with buf_iw (softmax.cu:102, :120); block_reduce (common.cuh:629-649) writes shared_vals[warp_id] from lane 0 (:638), barrier (:640), reads shared_vals[lane_id] for lane_id < block_size/32 (:642-643), and returns without a barrier. Between the two calls (softmax.cu:104-117) there is only thread-local work on vals[col] (own column; ncols = block_size = 1024): no barrier, so the read of call 1 and the write of call 2 conflict (thread 161 vs thread 32 on shared_vals[1]); intra-warp instances also exist (e.g. thread 33 vs thread 32). Plain float shared: DR. Fix 9bd4c09 adds if (block_size > WARP_SIZE) __syncthreads() before the second call (fixed softmax.cu:119-123), plus a comment in common.cuh (+1 line) and the cooperative-kernel double buffer (not launched by this driver): 'absent' holds; nothing after the second call writes buf_iw. sass_notes are the builder's: the reviewer read sources and diffs only and did not re-dump SASS (the one srun queued with an estimated start the next day and was withdrawn).",
+    "depends_on_D20": false
+  }
 }

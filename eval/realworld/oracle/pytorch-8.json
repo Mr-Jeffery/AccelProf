@@ -5,20 +5,35 @@
   "route": "n/a (not compiled in T21a; route to be assigned by the builder; build_notes: CUTLASS-templated, do not extract)",
   "kernel": "AttentionKernel<...>::attention_kernel (fmha_cutlassF_*; instance named in the fix commit's racecheck run: fmha_cutlassF_f16_aligned_32x128_gmem_sm80); the racing code is MmaMultistageFromSharedMemory::operator() (attn @ V GEMM, mma_from_smem.h L1014-1259) and its callers in kernel_forward.h",
   "space": "shared",
-  "build_revision": {"buggy": "922e846fb62bb330945b35ef9ca29ffa16021cff", "fixed": "6dcdae14be8163d69c5d4e06375968e3eeb652ea"},
+  "build_revision": {
+    "buggy": "922e846fb62bb330945b35ef9ca29ffa16021cff",
+    "fixed": "6dcdae14be8163d69c5d4e06375968e3eeb652ea"
+  },
   "sites": [
-    {"role": "write", "file": "aten/src/ATen/native/transformers/cuda/mem_eff_attention/gemm/mma_from_smem.h", "line_start": 952, "line_end": 953,
-     "source": "cutlass::arch::cp_async_zfill<kSrcBytes, kCacheOpB1>( dst_ptr + v, gmem_ptr, iterator_B1.valid());",
-     "operation": "cp.async zero-fill global->shared copy into the V staging buffer shared_storage.after_mm0.mm1 (cutlass::arch::cp_async_zfill, src-size 0 when !iterator_B1.valid(); expected to lower to LDGSTS; not compiled in T21a so the exact SASS opcode/modifiers are unverified). Function copy_tiles_and_advance_1 (L929-960), called from MmaMultistageFromSharedMemory::operator() at L1188 and L1198 in the mainloop; the copies issued in the last kNumStagesConcurrentLoad-1 iterations are the 'stale' ones still in flight at return, because the last wait is cp_async_wait<kNumStagesConcurrentLoad - 1> at L1205 and there is no cp_async_wait<0>",
-     "strength": "plain"},
-    {"role": "write", "file": "aten/src/ATen/native/transformers/cuda/mem_eff_attention/gemm/mma_from_smem.h", "line_start": 991, "line_end": 992,
-     "source": "cutlass::arch::cp_async_zfill<kSrcBytes, kCacheOpB1>( dst_ptr + v, iterator_B1.get(), iterator_B1.valid());",
-     "operation": "cp.async zero-fill global->shared copy (same cutlass::arch::cp_async_zfill, expected LDGSTS) into the same V staging buffer after_mm0.mm1, issued by _prologue (L963-1010) when called as prologueV(blockN + 1): kernel_forward.h L1046-1048 `prologueV(blockN + 1)` -> lambda L729-741 -> MM1::Mma::prologue (mma_from_smem.h L916-926) -> _prologue; _prologue ends each stage with cp_async_fence (L1006) but does not wait",
-     "strength": "plain"}
+    {
+      "role": "write",
+      "file": "aten/src/ATen/native/transformers/cuda/mem_eff_attention/gemm/mma_from_smem.h",
+      "line_start": 991,
+      "line_end": 992,
+      "source": "cutlass::arch::cp_async_zfill<kSrcBytes, kCacheOpB1>( dst_ptr + v, iterator_B1.get(), iterator_B1.valid());",
+      "operation": "cp.async zero-fill into the V staging buffer after_mm0.mm1, issued by _prologue (L963-1010) from an EARLIER prologueV call (prologueV(0) at kernel_forward.h L800, or prologueV(blockN) at L1047 in the previous blockN iteration). For the fp16 sm80 32x128_gmem instance (the driver) kSmemContainsEntireB is true, so copy_tiles_and_advance_1 (L952) is compiled out and the only cp.async writes into mm1 are _prologue's: _prologue commits kNumStagesConcurrentLoad = kStages = 4 groups (L969-1007) but mma_pv's waits are cp_async_wait<3> (L1061, L1205), so when the key block has fewer than 4*32 = 128 keys (the driver's 64 keys: 2 mainloop iterations) the last zfill stage(s) are still in flight when mma_pv returns. For the float32 3-stage instance the in-flight writes are L952 (the oracle's former site). Expected LDGSTS; not compiled in T21a",
+      "strength": "plain",
+      "line_basis": "source-derived: git show 922e846fb62b:aten/src/ATen/native/transformers/cuda/mem_eff_attention/gemm/mma_from_smem.h (not built, no SASS)"
+    },
+    {
+      "role": "write",
+      "file": "aten/src/ATen/native/transformers/cuda/mem_eff_attention/gemm/mma_from_smem.h",
+      "line_start": 991,
+      "line_end": 992,
+      "source": "cutlass::arch::cp_async_zfill<kSrcBytes, kCacheOpB1>( dst_ptr + v, iterator_B1.get(), iterator_B1.valid());",
+      "operation": "cp.async zero-fill global->shared copy (same cutlass::arch::cp_async_zfill, expected LDGSTS) into the same V staging buffer after_mm0.mm1, issued by _prologue (L963-1010) when called as prologueV(blockN + 1): kernel_forward.h L1046-1048 `prologueV(blockN + 1)` -> lambda L729-741 -> MM1::Mma::prologue (mma_from_smem.h L916-926) -> _prologue; _prologue ends each stage with cp_async_fence (L1006) but does not wait",
+      "strength": "plain",
+      "line_basis": "source-derived: git show 922e846fb62b:aten/src/ATen/native/transformers/cuda/mem_eff_attention/gemm/mma_from_smem.h (not built, no SASS)"
+    }
   ],
   "other_conflicting_accesses": [
     "epilogue shared-memory stores/loads on the aliased union: kernel_forward.h L1115-1120 `Epilogue epilogue(shared_storage.epilogue_shared_storage(), ...); epilogue(rescale, dest_iter, accum_o, source_iter);` (SharedStorageEpilogueInLoop, after_mm0.epilogue, kernel_forward.h L556-576) and kernel_forward.h L1164-1169 (kKeepOutputInRF; SharedStorageEpilogueAtEnd union of mm0/after_mm0/epilogue, L534-554). The st.shared/ld.shared themselves are in the CUTLASS submodule (third_party/cutlass epilogue), not in the files of this record; their lines were not examined.",
-    "next key block's Q*K^T GEMM: kernel_forward.h L796 `mma(gemm_k_iterations, accum, iterator_A, iterator_B, accum);` whose cp.async writes into shared_storage.mm0 (custom_mma_multistage.h L319/L322 (A), L355/L358 (B) in copy_tiles_and_advance, L403 (A), L431 (B) in the prologue; mm0 overlaps after_mm0 in the union), and prologueV(0) at kernel_forward.h L800 (same _prologue write at mma_from_smem.h L991)."
+    "next key block's Q*K^T GEMM: kernel_forward.h L796 `mma(gemm_k_iterations, accum, iterator_A, iterator_B, accum);` whose cp.async writes go into shared_storage.mm0 (mm0 overlaps after_mm0 in the union), and prologueV(0) at kernel_forward.h L800 (same _prologue write at mma_from_smem.h L991). For the gmem instance (kSingleValueIteration false) MM0::Mma is DefaultThreadblockMma = cutlass::gemm::threadblock::MmaMultistage from the third_party/cutlass submodule (kernel_forward.h L408-411, find_default_mma.h L69 / L150), not CustomMmaMultistage, so its cp.async lines are in the submodule, not in custom_mma_multistage.h (whose L319/L322/L355/L358/L403/L431 are used only by kSingleValueIteration instances via MakeCustomMma)."
   ],
   "thread_relation": "cross-warp-same-block",
   "thread_pair_example": "not uniquely nameable from the source (CUTLASS thread maps), as stated by verify.thread_pair. Shape of the pair: in iteration blockN of the attn@V loop (kernel_forward.h L1014), thread t of warp A issues cp.async at mma_from_smem.h L952 in the last mainloop iterations (via L1188/L1198) and leaves mma_pv::operator() with up to kNumStagesConcurrentLoad-1 groups pending; every thread passes __syncthreads() at kernel_forward.h L1044 (which does not wait for cp.async); thread u of another warp B then issues the cp.async of prologueV(blockN+1) (L1047 -> mma_from_smem.h L991) or, in the in-loop epilogue (L1115-1120) / the next key block (L796), writes/reads the aliased shared union, while warp A's pending cp.async have not been waited for. The first cp_async_wait after that point is at mma_from_smem.h L1061 (next mma_pv) or inside the next mm0 mainloop.",
@@ -39,7 +54,70 @@
     "The fixed variant's residual (8 racecheck warnings in the commit message) is unexplained; the oracle says 'residual' only because the commit says so, with residual_sites unknown.",
     "kPreloadV is true for 16-bit types on sm80+ (kernel_forward.h L115-116), so for the fp16 sm80 instance the fix's L802 drain is NOT executed (it is in the `else` of `if (kPreloadV)`); only L1064 and L1171 apply.",
     "cp_async_zfill/cp_async lowering (LDGSTS.E.BYPASS... and its line attribution in -lineinfo SASS, which may point into third_party/cutlass instead of the repo files above) not checked; kCacheOpB1 (ca/cg) not determined.",
-    "Race manifests as wrong output / NaN only on consumer Ampere/Ada parts (xformers #1392); not observable on H100 in 2000 runs (dispute_points). Detection must be by happens-before modelling of cp.async groups."
+    "Race manifests as wrong output / NaN only on consumer Ampere/Ada parts (xformers #1392); not observable on H100 in 2000 runs (dispute_points). Detection must be by happens-before modelling of cp.async groups.",
+    "Review finding (2026-10-20): both mm1 cp.async writes (L991 of the earlier and of the later prologueV, or L952 vs L991 in the float32 instance) use the same thread map (SmemIteratorB1 built from thread_idx only, mma_from_smem.h L921; this->smem_iterator_B1_ in the operator), so for a given shared address the stale write and the new write come from the SAME thread. A cross-thread report therefore needs an access with a different thread map on the aliased union (warp-level LDSM reads of mm1, the MM0 GEMM or B2bGemm `si` stores that alias mm1 through mm0, or the epilogue); which one racecheck saw is not stated in the commit and is not derivable from the source. Under PTX two cp.async of one thread are themselves unordered, but a detector that reports only cross-thread pairs cannot report that. Observation consistent with the commit's table: for fp16 (kPreloadV) the fix's drain after MM0 (fixed L802) is in the else-branch and does not run, and fp16 keeps 4-8 warnings after the fix while float32 (kPreloadV false, drain runs) goes to 0 hazards; the residual may therefore be on the MM0 -> prologueV(0)/si boundary (fixed L796-L800), unverified."
   ],
-  "upstream_status": "n/a (fixed target; merged 2026-09-30 as PR 198922; parent 922e846 is the last buggy commit; in no v2.x release tag)"
+  "upstream_status": "n/a (fixed target; merged 2026-09-30 as PR 198922; parent 922e846 is the last buggy commit; in no v2.x release tag)",
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "corrected",
+    "changes": [
+      {
+        "field": "sites[0]",
+        "old": {
+          "role": "write",
+          "file": "aten/src/ATen/native/transformers/cuda/mem_eff_attention/gemm/mma_from_smem.h",
+          "line_start": 952,
+          "line_end": 953,
+          "source": "cutlass::arch::cp_async_zfill<kSrcBytes, kCacheOpB1>( dst_ptr + v, gmem_ptr, iterator_B1.valid());",
+          "operation": "cp.async zero-fill global->shared copy into the V staging buffer shared_storage.after_mm0.mm1 (cutlass::arch::cp_async_zfill, src-size 0 when !iterator_B1.valid(); expected to lower to LDGSTS; not compiled in T21a so the exact SASS opcode/modifiers are unverified). Function copy_tiles_and_advance_1 (L929-960), called from MmaMultistageFromSharedMemory::operator() at L1188 and L1198 in the mainloop; the copies issued in the last kNumStagesConcurrentLoad-1 iterations are the 'stale' ones still in flight at return, because the last wait is cp_async_wait<kNumStagesConcurrentLoad - 1> at L1205 and there is no cp_async_wait<0>",
+          "strength": "plain"
+        },
+        "new": {
+          "role": "write",
+          "file": "aten/src/ATen/native/transformers/cuda/mem_eff_attention/gemm/mma_from_smem.h",
+          "line_start": 991,
+          "line_end": 992,
+          "source": "cutlass::arch::cp_async_zfill<kSrcBytes, kCacheOpB1>( dst_ptr + v, iterator_B1.get(), iterator_B1.valid());",
+          "operation": "cp.async zero-fill into the V staging buffer after_mm0.mm1, issued by _prologue (L963-1010) from an EARLIER prologueV call (prologueV(0) at kernel_forward.h L800, or prologueV(blockN) at L1047 in the previous blockN iteration). For the fp16 sm80 32x128_gmem instance (the driver) kSmemContainsEntireB is true, so copy_tiles_and_advance_1 (L952) is compiled out and the only cp.async writes into mm1 are _prologue's: _prologue commits kNumStagesConcurrentLoad = kStages = 4 groups (L969-1007) but mma_pv's waits are cp_async_wait<3> (L1061, L1205), so when the key block has fewer than 4*32 = 128 keys (the driver's 64 keys: 2 mainloop iterations) the last zfill stage(s) are still in flight when mma_pv returns. For the float32 3-stage instance the in-flight writes are L952 (the oracle's former site). Expected LDGSTS; not compiled in T21a",
+          "strength": "plain",
+          "line_basis": "source-derived: git show 922e846fb62b:aten/src/ATen/native/transformers/cuda/mem_eff_attention/gemm/mma_from_smem.h (not built, no SASS)"
+        },
+        "reason": "copy_tiles_and_advance_1 (L952) is never executed in the driver's kernel: MM1 for fp16 on sm80 has Stages = 4 (kernel_forward.h L484-486), kMaxK = MM0::AccumulatorSharedStorage::Shape::kN = kKeysPerBlock = 128 (L499, mma_from_smem.h L84-99 with MM0 ThreadblockShape <32, 128, ThreadK> at kernel_forward.h L382-383), Shape::kK = ThreadK = 32 (gemm_kernel_utils.h L146-157), kStages = min(4, ceil(128/32)) = 4 (mma_from_smem.h L1438-1440), so kSmemContainsEntireB = 128 <= 32*4 is true (L185) and both calls of L952 sit under `if (!kSmemContainsEntireB)` (L1187, L1197). The writes still in flight at mma_pv's return are _prologue's L991 zfill stages.",
+        "evidence": "mma_from_smem.h L185, L803-804, L969-1007, L1061, L1187-1198, L1205, L1438-1440; kernel_forward.h L382-383, L484-486, L499; gemm_kernel_utils.h L146-157; all at 922e846"
+      },
+      {
+        "field": "other_conflicting_accesses[1]",
+        "old": "next key block's Q*K^T GEMM: kernel_forward.h L796 `mma(gemm_k_iterations, accum, iterator_A, iterator_B, accum);` whose cp.async writes into shared_storage.mm0 (custom_mma_multistage.h L319/L322 (A), L355/L358 (B) in copy_tiles_and_advance, L403 (A), L431 (B) in the prologue; mm0 overlaps after_mm0 in the union), and prologueV(0) at kernel_forward.h L800 (same _prologue write at mma_from_smem.h L991).",
+        "new": "next key block's Q*K^T GEMM: kernel_forward.h L796 `mma(gemm_k_iterations, accum, iterator_A, iterator_B, accum);` whose cp.async writes go into shared_storage.mm0 (mm0 overlaps after_mm0 in the union), and prologueV(0) at kernel_forward.h L800 (same _prologue write at mma_from_smem.h L991). For the gmem instance (kSingleValueIteration false) MM0::Mma is DefaultThreadblockMma = cutlass::gemm::threadblock::MmaMultistage from the third_party/cutlass submodule (kernel_forward.h L408-411, find_default_mma.h L69 / L150), not CustomMmaMultistage, so its cp.async lines are in the submodule, not in custom_mma_multistage.h (whose L319/L322/L355/L358/L403/L431 are used only by kSingleValueIteration instances via MakeCustomMma).",
+        "reason": "the custom_mma_multistage.h lines are not compiled into the driver's (gmem) kernel's Q*K^T GEMM",
+        "evidence": "kernel_forward.h L408-411; find_default_mma.h L65-L83, L147-L161 at 922e846"
+      },
+      {
+        "field": "open_questions",
+        "old": [
+          "Discrepancy with the record: verify.accesses/location_buggy cite mma_from_smem.h L952 and kernel_forward.h L1047 -> L991, L796, L1115, L1164; all these lines are confirmed at 922e846 (L1062 holds the commented-out drain). The record does not say that copy_tiles_and_advance_1 (L952) is only reached when !kSmemContainsEntireB (guards at mma_from_smem.h L1187 and L1197, kSmemContainsEntireB = kMaxK <= Shape::kK * kStages at L185); whether it is false for the instance used (fmha_cutlassF_f16_aligned_32x128_gmem_sm80) was not established from the source.",
+          "The exact cross-thread pair behind the racecheck errors is not identifiable from the source: stale and prologue writes to one stage buffer use the same thread map, so they may be issued by the same thread for the same address (racecheck/our detector only report cross-thread pairs), whereas the epilogue/mm0 accesses use a different layout of the aliased union. The chosen pair follows verify.accesses; the alternatives are in other_conflicting_accesses.",
+          "The fixed variant's residual (8 racecheck warnings in the commit message) is unexplained; the oracle says 'residual' only because the commit says so, with residual_sites unknown.",
+          "kPreloadV is true for 16-bit types on sm80+ (kernel_forward.h L115-116), so for the fp16 sm80 instance the fix's L802 drain is NOT executed (it is in the `else` of `if (kPreloadV)`); only L1064 and L1171 apply.",
+          "cp_async_zfill/cp_async lowering (LDGSTS.E.BYPASS... and its line attribution in -lineinfo SASS, which may point into third_party/cutlass instead of the repo files above) not checked; kCacheOpB1 (ca/cg) not determined.",
+          "Race manifests as wrong output / NaN only on consumer Ampere/Ada parts (xformers #1392); not observable on H100 in 2000 runs (dispute_points). Detection must be by happens-before modelling of cp.async groups."
+        ],
+        "new": [
+          "Discrepancy with the record: verify.accesses/location_buggy cite mma_from_smem.h L952 and kernel_forward.h L1047 -> L991, L796, L1115, L1164; all these lines are confirmed at 922e846 (L1062 holds the commented-out drain). The record does not say that copy_tiles_and_advance_1 (L952) is only reached when !kSmemContainsEntireB (guards at mma_from_smem.h L1187 and L1197, kSmemContainsEntireB = kMaxK <= Shape::kK * kStages at L185); whether it is false for the instance used (fmha_cutlassF_f16_aligned_32x128_gmem_sm80) was not established from the source.",
+          "The exact cross-thread pair behind the racecheck errors is not identifiable from the source: stale and prologue writes to one stage buffer use the same thread map, so they may be issued by the same thread for the same address (racecheck/our detector only report cross-thread pairs), whereas the epilogue/mm0 accesses use a different layout of the aliased union. The chosen pair follows verify.accesses; the alternatives are in other_conflicting_accesses.",
+          "The fixed variant's residual (8 racecheck warnings in the commit message) is unexplained; the oracle says 'residual' only because the commit says so, with residual_sites unknown.",
+          "kPreloadV is true for 16-bit types on sm80+ (kernel_forward.h L115-116), so for the fp16 sm80 instance the fix's L802 drain is NOT executed (it is in the `else` of `if (kPreloadV)`); only L1064 and L1171 apply.",
+          "cp_async_zfill/cp_async lowering (LDGSTS.E.BYPASS... and its line attribution in -lineinfo SASS, which may point into third_party/cutlass instead of the repo files above) not checked; kCacheOpB1 (ca/cg) not determined.",
+          "Race manifests as wrong output / NaN only on consumer Ampere/Ada parts (xformers #1392); not observable on H100 in 2000 runs (dispute_points). Detection must be by happens-before modelling of cp.async groups.",
+          "Review finding (2026-10-20): both mm1 cp.async writes (L991 of the earlier and of the later prologueV, or L952 vs L991 in the float32 instance) use the same thread map (SmemIteratorB1 built from thread_idx only, mma_from_smem.h L921; this->smem_iterator_B1_ in the operator), so for a given shared address the stale write and the new write come from the SAME thread. A cross-thread report therefore needs an access with a different thread map on the aliased union (warp-level LDSM reads of mm1, the MM0 GEMM or B2bGemm `si` stores that alias mm1 through mm0, or the epilogue); which one racecheck saw is not stated in the commit and is not derivable from the source. Under PTX two cp.async of one thread are themselves unordered, but a detector that reports only cross-thread pairs cannot report that. Observation consistent with the commit's table: for fp16 (kPreloadV) the fix's drain after MM0 (fixed L802) is in the else-branch and does not run, and fp16 keeps 4-8 warnings after the fix while float32 (kPreloadV false, drain runs) goes to 0 hazards; the residual may therefore be on the MM0 -> prologueV(0)/si boundary (fixed L796-L800), unverified."
+        ],
+        "reason": "records why the registered pair cannot be a cross-thread pair as written, and a source-backed hypothesis for the fixed-build residual",
+        "evidence": "mma_from_smem.h L916-926, L921, L1031-1058 at 922e846; kernel_forward.h L796-803, L1043-1050, L1062-1066 at 6dcdae1"
+      }
+    ],
+    "notes": "Lines re-checked at 922e846 (= parent of 6dcdae1) and 6dcdae1: mma_from_smem.h L952, L991, L1006, L1061, L1187/L1197, L1205; kernel_forward.h L115-117 (kPreloadV, kKeepOutputInRF), L534-576 (EpilogueAtEnd / EpilogueInLoop: in the InLoop storage used by the gmem instance mm1 and epilogue are separate members, both inside the after_mm0 struct that the union overlays with mm0), L729-741, L796-801, L1010-1048, L1062 (commented drain), L1115-1120, L1164-1169. Fix (3 files, 16+/9-): drain_cp_asyncs() added (fixed mma_from_smem.h L932-938, no-op stub L540-542 for the pipelined variant), called at fixed kernel_forward.h L802 (else of kPreloadV), L1064, L1171; the dead kZfill drain block at the end of CustomMmaMultistage (buggy custom_mma_multistage.h L751-758) is removed (SharedMemoryClear is pinned to kNone, find_default_mma.h L67-68, so no code change). Class DR stands (cp.async writes are weak). The fixed expectation 'residual, sites unknown' stands. Open decision for Jeffery: how pytorch-8 is scored, since as written the oracle pair is a same-thread pair for the fp16 driver and the cross-thread pair is not nameable from the source. class_reason attributes the plain/strong class rule to D20; the rule itself is item 1 of CLAUDE.md 'T21 corpus' (strong accesses decide the class); D20 only decides how SC pairs count.",
+    "depends_on_D20": false
+  }
 }

@@ -64,5 +64,13 @@
     "Strength of the buggy accesses at SASS level: plain LDS/STS (no .STRONG) although the source is volatile; expected class SC presumes the detector reads the volatile from PTX.",
     "Residual intra-step plain pair in the fixed build (see fixed.reason): whether the ground truth for 'fixed' is absent (hardware racecheck quiet) or DR (PTX happens-before) is a labelling decision.",
     "The driver (n=64, n_tests=100) executes 4.4e7 thread-level memory instructions in total (ncu, sm_75 build; about 2.9e7 of them shared LDS/STS upper bound): above the 1e7 aim, below the 1e8 hard limit; n_tests=100 is fixed by the _n_ branch."
-  ]
+  ],
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "confirmed",
+    "changes": [],
+    "notes": "Checked at 5be7a45: with -D_n_=64, n_threads_reduction = n_blocks_reduction = kmin(64,256) = 64 (main.cu:43-44), so n_rows_per_block = n_cols_per_block = 1 (:141, :182) and all six steps of min_in_rows_warp_reduce (:143-150) and min_in_cols_warp_reduce (:184-191) run; min_warp_reduce<blockSize> (:455-462) is called from min_reduce1 (:494) and min_reduce2 (:510). The shared arrays are plain (:154, :195, extern sdata :118) but every access inside the three warp reductions goes through a volatile data* parameter, so all racing accesses are ld/st.volatile.shared, and there is no __syncwarp between steps: the store of step +32 (:144) and the load sdata[tid+16] of step +16 (:145) by lanes 16 and 0 of warp 0 conflict, and the same shape repeats for every later step and inside each step. Both accesses strong -> SC under the PTX model, the case D20 names for this target. Fixed 44ed88e: volatile removed and five __syncwarp() between the six steps of each function (fix diff); the intra-step pair (lane t loads sdata[t+k] while lane t+k stores sdata[t+k], k <= 16; fixed :146, :148, :150, :152, :154 and the same lines of the other two functions) has no ordering, so the residual plain DR stands by source (benign for min, still a formal DR). Strength at SASS level: the builder reports plain LDS/STS for the volatile shared accesses (sass_notes, open_questions); if the detector takes strength from SASS, the buggy pairs come out as DR, which D20 must settle. sass_notes are the builder's: the reviewer read sources and diffs only and did not re-dump SASS (the one srun queued with an estimated start the next day and was withdrawn).",
+    "depends_on_D20": true
+  }
 }

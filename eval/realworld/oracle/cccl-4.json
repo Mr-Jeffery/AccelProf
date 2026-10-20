@@ -5,14 +5,38 @@
   "route": "R1h",
   "kernel": "decoupled_look_back_kernel<uint32_t> (verbatim from cub/test/catch2_test_device_decoupled_look_back.cu; driver_<variant>.cu), 64 tiles x 256 threads",
   "space": "global",
-  "build_revision": {"buggy": "45f868f38fdf7a5e9746aa4074bf7da0c730a330", "fixed": "5dad0bff89d79d1bffb557f47eaa7a2229b3ae79"},
+  "build_revision": {
+    "buggy": "45f868f38fdf7a5e9746aa4074bf7da0c730a330",
+    "fixed": "5dad0bff89d79d1bffb557f47eaa7a2229b3ae79"
+  },
   "sites": [
-    {"role": "read", "file": "driver_buggy.cu (= cub/test/catch2_test_device_decoupled_look_back.cu line 64)", "line_start": 60, "line_end": 60,
-     "source": "MessageT tile_aggregate = tile_data[tile_idx];  (every thread)", "operation": "ld.global.u32 (SASS LDG.E R17, [R2.64] at 0x0050)", "strength": "plain"},
-    {"role": "write", "file": "driver_buggy.cu (= test line 89)", "line_start": 85, "line_end": 85,
-     "source": "tile_data[tile_idx] = inclusive_prefix;  (tid 0, tile_idx > 0)", "operation": "st.global.u32 (SASS @!P2 STG.E [R2.64], R7 at 0x0960)", "strength": "plain"},
-    {"role": "write", "file": "driver_buggy.cu (= test line 72)", "line_start": 68, "line_end": 68,
-     "source": "tile_data[tile_idx] = tile_aggregate;  (tid 0, tile_idx == 0)", "operation": "st.global.u32 (SASS STG.E [R2.64], R17 at 0x0cf0)", "strength": "plain"}
+    {
+      "role": "read",
+      "file": "driver_buggy.cu (= cub/test/catch2_test_device_decoupled_look_back.cu line 64)",
+      "line_start": 60,
+      "line_end": 60,
+      "source": "MessageT tile_aggregate = tile_data[tile_idx];  (every thread)",
+      "operation": "ld.global.u32 (SASS LDG.E R17, [R2.64] at 0x0050)",
+      "strength": "plain"
+    },
+    {
+      "role": "write",
+      "file": "driver_buggy.cu (= test line 89)",
+      "line_start": 85,
+      "line_end": 85,
+      "source": "tile_data[tile_idx] = inclusive_prefix;  (tid 0, tile_idx > 0)",
+      "operation": "st.global.u32 (SASS @!P2 STG.E [R2.64], R7 at 0x0960)",
+      "strength": "plain"
+    },
+    {
+      "role": "write",
+      "file": "driver_buggy.cu (= test line 72)",
+      "line_start": 68,
+      "line_end": 68,
+      "source": "tile_data[tile_idx] = tile_aggregate;  (tid 0, tile_idx == 0)",
+      "operation": "st.global.u32 (SASS STG.E [R2.64], R17 at 0x0cf0)",
+      "strength": "plain"
+    }
   ],
   "thread_relation": "cross-warp, same block (tile 0 also intra-warp: lanes 1..31 of warp 0 vs lane 0)",
   "thread_pair_example": "block b>0: thread 32 (warp 1) reads tile_data[b] at line 60 while thread 0 writes tile_data[b] at line 85 after the look-back; the first __syncthreads is at line 88, after the write. Block 0: lanes 1..31 of warp 0 read vs lane 0 writes at line 68.",
@@ -26,5 +50,13 @@
   },
   "sass_notes": "SASS lines are of the DRIVER file (the kernel excerpt sits at driver lines 34-93 = test lines 38-97 minus 4). Buggy: LDG.E at 0x0050, first BAR.SYNC only at 0x0980 (driver_buggy.cu:88) after the STG at 0x0960; fixed: LDG.E 0x0070, BAR.SYNC 0x0080 (driver_fixed.cu:62), writes at driver_fixed.cu:70 and :87. The TilePrefixCallbackOp part uses ST.E.64.STRONG.GPU / LD.E.64.STRONG.GPU and MEMBAR.SC.CTA (correct).",
   "derived_from": "verify.accesses + verify.thread_pair of eval/realworld/targets.jsonl (cccl-4), re-checked against the verbatim excerpts (gen_driver.sh prints the excerpt diff = the fix commit's diff) and nvdisasm -g of the built drivers (eval/x_logs/sass-cccl-4-*.txt) on 2026-10-20",
-  "open_questions": []
+  "open_questions": [],
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "confirmed",
+    "changes": [],
+    "notes": "Checked at 45f868f: tile_idx = blockIdx.x (cub/cub/agent/single_pass_scan_operators.cuh:1244-1245); every thread reads tile_data[tile_idx] at test L64 (driver_buggy.cu:60); tid 0 writes it at L72 (tile 0, driver :68) or L89 (driver :85); the only __syncthreads is L92 (driver :88), on the tile_idx > 0 path after the write. Driver lines = test lines - 4 (gen_driver.sh copies test lines 38-97 after the 26-line licence header and a 7-line preamble; driver_buggy.cu:58-62, 66-69, 84-88 checked). Fix 5dad0bff adds only __syncthreads() after L64. In block 0 the tile_idx == 0 branch (test L66-74) has no barrier at all, so warps 1-7 of block 0 also race cross-warp with tid 0's write, not only lanes 1-31 of warp 0. NDEBUG is undefined in the driver (driver_buggy.cu:29), so the asserts at test L94-95 run; they read tile_data after the L92 barrier and add no pair. Plain global accesses: DR. sass_notes are the builder's: the reviewer read sources and diffs only and did not re-dump SASS (the one srun queued with an estimated start the next day and was withdrawn).",
+    "depends_on_D20": false
+  }
 }

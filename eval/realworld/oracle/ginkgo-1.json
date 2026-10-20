@@ -44,5 +44,13 @@
   "open_questions": [
     "The record says 256 threads / a 256-entry block_partial; at this revision default_block_size is 512 (common/cuda_hip/base/kernel_launch.hpp L48), so block_partial has 512 entries and the driver launches 512 threads (the kernel's loop and array are sized by default_block_size; 256 threads would leave entries 256..511 uninitialised). The racing pair is the same, with warps 1..15 instead of 1..7.",
     "Direct launch is not the library's own launch path (run_kernel_col_reduction_cached); the kernel header is the checked-out revision's, only the functors and the launch are ours."
-  ]
+  ],
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "confirmed",
+    "changes": [],
+    "notes": "Checked against common/cuda_hip/base/kernel_launch_reduction.hpp at e0d4d6e: store block_partial[threadIdx.x] at :309, block.sync() at :310 (the only barrier in the loop body), warp-0 loads block_partial[i + warp_rank], i = 0..480 step 32, at :317 (inside 'if (threadIdx.x < warp_size)' :312), loop header :298-:300. default_block_size = 512 (common/cuda_hip/base/kernel_launch.hpp:48), so block_partial has 512 entries (:291) and the 512-thread direct launch is the right one. The record's 256 would leave entries 256..511 uninitialised. Thread 32w+l (w = 1..15) skips :312, loops back and stores block_partial[32w+l] in iteration n+1 while lane l of warp 0 may still load it in iteration n. Nothing orders the two (:310 orders store-before-load of one iteration only). Both plain shared accesses, so DR; relation cross-warp-same-block. The library reaches a second iteration only when ceildiv(cols, 32) > 65535 (:496-:499 cap gridDim.y), so the direct launch is needed. Fix 4d8ec44: col_step at :297, loop header folded into :299-:300, 'if (block_col + col_step < cols) block.sync();' at :324-:326 (barrier :325). The condition is uniform per block, and :309/:317 keep their line numbers. The fix removes the race: fixed = absent. SASS opcodes, tokens and offsets quoted in sites/sass_notes were not re-checked: the one allowed srun (-p normal -t 10) could not start (partition full, estimated start 2026-10-21 14:37) and was cancelled. Everything above is from the upstream sources at the two commits.",
+    "depends_on_D20": false
+  }
 }

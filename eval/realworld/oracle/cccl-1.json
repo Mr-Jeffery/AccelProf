@@ -5,14 +5,38 @@
   "route": "R1h",
   "kernel": "block_reduce_kernel<<<1,65>>> (driver.cu) -> cub::BlockReduce<uint8_t,65,BLOCK_REDUCE_RAKING> -> BlockReduceRaking::Reduce -> WarpReduceSmem::ReduceStep",
   "space": "shared",
-  "build_revision": {"buggy": "5e0f9222c4211f50ad2b0ae3b374846b3854c8de", "fixed": "cb8707cbba4b019b52b62c04f9e5cb93b7fa01f2"},
+  "build_revision": {
+    "buggy": "5e0f9222c4211f50ad2b0ae3b374846b3854c8de",
+    "fixed": "cb8707cbba4b019b52b62c04f9e5cb93b7fa01f2"
+  },
   "sites": [
-    {"role": "read", "file": "cub/cub/block/specializations/block_reduce_raking.cuh", "line_start": 222, "line_end": 222,
-     "source": "partial           = raking_segment[0];", "operation": "ld.shared.u8 (SASS LDS.U8 [R0])", "strength": "plain"},
-    {"role": "read", "file": "cub/cub/block/specializations/block_reduce_raking.cuh", "line_start": 161, "line_end": 161,
-     "source": "T addend = raking_segment[ITERATION];  (RakingReduction, iterations 1..2)", "operation": "ld.shared.u8 (SASS LDS.U8 [R0+0x1], [R0+0x2])", "strength": "plain"},
-    {"role": "write", "file": "cub/cub/thread/thread_store.cuh", "line_start": 284, "line_end": 284,
-     "source": "reached from cub/cub/warp/specializations/warp_reduce_smem.cuh:160  ThreadStore<STORE_VOLATILE>(&temp_storage.reduce[lane_id], input);", "operation": "st.volatile.shared.u8 (SASS STS.U8 [R4], R5 at 0x01d0, line attributed to thread_store.cuh:284)", "strength": "volatile"}
+    {
+      "role": "read",
+      "file": "cub/cub/block/specializations/block_reduce_raking.cuh",
+      "line_start": 222,
+      "line_end": 222,
+      "source": "partial           = raking_segment[0];",
+      "operation": "ld.shared.u8 (SASS LDS.U8 [R0])",
+      "strength": "plain"
+    },
+    {
+      "role": "read",
+      "file": "cub/cub/block/specializations/block_reduce_raking.cuh",
+      "line_start": 161,
+      "line_end": 161,
+      "source": "T addend = raking_segment[ITERATION];  (RakingReduction, iterations 1..2)",
+      "operation": "ld.shared.u8 (SASS LDS.U8 [R0+0x1], [R0+0x2])",
+      "strength": "plain"
+    },
+    {
+      "role": "write",
+      "file": "cub/cub/thread/thread_store.cuh",
+      "line_start": 284,
+      "line_end": 284,
+      "source": "reached from cub/cub/warp/specializations/warp_reduce_smem.cuh:160  ThreadStore<STORE_VOLATILE>(&temp_storage.reduce[lane_id], input);",
+      "operation": "st.volatile.shared.u8 (SASS STS.U8 [R4], R5 at 0x01d0, line attributed to thread_store.cuh:284)",
+      "strength": "volatile"
+    }
   ],
   "pair": "(read block_reduce_raking.cuh:222 or :161) vs (write warp_reduce_smem.cuh:160 / thread_store.cuh:284); the record's access list has the two reads and one write, so the racing pair is {read, write}",
   "thread_relation": "intra-warp, same block",
@@ -27,5 +51,15 @@
   },
   "sass_notes": "buggy build, nvdisasm -g: LDS.U8 [R0] (block_reduce_raking.cuh:222, 0x00f0), @!P0 LDS.U8 [R0+0x1] and @!P1 LDS.U8 [R0+0x2] (:161, 0x0130/0x0140), STS.U8 [R4], R5 (thread_store.cuh:284, 0x01d0) preceded in program order by no WARPSYNC/BAR. The volatile store lowers to a plain STS.U8 and the volatile load to a plain LDS.U8 (thread_load.cuh:331): sm_89 shared volatile has no .STRONG token in SASS. Kernel symbol _Z19block_reduce_kernelPKhPh.",
   "derived_from": "verify.accesses + verify.thread_pair of eval/realworld/targets.jsonl (cccl-1), re-checked against cub/cub/block/specializations/block_reduce_raking.cuh and cub/cub/warp/specializations/warp_reduce_smem.cuh at 5e0f922 and against cuobjdump/nvdisasm -g of the built driver (eval/x_logs, harness/sassline.sh) on 2026-10-20",
-  "open_questions": ["Whether the detector, which reads SASS, can tell the volatile store from a plain one: sm_89 emits plain STS.U8/LDS.U8 for it, so a report will carry the DR class regardless of the volatile qualifier."]
+  "open_questions": [
+    "Whether the detector, which reads SASS, can tell the volatile store from a plain one: sm_89 emits plain STS.U8/LDS.U8 for it, so a report will carry the DR class regardless of the volatile qualifier."
+  ],
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "confirmed",
+    "changes": [],
+    "notes": "Checked at 5e0f922. BlockRakingLayout<uint8_t,65>: MAX_RAKING_THREADS=min(65,32)=32, SEGMENT_LENGTH=(65+31)/32=3, RAKING_THREADS=(65+2)/3=22, USE_SEGMENT_PADDING=0 (3 is odd), UNGUARDED=(65%22==0)=false (cub/cub/block/block_raking_layout.cuh:86-110); RakingPtr = buff + tid*3 (:148). WarpReduce<uint8_t,22> is WarpReduceSmem because 22 is not a power of two (cub/cub/warp/warp_reduce.cuh:169,177-178); its _TempStorage begins with T reduce[38] (warp_reduce_smem.cuh:101-105) and BlockReduceRaking::_TempStorage is a union of warp_storage and raking_grid (block_reduce_raking.cuh:121-128), so reduce[4] is raking_grid.buff[4]. Lane 1 reads buff[3] (block_reduce_raking.cuh:222) and buff[4], buff[5] (:161; guard 1*3+ITER < 65 holds), lane 4 stores reduce[4] in the first ReduceStep (warp_reduce_smem.cuh:160 -> thread_store.cuh:284, volatile store); both lanes in warp 0. The only barrier, CTA_SYNC at block_reduce_raking.cuh:215, precedes both accesses; the first WARP_SYNC (warp_reduce_smem.cuh:162) comes after the store. Fix cb8707cb inserts WARP_SYNC((1<<RAKING_THREADS)-1) = 0x3fffff after :226, between the raking reads and the WarpReduce call; its second hunk (cub/cub/thread/thread_reduce.cuh) only renames Lenght -> Length. Every later ReduceStep access is separated by WARP_SYNC(member_mask) (warp_reduce_smem.cuh:162,171), so 'absent' holds. Driver driver.cu: BlockReduce<uint8_t,65,BLOCK_REDUCE_RAKING>::Sum in <<<1,65>>>. Class: a plain load against a volatile store is DR (CLAUDE.md T21 item 1); the pair is not strong-vs-strong, so D20 does not change it. sass_notes are the builder's: the reviewer read sources and diffs only and did not re-dump SASS (the one srun queued with an estimated start the next day and was withdrawn).",
+    "depends_on_D20": false
+  }
 }

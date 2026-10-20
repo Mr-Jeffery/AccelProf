@@ -5,16 +5,31 @@
   "route": "n/a (not compiled in T21a; build_notes: stand-alone torch extension pointnet2_ops_lib, only sampling_gpu.cu matters)",
   "kernel": "furthest_point_sampling_kernel<block_size> (sampling_gpu.cu L69-173); launched with <<<b, n_threads>>> where n_threads = opt_n_threads(n) (switch in furthest_point_sampling_kernel_wrapper L175-)",
   "space": "shared",
-  "build_revision": {"buggy": "b5ceb6d9ca0467ea34beb81023f96ee82228f626", "fixed": null},
+  "build_revision": {
+    "buggy": "b5ceb6d9ca0467ea34beb81023f96ee82228f626",
+    "fixed": null
+  },
   "sites": [
-    {"role": "write", "file": "pointnet2_ops_lib/pointnet2_ops/_ext-src/src/sampling_gpu.cu", "line_start": 112, "line_end": 112,
-     "source": "dists_i[tid] = besti;",
-     "operation": "st.shared.u32 into `__shared__ int dists_i[block_size]` (L75), executed by every thread at the top of the NEXT outer iteration j+1 (after its per-thread distance loop L95-110); thread 0's store hits dists_i[0]; expected STS, not compiled in T21a so the lowering is unverified",
-     "strength": "plain"},
-    {"role": "read", "file": "pointnet2_ops_lib/pointnet2_ops/_ext-src/src/sampling_gpu.cu", "line_start": 170, "line_end": 170,
-     "source": "old = dists_i[0];",
-     "operation": "ld.shared.u32 of dists_i[0] by every thread of the block at the end of outer iteration j (after the reduction ends with __syncthreads() at L167); expected LDS, unverified",
-     "strength": "plain"}
+    {
+      "role": "write",
+      "file": "pointnet2_ops_lib/pointnet2_ops/_ext-src/src/sampling_gpu.cu",
+      "line_start": 112,
+      "line_end": 112,
+      "source": "dists_i[tid] = besti;",
+      "operation": "st.shared.u32 into `__shared__ int dists_i[block_size]` (L75), executed by every thread at the top of the NEXT outer iteration j+1 (after its per-thread distance loop L95-110); thread 0's store hits dists_i[0]; expected STS, not compiled in T21a so the lowering is unverified",
+      "strength": "plain",
+      "line_basis": "source-derived: git show b5ceb6d9ca04:pointnet2_ops_lib/pointnet2_ops/_ext-src/src/sampling_gpu.cu (not built, no SASS)"
+    },
+    {
+      "role": "read",
+      "file": "pointnet2_ops_lib/pointnet2_ops/_ext-src/src/sampling_gpu.cu",
+      "line_start": 170,
+      "line_end": 170,
+      "source": "old = dists_i[0];",
+      "operation": "ld.shared.u32 of dists_i[0] by every thread of the block at the end of outer iteration j (after the reduction ends with __syncthreads() at L167); expected LDS, unverified",
+      "strength": "plain",
+      "line_basis": "source-derived: git show b5ceb6d9ca04:pointnet2_ops_lib/pointnet2_ops/_ext-src/src/sampling_gpu.cu (not built, no SASS)"
+    }
   ],
   "other_conflicting_accesses": [
     "none: dists[tid] (L111) is not part of a conflict: dists[0] is last read by thread 0 itself in the final __update (L165) and the __syncthreads at L167 orders thread 0's read of dists[1] before thread 1's next L111 store. Only dists_i[0] is read after the last barrier (L170), per verify.notes."
@@ -24,7 +39,11 @@
   "expected_class": "DR",
   "class_reason": "Both accesses are plain (non-volatile, non-atomic) accesses to the int shared array dists_i (verify.strong_accesses: none) from different warps; the barrier at L167 precedes the read and the barrier at L113 follows the write, so there is no happens-before edge between the L170 read and the next iteration's L112 write. Plain vs plain unordered conflicting pair = DR under D20. A real race in practice only if thread 0 runs the whole next distance loop before a slow reader executes L170, so it essentially never fails.",
   "buggy_expected": "the pair (L170 read of dists_i[0] by all threads, iteration j) x (L112 write by thread 0, iteration j+1) is reported as DR (WAR, shared, cross-warp)",
-  "fixed": {"expected": "n/a (unfixed candidate)", "residual_sites": null, "reason": "pinned HEAD is the buggy build"},
+  "fixed": {
+    "expected": "n/a (unfixed candidate)",
+    "residual_sites": null,
+    "reason": "pinned HEAD is the buggy build"
+  },
   "sass_notes": "not compiled in T21a; SASS attribution to be added when T21c/T21b builds it",
   "built": false,
   "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against pointnet2_ops_lib/pointnet2_ops/_ext-src/src/sampling_gpu.cu@b5ceb6d on 2026-10-20",
@@ -33,5 +52,22 @@
     "The reduction helper __update (L59-65) is a non-inline __device__ function with __restrict__ parameters; the compiler may inline it; the shared accesses inside it (dists/dists_i reads and writes at L61-L64) are ordered by the __syncthreads after each reduction step and are not part of the pair.",
     "The same pattern (read of dists_i[0] after the last reduction barrier, store by thread 0 in the next iteration) exists in mmcv-fps-new-1 and openpcdet-fps-new-1; the code differs in details (e.g. this file keeps the `mag <= 1e-3` skip at L100-101)."
   ],
-  "upstream_status": {"still_unfixed_at":"b5ceb6d9ca0467ea34beb81023f96ee82228f626 (repo's master still equals the pinned sha, last commit 2021-07-30)","already_reported_check":"Same as fps-mmcv-1. Not verified exhaustively.","dispute_points":"Same as fps-mmcv-1.","proposed_fix_per_record":null,"links":["https://github.com/erikwijmans/Pointnet2_PyTorch/blob/b5ceb6d9ca0467ea34beb81023f96ee82228f626/pointnet2_ops_lib/pointnet2_ops/_ext-src/src/sampling_gpu.cu#L70-L172"],"merged_into_default":null}
+  "upstream_status": {
+    "still_unfixed_at": "b5ceb6d9ca0467ea34beb81023f96ee82228f626 (repo's master still equals the pinned sha, last commit 2021-07-30)",
+    "already_reported_check": "Same as fps-mmcv-1. Not verified exhaustively.",
+    "dispute_points": "Same as fps-mmcv-1.",
+    "proposed_fix_per_record": null,
+    "links": [
+      "https://github.com/erikwijmans/Pointnet2_PyTorch/blob/b5ceb6d9ca0467ea34beb81023f96ee82228f626/pointnet2_ops_lib/pointnet2_ops/_ext-src/src/sampling_gpu.cu#L70-L172"
+    ],
+    "merged_into_default": null
+  },
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "confirmed",
+    "changes": [],
+    "notes": "Checked at b5ceb6d: kernel sampling_gpu.cu L69-173 (dists_i L75, loop L89, `mag <= 1e-3` skip L100-101, stores L111-112, barrier L113, reduction ending with barrier L167, read L170), __update L59-65, wrapper L175- (switch on opt_n_threads), TOTAL_THREADS 512 (include/cuda_utils.h L13-19). Same WAR as the other FPS copies: DR. Upstream: HEAD = pinned. class_reason attributes the plain/strong class rule to D20; the rule itself is item 1 of CLAUDE.md 'T21 corpus' (strong accesses decide the class); D20 only decides how SC pairs count.",
+    "depends_on_D20": false
+  }
 }

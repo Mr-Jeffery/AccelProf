@@ -30,7 +30,7 @@
     }
   ],
   "thread_relation": "intra-warp",
-  "thread_pair_example": "block 0, warp 0: thread 0 (lane 0) executes STS.64 to slot 0 of the warp (self-assignment, same value) while thread 1 (lane 1) executes LDS.64 from slot 0 (lanes 1..31 all read slot 0). The last __syncwarp(mask) of the tree loop is at L549 (before both); no barrier separates the load of lane 1 from the store of lane 0. Same pair in every warp of every block (the width-32 call and the width-(blockDim/32) call, both in scalar_intra_block_reduction).",
+  "thread_pair_example": "block 0, warp 0: thread 0 (lane 0) executes STS.64 to slot 0 of the warp (self-assignment, same value) while thread 1 (lane 1) executes LDS.64 from slot 0 (lanes 1..31 all read slot 0). The last __syncwarp(mask) of the tree loop is at L549 (before both); no barrier separates the load of lane 1 from the store of lane 0. Same pair in every warp of every block in the width-32 call (ReduceScan.hpp:562-:563). The width-(blockDim.y/32) call (:573-:574) runs in warp 0 only (:568), and there lanes 1..31 all load slot 0 of the block's buffer (value - lane_id with lane_id = threadIdx.y % 32).",
   "expected_class": "DR",
   "class_reason": "Both accesses are plain shared-memory accesses (Scalar* is not volatile; PTX ld.shared.f64 / st.shared.f64 with no .volatile/.relaxed/atomic qualifier; SASS LDS.64/STS.64 without a .STRONG token). Two lanes of one warp access one shared address, one of them a store, with no ordering between them -> data race of two plain accesses (DR). No strong or atomic access is part of the pair, so no SC component. The store is value-preserving (lane 0 rewrites the value it already holds), so results are always correct; whether a detector filters same-value stores is a detector question, not part of the ground truth.",
   "buggy_expected": "The pair is reported as DR, intra-warp: the STS.64 and the LDS.64 of source line 551 (both roles on L551, as in the racecheck output quoted in the fix commit message: Read at :551 and Write at :551, 144 hazards for n=1). The buggy program also contains the second hazard below (ReduceScan.hpp:575 write vs Parallel_Range.hpp:321 read), which is not the target pair.",
@@ -56,12 +56,84 @@
         "strength": "plain"
       }
     ],
-    "reason": "The targeted pair (L551 broadcast) is absent: the fix wraps the broadcast in 'if (lane_id != 0)' (L551-L553 of the fixed file; the store and load are now at L552, SASS @P1 LDS.64 [R0] / @P1 STS.64 [R9] predicated off for lane 0), so lane 0 no longer stores into the slot that lanes 1..31 read. The fixed program is NOT report-free: it still contains the separate hazard quoted in the fix commit message (racecheck 'After': Write ReduceScan.hpp:577 vs Read Parallel_Range.hpp:321, 4 hazards), an intra-warp RAW for the 8-byte result because the __syncthreads at Parallel_Range.hpp:316 only runs when WarpSize < word_count. That residual is the same in the buggy variant (L575 there) and must not be scored against the L551 pair."
+    "reason": "The targeted pair (L551 broadcast) is absent: the fix wraps the broadcast in 'if (lane_id != 0)' (L551-L553 of the fixed file; the store and load are now at L552, SASS @P1 LDS.64 [R0] / @P1 STS.64 [R9] predicated off for lane 0), so lane 0 no longer stores into the slot that lanes 1..31 read. The fixed program is NOT report-free: it still contains the separate hazard quoted in the fix commit message (racecheck 'After': Write ReduceScan.hpp:577 vs Read Parallel_Range.hpp:321, 4 hazards), an intra-warp RAW for the 8-byte result because the __syncthreads at Parallel_Range.hpp:316 only runs when WarpSize < word_count. That residual is the same in the buggy variant (L575 there) and must not be scored against the L551 pair. Also present in both builds, unchanged by the fix, and not the target pair: the two intra-warp conflicts listed in extra_pairs_both_builds (tree-loop step conflict at :547, and in warp 0's width-(blockDim.y/32) call the :551/:552 loads of slot 0 by lanes of other mask groups against lane 0's :547 stores). A fixed-build report of (:552 load, :547 or FunctorAdapter.hpp:1571 store) is the latter, not the target. If, as sass_notes says, ptxas emitted no WARPSYNC for the full-mask __syncwarp at :549, a SASS-level detector may also see the width-32 call's :547 last-step store by lane 0 and the :551/:552 loads as unordered. PTX orders them (bar.warp.sync), so that report would be a model-boundary artifact, as in CLAUDE.md T21 item 2."
   },
   "sass_notes": "sm_89 SASS of the driver (cuobjdump/nvdisasm -g, kernel cuda_parallel_launch_local_memory<ParallelReduce<RwSumFunctor,...>>), buggy: L551 appears 4 times (2 call sites x 2 inlined scalar_intra_block_reduction instances), each as a pair LDS.64 R14,[R0] ... STS.64 [R9],R14 at offsets 0x0560/0x05d0, 0x0a40/0x0a70, 0x11c0/0x11f0, 0x1660/0x1680 (the load feeds the store directly, load first). Neither carries a .STRONG token (plain LDS/STS; volatile is not involved at this site, the pointer is a plain Scalar*). The tree loop above it (L545-L549) has a YIELD at L546 but NO WARPSYNC for the __syncwarp(mask) at L549: ptxas removed it (full mask), so between the last tree step and the broadcast nothing in the SASS orders the lanes. Sync instructions of the region (line-table attribution): BAR.SYNC at L566 (0x05e0, 0x1200) and L591 (0x03d0), WARPSYNC 0xffffffff attributed to L566 (0x11d0, directly before the BAR.SYNC at 0x1200); none is attributed to L549 or to the __syncwarp(0xffffffff) at L572. Fixed: the same pair is @P1 LDS.64 [R0] / @P1 STS.64 [R9] at L552 (offsets 0x0570/0x05e0, 0x0a50/0x0a80, 0x11c0/0x1200, 0x1670/0x1690), predicated by lane_id != 0. The residual STS.64 at L577 is at 0x16b0 (fixed) with LDS R9,[R0.X4] at Parallel_Range.hpp:321, 0x1810. SASS arch: sm_89 only plus compute_89 PTX (cuda_elfs.py: 18 cubin(s) sm_89; PTX sm_89), built -O3 -lineinfo via Kokkos' CMake; Kokkos_ARCH_AMPERE86 with -arch=sm_86 rewritten to sm_89 (this revision has no ADA89).",
   "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp@8741579 and @db1a77d, the PTX (cuobjdump -ptx, .loc) and the sm_89 SASS (/home/fzheng4/sassline.sh) of the built drivers, on 2026-10-20",
   "open_questions": [
     "The residual hazard (L575/L577 write vs Parallel_Range.hpp:321 read) is taken from the commit message's racecheck output and from reading the source; it was not run here (no detector or racecheck runs in this phase). In particular the SASS write of the shared-memory instance is the STS.64 in the last-block path; confirm with the racecheck report which of the two L575/L577 instances is paired.",
     "n = 1000 gives blockDim = (1, y) with y chosen by Kokkos' local_block_size (<= 256) and a 3-or-more-block grid; the exact grid is only known on the sm_89 node (the smoke run on sm_75 printed the correct sum). The racing pair exists in every warp of every block, so the grid shape does not change the ground truth."
-  ]
+  ],
+  "extra_pairs_both_builds": [
+    {
+      "name": "tree-loop step conflict",
+      "write": {
+        "file": "core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+        "line_start": 547,
+        "line_end": 547,
+        "source": "ValueJoin::join(functor, value, value + delta);   (inlined core/src/impl/Kokkos_FunctorAdapter.hpp:1571 '*((volatile T*)lhs) += *((const volatile T*)rhs);': lane j+delta stores its own slot j+delta)",
+        "strength": "volatile"
+      },
+      "read": {
+        "file": "core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+        "line_start": 547,
+        "line_end": 547,
+        "source": "same join: lane j loads rhs = slot j+delta in the same step",
+        "strength": "volatile"
+      },
+      "thread_relation": "intra-warp",
+      "class": "SC by source (both volatile, CLAUDE.md T21 item 1). How a shared-space volatile access appears in the SASS/sidecar (LDS/STS carry no .STRONG token) was not checked; if the sidecar sees it as plain, a detector reports it as DR.",
+      "why_unordered": "Within one step of the loop :545-:549 there is no __syncwarp between lane j's load of slot j+delta and lane j+delta's store of the same slot; __syncwarp(mask) :549 only separates steps. Code unchanged by the fix (fixed :545-:549)."
+    },
+    {
+      "name": "second call: other mask groups vs lane 0",
+      "write": {
+        "file": "core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+        "line_start": 547,
+        "line_end": 547,
+        "source": "lane 0's join store to slot 0 (volatile, FunctorAdapter.hpp:1571) during the tree loop of the width-(blockDim.y/32) call",
+        "strength": "volatile"
+      },
+      "read": {
+        "file": "core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+        "line_start": 551,
+        "line_end": 551,
+        "source": "*value = *(value - lane_id);   load of slot 0 by lanes >= width (fixed: :552, still executed for lane_id != 0)",
+        "strength": "plain"
+      },
+      "thread_relation": "intra-warp (warp 0)",
+      "class": "DR (plain load vs volatile store)",
+      "why_unordered": "In the call at :573-:574 (fixed :575-:576), width = blockDim.x*blockDim.y/32 <= 8 because the block has at most 256 threads (Parallel_Range.hpp:329-:351 start at 256 and only halve). The mask :536-:540 is then ((1<<width)-1) << (tid/width)*width, so the __syncwarp(mask) calls (:543, :549) only synchronise lanes of one width-lane group. Lanes >= width are never synchronised with lane 0 after the full-mask __syncwarp at :572. Their :551 load of slot 0 is therefore unordered against lane 0's stores of slot 0 in the tree loop. The same holds for their :551 store to their own slot k against a lower group's tree-loop load of slot k (e.g. lane 7 loading slot 8 at delta = 1): DR. Present in both builds; the fix only predicates lane 0."
+    }
+  ],
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "corrected",
+    "changes": [
+      {
+        "field": "thread_pair_example",
+        "old": "block 0, warp 0: thread 0 (lane 0) executes STS.64 to slot 0 of the warp (self-assignment, same value) while thread 1 (lane 1) executes LDS.64 from slot 0 (lanes 1..31 all read slot 0). The last __syncwarp(mask) of the tree loop is at L549 (before both); no barrier separates the load of lane 1 from the store of lane 0. Same pair in every warp of every block (the width-32 call and the width-(blockDim/32) call, both in scalar_intra_block_reduction).",
+        "new": "block 0, warp 0: thread 0 (lane 0) executes STS.64 to slot 0 of the warp (self-assignment, same value) while thread 1 (lane 1) executes LDS.64 from slot 0 (lanes 1..31 all read slot 0). The last __syncwarp(mask) of the tree loop is at L549 (before both); no barrier separates the load of lane 1 from the store of lane 0. Same pair in every warp of every block in the width-32 call (ReduceScan.hpp:562-:563). The width-(blockDim.y/32) call (:573-:574) runs in warp 0 only (:568), and there lanes 1..31 all load slot 0 of the block's buffer (value - lane_id with lane_id = threadIdx.y % 32).",
+        "reason": "The second scalar_intra_warp_reduction call is executed by warp 0 only, not by every warp.",
+        "evidence": "core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp:568-:574 at 8741579"
+      },
+      {
+        "field": "extra_pairs_both_builds",
+        "old": null,
+        "new": "added (two non-target intra-warp conflicts, both builds)",
+        "reason": "The tree loop's join goes through volatile casts, and the second call uses partial masks. Both leave conflicts unordered in both builds. A detector will likely report them, and they must not be scored as the target or as fixed-build false positives.",
+        "evidence": "core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp:536-:551,:568-:574 and core/src/impl/Kokkos_FunctorAdapter.hpp:1564-:1577 (no-join specialization, :1571) / :1645-:1670 (join-provided specialization, volatile arguments, :1662) at 8741579; ReduceScan.hpp:545-:553,:574-:576 at db1a77d"
+      },
+      {
+        "field": "fixed.reason",
+        "old": "The targeted pair (L551 broadcast) is absent: the fix wraps the broadcast in 'if (lane_id != 0)' (L551-L553 of the fixed file; the store and load are now at L552, SASS @P1 LDS.64 [R0] / @P1 STS.64 [R9] predicated off for lane 0), so lane 0 no longer stores into the slot that lanes 1..31 read. The fixed program is NOT report-free: it still contains the separate hazard quoted in the fix commit message (racecheck 'After': Write ReduceScan.hpp:577 vs Read Parallel_Range.hpp:321, 4 hazards), an intra-warp RAW for the 8-byte result because the __syncthreads at Parallel_Range.hpp:316 only runs when WarpSize < word_count. That residual is the same in the buggy variant (L575 there) and must not be scored against the L551 pair.",
+        "new": "appended (see fixed.reason)",
+        "reason": "Names the other conflicts the fixed build keeps.",
+        "evidence": "git diff 8741579..db1a77d (one hunk, :551 -> :551-:553)"
+      }
+    ],
+    "notes": "Target confirmed at 8741579: core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp:551 '*value = *(value - lane_id);' right after the tree loop :545-:549 of scalar_intra_warp_reduction (:529-:552) in CudaReductionsFunctor<F, Tag, false, false>. That specialization is chosen for value size <= 16 bytes (ReduceScan.hpp:885-:889, UseShfl = StaticValueSize > 16). Lane 0 stores slot 0 (value-preserving), and lanes 1..31 load slot 0 with no sync between them. Both use Scalar* (plain), so DR, intra-warp. The class does not depend on D20. The fix db1a77d wraps it in 'if (lane_id != 0)' (fixed :551-:553), so the target pair is absent in the fixed build. Residual (both builds) confirmed: thread 0 stores *result at :575 (fixed :577) into shared slot blockDim.y-1 in the last block (:616-:618). Thread 1 then loads word 1 of it at Kokkos_Cuda_Parallel_Range.hpp:321 'global[i] = shared[i]'. The __syncthreads at :316 runs only if WarpSize < word_count (2 for a double): intra-warp RAW, DR, as in the fix commit's racecheck output. The driver source (RwSumFunctor) was not read. Either FunctorValueJoin specialization for a scalar accesses the slots through volatile casts, which is the basis of extra_pairs_both_builds. SASS opcodes, tokens and offsets quoted in sites/sass_notes were not re-checked: the one allowed srun (-p normal -t 10) could not start (partition full, estimated start 2026-10-21 14:37) and was cancelled. Everything above is from the upstream sources at the two commits.",
+    "depends_on_D20": false
+  }
 }

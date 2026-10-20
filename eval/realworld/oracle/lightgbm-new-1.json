@@ -5,23 +5,42 @@
   "route": "n/a (not compiled in T21a; build_notes: R1 cmake -DUSE_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=89)",
   "kernel": "LightGBM::FixHistogramKernel (src/treelearner/cuda/cuda_histogram_constructor.cu L741-768; non-template, launched <<<need_fix_histogram_features_.size(), FIX_HISTOGRAM_BLOCK_SIZE = 512>>> at L885) calling the inlined device helper ShuffleReduceSum<hist_t = double> (include/LightGBM/cuda/cuda_algorithms.hpp L124-140)",
   "space": "shared",
-  "build_revision": {"buggy": "c8be3579413199a6e0f769e74c15ee119735471c", "fixed": null},
+  "build_revision": {
+    "buggy": "c8be3579413199a6e0f769e74c15ee119735471c",
+    "fixed": null
+  },
   "sites": [
-    {"role": "read", "file": "include/LightGBM/cuda/cuda_algorithms.hpp", "line_start": 136, "line_end": 136,
-     "source": "value = (warpLane < num_warp ? shared_mem_buffer[warpLane] : 0);",
-     "operation": "ld.shared.f64 of shared_mem_buffer[warpLane] (`__shared__ hist_t shared_mem_buffer[WARPSIZE]` at cuda_histogram_constructor.cu L748; hist_t = double, include/LightGBM/bin.h L34) by the lanes of warp 0 with warpLane < num_warp = ceil(len / 32), in the FIRST call (cuda_histogram_constructor.cu L762, gradient); there is no barrier after this read inside the helper; expected LDS.64, not compiled in T21a so the lowering is unverified",
-     "strength": "plain"},
-    {"role": "write", "file": "include/LightGBM/cuda/cuda_algorithms.hpp", "line_start": 131, "line_end": 131,
-     "source": "shared_mem_buffer[warpID] = value;",
-     "operation": "st.shared.f64 of the warp partial sum into shared_mem_buffer[warpID] by lane 0 of every warp (`if (warpLane == 0)` L130), in the SECOND call (cuda_histogram_constructor.cu L763, hessian) on the same buffer; the helper's only barrier (__syncthreads L133) comes after this write; expected STS.64, unverified",
-     "strength": "plain"}
+    {
+      "role": "read",
+      "file": "include/LightGBM/cuda/cuda_algorithms.hpp",
+      "line_start": 136,
+      "line_end": 136,
+      "source": "value = (warpLane < num_warp ? shared_mem_buffer[warpLane] : 0);",
+      "operation": "ld.shared.f64 of shared_mem_buffer[warpLane] (`__shared__ hist_t shared_mem_buffer[WARPSIZE]` at cuda_histogram_constructor.cu L748; hist_t = double, include/LightGBM/bin.h L34) by the lanes of warp 0 with warpLane < num_warp = ceil(len / 32), in the FIRST call (cuda_histogram_constructor.cu L762, gradient); there is no barrier after this read inside the helper; expected LDS.64, not compiled in T21a so the lowering is unverified",
+      "strength": "plain",
+      "line_basis": "source-derived: git show c8be35794131:include/LightGBM/cuda/cuda_algorithms.hpp (not built, no SASS)"
+    },
+    {
+      "role": "write",
+      "file": "include/LightGBM/cuda/cuda_algorithms.hpp",
+      "line_start": 131,
+      "line_end": 131,
+      "source": "shared_mem_buffer[warpID] = value;",
+      "operation": "st.shared.f64 of the warp partial sum into shared_mem_buffer[warpID] by lane 0 of every warp (`if (warpLane == 0)` L130), in the SECOND call (cuda_histogram_constructor.cu L763, hessian) on the same buffer; the helper's only barrier (__syncthreads L133) comes after this write; expected STS.64, unverified",
+      "strength": "plain",
+      "line_basis": "source-derived: git show c8be35794131:include/LightGBM/cuda/cuda_algorithms.hpp (not built, no SASS)"
+    }
   ],
   "thread_relation": "cross-warp-same-block",
   "thread_pair_example": "FixHistogramKernel block 0 (512 threads = 16 warps; len = num_bin_aligned, e.g. 256 for 255 bins, so num_warp = 8): thread 3 (warp 0, lane 3) reads shared_mem_buffer[3] at cuda_algorithms.hpp L136 in the first ShuffleReduceSum call (kernel L762); thread 96 (warp 3, lane 0) writes shared_mem_buffer[3] at L131 in the second call (kernel L763). Between the first call's read and the second call's write there is no __syncthreads (the first barrier of the second call, L133, follows its own write). Needs num_warp >= 4 for this exact pair (num_bin_aligned >= 128); with num_bin_aligned = 64 (num_warp = 2) the analogous pair is thread 1 (warp 0 lane 1) vs thread 32 (warp 1 lane 0).",
   "expected_class": "DR",
   "class_reason": "Both accesses are plain (non-volatile, non-atomic) accesses to the shared double array shared_mem_buffer (verify.strong_accesses: none) from different warps; the barrier at L133 of the first call orders its write->read, but nothing orders the read of call 1 before the write of call 2 (write-after-read through buffer reuse). Plain vs plain unordered = DR under D20. The window is tiny in practice (warps >= 1 execute a shuffle reduction before storing).",
   "buggy_expected": "the pair (cuda_algorithms.hpp L136 read in call 1 from cuda_histogram_constructor.cu L762) x (cuda_algorithms.hpp L131 write in call 2 from L763) on shared_mem_buffer is reported as DR (WAR, shared, cross-warp, double values)",
-  "fixed": {"expected": "n/a (unfixed candidate)", "residual_sites": null, "reason": "pinned HEAD is the buggy build"},
+  "fixed": {
+    "expected": "n/a (unfixed candidate)",
+    "residual_sites": null,
+    "reason": "pinned HEAD is the buggy build"
+  },
   "sass_notes": "not compiled in T21a; SASS attribution to be added when T21c/T21b builds it",
   "built": false,
   "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against include/LightGBM/cuda/cuda_algorithms.hpp and src/treelearner/cuda/cuda_histogram_constructor.cu@c8be357 on 2026-10-20",
@@ -31,5 +50,23 @@
     "Host-side facts used for the driver (need_fix features, num_bin_aligned computation at cuda_histogram_constructor.cpp L56-L62, not use_discretized_grad branch at cuda_histogram_constructor.cu L880) were not re-verified here.",
     "ShuffleReduceSumWarp is called with warp_len <= 0 for warps beyond len (L113-121) and then skips the shuffles; the shared write at L131 is unconditional on len, so all 16 warps of the 512-thread block write shared_mem_buffer[0..15]."
   ],
-  "upstream_status": {"still_unfixed_at":"c8be3579413199a6e0f769e74c15ee119735471c (FETCH_HEAD equals the pinned sha, 2026-10-10)","already_reported_check":"WebSearch/WebFetch could not search LightGBM GitHub issues by code; searched 'LightGBM cuda racecheck' and 'FixHistogramKernel' via WebSearch: no hit. Not exhaustively verified.","dispute_points":"(1) The window is tiny: warps >=1 must finish the second call's 10-ish shuffles and store before warp 0 executes one shared load right after the barrier, so on hardware warp 0 effectively always wins; no wrong histogram has been reported. (2) The helper has no documented contract (unlike llm.c's blockReduce comment), so a maintainer could argue the call site is 'correct by luck' rather than wrong. (3) Under the PTX model it is a plain WAR race between lane k of warp 0 (R) and lane 0 of warp k (W) with no bar/fence ordering.","proposed_fix_per_record":"Add `__syncthreads();` between L762 and L763 (every other pair of consecutive ShuffleReduceSum/ShufflePrefixSum calls in LightGBM's CUDA code already has one, e.g. cuda_leaf_splits.cu:L31/L57/L105/L135/L137/L195/L219/L221, cuda_data_partition.cu:L723/L764/L1144, cuda_best_split_finder.cu:L202/L214/L1123, cuda_gradient_discretizer.cu:L39-L43) or put a trailing barrier in the helper.","links":["https://github.com/microsoft/LightGBM/blob/c8be3579413199a6e0f769e74c15ee119735471c/src/treelearner/cuda/cuda_histogram_constructor.cu#L741-L768","https://github.com/microsoft/LightGBM/blob/c8be3579413199a6e0f769e74c15ee119735471c/include/LightGBM/cuda/cuda_algorithms.hpp#L124-L140"],"merged_into_default":null}
+  "upstream_status": {
+    "still_unfixed_at": "c8be3579413199a6e0f769e74c15ee119735471c (FETCH_HEAD equals the pinned sha, 2026-10-10)",
+    "already_reported_check": "WebSearch/WebFetch could not search LightGBM GitHub issues by code; searched 'LightGBM cuda racecheck' and 'FixHistogramKernel' via WebSearch: no hit. Not exhaustively verified.",
+    "dispute_points": "(1) The window is tiny: warps >=1 must finish the second call's 10-ish shuffles and store before warp 0 executes one shared load right after the barrier, so on hardware warp 0 effectively always wins; no wrong histogram has been reported. (2) The helper has no documented contract (unlike llm.c's blockReduce comment), so a maintainer could argue the call site is 'correct by luck' rather than wrong. (3) Under the PTX model it is a plain WAR race between lane k of warp 0 (R) and lane 0 of warp k (W) with no bar/fence ordering.",
+    "proposed_fix_per_record": "Add `__syncthreads();` between L762 and L763 (every other pair of consecutive ShuffleReduceSum/ShufflePrefixSum calls in LightGBM's CUDA code already has one, e.g. cuda_leaf_splits.cu:L31/L57/L105/L135/L137/L195/L219/L221, cuda_data_partition.cu:L723/L764/L1144, cuda_best_split_finder.cu:L202/L214/L1123, cuda_gradient_discretizer.cu:L39-L43) or put a trailing barrier in the helper.",
+    "links": [
+      "https://github.com/microsoft/LightGBM/blob/c8be3579413199a6e0f769e74c15ee119735471c/src/treelearner/cuda/cuda_histogram_constructor.cu#L741-L768",
+      "https://github.com/microsoft/LightGBM/blob/c8be3579413199a6e0f769e74c15ee119735471c/include/LightGBM/cuda/cuda_algorithms.hpp#L124-L140"
+    ],
+    "merged_into_default": null
+  },
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "confirmed",
+    "changes": [],
+    "notes": "Checked at c8be357: ShuffleReduceSum cuda_algorithms.hpp L124-140 (write L131 under warpLane == 0, the only barrier L133, read L136 for warpID == 0, no trailing barrier), ShuffleReduceSumWarp L112-121 (shuffles only); FixHistogramKernel cuda_histogram_constructor.cu L741-768 with back-to-back calls L762/L763 on one buffer (L748, hist_t = double, bin.h L34), launch L885 with FIX_HISTOGRAM_BLOCK_SIZE 512 (cuda_histogram_constructor.hpp L27). Warp 0 lane 3's read in call 1 and warp 3 lane 0's write in call 2 are not separated by any barrier: cross-warp WAR, DR. Upstream: HEAD 5831ee577776 on 2026-10-20; cuda_histogram_constructor.cu, cuda_algorithms.hpp, cuda_pointwise_metric.cu unchanged vs pinned. class_reason attributes the plain/strong class rule to D20; the rule itself is item 1 of CLAUDE.md 'T21 corpus' (strong accesses decide the class); D20 only decides how SC pairs count.",
+    "depends_on_D20": false
+  }
 }

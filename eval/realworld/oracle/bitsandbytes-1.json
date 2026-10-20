@@ -1,32 +1,56 @@
 {
- "id": "bitsandbytes-1",
- "tier": "core",
- "wave": 1,
- "route": "R2",
- "kernel": "kEstimateQuantiles<float> (csrc/kernels.cu); the half instantiation has the same code but is not launched",
- "space": "shared",
- "build_revision": {"buggy": "344e851673262073c9bc753d808c0acc8dfa8060", "fixed": "5b28fd3f7c7877fff0f48f717930e266d0f6e254"},
- "sites": [
-  {"role": "write", "file": "csrc/kernels.cu", "line_start": 655, "line_end": 655,
-   "source": "temp_storage.smem_qidx[j] = -1;",
-   "operation": "st.shared (SASS: STS [R0.X4], R19 at 0x2280, inside the loop 'for(int j = threadIdx.x; j < BLOCK_ESTIMATE; j+=blockDim.x)' at L654, executed by all 512 threads over j = tid, tid+512, ..., tid+3584)",
-   "strength": "plain"},
-  {"role": "write", "file": "csrc/kernels.cu", "line_start": 661, "line_end": 661,
-   "source": "temp_storage.smem_qidx[local_idx] = threadIdx.x;",
-   "operation": "st.shared (SASS: STS [R3.X4], R14 at 0x2390, executed only by threads with threadIdx.x < 256)",
-   "strength": "plain"}
- ],
- "thread_relation": "cross-warp-same-block",
- "thread_pair_example": "driver: kEstimateQuantiles<float><<<4, 512>>>, n = 16384, offset = 1/512, valid_items = 4096, block 0 (any block): thread 32 (warp 1) writes smem_qidx[520] = 32 at L661 (local_idx = round((1 + 2*32) * 7.998046875) = 520) while thread 8 (warp 0) clears smem_qidx[8 + 512 = 520] = -1 at L655 (second trip of its clear loop). Both writes lie between the barrier at L653 (after SortBlockedToStriped) and the barrier at L664, with nothing in between; a late clear overwrites the freshly scattered index (WAW), and that quantile's contribution is then dropped from the atomicAdd accumulation at L669. smem_qidx[4096] is a member of a union aliased with the CUB BlockLoad/BlockRadixSort temp storage.",
- "expected_class": "DR",
- "class_reason": "Both accesses are plain stores to a plain __shared__ int array (union member smem_qidx): ordinary STS, no volatile, no atomic, no .STRONG token; the two writing threads are in different warps and nothing orders them (the barrier at L664 comes after both), so this is a data race (DR), write-after-write.",
- "buggy_expected": "The pair (L655 clear store vs L661 scatter store on the same smem_qidx slot, cross-warp WAW in kEstimateQuantiles) is reported as DR.",
- "fixed": {"expected": "absent", "residual_sites": null,
-  "reason": "The fix adds one __syncthreads() between the clear loop and the scatter (fixed file L657, SASS BAR.SYNC.DEFER_BLOCKING at 0x22d0); the scatter store moves to L663 (STS at 0x23a0). All 512 threads reach the barrier (it is outside the 'if(threadIdx.x < 256)' block; the loop body is entered by every thread of the block, and the 'continue' for half blocks at L633 is uniform per block, n = 16384 gives only full blocks)."},
- "sass_notes": "sm_89, nvdisasm -g of the driver built with -lineinfo (the lineinfo check of the R2 route is SAME: targets/lit-arrayfire-1/lineinfo.check). Buggy kEstimateQuantiles<float>: BAR.SYNC at kernels.cu:653 (0x2090), STS [R0.X4] at L655 (0x2280, loop), STS [R3.X4] at L661 (0x2390), BAR.SYNC at L664 (0x23b0), LDS [R0.X4] at L668 (0x23e0). Fixed: BAR.SYNC at L657 (0x22d0) between STS L655 (0x2280) and STS L663 (0x23a0). Both stores are plain STS, no strong token. WARPSYNC 0xffffffff is emitted at L639 (0x05e0, before the load / sort, outside this pair); none between the clear and the scatter. The record's thread numbers (thread 32 / thread 8 / slot 520) were re-derived: q_interval = (1 - 2/512)/255 = 1/256, local_idx(t) = round((1 + 2t) * 4095 / 512), t = 32 gives 519.87 -> 520.",
- "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against csrc/kernels.cu@344e851 (and @5b28fd3 for the fixed lines) on 2026-10-20; lines and SASS offsets taken from the file as compiled (R2 harness file name = repo path).",
- "open_questions": [
-  "Native manifestation: 30 runs of each variant on sm_75 (smoke build) gave identical output (0 of 256 quantiles off), so the lost-quantile effect was not observed natively; the detection relies on the detector's analysis of the pair.",
-  "Route: the project's own R1 build fails on CUDA 13.4 at configure (CMakeLists.txt:82 'CUDA Version > 12 is not supported'); the build here is R2 (verbatim csrc/kernels.cu plus the cub::Max / cub::Sum stand-ins, which CCCL 3 removed). The SASS is therefore from CUDA 13.4 / CCCL 3 sorting code, not from the CUDA 12 build the project would produce."
- ]
+  "id": "bitsandbytes-1",
+  "tier": "core",
+  "wave": 1,
+  "route": "R2",
+  "kernel": "kEstimateQuantiles<float> (csrc/kernels.cu); the half instantiation has the same code but is not launched",
+  "space": "shared",
+  "build_revision": {
+    "buggy": "344e851673262073c9bc753d808c0acc8dfa8060",
+    "fixed": "5b28fd3f7c7877fff0f48f717930e266d0f6e254"
+  },
+  "sites": [
+    {
+      "role": "write",
+      "file": "csrc/kernels.cu",
+      "line_start": 655,
+      "line_end": 655,
+      "source": "temp_storage.smem_qidx[j] = -1;",
+      "operation": "st.shared (SASS: STS [R0.X4], R19 at 0x2280, inside the loop 'for(int j = threadIdx.x; j < BLOCK_ESTIMATE; j+=blockDim.x)' at L654, executed by all 512 threads over j = tid, tid+512, ..., tid+3584)",
+      "strength": "plain"
+    },
+    {
+      "role": "write",
+      "file": "csrc/kernels.cu",
+      "line_start": 661,
+      "line_end": 661,
+      "source": "temp_storage.smem_qidx[local_idx] = threadIdx.x;",
+      "operation": "st.shared (SASS: STS [R3.X4], R14 at 0x2390, executed only by threads with threadIdx.x < 256)",
+      "strength": "plain"
+    }
+  ],
+  "thread_relation": "cross-warp-same-block",
+  "thread_pair_example": "driver: kEstimateQuantiles<float><<<4, 512>>>, n = 16384, offset = 1/512, valid_items = 4096, block 0 (any block): thread 32 (warp 1) writes smem_qidx[520] = 32 at L661 (local_idx = round((1 + 2*32) * 7.998046875) = 520) while thread 8 (warp 0) clears smem_qidx[8 + 512 = 520] = -1 at L655 (second trip of its clear loop). Both writes lie between the barrier at L653 (after SortBlockedToStriped) and the barrier at L664, with nothing in between; a late clear overwrites the freshly scattered index (WAW), and that quantile's contribution is then dropped from the atomicAdd accumulation at L669. smem_qidx[4096] is a member of a union aliased with the CUB BlockLoad/BlockRadixSort temp storage.",
+  "expected_class": "DR",
+  "class_reason": "Both accesses are plain stores to a plain __shared__ int array (union member smem_qidx): ordinary STS, no volatile, no atomic, no .STRONG token; the two writing threads are in different warps and nothing orders them (the barrier at L664 comes after both), so this is a data race (DR), write-after-write.",
+  "buggy_expected": "The pair (L655 clear store vs L661 scatter store on the same smem_qidx slot, cross-warp WAW in kEstimateQuantiles) is reported as DR.",
+  "fixed": {
+    "expected": "absent",
+    "residual_sites": null,
+    "reason": "The fix adds one __syncthreads() between the clear loop and the scatter (fixed file L657, SASS BAR.SYNC.DEFER_BLOCKING at 0x22d0); the scatter store moves to L663 (STS at 0x23a0). All 512 threads reach the barrier (it is outside the 'if(threadIdx.x < 256)' block; the loop body is entered by every thread of the block, and the 'continue' for half blocks at L633 is uniform per block, n = 16384 gives only full blocks)."
+  },
+  "sass_notes": "sm_89, nvdisasm -g of the driver built with -lineinfo (the lineinfo check of the R2 route is SAME: targets/lit-arrayfire-1/lineinfo.check). Buggy kEstimateQuantiles<float>: BAR.SYNC at kernels.cu:653 (0x2090), STS [R0.X4] at L655 (0x2280, loop), STS [R3.X4] at L661 (0x2390), BAR.SYNC at L664 (0x23b0), LDS [R0.X4] at L668 (0x23e0). Fixed: BAR.SYNC at L657 (0x22d0) between STS L655 (0x2280) and STS L663 (0x23a0). Both stores are plain STS, no strong token. WARPSYNC 0xffffffff is emitted at L639 (0x05e0, before the load / sort, outside this pair); none between the clear and the scatter. The record's thread numbers (thread 32 / thread 8 / slot 520) were re-derived: q_interval = (1 - 2/512)/255 = 1/256, local_idx(t) = round((1 + 2t) * 4095 / 512), t = 32 gives 519.87 -> 520.",
+  "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against csrc/kernels.cu@344e851 (and @5b28fd3 for the fixed lines) on 2026-10-20; lines and SASS offsets taken from the file as compiled (R2 harness file name = repo path).",
+  "open_questions": [
+    "Native manifestation: 30 runs of each variant on sm_75 (smoke build) gave identical output (0 of 256 quantiles off), so the lost-quantile effect was not observed natively; the detection relies on the detector's analysis of the pair.",
+    "Route: the project's own R1 build fails on CUDA 13.4 at configure (CMakeLists.txt:82 'CUDA Version > 12 is not supported'); the build here is R2 (verbatim csrc/kernels.cu plus the cub::Max / cub::Sum stand-ins, which CCCL 3 removed). The SASS is therefore from CUDA 13.4 / CCCL 3 sorting code, not from the CUDA 12 build the project would produce."
+  ],
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "confirmed",
+    "changes": [],
+    "notes": "R2 harness: every copied kernel file under r2/buggy and r2/fixed is byte-identical (cmp) to git show <buggy_commit>:<path> / <fix_commit>:<path>; git diff buggy..fix of those files is exactly the fix hunk described in fixed.reason. Sites re-checked at 344e851: L655 'temp_storage.smem_qidx[j] = -1' in the loop of L654 (every thread, j = tid + 512m, m = 0..7) and L661 'temp_storage.smem_qidx[local_idx] = threadIdx.x' (tid < 256, L657); smem_qidx is a plain 32-bit int member of the __shared__ union (kernels.cu:622-626); the only barriers around them are L653 and L664, so the pair is unordered (kernels.cu:653-664). Thread pair re-derived: offset = 1/512 (driver.cu:45), q_interval = (1 - 2/512)/255 = 1/256, valid_items = 4096 (n = 16384, <<<4, 512>>>, driver.cu:44,60,63), local_idx(32) = round((1/512 + 32/256) * 4095) = round(519.87) = 520; slot 520 = 8 + 512 is cleared by thread 8 on its second trip: warp 0 vs warp 1, WAW, plain/plain -> DR. Fixed (5b28fd3): the only change is __syncthreads() at L657, unconditional at loop level; the half-block 'continue' (L633) is uniform per block and never taken for n = 16384; one loop trip per block, so no cross-iteration pair; L668 reads follow L664. 'absent' confirmed. open_questions[1] route claim checked: CMakeLists.txt:82 at 344e851 is 'message(FATAL_ERROR \"CUDA Version > 12 is not supported\")'. Not independently verified: the SASS opcodes, register operands and offsets quoted in sites/sass_notes (the one permitted srun on -p normal could not start: partition fully allocated, estimated start 2026-10-21 14:37, so the job was cancelled); access widths were checked from the source types instead. Native-run and smoke-run statements in open_questions are builder results and were not reviewed.",
+    "depends_on_D20": false
+  }
 }

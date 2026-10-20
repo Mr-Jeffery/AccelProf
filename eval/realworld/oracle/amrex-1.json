@@ -29,7 +29,7 @@
       "strength": "plain"
     }
   ],
-  "thread_relation": "cross-block",
+  "thread_relation": "intra-warp + cross-warp-same-block + cross-block (all three occur in one launch)",
   "thread_pair_example": "one Fsmooth launch (fine level: 8 boxes of 9^3 nodes, 128-thread blocks): the thread of node (i,j,k) loads sol(i+1,j,k) (L228) while the thread of node (i+1,j,k) stores sol(i+1,j,k) (L86); nodes adjacent in i are adjacent lanes of one warp (intra-warp), nodes adjacent in j/k are in other warps of the block (cross-warp) or, at a 128-thread block boundary, in another block (cross-block). Which relation a detector sees depends on the node's flat index; all three occur in the same launch.",
   "expected_class": "DR",
   "class_reason": "All accesses are plain global loads/stores (LDG.E.64 / STG.E.64, no atomics, no fences, no .STRONG) by different threads of one grid in one kernel launch: neighbour loads of sol versus the in-place store to sol of the neighbouring node, with nothing ordering them (a grid has no inter-block ordering inside a launch) -> data race of plain accesses (DR); no strong/atomic access, so no SC component. A true intra-kernel RAW/WAR on one array; the result is nondeterministic.",
@@ -44,5 +44,42 @@
   "open_questions": [
     "Two instantiations of the Fsmooth lambda (a 128-thread launch_global<128,...ParallelFor_doit> and a 256-thread launch_global<256,...ParallelFor<256,...>>) are in the binary; which one(s) the run launches is determined by the reach phase (nsys), not here. The racing instruction pairs are identical in both.",
     "The test is run with n_cell=16 max_grid_size=8 and the shipped max_iter=100 (6 V-cycles to converge): with max_iter=2 the test aborts after the 2nd V-cycle with 'MLMG failed' (SIGABRT, rc=1) because it cannot reach its fixed tolerance (smoke on sm_75), so max_iter is not overridden. Thread-level accesses are estimated at about 1e7 (not measured)."
-  ]
+  ],
+  "extra_pairs": [
+    {
+      "writer_site": {
+        "file": "Src/LinearSolvers/MLMG/AMReX_MLNodeABecLap_3D_K.H",
+        "line_start": 77,
+        "line_end": 77,
+        "source": "sol(i,j,k) = Real(0.0);   (mlndabeclap_jacobi_aa, Dirichlet-masked node, msk(i,j,k) != 0 at :76)",
+        "strength": "plain"
+      },
+      "reader_site": "the same neighbour loads of x = sol in mlndlap_adotx_aa (AMReX_MLNodeLap_3D_K.H:207-:232) by an unmasked neighbour node",
+      "class": "DR",
+      "note": "Same bug, second store site. A node with msk = 1 stores 0 to its own sol in the same launch in which its neighbours load it. If sol is already 0 there the store is value-preserving. It is a formal plain/plain conflict, not the primary pair."
+    }
+  ],
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "corrected",
+    "changes": [
+      {
+        "field": "thread_relation",
+        "old": "cross-block",
+        "new": "intra-warp + cross-warp-same-block + cross-block (all three occur in one launch)",
+        "reason": "Each block of the ParallelFor covers one box's flattened nodes, i fastest. i-neighbours are adjacent threads (the same warp except at a 32-thread boundary). j-neighbours are 9 threads apart, k-neighbours 81 (for a 9^3 nodal box), and the corner neighbours up to 91. So most conflicting pairs are intra-warp, and cross-warp and cross-block (128-thread blocks) pairs also occur. The old value named only one of the three. thread_pair_example already said so.",
+        "evidence": "Src/Base/AMReX_MFParallelForG.H:90-:95,:107-:109 (ibox = blockIdx.x / nblocks_per_box; icell = (blockIdx.x - ibox*nblocks_per_box)*MT + threadIdx.x) and Src/Base/AMReX_Box.H:2517-:2530 (BoxIndexerND::intVect: component 0 = i is the final remainder, fastest) at bfc7fcf"
+      },
+      {
+        "field": "extra_pairs",
+        "old": null,
+        "new": "added (masked-node store :77)",
+        "reason": "Second conflicting store site of the same in-place sweep.",
+        "evidence": "Src/LinearSolvers/MLMG/AMReX_MLNodeABecLap_3D_K.H:76-:77 at bfc7fcf"
+      }
+    ],
+    "notes": "Checked at bfc7fcf: Fsmooth's GPU branch (Src/LinearSolvers/MLMG/AMReX_MLNodeABecLaplacian.cpp:141-:157) launches one ParallelFor(sol, ...) per sweep. Its lambda (:142-:152) calls mlndlap_adotx_aa(i,j,k, solarr_ma[box_no], ...) at :144, which loads x(i±1, j±1, k±1) (AMReX_MLNodeLap_3D_K.H:207-:232; x(i-1,j,k)/x(i+1,j,k) at :227/:228). It then calls mlndabeclap_jacobi_aa at :149, which stores sol(i,j,k) at AMReX_MLNodeABecLap_3D_K.H:86-:87 (and :77 for masked nodes). The neighbour loads and the stores of neighbouring nodes are in one launch, on the same fab's memory, all plain Array4<Real> accesses with no atomics, fences or barriers: DR, expected_class confirmed. Shared box-boundary nodes of different boxes are separate copies (separate fabs), so the conflict is within a box. With one box, ParallelFor_doit goes to amrex::ParallelFor(Box) (AMReX_MFParallelForG.H:75-:80, the launch_global<256> instantiation in sass_notes). With several boxes it uses launch_global<MT=128> (:90). So coarse MG levels with a single box would run the 256 one, and both instantiations may be launched. Fix 930e7c2: GPU Fsmooth (fixed :141-:150) runs 2^3 ParallelForStrided launches with stride IntVect(2) and offset multicolor_offset(color) (Src/Base/AMReX_MFParallelFor.H, added by the fix). It calls mlndabeclap_gauss_seidel_aa (fixed AMReX_MLNodeABecLap_3D_K.H:7-:62: loads :31-:57, store :60, mask store :27). Nodes of one colour differ by a multiple of 2 in every coordinate, so none is in another's radius-1 stencil, and the colours are separate stream-ordered launches. The fix removes the race: fixed = absent. SASS opcodes, tokens and offsets quoted in sites/sass_notes were not re-checked: the one allowed srun (-p normal -t 10) could not start (partition full, estimated start 2026-10-21 14:37) and was cancelled. Everything above is from the upstream sources at the two commits.",
+    "depends_on_D20": false
+  }
 }

@@ -5,16 +5,31 @@
   "route": "n/a (not compiled in T21a; build_notes: torch extension droid_backends (needs torch + Eigen), or a standalone copy of the ~20 lines of warpReduce/blockReduce)",
   "kernel": "warpReduce (src/droid_kernels.cu L45-52) called from blockReduce (L54-64); used by frame_distance_kernel (blockReduce at L657-L659; launched <<<num, THREADS = 256>>> at L1460), projective_transform_kernel (L394, L402, L413), EEt6x6_kernel (L1058) and Ev6x1_kernel (L1096)",
   "space": "shared",
-  "build_revision": {"buggy": "2dfd39f0dcad44012ca7bbb8aa70b55edbfa9c99", "fixed": null},
+  "build_revision": {
+    "buggy": "2dfd39f0dcad44012ca7bbb8aa70b55edbfa9c99",
+    "fixed": null
+  },
   "sites": [
-    {"role": "write", "file": "src/droid_kernels.cu", "line_start": 46, "line_end": 46,
-     "source": "sdata[tid] += sdata[tid + 32];",
-     "operation": "volatile read-modify-write through `volatile float *sdata` (parameter of warpReduce, L45; callers pass `__shared__ float` arrays such as accum[THREADS] (L570), total (L572), valid (L571), sdata[THREADS] (L391, L1052, L1092)): ld.volatile of sdata[tid] and sdata[tid + 32], st.volatile of sdata[tid], executed by the 32 lanes of warp 0 (`if (tid < 32) warpReduce(sdata, tid);` L62), the first of six consecutive steps (k = 32, 16, 8, 4, 2, 1 at L46-L51); expected LDS/STS (shared volatile may lower to plain LDS/STS on sm_89, see open_questions); not compiled in T21a so the lowering is unverified",
-     "strength": "volatile(strong)"},
-    {"role": "read", "file": "src/droid_kernels.cu", "line_start": 47, "line_end": 47,
-     "source": "sdata[tid] += sdata[tid + 16];",
-     "operation": "ld.volatile of sdata[tid + 16] (and of sdata[tid], then st.volatile sdata[tid]) in the second step; lane t < 16 reads sdata[t + 16] which lane t + 16 wrote at L46 (sdata[t + 16] += sdata[t + 48]); no __syncwarp between L46 and L47; expected LDS/STS, unverified",
-     "strength": "volatile(strong)"}
+    {
+      "role": "write",
+      "file": "src/droid_kernels.cu",
+      "line_start": 46,
+      "line_end": 46,
+      "source": "sdata[tid] += sdata[tid + 32];",
+      "operation": "volatile read-modify-write through `volatile float *sdata` (parameter of warpReduce, L45; callers pass `__shared__ float` arrays such as accum[THREADS] (L570), total (L572), valid (L571), sdata[THREADS] (L391, L1052, L1092)): ld.volatile of sdata[tid] and sdata[tid + 32], st.volatile of sdata[tid], executed by the 32 lanes of warp 0 (`if (tid < 32) warpReduce(sdata, tid);` L62), the first of six consecutive steps (k = 32, 16, 8, 4, 2, 1 at L46-L51); expected LDS/STS (shared volatile may lower to plain LDS/STS on sm_89, see open_questions); not compiled in T21a so the lowering is unverified",
+      "strength": "volatile(strong)",
+      "line_basis": "source-derived: git show 2dfd39f0dcad:src/droid_kernels.cu (not built, no SASS)"
+    },
+    {
+      "role": "read",
+      "file": "src/droid_kernels.cu",
+      "line_start": 47,
+      "line_end": 47,
+      "source": "sdata[tid] += sdata[tid + 16];",
+      "operation": "ld.volatile of sdata[tid + 16] (and of sdata[tid], then st.volatile sdata[tid]) in the second step; lane t < 16 reads sdata[t + 16] which lane t + 16 wrote at L46 (sdata[t + 16] += sdata[t + 48]); no __syncwarp between L46 and L47; expected LDS/STS, unverified",
+      "strength": "volatile(strong)",
+      "line_basis": "source-derived: git show 2dfd39f0dcad:src/droid_kernels.cu (not built, no SASS)"
+    }
   ],
   "other_conflicting_accesses": [
     "Every adjacent step pair of warpReduce is the same unordered strong conflict: L47 store (lane t + 8) vs L48 load sdata[tid + 8] (lane t); L48 vs L49 (offset 4); L49 vs L50 (offset 2); L50 vs L51 (offset 1: lane 0 reads sdata[1], written by lane 1 at L50). All lanes 0..31 execute every step (there is no `if (lane < 16)`), so steps also contain write-after-read pairs between lanes (e.g. lane 0's load of sdata[16] at L47 vs lane 16's store of sdata[16] at L47).",
@@ -25,7 +40,11 @@
   "expected_class": "SC",
   "class_reason": "warpReduce takes `volatile float *sdata`, so every access of the pair is a volatile (strong) shared access (verify.strong_accesses: both). By D20 a pair is SC when BOTH accesses are strong: the unordered volatile-store / volatile-load conflict between adjacent steps is an SC pair, not a DR (no plain access is involved). Intra-warp, no __syncwarp: a formal ITS-style conflict that is benign in practice because the warp stays converged.",
   "buggy_expected": "SC (unordered strong conflict), intra-warp, for each adjacent step pair of warpReduce in warp 0 of every block (L46/L47, L47/L48, L48/L49, L49/L50, L50/L51); a detector that treats volatile as atomic-like will not report it, one that follows happens-before with no __syncwarp will report it as SC",
-  "fixed": {"expected": "n/a (unfixed candidate)", "residual_sites": null, "reason": "pinned HEAD is the buggy build"},
+  "fixed": {
+    "expected": "n/a (unfixed candidate)",
+    "residual_sites": null,
+    "reason": "pinned HEAD is the buggy build"
+  },
   "sass_notes": "not compiled in T21a; SASS attribution to be added when T21c/T21b builds it",
   "built": false,
   "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against src/droid_kernels.cu@2dfd39f on 2026-10-20",
@@ -35,5 +54,22 @@
     "warpReduce / blockReduce are non-inline __device__ functions with a volatile pointer parameter; the compiler may inline them into each caller kernel, giving one copy per call site (frame_distance_kernel has three).",
     "In frame_distance_kernel the `accum`, `valid` and `total` arrays are zero-initialised by each thread at L570-L572 before the loop; the pair concerns only the reduction steps."
   ],
-  "upstream_status": {"still_unfixed_at":"2dfd39f0dcad44012ca7bbb8aa70b55edbfa9c99 (origin HEAD fetched: identical to the pinned sha; src/ diff empty)","already_reported_check":"GitHub issue search scoped to princeton-vl/DROID-SLAM for 'warpReduce volatile shared memory race syncwarp racecheck' returned 0 results (semantic search). The same warpReduce is copy-pasted into >=10 SLAM forks (NeRF-SLAM, GO-SLAM, MASt3R-Fusion, ...), none verified here.","dispute_points":"(1) Accesses are volatile, which PTX treats as strong/relaxed-like; a detector that treats volatile as atomic-like will not flag it, while one following HB ordering (no syncwarp => no order) will. (2) In practice nvcc keeps the warp converged here so results are correct on sm_70..sm_90; NVIDIA's own guidance (CUDA 9 'Using CUDA Warp-Level Primitives') says this idiom is formally invalid on Volta+. (3) Maintainers have not touched it; unlikely to be accepted as a bug by the project itself.","proposed_fix_per_record":null,"links":["https://github.com/princeton-vl/DROID-SLAM/blob/2dfd39f0dcad44012ca7bbb8aa70b55edbfa9c99/src/droid_kernels.cu"],"merged_into_default":null}
+  "upstream_status": {
+    "still_unfixed_at": "2dfd39f0dcad44012ca7bbb8aa70b55edbfa9c99 (origin HEAD fetched: identical to the pinned sha; src/ diff empty)",
+    "already_reported_check": "GitHub issue search scoped to princeton-vl/DROID-SLAM for 'warpReduce volatile shared memory race syncwarp racecheck' returned 0 results (semantic search). The same warpReduce is copy-pasted into >=10 SLAM forks (NeRF-SLAM, GO-SLAM, MASt3R-Fusion, ...), none verified here.",
+    "dispute_points": "(1) Accesses are volatile, which PTX treats as strong/relaxed-like; a detector that treats volatile as atomic-like will not flag it, while one following HB ordering (no syncwarp => no order) will. (2) In practice nvcc keeps the warp converged here so results are correct on sm_70..sm_90; NVIDIA's own guidance (CUDA 9 'Using CUDA Warp-Level Primitives') says this idiom is formally invalid on Volta+. (3) Maintainers have not touched it; unlikely to be accepted as a bug by the project itself.",
+    "proposed_fix_per_record": null,
+    "links": [
+      "https://github.com/princeton-vl/DROID-SLAM/blob/2dfd39f0dcad44012ca7bbb8aa70b55edbfa9c99/src/droid_kernels.cu"
+    ],
+    "merged_into_default": null
+  },
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "confirmed",
+    "changes": [],
+    "notes": "Checked at 2dfd39f: warpReduce(volatile float*) L45-52, blockReduce L54-64 (barriers L56, L59, L60, L63; `if (tid < 32) warpReduce` L62), callers L394/L402/L413, L657-659, L1058, L1096, __shared__ float arrays L391/L570-572/L1052/L1092, launch L1460 <<<num, THREADS = 256>>> (L37); no __syncwarp in the file. Pair lane 16 store sdata[16] (L46) / lane 0 load sdata[16] (L47) is intra-warp, unordered, both volatile: SC. The target is SC-only, so whether it counts depends on D20 (option (i): SC column; option (ii): not counted). The SASS-strength caveat in open_questions stands: CLAUDE.md T21 item 1 says volatile lowers to LD/ST.STRONG.SYS, but whether these shared volatile accesses keep a strength marking after inlining (LDS/STS vs generic LD/ST.STRONG) must be checked at build time. class_reason attributes the plain/strong class rule to D20; the rule itself is item 1 of CLAUDE.md 'T21 corpus' (strong accesses decide the class); D20 only decides how SC pairs count.",
+    "depends_on_D20": true
+  }
 }

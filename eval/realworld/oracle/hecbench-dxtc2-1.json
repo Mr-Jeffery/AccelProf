@@ -64,5 +64,13 @@
     "Residual DR pair in the fixed build at L448 (see fixed.reason): absent vs DR in the fixed ground truth is open.",
     "Built with -std=c++17 instead of the Makefile's -std=c++14 (CUDA 13.4 libcu++ requires C++17); kernel source unchanged.",
     "P9 overlap: eval/baselines/manifest.csv P9-dxtc2-cuda is the same app (an older build of it), input full lena_std.ppm."
-  ]
+  ],
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "confirmed",
+    "changes": [],
+    "notes": "Checked at fe80f0f: compress runs with NUM_THREADS=64 (main.cu:46, :698); loadColorBlock (main.cu:147-180) works under if (idx < 16) with no barrier or __syncwarp; the first cg::sync is at main.cu:481, after the call at :479. L70 sums[idx] = colors[idx] and L71 sums[idx] += sums[idx ^ 8] give the RAW thread 0 -> thread 8; the other listed chains (L71-L74, L88-L93 vs L99-L104 with //__syncthreads() at L95/L106, firstEigenVector(covariance) at L110, dps L170 -> L131, ranks L134 -> L138/L139, colors L176 -> L178) have the same shape. All plain shared arrays (main.cu:86, 153, 475-477). Fixed 6e11c2b: everything is inlined into compress (main.cu:360-470) with cg::sync after every phase (:383, :391, :404, :415, :426, :437, :444, :450); the scatter colors[xrefs[idx]] = colors[idx] at :448 has no barrier between the loads and the stores, and after the tie resolution (:440-445) xrefs is a permutation, so lane j loads colors[j] while lane i with xrefs[i] = j stores it: the residual intra-warp DR (lanes 0-15) holds by source. sass_notes are the builder's: the reviewer read sources and diffs only and did not re-dump SASS (the one srun queued with an estimated start the next day and was withdrawn).",
+    "depends_on_D20": false
+  }
 }

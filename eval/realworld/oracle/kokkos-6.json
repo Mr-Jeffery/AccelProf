@@ -44,5 +44,13 @@
   "open_questions": [
     "The exact thread pair (thread 7 / thread 32) of the record assumes blockDim.y > 96, i.e. team size recommended-1 on sm_89 is not known until the sm_89 run (the sm_75 smoke run printed team_size=127, recommended 128, and no inconsistent column). Any team size > 32 gives writers in more than one warp and the same unordered pair.",
     "The fixed variant was not run through a detector or racecheck here, so 'absent' is the record's expectation (the trailing barrier), plus the SASS check that the BAR.SYNC follows the reads."
-  ]
+  ],
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "confirmed",
+    "changes": [],
+    "notes": "Checked at af65233, core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp: function-scope __shared__ double sh_result at :97-:99, result[id] = value at :105 (id = threadIdx.y/32 for threadIdx.y % 32 == 0; step = 32/blockDim.x = 32 with vector length 1), barriers :107 and :112, reads value = result[0] at :116 and join(&value, &result[i]) at :117-:118. Kokkos::Sum::join is a plain 'dest += src' (core/src/Kokkos_Parallel_Reduce.hpp:85). team_reduce calls cuda_intra_block_reduction (core/src/Cuda/Kokkos_Cuda_Team.hpp:229), and that calls cuda_intra_warp_reduction (shuffles only, ReduceScan.hpp:72-:87) and then cuda_inter_warp_reduction unconditionally (:125-:126). Between two consecutive TeamThreadRange reductions nothing orders warp 0's :116/:118 loads of reduction n before warp w's :105 store of reduction n+1. The :110 join writes of reduction n+1 come after the :107 barrier of n+1, so they are ordered. Plain/plain, so DR, cross-warp-same-block. Fix 7176188 appends __syncthreads() at :119, after the reads: the fix removes the race, fixed = absent for this pair. Scoring note: the driver's check reduce (parallel_reduce over RangePolicy with int 'bad', in the fix's TestRepeatedTeamReduce::test(), core/unit_test/TestTeam.hpp) launches a separate ParallelReduce kernel. That kernel contains the kokkos-5-family warp reduction (ReduceScan.hpp:346 tree-loop join, :350 the lane_id != 0 filter, :376 *result store, at af65233). A report in that kernel is not this target's pair. SASS opcodes, tokens and offsets quoted in sites/sass_notes were not re-checked: the one allowed srun (-p normal -t 10) could not start (partition full, estimated start 2026-10-21 14:37) and was cancelled. Everything above is from the upstream sources at the two commits.",
+    "depends_on_D20": false
+  }
 }

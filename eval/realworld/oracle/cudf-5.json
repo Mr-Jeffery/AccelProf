@@ -5,16 +5,31 @@
   "route": "n/a (not compiled in T21a; route to be assigned by the builder; build_notes: full libcudf PARQUET_TEST build)",
   "kernel": "totalDeltaByteArraySize (__device__ function, page_string_decode.cu L409-), called only from compute_delta_page_string_sizes_kernel (L600-, 64 threads = delta_preproc_block_size, L31; warp 0 = prefix decoder, warp 1 = suffix decoder); second instance of the same pattern in compute_delta_length_page_string_sizes_kernel (L691-, 32 threads = delta_length_block_size, L32)",
   "space": "shared",
-  "build_revision": {"buggy": "1d3dafe152ffbc8a2d7da480ef34c3a3865f8ec6", "fixed": "b0638274a06796f64e87d6c6cbcfe609375b67de"},
+  "build_revision": {
+    "buggy": "1d3dafe152ffbc8a2d7da480ef34c3a3865f8ec6",
+    "fixed": "b0638274a06796f64e87d6c6cbcfe609375b67de"
+  },
   "sites": [
-    {"role": "read", "file": "cpp/src/io/parquet/page_string_decode.cu", "line_start": 455, "line_end": 455,
-     "source": "uint32_t const idx = db->current_value_idx + p * warp_size + lane_id;",
-     "operation": "ld of delta_binary_decoder::current_value_idx (4-byte field) through the pointer db = (warp_id == 0) ? &prefixes : warp_id == 1 ? &suffixes : nullptr (L432) to the two __shared__ decoders declared at L416-417; read by all 32 lanes of warp 0 (prefixes) and of warp 1 (suffixes) in every pass p; because db is a select between two shared addresses and nullptr the compiler may emit a generic LD instead of LDS (not compiled in T21a, unverified)",
-     "strength": "plain"},
-    {"role": "write", "file": "cpp/src/io/parquet/delta_binary.cuh", "line_start": 208, "line_end": 208,
-     "source": "current_value_idx += values_per_mb;",
-     "operation": "plain read-modify-write of delta_binary_decoder::current_value_idx (ld, add, st; the same function also reads it at L206 `if (current_value_idx >= num_encoded_values(is_decode)) { return; }`) inside setup_next_mini_block (L204-220), reached from page_string_decode.cu L465 `if (lane_id == 0) { db->setup_next_mini_block(true); }` by lane 0 of warp 0 / warp 1; expected generic ST (or STS), unverified",
-     "strength": "plain"}
+    {
+      "role": "read",
+      "file": "cpp/src/io/parquet/page_string_decode.cu",
+      "line_start": 455,
+      "line_end": 455,
+      "source": "uint32_t const idx = db->current_value_idx + p * warp_size + lane_id;",
+      "operation": "ld of delta_binary_decoder::current_value_idx (4-byte field) through the pointer db = (warp_id == 0) ? &prefixes : warp_id == 1 ? &suffixes : nullptr (L432) to the two __shared__ decoders declared at L416-417; read by all 32 lanes of warp 0 (prefixes) and of warp 1 (suffixes) in every pass p; because db is a select between two shared addresses and nullptr the compiler may emit a generic LD instead of LDS (not compiled in T21a, unverified)",
+      "strength": "plain",
+      "line_basis": "source-derived: git show 1d3dafe152ff:cpp/src/io/parquet/page_string_decode.cu (not built, no SASS)"
+    },
+    {
+      "role": "write",
+      "file": "cpp/src/io/parquet/delta_binary.cuh",
+      "line_start": 208,
+      "line_end": 208,
+      "source": "current_value_idx += values_per_mb;",
+      "operation": "plain read-modify-write of delta_binary_decoder::current_value_idx (ld, add, st; the same function also reads it at L206 `if (current_value_idx >= num_encoded_values(is_decode)) { return; }`) inside setup_next_mini_block (L204-220), reached from page_string_decode.cu L465 `if (lane_id == 0) { db->setup_next_mini_block(true); }` by lane 0 of warp 0 / warp 1; expected generic ST (or STS), unverified",
+      "strength": "plain",
+      "line_basis": "source-derived: git show 1d3dafe152ff:cpp/src/io/parquet/delta_binary.cuh (not built, no SASS)"
+    }
   ],
   "thread_relation": "intra-warp",
   "thread_pair_example": "compute_delta_page_string_sizes_kernel, block 0: warp 0 lane 5 reads prefixes.current_value_idx at page_string_decode.cu L455 in the last pass of a mini-block (calc_mini_block_pass ends with warp.sync() at delta_binary.cuh L320, which orders earlier passes, but there is no sync after the read), while warp 0 lane 0 leaves the pass loop and executes setup_next_mini_block at L465, which writes current_value_idx at delta_binary.cuh L208. Under independent thread scheduling lane 0 may advance before lane 5 has read. Identical pair in warp 1 for the suffix decoder. Second instance: compute_delta_length_page_string_sizes_kernel, thread 5 reads string_lengths.current_value_idx at L779 vs thread 0 writes at delta_binary.cuh L208 via L785.",
@@ -36,5 +51,13 @@
     "db is a generic pointer (select of two shared addresses and nullptr), so a detector must resolve generic LD/ST to the shared window; the SASS form is unverified (not compiled).",
     "Per-element value[] / last_value writes inside calc_mini_block_pass (delta_binary.cuh L315/L319) vs the lane reads at L457/L461 are separated by the warp.sync() at L320, not part of this pair."
   ],
-  "upstream_status": "n/a (fixed target; merged 2026-08-19 as PR 23681; bug introduced by PR 23314; parent 1d3dafe)"
+  "upstream_status": "n/a (fixed target; merged 2026-08-19 as PR 23681; bug introduced by PR 23314; parent 1d3dafe)",
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "confirmed",
+    "changes": [],
+    "notes": "Buggy 1d3dafe (= parent of b063827): totalDeltaByteArraySize page_string_decode.cu L409- (shared decoders L416-417, db select L432, while L443-467, last calc_mini_block_pass ends with warp.sync at delta_binary.cuh L320, read of current_value_idx L455, lane-0 setup_next_mini_block L465 writing current_value_idx at delta_binary.cuh L208, warp.sync L466); second instance L779/L785/L786. Lane 5's L455 read of the last pass and lane 0's L208 write have no warp barrier between: intra-warp, DR. Fix diff (only page_string_decode.cu, 2+): warp.sync() inserted before each lane-0 call (fixed L465 and L786; calls L466/L787; trailing syncs L467/L788). Fixed build: absent for this pair, confirmed. class_reason attributes the plain/strong class rule to D20; the rule itself is item 1 of CLAUDE.md 'T21 corpus' (strong accesses decide the class); D20 only decides how SC pairs count.",
+    "depends_on_D20": false
+  }
 }

@@ -5,16 +5,29 @@
   "route": "R2",
   "kernel": "routing_ds3_nogroup_topk_kernel",
   "space": "shared",
-  "build_revision": {"buggy": "0c4804c4e3269eca869fe0a5f72e287c604fee3f", "fixed": "3daf2d5dff8c146391d367dfae776d9fa042e7b6"},
+  "build_revision": {
+    "buggy": "0c4804c4e3269eca869fe0a5f72e287c604fee3f",
+    "fixed": "3daf2d5dff8c146391d367dfae776d9fa042e7b6"
+  },
   "sites": [
-    {"role": "write", "file": "exllamav3/exllamav3_ext/routing.cu", "line_start": 290, "line_end": 292,
-     "source": "sh_key[warp_id * K + k] = best_key; / sh_payload[warp_id * K + k] = best_payload; / sh_idx[warp_id * K + k] = best_idx;  (inside `if (lane_id == k)` of the stage loop, L288)",
-     "operation": "@!Px STS [R6.X4], R? (sh_key, L290) / @!Px STS [R4], R? (sh_payload, L291) / @!Px STS [R0], R? (sh_idx, L292), st.shared 32-bit; the K loop (K = 8 at runtime) is unrolled into copies at 0x0e30..0x0e50, 0x0f80..0x0fa0, 0x10e0..0x1100, 0x1210..0x1230, 0x13b0..0x13d0, 0x1520..0x1540, 0x16a0..0x16c0 (7 copies listed in the SASS)",
-     "strength": "plain"},
-    {"role": "read", "file": "exllamav3/exllamav3_ext/routing.cu", "line_start": 277, "line_end": 279,
-     "source": "key = pos < num_candidates ? sh_key[pos] : -1.0e30f; / payload = pos < num_candidates ? sh_payload[pos] : 0.0f; / idx = pos < num_candidates ? sh_idx[pos] : -1;  (pos = t, L276, inside `if (warp_id < stage_warps)` of the stage loop)",
-     "operation": "@!P2 LDS R21, [R9.X4] (sh_key, L277, 0x0c30) / @!P2 LDS R16, [R20] (sh_payload, L278, 0x0c60) / @!P2 LDS R14, [R17] (sh_idx, L279, 0x0c80), ld.shared 32-bit",
-     "strength": "plain"}
+    {
+      "role": "write",
+      "file": "exllamav3/exllamav3_ext/routing.cu",
+      "line_start": 290,
+      "line_end": 292,
+      "source": "sh_key[warp_id * K + k] = best_key; / sh_payload[warp_id * K + k] = best_payload; / sh_idx[warp_id * K + k] = best_idx;  (inside `if (lane_id == k)` of the stage loop, L288)",
+      "operation": "@!Px STS [R6.X4], R? (sh_key, L290) / @!Px STS [R4], R? (sh_payload, L291) / @!Px STS [R0], R? (sh_idx, L292), st.shared 32-bit; the K loop (K = 8 at runtime) is unrolled into copies at 0x0e30..0x0e50, 0x0f80..0x0fa0, 0x10e0..0x1100, 0x1210..0x1230, 0x13b0..0x13d0, 0x1520..0x1540, 0x16a0..0x16c0 (7 copies listed in the SASS)",
+      "strength": "plain"
+    },
+    {
+      "role": "read",
+      "file": "exllamav3/exllamav3_ext/routing.cu",
+      "line_start": 277,
+      "line_end": 279,
+      "source": "key = pos < num_candidates ? sh_key[pos] : -1.0e30f; / payload = pos < num_candidates ? sh_payload[pos] : 0.0f; / idx = pos < num_candidates ? sh_idx[pos] : -1;  (pos = t, L276, inside `if (warp_id < stage_warps)` of the stage loop)",
+      "operation": "@!P2 LDS R21, [R9.X4] (sh_key, L277, 0x0c30) / @!P2 LDS R16, [R20] (sh_payload, L278, 0x0c60) / @!P2 LDS R14, [R17] (sh_idx, L279, 0x0c80), ld.shared 32-bit",
+      "strength": "plain"
+    }
   ],
   "thread_relation": "cross-warp-same-block",
   "thread_pair_example": "driver input: 4 tokens (blocks), E = 256 experts, K = 8: 8 warps, after the first per-warp top-K there are 8*8 = 64 candidates > 32, so the stage loop runs once with stage_warps = 2. Warp 0 (threads 0..31) reads sh_key/sh_payload/sh_idx[0..31] at L277-279 and warp 1 (threads 32..63) reads [32..63]; then lane k of warp 1 (thread 32+k) writes sh_*[1*8+k] = sh_*[8+k] at L290-292, which lies inside warp 0's read window [0..31]. E.g. block 0: thread 8 (warp 0, lane 8) reads sh_key[8] (L277) vs thread 32 (warp 1, lane 0) writes sh_key[1*8+0] = sh_key[8] (L290, k = 0); likewise sh_payload[8..15] (L278/L291) and sh_idx[8..15] (L279/L292). Between the reads and the writes of a stage there is no barrier (the only barrier of the stage is L298, after the whole if-block). Needs num_warps*K > 32.",
@@ -30,10 +43,24 @@
     {
       "kernel": "routing_std_topk_kernel",
       "sites": [
-        {"role": "write", "file": "exllamav3/exllamav3_ext/routing.cu", "line_start": 544, "line_end": 545,
-         "source": "sh_key[warp_id * K + k] = best_key; / sh_idx[warp_id * K + k] = best_idx;", "operation": "@!Px STS [R5.X4], R? (sh_key, L544, first copy 0x0ef0) / @!Px STS [R0], R? (sh_idx, L545, 0x0f00), unrolled over k", "strength": "plain"},
-        {"role": "read", "file": "exllamav3/exllamav3_ext/routing.cu", "line_start": 531, "line_end": 533,
-         "source": "key = pos < num_candidates ? sh_key[pos] : -1.0e30f; (L531) / payload = key; (L532, register) / idx = pos < num_candidates ? sh_idx[pos] : -1; (L533)", "operation": "@!P1 LDS R22, [R9.X4] (sh_key, L531, 0x0cd0) / @!P1 LDS R15, [R19] (sh_idx, L533, 0x0d00)", "strength": "plain"}
+        {
+          "role": "write",
+          "file": "exllamav3/exllamav3_ext/routing.cu",
+          "line_start": 544,
+          "line_end": 545,
+          "source": "sh_key[warp_id * K + k] = best_key; / sh_idx[warp_id * K + k] = best_idx;",
+          "operation": "@!Px STS [R5.X4], R? (sh_key, L544, first copy 0x0ef0) / @!Px STS [R0], R? (sh_idx, L545, 0x0f00), unrolled over k",
+          "strength": "plain"
+        },
+        {
+          "role": "read",
+          "file": "exllamav3/exllamav3_ext/routing.cu",
+          "line_start": 531,
+          "line_end": 533,
+          "source": "key = pos < num_candidates ? sh_key[pos] : -1.0e30f; (L531) / payload = key; (L532, register) / idx = pos < num_candidates ? sh_idx[pos] : -1; (L533)",
+          "operation": "@!P1 LDS R22, [R9.X4] (sh_key, L531, 0x0cd0) / @!P1 LDS R15, [R19] (sh_idx, L533, 0x0d00)",
+          "strength": "plain"
+        }
       ],
       "thread_pair_example": "same geometry as the primary pair: block 0, thread 8 (warp 0) reads sh_key[8] (L531) vs thread 32 (warp 1, lane 0) writes sh_key[8] (L544, k = 0); the stage barrier is L551.",
       "expected_class": "DR",
@@ -42,10 +69,24 @@
     {
       "kernel": "routing_std_kernel",
       "sites": [
-        {"role": "write", "file": "exllamav3/exllamav3_ext/routing.cu", "line_start": 655, "line_end": 655,
-         "source": "sh_v[warp_id * K + kpos] = v;", "operation": "@!P0 STS.U16 [R11], R8 (st.shared.u16, half; 0x1680); executed by lanes kpos < K of warps warp_id < num_warps", "strength": "plain"},
-        {"role": "read", "file": "exllamav3/exllamav3_ext/routing.cu", "line_start": 636, "line_end": 636,
-         "source": "max_logit = lane_id < num_warps ? max_red[lane_id] : __ushort_as_half(0xfbff);  (max_red == sh_v, L623)", "operation": "@!P2 LDS.U16 R8, [R9] (ld.shared.u16, half; 0x0300)", "strength": "plain"}
+        {
+          "role": "write",
+          "file": "exllamav3/exllamav3_ext/routing.cu",
+          "line_start": 655,
+          "line_end": 655,
+          "source": "sh_v[warp_id * K + kpos] = v;",
+          "operation": "@!P0 STS.U16 [R11], R8 (st.shared.u16, half; 0x1680); executed by lanes kpos < K of warps warp_id < num_warps",
+          "strength": "plain"
+        },
+        {
+          "role": "read",
+          "file": "exllamav3/exllamav3_ext/routing.cu",
+          "line_start": 636,
+          "line_end": 636,
+          "source": "max_logit = lane_id < num_warps ? max_red[lane_id] : __ushort_as_half(0xfbff);  (max_red == sh_v, L623)",
+          "operation": "@!P2 LDS.U16 R8, [R9] (ld.shared.u16, half; 0x0300)",
+          "strength": "plain"
+        }
       ],
       "thread_pair_example": "E = 256, K = 8: every warp reads max_red[lane_id] = sh_v[lane_id] (lanes 0..7) at L636 after the barrier at L635; warp 0 (after its warp_radixsort_posf16) writes sh_v[0*K + kpos] = sh_v[0..7] at L655. E.g. block 0: thread 1 of warp 3 (thread 97) reads sh_v[1] vs thread 1 of warp 0 (thread 1) writes sh_v[1] at L655; no barrier between L636 and L655, the next barrier is L658.",
       "expected_class": "DR",
@@ -57,6 +98,23 @@
   "open_questions": [
     "The primary pair is routing_ds3_nogroup_topk_kernel; the record lists three kernels, the other two are given in additional_pairs (non-standard key) and are launched by the same driver. T_KERNEL (reach check) names the primary kernel only; racecheck/detector output will contain findings for all three kernels.",
     "routing_std_kernel L634 `max_red[warp_id] = max_logit;` is executed by all 32 lanes of a warp with the same value (intra-warp same-address same-value stores, present in both variants); not part of the target pair, a detector might still flag it.",
-    "Manifestation of these races is timing dependent (a fast warp must overtake a slow one); the sm_75 smoke run shows correct top-K for both variants; detection is by happens-before."
-  ]
+    "Manifestation of these races is timing dependent (a fast warp must overtake a slow one); the sm_75 smoke run shows correct top-K for both variants; detection is by happens-before.",
+    "Not a target pair, present in BOTH variants (routing.cu L79-111 is unchanged by the fix): warp_radixsort_posf16, called by routing_std_kernel (L648, L675), reads src_lane_map[myrank] at L103 after the __syncwarp at L102 and, in the next bit iteration, other lanes write src_lane_map[dest] at L101 with only __ballot_sync (L90) and __shfl_sync (L105-106) in between: an intra-warp WAR on the plain shared perm array that PTX does not order (shuffles and votes are not memory synchronisation, CLAUDE.md T21 item 2). Whether the detector orders it depends on whether ptxas emits a WARPSYNC there; a report of this pair on either build is unrelated to the fix (added by the step-4 review)."
+  ],
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "confirmed",
+    "changes": [
+      {
+        "field": "open_questions[+]",
+        "old": null,
+        "new": "Not a target pair, present in BOTH variants (routing.cu L79-111 is unchanged by the fix): warp_radixsort_posf16, called by routing_std_kernel (L648, L675), reads src_lane_map[myrank] at L103 after the __syncwarp at L102 and, in the next bit iteration, other lanes write src_lane_map[dest] at L101 with only __ballot_sync (L90) and __shfl_sync (L105-106) in between: an intra-warp WAR on the plain shared perm array that PTX does not order (shuffles and votes are not memory synchronisation, CLAUDE.md T21 item 2). Whether the detector orders it depends on whether ptxas emits a WARPSYNC there; a report of this pair on either build is unrelated to the fix (added by the step-4 review).",
+        "reason": "unregistered intra-warp pair in a launched kernel, present in both variants, that a detector can report on the fixed build",
+        "evidence": "exllamav3/exllamav3_ext/routing.cu:79-111 @0c4804c and @3daf2d5; call sites routing.cu:648,675 @0c4804c"
+      }
+    ],
+    "notes": "R2 harness: every copied kernel file under r2/buggy and r2/fixed is byte-identical (cmp) to git show <buggy_commit>:<path> / <fix_commit>:<path>; git diff buggy..fix of those files is exactly the fix hunk described in fixed.reason. (routing.cu and the six headers). Primary pair confirmed at 0c4804c: E = 256 -> num_warps = 8, K = 8 -> 64 candidates > 32, one stage with stage_warps = 2 (routing.cu:269-272); warps 0 and 1 load sh_key/sh_payload/sh_idx[t] (L276-279) and lane k of warp w stores sh_*[w*8 + k] (L288-292) with no barrier until L298; warp 1's slice [8..15] lies in warp 0's read window, so thread 8 + k (warp 0) vs thread 32 + k (warp 1): 32-bit plain/plain WAR -> DR. Warp 0's own slice [0..7] is read only by the same lanes (pos = t), so no intra-warp pair. warp_reduce_best_f32 on sm_89 is register-only (routing.cu:44-55). additional_pairs confirmed: routing_std_topk_kernel L531/L533 vs L544-545 (same geometry, stage barrier L551); routing_std_kernel L636 reads max_red[lane_id] = sh_v[0..7] (half, max_red aliases sh_v, L620-623) by every warp after L635, and warp 0's lanes 0..7 store sh_v[kpos] at L655 with no barrier until L658 (16-bit plain/plain, cross-warp). Note the key is named 'additional_pairs' here and 'extra_pairs' in the other oracles; content is correct. Fixed (3daf2d5): loads hoisted before a new __syncthreads() (ds3: L277-281; std_topk: L533-537), writes at L294-296 / L550-551, stage barrier L302 / L557; routing_std_kernel gets __syncthreads() at L647 before the writes at L664. All new barriers are outside warp-dependent branches (the std_kernel one is inside 'if (num_warps > 1)', which is block-uniform). 'absent' confirmed for the three registered pairs; see the added open question for an unrelated intra-warp pair in warp_radixsort_posf16, and open_questions[1] for the same-value L634 stores. Not independently verified: the SASS opcodes, register operands and offsets quoted in sites/sass_notes (the one permitted srun on -p normal could not start: partition fully allocated, estimated start 2026-10-21 14:37, so the job was cancelled); access widths were checked from the source types instead. Native-run and smoke-run statements in open_questions are builder results and were not reviewed.",
+    "depends_on_D20": false
+  }
 }

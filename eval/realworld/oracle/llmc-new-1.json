@@ -5,27 +5,46 @@
   "route": "n/a (not compiled in T21a; build_notes: dev/cuda self-contained `make layernorm_backward`, or llmc/layernorm.cuh via train_gpt2.cu)",
   "kernel": "layernorm_backward_kernel10 (llmc/layernorm.cuh L233-; __launch_bounds__(512, 2); launched by layernorm_backward() L492-505 with grid_size = 2 * multiProcessorCount, block_size = 512, flag cleared by cudaMemsetAsync L502). Same hand-off in dev/cuda/layernorm_backward.cu kernel10 (L1056-)",
   "space": "global",
-  "build_revision": {"buggy": "f1e2ace651495b74ae22d45d1723443fd00ecd3a", "fixed": null},
+  "build_revision": {
+    "buggy": "f1e2ace651495b74ae22d45d1723443fd00ecd3a",
+    "fixed": null
+  },
   "sites": [
-    {"role": "write", "file": "llmc/layernorm.cuh", "line_start": 371, "line_end": 372,
-     "source": "store128(scratch_dbias + i + 2*C*blockIdx.x, load128(dbias_shared + i)); store128(scratch_dweight + i + 2*C*blockIdx.x, load128(dweight_shared + i));",
-     "operation": "st.global.v4.b32 (128-bit plain store, STG.E.128 expected) of the block's partial dbias (L371) and dweight (L372) into the global float scratch buffer (scratch += 32 at L366, scratch_dbias = scratch, scratch_dweight = scratch + C, offset 2*C*blockIdx.x), `*reinterpret_cast<int4*>(target) = value.get_bits()` (cuda_utils.cuh L62-66); loop L369-373 over i = threadIdx.x * f128::size, step BLOCK_SIZE * f128::size; not compiled in T21a so the SASS is unverified",
-     "strength": "plain"},
-    {"role": "read", "file": "llmc/layernorm.cuh", "line_start": 391, "line_end": 392,
-     "source": "f128 dbias128 = load128(scratch_dbias + offset); f128 dweight128 = load128(scratch_dweight + offset);",
-     "operation": "ld.global.v4.b32 (128-bit plain load, LDG.E.128 expected) by the last-arriving block, `Packed128{*reinterpret_cast<const int4*>(address)}` (cuda_utils.cuh L52-56); offset = i + 2*C*read_block_idx for read_block_idx = 0..gridDim.x-1 (loop L389-397), executed under `if (*tmp_flag == gridDim.x-1)` (L381); scratch is a non-const float* so no ld.global.nc is expected; unverified",
-     "strength": "plain"}
+    {
+      "role": "write",
+      "file": "dev/cuda/layernorm_backward.cu",
+      "line_start": 1194,
+      "line_end": 1195,
+      "source": "store128(scratch_dbias + i + 2*C*blockIdx.x, load128(dbias_shared + i)); store128(scratch_dweight + i + 2*C*blockIdx.x, load128(dweight_shared + i));",
+      "operation": "128-bit plain global store of the block's partial dbias (L1194) / dweight (L1195) into float scratch (scratch += 32 at L1189, offset 2*C*blockIdx.x), loop L1192-1196, after __syncthreads L1183 and before __syncthreads L1197; dev/cuda kernel10 L1056-; expected STG.E.128, not compiled in T21a",
+      "strength": "plain",
+      "line_basis": "source-derived: git show f1e2ace65149:dev/cuda/layernorm_backward.cu (not built, no SASS)"
+    },
+    {
+      "role": "read",
+      "file": "dev/cuda/layernorm_backward.cu",
+      "line_start": 1214,
+      "line_end": 1215,
+      "source": "f128 dbias128 = load128(scratch_dbias + offset); f128 dweight128 = load128(scratch_dweight + offset);",
+      "operation": "128-bit plain global load by the last-arriving block (`if (*tmp_flag == gridDim.x-1)` L1204, flag from atomicInc L1201, __syncthreads L1203), offset = i + 2*C*read_block_idx for every block (loop L1212-1220); expected LDG.E.128, not compiled in T21a",
+      "strength": "plain",
+      "line_basis": "source-derived: git show f1e2ace65149:dev/cuda/layernorm_backward.cu (not built, no SASS)"
+    }
   ],
   "other_conflicting_accesses": [
     "The same four lines exist in dev/cuda/layernorm_backward.cu kernel10 at L1194-1195 (stores), L1201 (atomicInc), L1214-1215 (loads); in kernels 9 (atomicInc L1001, loads L1014-1015), 8 (atomicInc L843), 7 (atomicAdd L731), 6 (atomicAdd L638) of the same file the hand-off is the same (the record lists flag atomics at L638, L731, L843, L1001, L1201; loads/stores of kernels 6-8 were not individually read). Whether T21b/T21c builds the dev/cuda file or llmc/layernorm.cuh determines which file/lines the SASS attribution will point to.",
     "The hand-off flag itself, `*tmp_flag = atomicInc(scratchFlag, gridDim.x);` at llmc/layernorm.cuh L378 (thread 0, relaxed atom.global.inc on scratch[0], a different address from the partials), is an atomic and not part of the racing pair; it is the attempted publication."
   ],
   "thread_relation": "cross-block",
-  "thread_pair_example": "block A (e.g. block 0), thread t (e.g. thread 0) stores 128 bits at scratch_dbias + i + 2*C*0 (L371, with i = t * 4) after the __syncthreads at L360 and before the __syncthreads at L374; its thread 0 then does atomicInc on scratchFlag (L378). The last-arriving block B (the one whose atomicInc returned gridDim.x - 1, e.g. block 83 of 2*numSMs) thread t loads the same address at L391 (read_block_idx = 0). No __threadfence() before the atomicInc nor after observing the flag; the __syncthreads at L374/L380 are CTA-scope only.",
+  "thread_pair_example": "dev/cuda/layernorm_backward.cu kernel10 (llmc/layernorm.cuh line in brackets): block A thread t stores 128 bits at scratch_dbias + i + 2*C*A (L1194 [L371], i = t*4) after __syncthreads L1183 [L360] and before __syncthreads L1197 [L374]; its thread 0 then does atomicInc on scratchFlag (L1201 [L378]). The last-arriving block B (atomicInc returned gridDim.x - 1) passes __syncthreads L1203 [L380] and thread t loads the same address at L1214 [L391] (read_block_idx = A). No __threadfence on either side; bar.sync is CTA-scope and the relaxed atomic on another address releases nothing.",
   "expected_class": "DR",
   "class_reason": "Both accesses are plain (non-volatile, non-atomic) 128-bit global accesses (verify.strong_accesses: none for the pair); the atomicInc flag is the attempted hand-off only (relaxed, different address). bar.sync orders threads within one CTA only and a relaxed atomic on another address does not release the earlier stores, so there is no happens-before edge from block A's stores to the last block's loads. Plain vs plain unordered = DR under D20. In practice it works because L2 atomics execute after earlier stores of the same SM drain; formally it is message passing without release/acquire.",
-  "buggy_expected": "the pair (L371/L372 store128 by block A) x (L391/L392 load128 by the last block) on scratch (global) is reported as DR (cross-block RAW); a detector must model atomicInc as relaxed (not acq_rel) and must not treat bar.sync or any atomic as a GPU-scope fence",
-  "fixed": {"expected": "n/a (unfixed candidate)", "residual_sites": null, "reason": "pinned HEAD is the buggy build"},
+  "buggy_expected": "the pair (dev/cuda/layernorm_backward.cu L1194/L1195 store128 by block A) x (L1214/L1215 load128 by the last block) on global scratch is reported as DR (cross-block RAW); if the production header is built instead, the same pair is llmc/layernorm.cuh L371/L372 x L391/L392 (sites_llmc_layernorm_cuh). A detector must model atomicInc as relaxed and must not treat bar.sync or any atomic as a GPU-scope fence",
+  "fixed": {
+    "expected": "n/a (unfixed candidate)",
+    "residual_sites": null,
+    "reason": "pinned HEAD is the buggy build"
+  },
   "sass_notes": "not compiled in T21a; SASS attribution to be added when T21c/T21b builds it",
   "built": false,
   "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against llmc/layernorm.cuh and llmc/cuda_utils.cuh@f1e2ace (and dev/cuda/layernorm_backward.cu@f1e2ace for the dev kernel line numbers) on 2026-10-20",
@@ -35,5 +54,108 @@
     "floatX is a compile-time typedef (float or bf16) but the scratch buffer and the pair are float; the dinp/inp accesses are unrelated.",
     "Lowering (STG.E.128 / LDG.E.128 and possible split into 64-bit accesses; the code comment at L325-328 notes a 64-bit store is generated for the shared-memory store128 at L324/L329, not the global one) not checked because the target is not compiled in T21a."
   ],
-  "upstream_status": {"still_unfixed_at":"f1e2ace651495b74ae22d45d1723443fd00ecd3a (git fetch origin: origin/master equals the pinned sha)","already_reported_check":"search_issues in karpathy/llm.c for 'layernorm_backward_kernel10 missing __threadfence last block scratch flag atomicInc' returned #190 (layernorm_backward.cu atomicAdd; about plain += in kernel2, now atomicAdd at HEAD), #428 (dweight mismatch, fixed by PR #476, unrelated), #794 (OOB), #176, #178: none mentions fence/hand-off. search_code 'threadfence repo:karpathy/llm.c' finds only dev/cuda/layernorm_backward.cu.","dispute_points":"(1) On real hardware this essentially always works because atomics execute at L2 after earlier stores from the same SM have drained; a skeptic will say 'not observable'. The detector follows PTX happens-before, under which it IS a race (message-passing without release/acquire), and the author's own earlier kernel5 includes the fence. (2) The detector must model atomicInc as relaxed (not acq_rel) and not treat the CTA-level __syncthreads as a GPU-scope fence; if it treats any atomic as a full fence it will miss this. (3) Repo is archived-ish (last commit 2025-05), so no fix is expected.","proposed_fix_per_record":null,"links":["https://github.com/karpathy/llm.c/blob/f1e2ace651495b74ae22d45d1723443fd00ecd3a/llmc/layernorm.cuh#L360-L401"],"merged_into_default":null}
+  "upstream_status": {
+    "still_unfixed_at": "f1e2ace651495b74ae22d45d1723443fd00ecd3a (git fetch origin: origin/master equals the pinned sha)",
+    "already_reported_check": "search_issues in karpathy/llm.c for 'layernorm_backward_kernel10 missing __threadfence last block scratch flag atomicInc' returned #190 (layernorm_backward.cu atomicAdd; about plain += in kernel2, now atomicAdd at HEAD), #428 (dweight mismatch, fixed by PR #476, unrelated), #794 (OOB), #176, #178: none mentions fence/hand-off. search_code 'threadfence repo:karpathy/llm.c' finds only dev/cuda/layernorm_backward.cu.",
+    "dispute_points": "(1) On real hardware this essentially always works because atomics execute at L2 after earlier stores from the same SM have drained; a skeptic will say 'not observable'. The detector follows PTX happens-before, under which it IS a race (message-passing without release/acquire), and the author's own earlier kernel5 includes the fence. (2) The detector must model atomicInc as relaxed (not acq_rel) and not treat the CTA-level __syncthreads as a GPU-scope fence; if it treats any atomic as a full fence it will miss this. (3) Repo is archived-ish (last commit 2025-05), so no fix is expected.",
+    "proposed_fix_per_record": null,
+    "links": [
+      "https://github.com/karpathy/llm.c/blob/f1e2ace651495b74ae22d45d1723443fd00ecd3a/llmc/layernorm.cuh#L360-L401"
+    ],
+    "merged_into_default": null
+  },
+  "sites_llmc_layernorm_cuh": [
+    {
+      "role": "write",
+      "file": "llmc/layernorm.cuh",
+      "line_start": 371,
+      "line_end": 372,
+      "source": "store128(scratch_dbias + i + 2*C*blockIdx.x, load128(dbias_shared + i)); store128(scratch_dweight + i + 2*C*blockIdx.x, load128(dweight_shared + i));",
+      "operation": "st.global.v4.b32 (128-bit plain store, STG.E.128 expected) of the block's partial dbias (L371) and dweight (L372) into the global float scratch buffer (scratch += 32 at L366, scratch_dbias = scratch, scratch_dweight = scratch + C, offset 2*C*blockIdx.x), `*reinterpret_cast<int4*>(target) = value.get_bits()` (cuda_utils.cuh L62-66); loop L369-373 over i = threadIdx.x * f128::size, step BLOCK_SIZE * f128::size; not compiled in T21a so the SASS is unverified",
+      "strength": "plain",
+      "line_basis": "source-derived: git show f1e2ace65149:llmc/layernorm.cuh (not built, no SASS)"
+    },
+    {
+      "role": "read",
+      "file": "llmc/layernorm.cuh",
+      "line_start": 391,
+      "line_end": 392,
+      "source": "f128 dbias128 = load128(scratch_dbias + offset); f128 dweight128 = load128(scratch_dweight + offset);",
+      "operation": "ld.global.v4.b32 (128-bit plain load, LDG.E.128 expected) by the last-arriving block, `Packed128{*reinterpret_cast<const int4*>(address)}` (cuda_utils.cuh L52-56); offset = i + 2*C*read_block_idx for read_block_idx = 0..gridDim.x-1 (loop L389-397), executed under `if (*tmp_flag == gridDim.x-1)` (L381); scratch is a non-const float* so no ld.global.nc is expected; unverified",
+      "strength": "plain",
+      "line_basis": "source-derived: git show f1e2ace65149:llmc/layernorm.cuh (not built, no SASS)"
+    }
+  ],
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "corrected",
+    "changes": [
+      {
+        "field": "sites",
+        "old": [
+          {
+            "role": "write",
+            "file": "llmc/layernorm.cuh",
+            "line_start": 371,
+            "line_end": 372,
+            "source": "store128(scratch_dbias + i + 2*C*blockIdx.x, load128(dbias_shared + i)); store128(scratch_dweight + i + 2*C*blockIdx.x, load128(dweight_shared + i));",
+            "operation": "st.global.v4.b32 (128-bit plain store, STG.E.128 expected) of the block's partial dbias (L371) and dweight (L372) into the global float scratch buffer (scratch += 32 at L366, scratch_dbias = scratch, scratch_dweight = scratch + C, offset 2*C*blockIdx.x), `*reinterpret_cast<int4*>(target) = value.get_bits()` (cuda_utils.cuh L62-66); loop L369-373 over i = threadIdx.x * f128::size, step BLOCK_SIZE * f128::size; not compiled in T21a so the SASS is unverified",
+            "strength": "plain",
+            "line_basis": "source-derived: git show f1e2ace65149:llmc/layernorm.cuh (not built, no SASS)"
+          },
+          {
+            "role": "read",
+            "file": "llmc/layernorm.cuh",
+            "line_start": 391,
+            "line_end": 392,
+            "source": "f128 dbias128 = load128(scratch_dbias + offset); f128 dweight128 = load128(scratch_dweight + offset);",
+            "operation": "ld.global.v4.b32 (128-bit plain load, LDG.E.128 expected) by the last-arriving block, `Packed128{*reinterpret_cast<const int4*>(address)}` (cuda_utils.cuh L52-56); offset = i + 2*C*read_block_idx for read_block_idx = 0..gridDim.x-1 (loop L389-397), executed under `if (*tmp_flag == gridDim.x-1)` (L381); scratch is a non-const float* so no ld.global.nc is expected; unverified",
+            "strength": "plain",
+            "line_basis": "source-derived: git show f1e2ace65149:llmc/layernorm.cuh (not built, no SASS)"
+          }
+        ],
+        "new": [
+          {
+            "role": "write",
+            "file": "dev/cuda/layernorm_backward.cu",
+            "line_start": 1194,
+            "line_end": 1195,
+            "source": "store128(scratch_dbias + i + 2*C*blockIdx.x, load128(dbias_shared + i)); store128(scratch_dweight + i + 2*C*blockIdx.x, load128(dweight_shared + i));",
+            "operation": "128-bit plain global store of the block's partial dbias (L1194) / dweight (L1195) into float scratch (scratch += 32 at L1189, offset 2*C*blockIdx.x), loop L1192-1196, after __syncthreads L1183 and before __syncthreads L1197; dev/cuda kernel10 L1056-; expected STG.E.128, not compiled in T21a",
+            "strength": "plain",
+            "line_basis": "source-derived: git show f1e2ace65149:dev/cuda/layernorm_backward.cu (not built, no SASS)"
+          },
+          {
+            "role": "read",
+            "file": "dev/cuda/layernorm_backward.cu",
+            "line_start": 1214,
+            "line_end": 1215,
+            "source": "f128 dbias128 = load128(scratch_dbias + offset); f128 dweight128 = load128(scratch_dweight + offset);",
+            "operation": "128-bit plain global load by the last-arriving block (`if (*tmp_flag == gridDim.x-1)` L1204, flag from atomicInc L1201, __syncthreads L1203), offset = i + 2*C*read_block_idx for every block (loop L1212-1220); expected LDG.E.128, not compiled in T21a",
+            "strength": "plain",
+            "line_basis": "source-derived: git show f1e2ace65149:dev/cuda/layernorm_backward.cu (not built, no SASS)"
+          }
+        ],
+        "reason": "The pre-registered driver (CLAUDE.md candidate table, route R1) builds dev/cuda/layernorm_backward.cu kernel 10, not llmc/layernorm.cuh; the reported pair will carry the dev file's lines. The llmc/layernorm.cuh pair is kept unchanged under the new key sites_llmc_layernorm_cuh.",
+        "evidence": "dev/cuda/layernorm_backward.cu L1183, L1192-1197, L1201, L1203-1204, L1212-1215, launch L1374-1379 at f1e2ace; llmc/layernorm.cuh L360-L392 at f1e2ace"
+      },
+      {
+        "field": "thread_pair_example",
+        "old": "block A (e.g. block 0), thread t (e.g. thread 0) stores 128 bits at scratch_dbias + i + 2*C*0 (L371, with i = t * 4) after the __syncthreads at L360 and before the __syncthreads at L374; its thread 0 then does atomicInc on scratchFlag (L378). The last-arriving block B (the one whose atomicInc returned gridDim.x - 1, e.g. block 83 of 2*numSMs) thread t loads the same address at L391 (read_block_idx = 0). No __threadfence() before the atomicInc nor after observing the flag; the __syncthreads at L374/L380 are CTA-scope only.",
+        "new": "dev/cuda/layernorm_backward.cu kernel10 (llmc/layernorm.cuh line in brackets): block A thread t stores 128 bits at scratch_dbias + i + 2*C*A (L1194 [L371], i = t*4) after __syncthreads L1183 [L360] and before __syncthreads L1197 [L374]; its thread 0 then does atomicInc on scratchFlag (L1201 [L378]). The last-arriving block B (atomicInc returned gridDim.x - 1) passes __syncthreads L1203 [L380] and thread t loads the same address at L1214 [L391] (read_block_idx = A). No __threadfence on either side; bar.sync is CTA-scope and the relaxed atomic on another address releases nothing.",
+        "reason": "rewritten on the dev/cuda lines (llmc lines kept in brackets)",
+        "evidence": "dev/cuda/layernorm_backward.cu L1183-L1215 at f1e2ace"
+      },
+      {
+        "field": "buggy_expected",
+        "old": "the pair (L371/L372 store128 by block A) x (L391/L392 load128 by the last block) on scratch (global) is reported as DR (cross-block RAW); a detector must model atomicInc as relaxed (not acq_rel) and must not treat bar.sync or any atomic as a GPU-scope fence",
+        "new": "the pair (dev/cuda/layernorm_backward.cu L1194/L1195 store128 by block A) x (L1214/L1215 load128 by the last block) on global scratch is reported as DR (cross-block RAW); if the production header is built instead, the same pair is llmc/layernorm.cuh L371/L372 x L391/L392 (sites_llmc_layernorm_cuh). A detector must model atomicInc as relaxed and must not treat bar.sync or any atomic as a GPU-scope fence",
+        "reason": "names the dev/cuda pair first, the llmc pair as the alternative build",
+        "evidence": "as above"
+      }
+    ],
+    "notes": "Both copies were re-read at f1e2ace and are line-for-line the same hand-off: plain partial stores, CTA barrier, thread 0 relaxed atomicInc (atom.global.inc, different address), CTA barrier, plain loads by the last block. No fence on either side (the dev file's only __threadfence is in kernel5, L535). Cross-block, unordered under PTX: DR. The dev launcher memsets the flag (L1378) and launches (1024/block_size)*numSMs blocks (L1374); main hard-codes B=8, T=1024, C=1600 (L1436-1438), so the driver must recompile with small B, T as the table says. Upstream: git ls-remote HEAD = pinned on 2026-10-20. class_reason attributes the plain/strong class rule to D20; the rule itself is item 1 of CLAUDE.md 'T21 corpus' (strong accesses decide the class); D20 only decides how SC pairs count.",
+    "depends_on_D20": false
+  }
 }

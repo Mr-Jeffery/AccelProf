@@ -5,19 +5,32 @@
   "route": "R2",
   "kernel": "nearest_kernel",
   "space": "shared",
-  "build_revision": {"buggy": "817b767e55ce7041c5593b6b5921da47dbc63524", "fixed": "a5abfee85636b8369cef237ee175c3c45bedfafe"},
+  "build_revision": {
+    "buggy": "817b767e55ce7041c5593b6b5921da47dbc63524",
+    "fixed": "a5abfee85636b8369cef237ee175c3c45bedfafe"
+  },
   "sites": [
-    {"role": "write", "file": "csrc/cuda/nearest_cuda.cu", "line_start": 54, "line_end": 54,
-     "source": "best_dist[thread_idx] = best_dist[thread_idx + i];",
-     "operation": "STS [R0.X4], R6 (st.shared.f32 into best_dist[thread_idx], predicated on the compare; one unrolled copy per iteration i = 1,2,4,...,512, e.g. i=1: 0x2550, i=32: 0x2940). Companion store on the index array at L55: STS.64 [R0.X8+0x1000], R4 (best_dist_idx[thread_idx], e.g. i=32: 0x2950)",
-     "strength": "plain"},
-    {"role": "read", "file": "csrc/cuda/nearest_cuda.cu", "line_start": 53, "line_end": 53,
-     "source": "best_dist[thread_idx] > best_dist[thread_idx + i]) {",
-     "operation": "LDS R6, [R0.X4+4*i] (ld.shared.f32 of best_dist[thread_idx + i]; e.g. i=1: 0x2520 [R0.X4+0x4], i=32: 0x2910 [R0.X4+0x80]); the own-slot read best_dist[thread_idx] is LDS R3,[R0.X4]. Companion load on the index array at L55: @P LDS.64 R4, [R0.X8+0x1000+8*i] (best_dist_idx[thread_idx + i], e.g. i=32: 0x2930)",
-     "strength": "plain"}
+    {
+      "role": "write",
+      "file": "csrc/cuda/nearest_cuda.cu",
+      "line_start": 54,
+      "line_end": 54,
+      "source": "best_dist[thread_idx] = best_dist[thread_idx + i];",
+      "operation": "STS [R0.X4], R6 (st.shared.f32 into best_dist[thread_idx], predicated on the compare; one unrolled copy per iteration i = 1,2,4,...,512, e.g. i=1: 0x2550, i=32: 0x2940). Companion store on the index array at L55: STS.64 [R0.X8+0x1000], R4 (best_dist_idx[thread_idx], e.g. i=32: 0x2950)",
+      "strength": "plain"
+    },
+    {
+      "role": "read",
+      "file": "csrc/cuda/nearest_cuda.cu",
+      "line_start": 53,
+      "line_end": 53,
+      "source": "best_dist[thread_idx] > best_dist[thread_idx + i]) {",
+      "operation": "LDS R6, [R0.X4+4*i] (ld.shared.f32 of best_dist[thread_idx + i]; e.g. i=1: 0x2520 [R0.X4+0x4], i=32: 0x2910 [R0.X4+0x80]); the own-slot read best_dist[thread_idx] is LDS R3,[R0.X4]. Companion load on the index array at L55: @P LDS.64 R4, [R0.X8+0x1000+8*i] (best_dist_idx[thread_idx + i], e.g. i=32: 0x2930)",
+      "strength": "plain"
+    }
   ],
   "thread_relation": "cross-warp-same-block",
-  "thread_pair_example": "driver input: 8 blocks (one per query point) of 1024 threads, one batch of M = 128 reference points whose distance to every query decreases with the index, so thread w < 127 really executes the write at L54 in iterations i with w + i <= 127. Iteration i = 32 of the stride-doubling loop (cross-warp): thread 0 (warp 0) loads best_dist[32] (L53) and best_dist_idx[32] (L55) while thread 32 (warp 1) stores best_dist[32] (L54) and best_dist_idx[32] (L55) in the same barrier interval (the only __syncthreads of an iteration is at the loop top, L51). Likewise thread t (warp t/32) vs thread t+32 for t = 0..63 with writes (t+32 in 32..95). For i < 32 the same pattern occurs intra-warp (e.g. i = 1: thread 0 reads best_dist[1] while thread 1 writes best_dist[1]; no __syncwarp).",
+  "thread_pair_example": "driver input: 8 blocks (one per query point) of 1024 threads, one batch of M = 128 reference points whose distance decreases with the index up to the nearest one (j = 127 for queries 0..5; j = 126 for queries 6 and 7, whose x = 1.6 and 1.85 lie closer to the reference at x = 2), so thread w really executes the write at L54 in iterations i with w + i <= 127 (<= 126 in blocks 6 and 7). Iteration i = 32 of the stride-doubling loop (cross-warp): thread 0 (warp 0) loads best_dist[32] (L53) and best_dist_idx[32] (L55) while thread 32 (warp 1) stores best_dist[32] (L54) and best_dist_idx[32] (L55) in the same barrier interval (the only __syncthreads of an iteration is at the loop top, L51). Likewise thread t (warp t/32) vs thread t+32 for t = 0..63 with writes (t+32 in 32..95). For i < 32 the same pattern occurs intra-warp (e.g. i = 1: thread 0 reads best_dist[1] while thread 1 writes best_dist[1]; no __syncwarp).",
   "expected_class": "DR",
   "class_reason": "All four accesses (the best_dist / best_dist_idx loads of slot thread_idx+i and the stores to slot thread_idx) are ordinary shared-memory accesses (plain LDS / STS, no volatile, no atomic, no .STRONG token), by different threads (cross-warp for i >= 32, intra-warp for i < 32) with no barrier between the load of slot s by thread s-i and the store of slot s by thread s in the same iteration: plain-vs-plain unordered conflict, hence data race (DR) under D20; no strong access, so not SC.",
   "buggy_expected": "DR on the shared arrays best_dist (L53 load vs L54 store) and best_dist_idx (L55 load vs L55 store): many pairs per barrier interval, cross-warp for i >= 32 and intra-warp for i < 32",
@@ -29,6 +42,29 @@
   "sass_notes": "cuobjdump/nvdisasm -g (via /home/fzheng4/sassline.sh) of sm_89 nearest_kernel<float> (driver launches scalar float; a double instantiation is also in the fatbin from the host dispatcher and is never launched). The L50-L57 loop is fully unrolled (10 iterations i = 1..512). Buggy per iteration: BAR.SYNC.DEFER_BLOCKING (L51) at the top of each iteration: 0x23a0 (i=1), 0x2580, 0x2650, 0x2710, 0x2820, 0x28d0 (i=32), 0x2970, 0x2a10, 0x2ab0, 0x2b50 (i=512), LDS R3,[R0.X4] and LDS R6,[R0.X4+4*i] (L53), @P LDS.64 R4,[R0.X8+0x1000+8*i] (L55), @P STS [R0.X4],R6 (L54), @P STS.64 [R0.X8+0x1000],R4 (L55); i=1: 0x2510/0x2520/0x2540/0x2550/0x2560, i=32: 0x2900/0x2910/0x2930/0x2940/0x2950. After the loop BAR.SYNC (L59, 0x2bf0), LDS.64 [0x1000] + STG.E.64 (L61). Initial stores L47 STS [R0.X4] (0x2310) and L48 STS.64 [R0.X8+0x1000] (0x2390) before the first barrier (0x23a0). Fixed: tree-reduction accesses at L55 LDS R?,[...] x2, L56 @P STS, L57 @P LDS.64 + @P STS.64 (the fixed loop also unrolled, 10 steps, addresses 0x1120..0x1870), barrier L51 per step, BAR L62, LDS.64 + STG.E.64 at L64. No .STRONG token on any shared access (plain LDS/STS). Lineinfo: line attribution above is from the -lineinfo build; R2 lineinfo check cited from targets/lit-arrayfire-1/lineinfo.check: RESULT SAME, -lineinfo does not change the SASS.",
   "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against csrc/cuda/nearest_cuda.cu@817b767 (buggy) and @a5abfee (fixed) on 2026-10-20",
   "open_questions": [
-    "Which of the pairs a detector reports is not pre-registered beyond DR on best_dist and best_dist_idx. With the driver input (M = 128 reference points) a write by thread w in iteration i needs w + i <= 127 and a reader thread w - i >= 0, so the cross-warp iteration with executed writes is i = 32 only (writers w = 32..95, readers t = w - 32 = 0..63); iterations i = 1..16 give intra-warp pairs, i >= 64 execute no racy write for this input (a larger M, argument 2 of the driver, would add i = 64, 128, ...)."
-  ]
+    "Which of the pairs a detector reports is not pre-registered beyond DR on best_dist and best_dist_idx. With the driver input (M = 128 reference points) a write by thread w in iteration i needs w + i <= 127 (<= 126 in blocks 6 and 7) and a reader thread w - i >= 0, so the cross-warp iteration with executed writes is i = 32 only (writers w = 32..95, readers t = w - 32 = 0..63; 32..94 / 0..62 in blocks 6 and 7); iterations i = 1..16 give intra-warp pairs, i >= 64 execute no racy write for this input (a larger M, argument 2 of the driver, would add i = 64, 128, ...)."
+  ],
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "corrected",
+    "changes": [
+      {
+        "field": "thread_pair_example",
+        "old": "driver input: 8 blocks (one per query point) of 1024 threads, one batch of M = 128 reference points whose distance to every query decreases with the index, so thread w < 127 really executes the write at L54 in iterations i with w + i <= 127. Iteration i = 32 of the stride-doubling loop (cross-warp): thread 0 (warp 0) loads best_dist[32] (L53) and best_dist_idx[32] (L55) while thread 32 (warp 1) stores best_dist[32] (L54) and best_dist_idx[32] (L55) in the same barrier interval (the only __syncthreads of an iteration is at the loop top, L51). Likewise thread t (warp t/32) vs thread t+32 for t = 0..63 with writes (t+32 in 32..95). For i < 32 the same pattern occurs intra-warp (e.g. i = 1: thread 0 reads best_dist[1] while thread 1 writes best_dist[1]; no __syncwarp).",
+        "new": "driver input: 8 blocks (one per query point) of 1024 threads, one batch of M = 128 reference points whose distance decreases with the index up to the nearest one (j = 127 for queries 0..5; j = 126 for queries 6 and 7, whose x = 1.6 and 1.85 lie closer to the reference at x = 2), so thread w really executes the write at L54 in iterations i with w + i <= 127 (<= 126 in blocks 6 and 7). Iteration i = 32 of the stride-doubling loop (cross-warp): thread 0 (warp 0) loads best_dist[32] (L53) and best_dist_idx[32] (L55) while thread 32 (warp 1) stores best_dist[32] (L54) and best_dist_idx[32] (L55) in the same barrier interval (the only __syncthreads of an iteration is at the loop top, L51). Likewise thread t (warp t/32) vs thread t+32 for t = 0..63 with writes (t+32 in 32..95). For i < 32 the same pattern occurs intra-warp (e.g. i = 1: thread 0 reads best_dist[1] while thread 1 writes best_dist[1]; no __syncwarp).",
+        "reason": "query x = 0.25q + 0.1 and reference x = 128 - j (driver.cu:25-26): for q = 6, 7 the nearest reference is j = 126, not the last one; the write condition shifts by one in those two blocks. The cross-warp example (thread 0 reads slot 32 while thread 32 writes it, i = 32) holds in all 8 blocks.",
+        "evidence": "eval/realworld/targets/pytorch_cluster-1/r2/common/driver.cu:25-26; csrc/cuda/nearest_cuda.cu:33-55 @817b767"
+      },
+      {
+        "field": "open_questions[0]",
+        "old": "Which of the pairs a detector reports is not pre-registered beyond DR on best_dist and best_dist_idx. With the driver input (M = 128 reference points) a write by thread w in iteration i needs w + i <= 127 and a reader thread w - i >= 0, so the cross-warp iteration with executed writes is i = 32 only (writers w = 32..95, readers t = w - 32 = 0..63); iterations i = 1..16 give intra-warp pairs, i >= 64 execute no racy write for this input (a larger M, argument 2 of the driver, would add i = 64, 128, ...).",
+        "new": "Which of the pairs a detector reports is not pre-registered beyond DR on best_dist and best_dist_idx. With the driver input (M = 128 reference points) a write by thread w in iteration i needs w + i <= 127 (<= 126 in blocks 6 and 7) and a reader thread w - i >= 0, so the cross-warp iteration with executed writes is i = 32 only (writers w = 32..95, readers t = w - 32 = 0..63; 32..94 / 0..62 in blocks 6 and 7); iterations i = 1..16 give intra-warp pairs, i >= 64 execute no racy write for this input (a larger M, argument 2 of the driver, would add i = 64, 128, ...).",
+        "reason": "same off-by-one for blocks 6 and 7 as in thread_pair_example; the conclusion (i = 32 is the only cross-warp iteration with conflicting executed writes; i <= 16 intra-warp) is unchanged",
+        "evidence": "driver.cu:25-26; nearest_cuda.cu:50-57 @817b767"
+      }
+    ],
+    "notes": "R2 harness: every copied kernel file under r2/buggy and r2/fixed is byte-identical (cmp) to git show <buggy_commit>:<path> / <fix_commit>:<path>; git diff buggy..fix of those files is exactly the fix hunk described in fixed.reason. (nearest_cuda.cu, nearest_cuda.h, utils.cuh). Pair confirmed at 817b767: in iteration i of the in-place loop (nearest_cuda.cu:50-57) thread t reads best_dist[t + i] (L53, 32-bit float) and, when it updates, best_dist_idx[t + i] (L55, 64-bit int64), while thread t + i writes best_dist[t + i] (L54) and best_dist_idx[t + i] (L55); the only barrier is at the loop top (L51), so read and write of the same slot in the same iteration are unordered: plain/plain -> DR, cross-warp for i >= 32, intra-warp for i < 32. Driver: nearest_kernel<float><<<8, 1024>>>, one batch, M = 128 (driver.cu:20-21,41). Fixed (a5abfee): tree reduction (L50-60) - in step u thread t < 1024 >> (u+1) reads idx_1 = 2t*2^u and idx_2 = (2t+1)*2^u and writes only idx_1; written slots (even multiples of 2^u) are read by no other thread in the same step; barrier at each step top (L51) and before the final read (L62). 'absent' confirmed. The continue -> break change in the batch search (L21) has no shared access. Not independently verified: the SASS opcodes, register operands and offsets quoted in sites/sass_notes (the one permitted srun on -p normal could not start: partition fully allocated, estimated start 2026-10-21 14:37, so the job was cancelled); access widths were checked from the source types instead. Native-run and smoke-run statements in open_questions are builder results and were not reviewed.",
+    "depends_on_D20": false
+  }
 }

@@ -5,21 +5,52 @@
   "route": "R1h",
   "kernel": "raft::matrix::detail::select::radix::impl::radix_kernel<T=float, IdxT=int64_t, BitsPerPass=8, BlockSize=512, fused_last_filter=false (passes 0-2) / true (pass 3), RowLayout=dense_layout<int64_t>> (driver default: raft::matrix::select_k, SelectAlgo::kRadix8bits, 2 rows x 50000 floats, k=64, grid (25,2) x 512 threads, 4 launches; algo 11 = BitsPerPass 11)",
   "space": "global",
-  "build_revision": {"buggy": "32df870d052f3503bfff3419684f2ec79dbcd9e1", "fixed": "e39ec7882e67e8a92108bf2e5ae9c77e169a5990"},
+  "build_revision": {
+    "buggy": "32df870d052f3503bfff3419684f2ec79dbcd9e1",
+    "fixed": "e39ec7882e67e8a92108bf2e5ae9c77e169a5990"
+  },
   "sites": [
-    {"role": "atomic", "file": "cpp/include/raft/matrix/detail/select_radix.cuh", "line_start": 322, "line_end": 322,
-     "source": "if (histogram_smem[i] != 0) { atomicAdd(histogram + i, histogram_smem[i]); }   (histogram merge loop L321-323 in filter_and_histogram, executed by every thread i < num_buckets)",
-     "operation": "atomicAdd on global IdxT (int64): SASS ATOMG.E.ADD.64.STRONG.GPU PT, RZ, [R2.64], R4 (result unused; 8-bit build: only threads 0..255 enter the loop)", "strength": "atomic"},
-    {"role": "read", "file": "cpp/include/raft/matrix/detail/select_radix.cuh", "line_start": 361, "line_end": 361,
-     "source": "if (threadIdx.x < num_buckets) { thread_data = histogram[threadIdx.x]; }   (scan(volatile IdxT* histogram), 8-bit passes; called at L767 by the last block)",
-     "operation": "volatile global load: SASS LDG.E.64.STRONG.SYS R2, [R4.64]  (11-bit passes: cub BlockLoad on the volatile pointer, L349, SASS LDG.E.64.STRONG.SYS x4 attributed to cub/block/block_load.cuh:312)", "strength": "volatile(strong)"},
-    {"role": "read", "file": "cpp/include/raft/matrix/detail/select_radix.cuh", "line_start": 382, "line_end": 383,
-     "source": "IdxT prev = (i == 0) ? 0 : histogram[i - 1];  IdxT cur  = histogram[i];   (choose_bucket(const IdxT* histogram, ...), called at L769 by the last block)",
-     "operation": "plain global loads: SASS @P1 LDG.E.64 R2, [R4.64+-0x8] (L382) and LDG.E.64 R6, [R4.64] (L383); no .STRONG token", "strength": "plain"}
+    {
+      "role": "atomic",
+      "file": "cpp/include/raft/matrix/detail/select_radix.cuh",
+      "line_start": 322,
+      "line_end": 322,
+      "source": "if (histogram_smem[i] != 0) { atomicAdd(histogram + i, histogram_smem[i]); }   (histogram merge loop L321-323 in filter_and_histogram, executed by every thread i < num_buckets)",
+      "operation": "atomicAdd on global IdxT (int64): SASS ATOMG.E.ADD.64.STRONG.GPU PT, RZ, [R2.64], R4 (result unused; 8-bit build: only threads 0..255 enter the loop)",
+      "strength": "atomic"
+    },
+    {
+      "role": "read",
+      "file": "cpp/include/raft/matrix/detail/select_radix.cuh",
+      "line_start": 361,
+      "line_end": 361,
+      "source": "if (threadIdx.x < num_buckets) { thread_data = histogram[threadIdx.x]; }   (scan(volatile IdxT* histogram), 8-bit passes; called at L767 by the last block)",
+      "operation": "volatile global load: SASS LDG.E.64.STRONG.SYS R2, [R4.64]  (11-bit passes: cub BlockLoad on the volatile pointer, L349, SASS LDG.E.64.STRONG.SYS x4 attributed to cub/block/block_load.cuh:312)",
+      "strength": "volatile(strong)"
+    },
+    {
+      "role": "read",
+      "file": "cpp/include/raft/matrix/detail/select_radix.cuh",
+      "line_start": 382,
+      "line_end": 383,
+      "source": "IdxT prev = (i == 0) ? 0 : histogram[i - 1];  IdxT cur  = histogram[i];   (choose_bucket(const IdxT* histogram, ...), called at L769 by the last block)",
+      "operation": "plain global loads: SASS @P1 LDG.E.64 R2, [R4.64+-0x8] (L382) and LDG.E.64 R6, [R4.64] (L383); no .STRONG token",
+      "strength": "plain"
+    }
   ],
   "pairs": [
-    {"writer_site": "L322 atomicAdd", "reader_site": "L361 volatile load (scan)", "class": "SC", "note": "atomic (strong, GPU scope) vs volatile load (strong): both strong, conflicting, unordered"},
-    {"writer_site": "L322 atomicAdd", "reader_site": "L382/L383 plain loads (choose_bucket)", "class": "DR", "note": "atomic (strong) vs plain load: only one side strong"}
+    {
+      "writer_site": "L322 atomicAdd",
+      "reader_site": "L361 volatile load (scan)",
+      "class": "SC",
+      "note": "atomic (strong, GPU scope) vs volatile load (strong): both strong, conflicting, unordered"
+    },
+    {
+      "writer_site": "L322 atomicAdd",
+      "reader_site": "L382/L383 plain loads (choose_bucket)",
+      "class": "DR",
+      "note": "atomic (strong) vs plain load: only one side strong"
+    }
   ],
   "thread_relation": "cross-block (the writer is a lagging warp of a non-last block A, the reader is the last block B; within block A the ordering that is missing is cross-warp: thread 0 vs the lagging warp)",
   "thread_pair_example": "driver default (grid (25,2), 512 threads, 8-bit pass): block A = any block of row r that is not the last to finish: thread 33 (warp 1) executes the L322 atomicAdd on histogram[33] while thread 0 (warp 0) of A has already passed __threadfence (L750) and executed atomicInc(&counter->finished_block_cnt) at L754 (no barrier between L750 and L754). Block B = the block whose atomicInc returns gridDim.x-1: thread 33 of B reads histogram[33] at L361 (volatile, in scan) and, after the scan, histogram[33]/histogram[32] at L383/L382 (plain, in choose_bucket); that read is not ordered after A's thread-33 atomicAdd.",
@@ -27,9 +58,36 @@
   "class_reason": "record: SC for the pair atomicAdd (L322, ATOMG.E.ADD.64.STRONG.GPU) vs the volatile load in scan (L361, LDG.E.64.STRONG.SYS) because both accesses are strong; DR for the pair atomicAdd vs the plain loads in choose_bucket (L382/L383, LDG.E.64 without .STRONG) because one access is plain (D20). Verified in the SASS of the sm_89 build.",
   "buggy_expected": "cross-block, global-memory: SC for atomicAdd (L322) vs the volatile load in scan (L361), and DR for atomicAdd (L322) vs the plain loads in choose_bucket (L382/L383). A detector that reads the SASS must find the fence (MEMBAR.SC.GPU, L750) followed by thread 0's ATOMG.E.INC.STRONG.GPU (L754) without a CTA barrier in between, i.e. nothing orders the other warps' L322 atomics before the signal.",
   "fixed": {
-    "expected": "absent",
-    "residual_sites": null,
-    "reason": "the fix inserts __syncthreads() (select_radix.cuh L760 of the fixed file, preceded by a 9-line comment L751-759) between __threadfence() (L750) and thread 0's atomicInc (L764), so every thread's L322 atomics and fence precede the signal. SASS of the fixed build: MEMBAR.SC.GPU (0x5160), ERRBAR, CCTL.IVALL, WARPSYNC 0xffffffff, BAR.SYNC.DEFER_BLOCKING 0x0 (0x51b0, line 760), then thread 0's ATOMG.E.INC.STRONG.GPU (0x5280). Reader side (not changed by the fix): the last block reads after a relaxed atomicInc (ATOMG.E.INC.STRONG.GPU) with no acquire fence, so a strict-PTX detector may still report the same pairs (L322 vs L361 SC, L322 vs L382/L383 DR) in the fixed build; that would then be a residual present in BOTH versions (idiom artifact), see open_questions."
+    "expected": "residual",
+    "residual_sites": [
+      {
+        "role": "atomic",
+        "file": "cpp/include/raft/matrix/detail/select_radix.cuh",
+        "line_start": 322,
+        "line_end": 322,
+        "source": "atomicAdd(histogram + i, histogram_smem[i]);   (non-last block A, any warp)",
+        "strength": "atomic"
+      },
+      {
+        "role": "read",
+        "file": "cpp/include/raft/matrix/detail/select_radix.cuh",
+        "line_start": 361,
+        "line_end": 361,
+        "source": "thread_data = histogram[threadIdx.x];   (scan, volatile; last block B, called at fixed :777)",
+        "strength": "volatile(strong)",
+        "class_with_L322": "SC"
+      },
+      {
+        "role": "read",
+        "file": "cpp/include/raft/matrix/detail/select_radix.cuh",
+        "line_start": 382,
+        "line_end": 383,
+        "source": "prev = histogram[i - 1]; cur = histogram[i];   (choose_bucket, plain; last block B, called at fixed :779)",
+        "strength": "plain",
+        "class_with_L322": "DR"
+      }
+    ],
+    "reason": "Residual under strict PTX, in both builds. The fix inserts __syncthreads() at fixed :760, between each thread's __threadfence() (:750) and thread 0's atomicInc (:764). Every warp's L322 atomics are now barrier-ordered before block A's signal. That closes the gap the commit describes (lagging warps still issuing atomicAdds when thread 0 signals), so the hardware-observable failure is gone. It does not give PTX happens-before from A's L322 atomics to B's reads. (1) Reader side, unchanged by the fix: in B, thread 0's atomicInc (:764) is a relaxed RMW with no fence after it. B's own __threadfence (:750) comes before it, and __syncthreads_or (:767) is CTA scope only. So B has no acquire pattern, and A's release (fence; atomicInc) does not synchronize with B. (2) Writer side: a lagging thread t's fence sits before the barrier. It is not in program order before thread 0's atomicInc, and thread 0's own fence also comes before the barrier, so thread t's atomic is not in the causal past of the fence of thread 0's release pattern. The pairs of the buggy build therefore stay unordered in the fixed build: L322 vs L361 (SC), L322 vs L382/L383 (DR), and the extra_pairs L322 vs L366 (SC) and L322 vs the reset (DR; :776 buggy, :786 fixed). A detector that follows PTX should report them in both builds. It reports them in the buggy build only if it treats the per-thread fence + barrier + relaxed atomicInc + __syncthreads_or idiom as release/acquire, which over-approximates PTX (compare T12's instance gate: acq needs CCTL.IVALL after the RMW, and there is none here). CLAUDE.md T21 item 3 already lists raft-1 as a possible fixed-build residual."
   },
   "sass_notes": "sm_89 SASS of the driver, nvdisasm -g, kernel radix_kernel<float,long,8,512,false,dense_layout<long>> (buggy offsets): L318 BAR.SYNC 0x5000; merge loop L321 (ISETP.GT.AND ..,0xff at 0x5010: loop bound 256 buckets) with LDS.64 (L322) then ATOMG.E.ADD.64.STRONG.GPU PT, RZ, [R2.64], R4 at 0x50d0 (source attributed to device_atomic_functions.hpp:226, inlined from select_radix.cuh:322); MEMBAR.SC.GPU 0x5160 / ERRBAR 0x5170 / CCTL.IVALL 0x5180 (L750); tid!=0 skips (@P2 BRA 0x5190); ATOMG.E.INC.STRONG.GPU PT, R2, [R2.64+0x100], R5 at 0x5250 (L754; offset 0x100 = counter->finished_block_cnt); BAR.RED.OR 0x5280 (L757 __syncthreads_or) is AFTER the atomicInc; last block: LDG.E.64.STRONG.SYS R2,[R4.64] 0x5350 (L361), STG.E.64.STRONG.SYS 0x5d50 (L366), LDG.E.64 R6,[R4.64] 0x5df0 (L383), @P1 LDG.E.64 R2,[R4.64+-0x8] 0x5e00 (L382). Fixed build: same sites (all before L750, same line numbers), plus WARPSYNC + BAR.SYNC at line 760 between CCTL.IVALL and the ATOMG.E.INC. 11-bit instantiation (algo 11), buggy: MEMBAR.SC.GPU 0x50c0, ATOMG.E.INC.STRONG.GPU 0x5170, BAR.RED.OR 0x51a0, scan loads LDG.E.64.STRONG.SYS x4 (block_load.cuh:312) 0x5220-0x5250, histogram stores STG.E.64.STRONG.SYS x4 (block_store.cuh:243), choose_bucket LDG.E.64 0x5f10/0x5f20 (L383/L382). The <fused_last_filter=true> instantiations are in the binary with the same source sites; their offsets were not recorded. Buggy vs fixed binaries differ in SASS only in the four radix_kernel instantiations (harness/sass_diff.py over all 89 functions: 4 DIFFERENT, 85 SAME). Kernel symbols contain 'radix_kernel' (e.g. _ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi). All source lines are of cpp/include/raft/matrix/detail/select_radix.cuh at 32df870d (buggy) and e39ec788 (fixed); L322/L361/L366/L382/L383/L750 are identical in both files.",
   "derived_from": "verify.accesses + verify.thread_pair of eval/realworld/targets.jsonl (raft-1), re-checked against cpp/include/raft/matrix/detail/select_radix.cuh@32df870 and @e39ec78 (git archive of the export tarballs) and against cuobjdump/nvdisasm -g of the built sm_89 drivers on 2026-10-20",
@@ -37,5 +95,62 @@
     "The oracle spec asks for exactly the two access sites of the racing pair; this target is DR+SC, i.e. two pairs that share the writer site L322 (SC with L361, DR with L382/L383). They are listed as three sites plus a 'pairs' array.",
     "Fixed build: whether the evaluated detector models the last-block idiom (fence, barrier, relaxed ATOMG.E.INC by thread 0, __syncthreads_or, then plain/volatile reads by the last block) as ordering. The reader side has no acquire fence after the atomicInc in either version; a strict-PTX detector would then report the same pairs in the fixed build too (residual in both versions, not caused by the bug). 'absent' follows verify.expected_report_fixed (writer side fixed).",
     "The driver uses IdxT=int64_t and dense layout; the upstream flaky test (issue 2997) is SelectKCsrTest_float_int (csr layout, int index). The racy code (L321-L323, L361, L382-L383, L750-L769) is layout-independent but the SASS widths (.64 here) would be .32 for IdxT=int."
-  ]
+  ],
+  "extra_pairs": [
+    {
+      "writer_site": "L322 atomicAdd (block A)",
+      "other_site": "L366 'histogram[threadIdx.x] = thread_data;' (scan, volatile store, last block B; 11-bit passes: cub BlockStore on the volatile pointer, L355)",
+      "class": "SC",
+      "note": "write-write: A's late atomic vs B's prefix-sum store; both strong, not both RMW"
+    },
+    {
+      "writer_site": "L322 atomicAdd (block A)",
+      "other_site": "L776 'histogram[i] = 0;' (reset for the next pass, plain store, last block B; only when pass != num_passes - 1; fixed :786)",
+      "class": "DR",
+      "note": "write-write: A's late atomic vs B's plain reset; one side plain"
+    },
+    {
+      "writer_site": "L322 atomicAdd (block A)",
+      "other_site": "L349 cub BlockLoad on volatile IdxT* (11-bit passes, num_buckets = 2048 >= BlockSize = 512)",
+      "class": "SC",
+      "note": "the 11-bit counterpart of L361 (already named in the L361 site's operation text)"
+    }
+  ],
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "corrected",
+    "changes": [
+      {
+        "field": "fixed.expected",
+        "old": "absent",
+        "new": "residual",
+        "reason": "Under PTX the fix closes only the intra-block (writer-side) gap. The last block still has no acquire after thread 0's relaxed atomicInc, and the fences sit before the barrier, so the L322 pairs stay unordered in the fixed build. See fixed.reason.",
+        "evidence": "cpp/include/raft/matrix/detail/select_radix.cuh at e39ec78: :750 __threadfence, :760 __syncthreads (added), :763-:766 thread-0 atomicInc, :767 __syncthreads_or, :777 scan, :779 choose_bucket; no fence after :764"
+      },
+      {
+        "field": "fixed.residual_sites",
+        "old": null,
+        "new": "the L322 / L361 / L382-L383 sites (see fixed.residual_sites)",
+        "reason": "The residual pairs are the buggy build's pairs.",
+        "evidence": "select_radix.cuh:322,:361,:382-:383 identical at 32df870 and e39ec78 (the fix diff only adds :751-:760)"
+      },
+      {
+        "field": "fixed.reason",
+        "old": "the fix inserts __syncthreads() (select_radix.cuh L760 of the fixed file, preceded by a 9-line comment L751-759) between __threadfence() (L750) and thread 0's atomicInc (L764), so every thread's L322 atomics and fence precede the signal. SASS of the fixed build: MEMBAR.SC.GPU (0x5160), ERRBAR, CCTL.IVALL, WARPSYNC 0xffffffff, BAR.SYNC.DEFER_BLOCKING 0x0 (0x51b0, line 760), then thread 0's ATOMG.E.INC.STRONG.GPU (0x5280). Reader side (not changed by the fix): the last block reads after a relaxed atomicInc (ATOMG.E.INC.STRONG.GPU) with no acquire fence, so a strict-PTX detector may still report the same pairs (L322 vs L361 SC, L322 vs L382/L383 DR) in the fixed build; that would then be a residual present in BOTH versions (idiom artifact), see open_questions.",
+        "new": "rewritten (see fixed.reason)",
+        "reason": "It now says why the pairs remain under PTX and what would make them disappear.",
+        "evidence": "git diff 32df870..e39ec78 -- cpp/include/raft/matrix/detail/select_radix.cuh (one hunk, +10 lines after :750)"
+      },
+      {
+        "field": "extra_pairs",
+        "old": null,
+        "new": "added (L322 vs L366 SC, L322 vs L776 DR, L322 vs L349 SC)",
+        "reason": "Other accesses of the last block to histogram that race with the same late atomics (same root cause). A report of one of them is the same bug, not a false positive.",
+        "evidence": "select_radix.cuh:349,:366,:776 at 32df870 (in scan() :331-:368 and radix_kernel :774-:778)"
+      }
+    ],
+    "notes": "Buggy sites confirmed at 32df870: atomicAdd(histogram + i, histogram_smem[i]) at :322 in the merge loop :321-:323, after the :318 barrier, executed by threads i < num_buckets. __threadfence() at :750 by every thread, then thread 0's atomicInc at :753-:756 with no barrier in between, then __syncthreads_or at :757. The last block runs scan(volatile IdxT*) at :767 (8-bit: num_buckets 256 < BlockSize 512, so the else branch: volatile load :361 and store :366; 11-bit: BlockLoad :349 / BlockStore :355), choose_bucket at :769 (plain loads :382/:383) and the reset at :776. The bug (A's lagging warp still at :322 when A's thread 0 signals) gives the oracle's pairs: atomic vs volatile = SC, atomic vs plain = DR, so expected_class DR+SC is right. The class follows from the access strengths (T10/D9, D12). D20 decides only how the SC pair counts: under D20 (i) both pairs score in their classes, under (ii) only the DR pair. Hence depends_on_D20 = true. class_reason's '(D20)' tag on the DR pair should be read that way. Thread relation (cross-block, with the missing intra-block ordering cross-warp) confirmed. A's accesses before the :318 barrier (out_buf/out writes, filter_cnt/out_cnt atomics, the kth_value_bits read :265) are barrier-ordered before A's fence. With no acquire in B they are, under strict PTX, unordered in both builds against B's choose_bucket write of counter->kth_value_bits (:391), the :783 filter_cnt reset and the fused last_filter reads. Those are not the bug and are not listed as pairs; triage any such report as the reader-side idiom. SASS opcodes, tokens and offsets quoted in sites/sass_notes were not re-checked: the one allowed srun (-p normal -t 10) could not start (partition full, estimated start 2026-10-21 14:37) and was cancelled. Everything above is from the upstream sources at the two commits.",
+    "depends_on_D20": true
+  }
 }

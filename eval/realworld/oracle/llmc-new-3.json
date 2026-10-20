@@ -5,29 +5,49 @@
   "route": "n/a (not compiled in T21a; build_notes: dev/cuda self-contained `make attention_backward`, kernel selected by argv 7 or 8)",
   "kernel": "softmax_autoregressive_backward_kernel8<BlockSize> (dev/cuda/attention_backward.cu L673-717; launch_softmax_8 L842-, <<<dim3(T / 4, B * NH), block_size>>> L847); the same pattern in softmax_autoregressive_backward_kernel7<BlockSize> (L631-667) and in softmax_autoregressive_backward_kernel (train_gpt2_fp32.cu L446-489)",
   "space": "shared",
-  "build_revision": {"buggy": "f1e2ace651495b74ae22d45d1723443fd00ecd3a", "fixed": null},
+  "build_revision": {
+    "buggy": "f1e2ace651495b74ae22d45d1723443fd00ecd3a",
+    "fixed": null
+  },
   "sites": [
-    {"role": "write", "file": "dev/cuda/attention_backward.cu", "line_start": 691, "line_end": 691,
-     "source": "block_acc[warp.thread_rank()] = 0;",
-     "operation": "st.shared.f32 (value 0) into `__shared__ float block_acc[32]` (L680), executed by all 32 lanes of warp 0 only (`if (warp.meta_group_rank() == 0)` L690), once, before the loop `for(int to = 0; to < T_per_block; ++to)` (L694); expected STS, not compiled in T21a so the lowering is unverified",
-     "strength": "plain"},
-    {"role": "write", "file": "dev/cuda/attention_backward.cu", "line_start": 706, "line_end": 706,
-     "source": "block_acc[warp.meta_group_rank()] = cg::reduce(warp, local_sum, cg::plus<float>{});",
-     "operation": "st.shared.f32 of the warp sum into block_acc[meta_group_rank] by all 32 lanes of every warp (identical value from all lanes of a warp), in each of the T_per_block = 4 iterations; first barrier afterwards is block.sync() at L707; expected STS, unverified",
-     "strength": "plain"}
+    {
+      "role": "write",
+      "file": "dev/cuda/attention_backward.cu",
+      "line_start": 691,
+      "line_end": 691,
+      "source": "block_acc[warp.thread_rank()] = 0;",
+      "operation": "st.shared.f32 (value 0) into `__shared__ float block_acc[32]` (L680), executed by all 32 lanes of warp 0 only (`if (warp.meta_group_rank() == 0)` L690), once, before the loop `for(int to = 0; to < T_per_block; ++to)` (L694); expected STS, not compiled in T21a so the lowering is unverified",
+      "strength": "plain",
+      "line_basis": "source-derived: git show f1e2ace65149:dev/cuda/attention_backward.cu (not built, no SASS)"
+    },
+    {
+      "role": "write",
+      "file": "dev/cuda/attention_backward.cu",
+      "line_start": 706,
+      "line_end": 706,
+      "source": "block_acc[warp.meta_group_rank()] = cg::reduce(warp, local_sum, cg::plus<float>{});",
+      "operation": "st.shared.f32 of the warp sum into block_acc[meta_group_rank] by all 32 lanes of every warp (identical value from all lanes of a warp), in each of the T_per_block = 4 iterations; first barrier afterwards is block.sync() at L707; expected STS, unverified",
+      "strength": "plain",
+      "line_basis": "source-derived: git show f1e2ace65149:dev/cuda/attention_backward.cu (not built, no SASS)"
+    }
   ],
   "other_conflicting_accesses": [
     "(b) loop-carried WAR in kernel8: dev/cuda/attention_backward.cu L708 `local_sum = cg::reduce(warp, block_acc[warp.thread_rank()], cg::plus<float>{});` (ld.shared by every lane, iteration `to`) vs the L706 store of iteration to+1 by warp w lane (all lanes) to block_acc[w]; there is no barrier after the L708 read (the body ends with the t3 loop of global accesses L710-715). Thread pair: thread 32 (warp 1) writes block_acc[1] at L706 in iteration 1 vs thread 1 (warp 0 lane 1) reads block_acc[1] at L708 in iteration 0. Same window as llmc-new-2.",
     "kernel7 (dev/cuda/attention_backward.cu): WAW L651 `block_acc[warp.thread_rank()] = 0;` vs L659 `block_acc[warp.meta_group_rank()] = cg::reduce(...)`, first barrier block.sync() at L660 after both writes; no loop, so no WAR (b).",
     "train_gpt2_fp32.cu softmax_autoregressive_backward_kernel (L446-489, BlockSize = 256 constexpr L448): WAW L463 vs L478 and WAR L480 (read) vs next-iteration L478 (write); block.sync() at L479.",
-    "Intra-warp same-value WW: all 32 lanes of a warp store the same value to block_acc[rank] at L706 (L659 in kernel7, L478 in the fp32 trainer); a detector may or may not report this benign pair, which is not the intended pair."
+    "Intra-warp same-value WW: all 32 lanes of a warp store the same value to block_acc[rank] at L706 (L659 in kernel7, L478 in the fp32 trainer); a detector may or may not report this benign pair, which is not the intended pair.",
+    "Intra-warp WAW on block_acc[0] in kernel8: lane 0 of warp 0 stores block_acc[0] = 0 at L691 while lanes 1..31 of warp 0 store the warp sum to block_acc[0] at L706 (iteration 0); only the shuffles inside cg::reduce lie between, which are not memory ordering under PTX (T21 item 2), and no __syncwarp: an unordered plain pair (DR). Same in kernel7 (L651 vs L659) and the fp32 trainer (L463 vs L478)."
   ],
   "thread_relation": "cross-warp-same-block",
   "thread_pair_example": "primary WAW (kernel8, correctness pass block_size = 256 = 8 warps, per verify.driver_check L1020): block 0 thread 3 (warp 0, lane 3) stores block_acc[3] = 0 at L691; thread 96 (warp 3, any lane, meta_group_rank = 3) stores block_acc[3] = warp sum at L706. No barrier between L690/L691 and L706 (block.sync() is at L707, after both writes), so which value ends up in block_acc[3] before the barrier is unordered. (Record's example is the kernel7 instance of the same pair: L651 vs L659.)",
   "expected_class": "DR",
   "class_reason": "Both accesses are plain (non-volatile, non-atomic) stores to the shared float array block_acc (verify.strong_accesses: none) by different warps with no barrier between them (first block.sync() is after both). Plain vs plain unordered conflicting write-write pair = DR under D20. Formal-only in practice: warp 0 initialises as its first instruction while warp r stores only after global loads and a warp reduction.",
   "buggy_expected": "the pair (L691 init by warp 0 lanes 1..7) x (L706 store by warps 1..7 to the same slot) on block_acc[1..7] is reported as DR (WAW, shared, cross-warp); also the WAR (L708 read vs next-iteration L706 write) and the kernel7 / fp32-trainer instances, plus possibly the same-value intra-warp WW",
-  "fixed": {"expected": "n/a (unfixed candidate)", "residual_sites": null, "reason": "pinned HEAD is the buggy build"},
+  "fixed": {
+    "expected": "n/a (unfixed candidate)",
+    "residual_sites": null,
+    "reason": "pinned HEAD is the buggy build"
+  },
   "sass_notes": "not compiled in T21a; SASS attribution to be added when T21c/T21b builds it",
   "built": false,
   "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against dev/cuda/attention_backward.cu and train_gpt2_fp32.cu@f1e2ace on 2026-10-20",
@@ -37,5 +57,41 @@
     "Callees cg::reduce(warp, ...) and meta_group_rank are warp-level with no block barrier (per verify.notes); cg::tiled_partition<32> reduce lowers to shuffle/redux instructions not examined here.",
     "Lowering of the block_acc accesses (STS/LDS) not checked: not compiled in T21a. main() hard-codes B=4,T=1024,C=768,NH=12 (verify.driver_check); the driver needs B=1,T=64 and the block-size sweep at L1117 trimmed for detector runs (not re-verified here)."
   ],
-  "upstream_status": {"still_unfixed_at":"f1e2ace651495b74ae22d45d1723443fd00ecd3a (origin/master == pinned)","already_reported_check":"No dedicated search yet beyond the llmc-1 queries; llm.c issue list showed nothing about block_acc.","dispute_points":"(a) The WAW init race is benign only if warp 0 always runs its init first, which hardware tends to do (warp 0 scheduled first) but is not guaranteed; (b) these are 'dev' kernels in a benchmarking folder, but train_gpt2_fp32.cu is the repo's own fp32 trainer. Detector must not treat the same-value WW inside a warp as the only finding.","proposed_fix_per_record":null,"links":["https://github.com/karpathy/llm.c/blob/f1e2ace651495b74ae22d45d1723443fd00ecd3a/dev/cuda/attention_backward.cu#L632-L712"],"merged_into_default":null}
+  "upstream_status": {
+    "still_unfixed_at": "f1e2ace651495b74ae22d45d1723443fd00ecd3a (origin/master == pinned)",
+    "already_reported_check": "No dedicated search yet beyond the llmc-1 queries; llm.c issue list showed nothing about block_acc.",
+    "dispute_points": "(a) The WAW init race is benign only if warp 0 always runs its init first, which hardware tends to do (warp 0 scheduled first) but is not guaranteed; (b) these are 'dev' kernels in a benchmarking folder, but train_gpt2_fp32.cu is the repo's own fp32 trainer. Detector must not treat the same-value WW inside a warp as the only finding.",
+    "proposed_fix_per_record": null,
+    "links": [
+      "https://github.com/karpathy/llm.c/blob/f1e2ace651495b74ae22d45d1723443fd00ecd3a/dev/cuda/attention_backward.cu#L632-L712"
+    ],
+    "merged_into_default": null
+  },
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "corrected",
+    "changes": [
+      {
+        "field": "other_conflicting_accesses",
+        "old": [
+          "(b) loop-carried WAR in kernel8: dev/cuda/attention_backward.cu L708 `local_sum = cg::reduce(warp, block_acc[warp.thread_rank()], cg::plus<float>{});` (ld.shared by every lane, iteration `to`) vs the L706 store of iteration to+1 by warp w lane (all lanes) to block_acc[w]; there is no barrier after the L708 read (the body ends with the t3 loop of global accesses L710-715). Thread pair: thread 32 (warp 1) writes block_acc[1] at L706 in iteration 1 vs thread 1 (warp 0 lane 1) reads block_acc[1] at L708 in iteration 0. Same window as llmc-new-2.",
+          "kernel7 (dev/cuda/attention_backward.cu): WAW L651 `block_acc[warp.thread_rank()] = 0;` vs L659 `block_acc[warp.meta_group_rank()] = cg::reduce(...)`, first barrier block.sync() at L660 after both writes; no loop, so no WAR (b).",
+          "train_gpt2_fp32.cu softmax_autoregressive_backward_kernel (L446-489, BlockSize = 256 constexpr L448): WAW L463 vs L478 and WAR L480 (read) vs next-iteration L478 (write); block.sync() at L479.",
+          "Intra-warp same-value WW: all 32 lanes of a warp store the same value to block_acc[rank] at L706 (L659 in kernel7, L478 in the fp32 trainer); a detector may or may not report this benign pair, which is not the intended pair."
+        ],
+        "new": [
+          "(b) loop-carried WAR in kernel8: dev/cuda/attention_backward.cu L708 `local_sum = cg::reduce(warp, block_acc[warp.thread_rank()], cg::plus<float>{});` (ld.shared by every lane, iteration `to`) vs the L706 store of iteration to+1 by warp w lane (all lanes) to block_acc[w]; there is no barrier after the L708 read (the body ends with the t3 loop of global accesses L710-715). Thread pair: thread 32 (warp 1) writes block_acc[1] at L706 in iteration 1 vs thread 1 (warp 0 lane 1) reads block_acc[1] at L708 in iteration 0. Same window as llmc-new-2.",
+          "kernel7 (dev/cuda/attention_backward.cu): WAW L651 `block_acc[warp.thread_rank()] = 0;` vs L659 `block_acc[warp.meta_group_rank()] = cg::reduce(...)`, first barrier block.sync() at L660 after both writes; no loop, so no WAR (b).",
+          "train_gpt2_fp32.cu softmax_autoregressive_backward_kernel (L446-489, BlockSize = 256 constexpr L448): WAW L463 vs L478 and WAR L480 (read) vs next-iteration L478 (write); block.sync() at L479.",
+          "Intra-warp same-value WW: all 32 lanes of a warp store the same value to block_acc[rank] at L706 (L659 in kernel7, L478 in the fp32 trainer); a detector may or may not report this benign pair, which is not the intended pair.",
+          "Intra-warp WAW on block_acc[0] in kernel8: lane 0 of warp 0 stores block_acc[0] = 0 at L691 while lanes 1..31 of warp 0 store the warp sum to block_acc[0] at L706 (iteration 0); only the shuffles inside cg::reduce lie between, which are not memory ordering under PTX (T21 item 2), and no __syncwarp: an unordered plain pair (DR). Same in kernel7 (L651 vs L659) and the fp32 trainer (L463 vs L478)."
+        ],
+        "reason": "adds an unlisted intra-warp pair of the same kind so that a report of it is triaged as this race",
+        "evidence": "dev/cuda/attention_backward.cu L690-L691, L706 at f1e2ace"
+      }
+    ],
+    "notes": "Checked at f1e2ace: kernel7 L631-667 (block_acc[32] L637, init L650-651, store L659, block.sync L660, read L661), kernel8 L673-717 (block_acc L680, init L690-691, to-loop L694, `if(t < 0) return;` L696 block-uniform, store L706, block.sync L707, read L708, t3 loop L710-715), launch_softmax_8 L842-850 <<<dim3(T/4, B*NH), block_size>>>; correctness pass block_size 256 (L1020, L1056-1058), timing sweep 32..1024 (L1117). Primary WAW (warp 0 lane 3 init vs warp 3 store, block_acc[3]) and the loop-carried WAR (L708 vs next L706) are cross-warp with no barrier between: DR. At block_size 32 (sweep) the primary pair degenerates to the intra-warp one. Upstream: HEAD = pinned. class_reason attributes the plain/strong class rule to D20; the rule itself is item 1 of CLAUDE.md 'T21 corpus' (strong accesses decide the class); D20 only decides how SC pairs count.",
+    "depends_on_D20": false
+  }
 }

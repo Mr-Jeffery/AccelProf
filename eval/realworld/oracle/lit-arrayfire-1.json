@@ -1,49 +1,85 @@
 {
- "id": "lit-arrayfire-1",
- "tier": "core",
- "wave": 1,
- "route": "R2",
- "kernel": "scan_nonfinal_kernel<int,int,int,af_op_t 0 (af_add_t),DIMX=256,inclusive=true> in src/backend/cuda/kernel/scan_first_by_key_impl.hpp (first-dim variant); second instance of the same bug: scan_dim_nonfinal_kernel<int,int,int,af_add_t,dim=1,DIMY=8,inclusive=true> in src/backend/cuda/kernel/scan_dim_by_key_impl.hpp (see extra_pairs)",
- "space": "shared",
- "build_revision": {"buggy": "a35a2d080737833f3b011b7ab97cd7c909207f56", "fixed": "a7a297ba814743a696b3c113df5444193f9cab27"},
- "sites": [
-  {"role": "read", "file": "src/backend/cuda/kernel/scan_first_by_key_impl.hpp", "line_start": 145, "line_end": 145,
-   "source": "if ((s_ftmp[tidy] == 0) && (sfptr[tidx] == 1)) {",
-   "operation": "ld.shared (SASS: LDS.U8 R8, [R18+0xa08], offset 0x1100; only the thread with tidx == 0 executes this branch)",
-   "strength": "plain"},
-  {"role": "write", "file": "src/backend/cuda/kernel/scan_first_by_key_impl.hpp", "line_start": 157, "line_end": 157,
-   "source": "s_ftmp[tidy] = flag;",
-   "operation": "st.shared (SASS: @!P2 STS.U8 [R18+0xa08], R21, offset 0x1190; only the thread with isLast, tidx == DIMX-1 == 255, executes it)",
-   "strength": "plain"}
- ],
- "thread_relation": "cross-warp-same-block",
- "thread_pair_example": "kernel instance scan_nonfinal_kernel<..., DIMX=256> as launched by the driver (grid (2,1), block (256,1), DIMY=1), any block, any loop iteration k: thread 0 (warp 0) reads s_ftmp[0] at L145 (the 'Identify segment boundary' block) while thread 255 (warp 7) writes s_ftmp[0] at L157 two statements later; no __syncthreads between L140 (last barrier of the scan loop) and L160 (end-of-iteration barrier). The pair exists in every iteration of the lim=17 loop of both blocks. Write-after-read: if warp 7 reaches L157 before warp 0 executes L145, thread 0 sees the new flag instead of the previous iteration's one.",
- "expected_class": "DR",
- "class_reason": "Both accesses are plain: s_ftmp is a plain __shared__ char array, the read is an ordinary LDS.U8 and the write an ordinary STS.U8 (no volatile, no atomic, no .STRONG token in the SASS, no WARPSYNC emitted). The two threads are in different warps (0 and 7) of one block and no barrier or other synchronization orders them, so the pair is a data race (DR), not a strong-conflict (SC) pair.",
- "buggy_expected": "The pair (L145 read by thread 0 vs L157 write by thread 255, cross-warp WAR on s_ftmp[0]) is reported as DR in scan_nonfinal_kernel; the same detector must find the analogous pair in scan_dim_nonfinal_kernel (extra_pairs).",
- "fixed": {"expected": "absent", "residual_sites": null,
-  "reason": "The fix commit adds one __syncthreads() right after the 'Identify segment boundary' block (fixed file: L153 in scan_first_by_key_impl.hpp, L172 in scan_dim_by_key_impl.hpp). It is at loop-body level and reached by every thread that remains in the block (the 'retire warps early' return at the top only removes whole rows that are outside the array; with the driver's dims (8193,1,1,1) blocks_y = 1 and every thread stays), so the read at L145 is ordered before the write, which moves to L158 in the fixed file (s_ftmp[tidy] = flag; SASS @!P2 STS.U8 [R18+0xa08], R21 at 0x11f0, after BAR.SYNC at 0x1170). Nothing is expected for that pair in the fixed build (verify.expected_report_fixed)."},
- "extra_pairs": [
-  {"kernel": "scan_dim_nonfinal_kernel<int,int,int,af_add_t,dim=1,DIMY=8,inclusive=true> (src/backend/cuda/kernel/scan_dim_by_key_impl.hpp), launched by the driver with grid (1,2), block (32,8) from scan_dim_by_key on dims 32x300",
-   "sites": [
-    {"role": "read", "file": "src/backend/cuda/kernel/scan_dim_by_key_impl.hpp", "line_start": 164, "line_end": 164,
-     "source": "if ((s_ftmp[tidx] == 0) && (sfptr[start * THREADS_X] == 1)) {",
-     "operation": "ld.shared (SASS: LDS.U8 R4, [R15+0xa00], offset 0x0d50; only threads with tidy == 0 execute this branch)",
-     "strength": "plain"},
-    {"role": "write", "file": "src/backend/cuda/kernel/scan_dim_by_key_impl.hpp", "line_start": 176, "line_end": 176,
-     "source": "s_ftmp[tidx] = flag;",
-     "operation": "st.shared (SASS: @!P2 STS.U8 [R15+0xa00], R18, offset 0x0e00; only threads with isLast, tidy == DIMY-1 == 7, execute it)",
-     "strength": "plain"}
-   ],
-   "thread_relation": "cross-warp-same-block",
-   "thread_pair_example": "block (blockIdx.x 0, blockIdx.y 0 or 1), any loop iteration k (lim = 19): thread (tidx=t, tidy=0) in warp 0 reads s_ftmp[t] at L164 while thread (t, 7) in warp 7 writes s_ftmp[t] at L176 (warp = tidy because THREADS_X = 32); 32 such pairs per block and iteration. Last barrier before them: L159 (scan loop); next barrier: L182.",
-   "fixed_sites_after_fix": "the added __syncthreads() is at L172 of the fixed file; the read stays at L164, the write moves to L177 (SASS BAR.SYNC at 0x0dc0, STS.U8 at 0x0eb0)",
-   "expected_class": "DR"}
- ],
- "sass_notes": "sm_89, cuobjdump + nvdisasm -g of the driver built with -lineinfo (the lineinfo check is SAME, so the no-lineinfo build has identical SASS). Buggy scan_nonfinal_kernel<..256..>: BAR.SYNC at 0x1050 (source L140, last scan-loop barrier) ... LDS.U8 [R18+0xa08] at 0x1100 (L145 read of s_ftmp[tidy]) ... STS [R18.X4+0xa0c] at 0x1180 (L156, s_tmp) and @!P2 STS.U8 [R18+0xa08] at 0x1190 (L157, s_ftmp) ... BAR.SYNC at 0x1200 (L160); no BAR between 0x1050 and 0x1200. Fixed: extra BAR.SYNC.DEFER_BLOCKING at 0x1170 (L153) between the LDS.U8 (0x1100) and the STS.U8 (0x11f0). Buggy scan_dim_nonfinal_kernel<..8..>: last scan-loop BAR 0x0cb0 (L159), LDS.U8 [R15+0xa00] 0x0d50 (L164), @!P2 STS [R15+0xa20] 0x0dd0 (L175, s_tmp), @!P2 STS.U8 [R15+0xa00] 0x0e00 (L176), BAR 0x0ea0 (L182). Fixed: BAR at 0x0dc0 (L172) before the stores. No .STRONG / volatile token on any of these accesses (plain LDS/LDS.U8/STS/STS.U8), no WARPSYNC anywhere in the kernels. Only s_ftmp races: s_tmp[tidy] (written at L156/L175) is read only at the top of the next iteration (L119 / L138, tidx==0 / tidy==0) after the end-of-iteration barrier (L160/L161 / L182), so by the source there is no s_tmp hazard even though the record text says 'and s_tmp'. boundaryid[] is written by at most one thread per row and iteration (the thread where the prefix-OR of the flags first becomes 1) and read after the loop barrier, so it has no hazard either.",
- "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against src/backend/cuda/kernel/scan_first_by_key_impl.hpp@a35a2d0 and scan_dim_by_key_impl.hpp@a35a2d0 (and the fixed files@a7a297b) on 2026-10-20; line numbers and SASS offsets taken from the files as compiled (R2 harness file names = repo paths).",
- "open_questions": [
-  "The record's expected_report_buggy says 'cross-warp shared WAR on s_ftmp (and s_tmp)'. By the source and SASS only s_ftmp has a concurrent reader (see sass_notes); the s_tmp write at L156/L175 is ordered against its reader by the barrier at the end of the iteration. If a detector reports s_tmp too, that would need a second look.",
-  "Natively the race window is very small (warp 7 must reach L157 before warp 0 executes L145 right after the same barrier); the smoke run on sm_75 shows no wrong result in either variant. Detection is by the detector's analysis, not by a wrong output."
- ]
+  "id": "lit-arrayfire-1",
+  "tier": "core",
+  "wave": 1,
+  "route": "R2",
+  "kernel": "scan_nonfinal_kernel<int,int,int,af_op_t 0 (af_add_t),DIMX=256,inclusive=true> in src/backend/cuda/kernel/scan_first_by_key_impl.hpp (first-dim variant); second instance of the same bug: scan_dim_nonfinal_kernel<int,int,int,af_add_t,dim=1,DIMY=8,inclusive=true> in src/backend/cuda/kernel/scan_dim_by_key_impl.hpp (see extra_pairs)",
+  "space": "shared",
+  "build_revision": {
+    "buggy": "a35a2d080737833f3b011b7ab97cd7c909207f56",
+    "fixed": "a7a297ba814743a696b3c113df5444193f9cab27"
+  },
+  "sites": [
+    {
+      "role": "read",
+      "file": "src/backend/cuda/kernel/scan_first_by_key_impl.hpp",
+      "line_start": 145,
+      "line_end": 145,
+      "source": "if ((s_ftmp[tidy] == 0) && (sfptr[tidx] == 1)) {",
+      "operation": "ld.shared (SASS: LDS.U8 R8, [R18+0xa08], offset 0x1100; only the thread with tidx == 0 executes this branch)",
+      "strength": "plain"
+    },
+    {
+      "role": "write",
+      "file": "src/backend/cuda/kernel/scan_first_by_key_impl.hpp",
+      "line_start": 157,
+      "line_end": 157,
+      "source": "s_ftmp[tidy] = flag;",
+      "operation": "st.shared (SASS: @!P2 STS.U8 [R18+0xa08], R21, offset 0x1190; only the thread with isLast, tidx == DIMX-1 == 255, executes it)",
+      "strength": "plain"
+    }
+  ],
+  "thread_relation": "cross-warp-same-block",
+  "thread_pair_example": "kernel instance scan_nonfinal_kernel<..., DIMX=256> as launched by the driver (grid (2,1), block (256,1), DIMY=1), any block, any loop iteration k: thread 0 (warp 0) reads s_ftmp[0] at L145 (the 'Identify segment boundary' block) while thread 255 (warp 7) writes s_ftmp[0] at L157 two statements later; no __syncthreads between L140 (last barrier of the scan loop) and L160 (end-of-iteration barrier). The pair exists in every iteration of the lim=17 loop of both blocks. Write-after-read: if warp 7 reaches L157 before warp 0 executes L145, thread 0 sees the new flag instead of the previous iteration's one.",
+  "expected_class": "DR",
+  "class_reason": "Both accesses are plain: s_ftmp is a plain __shared__ char array, the read is an ordinary LDS.U8 and the write an ordinary STS.U8 (no volatile, no atomic, no .STRONG token in the SASS, no WARPSYNC emitted). The two threads are in different warps (0 and 7) of one block and no barrier or other synchronization orders them, so the pair is a data race (DR), not a strong-conflict (SC) pair.",
+  "buggy_expected": "The pair (L145 read by thread 0 vs L157 write by thread 255, cross-warp WAR on s_ftmp[0]) is reported as DR in scan_nonfinal_kernel; the same detector must find the analogous pair in scan_dim_nonfinal_kernel (extra_pairs).",
+  "fixed": {
+    "expected": "absent",
+    "residual_sites": null,
+    "reason": "The fix commit adds one __syncthreads() right after the 'Identify segment boundary' block (fixed file: L153 in scan_first_by_key_impl.hpp, L172 in scan_dim_by_key_impl.hpp). It is at loop-body level and reached by every thread that remains in the block (the 'retire warps early' return at the top only removes whole rows that are outside the array; with the driver's dims (8193,1,1,1) blocks_y = 1 and every thread stays), so the read at L145 is ordered before the write, which moves to L158 in the fixed file (s_ftmp[tidy] = flag; SASS @!P2 STS.U8 [R18+0xa08], R21 at 0x11f0, after BAR.SYNC at 0x1170). Nothing is expected for that pair in the fixed build (verify.expected_report_fixed)."
+  },
+  "extra_pairs": [
+    {
+      "kernel": "scan_dim_nonfinal_kernel<int,int,int,af_add_t,dim=1,DIMY=8,inclusive=true> (src/backend/cuda/kernel/scan_dim_by_key_impl.hpp), launched by the driver with grid (1,2), block (32,8) from scan_dim_by_key on dims 32x300",
+      "sites": [
+        {
+          "role": "read",
+          "file": "src/backend/cuda/kernel/scan_dim_by_key_impl.hpp",
+          "line_start": 164,
+          "line_end": 164,
+          "source": "if ((s_ftmp[tidx] == 0) && (sfptr[start * THREADS_X] == 1)) {",
+          "operation": "ld.shared (SASS: LDS.U8 R4, [R15+0xa00], offset 0x0d50; only threads with tidy == 0 execute this branch)",
+          "strength": "plain"
+        },
+        {
+          "role": "write",
+          "file": "src/backend/cuda/kernel/scan_dim_by_key_impl.hpp",
+          "line_start": 176,
+          "line_end": 176,
+          "source": "s_ftmp[tidx] = flag;",
+          "operation": "st.shared (SASS: @!P2 STS.U8 [R15+0xa00], R18, offset 0x0e00; only threads with isLast, tidy == DIMY-1 == 7, execute it)",
+          "strength": "plain"
+        }
+      ],
+      "thread_relation": "cross-warp-same-block",
+      "thread_pair_example": "block (blockIdx.x 0, blockIdx.y 0 or 1), any loop iteration k (lim = 19): thread (tidx=t, tidy=0) in warp 0 reads s_ftmp[t] at L164 while thread (t, 7) in warp 7 writes s_ftmp[t] at L176 (warp = tidy because THREADS_X = 32); 32 such pairs per block and iteration. Last barrier before them: L159 (scan loop); next barrier: L182.",
+      "fixed_sites_after_fix": "the added __syncthreads() is at L172 of the fixed file; the read stays at L164, the write moves to L177 (SASS BAR.SYNC at 0x0dc0, STS.U8 at 0x0eb0)",
+      "expected_class": "DR"
+    }
+  ],
+  "sass_notes": "sm_89, cuobjdump + nvdisasm -g of the driver built with -lineinfo (the lineinfo check is SAME, so the no-lineinfo build has identical SASS). Buggy scan_nonfinal_kernel<..256..>: BAR.SYNC at 0x1050 (source L140, last scan-loop barrier) ... LDS.U8 [R18+0xa08] at 0x1100 (L145 read of s_ftmp[tidy]) ... STS [R18.X4+0xa0c] at 0x1180 (L156, s_tmp) and @!P2 STS.U8 [R18+0xa08] at 0x1190 (L157, s_ftmp) ... BAR.SYNC at 0x1200 (L160); no BAR between 0x1050 and 0x1200. Fixed: extra BAR.SYNC.DEFER_BLOCKING at 0x1170 (L153) between the LDS.U8 (0x1100) and the STS.U8 (0x11f0). Buggy scan_dim_nonfinal_kernel<..8..>: last scan-loop BAR 0x0cb0 (L159), LDS.U8 [R15+0xa00] 0x0d50 (L164), @!P2 STS [R15+0xa20] 0x0dd0 (L175, s_tmp), @!P2 STS.U8 [R15+0xa00] 0x0e00 (L176), BAR 0x0ea0 (L182). Fixed: BAR at 0x0dc0 (L172) before the stores. No .STRONG / volatile token on any of these accesses (plain LDS/LDS.U8/STS/STS.U8), no WARPSYNC anywhere in the kernels. Only s_ftmp races: s_tmp[tidy] (written at L156/L175) is read only at the top of the next iteration (L119 / L138, tidx==0 / tidy==0) after the end-of-iteration barrier (L160/L161 / L182), so by the source there is no s_tmp hazard even though the record text says 'and s_tmp'. boundaryid[] is written by at most one thread per row and iteration (the thread where the prefix-OR of the flags first becomes 1) and read after the loop barrier, so it has no hazard either.",
+  "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against src/backend/cuda/kernel/scan_first_by_key_impl.hpp@a35a2d0 and scan_dim_by_key_impl.hpp@a35a2d0 (and the fixed files@a7a297b) on 2026-10-20; line numbers and SASS offsets taken from the files as compiled (R2 harness file names = repo paths).",
+  "open_questions": [
+    "The record's expected_report_buggy says 'cross-warp shared WAR on s_ftmp (and s_tmp)'. By the source and SASS only s_ftmp has a concurrent reader (see sass_notes); the s_tmp write at L156/L175 is ordered against its reader by the barrier at the end of the iteration. If a detector reports s_tmp too, that would need a second look.",
+    "Natively the race window is very small (warp 7 must reach L157 before warp 0 executes L145 right after the same barrier); the smoke run on sm_75 shows no wrong result in either variant. Detection is by the detector's analysis, not by a wrong output."
+  ],
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "confirmed",
+    "changes": [],
+    "notes": "R2 harness: every copied kernel file under r2/buggy and r2/fixed is byte-identical (cmp) to git show <buggy_commit>:<path> / <fix_commit>:<path>; git diff buggy..fix of those files is exactly the fix hunk described in fixed.reason. (the fix's OpenCL hunks are outside the harness). Primary pair confirmed at a35a2d0: s_ftmp is a plain __shared__ char array (scan_first_by_key_impl.hpp:54); thread tidx == 0 reads s_ftmp[tidy] at L145 and thread tidx == DIMX-1 (isLast, L73) writes it at L157, both after the last scan-loop barrier L140 and before the end-of-iteration barrier L160: 8-bit plain load vs 8-bit plain store, warp 0 vs warp 7 (DIMX = 256, DIMY = THREADS_PER_BLOCK/DIMX = 1) -> DR. The harness stub config.hpp (THREADS_PER_BLOCK 256, THREADS_X 32, REPEAT 32) matches upstream src/backend/cuda/kernel/config.hpp:17-20 @a35a2d0. Launch geometry re-derived: threads_x = min(nextpow2(8193), 256) = 256, blocks_x = divup(8193, 256*32) = 2, lim = divup(8193, 256*2) = 17 (scan_first_by_key_impl.hpp:416-421 and the nonfinal launcher); dim variant: threads_y = min(8, nextpow2(300)) = 8, blocks_all[1] = divup(300, 8*32) = 2, lim = divup(300, 8*2) = 19 (scan_dim_by_key_impl.hpp:471,482-488); warp = tidy because THREADS_X = 32. extra_pairs (L164 read by tidy 0 vs L176 write by tidy 7, s_ftmp[tidx]) confirmed. Agree that s_tmp and boundaryid do not race (s_tmp written at L156/L175, read only at L119/L137 after the barrier L160/L182; boundaryid has at most one writer per row/column per iteration because the scanned flags are a prefix-OR). Fixed (a7a297b): one __syncthreads() each at scan_first_by_key_impl.hpp:153 and scan_dim_by_key_impl.hpp:172, unconditional in the loop body; the read stays at L145/L164 and the write moves to L158/L177. 'absent' confirmed. Not independently verified: the SASS opcodes, register operands and offsets quoted in sites/sass_notes (the one permitted srun on -p normal could not start: partition fully allocated, estimated start 2026-10-21 14:37, so the job was cancelled); access widths were checked from the source types instead. Native-run and smoke-run statements in open_questions are builder results and were not reviewed.",
+    "depends_on_D20": false
+  }
 }

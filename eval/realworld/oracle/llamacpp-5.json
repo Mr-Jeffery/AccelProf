@@ -44,5 +44,13 @@
   "open_questions": [
     "The cub temp-storage hazard (L69 vs L70) is intra-warp (BLOCK_LOAD_WARP_TRANSPOSE uses per-warp regions) and lives in cub headers (uninitialized_copy.cuh / block_exchange.cuh); it is a second racing pair of the same target and not in the two sites above.",
     "The driver restricts the run to the Mamba-1 case with -p 'd_state=16,head_dim=1,'; the record's unfiltered '-o SSM_SCAN' also runs three Mamba-2/Falcon-H1/overlap cases (kernel ssm_scan_f32_group), which are not part of this target."
-  ]
+  ],
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "confirmed",
+    "changes": [],
+    "notes": "Checked at 039e20a: ssm_scan_f32 (ssm-scan.cu:18-120), USE_CUB for CUDART >= 11.7 (:1-3), 128 threads (:247), smemB/smemC plain __shared__ float[16] (:56-57); per iteration threads < 16 write them (:87-88), barrier :90, all threads read smemB[n]/smemC[n] (:103-104), no barrier before the next iteration's writes: WAR across warps, DR. The two BlockLoad calls (:69-70) reuse cub_temp_storage.load_temp (BLOCK_LOAD_WARP_TRANSPOSE, per-warp regions) without a barrier: the second, intra-warp pair noted in open_questions. Fix fb83cc9 adds __syncthreads() between the loads (fixed :70) and at the end of the loop body (fixed :109); it also changes the launch's dynamic shared size from (threads*(d_state+1)*2)*sizeof(float) (buggy :252-254) to 0 (fixed :254-255), which does not affect the race (the kernel uses only static __shared__). 'absent' holds for both pairs. sass_notes are the builder's: the reviewer read sources and diffs only and did not re-dump SASS (the one srun queued with an estimated start the next day and was withdrawn).",
+    "depends_on_D20": false
+  }
 }

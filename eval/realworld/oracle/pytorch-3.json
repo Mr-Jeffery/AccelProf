@@ -5,16 +5,29 @@
   "route": "R2",
   "kernel": "MultiMarginLoss_backward_kernel",
   "space": "global",
-  "build_revision": {"buggy": "13398dab7991e3c3ccbf6892eeca8e68335d0d71", "fixed": "8573a2beda96b37bb7a2ac70b654da35b016f147"},
+  "build_revision": {
+    "buggy": "13398dab7991e3c3ccbf6892eeca8e68335d0d71",
+    "fixed": "8573a2beda96b37bb7a2ac70b654da35b016f147"
+  },
   "sites": [
-    {"role": "write", "file": "aten/src/ATen/native/cuda/MultiMarginLoss.cu", "line_start": 121, "line_end": 121,
-     "source": "gradInput_k[target_k] = static_cast<scalar_t>(gradInput_target_k);",
-     "operation": "STG.E [R6.64], R23 (st.global.f32, SASS 0x1890; executed only by threadIdx.x == 0 after the block reduction)",
-     "strength": "plain"},
-    {"role": "rmw", "file": "aten/src/ATen/native/cuda/MultiMarginLoss.cu", "line_start": 125, "line_end": 125,
-     "source": "gradInput_k[i] *= * gradOutput_k;",
-     "operation": "LDG.E (gradInput_k[i], ld.global.f32) + LDG.E (*gradOutput_k) + STG.E (gradInput_k[i], st.global.f32); the loop is unrolled in the SASS (copies at 0x1ab0..0x1d30 in the buggy driver, load/store of gradInput_k[i] at e.g. 0x1ac0/0x1b30)",
-     "strength": "plain"}
+    {
+      "role": "write",
+      "file": "aten/src/ATen/native/cuda/MultiMarginLoss.cu",
+      "line_start": 121,
+      "line_end": 121,
+      "source": "gradInput_k[target_k] = static_cast<scalar_t>(gradInput_target_k);",
+      "operation": "STG.E [R6.64], R23 (st.global.f32, SASS 0x1890; executed only by threadIdx.x == 0 after the block reduction)",
+      "strength": "plain"
+    },
+    {
+      "role": "rmw",
+      "file": "aten/src/ATen/native/cuda/MultiMarginLoss.cu",
+      "line_start": 125,
+      "line_end": 125,
+      "source": "gradInput_k[i] *= * gradOutput_k;",
+      "operation": "LDG.E (gradInput_k[i], ld.global.f32) + LDG.E (*gradOutput_k) + STG.E (gradInput_k[i], st.global.f32); the loop is unrolled in the SASS (copies at 0x1ab0..0x1d30 in the buggy driver, load/store of gradInput_k[i] at e.g. 0x1ac0/0x1b30)",
+      "strength": "plain"
+    }
   ],
   "thread_relation": "cross-warp-same-block",
   "thread_pair_example": "driver input: 1 frame, dim = 128, target = 64, launch <<<1, 128>>> (block 0): thread 0 (warp 0) stores gradInput_k[64] at L121; thread 64 (warp 2, threadIdx.x == target_k % 128; its single iteration i = 64 of the L124 loop, because i_start = 64, i_step = 128) loads gradInput_k[64], multiplies by *gradOutput_k and stores it at L125. The two touch the same global word with no barrier between them. (Benign only if target_k % 128 == 0: then thread 0 owns the slot itself.)",
@@ -30,5 +43,13 @@
   "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against aten/src/ATen/native/cuda/MultiMarginLoss.cu@13398da (buggy) and @8573a2b (fixed) on 2026-10-20",
   "open_questions": [
     "Global-memory target: compute-sanitizer racecheck covers shared memory only (T_RACECHECK=na). The race manifested in the sm_75 smoke run of the buggy variant (gradInput[64] left unscaled, mismatches=1/128) and not in the fixed variant, but timing dependent manifestation is not part of the oracle."
-  ]
+  ],
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "confirmed",
+    "changes": [],
+    "notes": "R2 harness: every copied kernel file under r2/buggy and r2/fixed is byte-identical (cmp) to git show <buggy_commit>:<path> / <fix_commit>:<path>; git diff buggy..fix of those files is exactly the fix hunk described in fixed.reason. Pair confirmed at 13398da: thread 0 stores gradInput_k[target_k] at L121 after the barrier L113; thread target_k % 128 (= 64, warp 2) skips the target in the first loop (L96-97) and then read-modify-writes gradInput_k[64] at L125 with no barrier in between: 32-bit float plain/plain global accesses, cross-warp in block 0 -> DR. Driver: <<<1, 128>>>, dim 128, target 64, p = 1, no weights (driver.cu:42-45). Fixed (8573a2b): one __syncthreads() at L124, unconditional, between the thread-0 block (L116-122) and the scaling loop (RMW now L126). 'absent' confirmed. Not independently verified: the SASS opcodes, register operands and offsets quoted in sites/sass_notes (the one permitted srun on -p normal could not start: partition fully allocated, estimated start 2026-10-21 14:37, so the job was cancelled); access widths were checked from the source types instead. Native-run and smoke-run statements in open_questions are builder results and were not reviewed.",
+    "depends_on_D20": false
+  }
 }

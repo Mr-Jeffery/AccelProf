@@ -5,39 +5,98 @@
   "route": "n/a (not compiled in T21a; build_notes: full cuML C++ build is very heavy, easiest is a cuml wheel/conda package; a standalone harness needs raft headers and the other BH kernels)",
   "kernel": "ML::TSNE::BH::RepulsionKernel<value_idx, value_t> (cpp/src/tsne/barnes_hut_kernels.cuh L538-679; launched <<<blocks * FACTOR5, THREADS5, 0, stream>>> with FACTOR5 = 2, THREADS5 = 1024 (barnes_hut_kernels.cuh L22, L30) at cpp/src/tsne/barnes_hut_tsne.cuh L266)",
   "space": "shared",
-  "build_revision": {"buggy": "c7e7738bb6386186bc031d821e71ce1c1abfe3c8", "fixed": null},
+  "build_revision": {
+    "buggy": "c7e7738bb6386186bc031d821e71ce1c1abfe3c8",
+    "fixed": null
+  },
   "sites": [
-    {"role": "write", "file": "cpp/src/tsne/barnes_hut_kernels.cuh", "line_start": 596, "line_end": 596,
-     "source": "dq[diff + sbase] = dq[diff];",
-     "operation": "st.shared of dq[threadIdx.x] (= dq[diff + sbase]; `__shared__ value_t dq[THREADS5]` at L568) executed by every thread of the 1024-thread block; for warp 0 (sbase = 0) this is the self-copy dq[d] = dq[d] by lane d, i.e. a write of the value it just read; expected STS (value_t = float), not compiled in T21a so the lowering is unverified (a self-copy store may even be optimised away by the compiler)",
-     "strength": "plain"},
-    {"role": "read", "file": "cpp/src/tsne/barnes_hut_kernels.cuh", "line_start": 596, "line_end": 596,
-     "source": "dq[diff + sbase] = dq[diff];",
-     "operation": "ld.shared of dq[diff] (diff = threadIdx.x - sbase, 0..31) by every thread; lane d of warps 1..31 reads dq[d], the slot that lane d of warp 0 overwrites with the same value in the same statement; expected LDS, unverified",
-     "strength": "plain"}
+    {
+      "role": "write",
+      "file": "cpp/src/tsne/barnes_hut_kernels.cuh",
+      "line_start": 596,
+      "line_end": 596,
+      "source": "dq[diff + sbase] = dq[diff];",
+      "operation": "st.shared of dq[threadIdx.x] (= dq[diff + sbase]; `__shared__ value_t dq[THREADS5]` at L568) executed by every thread of the 1024-thread block; for warp 0 (sbase = 0) this is the self-copy dq[d] = dq[d] by lane d, i.e. a write of the value it just read; expected STS (value_t = float), not compiled in T21a so the lowering is unverified (the store cannot be dropped for warp 0 alone: one STS serves every warp and its address diff + sbase = threadIdx.x is a runtime value)",
+      "strength": "plain",
+      "line_basis": "source-derived: git show c7e7738bb638:cpp/src/tsne/barnes_hut_kernels.cuh (not built, no SASS)"
+    },
+    {
+      "role": "read",
+      "file": "cpp/src/tsne/barnes_hut_kernels.cuh",
+      "line_start": 596,
+      "line_end": 596,
+      "source": "dq[diff + sbase] = dq[diff];",
+      "operation": "ld.shared of dq[diff] (diff = threadIdx.x - sbase, 0..31) by every thread; lane d of warps 1..31 reads dq[d], the slot that lane d of warp 0 overwrites with the same value in the same statement; expected LDS, unverified",
+      "strength": "plain",
+      "line_basis": "source-derived: git show c7e7738bb638:cpp/src/tsne/barnes_hut_kernels.cuh (not built, no SASS)"
+    }
   ],
   "additional_pairs": [
-    {"class": "DR",
-     "description": "intra-warp stack hand-off: lane 0 of each warp (SBASE_EQ_THREAD) plainly writes pos[sbase] / node[sbase] at L625-L626 and pos[depth] / node[depth] at L655-L656, all lanes read pos[depth] / node[depth] at L631-L632; no warp barrier between them (the __all_sync at L647 runs after the reads at L631-L632 and after dq[depth] has been read)",
-     "sites": [
-       {"role": "write", "file": "cpp/src/tsne/barnes_hut_kernels.cuh", "line_start": 625, "line_end": 626, "source": "pos[sbase] = 0; node[sbase] = FOUR_NNODES;", "operation": "st.shared by lane 0 of the warp (`if (SBASE_EQ_THREAD == true)` L624)", "strength": "plain"},
-       {"role": "read", "file": "cpp/src/tsne/barnes_hut_kernels.cuh", "line_start": 631, "line_end": 632, "source": "auto pd = pos[depth]; auto nd = node[depth];", "operation": "ld.shared by all lanes (depth starts at sbase, L622)", "strength": "plain"}
-     ],
-     "thread_pair_example": "warp 1: lane 0 (thread 32) writes pos[32] at L625; lane 1 (thread 33) reads pos[32] at L631. Same for the pushes at L655/L656 vs the reads at L631/L632 of the next do-while iteration."},
-    {"class": "DR",
-     "description": "per-warp dq copies: the L596 write dq[sbase + d] by lane d vs the L647 read dq[depth] (depth = sbase + level) by all lanes in `__all_sync(__activemask(), dxy1 >= dq[depth])`: the dq[depth] argument is evaluated before the collective runs; between L596 and L647 only __threadfence_block() (L599, a fence by the calling thread only) lies",
-     "sites": [
-       {"role": "write", "file": "cpp/src/tsne/barnes_hut_kernels.cuh", "line_start": 596, "line_end": 596, "source": "dq[diff + sbase] = dq[diff];", "operation": "st.shared dq[sbase + d] by lane d", "strength": "plain"},
-       {"role": "read", "file": "cpp/src/tsne/barnes_hut_kernels.cuh", "line_start": 647, "line_end": 647, "source": "if ((n < N) or __all_sync(__activemask(), dxy1 >= dq[depth])) {", "operation": "ld.shared dq[depth] by all lanes (short-circuit: only evaluated when n >= N)", "strength": "plain"}
-     ],
-     "thread_pair_example": "warp 1: lane 5 (thread 37) writes dq[37] at L596; another lane of the same warp reads dq[37] at L647 when depth = 32 + 5"}
+    {
+      "class": "DR",
+      "description": "intra-warp stack hand-off: lane 0 of each warp (SBASE_EQ_THREAD) plainly writes pos[sbase] / node[sbase] at L625-L626 and pos[depth] / node[depth] at L655-L656, all lanes read pos[depth] / node[depth] at L631-L632; no warp barrier between them (the __all_sync at L647 runs after the reads at L631-L632 and after dq[depth] has been read)",
+      "sites": [
+        {
+          "role": "write",
+          "file": "cpp/src/tsne/barnes_hut_kernels.cuh",
+          "line_start": 625,
+          "line_end": 626,
+          "source": "pos[sbase] = 0; node[sbase] = FOUR_NNODES;",
+          "operation": "st.shared by lane 0 of the warp (`if (SBASE_EQ_THREAD == true)` L624)",
+          "strength": "plain",
+          "line_basis": "source-derived: git show c7e7738bb638:cpp/src/tsne/barnes_hut_kernels.cuh (not built, no SASS)"
+        },
+        {
+          "role": "read",
+          "file": "cpp/src/tsne/barnes_hut_kernels.cuh",
+          "line_start": 631,
+          "line_end": 632,
+          "source": "auto pd = pos[depth]; auto nd = node[depth];",
+          "operation": "ld.shared by all lanes (depth starts at sbase, L622)",
+          "strength": "plain",
+          "line_basis": "source-derived: git show c7e7738bb638:cpp/src/tsne/barnes_hut_kernels.cuh (not built, no SASS)"
+        }
+      ],
+      "thread_pair_example": "warp 1: lane 0 (thread 32) writes pos[32] at L625; lane 1 (thread 33) reads pos[32] at L631. Same for the pushes at L655/L656 vs the reads at L631/L632 of the next do-while iteration."
+    },
+    {
+      "class": "DR",
+      "description": "per-warp dq copies: the L596 write dq[sbase + d] by lane d vs the L647 read dq[depth] (depth = sbase + level) by all lanes in `__all_sync(__activemask(), dxy1 >= dq[depth])`: the dq[depth] argument is evaluated before the collective runs; between L596 and L647 only __threadfence_block() (L599, a fence by the calling thread only) lies",
+      "sites": [
+        {
+          "role": "write",
+          "file": "cpp/src/tsne/barnes_hut_kernels.cuh",
+          "line_start": 596,
+          "line_end": 596,
+          "source": "dq[diff + sbase] = dq[diff];",
+          "operation": "st.shared dq[sbase + d] by lane d",
+          "strength": "plain",
+          "line_basis": "source-derived: git show c7e7738bb638:cpp/src/tsne/barnes_hut_kernels.cuh (not built, no SASS)"
+        },
+        {
+          "role": "read",
+          "file": "cpp/src/tsne/barnes_hut_kernels.cuh",
+          "line_start": 647,
+          "line_end": 647,
+          "source": "if ((n < N) or __all_sync(__activemask(), dxy1 >= dq[depth])) {",
+          "operation": "ld.shared dq[depth] by all lanes (short-circuit: only evaluated when n >= N)",
+          "strength": "plain",
+          "line_basis": "source-derived: git show c7e7738bb638:cpp/src/tsne/barnes_hut_kernels.cuh (not built, no SASS)"
+        }
+      ],
+      "thread_pair_example": "warp 1: lane 5 (thread 37) writes dq[37] at L596; another lane of the same warp reads dq[37] at L647 when depth = 32 + 5"
+    }
   ],
   "thread_relation": "cross-warp-same-block",
   "thread_pair_example": "primary pair (verification's 'claim (a)'): RepulsionKernel<<<blocks*2, 1024>>>, block 0: thread 5 (warp 0, lane 5) writes dq[5] at L596 (self-copy dq[5] = dq[5]); thread 37 (warp 1, lane 5) reads dq[5] at L596 (dq[37] = dq[5]). The __syncthreads at L585 precedes both; the __syncthreads at L598 is commented out (`//__syncthreads();`), only __threadfence_block() (L599) follows, which orders the calling thread's accesses and does not synchronise with other threads. Intra-warp variants: additional_pairs.",
   "expected_class": "DR",
   "class_reason": "All shared accesses of the pair (dq, pos, node: L568, L567) are plain (non-volatile, non-atomic; the port dropped the `volatile` of the reference bh.cu) (verify.strong_accesses: none). The primary cross-warp pair is plain-vs-plain with no barrier between the write and the read, hence DR under D20, even though the written value equals the old value (value-benign self-copy). Pairs 2 and 3 are plain-vs-plain intra-warp DR pairs that depend on lane reconvergence; the __all_sync/__activemask collective at L647 may be treated as ordering by a collective-aware detector, but the pos/node reads (L631-L632) and the dq[depth] read (L647, argument) precede it.",
   "buggy_expected": "DR. Primary: cross-warp WAR/RAW on dq[0..31], L596 vs L596 (value-benign self-copy). Secondary: intra-warp RAW on pos[sbase]/node[sbase] (L625/L626 -> L631/L632, L655/L656 -> L631/L632) and on dq[sbase + level] (L596 -> L647)",
-  "fixed": {"expected": "n/a (unfixed candidate)", "residual_sites": null, "reason": "pinned HEAD is the buggy build"},
+  "fixed": {
+    "expected": "n/a (unfixed candidate)",
+    "residual_sites": null,
+    "reason": "pinned HEAD is the buggy build"
+  },
   "sass_notes": "not compiled in T21a; SASS attribution to be added when T21c/T21b builds it",
   "built": false,
   "derived_from": "verify.accesses + verify.thread_pair (+ corrections.race_description) of targets.jsonl, re-checked against cpp/src/tsne/barnes_hut_kernels.cuh and cpp/src/tsne/barnes_hut_tsne.cuh@c7e7738 on 2026-10-20",
@@ -48,5 +107,30 @@
     "The cuml tree is treeless (--filter=tree:0): the file contents were obtained with `git show <sha>:<path>`; the reference 3-D code cpp/src/tsne/cannylab/bh.cu (volatile pos/node, __syncthreads after the dq copy, __all_sync(0xffffffff, ...)) was not opened here, so statements about it come from the record only.",
     "Whether the Python/wheel route would run this kernel with -lineinfo is unverified (record)."
   ],
-  "upstream_status": {"still_unfixed_at":"c7e7738bb6386186bc031d821e71ce1c1abfe3c8 (origin HEAD fetched: identical to the pinned sha; cpp/src/tsne diff empty)","already_reported_check":"No issue search specific to cuML was run yet beyond the generic tool (semantic search tool returned unrelated accel-sim results for race queries -> inconclusive). Code reading: the commented-out `//__syncthreads();` at L598 is present on main HEAD.","dispute_points":"(1) The cross-warp part (a) is a same-value write (dq[d]=dq[d]) so no wrong output is possible: a skeptic will call it benign (though still a data race by definition; compilers could also split the write). (2) Part (b) (stack in shared memory shared by the warp) is warp-synchronous code whose correctness on Volta+ relies on lanes reconverging; the code does use __all_sync which re-synchronizes the participating lanes, so a skeptic can argue it is ordered by the collective -- the brief counts warp collectives as ordering, so (b) may not be flagged by a collective-aware detector; (a) is the cleaner claim. (3) The kernel is only sm-agnostic CUDA, no sm_90 features.","proposed_fix_per_record":null,"links":["https://github.com/rapidsai/cuml/blob/c7e7738bb6386186bc031d821e71ce1c1abfe3c8/cpp/src/tsne/barnes_hut_kernels.cuh#L539-L682"],"merged_into_default":null}
+  "upstream_status": {
+    "still_unfixed_at": "c7e7738bb6386186bc031d821e71ce1c1abfe3c8 (origin HEAD fetched: identical to the pinned sha; cpp/src/tsne diff empty)",
+    "already_reported_check": "No issue search specific to cuML was run yet beyond the generic tool (semantic search tool returned unrelated accel-sim results for race queries -> inconclusive). Code reading: the commented-out `//__syncthreads();` at L598 is present on main HEAD.",
+    "dispute_points": "(1) The cross-warp part (a) is a same-value write (dq[d]=dq[d]) so no wrong output is possible: a skeptic will call it benign (though still a data race by definition; compilers could also split the write). (2) Part (b) (stack in shared memory shared by the warp) is warp-synchronous code whose correctness on Volta+ relies on lanes reconverging; the code does use __all_sync which re-synchronizes the participating lanes, so a skeptic can argue it is ordered by the collective -- the brief counts warp collectives as ordering, so (b) may not be flagged by a collective-aware detector; (a) is the cleaner claim. (3) The kernel is only sm-agnostic CUDA, no sm_90 features.",
+    "proposed_fix_per_record": null,
+    "links": [
+      "https://github.com/rapidsai/cuml/blob/c7e7738bb6386186bc031d821e71ce1c1abfe3c8/cpp/src/tsne/barnes_hut_kernels.cuh#L539-L682"
+    ],
+    "merged_into_default": null
+  },
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "corrected",
+    "changes": [
+      {
+        "field": "sites[0].operation",
+        "old": "st.shared of dq[threadIdx.x] (= dq[diff + sbase]; `__shared__ value_t dq[THREADS5]` at L568) executed by every thread of the 1024-thread block; for warp 0 (sbase = 0) this is the self-copy dq[d] = dq[d] by lane d, i.e. a write of the value it just read; expected STS (value_t = float), not compiled in T21a so the lowering is unverified (a self-copy store may even be optimised away by the compiler)",
+        "new": "st.shared of dq[threadIdx.x] (= dq[diff + sbase]; `__shared__ value_t dq[THREADS5]` at L568) executed by every thread of the 1024-thread block; for warp 0 (sbase = 0) this is the self-copy dq[d] = dq[d] by lane d, i.e. a write of the value it just read; expected STS (value_t = float), not compiled in T21a so the lowering is unverified (the store cannot be dropped for warp 0 alone: one STS serves every warp and its address diff + sbase = threadIdx.x is a runtime value)",
+        "reason": "The remark that the self-copy store may be optimised away is wrong: the same store instruction executes in every warp with address dq[threadIdx.x]; only for warp 0 does it equal the loaded address, which the compiler cannot know statically.",
+        "evidence": "cpp/src/tsne/barnes_hut_kernels.cuh L589-L596 at c7e7738"
+      }
+    ],
+    "notes": "Checked at c7e7738: __shared__ pos/node/dq L567-568 (plain), thread-0 init L570-583, __syncthreads L585, copy L596, `//__syncthreads();` L598, __threadfence_block L599, stack writes L625-626/L655-656, reads L631-632, dq[depth] read inside `(n < N) or __all_sync(__activemask(), ...)` L647; launch barnes_hut_tsne.cuh L266 <<<blocks*FACTOR5, THREADS5>>> (FACTOR5 2, THREADS5 1024: L22, L30). Primary pair (thread 5 store dq[5] / thread 37 load dq[5], both L596) is cross-warp with no barrier between: DR (same-value write does not matter). The open_question that the reference bh.cu was not opened is now settled: cpp/src/tsne/cannylab/bh.cu@c7e7738 declares `__shared__ volatile int pos[], node[]` (L594) and plain `float dq[]` (L595), guards the copy `if (diff < MAXDEPTH)` (L616), follows it with __syncthreads (L617) and uses __all_sync(0xffffffff, ...) (L653): the port dropped the barrier and the volatile. Upstream: HEAD a6ee72de6afe on 2026-10-20; barnes_hut_kernels.cuh unchanged vs pinned. class_reason attributes the plain/strong class rule to D20; the rule itself is item 1 of CLAUDE.md 'T21 corpus' (strong accesses decide the class); D20 only decides how SC pairs count.",
+    "depends_on_D20": false
+  }
 }

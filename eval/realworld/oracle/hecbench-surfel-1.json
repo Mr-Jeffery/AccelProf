@@ -43,5 +43,13 @@
   "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against src/surfel-cuda/main.cu@7b177e4 (buggy) and @66eba40 (fixed) and the sm_89 SASS of the build on 2026-10-20",
   "open_questions": [
     "The read site is the group L97-L105 (merged into 12 LDS/LDS.64 SASS instructions); a detector reports hazards per (store instruction, load instruction) pair, so one source-level pair appears as several SASS-level pairs (the reporter's racecheck output has 7 fields x 3 launches = 21 errors)."
-  ]
+  ],
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "confirmed",
+    "changes": [],
+    "notes": "Checked at 7b177e4: main.cu:163-164 launch 16x16 blocks, surfel_render_tile<float,256> (:197; only surfelRenderTest<float>, :236) three times (f loop :167); with N=300, w=h=16: one block, tiles base=0 (256 surfels) and base=256 (44). Staging writes sh[tid*7+k] for tid < 44 at :87, barrier :90, reads of sh[i*7+..] at :97-:105 for all i < tileCount; no barrier between the reads of tile 0 and the restaging of tile 1 (loop :81-121). sh is a plain __shared__ float array (:79): DR, cross-warp (thread 0 vs thread 32). Fix 66eba40 adds __syncthreads() at the end of the tile loop body (fixed :121), ordering the reads of tile j before the writes of tile j+1; nothing else in the kernel touches sh: 'absent' holds. sass_notes are the builder's: the reviewer read sources and diffs only and did not re-dump SASS (the one srun queued with an estimated start the next day and was withdrawn).",
+    "depends_on_D20": false
+  }
 }
