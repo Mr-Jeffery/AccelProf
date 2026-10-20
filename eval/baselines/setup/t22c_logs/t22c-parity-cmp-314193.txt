@@ -1,0 +1,79 @@
+host=c66 nproc=16 mem=188G HEAD=1ce4389 par=12 2026-10-17T18:58:27-04:00
+| program | mode | kernels | ok | MISMATCH | no hb_events | other | over cutoff | s |
+|---|---|---|---|---|---|---|---|---|
+| P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-100n | scalar-clock | 12 | 12 | 0 | 0 | 0 | 0 | 8.9 |
+| P1-BFS_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Thread_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoOverflowBug_NoLivelockBug-default-1296n | scalar-clock | 14 | 14 | 0 | 0 | 0 | 0 | 37.4 |
+| P1-BFS_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoOverflowBug_NoLivelockBug-default-100n | scalar-clock | 12 | 12 | 0 | 0 | 0 | 0 | 60.7 |
+| P1-BFS_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Block_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug_NoOverflowBug-slower_atomic-1296n | scalar-clock | 14 | 14 | 0 | 0 | 0 | 0 | 56.3 |
+| P1-BFS_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Thread_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug_NoOverflowBug-default-100n | scalar-clock | 12 | 12 | 0 | 0 | 0 | 0 | 18.2 |
+| P1-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_RaceBug_NoBoundsBug_NoLivelockBug_NoFieldBug-default-100n | scalar-clock | 13 | 13 | 0 | 0 | 0 | 0 | 3.5 |
+| P1-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_RaceBug_NoBoundsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n | scalar-clock | 11 | 11 | 0 | 0 | 0 | 0 | 50.2 |
+| P1-CC_CUDA_V_Topo_Pull_Determ_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-slower_atomic-1296n | scalar-clock | 15 | 15 | 0 | 0 | 0 | 0 | 3004.3 |
+| P1-CC_CUDA_V_Topo_Pull_NonDeterm_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-default-100n | scalar-clock | 10 | 10 | 0 | 0 | 0 | 0 | 16.8 |
+| P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_Persist_RaceBug_Thread_NoNbrBoundsBug_NoBoundsBug_NoLivelockBug_NoFieldBug-default-1296n | scalar-clock | 12 | 12 | 0 | 0 | 0 | 0 | 12.5 |
+| P3-CC_CUDA_E_Data_IntType_ReadWrite_Persist_Atomic_NoBoundsBug_NoLivelockBug_NonDeterm_NoFieldBug_Init-100n | scalar-clock | 13 | 13 | 0 | 0 | 0 | 0 | 12.7 |
+| P3-CC_CUDA_E_Topo_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n | scalar-clock | 13 | 13 | 0 | 0 | 0 | 0 | 2.9 |
+| P3-CC_CUDA_E_Topo_NonDeterm_IntType_ReadModifyWrite_NonPersist_Atomic_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n | scalar-clock | 12 | 12 | 0 | 0 | 0 | 0 | 2.3 |
+| P3-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_CudaAtomic_NoBoundsBug_NoLivelockBug_NoFieldBug-100n | scalar-clock | 13 | 13 | 0 | 0 | 0 | 0 | 4.5 |
+| P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n | scalar-clock | 11 | 11 | 0 | 0 | 0 | 0 | 71.9 |
+| P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n | scalar-clock | 9 | 9 | 0 | 0 | 0 | 0 | 29.3 |
+| P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Thread_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n | scalar-clock | 11 | 11 | 0 | 0 | 0 | 0 | 32.9 |
+| P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_Atomic_Warp_Dup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n | scalar-clock | 13 | 13 | 0 | 0 | 0 | 0 | 17.9 |
+| P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_Block_Dup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n | scalar-clock | 13 | 13 | 0 | 0 | 0 | 0 | 32.2 |
+| P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_Thread_Dup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n | scalar-clock | 13 | 13 | 0 | 0 | 0 | 0 | 39.0 |
+| P4-1dconv-norace-large | scalar-clock | 2 | 2 | 0 | 0 | 0 | 1 | 83.2 |
+| P4-1dconv-racy-small | scalar-clock | 2 | 2 | 0 | 0 | 0 | 0 | 3.8 |
+| P4-graph-coloring-racy-small | scalar-clock | 42 | 42 | 0 | 0 | 0 | 0 | 174.0 |
+| P4-graph-connectivity-racy-small | scalar-clock | 3 | 3 | 0 | 0 | 0 | 0 | 12.4 |
+| P4-matrix-multiplication-norace-small | scalar-clock | 1 | 1 | 0 | 0 | 0 | 1 | 41.0 |
+| P4-reduction-norace-large | scalar-clock | 1 | 1 | 0 | 0 | 0 | 0 | 100.4 |
+| P4-reduction-racy-large | scalar-clock | 1 | 1 | 0 | 0 | 0 | 0 | 97.3 |
+| P4-reduction-racy-small | scalar-clock | 1 | 1 | 0 | 0 | 0 | 0 | 47.4 |
+| P4-rule-110-norace-large | scalar-clock | 64 | 64 | 0 | 0 | 0 | 0 | 940.3 |
+| P4-rule-110-racy-small | scalar-clock | 16 | 16 | 0 | 0 | 0 | 0 | 151.9 |
+| P5-canary | scalar-clock | 1 | 1 | 0 | 0 | 0 | 0 | 0.3 |
+| P5-norace_interblock_atom | scalar-clock | 1 | 1 | 0 | 0 | 0 | 0 | 0.1 |
+| P5-norace_interblock_lock_waw | scalar-clock | 1 | 1 | 0 | 0 | 0 | 0 | 0.3 |
+| P5-norace_interwarp-block_fence_hrf-indirect | scalar-clock | 1 | 1 | 0 | 0 | 0 | 0 | 0.6 |
+| P5-norace_interwarp_blkfence_raw | scalar-clock | 1 | 1 | 0 | 0 | 0 | 0 | 0.3 |
+| P5-norace_interwarp_dev-blklock_waw | scalar-clock | 1 | 1 | 0 | 0 | 0 | 0 | 0.4 |
+| P5-race_interblock_blkatom | scalar-clock | 1 | 1 | 0 | 0 | 0 | 0 | 0.2 |
+| P5-race_interwarp_dev-blklock-no-stf_waw | scalar-clock | 1 | 1 | 0 | 0 | 0 | 0 | 0.3 |
+| P5-race_interwarp_none-blkatom_waw | scalar-clock | 1 | 1 | 0 | 0 | 0 | 0 | 0.1 |
+| P5-race_interwarp_none-blklock_waw | scalar-clock | 1 | 1 | 0 | 0 | 0 | 0 | 0.3 |
+| P6-false_positives-global_bytewise_readwrite-racy | scalar-clock | 1 | 1 | 0 | 0 | 0 | 0 | 0.7 |
+| P6-false_positives-global_bytewise_writewrite-fixed | scalar-clock | 1 | 1 | 0 | 0 | 0 | 0 | 0.3 |
+| P6-false_positives-shared_bytewise_readwrite-fixed | scalar-clock | 1 | 1 | 0 | 0 | 0 | 0 | 0.3 |
+| P6-hostdevice-global_readwrite_race-fixed | scalar-clock | 1 | 1 | 0 | 0 | 0 | 0 | 0.0 |
+| P6-hostdevice-global_writewrite_race-fixed | scalar-clock | 1 | 1 | 0 | 0 | 0 | 1 | 52.3 |
+| P6-interkernel-global_readwrite_race-racy | scalar-clock | 2 | 2 | 0 | 0 | 0 | 1 | 83.5 |
+| P6-intersubwarp-shared_readwrite_race-racy | scalar-clock | 1 | 1 | 0 | 0 | 0 | 0 | 1.3 |
+| P6-memcpy-global_readwrite_race-fixed | scalar-clock | 1 | 1 | 0 | 0 | 0 | 0 | 0.1 |
+| P6-memcpy-shared_writewrite_race-racy | scalar-clock | 1 | 1 | 0 | 0 | 0 | 0 | 0.1 |
+| P7-backprop-cuda | scalar-clock | 2 | 2 | 0 | 0 | 0 | 2 | 203.7 |
+| P7-bfs-cuda | scalar-clock | 24 | 14 | 0 | 0 | 10 | 0 | 13235.0 |
+| P9-crs-cuda | scalar-clock | 50 | 50 | 0 | 0 | 0 | 26 | 2850.3 |
+| P9-overlap-cuda | scalar-clock | 20 | 20 | 0 | 0 | 0 | 20 | 1728.7 |
+| PI-conditional_edge_neighbor_boundsBug_cond-DAG_5n_5e | scalar-clock | 1 | 1 | 0 | 0 | 0 | 0 | 1.6 |
+| PI-conditional_edge_neighbor_last-power_law_200n_1000e | scalar-clock | 1 | 1 | 0 | 0 | 0 | 0 | 0.2 |
+| PI-conditional_edge_neighbors_block_persistent_reverse_cond_guardBug-DAG_100n_200e | scalar-clock | 1 | 1 | 0 | 0 | 0 | 0 | 2.7 |
+| PI-conditional_edge_neighbors_block_shfl_cond_guardBug-DAG_5n_5e | scalar-clock | 1 | 1 | 0 | 0 | 0 | 0 | 0.8 |
+| PI-conditional_edge_neighbors_block_shfl_reverse_cond_guardBug_atomicBug-power_law_200n_1000e | scalar-clock | 1 | 1 | 0 | 0 | 0 | 0 | 2.2 |
+| PI-conditional_edge_neighbors_warp_persistent_reverse-DAG_5n_5e | scalar-clock | 1 | 1 | 0 | 0 | 0 | 0 | 0.7 |
+| PI-populate_worklist_neighbors_persistent_atomicBug-counterDAG_200n_1000e | scalar-clock | 1 | 1 | 0 | 0 | 0 | 0 | 3.1 |
+| PI-pull_node_neighbors_reverse_cond_break-counterDAG_5n_5e | scalar-clock | 1 | 1 | 0 | 0 | 0 | 0 | 0.3 |
+| PI-push_node_neighbors_boundsBug_reverse_atomicBug-counterDAG_200n_1000e | scalar-clock | 1 | 1 | 0 | 0 | 0 | 0 | 567.8 |
+| PI-push_node_neighbors_reverse_cond_atomicBug_break-counterDAG_200n_1000e | scalar-clock | 1 | 1 | 0 | 0 | 0 | 0 | 0.5 |
+
+total: {'kernels': 505, 'ok': 495, 'mismatch': 0, 'no_events': 0, 'other': 10, 'over_cutoff': 52}
+cap P7-bfs-cuda scalar-clock kernel_14.json
+cap P7-bfs-cuda scalar-clock kernel_15.json
+cap P7-bfs-cuda scalar-clock kernel_16.json
+cap P7-bfs-cuda scalar-clock kernel_17.json
+cap P7-bfs-cuda scalar-clock kernel_18.json
+cap P7-bfs-cuda scalar-clock kernel_19.json
+cap P7-bfs-cuda scalar-clock kernel_20.json
+cap P7-bfs-cuda scalar-clock kernel_21.json
+cap P7-bfs-cuda scalar-clock kernel_22.json
+cap P7-bfs-cuda scalar-clock kernel_23.json
+== done 2026-10-17T22:50:46-04:00

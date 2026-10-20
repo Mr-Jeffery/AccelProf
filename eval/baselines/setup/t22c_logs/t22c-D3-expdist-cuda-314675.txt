@@ -1,0 +1,25 @@
+host=c63 nproc=16 Model name: AMD EPYC 8124P 16-Core Processor 2026-10-18T07:51:52-04:00
+######## runtime final (W=/home/fzheng4/AccelProf/.claude/worktrees/wt-t22) cap 84600 tag t22c-d84600 runs: P9-expdist-cuda:16  2026-10-18T07:51:52-04:00
+host=c63 nproc=16 mem=188G Model name: AMD EPYC 8124P 16-Core Processor NVIDIA GeForce RTX 4060 Ti, 8.9, 580.82.07 HEAD=1ce4389 dirty=7 libsanalyzer 502028a87d54301c
+cdc5a70a8c3f4fb4
+8c0560eed583b31e
+==== P9-expdist-cuda YOSEMITE_HB_SHARDS=16 reps 1 cap 84600 2026-10-18T07:51:52-04:00
+[run 1/1] P9-expdist-cuda
+run: 1 programs -> /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-d84600-P9-expdist-cuda-n16/baselines-cuvein-shardt22c-d84600-P9-expdist-cuda-n16all.csv
+kept traces: 0.01 GB in /mnt/beegfs/fzheng4/cuvein_traces/t22c-d84600-P9-expdist-cuda-n16
+P9-expdist-cuda,scalar-clock,1,RACE,22,2142.255,2.223,13771.9,cap=84600;node=c63;arch=8.9;events=1652598160;nkernels=40;classes=race:22
+== done 2026-10-18T08:30:24-04:00
+== /mnt/beegfs/fzheng4/cuvein_traces/t22c-d84600-P9-expdist-cuda-n16
+  kernel_0.json    1792324431.0         -  events 82511264 void distance<float>(float const*, float pairs 13 count 1220206982 locs 11789856 entries 316221984 bytes 8504932784
+  kernel_1.json    1792324431.0       0.0  events 3106 void reduce_cross_term<float>(float*, fl pairs 1 count 40396 locs 24338 entries 24850 bytes 2502816
+  kernel_2.json    1792324538.0     107.0  events 82642576 void distance<float>(float const*, float pairs 13 count 1221647422 locs 11789856 entries 316221984 bytes 8504932784
+  kernel_3.json    1792324538.0       0.0  events 3196 void reduce_cross_term<float>(float*, fl pairs 1 count 40440 locs 24338 entries 24850 bytes 2502816
+  kernel_4.json    1792324644.0     106.0  events 82598380 void distance<float>(float const*, float pairs 13 count 1221059668 locs 11789856 entries 316221984 bytes 8504932784
+  kernel_5.json    1792324645.0       1.0  events 3082 void reduce_cross_term<float>(float*, fl pairs 1 count 40798 locs 24338 entries 24850 bytes 2502816
+  kernel_6.json    1792324751.0     106.0  events 82614454 void distance<float>(float const*, float pairs 13 count 1221376946 locs 11789856 entries 316221984 bytes 8504932784
+  kernel_7.json    1792324751.0       0.0  events 2994 void reduce_cross_term<float>(float*, fl pairs 1 count 38676 locs 24338 entries 24850 bytes 2502816
+  kernel_8.json    1792324858.0     107.0  events 82622790 void distance<float>(float const*, float pairs 13 count 1221433292 locs 11789856 entries 316221984 bytes 8504932784
+  kernel_9.json    1792324858.0       0.0  events 2994 void reduce_cross_term<float>(float*, fl pairs 1 count 42892 locs 24338 entries 24850 bytes 2502816
+  kernel_10.json   1792324964.0     106.0  events 82592702 void distance<float>(float const*, float pairs 13 count 1221069464 locs 11789856 entries 316221984 bytes 8504932784
+  ... (40 kernel JSONs: /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-d84600-P9-expdist-cuda-n16/kstats.txt)
+== done 2026-10-18T08:30:25-04:00

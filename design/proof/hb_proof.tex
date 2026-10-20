@@ -525,6 +525,27 @@ Delete the RMW case of Lemma~\ref{lem:vc} and the (ATOM) term of \eqref{eq:pred}
 else in the proofs mentions them.
 \end{proof}
 
+\begin{remark}[Partition by location]\label{rem:partition}
+$\textsc{Detect}(T,\mathsf{sync})$ is invariant under any partition of the location set.
+Under $\M=\mathsf{sync}$ the clocks ($\clk$, the snapshots $S_{t,j}$) and the assembly state
+($\arrv_k$, $\gone_\beta$) are written only at exits, barrier arrivals, syncwarps, commits,
+waits and copy issues (the issue join), each of which reads only that state and its own
+record; a memory record $a$ on $\ell$ reads $\clk$ and $\Bk_\ell$ (\textsc{Check}) and writes
+$\Bk_\ell$ alone. Let $L_1\uplus\dots\uplus L_N$ partition the locations and let run $i$
+process, in $\seq$ order, every exit, arrival, syncwarp, commit, wait and copy issue, and
+\textsc{Check} and the bucket update of exactly the memory records on $L_i$. By induction on
+$\seq$, every run's clock and assembly state equals that of $\textsc{Detect}(T,\mathsf{sync})$
+and run $i$'s $\Bk_\ell$ equals it for $\ell\in L_i$; so each \textsc{Check}($a$) adds in the
+run owning $\loc(a)$ exactly the triples it adds in $\textsc{Detect}(T,\mathsf{sync})$, and no
+run adds others: $\bigcup_i\Rep_i=\Rep$ of the $\mathsf{sync}$ instance, disjointly by
+location. The per-pc-pair aggregate (\texttt{hb\_sync\_pass}: the number of triples, the
+widest distance, the pcs of the $\seq$-first triple) is therefore the runs' sum, maximum and
+$\seq$-earliest. This is the sharded scalar-clock pass (T22, \texttt{YOSEMITE\_HB\_SHARDS}),
+which computes $\Rep$ of the $\mathsf{sync}$ instance exactly. It does not extend to
+$\M=\mathsf{vec}$: there an RMW on $\ell$ joins $\Ch_\ell$ into $\clk[t]$, so the clocks
+depend on every location's records.
+\end{remark}
+
 \begin{remark}[Why one bucket per key]\label{rem:buckets}
 With a single ``last write'' per location the theorem fails: $w_0$ strong by $A$, $w_1$
 strong by $B$, unordered (so no report: $\ms$, both writes, not both RMW would give $\SC$ ---
