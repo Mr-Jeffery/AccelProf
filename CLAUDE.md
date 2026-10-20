@@ -32,7 +32,7 @@ closed, T4 reframed as no-dump mode and put on the critical path, T16 (the certa
 T17 (the `HbEngine` rename) added; and on 2026-10-05 after T-H, T18, T4 and T19 finished:
 home moved to BeeGFS, the late key compiled out, no-dump mode merged and installed, flat
 buckets measured (merge decided), the two bucket shapes and the cap policy recorded as
-limitations, T20 (per-thread lookups) added, the `kernel_pc` default-path bug found. If HEAD has moved, re-read `eval/BASELINES_SUMMARY.md`,
+limitations, T20 (per-thread lookups) added, the `kernel_pc` default-path bug found. On 2026-10-20: T21 added (the real-world race corpus, `eval/realworld/`; D19–D22). If HEAD has moved, re-read `eval/BASELINES_SUMMARY.md`,
 `eval/FIX_REPORT.md`, `eval/FP_DIAGNOSIS.md` and `git log` before starting.
 
 ---
@@ -76,6 +76,38 @@ review, done) → T3b, T9, T10, T14, T15, T5b, T12, T17, T18, T4 (done, merged a
 mode comparison, the tables and one baseline re-run. T1b, T7, I6, the `bar.arrive` flag, the
 access-size check and the value-recording collector are after the submission. When a task can finish without a GPU
 (re-scores, census-style measurements), it does.
+
+**Real-world track (T21, added 2026-10-20).** T21 is an experiment on the final runtime, not
+detector engineering. T21a (builds, drivers, oracles, racecheck) needs no detector and starts
+at once. Every detector recording of T21b and T21c runs on the final runtime: the install
+commit made after T22-cont (the sharded scalar-clock sync pass), T23 (R3's landing closure)
+and T24 (warp-barrier instances) are merged — the runtime X1b records with. Check
+`libsanalyzer`'s sha256 against that install commit, put its three hashes in every
+`meta.json` and at the head of every report, and stop if they differ or the install has not
+happened. T21 never rebuilds or reinstalls the runtime and changes nothing under `python/`,
+`sanalyzer/`, `nv-compute/` or `bin/`; everything it writes is under `eval/realworld/`,
+`eval/results/realworld/`, `eval/REALWORLD.md` and its BeeGFS directories. Anything T21
+finds wrong with the detector goes into `eval/REALWORLD.md` §"Defects" with a minimal
+failing input; Jeffery decides after the submission. Scope: **in-kernel races** — two
+threads of one launch, global or shared memory; DR primary and SC informational under PTX
+§8.7.1; the three verdicts of D8; the `a2_uncertain` flag as in D15. Races between kernels,
+streams, host and device, or GPUs are out of scope: one line in the report, no chasing.
+**Execution:** since 2026-10-17 `claude` may not run on the login nodes. T21 agents run on
+Jeffery's laptop and reach the cluster only over ssh, under the execution preamble of their
+launch prompt: the login node is for `git`, `sbatch`, a short `srun --pty`, `squeue`/`sacct`
+and reading files; builds, native runs, racecheck and recordings are SLURM jobs; web
+searches (issues, pull requests) and downloads that are not `git` happen on the laptop, and
+their files reach BeeGFS by `scp` into home and a compute-node job that moves them.
+Compute nodes have no route to GitHub, and the login node has no CUDA and no BeeGFS mount,
+so clones happen on the login node. **Nodes:** X1b holds 14 `rtx4060ti16g` nodes for about
+three days after the final install, so T21's GPU runs use the single-GPU `rtx4060ti8g`
+nodes (c20, c26, c28, c57; the dual-GPU c21, c22, c34 only with `CUDA_VISIBLE_DEVICES`
+pinned) and the `rtx4060ti16g` nodes X1b leaves idle, then all of `rtx4060ti16g` once
+X1b's report lands, always excluding c2, c21, c37, c54. Both partitions are sm_89; never
+mix another compute capability into a T21 tag. Builds run on `normal`/`max` (nvcc, no GPU
+needed). **No upstream
+contact:** T21 agents never open issues, pull requests or comments upstream (D21); they write
+drafts.
 
 ### A2. Environment (NCSU ARC SLURM cluster)
 **Home layout since T-H (2026-10-01).** Kept traces (`traces_keep*`), corpora, the
@@ -354,6 +386,9 @@ Two things surfaced while reading the code that the plan has to carry:
 | T19 | — | flat bucket representation: 20-byte slots in one array per location behind a directory of 128-byte address segments (v4 of four layouts tried) | Sonnet | yes (one node; 188 GB node for stencil1d/particlefilter) | T4 ✓ | `perf/flat-buckets` ✓ done 2026-10-05 (0e526a2; `eval/FLAT_BUCKETS.md`): parity clean (green set + gate + no-dump 332 passed; implementation == specification 59/59, 394 kernels; aggregates == records 805/805; no verdict moves on T4's 65 programs); faster on every step-5 program (hotspot 499 → 212 s, fpc 1,237 → 730 s, now under the cap; the rest 15–67 %); bucket bytes 27–41 % of before (the ≤ 25 % bar assumed 110 B/entry, true only for sparse locations); stencil1d's kernels now complete in both modes (111 / 130 GiB) but it launches 1,000 of them at ~20 min each; particlefilter needs >160 GB of entries under any per-entry layout; **lavaMD slower**: 22 % scalar-clock (3,162 → 3,858 s), ≥ 54 % vector-clock (killed at 5,400 s) — cause in the per-thread lookups every layout shares (`vs`/`rmw_thr` hash maps per lane, `rmw_note`'s linear search), located, not fixed (T20). **Merge decided 2026-10-05 (D18)** |
 | T20 | — | per-thread lookups: the per-thread maps (`vs`, `rmw_thr`, …) as arrays indexed by a dense flat thread index; `rmw_note` indexed, not scanned; T4's R3 bookkeeping cost measured and cut; the previous kernel's state recycled instead of freed on the critical path; `kernel_pc` initialised | Sonnet; Opus for the design of the thread index | yes (one node) | T19 merged | `perf/thread-index` |
 | T7 | 7 (opt.) | profile `sync_dominance.py` on the P9-mr trace (the 3,600 s analysis cap) — after the submission; the runtime-side profiling T7 was to do is done by T19 and acted on by T20 | Sonnet · profiler | no | T4 ✓ | `perf/analysis-hotpath` |
+| T21a | — | corpus builds: buggy and fixed builds of the 32 core targets by the routes below, drivers, racecheck baseline, the **pre-registered oracle** per target (committed before any detector run, reviewed by a fresh Opus context) | Sonnet · builds; Opus · oracle review (fresh context) | builds on `normal`; native smoke runs on one sm_89 node | none; D22 | `study/realworld-corpus` |
+| T21b | — | recall runs: both modes on every built target, buggy and fixed; score against the oracle; misses explained; then the extended tier as time allows | Sonnet · runs and scoring; Opus · each miss and each fixed-build report | `rtx4060ti8g` (c20, c26, c28, c57), then `rtx4060ti16g` | T21a's oracle commit; the final runtime installed; D20 | `study/realworld-recall` (from T21a's branch) |
+| T21c | — | the 18 unfixed candidates: upstream re-check, builds, runs, triage of every report in their kernels, dossiers with reproducers, a fresh-context verifier per finding, upstream drafts (not filed) | Sonnet · builds and runs; Opus · triage; fresh Opus verifier per finding | as T21b | T21a's harness commit; the final runtime installed (for the runs); D19, D21 | `study/realworld-candidates` (from T21a's branch) |
 
 **Status 2026-09-24** (`cuVein` at 3331d35): T0, T8, T5a, T2, T3, T1a are merged. What
 they changed for the remaining tasks: the two modes are now `vector-clock` /
@@ -726,6 +761,37 @@ atomic chains.
   with no fence after it: `hrd-indirect` a DR, four SC; no baseline reports them —
   footnote (9) in `make_tables.py`). All go in the stale-label table of D2's amendment
   under "labels PTX contradicts".
+- **D19** (T21c) — the llama.cpp anchor race. The coworker's race (reported upstream, not
+  fixed) has not been identified in the corpus. The corpus search found two open races in
+  llama.cpp's CUDA backend, both from PR 28358 (closed unmerged per the research agent;
+  the verifier read the page as open — unverified) and both still present on `master`
+  as fetched on 2026-10-13 (`fcac1907`): `llamacpp-open-1` (`quantize_q8_1_to_shared` aliasing in
+  `flash_attn_ext_vec` for head size 64 with a quantized K cache: lanes 16–19 and lanes 0/8
+  write the same shared words) and `llamacpp-open-2` (missing end-of-loop `__syncwarp` in the
+  same kernel's KV loop). Issue 27678 (FlashAttention synccheck) is barrier divergence, fixed
+  by `b74f590e`, not a race. **Fill in:** is the coworker's race one of these two? If not:
+  issue/PR URL, kernel and file, commit, driver, evidence. Default if unanswered: both run as
+  ordinary candidates and the paper names no anchor.
+- **D20** (T21b, tables) — how a target whose racing accesses are strong counts. Two core
+  targets (`opencv-2`, `hecbench-hungarian-1`) race only through `volatile` shared memory, so
+  under PTX they are unordered strong conflicts (SC), not data races, although upstream fixed
+  them as races; three more (`cccl-3`, `raft-1`, `lit-shoc-1`) mix an SC pair with a DR pair.
+  Options: (i) each target's class is pre-registered in its oracle from the access strengths
+  (the `expected_class` field), and a target counts as detected when the oracle pair is
+  reported in that class — SC targets in their own column, as D2 does for suites;
+  (ii) count DR only. Recommended and default: (i) — it reports exactly what the PTX model
+  says and still shows the tool finding what maintainers fixed.
+- **D21** (T21c, the paper) — upstream contact and double-blind review. A new race filed
+  upstream before 2026-11-12 creates public issues tied to `Mr-Jeffery`, which the paper's
+  links would de-anonymise. Options: (a) file nothing before the submission; the paper
+  counts confirmed new races with reproducers in the anonymised artifact and says they will
+  be reported — recommended and default; (b) file now and omit links in the paper; (c) file
+  from an account not tied to the authors. Agents write drafts under
+  `eval/realworld/upstream/` either way.
+- **D22** (T21a/T21b) — scope by time. Waves 1 and 2 of the core tier (28 targets) are the
+  commitment; wave 3 (`cudf-3`, `cudf-5`, `cudf-9`: one libcudf build; `pytorch-8`: wheels)
+  and the 170-target extended tier run only if waves 1–2 are scored within five days of the
+  final runtime's install. Default: as stated.
 
 ---
 
@@ -1788,3 +1854,351 @@ needed. If the barrier pass dominates, port only `barrier_only_pairs` to C++ (it
 keep the verdict logic in Python. A whole-script rewrite is out of scope unless the
 profile shows the Python verdict loop itself above 30 % of wall time. Report:
 `eval/ANALYSIS_PROFILE.md`.
+
+### T21 corpus — real-world races (reference for T21a–T21c)
+
+Real-world races for the paper's evaluation. T21 starts from races whose ground truth is already
+known — 32 races fixed upstream by accepted commits, each checked by an independent reader — plus 18
+unfixed candidates, so the paper can state recall on real software before it states anything new. An
+earlier draft of T21 (2026-10-11, never committed) swept whole applications and triaged whatever the
+detector reported; its harness rules (shared-library cubins, `-lineinfo`, closed-library kernels) and its
+triage classes are carried over below where they still apply. Added 2026-10-20 from the corpus built on
+2026-10-13; the files are `eval/realworld/targets.jsonl` and `eval/realworld/corpus_rejected.md`.
+
+**How it was built (2026-10-13).** Seven research agents searched disjoint slices of GitHub
+— ML frameworks; LLM inference and attention kernels; NVIDIA and RAPIDS libraries;
+scientific and HPC codes; vision, 3D and classical-ML repositories; races named in the
+research literature plus a GitHub-wide search; and unfixed races — through partial clones
+of 236 repositories (commit-message search, then the diff of every hit), web search, and
+the papers' bug lists. 290 records came back; 7 cross-agent duplicates were merged, leaving
+283 from 89 repositories (`corpus_rejected.md` holds the ~350 commits and issues opened and
+rejected). Every record was then checked mechanically against a local clone: the fix commit
+exists, the buggy commit is its parent, the fix is on the default branch, the named files
+exist at the buggy commit (283/283; the two fixes `lit-gunrock-2` and `lit-gunrock-3` are on a
+Gunrock release branch, not the default one). The 32 core targets and all 23 open/new records were then re-read by four
+fresh-context verifiers that saw only the record and the code: 27 confirmed, 25 confirmed
+with corrections (mostly drivers and line numbers, now applied in `targets.jsonl`, the
+agent's original kept under `verify.corrections`), 3 doubtful (parked). No target has been
+compiled or run yet — that is T21a.
+
+**Tiers** (`tier` field):
+
+| tier | n | what | runs in |
+|---|---|---|---|
+| `core` | 32 | fixed upstream, verified by the fresh-context pass, runnable on sm_89, in three waves by build cost | T21a/T21b |
+| `candidate` | 18 | unfixed (3 reported upstream, 15 found by code reading), verified | T21c |
+| `extended` | 170 | fixed upstream, high or medium confidence, sm_89, not JIT — mechanical checks only | T21b if D22 allows |
+| `reserve` | 58 | fixed upstream, low confidence, JIT-compiled, or sm_90/sm_100-only | not planned |
+| `parked` | 5 | doubtful or unrunnable (`park_reason`) | not run; `cudf-open-1` may serve as a benign-race control |
+
+**Fields of `targets.jsonl`** (one JSON object per line): `id`; `tier`; `wave` (core only);
+`category` (`fixed` / `open` / `new`); `repo`; `fix_commit`; `buggy_commit` (the fix's
+parent for `fixed`, the pinned HEAD for `open`/`new`; full 40-character SHAs); `links`;
+`files`; `kernel`; `location_buggy`; `space`; `kind`; `threads`; `pattern`;
+`race_description`; `fix_summary`; `fix_is_sync_only`; `evidence` (sanitizer output and
+issue text as the commit, PR or issue states it); `needs_sm90`, `jit`, `async_copy`;
+`driver` (verifier-corrected where `verify.corrections.driver` exists); `build_cost`,
+`build_notes`; `already_reported_check`, `dispute_points` (open/new); `confidence`;
+`prior_work` (papers named in the record's sources — a text match, see item 7); `mech_check`;
+`verify` (`verdict`, `accesses`, `thread_pair`, `strong_accesses`, `expected_report_buggy`,
+`expected_report_fixed`, `driver_check`, `still_unfixed_at`, `notes`, `corrections`);
+`expected_class` (`DR`, `SC` or `DR+SC`; core, candidate and parked only); `source_agent`,
+`agent_id`. Records in `extended`/`reserve` have `verify: null`: their `driver`, line numbers
+and expected class are the research agent's and unverified.
+
+**What the verification found that every T21 agent must know:**
+1. *Strong accesses decide the class.* `volatile` shared/global accesses lower to
+   `LD/ST.STRONG.SYS` (T10, D9), so a warp-synchronous reduction over `volatile` memory is SC,
+   a plain one DR, and a plain store against a `volatile` load DR. `expected_class` encodes
+   this per target; D20 says how it counts.
+2. *Shuffles are not ordering.* In `llamacpp-2` and `llamacpp-open-2` the conflicting lanes
+   are separated only by full-mask `shfl.sync`; PTX gives memory ordering to
+   `bar.warp.sync`, not to `shfl.sync`, and the detector's qualifying syncs are `BAR.SYNC`,
+   `BAR.RED` and `WARPSYNC`. Before scoring these two, look at the SASS (`nvdisasm`) around
+   the shuffles: if `ptxas` emitted a `WARPSYNC`, the detector will order the pair; report
+   which it is and score what the frozen detector reports — this is a finding about the
+   model boundary, not a reason to change anything.
+3. *Fixed builds are not all clean.* Known residuals: `hecbench-hungarian-1` (the fix adds
+   `__syncwarp` between reduction steps but each step still reads `sdata[t+k]` while lane
+   `t+k` writes it); `hecbench-dxtc2-1` (the rewrite keeps the `colors[xrefs[idx]] =
+   colors[idx]` scatter); `pytorch-4` (the fix adds a plain read of `minIndexFound` against
+   other threads' `atomicMin`); `pytorch-8` (racecheck still shows 8 warnings after the fix);
+   `cccl-3`, `cmssw-1`, `raft-1` (the release fence sits before or at the barrier and the
+   last block has no acquire, so a strict PTX reading may keep an SC report); `kokkos-5` (a
+   second intra-warp RAW, `Kokkos_Cuda_ReduceScan.hpp:577` vs `Kokkos_Cuda_Parallel_Range.hpp:321`,
+   survives the fix). Each is in the target's `verify.expected_report_fixed`. A report on a
+   fixed build is triaged against this, never counted as a false positive by default.
+4. *Many races are formal only.* Several have timing windows of a few instructions or rely
+   on lock-step (`autogptq-new-1`, `colmap-new-1`, the FPS family, `ginkgo-1`,
+   `lightgbm-new-*`). A happens-before detector reports them from one run regardless; do
+   not try to reproduce wrong output for recall targets.
+5. *Drivers reach the kernel only under dispatch conditions.* The vec FlashAttention kernel
+   needs `kv` a multiple of 256; `raft-1` needs `len > 16,384` (otherwise the one-block
+   kernel runs); ArrayFire's first-dim by-key kernel needs ≥ 8,193 elements (the dim variant
+   needs only ≥ 257 rows); the `MUL_MAT_ID` case of the research record never reached
+   `mm_ids_helper` (replaced). The tables below carry the corrected drivers.
+6. *Overlap with the existing suites.* `hecbench-dxtc2-1` is P9's dxtc2 (the SuperCollider
+   subset): X1b records its buggy build; T21 adds the fixed build and the oracle and counts it
+   once. `hecbench-knn-1` (extended tier, fix `22574e78`) is the optional knn check that X3's
+   knn footnote cites: if that check has run, reuse its builds and results. Check every HeCBench target against the P7/P9 ids of `eval/baselines/manifest.csv`
+   and say which overlap.
+7. *Prior work.* SuperCollider (PLDI 2026) reported races in 16 HeCBench programs that
+   HeCBench later fixed (adv, aop, asta, atomicCAS, bh, dxtc2, expdist, fsm, Hausdorff, knn,
+   linearprobing, lebesgue, michalewicz, p4, scatter, tqs: `hecbench-*` rows); Simulee (ICSE
+   2020) used the ArrayFire, ThunderSVM and Kaldi fixes (`lit-arrayfire-*`,
+   `lit-thundersvm-1`, `lit-kaldi-*`); BARRACUDA (PLDI 2017) found the SDK dxtc race that
+   HeCBench's dxtc2 inherited; iGUARD (SOSP 2021) found Gunrock races (and, like BARRACUDA,
+   SHOC BFS races — `lit-shoc-1` is a different SHOC race, found by SHOC's author). These
+   rows are direct comparison points. `prior_work` is a text match of each record's sources
+   against paper names: confirm it before citing (it was corrected by hand for `lit-shoc-1`).
+
+#### Core tier — 32 fixed upstream races (waves by build cost)
+
+Routes: **R1** upstream build at the buggy and the fixed commit; **R1h** header-only library
+at the commit, compiled with a small driver; **R2** extracted harness (kernel files verbatim
+from each commit, see T21a step 2); **R3** a buildable revision with the fix hunk
+reverse-applied (T21a step 2's conditions); **R4** prebuilt binaries (wheels). Class is the
+pre-registered `expected_class`. The fix commit's parent is the buggy build.
+
+| wave | id | repository | fix | kernel | space, threads | pattern | class | prior work | route | driver (small input) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | `lit-arrayfire-1` | arrayfire/arrayfire | `a7a297ba81` | `scan_nonfinal_kernel` | shared, cross-warp-same-block | missing-barrier | DR | Simulee | R2 | `scan_dim_by_key` nonfinal kernel, dims (32, 300) |
+| 1 | `bitsandbytes-1` | bitsandbytes-foundation/bitsandbytes | `5b28fd3f7c` | `kEstimateQuantiles` | shared, cross-warp-same-block | missing-barrier | DR | — | R1, else R2 | `F.estimate_quantiles` on 16,384 floats (4 blocks × 512) |
+| 1 | `cmssw-1` | cms-sw/cmssw | `d1ce91e53c` | `multiBlockPrefixScan` | global, cross-block | missing-fence-handoff | DR | — | R2 | `prefixScan_t.cu` with the commit's own headers (shim the CMSSW utilities), 2,000 and 20,000 items |
+| 1 | `llamacpp-2` | ggml-org/llama.cpp | `73a43d1f69` | `mm_ids_helper` | shared, intra-warp | warp-synchronous-ITS | DR | — | R1 | `test-backend-ops -o MUL_MAT_ID -p 'type_a=q4_0,type_b=f32,n_mats=8,n_used=4,b=0,m=512,n=32,k=256'` |
+| 1 | `llamacpp-4` | ggml-org/llama.cpp | `9bd4c09ea5` | `block_reduce` | shared, cross-warp-same-block | smem-reuse-WAR | DR | — | R1 | `test-backend-ops -o SOFT_MAX -p 'ne=\[1024,16,1,1\],mask=0,sinks=0'` |
+| 1 | `llamacpp-5` | ggml-org/llama.cpp | `fb83cc9a07` | `ssm_scan_f32` | shared, cross-warp-same-block | smem-reuse-WAR | DR | — | R1 | `test-backend-ops -o SSM_SCAN` (d_state=16, head_dim=1, n_head=1024, n_seq_tokens=32, n_seqs=4) |
+| 1 | `cccl-1` | NVIDIA/cccl | `cb8707cbba` | `BlockReduceRaking` | shared, intra-warp | smem-reuse-WAR | DR | — | R1h | standalone `cub::BlockReduce<uint8_t,65,BLOCK_REDUCE_RAKING>` kernel, <<<1,65>>> |
+| 1 | `cccl-2` | NVIDIA/cccl | `ee14babeaa` | `WarpScanAllocations` | shared, cross-warp-same-block | smem-reuse-WAR | DR | — | R1h | `DeviceRunLengthEncode::NonTrivialRuns` on int, one tile (1,440 items), ≥ 97 run starts in warp 0's range |
+| 1 | `cccl-3` | NVIDIA/cccl | `879ab26a11` | `finalize_pass` | global, cross-block | missing-fence-handoff | DR+SC | — | R1h | `DeviceTopK` keys, more than one tile (1e5 keys) |
+| 1 | `cccl-4` | NVIDIA/cccl | `5dad0bff89` | `decoupled_look_back_kernel` | global, cross-warp-same-block | missing-barrier | DR | — | R1h | the test's `decoupled_look_back_kernel` copied verbatim, 64 tiles × 256 threads |
+| 1 | `opencv-2` | opencv/opencv | `7fd21d217a` | `edgesHysteresisLocalKernel` | shared, cross-warp-same-block | missing-barrier | SC | — | R2 | `edgesHysteresisLocalKernel` from the 2014 sources, 64×64 map with 1→2 chains |
+| 1 | `hecbench-dxtc2-1` | ORNL/HeCBench | `6e11c2bb2d` | `compress` | shared, intra-warp | warp-synchronous-ITS | DR | SuperCollider, BARRACUDA | R1 | input PPM cropped to 32×32 (`lena_std.ppm`) |
+| 1 | `hecbench-hungarian-1` | ORNL/HeCBench | `44ed88e1ae` | `calc_min_in_rows / _cols, min_warp_reduce` | shared, intra-warp | warp-synchronous-ITS | SC | — | R1 | build with `-D_n_=64 -D_range_=64` |
+| 1 | `hecbench-morphology-1` | ORNL/HeCBench | `7be8747ef1` | `twoWayScan` | shared, cross-warp-same-block | smem-reuse-WAR | DR | — | R1 | `./main 64 64 128 128 1` |
+| 1 | `hecbench-surfel-1` | ORNL/HeCBench | `66eba4016f` | `surfel_render_tile` | shared, cross-warp-same-block | smem-reuse-WAR | DR | — | R1 | `./main 300 16 16 1` |
+| 1 | `lit-fbgemm-1` | pytorch/FBGEMM | `2c32f22baf` | `gemv_bf16` | shared, cross-warp-same-block | smem-reuse-WAR | DR | — | R2 | `gemv_bf16`, block (256,1), m=2, n=64, k=2,048 |
+| 1 | `pytorch-1` | pytorch/pytorch | `e511672fed` | `embedding_backward_feature_kernel` | shared, cross-warp-same-block | smem-reuse-WAR | DR | — | R2 | `embedding_backward_feature_kernel`, N=2048 indices, D=32 → one (32,32) block |
+| 1 | `pytorch-3` | pytorch/pytorch | `8573a2beda` | `MultiMarginLoss_backward_kernel` | global, cross-warp-same-block | missing-barrier | DR | — | R2 | `MultiMarginLoss_backward_kernel`, input 1×128, target 64 |
+| 1 | `pytorch-4` | pytorch/pytorch | `79a4a9c02e` | `gatherKthValue` | global, cross-warp-same-block | duplicate-index-WAW | DR | — | R2 | `gatherKthValue`, 4,096 zeros, k=5 |
+| 1 | `pytorch_cluster-1` | rusty1s/pytorch_cluster | `a5abfee856` | `nearest_kernel` | shared, cross-warp-same-block | other | DR | — | R2 | `nearest_kernel<<<8,1024>>>`, the repo test's 8×4 points |
+| 1 | `lit-shoc-1` | vetter/shoc | `700ab82668` | `bottom_scan` | shared, cross-warp-same-block | smem-reuse-WAR | DR+SC | — | R1, else R2 | Scan, size class 1 (`bottom_scan<<<64,256>>>`) |
+| 2 | `amrex-1` | AMReX-Codes/amrex | `930e7c223f` | `MLNodeABecLaplacian::Fsmooth` | global, cross-block | other | DR | — | R1 | `Tests/LinearSolvers/ABecLaplacian_C inputs-node n_cell=16 max_grid_size=8 max_iter=2` |
+| 2 | `ginkgo-1` | ginkgo-project/ginkgo | `4d8ec443d3` | `generic_kernel_col_reduction_2d_blocked` | shared, cross-warp-same-block | smem-reuse-WAR | DR | — | R1, or direct launch | `generic_kernel_col_reduction_2d_blocked`, grid (1,1), 256 threads, cols=64, rows=8 |
+| 2 | `ginkgo-5` | ginkgo-project/ginkgo | `64f194612d` | `compute_lookup_small` | global, intra-warp | plain-RMW-needs-atomic | DR | — | R1 | `range_minimum_query_kernels` common test trimmed to size 1,025 |
+| 2 | `kokkos-5` | kokkos/kokkos | `db1a77ddc4` | `CudaReductionsFunctor` | shared, intra-warp | warp-synchronous-ITS | DR | — | R1 | scalar `parallel_reduce(RangePolicy)` n=1,000, `Kokkos_ARCH_ADA89=ON` |
+| 2 | `kokkos-6` | kokkos/kokkos | `71761882dc` | `cuda_inter_warp_reduction` | shared, cross-warp-same-block | smem-reuse-WAR | DR | — | R1 | the fix's `TestRepeatedTeamReduce` pasted into the parent, league size and repetitions shrunk |
+| 2 | `raft-1` | rapidsai/raft | `e39ec7882e` | `radix_kernel` | global, cross-block | missing-fence-handoff | DR+SC | — | R1h | `select_k` radix (8-bit), len ≥ 50,000, 2 rows |
+| 2 | `lit-exllamav3-1` | turboderp-org/exllamav3 | `3daf2d5dff` | `routing_ds3_nogroup_topk_kernel` | shared, cross-warp-same-block | smem-reuse-WAR | DR | — | R2 | `routing_ds3_nogroup_topk_kernel`, E=256, K=8, 4 tokens |
+| 3 | `pytorch-8` | pytorch/pytorch | `6dcdae14be` | `AttentionKernel` | shared, cross-warp-same-block | cp-async-wait | DR | — | R4 | nightly wheels either side of 2026-09-30, `sdpa_kernel(EFFICIENT_ATTENTION)`, q,k,v (1,1,64,512) fp16 |
+| 3 | `cudf-3` | rapidsai/cudf | `30435a26ab` | `decode_delta_length_byte_array (bounds path)` | shared, cross-warp-same-block | missing-barrier | DR | — | R1 + R3 | `ParquetReaderTest.DeltaSkipRowsWithNulls` trimmed to one flat DELTA_LENGTH_BYTE_ARRAY column, skip_rows=33 |
+| 3 | `cudf-5` | rapidsai/cudf | `b0638274a0` | `totalDeltaByteArraySize` | shared, intra-warp | warp-synchronous-ITS | DR | — | R1 + R3 | `ParquetReaderTest.DeltaByteArrayLargeMiniBlockSkipRows` |
+| 3 | `cudf-9` | rapidsai/cudf | `9d768f7ca4` | `gpu_debrotli_kernel` | shared, cross-warp-same-block | missing-barrier | DR | — | R1 + R3 | `BrotliDecompressTest/BrotliDecompressTest.HelloWorld/0` (15-byte input) |
+
+#### Candidate tier — 18 unfixed races (pinned commit = the buggy build)
+
+| id | status | repository | pinned | kernel | space, threads | pattern | class | route | driver (small input) |
+|---|---|---|---|---|---|---|---|---|---|
+| `autogptq-new-1` | new | AutoGPTQ/AutoGPTQ | `9f7d370729` | `gptq_repack_kernel` | shared, intra-warp | warp-synchronous-ITS | DR | R2 | `gptq_repack_kernel<<<(1,1),32>>>`, input 2×64 |
+| `colmap-new-1` | new | colmap/colmap | `6db3867f60` | `ComputeInitialCost / SweepFromTopToBottom` | shared, intra-warp | smem-reuse-WAR | DR | R2 | `LocalRefImage` window + `Compute()` loop, one 32-thread block, window radius 3 |
+| `pointnet2pt-fps-new-1` | new | erikwijmans/Pointnet2_PyTorch | `b5ceb6d9ca` | `furthest_point_sampling_kernel` | shared, cross-warp-same-block | smem-reuse-WAR | DR | R2 | FPS kernel, B=2, N=2,048, M=256 |
+| `llamacpp-open-1` | open | ggml-org/llama.cpp | `1b70350c92` | `quantize_q8_1_to_shared` | shared, intra-warp | duplicate-index-WAW | DR | R1 | `-o FLASH_ATTN_EXT -p 'hsk=64,hsv=64,nh=4,nr23=\[1,1\],kv=512,nb=1,.*type_K=q8_0'` |
+| `llamacpp-open-2` | open | ggml-org/llama.cpp | `1b70350c92` | `flash_attn_ext_vec` | shared, intra-warp | warp-synchronous-ITS | DR | R1 | `-o FLASH_ATTN_EXT -p 'hsk=128,hsv=128,nh=4,nr23=\[1,1\],kv=512,nb=1,.*type_K=f16'` |
+| `llmc-new-1` | new | karpathy/llm.c | `f1e2ace651` | `layernorm_backward_kernel10` | global, cross-block | missing-fence-handoff | DR | R1 | `dev/cuda/layernorm_backward.cu` kernel 10, recompiled with B=1, T=64 |
+| `llmc-new-2` | new | karpathy/llm.c | `f1e2ace651` | `softmax_autoregressive_backward_inplace…` | shared, cross-warp-same-block | smem-reuse-WAR | DR | R2 | `softmax_autoregressive_backward_inplace_kernel`, T=64, B·NH=1 |
+| `llmc-new-3` | new | karpathy/llm.c | `f1e2ace651` | `softmax_autoregressive_backward_kernel7` | shared, cross-warp-same-block | missing-barrier | DR | R1 | `dev/cuda/attention_backward.cu` kernels 7 and 8, B=1, T=64, block 256 |
+| `lightgbm-new-1` | new | microsoft/LightGBM | `c8be357941` | `FixHistogramKernel` | shared, cross-warp-same-block | smem-reuse-WAR | DR | R1 | CUDA `gbdt` training, 255 bins, a feature whose most frequent bin ≠ 0 |
+| `lightgbm-new-2` | new | microsoft/LightGBM | `c8be357941` | `EvalKernel` | shared, cross-warp-same-block | smem-reuse-WAR | DR | R1 | CUDA `gbdt` with a weighted validation set of 5,000 rows |
+| `mmcv-fps-new-1` | new | open-mmlab/mmcv | `d2111bda57` | `furthest_point_sampling_forward_cuda_ke…` | shared, cross-warp-same-block | smem-reuse-WAR | DR | R2 | FPS kernel, B=2, N=2,048, M=256 |
+| `openpcdet-fps-new-1` | new | open-mmlab/OpenPCDet | `233f849829` | `farthest_point_sampling_kernel` | shared, cross-warp-same-block | smem-reuse-WAR | DR | R2 | FPS kernels (batch and both stack variants), B=2, N=2,048, M=256 |
+| `opencv_contrib-new-1` | new | opencv/opencv_contrib | `eca97a4adb` | `compute_hists_kernel_many_blocks` | shared, intra-warp | warp-synchronous-ITS | DR+SC | R2 | HOG `compute_hists_kernel_many_blocks<4>`, default 8×8 cells, 64×128 image |
+| `pcl-new-1` | new | PointCloudLibrary/pcl | `66e1d0ea8c` | `NormalsEstimator (Warp::reduce)` | shared, intra-warp | warp-synchronous-ITS | DR+SC | R2 | `normal_3d` kernel with `Warp::reduce`, 1,000 points |
+| `droidslam-new-1` | new | princeton-vl/DROID-SLAM | `2dfd39f0dc` | `frame_distance_kernel → warpReduce` | shared, intra-warp | warp-synchronous-ITS | SC | R2 | `frame_distance_kernel<<<num,256>>>` with `blockReduce`, 4 frames |
+| `cuml-tsne-new-1` | new | rapidsai/cuml | `c7e7738bb6` | `RepulsionKernel` | shared, cross-warp-same-block | missing-barrier | DR | R1 | `tsne_test` Barnes–Hut case, smallest input |
+| `pytorch_cluster-new-1` | new | rusty1s/pytorch_cluster | `e9a855c284` | `fps_kernel` | shared, cross-warp-same-block | other | DR | R2 | `fps_kernel<<<2,256>>>`, the repo test's points |
+| `sglang-open-1` | open | sgl-project/sglang | `08550acc28` | `moe_align_block_size_kernel` | shared, cross-warp-same-block | missing-barrier | DR | R2 | general `moe_align_block_size` kernel <<<2,1024>>>, 256 experts, 4,096 tokens (or `tests/test_moe_align.py`) |
+
+Parked (not run): `llamacpp-open-3` (topk-moe; needs a NaN bias — value divergence, not a
+race on valid input), `opencv_contrib-new-2` (the generic block-reduce path is never
+instantiated in-tree), `cudf-open-1` (the cross-warp claim is refuted; a same-value
+intra-warp write remains — usable as a benign-race control), `cutlass-93-open-1` (sm_100a
+only), `flashinfer-open-1` (the same kernel as `sglang-open-1` inside an sm_100-only
+translation unit — run the SGLang copy).
+
+### T21a — Corpus builds and the pre-registered oracle
+Branch `study/realworld-corpus`. Models: Sonnet (builds, drivers, oracle files); Opus in a
+fresh context (oracle review, step 4). Builds on `normal`/`max`; native smoke runs and
+racecheck on one sm_89 node. Days 1–4; wave 1 first, and the harness commit (steps 1–2)
+lands by the end of day 1 so T21c can branch from it.
+
+Read first: `eval/README.md`, `eval/baselines/parallel.py` and `run_cuvein.py` (manifest
+rows, `meta.json`, the time cap and `--timeout-cap`), `python/atomic_scope_sidecar.py`,
+`HARDENING_REPORT.md` (the alignment stage), `eval/CRS_CUDA_TRIAGE.md` (what a triage looks
+like), `eval/NVBIT_SPIKE.md` §Environment (login/compute split), and the "T21 corpus"
+section above. Load the corpus with
+`.env/bin/python -c "import json; T=[json.loads(l) for l in open('eval/realworld/targets.jsonl')]"`.
+
+Steps
+1. **Layout.** Sources, builds and runs on BeeGFS: `/mnt/beegfs/$USER/realworld/{src,build,runs}/<id>/{buggy,fixed}`.
+   Clone on the login node (git only) into `~/incoming/realworld/` (5 GB budget; home is guarded at
+   35 GB) as partial clones (`git clone --filter=blob:none --bare`; for pytorch and other huge
+   repositories `--filter=tree:0` and only `git show <sha>:<path>`), export each needed
+   revision with `git archive <sha> | tar -x` or per file with `git show`, then move to
+   BeeGFS from a compute node. Nothing of an application's tree is committed except R2
+   harness files (below), which keep the upstream licence header.
+2. **Routes and their rules** (record the route per target; the tables give the default):
+   - Every build: exact SASS for sm_89 (`-arch=sm_89` / `CMAKE_CUDA_ARCHITECTURES=89`; a
+     PTX-only fatbin is JIT-compiled at load and the on-disk cubin is not the loaded one),
+     `-lineinfo`, the project's own optimisation flags, never `-G`. Once per route, diff the
+     `nvdisasm` of one kernel built with and without `-lineinfo`; if the SASS differs, the
+     traced build is the `-lineinfo` one and the report says so. Buggy and fixed builds use
+     identical flags.
+   - **R1h**: compile the driver against the checkout's headers placed before the toolkit's
+     bundled CCCL (`-I<checkout>/cub -I<checkout>/thrust -I<checkout>/libcudacxx/include`);
+     prove with `nvcc -H` that the checkout's headers are the ones used.
+   - **R2**: the kernel's source files are copied byte-for-byte from `git show
+     <buggy_commit>:<path>` and `git show <fix_commit>:<path>`; the agent writes only the host
+     `main`, minimal type and macro stubs and include shims, identical for both variants.
+     Save `diff -r buggy fixed` restricted to the copied files and check it equals the fix
+     commit's diff of those files (`fixdiff.check` in the target's directory) — a harness
+     that changes the kernel is not this target.
+   - **R3**: allowed only when the enclosing kernel or function at the build revision is
+     byte-identical to its version at `fix_commit` (check with `git diff
+     <fix_commit>..<rev> -- <file>`, read the hunk) and the fix hunk reverse-applies cleanly;
+     the buggy build is then `<rev>` plus the reversed hunk and only that object file is
+     rebuilt. For libcudf: build one revision that contains all three fixes, then one
+     reversed hunk per target (incremental rebuilds).
+   - **R4**: `pytorch-8` only — PyTorch nightly wheels either side of the fix (built
+     before 2026-09-30 and after 2026-10-01; record their exact versions). Wheels have no
+     line info: attribute by kernel name and SASS (`LDGSTS`, `DEPBAR`), and say so. Download
+     on the laptop (`pip download --no-deps --only-binary=:all:` with `--platform` and
+     `--python-version` set to the cluster's), `scp` into `~/incoming/realworld/`, move to
+     BeeGFS from a compute-node job, and install into a separate venv there — never into
+     `.env/`.
+   - Shared libraries: real applications keep kernels in `.so` files (`libggml-cuda.so`,
+     `libcudf.so`, torch's). The CFG side must use the cubin that was loaded: enumerate the
+     CUDA ELFs the process maps (`ldd` plus the collector's module-load log), `cuobjdump
+     -xelf all` each, index cubins by mangled kernel name and `sm_`, and run the alignment
+     stage (kernel name, architecture, pc on a memory opcode) before any cross-reference —
+     hard fail, as always.
+   - A target that does not build with the cluster's CUDA 13.3 by its default route gets
+     one alternative route (R1 → R2 or R3); building any upstream commit other than the two
+     the record names is not allowed. Otherwise it is `not built: <reason>` and the next
+     target starts. Never edit kernel code to make it compile; stubs only.
+3. **Drivers.** From the target's `driver` field (verifier-corrected) and the tables' input
+   sizes. Aim at ≤ 10^7 thread-level memory accesses, hard limit 10^8 (the detector costs
+   about 1 µs each). Confirm the kernel is launched at least once in each variant (the
+   collector's per-kernel output in a smoke run, or `nsys profile --stats=true` if
+   installed); a driver that never reaches the kernel is a driver bug, fixed here, not a
+   miss in T21b. Run each variant natively three times and record exit codes and whether
+   outputs differ.
+4. **The oracle, pre-registered.** For every core and candidate target, write
+   `eval/realworld/oracle/<id>.json` before any detector run: the two access sites at the
+   buggy build as compiled (file — for R2 the harness file name — line range, operation),
+   the thread relation, `expected_class`, and for the fixed build either `"absent"` or the
+   residual pair with its reason (from `verify.expected_report_fixed`). Derive them from
+   `verify.accesses` and `verify.thread_pair` and re-check each against the source you
+   built. A fresh-context Opus reviewer then reads only the oracle files and the sources
+   and confirms or corrects each; commit the reviewed oracles in one commit whose hash goes
+   into `eval/REALWORLD.md` §1. T21b and T21c must not start scoring before that commit.
+5. **Racecheck baseline** (cheap; shared memory only): `compute-sanitizer --tool racecheck
+   --racecheck-report all` on each built variant with the same driver, saved to
+   `eval/realworld/racecheck/<id>-{buggy,fixed}.txt`. Global-memory targets are outside
+   racecheck by construction — mark them `n/a`, not `missed`.
+6. **Manifest.** `eval/realworld/manifest.csv`, one row per (target, variant), in the
+   format `parallel.py` consumes if it can run an arbitrary binary with arguments, working
+   directory and environment (read `eval/README.md`); otherwise a thin
+   `eval/realworld/run_target.py` around `run_cuvein.py`, whichever is smaller.
+
+Acceptance: every wave-1 target built or `not built: <reason>` by day 3, waves 2 and 3 by
+day 4; every built target has both variants, its `fixdiff.check` (R2) or reverse-apply log
+(R3), a driver shown to reach the kernel, native results, racecheck output, and a reviewed
+oracle in the oracle commit. Report: `eval/REALWORLD.md` §1 "Corpus" — per target the route,
+build status, driver, input size, racecheck result, and the exact commands.
+
+### T21b — Recall runs and scoring
+Branch `study/realworld-recall`, from T21a's branch after the oracle commit. Models:
+Sonnet (runs, attribution, scoring); Opus for every miss and every report on a fixed build.
+GPU: `rtx4060ti8g` (c20, c26, c28, c57) and the `rtx4060ti16g` nodes X1b leaves idle, then
+all of `rtx4060ti16g` once X1b has finished. Days 3–8 counted from T21a's start, and not
+before the final runtime is installed.
+
+Steps
+1. **Configuration**, as X1b's except where noted (X1's harness and caps; scalar-clock
+   mode with `YOSEMITE_HB_SHARDS` at the N that `eval/SHARDED_SYNC.md` chose for the host
+   type, stated in every `meta.json`): both modes in one job per target
+   variant; no dump (`BASELINE_HB_DUMP=0` / `YOSEMITE_HB_DUMP=0`); `YOSEMITE_HB_STATS=1`;
+   `--confirm`; `--reps 1` (overhead is not measured here); `--timeout-cap 1200`, then one
+   vector-clock pass at 5,400 s for the timeouts; store
+   `/mnt/beegfs/$USER/cuvein_traces/realworld-2026-10/`, results `eval/results/realworld/`,
+   confirm files `eval/baselines/confirm_realworld/`. The atomic-scope sidecar is mandatory,
+   `accelprof -n 1`. For the targets with atomic hand-offs (`cccl-3`, `raft-1`, `cmssw-1`)
+   one extra vector-clock run with `YOSEMITE_HB_GATE_POLICY=certain` gives the "Race (sound)"
+   point.
+2. **Attribution.** Every reported pc pair to file:line with `nvdisasm --print-line-info` on
+   the loaded cubin (inlined frames included), after the alignment stage.
+3. **Score the buggy build** against the oracle: the oracle pair is matched when the two
+   pcs of a reported pair attribute to the oracle's two sites (± 2 lines, either order,
+   inlined-at frames allowed). Outcome per mode: `DETECTED` (in the pre-registered class;
+   say whether at Race alone or only at Race ∪ Latent, and whether `a2_uncertain`),
+   `DETECTED-AS-<class>` (the other class), or `MISSED` with its cause: (m1) the conflicting
+   instance never ran (input or dispatch; fix the driver in T21a and rerun), (m2) ordered by
+   an edge the detector accepted — name the edge and write a minimal failing input into
+   §"Defects", (m3) outside the model (say which construct), (m4) TIMEOUT or ERROR.
+4. **Score the fixed build**: `CLEAN-FOR-PAIR`, `RESIDUAL-AS-EXPECTED` (the oracle's
+   residual), or `STILL-REPORTED` → Opus triage (T21c step 3's classes) before anything is
+   counted. Other reports on either build are listed per target (kernel, pc pair, class,
+   verdict) and handed to T21c's triage queue; they are not scored here.
+5. **The scalar-clock / vector-clock comparison** on these targets (fact (i) of
+   `hb_proof.tex` §5), and the racecheck column from T21a step 5, per target.
+6. **The extended tier** (D22), in `repo` order so builds are shared: each target first gets
+   a T21a oracle from its record, checked by a fresh-context Sonnet reader, because these
+   records were not independently verified.
+
+Acceptance: every built core target scored in both modes on both builds, every miss with a
+cause, every fixed-build report triaged. Report: `eval/REALWORLD.md` §2 "Recall" — "n of m"
+detected per mode at both operating points (and "Race (sound)" where run), split by
+`expected_class` (D20), by pattern and by wave, with racecheck alongside; the misses table;
+`eval/results/realworld/recall.csv` (one row per target × variant × mode).
+
+### T21c — New-race candidates
+Branch `study/realworld-candidates`, from T21a's harness commit (oracles from the oracle
+commit). Models: Sonnet (re-check, builds, runs); Opus (triage); a fresh-context Opus
+verifier per positive finding (it reads the dossier and the upstream source only, never the
+triage reasoning). GPU: as T21b. Days 2–12, interleaved with T21b by node availability.
+
+Steps
+1. **Re-check upstream**, with git on the login node: fetch each candidate's default branch and diff
+   the racy files against the pinned commit; for `sglang-open-1` (SGLang PR 43030, open when
+   checked) and `llamacpp-open-1/2` (PR 28358) record the PR state. A candidate fixed in the
+   meantime becomes a recall target (buggy = pinned, fixed = the fix commit) and moves to
+   T21b.
+2. **Build and run** at the pinned commit by the route in the table, with its oracle; score
+   the predicted pair as T21b step 3 does.
+3. **Triage every report in the candidate kernels**, not only the predicted pair, and every
+   report T21b handed over: (a) a race under PTX §8.7.1 — DR or SC; (b) ordered by a
+   mechanism the detector does not model — name it, then (c) or a stated model gap;
+   (c) a detector or harness defect — minimal failing input into §"Defects"; (d) cannot
+   decide — say what would decide it. Use the vector-clock report's `a_tid`/`b_tid` (same
+   warp? same block?) and the source.
+4. **Dossier** for every (a), `eval/realworld/findings/<id>.md`: the two accesses with
+   file:line at the pinned commit, a concrete thread pair, why nothing orders them, the
+   report's trace evidence, a standalone reproducer of at most 60 lines whose kernel is
+   copied from upstream, the minimal fix (usually one barrier) and the fixed reproducer's
+   clean run in both modes, racecheck on the reproducer, the "already known?" search
+   (issues and pull requests by web search from the laptop, commits by `git log` on the login
+   node), the skeptic's strongest objection
+   and the PTX answer. For warp-synchronous and other formal-only cases, also a perturbation
+   test: a copy of the reproducer with `__nanosleep` inserted on one side, and whether
+   wrong output follows — state plainly when none can be produced.
+5. **Verification**: the fresh-context verifier confirms or rejects each dossier; only
+   confirmed findings are counted.
+6. **Upstream drafts** (D21): `eval/realworld/upstream/<id>.md` — issue text and patch. Not
+   filed.
+
+Acceptance: every candidate re-checked, built or `not built: <reason>`, run, and
+triaged; every finding has a dossier and a verifier verdict. Report: `eval/REALWORLD.md`
+§3 "New races" — the funnel (candidates → built → predicted pair reported → triaged as
+race → verifier-confirmed → observable under perturbation), one row per finding with its
+class and status, and the other reports found in those kernels; §4 the exact commands; and
+"what remains unverified".
