@@ -3,6 +3,8 @@
 # the scan found with a partial syncwarp record, in one size class per job:
 #   MINMB=0 MAXMB=500 SLOTS=16 MEMGB=10 TAG=a sbatch eval/baselines/setup/p_wjg_census.sh
 # SELECT=validate re-reads files with syncwarp records but no partial one (count check only).
+# SHARD=i/n takes every n-th file of the class; STAGE=1 copies the class's large dumps to local
+# disk before the first census (BeeGFS is shared and slow, ~500 MB/s in total).
 #SBATCH -p normal
 #SBATCH -J wjg-census
 #SBATCH -t 1-00:00:00
@@ -31,6 +33,6 @@ git rev-parse HEAD; df -h /mnt/local | tail -1; free -g | head -2
 cat $R/scan_*.jsonl > $TMPDIR/scan_all.jsonl
 $PY $S/wjg_census.py run --scan $TMPDIR/scan_all.jsonl --out $R/${PFX}_${TAG}.jsonl --select "$SELECT" \
     --min-mb "${MINMB:-0}" --max-mb "${MAXMB:-1e12}" --slots "${SLOTS:-8}" --mem-gb "${MEMGB:-20}" \
-    --timeout "${TIMEOUT:-21600}" --tmpdir "$TMPDIR"
+    --timeout "${TIMEOUT:-21600}" --tmpdir "$TMPDIR" --shard "${SHARD:-0/1}" ${STAGE:+--stage-all}
 rm -rf "$TMPDIR"
 echo "done $(date -Is)"

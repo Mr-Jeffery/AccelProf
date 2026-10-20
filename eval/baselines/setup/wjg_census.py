@@ -317,8 +317,8 @@ def one_file(real, a, idx):
     try:
         cen = work / "census.json"
         mrg = work / "merged.json"
-        data = real
-        if os.path.getsize(real) >= a.copy_mb * (1 << 20):
+        data = a.staged.get(real, real)
+        if data == real and os.path.getsize(real) >= a.copy_mb * (1 << 20):
             # BeeGFS reads at ~100 MB/s per node here: read a large dump once, onto local disk
             t0 = time.time()
             data = str(work / "orig.json")
@@ -348,6 +348,8 @@ def one_file(real, a, idx):
         for p in work.glob("*"):
             p.unlink()
         work.rmdir()
+        if real in a.staged:
+            os.unlink(a.staged.pop(real))
 
 
 def cmd_run(a):
@@ -372,8 +374,20 @@ def cmd_run(a):
             if r.get("census_child", {}).get("rc") in (0, "0") or r.get("budget_gb", 0) >= a.mem_gb:
                 done.add(r["real"])
     todo = [p for _, p in todo if p not in done]
-    print(f"{len(todo)} files ({a.select}, {a.min_mb}-{a.max_mb} MB), {a.slots} slots x {a.mem_gb} GB",
-          flush=True)
+    si, sn = map(int, a.shard.split("/"))
+    todo = todo[si::sn]
+    print(f"{len(todo)} files ({a.select}, {a.min_mb}-{a.max_mb} MB, shard {a.shard}), "
+          f"{a.slots} slots x {a.mem_gb} GB", flush=True)
+    a.staged = {}
+    if a.stage_all:                  # copy every large dump first, while BeeGFS is not contended
+        os.makedirs(os.path.join(a.tmpdir, "stage"), exist_ok=True)
+        t0 = time.time()
+        for i, p in enumerate(todo):
+            if os.path.getsize(p) >= a.copy_mb * (1 << 20):
+                dst = os.path.join(a.tmpdir, "stage", f"{i}.json")
+                shutil.copyfile(p, dst)
+                a.staged[p] = dst
+        print(f"staged {len(a.staged)} files in {time.time() - t0:.0f}s", flush=True)
     lock = threading.Lock()
     t0 = time.time()
     with open(a.out, "a") as out, ThreadPoolExecutor(a.slots) as pool:
@@ -411,6 +425,8 @@ def main():
     p.add_argument("--tmpdir", default=os.environ.get("TMPDIR", "/tmp"))
     p.add_argument("--copy-mb", type=float, default=500,
                    help="copy dumps at least this large to --tmpdir before reading them")
+    p.add_argument("--stage-all", action="store_true", help="copy all of them before the first census")
+    p.add_argument("--shard", default="0/1", help="i/n: every n-th file of the selection from i")
     p = sub.add_parser("census")
     p.add_argument("--real", required=True)
     p.add_argument("--data", default="", help="a local copy of --real to read instead")
