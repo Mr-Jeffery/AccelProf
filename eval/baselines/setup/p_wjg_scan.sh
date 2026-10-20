@@ -14,6 +14,10 @@
 W=${W:-/home/fzheng4/wt-warpsync-join-gap}
 RT=${RT:-/home/fzheng4/AccelProf}
 PY=$RT/.env/bin/python
+# after the 10-18 restart some nodes lack /home or BeeGFS: fail at once, naming the node
+for d in /home/fzheng4/AccelProf /mnt/beegfs/fzheng4; do
+  [ -d "$d" ] || { echo "PREFLIGHT FAIL $(hostname): $d missing"; exit 3; }
+done
 cd "$W" || exit 1
 unset ACCEL_PROF_HOME
 export CUVEIN_HOME=$W
