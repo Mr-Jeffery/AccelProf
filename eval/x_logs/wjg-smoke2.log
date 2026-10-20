@@ -1,0 +1,13 @@
+21/22 62s {'rc': 0, 'secs': 3.3, 'maxrss_mb': 83} completed=100 pend=178 races_L1:0+/0- sync_only_L1:0+/0- races_L2:0+/0- omic_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-100n/scalar-clock/kernel_1.json
+22/22 62s {'rc': 0, 'secs': 2.0, 'maxrss_mb': 84} completed=100 pend=178 races_L1:0+/0- sync_only_L1:0+/0- races_L2:0+/0- omic_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-100n/vector-clock/kernel_1.json
+done 62s
+### A. Per store (rows = (program, mode) with at least one kernel JSON holding records)
+
+| store | rows | kernel JSONs with records | records | syncwarp records full / partial | rows with a diverged instance | (1) diverged instances completed / open at end | (2) memory records of not-yet-arrived lanes | rows replayed | rows where a pair moves (races / sync-only) | rows missing |
+|---|---|---|---|---|---|---|---|---|---|---|
+| t16-certain | 2 | 24 | 21,176 | 2,124 / 2,124 | 2 | 1,062 / 0 | 1,624 | 2 | 0 / 0 | 0 |
+| **total** | 2 | 24 | 21,176 | 2,124 / 2,124 | 2 | 1,062 / 0 | 1,624 | 2 | 0 / 0 | 0 |
+
+### B. Every row with a diverged syncwarp instance
+
+moves: 0 x5 rows: 60
