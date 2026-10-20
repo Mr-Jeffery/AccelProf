@@ -19,9 +19,4 @@ for d in eval/results/t23/diff/*/; do
   echo "== diff $(basename "$d"): $(ls "$d"/shard*.jsonl | wc -l) shard file(s)"
   $T summary "$d"shard*.jsonl
 done
-echo "== store provenance (STORE_INFO.json, where the store has one)"
-B=/mnt/beegfs/fzheng4/cuvein_traces
-for t in t20-parity2 final-certain final-certain-recorded final-rtraw final-2026-10 final-2026-10-long final-2026-10-long-sc final-2026-10-24h-vc final-2026-10-24h-sc; do
-  if [ -f "$B/$t/STORE_INFO.json" ]; then echo "-- $t"; head -c 700 "$B/$t/STORE_INFO.json"; echo; else echo "-- $t: no STORE_INFO.json"; fi
-done
 echo "== branch heads: final-sweep $(git -C /home/fzheng4/AccelProf rev-parse eval/final-sweep) final-certain $(git -C /home/fzheng4/AccelProf rev-parse eval/final-certain) cuVein $(git -C /home/fzheng4/AccelProf rev-parse cuVein)"
