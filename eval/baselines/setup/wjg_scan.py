@@ -40,8 +40,9 @@ BEEGFS = "/mnt/beegfs/fzheng4"
 TRACE_ROOT = f"{BEEGFS}/cuvein_traces"
 HOME_KEEP = f"{BEEGFS}/home_archive/eval_baselines"
 CHUNK = 256 << 20
-REC = b'{"seq": '
-KN_RE = re.compile(rb'"kernel_name": "((?:[^"\\]|\\.)*)"')
+REC = b'{"seq":'                 # both serializations: '{"seq": 1' (collector, json.dump) and '{"seq":1' (compact)
+KEY_RE = re.compile(rb'"hb_events":\s*\[')
+KN_RE = re.compile(rb'"kernel_name":\s*"((?:[^"\\]|\\.)*)"')
 
 
 MODES = ("vector-clock", "scalar-clock", "engine", "trace-only")
@@ -142,10 +143,10 @@ def scan_file(real):
                 st["bytes"] += len(chunk)
                 buf = carry + chunk
                 if not st["hb_events_key"]:
-                    k = buf.find(b'"hb_events": [')
-                    if k != -1 and k + 14 < len(buf):
+                    m = KEY_RE.search(buf)
+                    if m and m.end() < len(buf):
                         st["hb_events_key"] = True
-                        st["hb_events_empty"] = buf[k + 14:k + 64].lstrip()[:1] == b"]"
+                        st["hb_events_empty"] = buf[m.end():m.end() + 50].lstrip()[:1] == b"]"
                 if not chunk:
                     scan_piece(buf, st)
                     break
@@ -184,6 +185,16 @@ def cmd_scan(a):
         if "real" in r and r["real"] not in seen:
             seen.add(r["real"])
             todo.append((r["size"], r["real"]))
+    if a.only_nokey:
+        # rescan the files an earlier scan saw without the spaced `"hb_events": [` key: compact dumps
+        # (`"hb_events":[{"seq":1`) were counted as record-free by the first scan's patterns
+        nokey = set()
+        for p in sorted(glob.glob(a.only_nokey)):
+            for ln in open(p):
+                d = json.loads(ln)
+                if not d.get("err") and not d["hb_events_key"]:
+                    nokey.add(d["real"])
+        todo = [t for t in todo if t[1] in nokey]
     todo.sort(reverse=True)
     si, sn = map(int, a.shard.split("/"))
     todo = [p for _, p in todo[si::sn]]
@@ -230,6 +241,7 @@ def main():
     p.add_argument("--procs", type=int, default=16)
     p.add_argument("--claims", default="", help="claims directory shared by concurrent jobs")
     p.add_argument("--done-glob", default="", help="scan outputs whose files count as done")
+    p.add_argument("--only-nokey", default="", help="glob of earlier scan outputs: rescan their key-less files")
     a = ap.parse_args()
     {"list": cmd_list, "scan": cmd_scan}[a.cmd](a)
 

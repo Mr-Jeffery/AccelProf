@@ -65,6 +65,8 @@ def census_failure(r):
     if cc.get("rc") != 0 or "census" not in r:
         return f"census: {cc.get('rc')} at {r.get('budget_gb')} GB after {cc.get('secs')} s"
     c = r["census"]
+    if c.get("error"):
+        return f"census: {c['error']}"
     if c.get("completed") and not c.get("dot"):
         return f"no dot matches the kernel ({c.get('ndots')} dots)"
     return None
@@ -105,8 +107,25 @@ def main():
             continue
         vchk["files"] += 1
         for k_s, k_c in (("recs", "records"), ("sw_full", "sw_full"), ("sw_partial", "sw_partial")):
-            vchk[f"{k_s} equal"] += s[k_s] == c[k_c]
+            vchk[f"{k_s} equal"] += s[k_s] == c.get(k_c)
         vchk["seq sorted in file"] += c.get("seq_sorted_in_file", False)
+        vchk["streamed census"] += bool(c.get("stream"))
+
+    # ---- the streamed census against the verbatim one; the SASS at partial-record pcs ----
+    schk, sbad, ops = collections.Counter(), [], collections.Counter()
+    for real, r in cen.items():
+        s = r.get("streamcheck")
+        if s is not None:
+            schk["files"] += 1
+            schk["equal"] += bool(s.get("equal"))
+            if not s.get("equal"):
+                sbad.append(real)
+        for pc, lst in ((r.get("census") or {}).get("partial_pc_opcodes") or {}).items():
+            if not lst:
+                ops[("pc not in the dot", "")] += 1
+            for cl, op in lst:
+                where = "out-of-line helper " + cl if cl.startswith("$__internal") else "kernel body"
+                ops[(where, op)] += 1
 
     # ---- rows ----
     rows = collections.OrderedDict()
@@ -283,6 +302,35 @@ def main():
              f"{tot['inst_open']:,} | {tot['late_once']:,} | {tot['replayed']} | {tot['mv_r']} / {tot['mv_s']} | "
              f"{tot['missing']} |")
     L.append("")
+    L.append("### A2. Per suite (rows with records, all stores)\n")
+    L.append("| suite | rows | rows with a diverged instance | (1) instances completed / open | (2) late memory "
+             "records | rows fully replayed | rows where a pair moves (races / sync-only) | rows missing |")
+    L.append("|---|---|---|---|---|---|---|---|")
+    su = collections.OrderedDict()
+    for r in sorted(with_rec, key=lambda r: r["id"]):
+        s = r["id"].split("-")[0] if r["id"].startswith("P") and "-" in r["id"] else "other"
+        c = su.setdefault(s, collections.Counter())
+        c["rows"] += 1
+        c["div"] += (r.get("inst_completed", 0) + r.get("inst_open", 0)) > 0
+        for k in ("inst_completed", "inst_open", "late_once"):
+            c[k] += r.get(k, 0)
+        c["full"] += r.get("merged_launches", 0) > 0 and r.get("replayed", 0) == r.get("merged_launches", 0)
+        c["mv_r"] += (r["races_L1_appear"] + r["races_L1_disappear"]) > 0
+        c["mv_s"] += (r["sync_only_L1_appear"] + r["sync_only_L1_disappear"] +
+                      r["bpass_sync_only_L1_appear"] + r["bpass_sync_only_L1_disappear"]) > 0
+        c["missing"] += bool(r["missing"])
+    for s, c in su.items():
+        L.append(f"| {s} | {c['rows']} | {c['div']} | {c['inst_completed']:,} / {c['inst_open']:,} | "
+                 f"{c['late_once']:,} | {c['full']} | {c['mv_r']} / {c['mv_s']} | {c['missing']} |")
+    L.append("")
+    L.append("### A3. SASS at the pcs with partial syncwarp records ((dump, pc) pairs)\n")
+    L.append("| where | opcode | (dump, pc) |")
+    L.append("|---|---|---|")
+    for (w, op), n in ops.most_common():
+        L.append(f"| {w} | {op} | {n:,} |")
+    L.append("")
+    L.append(f"Streamed census vs the verbatim one (dumps under 2,000 MB with `--check-stream`): {dict(schk)}; "
+             f"unequal: {sbad[:10]}\n")
     L.append("### B. Every row with a diverged syncwarp instance\n")
     L.append("| store | program | mode | launches with records | (1) instances completed (2 / 3+ records) / open | "
              "(2) late memory records (shared / global) | lane accesses | races L1 recorded -> merged "
@@ -309,8 +357,13 @@ def main():
     L.append(f"Validation (scan vs parsed records): {dict(vchk)}\n")
     with open(f"{D}/report_tables.md", "w") as f:
         f.write("\n".join(L) + "\n")
-    print("\n".join(L[:len(by_store) + 6]))
+    i = L.index("### A2. Per suite (rows with records, all stores)\n")
+    print("\n".join(L[i:i + 2 + len(su) + 2]))
+    print(f"streamcheck {dict(schk)}; validation {dict(vchk)}")
     print("moves:", len(moves), "x5 rows:", len(x5))
+    for m in moves[:20]:
+        print(m["store"], m["id"][:80], m["mode"],
+              {k: v[:4] for k, v in m["appear"].items() if v}, {k: v[:4] for k, v in m["disappear"].items() if v})
 
 
 if __name__ == "__main__":

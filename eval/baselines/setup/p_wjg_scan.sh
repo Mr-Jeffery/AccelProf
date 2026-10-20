@@ -29,6 +29,9 @@ case "$STEP" in
   scan) $PY $S/wjg_scan.py scan --files $R/files.jsonl --out $R/scan_${SLURM_JOB_ID}.jsonl \
             --claims "${CLAIMS:-/mnt/beegfs/fzheng4/wjg_claims}" --done-glob "$R/scan_*.jsonl" \
             --procs "${PROCS:-16}" ;;
-  *) echo "STEP must be list or scan"; exit 2 ;;
+  fix) $PY $S/wjg_scan.py scan --files $R/files.jsonl --out $R/scan_fix_${SLURM_JOB_ID}.jsonl \
+            --only-nokey "$R/scan_3*.jsonl" --claims "${CLAIMS:-/mnt/beegfs/fzheng4/wjg_claims_fix}" \
+            --done-glob "$R/scan_fix_*.jsonl" --procs "${PROCS:-16}" ;;
+  *) echo "STEP must be list, scan or fix"; exit 2 ;;
 esac
 echo "done $(date -Is)"

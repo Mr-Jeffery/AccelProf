@@ -195,8 +195,9 @@ def pick_dot(sd, real, kname):
     return None, len(dots)
 
 
-REC = b'{"seq": '
-KN_RE = re.compile(rb'"kernel_name": "((?:[^"\\]|\\.)*)"')
+REC = b'{"seq":'                 # both serializations: '{"seq": 1' (collector, json.dump) and '{"seq":1' (compact)
+KEY_RE = re.compile(rb'"hb_events":\s*\[')
+KN_RE = re.compile(rb'"kernel_name":\s*"((?:[^"\\]|\\.)*)"')
 
 
 def partial_instances_stream(ev):
@@ -251,9 +252,10 @@ class StreamDump:
         import orjson
         self.loads, self.dumps = orjson.loads, orjson.dumps
         d = self.data = Path(path).read_bytes()
-        k = d.find(b'"hb_events": [')
-        if k == -1:
+        m = KEY_RE.search(d)
+        if not m:
             raise ValueError("no hb_events array")
+        k = m.start()
         self.starts = []
         i = d.find(REC, k)
         while i != -1:
@@ -519,14 +521,14 @@ def one_file(real, a, idx):
 
 
 def cmd_run(a):
-    seen, todo = set(), []
+    last = {}                                # a later scan of a file (scan_fix_*) replaces an earlier one
     for ln in open(a.scan):
         s = json.loads(ln)
-        if s["real"] in seen:
-            continue
-        seen.add(s["real"])
+        last[s["real"]] = s
+    todo = []
+    for s in last.values():
         mb = s["bytes"] / (1 << 20)
-        if not (a.min_mb <= mb < a.max_mb):
+        if not (a.min_mb <= mb < a.max_mb) or (a.match and a.match not in s["real"]):
             continue
         if a.select == "partial" and s["sw_partial"] > 0:
             todo.append((s["bytes"], s["real"]))
@@ -595,6 +597,7 @@ def main():
     p.add_argument("--check-stream", action="store_true",
                    help="for dumps under 2,000 MB, also compare the streamed census with the verbatim one")
     p.add_argument("--shard", default="0/1", help="i/n: every n-th file of the selection from i")
+    p.add_argument("--match", default="", help="only files whose path contains this")
     p = sub.add_parser("census")
     p.add_argument("--real", required=True)
     p.add_argument("--data", default="", help="a local copy of --real to read instead")

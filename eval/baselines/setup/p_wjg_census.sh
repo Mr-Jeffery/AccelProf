@@ -37,6 +37,6 @@ git rev-parse HEAD; df -h /mnt/local | tail -1; free -g | head -2
 cat $R/scan_*.jsonl > $TMPDIR/scan_all.jsonl
 $PY $S/wjg_census.py run --scan $TMPDIR/scan_all.jsonl --out $R/${PFX}_${TAG}.jsonl --select "$SELECT" \
     --min-mb "${MINMB:-0}" --max-mb "${MAXMB:-1e12}" --slots "${SLOTS:-8}" --mem-gb "${MEMGB:-20}" \
-    --timeout "${TIMEOUT:-21600}" --tmpdir "$TMPDIR" --shard "${SHARD:-0/1}" ${STAGE:+--stage-all} ${CHECK:+--check-stream}
+    --timeout "${TIMEOUT:-21600}" --tmpdir "$TMPDIR" --shard "${SHARD:-0/1}" ${STAGE:+--stage-all} ${CHECK:+--check-stream} ${MATCH:+--match "$MATCH"}
 rm -rf "$TMPDIR"
 echo "done $(date -Is)"
