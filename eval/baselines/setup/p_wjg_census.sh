@@ -22,7 +22,7 @@ cd "$W" || exit 1
 unset ACCEL_PROF_HOME
 export CUVEIN_HOME=$W
 S=eval/baselines/setup
-R=eval/results/wjg
+R=${R:-eval/results/wjg}
 SELECT=${SELECT:-partial}
 PFX=$([ "$SELECT" = validate ] && echo validate || echo census)
 if [ "${MEMGB:-auto}" = auto ]; then          # one child at a time: the node's RAM less 16 GB
@@ -37,6 +37,6 @@ git rev-parse HEAD; df -h /mnt/local | tail -1; free -g | head -2
 cat $R/scan_*.jsonl > $TMPDIR/scan_all.jsonl
 $PY $S/wjg_census.py run --scan $TMPDIR/scan_all.jsonl --out $R/${PFX}_${TAG}.jsonl --select "$SELECT" \
     --min-mb "${MINMB:-0}" --max-mb "${MAXMB:-1e12}" --slots "${SLOTS:-8}" --mem-gb "${MEMGB:-20}" \
-    --timeout "${TIMEOUT:-21600}" --tmpdir "$TMPDIR" --shard "${SHARD:-0/1}" ${STAGE:+--stage-all}
+    --timeout "${TIMEOUT:-21600}" --tmpdir "$TMPDIR" --shard "${SHARD:-0/1}" ${STAGE:+--stage-all} ${CHECK:+--check-stream}
 rm -rf "$TMPDIR"
 echo "done $(date -Is)"

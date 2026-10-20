@@ -38,6 +38,7 @@ import collections
 import glob
 import json
 import os
+import re
 import resource
 import shutil
 import signal
@@ -194,33 +195,163 @@ def pick_dot(sd, real, kname):
     return None, len(dots)
 
 
+REC = b'{"seq": '
+KN_RE = re.compile(rb'"kernel_name": "((?:[^"\\]|\\.)*)"')
+
+
+def partial_instances_stream(ev):
+    """The first loop of partial_instances above, statement for statement, over an iterable in
+    seq order: -> (census Counter, seqs dropped, {completing seq: union mask}, pending_mem).
+    For dumps too large to hold as one document; equal to the verbatim function on every file
+    `streamcheck` was run on (see the report)."""
+    c = collections.Counter()
+    opened = {}
+    drop = set()
+    widen = {}
+    pending_mem = 0
+    for e in ev:
+        ty = e.get("type")
+        if ty == "syncwarp":
+            k = (e["block"], e["warp"], e["pc"])
+            sm, am = e["sync_mask"], e["active_mask"]
+            if k not in opened:
+                if am & sm == sm:
+                    c[f"full {e['pc']:#x}"] += 1
+                    continue
+                opened[k] = [e["seq"], am, [e["seq"]]]
+                c[f"partial {e['pc']:#x}"] += 1
+                continue
+            st = opened[k]
+            st[1] |= am
+            st[2].append(e["seq"])
+            c[f"partial {e['pc']:#x}"] += 1
+            if st[1] & sm == sm:
+                c["partial instances completed"] += 1
+                c[f"partial instance of {len(st[2])} records"] += 1
+                drop.update(st[2][:-1])
+                widen[st[2][-1]] = st[1]
+                del opened[k]
+        elif ty in MEM:
+            for (b, w, _), st in opened.items():
+                if b == e["block"] and w == e["warp"]:
+                    lanes = {ln["lane"] for ln in e["lanes"]}
+                    if any(not (st[1] >> l) & 1 for l in lanes):
+                        pending_mem += 1
+    c["partial instances never completed"] += len(opened)
+    return c, drop, widen, pending_mem
+
+
+class StreamDump:
+    """A dump's hb_events records read from its bytes, one record at a time, in file order. orjson
+    cannot allocate a parse buffer for a 10 GB dump under RLIMIT_AS, and the Python objects of the
+    whole document would not fit beside the replay. The collector serializes records in seq order;
+    the census checks it."""
+
+    def __init__(self, path):
+        import orjson
+        self.loads, self.dumps = orjson.loads, orjson.dumps
+        d = self.data = Path(path).read_bytes()
+        k = d.find(b'"hb_events": [')
+        if k == -1:
+            raise ValueError("no hb_events array")
+        self.starts = []
+        i = d.find(REC, k)
+        while i != -1:
+            self.starts.append(i)
+            i = d.find(REC, i + len(REC))
+        last = self.starts[-1]
+        tail = d[last:last + (1 << 24)].decode()
+        self.end = last + json.JSONDecoder().raw_decode(tail)[1]     # ASCII: one byte per char
+        close = d.find(b"]", self.end)
+        if close == -1 or d[self.end:close].strip():
+            raise ValueError("the last record does not close the hb_events array")
+        m = KN_RE.search(d[:1 << 20])
+        self.kname = self.loads(b'"' + m.group(1) + b'"') if m else None
+
+    def raw(self, j):
+        if j + 1 < len(self.starts):
+            return self.data[self.starts[j]:self.starts[j + 1]].rstrip().rstrip(b",").rstrip()
+        return self.data[self.starts[j]:self.end]
+
+    def __iter__(self):
+        for j in range(len(self.starts)):
+            yield self.loads(self.raw(j))
+
+    def write_merged(self, path, drop, widen):
+        """the dump with hb_events = X5's merged list; every other byte unchanged"""
+        fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        with os.fdopen(fd, "wb") as f:
+            f.write(self.data[:self.starts[0]])
+            first = True
+            for j in range(len(self.starts)):
+                r = self.raw(j)
+                seq = int(r[len(REC):r.index(b",")])
+                if seq in drop:
+                    continue
+                if seq in widen:
+                    r = self.dumps(dict(self.loads(r), active_mask=widen[seq]))
+                f.write(r if first else b", " + r)
+                first = False
+            f.write(self.data[self.end:])
+
+
+def census_stream(path, merged_path, out):
+    sdump = StreamDump(path)
+    out.update({"kname": sdump.kname, "records": len(sdump.starts), "sw_full": 0, "sw_partial": 0,
+                "seq_sorted_in_file": True, "hb_exits": None, "hb_async": None, "stream": True})
+
+    def counted():
+        last = -1
+        for e in sdump:
+            if e["seq"] < last:
+                out["seq_sorted_in_file"] = False
+            last = e["seq"]
+            if e.get("type") == "syncwarp":
+                full = e["active_mask"] & e["sync_mask"] == e["sync_mask"]
+                out["sw_full" if full else "sw_partial"] += 1
+            yield e
+    c, drop, widen, pend = partial_instances_stream(counted())
+    out["extras"] = dict(extras(iter(sdump)))
+    return sdump, c, drop, widen, pend
+
+
 def cmd_census(a):
     import orjson
     sd, _ = _imports()
     t0 = time.time()
-    t = orjson.loads(Path(a.data or a.real).read_bytes())
-    ev = sorted(t.get("hb_events") or [], key=lambda e: e["seq"])
-    out = {"real": a.real, "kname": t["kernel"]["kernel_name"], "records": len(ev),
-           "sw_full": 0, "sw_partial": 0, "seq_sorted_in_file": True}
-    last = -1
-    for e in t.get("hb_events") or []:
-        if e["seq"] < last:
-            out["seq_sorted_in_file"] = False
-        last = e["seq"]
-    for e in ev:
-        if e.get("type") == "syncwarp":
-            if e["active_mask"] & e["sync_mask"] == e["sync_mask"]:
-                out["sw_full"] += 1
-            else:
-                out["sw_partial"] += 1
-    out["hb_exits"] = bool(t.get("hb_exits"))
-    out["hb_async"] = t.get("hb_async")
-    c, merged, pend = partial_instances(ev)
+    path = a.data or a.real
+    out = {"real": a.real}
+    if a.stream or os.path.getsize(path) >= a.stream_mb * (1 << 20):
+        sdump, c, drop, widen, pend = census_stream(path, a.merged, out)
+        if not out["seq_sorted_in_file"]:
+            out["error"] = "records not in seq order in the file: the streamed census does not apply"
+            Path(a.out).write_text(json.dumps(out))
+            return
+        out["dropped_records"] = len(drop)
+    else:
+        t = orjson.loads(Path(path).read_bytes())
+        ev = sorted(t.get("hb_events") or [], key=lambda e: e["seq"])
+        out.update({"kname": t["kernel"]["kernel_name"], "records": len(ev),
+                    "sw_full": 0, "sw_partial": 0, "seq_sorted_in_file": True})
+        last = -1
+        for e in t.get("hb_events") or []:
+            if e["seq"] < last:
+                out["seq_sorted_in_file"] = False
+            last = e["seq"]
+        for e in ev:
+            if e.get("type") == "syncwarp":
+                if e["active_mask"] & e["sync_mask"] == e["sync_mask"]:
+                    out["sw_full"] += 1
+                else:
+                    out["sw_partial"] += 1
+        out["hb_exits"] = bool(t.get("hb_exits"))
+        out["hb_async"] = t.get("hb_async")
+        c, merged, pend = partial_instances(ev)
+        out["extras"] = dict(extras(ev))
+        out["dropped_records"] = len(ev) - len(merged)
     out["x5_census"] = dict(c)
     out["x5_pending_mem"] = pend
-    out["extras"] = dict(extras(ev))
     out["completed"] = c.get("partial instances completed", 0)
-    out["dropped_records"] = len(ev) - len(merged)
     dot, ndots = pick_dot(sd, a.real, out["kname"])
     out["dot"], out["ndots"] = dot, ndots
     if dot:                                  # the SASS at every pc with partial syncwarp records
@@ -233,12 +364,38 @@ def cmd_census(a):
                         ops[hex(ins[0])].append([mangled[:80], ins[1]])
         out["partial_pc_opcodes"] = ops
     if out["completed"] and dot:
-        fd = os.open(a.merged, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
-        with os.fdopen(fd, "wb") as f:
-            f.write(orjson.dumps(dict(t, hb_events=merged)))
+        if out.get("stream"):
+            sdump.write_merged(a.merged, drop, widen)
+        else:
+            fd = os.open(a.merged, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+            with os.fdopen(fd, "wb") as f:
+                f.write(orjson.dumps(dict(t, hb_events=merged)))
         out["merged"] = a.merged
     out["secs"] = round(time.time() - t0, 1)
     Path(a.out).write_text(json.dumps(out))
+
+
+def cmd_streamcheck(a):
+    """Both census paths on one (small) dump: the verbatim partial_instances over the parsed
+    document vs the streamed one; equal counters, extras, and merged hb_events?"""
+    import orjson
+    t = orjson.loads(Path(a.real).read_bytes())
+    ev = sorted(t.get("hb_events") or [], key=lambda e: e["seq"])
+    c1, merged1, p1 = partial_instances(ev)
+    x1 = dict(extras(ev))
+    out = {}
+    sdump, c2, drop, widen, p2 = census_stream(a.real, None, out)
+    tmp = a.out + ".merged"
+    sdump.write_merged(tmp, drop, widen)
+    t2 = json.loads(Path(tmp).read_text())
+    os.unlink(tmp)
+    res = {"real": a.real, "census": dict(c1) == dict(c2), "pending": p1 == p2,
+           "extras": x1 == out["extras"], "merged": t2["hb_events"] == merged1,
+           "rest": {k: v for k, v in t2.items() if k != "hb_events"} ==
+                   {k: v for k, v in t.items() if k != "hb_events"},
+           "records": len(ev) == out["records"], "seq_sorted": out["seq_sorted_in_file"]}
+    res["equal"] = all(v for k, v in res.items() if k != "real")
+    Path(a.out).write_text(json.dumps(res))
 
 
 def cmd_replay(a):
@@ -261,7 +418,10 @@ def cmd_bpass(a):
     import orjson
     sd, _ = _imports()
     t0 = time.time()
-    tj = orjson.loads(Path(a.trace).read_bytes())
+    try:
+        tj = orjson.loads(Path(a.trace).read_bytes())
+    except orjson.JSONDecodeError:           # orjson's buffer for a 10 GB dump: stdlib json instead
+        tj = json.loads(Path(a.trace).read_text())
     kernels = sd.parse_dot(a.dot)
     eng = sd.HBGraph(*kernels[sd.select_kernel(kernels, tj["kernel"]["kernel_name"])])
     policy = sd.strong_ldst_policy(None)
@@ -331,6 +491,12 @@ def one_file(real, a, idx):
             rec["census_child"]["stderr"] = err
             return rec
         rec["census"] = json.loads(cen.read_text())
+        if a.check_stream and os.path.getsize(data) < 2000 * (1 << 20):
+            sc = work / "streamcheck.json"
+            rc, secs, rss, err = run_child(["streamcheck", "--real", data, "--out", str(sc)],
+                                           a.mem_gb, a.timeout)
+            rec["streamcheck"] = json.loads(sc.read_text()) if rc == 0 and sc.exists() else \
+                {"rc": rc, "stderr": err[-300:]}
         if not rec["census"].get("merged"):
             return rec
         for kind in ("bpass", "replay"):          # the cheap pass first: it survives an oracle OOM
@@ -426,19 +592,27 @@ def main():
     p.add_argument("--copy-mb", type=float, default=500,
                    help="copy dumps at least this large to --tmpdir before reading them")
     p.add_argument("--stage-all", action="store_true", help="copy all of them before the first census")
+    p.add_argument("--check-stream", action="store_true",
+                   help="for dumps under 2,000 MB, also compare the streamed census with the verbatim one")
     p.add_argument("--shard", default="0/1", help="i/n: every n-th file of the selection from i")
     p = sub.add_parser("census")
     p.add_argument("--real", required=True)
     p.add_argument("--data", default="", help="a local copy of --real to read instead")
+    p.add_argument("--stream", action="store_true", help="the streamed census whatever the size")
+    p.add_argument("--stream-mb", type=float, default=2000, help="stream dumps at least this large")
     p.add_argument("--out", required=True)
     p.add_argument("--merged", required=True)
+    p = sub.add_parser("streamcheck")
+    p.add_argument("--real", required=True)
+    p.add_argument("--out", required=True)
     for name in ("replay", "bpass"):
         p = sub.add_parser(name)
         p.add_argument("--dot", required=True)
         p.add_argument("--trace", required=True)
         p.add_argument("--out", required=True)
     a = ap.parse_args()
-    {"run": cmd_run, "census": cmd_census, "replay": cmd_replay, "bpass": cmd_bpass}[a.cmd](a)
+    {"run": cmd_run, "census": cmd_census, "replay": cmd_replay, "bpass": cmd_bpass,
+     "streamcheck": cmd_streamcheck}[a.cmd](a)
 
 
 if __name__ == "__main__":
