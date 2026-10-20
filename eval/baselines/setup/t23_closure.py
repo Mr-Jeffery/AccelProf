@@ -109,6 +109,12 @@ def scan_task(task):
             dots.append((p, sd.parse_dot(p)))
         except sd.AlignmentError:      # a dot with no kernel cluster: analyze() skips it too
             continue
+    # the closure adds a pair only to a class of >= 3 pcs (a class of two is one edge pair): a
+    # kernel cluster with fewer than 3 atomic instructions in the CFG can never grow
+    if all(sum(sd.atomic_scope(op) is not None for ins in blocks.values() for _, op in ins) < 3
+           for _, kernels in dots for blocks, _, _ in kernels.values()):
+        yield {**base, "status": "lt3-atomic-pcs", "kernels": len(task["kernels"])}
+        return
     for kj in task["kernels"]:
         rec = {**base, "kernel": os.path.basename(kj), "path": kj}
         try:
