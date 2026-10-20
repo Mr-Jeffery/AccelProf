@@ -1,0 +1,17 @@
+node c61 job 315319 step scan shard  2026-10-20T13:19:46-04:00
+a695041e8bc5e5ce1183634128d4fd17d84b6a9f
+shard 0/1: 497366 files to scan (457 done)
+Traceback (most recent call last):
+  File "/home/fzheng4/wt-warpsync-join-gap/eval/baselines/setup/wjg_scan.py", line 238, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/home/fzheng4/wt-warpsync-join-gap/eval/baselines/setup/wjg_scan.py", line 234, in main
+    {"list": cmd_list, "scan": cmd_scan}[a.cmd](a)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/home/fzheng4/wt-warpsync-join-gap/eval/baselines/setup/wjg_scan.py", line 203, in cmd_scan
+    os.makedirs(a.claims, exist_ok=True)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen os>", line 226, in makedirs
+  File "<frozen os>", line 236, in makedirs
+PermissionError: [Errno 13] Permission denied: '/mnt/beegfs/fzheng4'
+done 2026-10-20T13:19:49-04:00

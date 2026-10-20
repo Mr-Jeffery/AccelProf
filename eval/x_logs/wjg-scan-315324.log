@@ -1,0 +1,31 @@
+node c58 job 315324 step scan shard  2026-10-20T13:19:44-04:00
+a695041e8bc5e5ce1183634128d4fd17d84b6a9f
+shard 0/1: 497366 files to scan (457 done)
+multiprocessing.pool.RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "/home/fzheng4/AccelProf/.env/lib/python3.14/multiprocessing/pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+                    ~~~~^^^^^^^^^^^^^^^
+  File "/home/fzheng4/wt-warpsync-join-gap/eval/baselines/setup/wjg_scan.py", line 171, in claimed_scan
+    fd = os.open(os.path.join(claims, hashlib.sha1(real.encode()).hexdigest()),
+                 os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644)
+OSError: [Errno 121] Remote I/O error: '/mnt/beegfs/fzheng4/wjg_claims2/c5e7e038aa6792bef2632d5b3f6a55f6917902ec'
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/fzheng4/wt-warpsync-join-gap/eval/baselines/setup/wjg_scan.py", line 238, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/home/fzheng4/wt-warpsync-join-gap/eval/baselines/setup/wjg_scan.py", line 234, in main
+    {"list": cmd_list, "scan": cmd_scan}[a.cmd](a)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/home/fzheng4/wt-warpsync-join-gap/eval/baselines/setup/wjg_scan.py", line 208, in cmd_scan
+    for k, st in enumerate(pool.imap_unordered(work, todo, chunksize=1), 1):
+                 ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fzheng4/AccelProf/.env/lib/python3.14/multiprocessing/pool.py", line 873, in next
+    raise value
+OSError: [Errno 121] Remote I/O error: '/mnt/beegfs/fzheng4/wjg_claims2/c5e7e038aa6792bef2632d5b3f6a55f6917902ec'
+done 2026-10-20T13:19:48-04:00

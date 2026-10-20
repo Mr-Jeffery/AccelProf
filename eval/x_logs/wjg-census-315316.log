@@ -1,0 +1,19 @@
+node c12 job 315316 2026-10-20T13:13:56-04:00 select=partial 2000- MB slots=1 mem=77G timeout=14400 TMPDIR=/mnt/local/fzheng4-wjg-315316
+1fb88301f9402082ec5a50c3450ee15fba0bc9cb
+/dev/sdb1       227G   32K  215G   1% /mnt/local
+              total        used        free      shared  buff/cache   available
+Mem:             93           0          79           0          12          91
+4 files (partial, 2000.0-1000000000000.0 MB, shard 1/4), 1 slots x 77.0 GB
+Traceback (most recent call last):
+  File "/home/fzheng4/wt-warpsync-join-gap/eval/baselines/setup/wjg_census.py", line 445, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/home/fzheng4/wt-warpsync-join-gap/eval/baselines/setup/wjg_census.py", line 441, in main
+    {"run": cmd_run, "census": cmd_census, "replay": cmd_replay, "bpass": cmd_bpass}[a.cmd](a)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/home/fzheng4/wt-warpsync-join-gap/eval/baselines/setup/wjg_census.py", line 386, in cmd_run
+    if os.path.getsize(p) >= a.copy_mb * (1 << 20):
+       ~~~~~~~~~~~~~~~^^^
+  File "<frozen genericpath>", line 86, in getsize
+FileNotFoundError: [Errno 2] No such file or directory: '/mnt/beegfs/fzheng4/cuvein_traces/full-2026-09-22/P4-matrix-multiplication-norace-large/scalar-clock/kernel_0.json'
+done 2026-10-20T13:13:57-04:00
