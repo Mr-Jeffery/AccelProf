@@ -1,0 +1,30 @@
+{
+  "id": "cccl-2",
+  "tier": "core",
+  "wave": 1,
+  "route": "R1h",
+  "kernel": "cub::DeviceRleSweepKernel (DeviceRunLengthEncode::NonTrivialRuns on int keys, one tile of 96 threads x 15 items = 1,440 items)",
+  "space": "shared",
+  "build_revision": {"buggy": "eea703e55307d0d73b5fd71a9b74fca096bfdc82", "fixed": "ee14babeaa054df82dabc782a9f48df3a0d537e5"},
+  "sites": [
+    {"role": "read", "file": "cub/cub/agent/agent_rle.cuh", "line_start": 455, "line_end": 455,
+     "source": "warp_aggregate = temp_storage.aliasable.scan_storage.warp_aggregates.Alias()[warp_id];", "operation": "ld.shared (SASS LDS R0, [R45.X8+0x304] at 0x1990)", "strength": "plain"},
+    {"role": "read", "file": "cub/cub/agent/agent_rle.cuh", "line_start": 461, "line_end": 469,
+     "source": "tile_aggregate = ...warp_aggregates.Alias()[0]; and the loop tile_aggregate = scan_op(tile_aggregate, ...warp_aggregates.Alias()[WARP]);", "operation": "ld.shared (SASS LDS.128 R24, [0x300] and LDS.128 R4, [0x310] at 0x1960/0x1970, attributed to agent_rle.cuh:461)", "strength": "plain"},
+    {"role": "write", "file": "cub/cub/warp/specializations/warp_exchange_smem.cuh", "line_start": 156, "line_end": 156,
+     "source": "items_shared[ranks[ITEM]] = input_items[ITEM];  (WarpExchange::ScatterToStriped, called from cub/cub/agent/agent_rle.cuh:496 in the time-sliced store path used by Policy860 on sm_89)", "operation": "st.shared.v2.u32 / 64-bit (SASS STS.64 [Rn.X8], Rm at 0x2be0..0x2cd0, attributed to warp_exchange_smem.cuh:156)", "strength": "plain"}
+  ],
+  "thread_relation": "cross-warp, same block (first tile, tile_idx == 0); intra-warp-0 lane pairs also race",
+  "thread_pair_example": "block 0: a lane of warp 0 whose rank is 96..98 stores items_shared[rank] at byte 8*rank = 0x300..0x317, which aliases scan_storage.warp_aggregates (the SASS reads them at 0x300..0x31f); warp 1 or 2 (thread 32 or 64) reads warp_aggregates[1]/[2] at agent_rle.cuh:455/:461/:469. Needs >= 97 non-trivial run starts in warp 0's range: the driver (key = i/2) has 240.",
+  "expected_class": "DR",
+  "class_reason": "all accesses are plain shared loads/stores (no volatile, no atomics).",
+  "buggy_expected": "a shared-memory WAR data race (DR) between the warp_aggregates reads and the exchange stores on the first tile, reported across warps (and between lanes of warp 0).",
+  "fixed": {
+    "expected": "absent",
+    "residual_sites": null,
+    "reason": "the fix adds CTA_SYNC() at the end of WarpScanAllocations() (agent_rle.cuh +4 lines): the fixed SASS has a BAR.SYNC at 0x19b0 directly after the LDS of the warp aggregates (0x1990); in the buggy SASS no barrier separates the reads from the exchange stores (next BAR at 0x2570)."
+  },
+  "sass_notes": "buggy: BAR.SYNC 0x1920, then LDS.128 x2 (0x1960/0x1970, agent_rle.cuh:461) and LDS (0x1990, :455), no barrier, MEMBAR.SC.CTA at 0x1bb0 (single_pass_scan_operators.cuh:119), ..., STS.64 x15 at 0x2be0 (warp_exchange_smem.cuh:156). Kernel _ZN3cub...DeviceRleSweepKernel... in the driver. The non-time-sliced scatter lines (agent_rle.cuh:564/569) are not compiled for sm_89 in this policy (verify.corrections).",
+  "derived_from": "verify.accesses + verify.thread_pair + verify.corrections of eval/realworld/targets.jsonl (cccl-2), re-checked against cub/cub/agent/agent_rle.cuh at eea703e (lines 448-472) and against nvdisasm -g of the built driver (eval/x_logs/sass-cccl-2-*.txt) on 2026-10-20",
+  "open_questions": ["verify.thread_pair's byte offsets were a hand calculation; the SASS shows warp_aggregates at 0x300.. (LDS.128 [0x300]) which is consistent with ranks 96-98 of the 8-byte exchange items, but the detector is the oracle for which lane pairs it reports."]
+}

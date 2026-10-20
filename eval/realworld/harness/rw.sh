@@ -12,6 +12,7 @@
 #   stage       compute node   tarball -> BeeGFS $RW/src/<id>/<variant>.tar.gz   (R2: tarball of r2/<variant> + common/)
 #   build       compute node   unpack to /mnt/local/$USER/rw/<id>/<variant>/src, t_build in .../build, artifacts -> $RW/build/<id>/<variant>
 #   lineinfo    compute node   once per route: SASS of $T_KERNEL built with and without -lineinfo -> targets/<id>/lineinfo.check
+#   smoke       compute node   DEBUGGING ONLY: build for the node own GPU (c38: sm_75), run t_cmd once; never a result
 #   native      GPU node       t_cmd <variant> three times in $RW/runs/<id>/<variant>: rc, wall, stdout md5 -> eval/realworld/native/<id>-<variant>.json
 #   reach       GPU node       nsys profile of t_cmd: is $T_KERNEL launched? -> eval/realworld/native/<id>-<variant>.{kernels.csv,reach}
 #   racecheck   GPU node       compute-sanitizer racecheck --racecheck-report all -> eval/realworld/racecheck/<id>-<variant>.txt
@@ -45,6 +46,7 @@ PYEOF
 )"
 [ -n "${BUGGY:-}" ] || { echo "rw.sh: no target $id" >&2; exit 2; }
 T_ROUTE=; T_KERNEL=; T_SPACE=shared; T_RACECHECK=; T_EXE=driver; T_ARTIFACTS=driver; T_NATIVE_TIMEOUT=${T_NATIVE_TIMEOUT:-1200}
+source "$HERE/lib_build.sh"
 source "$TDIR/target.sh"
 export RW_LINEINFO=${RW_LINEINFO--lineinfo}
 export RW_NVCC_FLAGS=${RW_NVCC_FLAGS:--arch=sm_89}
@@ -95,6 +97,18 @@ case $phase in
     RW_LINEINFO="" t_build buggy > "$OUT/build.log" 2>&1 || { echo "nolineinfo build failed, see $OUT/build.log"; tail -5 "$OUT/build.log"; exit 1; }
     { echo "# lineinfo check $id (route $T_ROUTE): $ART/$T_EXE (-lineinfo) vs the same build without, kernel *$T_KERNEL*, sm_89, cuda $(readlink -f /usr/local/cuda), $(date +%F)"
       "$HERE/lineinfo_check.sh" "$ART/$T_EXE" "$OUT/$T_EXE" "$T_KERNEL"; } | tee "$TDIR/lineinfo.check" ;;
+  smoke)      # debugging only, NOT a deliverable: build for the node's own GPU (c38 = sm_75) and run t_cmd once, to prove the driver works
+    cc=$(nvidia-smi --query-gpu=compute_cap --format=csv,noheader | head -1 | tr -d .)
+    export RW_NVCC_FLAGS="-gencode arch=compute_${cc},code=sm_${cc}"
+    for v in $variants; do
+      unpack "$v" || exit 1
+      export SRC=$LOCAL/$v/src OUT=$LOCAL/$v/build ART=$LOCAL/$v/build RUNDIR=$LOCAL/$v/run ID=$id
+      mkdir -p "$RUNDIR"; cd "$OUT" || exit 1
+      echo "== smoke build $id/$v for sm_${cc} on $(hostname) (NOT sm_89; debugging only)"
+      t_build "$v" > build.log 2>&1 || { echo "build failed:"; tail -15 build.log; exit 1; }
+      cd "$RUNDIR"; cmd=$(t_cmd "$v"); echo "== smoke run: $cmd"
+      timeout 600 bash -c "$cmd" 2>&1 | tail -${SMOKE_TAIL:-15}; echo "rc=${PIPESTATUS[0]}"
+    done ;;
   native|reach|racecheck)
     for v in $variants; do
       export ART=$RW/build/$id/$v RUNDIR=$RW/runs/$id/$v ID=$id
@@ -124,7 +138,7 @@ print(runs[0]["stdout_tail"][-200:])
 PYEOF
         ;;
       reach)
-        NSYS=$(ls /opt/nvidia/nsight-systems/*/bin/nsys 2>/dev/null | tail -1); [ -n "$NSYS" ] || NSYS=$(command -v nsys)
+        NSYS=$(command -v nsys); [ -n "$NSYS" ] || NSYS=$(ls /opt/nvidia/nsight-systems/*/bin/nsys 2>/dev/null | tail -1)
         echo "== reach $id/$v via ${NSYS:-none}: $cmd"
         if [ -n "$NSYS" ]; then
           $NSYS profile --stats=false --force-overwrite=true -o "$RUNDIR/reach" --trace=cuda bash -c "$cmd" > "$RUNDIR/reach.stdout" 2>&1

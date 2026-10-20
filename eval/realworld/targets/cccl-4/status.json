@@ -1,0 +1,7 @@
+{"route": "R1h", "route_note": "header-only CUB at the two commits; the kernel under test lives in the cub TEST file cub/test/catch2_test_device_decoupled_look_back.cu, so each variant's driver (driver_buggy.cu / driver_fixed.cu, made by targets/cccl-4/gen_driver.sh) contains that commit's licence header and the two kernels verbatim (lines 38-97 / 38-99), plus our host main; the excerpt diff equals the fix commit's diff (+ __syncthreads()). Include proof PASS in h_proof.txt.",
+ "status": "built", "toolkit": "13.4 (c38; code is sm_89 SASS)",
+ "driver": "init_kernel + decoupled_look_back_kernel<uint32_t><<<64,256>>> (64 tiles), the test's body without Catch2/c2h",
+ "input": "64 tiles x 256 threads; about 3e4 thread-level accesses plus the look-back spin loads",
+ "racecheck": "n/a (global memory)",
+ "notes": "Smoke on c38 sm_75: rc 0, scan result correct (mismatches 0). Buggy and fixed SASS differ by the BAR.SYNC after the read (see oracle). The CUB look-back state (ScanTileState) is correct and serves as a false-positive check.",
+ "commands": ["bash targets/cccl-4/gen_driver.sh (login)", "harness/rw.sh cccl-4 export (login)", "harness/rw.sh cccl-4 stage; harness/rw.sh cccl-4 build (compute)", "harness/rw.sh cccl-4 native|reach (sm_89); racecheck n/a", "run: /mnt/beegfs/fzheng4/realworld/build/cccl-4/{buggy,fixed}/driver 64"]}
