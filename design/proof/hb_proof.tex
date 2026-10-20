@@ -654,6 +654,40 @@ CAS-acquired section needs $\mathrm{fenced}(c,x,d)$ on the acquire side (\texttt
 a fence on the success edge counts). A dump without events, or above
 \texttt{CUVEIN\_BARRIER\_PASS\_MAX\_LANES}, keeps the region tests.
 
+\paragraph{Location in the two declines (T23).} Past release and before acquire ask whether two
+atomic pcs act on \emph{one location}, and the only evidence is the observed atomic--atomic edges,
+each of which joins an access to the last earlier access of its address. Write $p\approx_e q$ if
+an observed edge joins the pcs $p$ and $q$. The relation is not transitive, and the order of the
+records decides which pairs it holds. On an A2-inverted trace (the collector records an atomic at
+issue, so a contended hand-off can be recorded in the other order) a thread's winning CAS is
+recorded before the unlock it waited for, and the word's edges run
+CAS$_1\to$CAS$_0$, CAS$_0\to$unlock$_1$, unlock$_1\to$unlock$_0$: in X4's recording of
+\texttt{race\_interblock\_none-lock\_rtraw} (pcs \texttt{0xb0}, \texttt{0x230}, \texttt{0x1b0},
+\texttt{0x330}) the writer's own unlock \texttt{0x330} is joined to the other thread's unlock and
+to no CAS. The landing test (a CAS on the landing atomic's location) then does not see that the
+chain \texttt{0x1b0}$\to$\texttt{0x330} lands on the unlock of the section the writer opened, and
+$\chi$ certifies a pair that is unordered under the other acquisition order. The two tests
+therefore read $\approx$, the reflexive, symmetric and transitive closure of $\approx_e$ over the
+kernel's atomic pcs: its classes are the connected components of the edge graph (a union-find,
+computed once per kernel), and $\approx$ is the least equivalence that contains what was observed.
+
+Why the certificate needs it: $\chi$ claims order in \emph{every} schedule, and the two declines
+are the only places where a chain's landing is compared with the lock's word. With $\approx_e$ the
+comparison answers ``different word'' whenever the recorded order omits the one edge that would
+have joined the pcs, so the recording, not the program, decides whether two pcs that share a word
+look as if they do, and a schedule the program does not force changes the certificate. The
+closure only adds pairs and both tests occur as declines, so
+$\chi_{\approx}\subseteq\chi_{\approx_e}$ on every trace: it withholds certificates and never
+grants one the edge pairs withheld. Its price is pc granularity: a pc that touches several words
+(an array of locks) joins their classes, so a decline can fire that a per-word relation would
+not; that shows only as a certificate withheld (\cls{latent} or \cls{structural} in place of
+\cls{ordered}), and \texttt{eval/R3\_CLOSURE.md} lists every verdict it moves on the recorded
+corpus. What it does not recover (assumption R3d): a word whose atomic accesses are separated, in
+the recording, by a plain access to the same address has no atomic--atomic edge across the gap, and
+its pcs stay joined only if other edges connect them. vector-clock mode never lost the pair ---
+$\Rep_{\mathsf{vec}}$ holds it and vetoes $\chi$ (failure mode (a) below) --- so the closure
+repairs scalar-clock mode, which has no veto.
+
 Both lock shapes whose order the program does not force are declined. \emph{Write-before-lock}
 ($x$ written, then the lock taken, against a read inside another thread's section): with no
 fence between the write and the lock the release point has scope \texttt{none}; with one, every

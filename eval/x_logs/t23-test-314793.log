@@ -1,0 +1,416 @@
+host=c58 date=2026-10-18T14:44:42-04:00 label=green-set-before-8ec3455
+rev=8ec34551c0e3e46c93fcb72cf799567cfb207ffc (T23: failing test first -- R3 certifies the racy pair on X4's A2-inverted rtraw trace)
+python: Python 3.14.4
+........................................................................ [ 20%]
+.........................sFFFFFF.......ssssssssssssssssssssssssssssssss. [ 40%]
+....................ssssssssssssssss.........ssssssssssssssssssssssssss. [ 60%]
+........sss.....ssssssssssssssssssssssssssssssssssssssssssssssssssssssss [ 80%]
+sssssssssssss....................................................sssF    [100%]
+=================================== FAILURES ===================================
+_ test_r3_landing_closure_on_the_a2_inverted_rtraw[scalar-clock-recording-aggregates] _
+
+dump = 'scalar_clock_c58_run20.json', mode = 'scalar-clock', strip = False
+path = 'aggregates'
+tmp_path = PosixPath('/tmp/pytest-of-fzheng4/pytest-13/test_r3_landing_closure_on_the0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fb67bff0510>
+
+    @pytest.mark.parametrize("path", ["aggregates", "records"])
+    @pytest.mark.parametrize("dump,mode,strip", [
+        ("scalar_clock_c58_run20.json", hb_modes.SCALAR_CLOCK, False),   # X4's scalar-clock recording
+        ("vector_clock_c58_run3.json", hb_modes.VECTOR_CLOCK, False),    # X4's vector-clock recording
+        ("vector_clock_c58_run3.json", hb_modes.SCALAR_CLOCK, True),     # that dump read as scalar-clock
+    ], ids=["scalar-clock-recording", "vector-clock-recording", "vector-dump-read-as-scalar-clock"])
+    def test_r3_landing_closure_on_the_a2_inverted_rtraw(dump, mode, strip, path, tmp_path,
+                                                         monkeypatch):
+        for k in ("CUVEIN_EVENT_CANDIDATES", "CUVEIN_R3_PAST_RELEASE", "CUVEIN_R3_LANDING",
+                  "CUVEIN_R3_BEFORE_ACQUIRE", "CUVEIN_R3_LOC_CLOSURE", "CUVEIN_BARRIER_PASS",
+                  "CUVEIN_PREFER_AGGREGATES"):
+            monkeypatch.delenv(k, raising=False)
+        if path == "records":
+            monkeypatch.setenv("CUVEIN_PREFER_RECORDS", "1")
+        else:
+            monkeypatch.delenv("CUVEIN_PREFER_RECORDS", raising=False)
+        tj = json.loads((_R3C / dump).read_text())
+        assert tj.get("hb_events") and "hb_sync_pass" in tj and "hb_rmw_points" in tj, \
+            "both verdict paths need their input"
+        if strip:      # what YOSEMITE_HB_MODE=scalar-clock writes: no HbClock keys
+            for k in ("hb_races", "hb_races_sync_only", "coherence_profile"):
+                tj.pop(k, None)
+        assert ("hb_races" in tj) == (mode == hb_modes.VECTOR_CLOCK)
+        trace = tmp_path / "kernel_0.json"
+        trace.write_text(json.dumps(tj))
+    
+        rep = sd.analyze(_R3C_DOT, trace)
+        pair = [v for v in rep["verdicts"]
+                if frozenset((v["current_pc"], v["ancient_pc"])) == _R3C_PAIR]
+        assert len(pair) == 1, f"{mode}/{path}: {len(pair)} verdicts for the pair"
+        v = pair[0]
+        assert v["race_type"] in ("WAR", "RAW") and v["space"] == "global"
+        want = "SC" if _volatile_is_strong() else "RACE"
+>       assert v["verdict"] == want and v["hb_chain"] is None, (
+            f"{mode}/{path}: the pair reads {v['verdict']} via chain {v['hb_chain']} "
+            f"(class {v['hb_class']}); want {want} and no chain")
+E       AssertionError: scalar-clock/aggregates: the pair reads ORDERED via chain ['0x1b0', '0x330'] (class None); want SC and no chain
+E       assert ('ORDERED' == 'SC'
+E         
+E         - SC
+E         + ORDERED)
+
+python/test_sync_dominance.py:489: AssertionError
+_ test_r3_landing_closure_on_the_a2_inverted_rtraw[scalar-clock-recording-records] _
+
+dump = 'scalar_clock_c58_run20.json', mode = 'scalar-clock', strip = False
+path = 'records'
+tmp_path = PosixPath('/tmp/pytest-of-fzheng4/pytest-13/test_r3_landing_closure_on_the1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fb67ca76570>
+
+    @pytest.mark.parametrize("path", ["aggregates", "records"])
+    @pytest.mark.parametrize("dump,mode,strip", [
+        ("scalar_clock_c58_run20.json", hb_modes.SCALAR_CLOCK, False),   # X4's scalar-clock recording
+        ("vector_clock_c58_run3.json", hb_modes.VECTOR_CLOCK, False),    # X4's vector-clock recording
+        ("vector_clock_c58_run3.json", hb_modes.SCALAR_CLOCK, True),     # that dump read as scalar-clock
+    ], ids=["scalar-clock-recording", "vector-clock-recording", "vector-dump-read-as-scalar-clock"])
+    def test_r3_landing_closure_on_the_a2_inverted_rtraw(dump, mode, strip, path, tmp_path,
+                                                         monkeypatch):
+        for k in ("CUVEIN_EVENT_CANDIDATES", "CUVEIN_R3_PAST_RELEASE", "CUVEIN_R3_LANDING",
+                  "CUVEIN_R3_BEFORE_ACQUIRE", "CUVEIN_R3_LOC_CLOSURE", "CUVEIN_BARRIER_PASS",
+                  "CUVEIN_PREFER_AGGREGATES"):
+            monkeypatch.delenv(k, raising=False)
+        if path == "records":
+            monkeypatch.setenv("CUVEIN_PREFER_RECORDS", "1")
+        else:
+            monkeypatch.delenv("CUVEIN_PREFER_RECORDS", raising=False)
+        tj = json.loads((_R3C / dump).read_text())
+        assert tj.get("hb_events") and "hb_sync_pass" in tj and "hb_rmw_points" in tj, \
+            "both verdict paths need their input"
+        if strip:      # what YOSEMITE_HB_MODE=scalar-clock writes: no HbClock keys
+            for k in ("hb_races", "hb_races_sync_only", "coherence_profile"):
+                tj.pop(k, None)
+        assert ("hb_races" in tj) == (mode == hb_modes.VECTOR_CLOCK)
+        trace = tmp_path / "kernel_0.json"
+        trace.write_text(json.dumps(tj))
+    
+        rep = sd.analyze(_R3C_DOT, trace)
+        pair = [v for v in rep["verdicts"]
+                if frozenset((v["current_pc"], v["ancient_pc"])) == _R3C_PAIR]
+        assert len(pair) == 1, f"{mode}/{path}: {len(pair)} verdicts for the pair"
+        v = pair[0]
+        assert v["race_type"] in ("WAR", "RAW") and v["space"] == "global"
+        want = "SC" if _volatile_is_strong() else "RACE"
+>       assert v["verdict"] == want and v["hb_chain"] is None, (
+            f"{mode}/{path}: the pair reads {v['verdict']} via chain {v['hb_chain']} "
+            f"(class {v['hb_class']}); want {want} and no chain")
+E       AssertionError: scalar-clock/records: the pair reads ORDERED via chain ['0x1b0', '0x330'] (class None); want SC and no chain
+E       assert ('ORDERED' == 'SC'
+E         
+E         - SC
+E         + ORDERED)
+
+python/test_sync_dominance.py:489: AssertionError
+_ test_r3_landing_closure_on_the_a2_inverted_rtraw[vector-clock-recording-aggregates] _
+
+dump = 'vector_clock_c58_run3.json', mode = 'vector-clock', strip = False
+path = 'aggregates'
+tmp_path = PosixPath('/tmp/pytest-of-fzheng4/pytest-13/test_r3_landing_closure_on_the2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fb67c42b570>
+
+    @pytest.mark.parametrize("path", ["aggregates", "records"])
+    @pytest.mark.parametrize("dump,mode,strip", [
+        ("scalar_clock_c58_run20.json", hb_modes.SCALAR_CLOCK, False),   # X4's scalar-clock recording
+        ("vector_clock_c58_run3.json", hb_modes.VECTOR_CLOCK, False),    # X4's vector-clock recording
+        ("vector_clock_c58_run3.json", hb_modes.SCALAR_CLOCK, True),     # that dump read as scalar-clock
+    ], ids=["scalar-clock-recording", "vector-clock-recording", "vector-dump-read-as-scalar-clock"])
+    def test_r3_landing_closure_on_the_a2_inverted_rtraw(dump, mode, strip, path, tmp_path,
+                                                         monkeypatch):
+        for k in ("CUVEIN_EVENT_CANDIDATES", "CUVEIN_R3_PAST_RELEASE", "CUVEIN_R3_LANDING",
+                  "CUVEIN_R3_BEFORE_ACQUIRE", "CUVEIN_R3_LOC_CLOSURE", "CUVEIN_BARRIER_PASS",
+                  "CUVEIN_PREFER_AGGREGATES"):
+            monkeypatch.delenv(k, raising=False)
+        if path == "records":
+            monkeypatch.setenv("CUVEIN_PREFER_RECORDS", "1")
+        else:
+            monkeypatch.delenv("CUVEIN_PREFER_RECORDS", raising=False)
+        tj = json.loads((_R3C / dump).read_text())
+        assert tj.get("hb_events") and "hb_sync_pass" in tj and "hb_rmw_points" in tj, \
+            "both verdict paths need their input"
+        if strip:      # what YOSEMITE_HB_MODE=scalar-clock writes: no HbClock keys
+            for k in ("hb_races", "hb_races_sync_only", "coherence_profile"):
+                tj.pop(k, None)
+        assert ("hb_races" in tj) == (mode == hb_modes.VECTOR_CLOCK)
+        trace = tmp_path / "kernel_0.json"
+        trace.write_text(json.dumps(tj))
+    
+        rep = sd.analyze(_R3C_DOT, trace)
+        pair = [v for v in rep["verdicts"]
+                if frozenset((v["current_pc"], v["ancient_pc"])) == _R3C_PAIR]
+        assert len(pair) == 1, f"{mode}/{path}: {len(pair)} verdicts for the pair"
+        v = pair[0]
+        assert v["race_type"] in ("WAR", "RAW") and v["space"] == "global"
+        want = "SC" if _volatile_is_strong() else "RACE"
+>       assert v["verdict"] == want and v["hb_chain"] is None, (
+            f"{mode}/{path}: the pair reads {v['verdict']} via chain {v['hb_chain']} "
+            f"(class {v['hb_class']}); want {want} and no chain")
+E       AssertionError: vector-clock/aggregates: the pair reads SC via chain ['0x1b0', '0x330'] (class sc); want SC and no chain
+E       assert ('SC' == 'SC'
+E         
+E           SC and ['0x1b0', '0x330'] is None)
+
+python/test_sync_dominance.py:489: AssertionError
+_ test_r3_landing_closure_on_the_a2_inverted_rtraw[vector-clock-recording-records] _
+
+dump = 'vector_clock_c58_run3.json', mode = 'vector-clock', strip = False
+path = 'records'
+tmp_path = PosixPath('/tmp/pytest-of-fzheng4/pytest-13/test_r3_landing_closure_on_the3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fb67b78f9b0>
+
+    @pytest.mark.parametrize("path", ["aggregates", "records"])
+    @pytest.mark.parametrize("dump,mode,strip", [
+        ("scalar_clock_c58_run20.json", hb_modes.SCALAR_CLOCK, False),   # X4's scalar-clock recording
+        ("vector_clock_c58_run3.json", hb_modes.VECTOR_CLOCK, False),    # X4's vector-clock recording
+        ("vector_clock_c58_run3.json", hb_modes.SCALAR_CLOCK, True),     # that dump read as scalar-clock
+    ], ids=["scalar-clock-recording", "vector-clock-recording", "vector-dump-read-as-scalar-clock"])
+    def test_r3_landing_closure_on_the_a2_inverted_rtraw(dump, mode, strip, path, tmp_path,
+                                                         monkeypatch):
+        for k in ("CUVEIN_EVENT_CANDIDATES", "CUVEIN_R3_PAST_RELEASE", "CUVEIN_R3_LANDING",
+                  "CUVEIN_R3_BEFORE_ACQUIRE", "CUVEIN_R3_LOC_CLOSURE", "CUVEIN_BARRIER_PASS",
+                  "CUVEIN_PREFER_AGGREGATES"):
+            monkeypatch.delenv(k, raising=False)
+        if path == "records":
+            monkeypatch.setenv("CUVEIN_PREFER_RECORDS", "1")
+        else:
+            monkeypatch.delenv("CUVEIN_PREFER_RECORDS", raising=False)
+        tj = json.loads((_R3C / dump).read_text())
+        assert tj.get("hb_events") and "hb_sync_pass" in tj and "hb_rmw_points" in tj, \
+            "both verdict paths need their input"
+        if strip:      # what YOSEMITE_HB_MODE=scalar-clock writes: no HbClock keys
+            for k in ("hb_races", "hb_races_sync_only", "coherence_profile"):
+                tj.pop(k, None)
+        assert ("hb_races" in tj) == (mode == hb_modes.VECTOR_CLOCK)
+        trace = tmp_path / "kernel_0.json"
+        trace.write_text(json.dumps(tj))
+    
+        rep = sd.analyze(_R3C_DOT, trace)
+        pair = [v for v in rep["verdicts"]
+                if frozenset((v["current_pc"], v["ancient_pc"])) == _R3C_PAIR]
+        assert len(pair) == 1, f"{mode}/{path}: {len(pair)} verdicts for the pair"
+        v = pair[0]
+        assert v["race_type"] in ("WAR", "RAW") and v["space"] == "global"
+        want = "SC" if _volatile_is_strong() else "RACE"
+>       assert v["verdict"] == want and v["hb_chain"] is None, (
+            f"{mode}/{path}: the pair reads {v['verdict']} via chain {v['hb_chain']} "
+            f"(class {v['hb_class']}); want {want} and no chain")
+E       AssertionError: vector-clock/records: the pair reads SC via chain ['0x1b0', '0x330'] (class sc); want SC and no chain
+E       assert ('SC' == 'SC'
+E         
+E           SC and ['0x1b0', '0x330'] is None)
+
+python/test_sync_dominance.py:489: AssertionError
+_ test_r3_landing_closure_on_the_a2_inverted_rtraw[vector-dump-read-as-scalar-clock-aggregates] _
+
+dump = 'vector_clock_c58_run3.json', mode = 'scalar-clock', strip = True
+path = 'aggregates'
+tmp_path = PosixPath('/tmp/pytest-of-fzheng4/pytest-13/test_r3_landing_closure_on_the4')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fb67bd9cd50>
+
+    @pytest.mark.parametrize("path", ["aggregates", "records"])
+    @pytest.mark.parametrize("dump,mode,strip", [
+        ("scalar_clock_c58_run20.json", hb_modes.SCALAR_CLOCK, False),   # X4's scalar-clock recording
+        ("vector_clock_c58_run3.json", hb_modes.VECTOR_CLOCK, False),    # X4's vector-clock recording
+        ("vector_clock_c58_run3.json", hb_modes.SCALAR_CLOCK, True),     # that dump read as scalar-clock
+    ], ids=["scalar-clock-recording", "vector-clock-recording", "vector-dump-read-as-scalar-clock"])
+    def test_r3_landing_closure_on_the_a2_inverted_rtraw(dump, mode, strip, path, tmp_path,
+                                                         monkeypatch):
+        for k in ("CUVEIN_EVENT_CANDIDATES", "CUVEIN_R3_PAST_RELEASE", "CUVEIN_R3_LANDING",
+                  "CUVEIN_R3_BEFORE_ACQUIRE", "CUVEIN_R3_LOC_CLOSURE", "CUVEIN_BARRIER_PASS",
+                  "CUVEIN_PREFER_AGGREGATES"):
+            monkeypatch.delenv(k, raising=False)
+        if path == "records":
+            monkeypatch.setenv("CUVEIN_PREFER_RECORDS", "1")
+        else:
+            monkeypatch.delenv("CUVEIN_PREFER_RECORDS", raising=False)
+        tj = json.loads((_R3C / dump).read_text())
+        assert tj.get("hb_events") and "hb_sync_pass" in tj and "hb_rmw_points" in tj, \
+            "both verdict paths need their input"
+        if strip:      # what YOSEMITE_HB_MODE=scalar-clock writes: no HbClock keys
+            for k in ("hb_races", "hb_races_sync_only", "coherence_profile"):
+                tj.pop(k, None)
+        assert ("hb_races" in tj) == (mode == hb_modes.VECTOR_CLOCK)
+        trace = tmp_path / "kernel_0.json"
+        trace.write_text(json.dumps(tj))
+    
+        rep = sd.analyze(_R3C_DOT, trace)
+        pair = [v for v in rep["verdicts"]
+                if frozenset((v["current_pc"], v["ancient_pc"])) == _R3C_PAIR]
+        assert len(pair) == 1, f"{mode}/{path}: {len(pair)} verdicts for the pair"
+        v = pair[0]
+        assert v["race_type"] in ("WAR", "RAW") and v["space"] == "global"
+        want = "SC" if _volatile_is_strong() else "RACE"
+>       assert v["verdict"] == want and v["hb_chain"] is None, (
+            f"{mode}/{path}: the pair reads {v['verdict']} via chain {v['hb_chain']} "
+            f"(class {v['hb_class']}); want {want} and no chain")
+E       AssertionError: scalar-clock/aggregates: the pair reads ORDERED via chain ['0x1b0', '0x330'] (class None); want SC and no chain
+E       assert ('ORDERED' == 'SC'
+E         
+E         - SC
+E         + ORDERED)
+
+python/test_sync_dominance.py:489: AssertionError
+_ test_r3_landing_closure_on_the_a2_inverted_rtraw[vector-dump-read-as-scalar-clock-records] _
+
+dump = 'vector_clock_c58_run3.json', mode = 'scalar-clock', strip = True
+path = 'records'
+tmp_path = PosixPath('/tmp/pytest-of-fzheng4/pytest-13/test_r3_landing_closure_on_the5')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fb67bc5c350>
+
+    @pytest.mark.parametrize("path", ["aggregates", "records"])
+    @pytest.mark.parametrize("dump,mode,strip", [
+        ("scalar_clock_c58_run20.json", hb_modes.SCALAR_CLOCK, False),   # X4's scalar-clock recording
+        ("vector_clock_c58_run3.json", hb_modes.VECTOR_CLOCK, False),    # X4's vector-clock recording
+        ("vector_clock_c58_run3.json", hb_modes.SCALAR_CLOCK, True),     # that dump read as scalar-clock
+    ], ids=["scalar-clock-recording", "vector-clock-recording", "vector-dump-read-as-scalar-clock"])
+    def test_r3_landing_closure_on_the_a2_inverted_rtraw(dump, mode, strip, path, tmp_path,
+                                                         monkeypatch):
+        for k in ("CUVEIN_EVENT_CANDIDATES", "CUVEIN_R3_PAST_RELEASE", "CUVEIN_R3_LANDING",
+                  "CUVEIN_R3_BEFORE_ACQUIRE", "CUVEIN_R3_LOC_CLOSURE", "CUVEIN_BARRIER_PASS",
+                  "CUVEIN_PREFER_AGGREGATES"):
+            monkeypatch.delenv(k, raising=False)
+        if path == "records":
+            monkeypatch.setenv("CUVEIN_PREFER_RECORDS", "1")
+        else:
+            monkeypatch.delenv("CUVEIN_PREFER_RECORDS", raising=False)
+        tj = json.loads((_R3C / dump).read_text())
+        assert tj.get("hb_events") and "hb_sync_pass" in tj and "hb_rmw_points" in tj, \
+            "both verdict paths need their input"
+        if strip:      # what YOSEMITE_HB_MODE=scalar-clock writes: no HbClock keys
+            for k in ("hb_races", "hb_races_sync_only", "coherence_profile"):
+                tj.pop(k, None)
+        assert ("hb_races" in tj) == (mode == hb_modes.VECTOR_CLOCK)
+        trace = tmp_path / "kernel_0.json"
+        trace.write_text(json.dumps(tj))
+    
+        rep = sd.analyze(_R3C_DOT, trace)
+        pair = [v for v in rep["verdicts"]
+                if frozenset((v["current_pc"], v["ancient_pc"])) == _R3C_PAIR]
+        assert len(pair) == 1, f"{mode}/{path}: {len(pair)} verdicts for the pair"
+        v = pair[0]
+        assert v["race_type"] in ("WAR", "RAW") and v["space"] == "global"
+        want = "SC" if _volatile_is_strong() else "RACE"
+>       assert v["verdict"] == want and v["hb_chain"] is None, (
+            f"{mode}/{path}: the pair reads {v['verdict']} via chain {v['hb_chain']} "
+            f"(class {v['hb_class']}); want {want} and no chain")
+E       AssertionError: scalar-clock/records: the pair reads ORDERED via chain ['0x1b0', '0x330'] (class None); want SC and no chain
+E       assert ('ORDERED' == 'SC'
+E         
+E         - SC
+E         + ORDERED)
+
+python/test_sync_dominance.py:489: AssertionError
+___________________ test_r3_location_classes_are_transitive ____________________
+
+    def test_r3_location_classes_are_transitive():
+        """T23: the pairs of observed atomic edges are not a location relation (0x330 ~ 0x1b0 and
+        0x1b0 ~ 0x230 do not make 0x330 ~ 0x230); the gates of R3 read the connected components.
+        The edges are X4's A2-inverted rtraw trace (eval/FINAL_RTRAW.md section 6); 0x400 shares
+        no edge with any of them."""
+        g = _graph({"B": [(0x400, "STG.E"), (0x410, "EXIT")]}, [])
+        atom = {pc: sd.GRID for pc in (0xb0, 0x230, 0x1b0, 0x330)}
+        g.attach_trace(atom, [], atom, {frozenset((0xb0, 0x230)), frozenset((0x230,)),
+                                        frozenset((0x230, 0x1b0)), frozenset((0x1b0, 0x330))})
+>       assert g.same_location(0x330, 0x230) and g.same_location(0x230, 0x330)
+               ^^^^^^^^^^^^^^^
+E       AttributeError: 'HBGraph' object has no attribute 'same_location'
+
+python/test_instance_gate.py:411: AttributeError
+=============================== warnings summary ===============================
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+  /tmp/t23-run-1LCSTY/.env/lib/python3.14/site-packages/pydot/dot_parser.py:373: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    assignment.setParseAction(push_attr_list)
+
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+  /tmp/t23-run-1LCSTY/.env/lib/python3.14/site-packages/pydot/dot_parser.py:374: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    a_list.setParseAction(push_attr_list)
+
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+  /tmp/t23-run-1LCSTY/.env/lib/python3.14/site-packages/pydot/dot_parser.py:375: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    edge_stmt.setParseAction(push_edge_stmt)
+
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+  /tmp/t23-run-1LCSTY/.env/lib/python3.14/site-packages/pydot/dot_parser.py:376: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    node_stmt.setParseAction(push_node_stmt)
+
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+  /tmp/t23-run-1LCSTY/.env/lib/python3.14/site-packages/pydot/dot_parser.py:377: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    default_stmt.setParseAction(push_default_stmt)
+
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+  /tmp/t23-run-1LCSTY/.env/lib/python3.14/site-packages/pydot/dot_parser.py:379: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    subgraph.setParseAction(push_subgraph_stmt)
+
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+  /tmp/t23-run-1LCSTY/.env/lib/python3.14/site-packages/pydot/dot_parser.py:380: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    graph_stmt.setParseAction(push_graph_stmt)
+
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+  /tmp/t23-run-1LCSTY/.env/lib/python3.14/site-packages/pydot/dot_parser.py:381: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    parser.setParseAction(push_top_graph_stmt)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED python/test_sync_dominance.py::test_r3_landing_closure_on_the_a2_inverted_rtraw[scalar-clock-recording-aggregates]
+FAILED python/test_sync_dominance.py::test_r3_landing_closure_on_the_a2_inverted_rtraw[scalar-clock-recording-records]
+FAILED python/test_sync_dominance.py::test_r3_landing_closure_on_the_a2_inverted_rtraw[vector-clock-recording-aggregates]
+FAILED python/test_sync_dominance.py::test_r3_landing_closure_on_the_a2_inverted_rtraw[vector-clock-recording-records]
+FAILED python/test_sync_dominance.py::test_r3_landing_closure_on_the_a2_inverted_rtraw[vector-dump-read-as-scalar-clock-aggregates]
+FAILED python/test_sync_dominance.py::test_r3_landing_closure_on_the_a2_inverted_rtraw[vector-dump-read-as-scalar-clock-records]
+FAILED python/test_instance_gate.py::test_r3_location_classes_are_transitive
+SKIPPED [1] python/test_sync_dominance.py:411: cuHadron intersubwarp corpus unavailable (no GPU / build)
+SKIPPED [30] python/test_coherent_ldst.py:88: no GPU / nvcc / source to build coherent_ldst
+SKIPPED [1] python/test_atomic_memory_model.py:112: no GPU / nvcc / source to build atomic_mm_handoff
+SKIPPED [1] python/test_atomic_memory_model.py:127: no GPU / nvcc / source to build atomic_mm_handoff
+SKIPPED [1] python/test_atomic_memory_model.py:281: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [7] python/test_atomic_memory_model.py:304: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [7] python/test_atomic_memory_model.py:331: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [1] python/test_atomic_memory_model.py:342: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [1] python/test_barrier_exit.py:245: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [1] python/test_barrier_exit.py:256: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [1] python/test_barrier_exit.py:260: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [1] python/test_barrier_exit.py:265: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [1] python/test_barrier_exit.py:270: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [1] python/test_barrier_exit.py:283: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [1] python/test_barrier_exit.py:287: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [1] python/test_barrier_exit.py:295: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [1] python/test_barrier_exit.py:302: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [1] python/test_barrier_exit.py:315: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [1] python/test_barrier_exit.py:327: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [1] python/test_barrier_exit.py:336: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [1] python/test_hb_substitutions.py:136: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [1] python/test_hb_substitutions.py:142: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [1] python/test_hb_substitutions.py:146: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [1] python/test_hb_substitutions.py:162: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [1] python/test_hb_substitutions.py:189: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [1] python/test_hb_substitutions.py:195: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [1] python/test_hb_substitutions.py:199: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [1] python/test_hb_substitutions.py:212: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [1] python/test_hb_substitutions.py:235: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [1] python/test_hb_substitutions.py:247: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [1] python/test_hb_substitutions.py:255: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [1] python/test_hb_substitutions.py:295: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [1] python/test_hb_substitutions.py:299: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [1] python/test_hb_substitutions.py:308: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [1] python/test_hb_substitutions.py:543: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [1] python/test_hb_substitutions.py:548: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [1] python/test_hb_substitutions.py:563: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [1] python/test_hb_substitutions.py:698: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [1] python/test_hb_substitutions.py:743: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [9] python/test_cp_async.py:103: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [9] python/test_cp_async.py:118: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [9] python/test_cp_async.py:128: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [9] python/test_cp_async.py:138: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [18] python/test_cp_async.py:161: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [3] python/test_cp_async.py:173: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [1] python/test_cp_async.py:184: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [9] python/test_cp_async.py:197: build failed: nvcc fatal : T23 stub: no GPU on a normal node
+SKIPPED [2] python/test_instance_gate.py:293: no GPU / nvcc / accelprof to build and trace gate_held
+SKIPPED [1] python/test_instance_gate.py:368: no GPU / nvcc / accelprof to build and trace write_before_lock
+7 failed, 200 passed, 150 skipped, 8 warnings in 34.17s
+pytest rc=1
