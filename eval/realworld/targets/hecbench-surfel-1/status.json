@@ -1,0 +1,14 @@
+{
+  "route": "R1",
+  "route_note": "The app's own Makefile (src/surfel-cuda, ORNL/HeCBench at the two commits), nvcc -O3 -std=c++17 -Xcompiler -fopenmp -Xcompiler -Wall -arch=sm_89 -lineinfo (Makefile flags unchanged), identical for both variants. Link only: -Xlinker -rpath=$ORIGIN, and the gcc-12.4 runtime libs (libstdc++.so.6, libgcc_s.so.1, libgomp.so.1) copied next to the binary (system libstdc++ is gcc 8, no libstdc++.a), so the artifact runs from BeeGFS without LD_LIBRARY_PATH.",
+  "status": "built",
+  "toolkit": "13.4 (c38)",
+  "driver": "./main 300 16 16 1: 300 surfels, 16x16 output image, repeat 1. Per focal length f=0,1,2 (3 values) it launches surfel_render<float> (base) and surfel_render_tile<float,256> (one 16x16 block of 256 threads = 8 warps, two tile iterations because 300 > TILE=256): 3 launches of the racy kernel.",
+  "input": "built-in surfels from std::mt19937(19937) (host generated); no input file. Access estimate (ncu on the sm_75 smoke build, buggy): 2,548,536 thread-level memory instructions in total over both kernels (934,968 in surfel_render_tile; shared LDS 28,800 + STS 210 warp-level instructions, <= 9.5e5 thread-level shared accesses). The record's reporter repro './main 1024 64 64 1' would be 1,572,864 warp-level shared loads = 5e7 thread-level (above the 1e7 aim, below 1e8); the verifier's sufficient case is n > 256 on a single block.",
+  "notes": "Smoke (sm_75, debugging only): buggy rc=0, 'f = 1 ... Average execution time of surfel_render(tile): 0.035117 (ms) ... PASS'; fixed rc=0 PASS. Launched kernels (ncu): surfel_render<float> 3, surfel_render_tile<float,256> 3. T_KERNEL=surfel_render_tile. Race only occurs with N > TILE=256 (second tile iteration). P7/P9 overlap: none. Route-R1 lineinfo check: cited from hecbench-dxtc2-1 (SAME). Note: the Makefile compiles host code with -fopenmp, hence libgomp.so.1 next to the binary.",
+  "commands": [
+    "harness/rw.sh hecbench-surfel-1 export   # login node",
+    "NJOBS=8 harness/hrun.sh <job> hecbench-surfel-1 stage; NJOBS=8 harness/hrun.sh <job> hecbench-surfel-1 build",
+    "run: $ART/main 300 16 16 1"
+  ]
+}

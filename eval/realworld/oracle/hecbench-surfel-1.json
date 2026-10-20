@@ -1,0 +1,47 @@
+{
+  "id": "hecbench-surfel-1",
+  "tier": "core",
+  "wave": 1,
+  "route": "R1",
+  "kernel": "surfel_render_tile<float,256>",
+  "space": "shared",
+  "build_revision": {
+    "buggy": "7b177e43026a1bb1294ee0803aff185a5c3bbf7b",
+    "fixed": "66eba4016f943fbb159d7ee55775b60a1b39f5ff"
+  },
+  "sites": [
+    {
+      "role": "write",
+      "file": "src/surfel-cuda/main.cu",
+      "line_start": 87,
+      "line_end": 87,
+      "source": "sh[tid * COL_DIM + k] = s[(base + tid) * COL_DIM + k];",
+      "operation": "st.shared.f32 (7 unrolled STS, k = 0..6, predicated on tid < TILE && base + tid < N)",
+      "strength": "plain"
+    },
+    {
+      "role": "read",
+      "file": "src/surfel-cuda/main.cu",
+      "line_start": 97,
+      "line_end": 105,
+      "source": "T px = sh[i * COL_DIM + COL_P_X]; ... T rSqMax = sh[i * COL_DIM + COL_RSq]; (seven loads, L97 px, L98 py, L99 pz, L101 nx, L102 ny, L103 nz, L105 rSqMax)",
+      "operation": "ld.shared.f32 (LDS / LDS.64 with warp-uniform addressing)",
+      "strength": "plain"
+    }
+  ],
+  "thread_relation": "cross-warp-same-block",
+  "thread_pair_example": "driver ./main 300 16 16 1, the single 16x16 block (8 warps): tile iteration base=0 reads sh[] (L97-L105, i = 0..255) in every warp, tile iteration base=256 (44 surfels) restages sh[0..43*7+6] in threads tid 0..43 (L87). Thread tid 0 (warp 0) writes sh[0..6] at base=256 while thread tid 32 (warp 1) is still reading sh[0] (i = 0) of base=0 (WAR); the only barrier of the iteration (L90) is before the reads.",
+  "expected_class": "DR",
+  "class_reason": "both accesses are plain shared accesses (no volatile, no atomic, no .STRONG) by different warps of one block with no barrier between the reads of tile j and the restaging of tile j+1: unordered conflicting plain accesses = data race (DR).",
+  "buggy_expected": "the pair (write L87 of the next tile iteration, reads L97-L105 of the previous one) is reported as DR (shared WAR/RAW across warps on sh[]); it only exists because N=300 > TILE=256 gives a second tile iteration.",
+  "fixed": {
+    "expected": "absent",
+    "residual_sites": null,
+    "reason": "the fix (66eba401) adds one __syncthreads() at the end of the tile loop body (L121 of the fixed file), which orders all reads of tile j before the restaging writes of tile j+1; nothing is expected for the pair (verify.expected_report_fixed)."
+  },
+  "sass_notes": "sm_89 SASS from the shipped build (sassline.sh, nvdisasm -g): staging = 7x LDG.E.CONSTANT (L87) then 7x predicated STS [R18+0..0x18] at 0x02d0-0x0330, plain STS, no .STRONG token; BAR.SYNC.DEFER_BLOCKING at 0x0340 (L90); reads are plain LDS / LDS.64 (adjacent floats of one surfel merged, warp-uniform addressing [UR8+off] / [UR4+off], the loop body is unrolled 2x plus a remainder) attributed to L97 (0x0450, 0x08f0), L98 (0x05e0), L101 (0x0440, 0x0590, 0x08e0), L102 (0x0430, 0x08d0), L103 (0x05c0), L105 (0x05f0, 0x07a0, 0x0a30); there is no BAR.SYNC or WARPSYNC between the last LDS and the loop back edge. The fixed build has one more BAR.SYNC.DEFER_BLOCKING at 0x0af0 (main.cu:121). Neither build has any LDS/STS with a strong/volatile token.",
+  "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against src/surfel-cuda/main.cu@7b177e4 (buggy) and @66eba40 (fixed) and the sm_89 SASS of the build on 2026-10-20",
+  "open_questions": [
+    "The read site is the group L97-L105 (merged into 12 LDS/LDS.64 SASS instructions); a detector reports hazards per (store instruction, load instruction) pair, so one source-level pair appears as several SASS-level pairs (the reporter's racecheck output has 7 fields x 3 launches = 21 errors)."
+  ]
+}

@@ -146,11 +146,12 @@ PYEOF
         NSYS=$(command -v nsys); [ -n "$NSYS" ] || NSYS=$(ls /opt/nvidia/nsight-systems/*/bin/nsys 2>/dev/null | tail -1)
         echo "== reach $id/$v via ${NSYS:-none}: $cmd"
         if [ -n "$NSYS" ]; then
+          rm -f "$RUNDIR"/reach.nsys-rep "$RUNDIR"/reach.sqlite "$RUNDIR"/reach.qdstrm
           $NSYS profile --stats=false --force-overwrite=true -o "$RUNDIR/reach" --trace=cuda bash -c "$cmd" > "$RUNDIR/reach.stdout" 2>&1
-          $NSYS stats --report cuda_gpu_kern_sum --format csv "$RUNDIR/reach.nsys-rep" 2>/dev/null > "$NATIVE/$id-$v.kernels.csv"
+          $NSYS stats --force-export=true --report cuda_gpu_kern_sum --format csv "$RUNDIR/reach.nsys-rep" 2>/dev/null > "$NATIVE/$id-$v.kernels.csv"
           echo "kernels listed: $(grep -c . "$NATIVE/$id-$v.kernels.csv")"
-          grep -i -- "$T_KERNEL" "$NATIVE/$id-$v.kernels.csv" | cut -c1-220 | head -5 | tee "$NATIVE/$id-$v.reach"
-          [ -s "$NATIVE/$id-$v.reach" ] && echo "REACHED $T_KERNEL" || echo "NOT REACHED $T_KERNEL"
+          grep -i -- "${T_KERNEL_NSYS:-$T_KERNEL}" "$NATIVE/$id-$v.kernels.csv" | cut -c1-220 | head -5 | tee "$NATIVE/$id-$v.reach"
+          [ -s "$NATIVE/$id-$v.reach" ] && echo "REACHED ${T_KERNEL_NSYS:-$T_KERNEL}" || echo "NOT REACHED ${T_KERNEL_NSYS:-$T_KERNEL}"
         else echo "no nsys on this node"; fi ;;
       racecheck)
         if [ "$T_RACECHECK" = na ]; then echo "racecheck n/a: global-memory target (outside racecheck by construction)" | tee "$RC/$id-$v.txt"; continue; fi

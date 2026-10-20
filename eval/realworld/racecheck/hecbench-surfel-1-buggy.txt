@@ -1,0 +1,407 @@
+# compute-sanitizer Version 2026.3.0.0 (build 38855100) (public-release) host c3 cuda /usr/local/cuda-13.4 2026-10-20
+# cmd: /mnt/beegfs/fzheng4/realworld/build/hecbench-surfel-1/buggy/main 300 16 16 1
+========= COMPUTE-SANITIZER
+========= Error: Potential WAR hazard detected at __shared__ 0x380 in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x450 in main.cu:97
+=========     Write Thread (0,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 240, Incoming Value : 200
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x381 in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x450 in main.cu:97
+=========     Write Thread (0,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 223, Incoming Value : 178
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x382 in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x450 in main.cu:97
+=========     Write Thread (0,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 171, Incoming Value : 62
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x383 in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x450 in main.cu:97
+=========     Write Thread (0,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 63, Incoming Value : 63
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x39c in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x5f0 in main.cu:105
+=========     Write Thread (1,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 24, Incoming Value : 37
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x39d in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x5f0 in main.cu:105
+=========     Write Thread (1,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 4, Incoming Value : 118
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x39e in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x5f0 in main.cu:105
+=========     Write Thread (1,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 102, Incoming Value : 157
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x39f in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x5f0 in main.cu:105
+=========     Write Thread (1,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 192, Incoming Value : 192
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x3b8 in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x450 in main.cu:97
+=========     Write Thread (2,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 48, Incoming Value : 200
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x3b9 in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x450 in main.cu:97
+=========     Write Thread (2,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 208, Incoming Value : 72
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x3ba in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x450 in main.cu:97
+=========     Write Thread (2,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 15, Incoming Value : 228
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x3bb in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x450 in main.cu:97
+=========     Write Thread (2,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 191, Incoming Value : 63
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x3d4 in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x5f0 in main.cu:105
+=========     Write Thread (3,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 104, Incoming Value : 240
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x3d5 in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x5f0 in main.cu:105
+=========     Write Thread (3,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 100, Incoming Value : 151
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x3d6 in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x5f0 in main.cu:105
+=========     Write Thread (3,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 209, Incoming Value : 31
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x3d7 in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x5f0 in main.cu:105
+=========     Write Thread (3,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 191, Incoming Value : 63
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x3f0 in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x450 in main.cu:97
+=========     Write Thread (4,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 237, Incoming Value : 96
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x3f1 in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x450 in main.cu:97
+=========     Write Thread (4,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 172, Incoming Value : 54
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x3f2 in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x450 in main.cu:97
+=========     Write Thread (4,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 117, Incoming Value : 37
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x3f3 in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x450 in main.cu:97
+=========     Write Thread (4,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 192, Incoming Value : 63
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x40c in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x5f0 in main.cu:105
+=========     Write Thread (5,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 144, Incoming Value : 208
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x40d in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x5f0 in main.cu:105
+=========     Write Thread (5,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 251, Incoming Value : 46
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x40e in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x5f0 in main.cu:105
+=========     Write Thread (5,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 109, Incoming Value : 80
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x40f in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x5f0 in main.cu:105
+=========     Write Thread (5,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 192, Incoming Value : 191
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x428 in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x450 in main.cu:97
+=========     Write Thread (6,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 196, Incoming Value : 174
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x429 in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x450 in main.cu:97
+=========     Write Thread (6,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 158, Incoming Value : 254
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x42a in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x450 in main.cu:97
+=========     Write Thread (6,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 117, Incoming Value : 8
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x42b in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x450 in main.cu:97
+=========     Write Thread (6,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 192, Incoming Value : 192
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x444 in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x5f0 in main.cu:105
+=========     Write Thread (7,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 180, Incoming Value : 172
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x445 in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x5f0 in main.cu:105
+=========     Write Thread (7,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 73, Incoming Value : 70
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x446 in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x5f0 in main.cu:105
+=========     Write Thread (7,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 151, Incoming Value : 89
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x447 in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x5f0 in main.cu:105
+=========     Write Thread (7,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 192, Incoming Value : 64
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x460 in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x450 in main.cu:97
+=========     Write Thread (8,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 172, Incoming Value : 80
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x461 in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x450 in main.cu:97
+=========     Write Thread (8,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 37, Incoming Value : 172
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x462 in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x450 in main.cu:97
+=========     Write Thread (8,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 151, Incoming Value : 229
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x463 in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x450 in main.cu:97
+=========     Write Thread (8,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 64, Incoming Value : 63
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x47c in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x5f0 in main.cu:105
+=========     Write Thread (9,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 0, Incoming Value : 9
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x47d in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x5f0 in main.cu:105
+=========     Write Thread (9,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 138, Incoming Value : 194
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x47e in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x5f0 in main.cu:105
+=========     Write Thread (9,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 147, Incoming Value : 71
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x47f in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x5f0 in main.cu:105
+=========     Write Thread (9,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 64, Incoming Value : 192
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x498 in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x450 in main.cu:97
+=========     Write Thread (10,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 6, Incoming Value : 167
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x499 in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x450 in main.cu:97
+=========     Write Thread (10,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 23, Incoming Value : 82
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x49a in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x450 in main.cu:97
+=========     Write Thread (10,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 6, Incoming Value : 44
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x49b in block (0,0,0) :
+=========     Read Thread (15,11,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x450 in main.cu:97
+=========     Write Thread (10,2,0) at void surfel_render_tile<float, (int)256>(const T1 *, int, T1, int, int, T1 *)+0x2d0 in main.cu:87
+=========     Current Value : 64, Incoming Value : 192
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7c3b7] in main
+=========         Host Frame: void surfelRenderTest<float>(int, int, int, int) [0x57a8] in main
+=========         Host Frame: main [0x3f69] in main
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x4b4 in block (0,0,0) :
+# TRUNCATED: full output (17986 lines, 1440070 bytes, sha256 fb033e0d40d038c09b8ba14a0b65b574fcc9bc921587ad142629a493cdf57a06) kept at /mnt/beegfs/fzheng4/realworld/racecheck_full/hecbench-surfel-1-buggy.txt
+f = 2
+Average execution time of surfel_render(base): 4.902039 (ms)
+Average execution time of surfel_render(tile): 192.819656 (ms)
+PASS
+========= RACECHECK SUMMARY: 2000 hazards displayed (3717 errors, 0 warnings)
+# exit 0

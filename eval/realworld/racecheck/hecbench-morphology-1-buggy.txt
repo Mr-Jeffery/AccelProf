@@ -1,0 +1,407 @@
+# compute-sanitizer Version 2026.3.0.0 (build 38855100) (public-release) host c3 cuda /usr/local/cuda-13.4 2026-10-20
+# cmd: /mnt/beegfs/fzheng4/realworld/build/hecbench-morphology-1/buggy/main 64 64 192 192 1
+========= COMPUTE-SANITIZER
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xc0 in block (2,130,0) :
+=========     Read Thread (2,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (1,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xc1 in block (2,130,0) :
+=========     Read Thread (3,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (2,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xc2 in block (2,130,0) :
+=========     Read Thread (4,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (3,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xc3 in block (2,130,0) :
+=========     Read Thread (5,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (4,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xc4 in block (2,130,0) :
+=========     Read Thread (6,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (5,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xc5 in block (2,130,0) :
+=========     Read Thread (7,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (6,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xc6 in block (2,130,0) :
+=========     Read Thread (8,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (7,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xc7 in block (2,130,0) :
+=========     Read Thread (9,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (8,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xc8 in block (2,130,0) :
+=========     Read Thread (10,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (9,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xc9 in block (2,130,0) :
+=========     Read Thread (11,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (10,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xca in block (2,130,0) :
+=========     Read Thread (12,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (11,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xcb in block (2,130,0) :
+=========     Read Thread (13,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (12,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xcc in block (2,130,0) :
+=========     Read Thread (14,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (13,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xcd in block (2,130,0) :
+=========     Read Thread (15,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (14,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xce in block (2,130,0) :
+=========     Read Thread (16,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (15,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xcf in block (2,130,0) :
+=========     Read Thread (17,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (16,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xc0 in block (2,14,0) :
+=========     Read Thread (2,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (1,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xc1 in block (2,14,0) :
+=========     Read Thread (3,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (2,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xc2 in block (2,14,0) :
+=========     Read Thread (4,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (3,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xc3 in block (2,14,0) :
+=========     Read Thread (5,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (4,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xc4 in block (2,14,0) :
+=========     Read Thread (6,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (5,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xc5 in block (2,14,0) :
+=========     Read Thread (7,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (6,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xc6 in block (2,14,0) :
+=========     Read Thread (8,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (7,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xc7 in block (2,14,0) :
+=========     Read Thread (9,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (8,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xc8 in block (2,14,0) :
+=========     Read Thread (10,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (9,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xc9 in block (2,14,0) :
+=========     Read Thread (11,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (10,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xca in block (2,14,0) :
+=========     Read Thread (12,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (11,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xcb in block (2,14,0) :
+=========     Read Thread (13,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (12,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xcc in block (2,14,0) :
+=========     Read Thread (14,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (13,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xcd in block (2,14,0) :
+=========     Read Thread (15,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (14,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xce in block (2,14,0) :
+=========     Read Thread (16,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (15,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xcf in block (2,14,0) :
+=========     Read Thread (17,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (16,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xd0 in block (2,14,0) :
+=========     Read Thread (18,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (17,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xd1 in block (2,14,0) :
+=========     Read Thread (19,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (18,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xd2 in block (2,14,0) :
+=========     Read Thread (20,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (19,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xd3 in block (2,14,0) :
+=========     Read Thread (21,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x270 in morphology.cu:95
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Write Thread (20,0,0) at void twoWayScan<(MorphOpType)1>(const unsigned char *, unsigned char *, int, int)+0x2b0 in morphology.cu:94
+=========         Device Frame: void vhgw_horiz<(MorphOpType)1>(unsigned char *, const unsigned char *, int, int, int)+0x150 in morphology.cu:128
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7bfc7] in main
+=========         Host Frame: double morphology<(MorphOpType)1>(unsigned char*, unsigned char*, int, int, int, int) [0x53bf] in main
+=========         Host Frame: main [0x41cc] in main
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xd4 in block (2,14,0) :
+# TRUNCATED: full output (22008 lines, 2181753 bytes, sha256 49ed548ed487849535eeb1051f5dd6903354f1dd3100a2d563b84cca27d00268) kept at /mnt/beegfs/fzheng4/realworld/racecheck_full/hecbench-morphology-1-buggy.txt
+========= 
+Average kernel execution time (dilate): 56.997197 (s)
+Average kernel execution time (erode): 50.504180 (s)
+PASS
+========= RACECHECK SUMMARY: 2000 hazards displayed (142588 errors, 1046016 warnings)
+# exit 0

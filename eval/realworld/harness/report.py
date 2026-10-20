@@ -53,7 +53,7 @@ def racecheck(i, st):
             out.append("%s: n/a" % v)
         else:
             m = re.findall(r"RACECHECK SUMMARY: (\d+) hazards? displayed \((\d+) errors?, (\d+) warnings?\)", t)
-            out.append("%s: %s" % (v, ("%s hazards (%s errors, %s warnings)" % m[-1]) if m else "no summary line"))
+            out.append("%s: %s" % (v, ("%s shown; %s errors, %s warnings in total" % m[-1]) if m else "no summary line"))
     return "; ".join(out)
 
 
@@ -67,7 +67,7 @@ def main():
     L.append("Per-target status, written by `eval/realworld/harness/report.py` from `eval/realworld/targets/<id>/status.json`, "
              "`native/`, `racecheck/` and the checks in each target directory. Waves 1 and 2 (28 targets) are the commitment (D22); wave 3 is not started unless Jeffery says so.")
     L.append("")
-    L.append("| wave | id | route | status | driver / input | kernel reached (nsys) | native (3 runs) | racecheck | checks |")
+    L.append("| wave | id | route | status | driver (short; full text in 1.1) | kernel reached (nsys) | native (3 runs) | racecheck | checks |")
     L.append("|---|---|---|---|---|---|---|---|---|")
     counts = {}
     for w in (1, 2, 3):
@@ -86,7 +86,7 @@ def main():
                     r = [l for l in s.splitlines() if l.startswith("RESULT")]
                     chk.append("%s %s" % (f.split(".")[0], r[-1].split()[1] if r else "?"))
             L.append("| %d | `%s` | %s | %s | %s | %s | %s | %s | %s |" % (
-                w, i, st.get("route", "-"), status.replace("|", "/"), (st.get("driver", "-") + (" / " + st["input"] if st.get("input") else "")).replace("|", "/"),
+                w, i, st.get("route", "-"), status.replace("|", "/"), (lambda d: (d[:90] + (" ..." if len(d) > 90 else "")).replace("|", "/"))(st.get("driver", "-")),
                 reach(i), native(i), racecheck(i, st).replace("|", "/"), ", ".join(chk) or "-"))
     L.append("")
     L.append("Counts by wave (status keyword): " + "; ".join("wave %d: %s" % (w, ", ".join("%s %d" % kv for kv in sorted(c.items()))) for w, c in sorted(counts.items())))
@@ -99,11 +99,12 @@ def main():
             continue
         L.append("")
         L.append("**`%s`** (wave %d, %s, class %s)" % (i, t["wave"], st.get("route", "-"), t.get("expected_class", "?")))
-        for k in ("route_note", "reason", "toolkit", "notes"):
+        for k in ("route_note", "driver", "input", "reason", "toolkit", "notes"):
             if st.get(k):
                 L.append("- %s: %s" % (k, st[k]))
         for c in st.get("commands", []):
             L.append("  - `%s`" % c)
+    L.append(txt(os.path.join(HERE, "REALWORLD_tail.md")).rstrip("\n"))
     open(a.out, "w").write("\n".join(L) + "\n")
     print("wrote", a.out)
 

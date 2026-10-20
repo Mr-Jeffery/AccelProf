@@ -1,0 +1,48 @@
+{
+  "id": "amrex-1",
+  "tier": "core",
+  "wave": 2,
+  "route": "R1",
+  "kernel": "amrex::MLNodeABecLaplacian::Fsmooth GPU path: the ParallelFor(sol, [=] (int box_no, int i, int j, int k)) lambda of AMReX_MLNodeABecLaplacian.cpp L142-L152, i.e. mlndlap_adotx_aa (reads sol neighbours) followed by mlndabeclap_jacobi_aa (in-place update of sol(i,j,k)) in one launch; kernel symbols launch_global<128, ParallelFor_doit<128, MultiFab, MLNodeABecLaplacian::Fsmooth(...)::{lambda(int,int,int,int)#1}>> (and the ParallelFor<256,...> instantiation of the same lambda)",
+  "space": "global",
+  "build_revision": {
+    "buggy": "bfc7fcfe6f431a0a69cb6dfd35edfd442611aaf3",
+    "fixed": "930e7c223ffa5def78f1174fcde5f385c40e113f"
+  },
+  "sites": [
+    {
+      "role": "write",
+      "file": "Src/LinearSolvers/MLMG/AMReX_MLNodeABecLap_3D_K.H",
+      "line_start": 86,
+      "line_end": 87,
+      "source": "sol(i,j,k) += Real(2.0/3.0) * (rhs(i,j,k) - Ax) / (alpha*acf(i,j,k)-beta*s0);   (in mlndabeclap_jacobi_aa, called at AMReX_MLNodeABecLaplacian.cpp:149)",
+      "operation": "st.global.f64 (SASS STG.E.64 [R16.64], R4 at 0x24a0; preceded by the load of the node's own sol(i,j,k), LDG.E.64 R4,[R4.64] at 0x21b0, same line)",
+      "strength": "plain"
+    },
+    {
+      "role": "read",
+      "file": "Src/LinearSolvers/MLMG/AMReX_MLNodeLap_3D_K.H",
+      "line_start": 227,
+      "line_end": 228,
+      "source": "+ f4xm2ym2z*(x(i-1,j,k)*(sig(i-1,j-1,k-1)+...) + x(i+1,j,k)*(sig(i  ,j-1,k-1)+...))   (in mlndlap_adotx_aa, called at AMReX_MLNodeABecLaplacian.cpp:144; x = sol; the other 24 neighbour loads of the 27-point stencil, L207-L226 and L229-L232, conflict in the same way)",
+      "operation": "ld.global.f64 (SASS LDG.E.64 R32,[R26.64+-0x8] for x(i-1,j,k) at 0x1200 and LDG.E.64 R36,[R26.64+0x8] for x(i+1,j,k) at 0x11f0)",
+      "strength": "plain"
+    }
+  ],
+  "thread_relation": "cross-block",
+  "thread_pair_example": "one Fsmooth launch (fine level: 8 boxes of 9^3 nodes, 128-thread blocks): the thread of node (i,j,k) loads sol(i+1,j,k) (L228) while the thread of node (i+1,j,k) stores sol(i+1,j,k) (L86); nodes adjacent in i are adjacent lanes of one warp (intra-warp), nodes adjacent in j/k are in other warps of the block (cross-warp) or, at a 128-thread block boundary, in another block (cross-block). Which relation a detector sees depends on the node's flat index; all three occur in the same launch.",
+  "expected_class": "DR",
+  "class_reason": "All accesses are plain global loads/stores (LDG.E.64 / STG.E.64, no atomics, no fences, no .STRONG) by different threads of one grid in one kernel launch: neighbour loads of sol versus the in-place store to sol of the neighbouring node, with nothing ordering them (a grid has no inter-block ordering inside a launch) -> data race of plain accesses (DR); no strong/atomic access, so no SC component. A true intra-kernel RAW/WAR on one array; the result is nondeterministic.",
+  "buggy_expected": "The pair is reported as DR on global memory: the L227/L228 (and other L207-L232) loads of sol in mlndlap_adotx_aa versus the L86 store in mlndabeclap_jacobi_aa, both inlined into the Fsmooth lambda, by different threads of the same launch (RAW/WAR on neighbouring nodes).",
+  "fixed": {
+    "expected": "absent",
+    "residual_sites": null,
+    "reason": "The fix removes the Jacobi pair and runs the 2^D-coloured Gauss-Seidel on the GPU too: one ParallelForStrided launch per colour (AMReX_MLNodeABecLaplacian.cpp L142-L150 of the fixed file, multicolor_offset(color), IntVect(2) stride), calling mlndabeclap_gauss_seidel_aa whose stencil loads (AMReX_MLNodeABecLap_3D_K.H L32-L57, x-neighbours at L52/L53) and in-place store (L60, STG.E.64 at 0x1df0 / 0x1c00 in the two instantiations) now only touch nodes of different parity than the node being updated: nodes of one colour differ by >= 2 in at least one coordinate, so they are outside each other's +-1 stencil, and consecutive colour launches are stream-ordered. The same load and store instructions exist in the fixed SASS (it is the same stencil), so absence of a report depends on the detector separating launches / address sets."
+  },
+  "sass_notes": "sm_89 SASS (single RDC cubin of the test binary; cuobjdump/nvdisasm -g via a per-kernel variant of sassline.sh). Buggy: two instantiations contain the pair: launch_global<128, ParallelFor_doit<128,...Fsmooth lambda>> (neighbour LDG.E.64 at AMReX_MLNodeLap_3D_K.H:220..229 around 0x1100-0x1230, e.g. L227 0x1200, L228 0x11f0; own-node LDG at ABecLap_3D_K.H:86 0x21b0; STG.E.64 at ABecLap_3D_K.H:86 0x24a0) and launch_global<256, ParallelFor<256, ParallelFor_doit<128,...>::{lambda(int,int,int)}, 3>> (L227 0x0f60, L228 0x0f50, own-node LDG 0x1ee0, STG 0x21d0); which one the run launches is for the reach phase to say. All are plain LDG.E.64/STG.E.64, no .STRONG, no ATOM/RED. Fixed: ParallelForStrided_doit kernels, stores STG.E.64 at ABecLap_3D_K.H:60 (0x1df0, 0x1c00) and the mask store at :27. Flags (build_flags.txt): -lineinfo -O3 -DNDEBUG -std=c++20 --generate-code=arch=compute_89,code=[compute_89,sm_89] --expt-relaxed-constexpr --expt-extended-lambda -maxrregcount=255 --use_fast_math --generate-line-info (AMReX's own set + the lineinfo flag); RDC build, device-linked into one sm_89 cubin, no PTX in the executable.",
+  "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against Src/LinearSolvers/MLMG/AMReX_MLNodeABecLaplacian.cpp@bfc7fcf (L141-L157), AMReX_MLNodeLap_3D_K.H and AMReX_MLNodeABecLap_3D_K.H at both revisions, and the sm_89 SASS (/home/fzheng4/sassfn.sh, per-kernel variant of sassline.sh) of the built test binaries, on 2026-10-20",
+  "open_questions": [
+    "Two instantiations of the Fsmooth lambda (a 128-thread launch_global<128,...ParallelFor_doit> and a 256-thread launch_global<256,...ParallelFor<256,...>>) are in the binary; which one(s) the run launches is determined by the reach phase (nsys), not here. The racing instruction pairs are identical in both.",
+    "The test is run with n_cell=16 max_grid_size=8 and the shipped max_iter=100 (6 V-cycles to converge): with max_iter=2 the test aborts after the 2nd V-cycle with 'MLMG failed' (SIGABRT, rc=1) because it cannot reach its fixed tolerance (smoke on sm_75), so max_iter is not overridden. Thread-level accesses are estimated at about 1e7 (not measured)."
+  ]
+}

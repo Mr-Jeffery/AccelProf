@@ -1,0 +1,407 @@
+# compute-sanitizer Version 2026.3.0.0 (build 38855100) (public-release) host c3 cuda /usr/local/cuda-13.4 2026-10-20
+# cmd: /mnt/beegfs/fzheng4/realworld/build/llamacpp-4/buggy/test-backend-ops test -b CUDA0 -o SOFT_MAX -p 'ne=\[1024,16,1,1\],mask=0,sinks=0'
+========= COMPUTE-SANITIZER
+ggml_cuda_init: found 1 CUDA devices (Total VRAM: 16030 MiB):
+  Device 0: NVIDIA GeForce RTX 4060 Ti, compute capability 8.9, VMM: yes, VRAM: 16030 MiB
+========= Error: Potential WAR hazard detected at __shared__ 0x74 in block (3,0,0) :
+=========     Read Thread (253,0,0) at T3 block_reduce<(block_reduce_method)0, (unsigned int)1024, float>(T3, T3 *)+0x870 in common.cuh:643
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x7a0 in softmax.cu:102
+=========     Write Thread (928,0,0) at T3 block_reduce<(block_reduce_method)1, (unsigned int)1024, float>(T3, T3 *)+0xa20 in common.cuh:638
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x740 in softmax.cu:120
+=========     Current Value : 6, Incoming Value : 180
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_op_soft_max(ggml_backend_cuda_context&, ggml_tensor*) [0x39db82] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x206ca2] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xfe4788] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xf7b1d] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xba836] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xbd5ae] in test-backend-ops
+=========         Host Frame: main [0x2bf72] in test-backend-ops
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x75 in block (3,0,0) :
+=========     Read Thread (253,0,0) at T3 block_reduce<(block_reduce_method)0, (unsigned int)1024, float>(T3, T3 *)+0x870 in common.cuh:643
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x7a0 in softmax.cu:102
+=========     Write Thread (928,0,0) at T3 block_reduce<(block_reduce_method)1, (unsigned int)1024, float>(T3, T3 *)+0xa20 in common.cuh:638
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x740 in softmax.cu:120
+=========     Current Value : 212, Incoming Value : 29
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_op_soft_max(ggml_backend_cuda_context&, ggml_tensor*) [0x39db82] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x206ca2] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xfe4788] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xf7b1d] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xba836] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xbd5ae] in test-backend-ops
+=========         Host Frame: main [0x2bf72] in test-backend-ops
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x76 in block (3,0,0) :
+=========     Read Thread (253,0,0) at T3 block_reduce<(block_reduce_method)0, (unsigned int)1024, float>(T3, T3 *)+0x870 in common.cuh:643
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x7a0 in softmax.cu:102
+=========     Write Thread (928,0,0) at T3 block_reduce<(block_reduce_method)1, (unsigned int)1024, float>(T3, T3 *)+0xa20 in common.cuh:638
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x740 in softmax.cu:120
+=========     Current Value : 124, Incoming Value : 88
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_op_soft_max(ggml_backend_cuda_context&, ggml_tensor*) [0x39db82] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x206ca2] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xfe4788] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xf7b1d] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xba836] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xbd5ae] in test-backend-ops
+=========         Host Frame: main [0x2bf72] in test-backend-ops
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x77 in block (3,0,0) :
+=========     Read Thread (253,0,0) at T3 block_reduce<(block_reduce_method)0, (unsigned int)1024, float>(T3, T3 *)+0x870 in common.cuh:643
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x7a0 in softmax.cu:102
+=========     Write Thread (928,0,0) at T3 block_reduce<(block_reduce_method)1, (unsigned int)1024, float>(T3, T3 *)+0xa20 in common.cuh:638
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x740 in softmax.cu:120
+=========     Current Value : 63, Incoming Value : 65
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_op_soft_max(ggml_backend_cuda_context&, ggml_tensor*) [0x39db82] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x206ca2] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xfe4788] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xf7b1d] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xba836] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xbd5ae] in test-backend-ops
+=========         Host Frame: main [0x2bf72] in test-backend-ops
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0x74 in block (3,0,0) :
+=========     Write Thread (928,0,0) at T3 block_reduce<(block_reduce_method)1, (unsigned int)1024, float>(T3, T3 *)+0xa20 in common.cuh:638
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x740 in softmax.cu:120
+=========     Read Thread (61,0,0) at T3 block_reduce<(block_reduce_method)0, (unsigned int)1024, float>(T3, T3 *)+0x870 in common.cuh:643
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x7a0 in softmax.cu:102
+=========     Current Value : 180
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_op_soft_max(ggml_backend_cuda_context&, ggml_tensor*) [0x39db82] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x206ca2] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xfe4788] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xf7b1d] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xba836] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xbd5ae] in test-backend-ops
+=========         Host Frame: main [0x2bf72] in test-backend-ops
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0x75 in block (3,0,0) :
+=========     Write Thread (928,0,0) at T3 block_reduce<(block_reduce_method)1, (unsigned int)1024, float>(T3, T3 *)+0xa20 in common.cuh:638
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x740 in softmax.cu:120
+=========     Read Thread (61,0,0) at T3 block_reduce<(block_reduce_method)0, (unsigned int)1024, float>(T3, T3 *)+0x870 in common.cuh:643
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x7a0 in softmax.cu:102
+=========     Current Value : 29
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_op_soft_max(ggml_backend_cuda_context&, ggml_tensor*) [0x39db82] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x206ca2] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xfe4788] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xf7b1d] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xba836] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xbd5ae] in test-backend-ops
+=========         Host Frame: main [0x2bf72] in test-backend-ops
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0x76 in block (3,0,0) :
+=========     Write Thread (928,0,0) at T3 block_reduce<(block_reduce_method)1, (unsigned int)1024, float>(T3, T3 *)+0xa20 in common.cuh:638
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x740 in softmax.cu:120
+=========     Read Thread (61,0,0) at T3 block_reduce<(block_reduce_method)0, (unsigned int)1024, float>(T3, T3 *)+0x870 in common.cuh:643
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x7a0 in softmax.cu:102
+=========     Current Value : 88
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_op_soft_max(ggml_backend_cuda_context&, ggml_tensor*) [0x39db82] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x206ca2] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xfe4788] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xf7b1d] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xba836] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xbd5ae] in test-backend-ops
+=========         Host Frame: main [0x2bf72] in test-backend-ops
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0x77 in block (3,0,0) :
+=========     Write Thread (928,0,0) at T3 block_reduce<(block_reduce_method)1, (unsigned int)1024, float>(T3, T3 *)+0xa20 in common.cuh:638
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x740 in softmax.cu:120
+=========     Read Thread (61,0,0) at T3 block_reduce<(block_reduce_method)0, (unsigned int)1024, float>(T3, T3 *)+0x870 in common.cuh:643
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x7a0 in softmax.cu:102
+=========     Current Value : 65
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_op_soft_max(ggml_backend_cuda_context&, ggml_tensor*) [0x39db82] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x206ca2] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xfe4788] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xf7b1d] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xba836] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xbd5ae] in test-backend-ops
+=========         Host Frame: main [0x2bf72] in test-backend-ops
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xc in block (6,0,0) :
+=========     Read Thread (707,0,0) at T3 block_reduce<(block_reduce_method)0, (unsigned int)1024, float>(T3, T3 *)+0x870 in common.cuh:643
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x7a0 in softmax.cu:102
+=========     Write Thread (96,0,0) at T3 block_reduce<(block_reduce_method)1, (unsigned int)1024, float>(T3, T3 *)+0xa20 in common.cuh:638
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x740 in softmax.cu:120
+=========     Current Value : 204, Incoming Value : 21
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_op_soft_max(ggml_backend_cuda_context&, ggml_tensor*) [0x39db82] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x206ca2] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xfe4788] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xf7b1d] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xba836] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xbd5ae] in test-backend-ops
+=========         Host Frame: main [0x2bf72] in test-backend-ops
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xd in block (6,0,0) :
+=========     Read Thread (707,0,0) at T3 block_reduce<(block_reduce_method)0, (unsigned int)1024, float>(T3, T3 *)+0x870 in common.cuh:643
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x7a0 in softmax.cu:102
+=========     Write Thread (96,0,0) at T3 block_reduce<(block_reduce_method)1, (unsigned int)1024, float>(T3, T3 *)+0xa20 in common.cuh:638
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x740 in softmax.cu:120
+=========     Current Value : 213, Incoming Value : 59
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_op_soft_max(ggml_backend_cuda_context&, ggml_tensor*) [0x39db82] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x206ca2] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xfe4788] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xf7b1d] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xba836] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xbd5ae] in test-backend-ops
+=========         Host Frame: main [0x2bf72] in test-backend-ops
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xe in block (6,0,0) :
+=========     Read Thread (707,0,0) at T3 block_reduce<(block_reduce_method)0, (unsigned int)1024, float>(T3, T3 *)+0x870 in common.cuh:643
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x7a0 in softmax.cu:102
+=========     Write Thread (96,0,0) at T3 block_reduce<(block_reduce_method)1, (unsigned int)1024, float>(T3, T3 *)+0xa20 in common.cuh:638
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x740 in softmax.cu:120
+=========     Current Value : 125, Incoming Value : 90
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_op_soft_max(ggml_backend_cuda_context&, ggml_tensor*) [0x39db82] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x206ca2] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xfe4788] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xf7b1d] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xba836] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xbd5ae] in test-backend-ops
+=========         Host Frame: main [0x2bf72] in test-backend-ops
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xf in block (6,0,0) :
+=========     Read Thread (707,0,0) at T3 block_reduce<(block_reduce_method)0, (unsigned int)1024, float>(T3, T3 *)+0x870 in common.cuh:643
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x7a0 in softmax.cu:102
+=========     Write Thread (96,0,0) at T3 block_reduce<(block_reduce_method)1, (unsigned int)1024, float>(T3, T3 *)+0xa20 in common.cuh:638
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x740 in softmax.cu:120
+=========     Current Value : 63, Incoming Value : 65
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_op_soft_max(ggml_backend_cuda_context&, ggml_tensor*) [0x39db82] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x206ca2] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xfe4788] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xf7b1d] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xba836] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xbd5ae] in test-backend-ops
+=========         Host Frame: main [0x2bf72] in test-backend-ops
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x0 in block (0,0,0) :
+=========     Read Thread (192,0,0) at T3 block_reduce<(block_reduce_method)0, (unsigned int)1024, float>(T3, T3 *)+0x870 in common.cuh:643
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x7a0 in softmax.cu:102
+=========     Write Thread (0,0,0) at T3 block_reduce<(block_reduce_method)1, (unsigned int)1024, float>(T3, T3 *)+0xa20 in common.cuh:638
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x740 in softmax.cu:120
+=========     Current Value : 154, Incoming Value : 79
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_op_soft_max(ggml_backend_cuda_context&, ggml_tensor*) [0x39db82] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x206ca2] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xfe4788] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xf7b1d] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xba836] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xbd5ae] in test-backend-ops
+=========         Host Frame: main [0x2bf72] in test-backend-ops
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1 in block (0,0,0) :
+=========     Read Thread (192,0,0) at T3 block_reduce<(block_reduce_method)0, (unsigned int)1024, float>(T3, T3 *)+0x870 in common.cuh:643
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x7a0 in softmax.cu:102
+=========     Write Thread (0,0,0) at T3 block_reduce<(block_reduce_method)1, (unsigned int)1024, float>(T3, T3 *)+0xa20 in common.cuh:638
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x740 in softmax.cu:120
+=========     Current Value : 171, Incoming Value : 224
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_op_soft_max(ggml_backend_cuda_context&, ggml_tensor*) [0x39db82] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x206ca2] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xfe4788] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xf7b1d] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xba836] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xbd5ae] in test-backend-ops
+=========         Host Frame: main [0x2bf72] in test-backend-ops
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x2 in block (0,0,0) :
+=========     Read Thread (192,0,0) at T3 block_reduce<(block_reduce_method)0, (unsigned int)1024, float>(T3, T3 *)+0x870 in common.cuh:643
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x7a0 in softmax.cu:102
+=========     Write Thread (0,0,0) at T3 block_reduce<(block_reduce_method)1, (unsigned int)1024, float>(T3, T3 *)+0xa20 in common.cuh:638
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x740 in softmax.cu:120
+=========     Current Value : 102, Incoming Value : 108
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_op_soft_max(ggml_backend_cuda_context&, ggml_tensor*) [0x39db82] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x206ca2] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xfe4788] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xf7b1d] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xba836] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xbd5ae] in test-backend-ops
+=========         Host Frame: main [0x2bf72] in test-backend-ops
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x3 in block (0,0,0) :
+=========     Read Thread (192,0,0) at T3 block_reduce<(block_reduce_method)0, (unsigned int)1024, float>(T3, T3 *)+0x870 in common.cuh:643
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x7a0 in softmax.cu:102
+=========     Write Thread (0,0,0) at T3 block_reduce<(block_reduce_method)1, (unsigned int)1024, float>(T3, T3 *)+0xa20 in common.cuh:638
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x740 in softmax.cu:120
+=========     Current Value : 63, Incoming Value : 65
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_op_soft_max(ggml_backend_cuda_context&, ggml_tensor*) [0x39db82] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x206ca2] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xfe4788] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xf7b1d] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xba836] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xbd5ae] in test-backend-ops
+=========         Host Frame: main [0x2bf72] in test-backend-ops
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x14 in block (5,0,0) :
+=========     Read Thread (357,0,0) at T3 block_reduce<(block_reduce_method)0, (unsigned int)1024, float>(T3, T3 *)+0x870 in common.cuh:643
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x7a0 in softmax.cu:102
+=========     Write Thread (160,0,0) at T3 block_reduce<(block_reduce_method)1, (unsigned int)1024, float>(T3, T3 *)+0xa20 in common.cuh:638
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x740 in softmax.cu:120
+=========     Current Value : 114, Incoming Value : 212
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_op_soft_max(ggml_backend_cuda_context&, ggml_tensor*) [0x39db82] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x206ca2] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xfe4788] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xf7b1d] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xba836] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xbd5ae] in test-backend-ops
+=========         Host Frame: main [0x2bf72] in test-backend-ops
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x15 in block (5,0,0) :
+=========     Read Thread (357,0,0) at T3 block_reduce<(block_reduce_method)0, (unsigned int)1024, float>(T3, T3 *)+0x870 in common.cuh:643
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x7a0 in softmax.cu:102
+=========     Write Thread (160,0,0) at T3 block_reduce<(block_reduce_method)1, (unsigned int)1024, float>(T3, T3 *)+0xa20 in common.cuh:638
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x740 in softmax.cu:120
+=========     Current Value : 111, Incoming Value : 133
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_op_soft_max(ggml_backend_cuda_context&, ggml_tensor*) [0x39db82] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x206ca2] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xfe4788] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xf7b1d] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xba836] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xbd5ae] in test-backend-ops
+=========         Host Frame: main [0x2bf72] in test-backend-ops
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x16 in block (5,0,0) :
+=========     Read Thread (357,0,0) at T3 block_reduce<(block_reduce_method)0, (unsigned int)1024, float>(T3, T3 *)+0x870 in common.cuh:643
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x7a0 in softmax.cu:102
+=========     Write Thread (160,0,0) at T3 block_reduce<(block_reduce_method)1, (unsigned int)1024, float>(T3, T3 *)+0xa20 in common.cuh:638
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x740 in softmax.cu:120
+=========     Current Value : 111, Incoming Value : 68
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_op_soft_max(ggml_backend_cuda_context&, ggml_tensor*) [0x39db82] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x206ca2] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xfe4788] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xf7b1d] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xba836] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xbd5ae] in test-backend-ops
+=========         Host Frame: main [0x2bf72] in test-backend-ops
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x17 in block (5,0,0) :
+=========     Read Thread (357,0,0) at T3 block_reduce<(block_reduce_method)0, (unsigned int)1024, float>(T3, T3 *)+0x870 in common.cuh:643
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x7a0 in softmax.cu:102
+=========     Write Thread (160,0,0) at T3 block_reduce<(block_reduce_method)1, (unsigned int)1024, float>(T3, T3 *)+0xa20 in common.cuh:638
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x740 in softmax.cu:120
+=========     Current Value : 63, Incoming Value : 65
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_op_soft_max(ggml_backend_cuda_context&, ggml_tensor*) [0x39db82] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x206ca2] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xfe4788] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xf7b1d] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xba836] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xbd5ae] in test-backend-ops
+=========         Host Frame: main [0x2bf72] in test-backend-ops
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x0 in block (5,0,0) :
+=========     Read Thread (352,0,0) at T3 block_reduce<(block_reduce_method)0, (unsigned int)1024, float>(T3, T3 *)+0x870 in common.cuh:643
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x7a0 in softmax.cu:102
+=========     Write Thread (0,0,0) at T3 block_reduce<(block_reduce_method)1, (unsigned int)1024, float>(T3, T3 *)+0xa20 in common.cuh:638
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x740 in softmax.cu:120
+=========     Current Value : 124, Incoming Value : 24
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_op_soft_max(ggml_backend_cuda_context&, ggml_tensor*) [0x39db82] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x206ca2] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xfe4788] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xf7b1d] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xba836] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xbd5ae] in test-backend-ops
+=========         Host Frame: main [0x2bf72] in test-backend-ops
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1 in block (5,0,0) :
+=========     Read Thread (352,0,0) at T3 block_reduce<(block_reduce_method)0, (unsigned int)1024, float>(T3, T3 *)+0x870 in common.cuh:643
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x7a0 in softmax.cu:102
+=========     Write Thread (0,0,0) at T3 block_reduce<(block_reduce_method)1, (unsigned int)1024, float>(T3, T3 *)+0xa20 in common.cuh:638
+=========         Device Frame: void soft_max_f32<(bool)1, (int)1024, (int)1024, float>(const float *, const T4 *, const float *, float *, soft_max_params)+0x740 in softmax.cu:120
+=========     Current Value : 67, Incoming Value : 140
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_op_soft_max(ggml_backend_cuda_context&, ggml_tensor*) [0x39db82] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x206ca2] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xfe4788] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xf7b1d] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xba836] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xbd5ae] in test-backend-ops
+=========         Host Frame: main [0x2bf72] in test-backend-ops
+# TRUNCATED: full output (36026 lines, 4101557 bytes, sha256 438d548029865abbcdb62ba014af20e3d395edce68f31f0b98342f32acdcec2a) kept at /mnt/beegfs/fzheng4/realworld/racecheck_full/llamacpp-4-buggy.txt
+  Skipping
+1/2 backends passed
+[1;31mFAIL[0m
+========= Target application returned an error
+========= RACECHECK SUMMARY: 2000 hazards displayed (6890 errors, 272 warnings)
+# exit 1

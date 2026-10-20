@@ -1,0 +1,407 @@
+# compute-sanitizer Version 2026.3.0.0 (build 38855100) (public-release) host c3 cuda /usr/local/cuda-13.4 2026-10-20
+# cmd: /mnt/beegfs/fzheng4/realworld/build/llamacpp-2/buggy/test-backend-ops test -b CUDA0 -o MUL_MAT_ID -p 'type_a=q4_0,type_b=f32,n_mats=8,n_used=4,b=0,m=512,n=32,k=256'
+========= COMPUTE-SANITIZER
+ggml_cuda_init: found 1 CUDA devices (Total VRAM: 16030 MiB):
+  Device 0: NVIDIA GeForce RTX 4060 Ti, compute capability 8.9, VMM: yes, VRAM: 16030 MiB
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x0 in block (0,0,0) :
+=========     Write Thread (3,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x6d0 in mmid.cu:96
+=========     Read Thread (0,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x1220 in mmid.cu:106
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_launch_mm_ids_helper(int const*, int*, int*, int*, int, int, int, int, int, int, bool, CUstream_st*) [0x249392] in test-backend-ops
+=========         Host Frame: ggml_cuda_mul_mat_q(ggml_backend_cuda_context&, ggml_tensor const*, ggml_tensor const*, ggml_tensor const*, ggml_tensor*) [0x2739c6] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x223a9e] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0x1040028] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0x10f7dd] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xc4cd6] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xc9c5e] in test-backend-ops
+=========         Host Frame: main [0x2c752] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x1 in block (0,0,0) :
+=========     Write Thread (3,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x6d0 in mmid.cu:96
+=========     Read Thread (0,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x1220 in mmid.cu:106
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_launch_mm_ids_helper(int const*, int*, int*, int*, int, int, int, int, int, int, bool, CUstream_st*) [0x249392] in test-backend-ops
+=========         Host Frame: ggml_cuda_mul_mat_q(ggml_backend_cuda_context&, ggml_tensor const*, ggml_tensor const*, ggml_tensor const*, ggml_tensor*) [0x2739c6] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x223a9e] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0x1040028] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0x10f7dd] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xc4cd6] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xc9c5e] in test-backend-ops
+=========         Host Frame: main [0x2c752] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x2 in block (0,0,0) :
+=========     Write Thread (3,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x6d0 in mmid.cu:96
+=========     Read Thread (0,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x1220 in mmid.cu:106
+=========     Current Value : 192
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_launch_mm_ids_helper(int const*, int*, int*, int*, int, int, int, int, int, int, bool, CUstream_st*) [0x249392] in test-backend-ops
+=========         Host Frame: ggml_cuda_mul_mat_q(ggml_backend_cuda_context&, ggml_tensor const*, ggml_tensor const*, ggml_tensor const*, ggml_tensor*) [0x2739c6] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x223a9e] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0x1040028] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0x10f7dd] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xc4cd6] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xc9c5e] in test-backend-ops
+=========         Host Frame: main [0x2c752] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x3 in block (0,0,0) :
+=========     Write Thread (3,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x6d0 in mmid.cu:96
+=========     Read Thread (0,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x1220 in mmid.cu:106
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_launch_mm_ids_helper(int const*, int*, int*, int*, int, int, int, int, int, int, bool, CUstream_st*) [0x249392] in test-backend-ops
+=========         Host Frame: ggml_cuda_mul_mat_q(ggml_backend_cuda_context&, ggml_tensor const*, ggml_tensor const*, ggml_tensor const*, ggml_tensor*) [0x2739c6] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x223a9e] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0x1040028] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0x10f7dd] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xc4cd6] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xc9c5e] in test-backend-ops
+=========         Host Frame: main [0x2c752] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x4 in block (0,0,0) :
+=========     Write Thread (5,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x6d0 in mmid.cu:96
+=========     Read Thread (1,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x1220 in mmid.cu:106
+=========     Current Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_launch_mm_ids_helper(int const*, int*, int*, int*, int, int, int, int, int, int, bool, CUstream_st*) [0x249392] in test-backend-ops
+=========         Host Frame: ggml_cuda_mul_mat_q(ggml_backend_cuda_context&, ggml_tensor const*, ggml_tensor const*, ggml_tensor const*, ggml_tensor*) [0x2739c6] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x223a9e] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0x1040028] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0x10f7dd] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xc4cd6] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xc9c5e] in test-backend-ops
+=========         Host Frame: main [0x2c752] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x5 in block (0,0,0) :
+=========     Write Thread (5,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x6d0 in mmid.cu:96
+=========     Read Thread (1,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x1220 in mmid.cu:106
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_launch_mm_ids_helper(int const*, int*, int*, int*, int, int, int, int, int, int, bool, CUstream_st*) [0x249392] in test-backend-ops
+=========         Host Frame: ggml_cuda_mul_mat_q(ggml_backend_cuda_context&, ggml_tensor const*, ggml_tensor const*, ggml_tensor const*, ggml_tensor*) [0x2739c6] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x223a9e] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0x1040028] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0x10f7dd] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xc4cd6] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xc9c5e] in test-backend-ops
+=========         Host Frame: main [0x2c752] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x6 in block (0,0,0) :
+=========     Write Thread (5,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x6d0 in mmid.cu:96
+=========     Read Thread (1,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x1220 in mmid.cu:106
+=========     Current Value : 64
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_launch_mm_ids_helper(int const*, int*, int*, int*, int, int, int, int, int, int, bool, CUstream_st*) [0x249392] in test-backend-ops
+=========         Host Frame: ggml_cuda_mul_mat_q(ggml_backend_cuda_context&, ggml_tensor const*, ggml_tensor const*, ggml_tensor const*, ggml_tensor*) [0x2739c6] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x223a9e] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0x1040028] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0x10f7dd] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xc4cd6] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xc9c5e] in test-backend-ops
+=========         Host Frame: main [0x2c752] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x4 in block (4,0,0) :
+=========     Write Thread (9,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x6d0 in mmid.cu:96
+=========     Read Thread (1,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x1220 in mmid.cu:106
+=========     Current Value : 2
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_launch_mm_ids_helper(int const*, int*, int*, int*, int, int, int, int, int, int, bool, CUstream_st*) [0x249392] in test-backend-ops
+=========         Host Frame: ggml_cuda_mul_mat_q(ggml_backend_cuda_context&, ggml_tensor const*, ggml_tensor const*, ggml_tensor const*, ggml_tensor*) [0x2739c6] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x223a9e] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0x1040028] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0x10f7dd] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xc4cd6] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xc9c5e] in test-backend-ops
+=========         Host Frame: main [0x2c752] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x5 in block (4,0,0) :
+=========     Write Thread (9,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x6d0 in mmid.cu:96
+=========     Read Thread (1,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x1220 in mmid.cu:106
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_launch_mm_ids_helper(int const*, int*, int*, int*, int, int, int, int, int, int, bool, CUstream_st*) [0x249392] in test-backend-ops
+=========         Host Frame: ggml_cuda_mul_mat_q(ggml_backend_cuda_context&, ggml_tensor const*, ggml_tensor const*, ggml_tensor const*, ggml_tensor*) [0x2739c6] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x223a9e] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0x1040028] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0x10f7dd] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xc4cd6] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xc9c5e] in test-backend-ops
+=========         Host Frame: main [0x2c752] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x6 in block (4,0,0) :
+=========     Write Thread (9,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x6d0 in mmid.cu:96
+=========     Read Thread (1,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x1220 in mmid.cu:106
+=========     Current Value : 64
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_launch_mm_ids_helper(int const*, int*, int*, int*, int, int, int, int, int, int, bool, CUstream_st*) [0x249392] in test-backend-ops
+=========         Host Frame: ggml_cuda_mul_mat_q(ggml_backend_cuda_context&, ggml_tensor const*, ggml_tensor const*, ggml_tensor const*, ggml_tensor*) [0x2739c6] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x223a9e] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0x1040028] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0x10f7dd] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xc4cd6] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xc9c5e] in test-backend-ops
+=========         Host Frame: main [0x2c752] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x7 in block (4,0,0) :
+=========     Write Thread (9,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x6d0 in mmid.cu:96
+=========     Read Thread (1,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x1220 in mmid.cu:106
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_launch_mm_ids_helper(int const*, int*, int*, int*, int, int, int, int, int, int, bool, CUstream_st*) [0x249392] in test-backend-ops
+=========         Host Frame: ggml_cuda_mul_mat_q(ggml_backend_cuda_context&, ggml_tensor const*, ggml_tensor const*, ggml_tensor const*, ggml_tensor*) [0x2739c6] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x223a9e] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0x1040028] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0x10f7dd] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xc4cd6] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xc9c5e] in test-backend-ops
+=========         Host Frame: main [0x2c752] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x0 in block (6,0,0) :
+=========     Write Thread (2,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x6d0 in mmid.cu:96
+=========     Read Thread (0,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x1220 in mmid.cu:106
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_launch_mm_ids_helper(int const*, int*, int*, int*, int, int, int, int, int, int, bool, CUstream_st*) [0x249392] in test-backend-ops
+=========         Host Frame: ggml_cuda_mul_mat_q(ggml_backend_cuda_context&, ggml_tensor const*, ggml_tensor const*, ggml_tensor const*, ggml_tensor*) [0x2739c6] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x223a9e] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0x1040028] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0x10f7dd] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xc4cd6] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xc9c5e] in test-backend-ops
+=========         Host Frame: main [0x2c752] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x1 in block (6,0,0) :
+=========     Write Thread (2,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x6d0 in mmid.cu:96
+=========     Read Thread (0,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x1220 in mmid.cu:106
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_launch_mm_ids_helper(int const*, int*, int*, int*, int, int, int, int, int, int, bool, CUstream_st*) [0x249392] in test-backend-ops
+=========         Host Frame: ggml_cuda_mul_mat_q(ggml_backend_cuda_context&, ggml_tensor const*, ggml_tensor const*, ggml_tensor const*, ggml_tensor*) [0x2739c6] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x223a9e] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0x1040028] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0x10f7dd] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xc4cd6] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xc9c5e] in test-backend-ops
+=========         Host Frame: main [0x2c752] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x2 in block (6,0,0) :
+=========     Write Thread (2,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x6d0 in mmid.cu:96
+=========     Read Thread (0,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x1220 in mmid.cu:106
+=========     Current Value : 128
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_launch_mm_ids_helper(int const*, int*, int*, int*, int, int, int, int, int, int, bool, CUstream_st*) [0x249392] in test-backend-ops
+=========         Host Frame: ggml_cuda_mul_mat_q(ggml_backend_cuda_context&, ggml_tensor const*, ggml_tensor const*, ggml_tensor const*, ggml_tensor*) [0x2739c6] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x223a9e] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0x1040028] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0x10f7dd] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xc4cd6] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xc9c5e] in test-backend-ops
+=========         Host Frame: main [0x2c752] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x3 in block (6,0,0) :
+=========     Write Thread (2,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x6d0 in mmid.cu:96
+=========     Read Thread (0,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x1220 in mmid.cu:106
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_launch_mm_ids_helper(int const*, int*, int*, int*, int, int, int, int, int, int, bool, CUstream_st*) [0x249392] in test-backend-ops
+=========         Host Frame: ggml_cuda_mul_mat_q(ggml_backend_cuda_context&, ggml_tensor const*, ggml_tensor const*, ggml_tensor const*, ggml_tensor*) [0x2739c6] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x223a9e] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0x1040028] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0x10f7dd] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xc4cd6] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xc9c5e] in test-backend-ops
+=========         Host Frame: main [0x2c752] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x4 in block (6,0,0) :
+=========     Write Thread (4,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x6d0 in mmid.cu:96
+=========     Read Thread (1,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x1220 in mmid.cu:106
+=========     Current Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_launch_mm_ids_helper(int const*, int*, int*, int*, int, int, int, int, int, int, bool, CUstream_st*) [0x249392] in test-backend-ops
+=========         Host Frame: ggml_cuda_mul_mat_q(ggml_backend_cuda_context&, ggml_tensor const*, ggml_tensor const*, ggml_tensor const*, ggml_tensor*) [0x2739c6] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x223a9e] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0x1040028] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0x10f7dd] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xc4cd6] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xc9c5e] in test-backend-ops
+=========         Host Frame: main [0x2c752] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x5 in block (6,0,0) :
+=========     Write Thread (4,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x6d0 in mmid.cu:96
+=========     Read Thread (1,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x1220 in mmid.cu:106
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_launch_mm_ids_helper(int const*, int*, int*, int*, int, int, int, int, int, int, bool, CUstream_st*) [0x249392] in test-backend-ops
+=========         Host Frame: ggml_cuda_mul_mat_q(ggml_backend_cuda_context&, ggml_tensor const*, ggml_tensor const*, ggml_tensor const*, ggml_tensor*) [0x2739c6] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x223a9e] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0x1040028] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0x10f7dd] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xc4cd6] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xc9c5e] in test-backend-ops
+=========         Host Frame: main [0x2c752] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x6 in block (6,0,0) :
+=========     Write Thread (4,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x6d0 in mmid.cu:96
+=========     Read Thread (1,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x1220 in mmid.cu:106
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_launch_mm_ids_helper(int const*, int*, int*, int*, int, int, int, int, int, int, bool, CUstream_st*) [0x249392] in test-backend-ops
+=========         Host Frame: ggml_cuda_mul_mat_q(ggml_backend_cuda_context&, ggml_tensor const*, ggml_tensor const*, ggml_tensor const*, ggml_tensor*) [0x2739c6] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x223a9e] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0x1040028] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0x10f7dd] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xc4cd6] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xc9c5e] in test-backend-ops
+=========         Host Frame: main [0x2c752] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x7 in block (6,0,0) :
+=========     Write Thread (4,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x6d0 in mmid.cu:96
+=========     Read Thread (1,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x1220 in mmid.cu:106
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_launch_mm_ids_helper(int const*, int*, int*, int*, int, int, int, int, int, int, bool, CUstream_st*) [0x249392] in test-backend-ops
+=========         Host Frame: ggml_cuda_mul_mat_q(ggml_backend_cuda_context&, ggml_tensor const*, ggml_tensor const*, ggml_tensor const*, ggml_tensor*) [0x2739c6] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x223a9e] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0x1040028] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0x10f7dd] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xc4cd6] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xc9c5e] in test-backend-ops
+=========         Host Frame: main [0x2c752] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x8 in block (6,0,0) :
+=========     Write Thread (10,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x6d0 in mmid.cu:96
+=========     Read Thread (2,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x1220 in mmid.cu:106
+=========     Current Value : 2
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_launch_mm_ids_helper(int const*, int*, int*, int*, int, int, int, int, int, int, bool, CUstream_st*) [0x249392] in test-backend-ops
+=========         Host Frame: ggml_cuda_mul_mat_q(ggml_backend_cuda_context&, ggml_tensor const*, ggml_tensor const*, ggml_tensor const*, ggml_tensor*) [0x2739c6] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x223a9e] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0x1040028] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0x10f7dd] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xc4cd6] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xc9c5e] in test-backend-ops
+=========         Host Frame: main [0x2c752] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x9 in block (6,0,0) :
+=========     Write Thread (10,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x6d0 in mmid.cu:96
+=========     Read Thread (2,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x1220 in mmid.cu:106
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_launch_mm_ids_helper(int const*, int*, int*, int*, int, int, int, int, int, int, bool, CUstream_st*) [0x249392] in test-backend-ops
+=========         Host Frame: ggml_cuda_mul_mat_q(ggml_backend_cuda_context&, ggml_tensor const*, ggml_tensor const*, ggml_tensor const*, ggml_tensor*) [0x2739c6] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x223a9e] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0x1040028] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0x10f7dd] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xc4cd6] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xc9c5e] in test-backend-ops
+=========         Host Frame: main [0x2c752] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0xa in block (6,0,0) :
+=========     Write Thread (10,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x6d0 in mmid.cu:96
+=========     Read Thread (2,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x1220 in mmid.cu:106
+=========     Current Value : 128
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_launch_mm_ids_helper(int const*, int*, int*, int*, int, int, int, int, int, int, bool, CUstream_st*) [0x249392] in test-backend-ops
+=========         Host Frame: ggml_cuda_mul_mat_q(ggml_backend_cuda_context&, ggml_tensor const*, ggml_tensor const*, ggml_tensor const*, ggml_tensor*) [0x2739c6] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x223a9e] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0x1040028] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0x10f7dd] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xc4cd6] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xc9c5e] in test-backend-ops
+=========         Host Frame: main [0x2c752] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0xb in block (6,0,0) :
+=========     Write Thread (10,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x6d0 in mmid.cu:96
+=========     Read Thread (2,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x1220 in mmid.cu:106
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: ggml_cuda_launch_mm_ids_helper(int const*, int*, int*, int*, int, int, int, int, int, int, bool, CUstream_st*) [0x249392] in test-backend-ops
+=========         Host Frame: ggml_cuda_mul_mat_q(ggml_backend_cuda_context&, ggml_tensor const*, ggml_tensor const*, ggml_tensor const*, ggml_tensor*) [0x2739c6] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x223a9e] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0x1040028] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0x10f7dd] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xc4cd6] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xc9c5e] in test-backend-ops
+=========         Host Frame: main [0x2c752] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0xc in block (6,0,0) :
+=========     Write Thread (18,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x6d0 in mmid.cu:96
+=========     Read Thread (3,0,0) at void mm_ids_helper<(int)4>(const int *, int *, int *, int *, int, int, int, int, int, bool)+0x1220 in mmid.cu:106
+=========     Current Value : 4
+# TRUNCATED: full output (8388 lines, 963892 bytes, sha256 1a77af387d6d6f990497e0a57d3f7b0daa29facba2c98bf2c84e7f0d7e5ddbcc) kept at /mnt/beegfs/fzheng4/realworld/racecheck_full/llamacpp-2-buggy.txt
+Backend 2/2: CPU
+  Skipping
+2/2 backends passed
+[1;32mOK[0m
+========= RACECHECK SUMMARY: 493 hazards displayed (0 errors, 493 warnings)
+# exit 0

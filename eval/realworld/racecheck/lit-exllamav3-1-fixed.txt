@@ -1,0 +1,407 @@
+# compute-sanitizer Version 2026.3.0.0 (build 38855100) (public-release) host c3 cuda /usr/local/cuda-13.4 2026-10-20
+# cmd: /mnt/beegfs/fzheng4/realworld/build/lit-exllamav3-1/fixed/driver
+========= COMPUTE-SANITIZER
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x454 in block (2,0,0) :
+=========     Read Thread (181,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (161,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 27, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x455 in block (2,0,0) :
+=========     Read Thread (181,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (161,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x456 in block (2,0,0) :
+=========     Read Thread (181,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (161,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x457 in block (2,0,0) :
+=========     Read Thread (181,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (161,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x404 in block (2,0,0) :
+=========     Read Thread (161,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (162,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 2, Incoming Value : 2
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x405 in block (2,0,0) :
+=========     Read Thread (161,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (162,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x406 in block (2,0,0) :
+=========     Read Thread (161,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (162,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x407 in block (2,0,0) :
+=========     Read Thread (161,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (162,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x408 in block (2,0,0) :
+=========     Read Thread (162,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (163,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 3, Incoming Value : 3
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x409 in block (2,0,0) :
+=========     Read Thread (162,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (163,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x40a in block (2,0,0) :
+=========     Read Thread (162,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (163,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x40b in block (2,0,0) :
+=========     Read Thread (162,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (163,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x40c in block (2,0,0) :
+=========     Read Thread (163,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (164,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 4, Incoming Value : 4
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x40d in block (2,0,0) :
+=========     Read Thread (163,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (164,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x40e in block (2,0,0) :
+=========     Read Thread (163,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (164,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x40f in block (2,0,0) :
+=========     Read Thread (163,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (164,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x458 in block (2,0,0) :
+=========     Read Thread (182,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (165,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 29, Incoming Value : 5
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x459 in block (2,0,0) :
+=========     Read Thread (182,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (165,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x45a in block (2,0,0) :
+=========     Read Thread (182,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (165,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x45b in block (2,0,0) :
+=========     Read Thread (182,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (165,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x410 in block (2,0,0) :
+=========     Read Thread (164,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (166,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 5, Incoming Value : 6
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x411 in block (2,0,0) :
+=========     Read Thread (164,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (166,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x412 in block (2,0,0) :
+=========     Read Thread (164,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (166,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x413 in block (2,0,0) :
+=========     Read Thread (164,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (166,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x45c in block (2,0,0) :
+=========     Read Thread (183,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (167,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 30, Incoming Value : 7
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x45d in block (2,0,0) :
+=========     Read Thread (183,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (167,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x45e in block (2,0,0) :
+=========     Read Thread (183,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (167,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x45f in block (2,0,0) :
+=========     Read Thread (183,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (167,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x414 in block (2,0,0) :
+=========     Read Thread (165,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (168,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 7, Incoming Value : 8
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x415 in block (2,0,0) :
+=========     Read Thread (165,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (168,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x416 in block (2,0,0) :
+=========     Read Thread (165,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (168,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x417 in block (2,0,0) :
+=========     Read Thread (165,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (168,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x418 in block (2,0,0) :
+=========     Read Thread (166,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (169,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 9, Incoming Value : 9
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x419 in block (2,0,0) :
+=========     Read Thread (166,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (169,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x41a in block (2,0,0) :
+=========     Read Thread (166,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (169,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x41b in block (2,0,0) :
+=========     Read Thread (166,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (169,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x41c in block (2,0,0) :
+=========     Read Thread (167,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (170,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 10, Incoming Value : 10
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x41d in block (2,0,0) :
+=========     Read Thread (167,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (170,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x41e in block (2,0,0) :
+=========     Read Thread (167,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (170,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x41f in block (2,0,0) :
+=========     Read Thread (167,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (170,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x1c8 in block (3,0,0) :
+=========     Read Thread (18,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (0,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 25, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x1c9 in block (3,0,0) :
+=========     Read Thread (18,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (0,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x1ca in block (3,0,0) :
+=========     Read Thread (18,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (0,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x1cb in block (3,0,0) :
+=========     Read Thread (18,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x900 in routing.cu:103
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Write Thread (0,0,0) at warp_radixsort_posf16(__half &, int &, int *)+0x9f0 in routing.cu:101
+=========         Device Frame: routing_std_kernel(const __half *, long *, __half *, const __nv_bfloat16 *, int, int, int)+0x420 in routing.cu:657
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5675] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x1cc in block (3,0,0) :
+# TRUNCATED: full output (18008 lines, 1649482 bytes, sha256 2670a9a92981f6cf5545f9892798977a093431ddf4c5cb48343d9ab2bf7aea18) kept at /mnt/beegfs/fzheng4/realworld/racecheck_full/lit-exllamav3-1-fixed.txt
+========= 
+routing_ds3_nogroup_topk_kernel<SIGMOID> E=256 K=8 bsz=4 grid=4 block=256 row0 top8=[83,166,249,76,159,242,69,152] rows_with_wrong_set=0 rows_with_other_order=0/4
+routing_std_topk_kernel E=256 K=8 bsz=4 grid=4 block=256 row0 top8=[83,166,249,76,159,242,69,152] rows_with_wrong_set=0 rows_with_other_order=0/4
+routing_std_kernel E=256 K=8 bsz=4 grid=4 block=256 row0 top8=[83,166,249,76,159,242,69,152] rows_with_wrong_set=0 rows_with_other_order=0/4
+========= RACECHECK SUMMARY: 2000 hazards displayed (0 errors, 38521 warnings)
+# exit 0

@@ -39,12 +39,17 @@ R2: `harness/r2_extract.sh` then `harness/fixdiff.py <id> --write` (blob sha1 eq
 `harness/cuda_elfs.py` lists the CUDA ELFs a process can load (`ldd` + `cuobjdump -lelf/-lptx`, optional `-xelf all`) for the
 shared-library targets; the run-time module list and the alignment stage are T21b's.
 
-**Toolchain found on the nodes.** gcc 12.4, cmake 3.26, ninja, make, python 3.13 (miniconda), git. `/usr/local/cuda` is a
-symlink whose target differs by node: **13.4** on c38 (the brief says 13.3; installed: cuda-13.0, 13.2, 13.4). Each build log and
-each `status.json` records the toolkit it used. Excluded nodes (no `/home/fzheng4`, 2026-10-20): **c23, c46**; also c2, c21,
-c37, c54 (T21 rule). Held work nodes: see section 1.2.
+**Toolchain found on the nodes.** gcc 12.4 (no `<format>`, no `libstdc++.a`; the system libstdc++ is gcc 8's, so the
+artifacts that need it carry gcc 12.4's `libstdc++.so.6` next to the binary with an `$ORIGIN` rpath), cmake 3.26, ninja, make,
+python 3.13 (miniconda), git. `/usr/local/cuda` is **13.4** (13.4.3) on both nodes used, c38 (builds) and c3 (GPU phases); the
+brief and `setup/blockers.md` say 13.3. Installed on c38: cuda-13.0, 13.2, 13.4 (and 12.x). Driver 580.82.07 on both.
+Compute Sanitizer 2026.3.0.0 and Nsight Systems 2026.3.2 come with that toolkit. Each `status.json` records the toolkit.
+Excluded nodes (no `/home/fzheng4`, 2026-10-20): **c23, c46**; also c2, c21, c37, c54 (T21 rule). No job hit the exit-97 check.
 
 **Deviations from the brief, and why.** (1) The unpacked trees live on node-local disk, not BeeGFS (storage above). (2) The
 CPU builds ran in an allocation on c38, partition `rtx2060super`, not `normal`: the `normal` queue's estimated start was
 three hours (twelve hours for a day-long hold) while c38 was idle; c38's GPU (sm_75) is not used for any result. All native
-runs, `reach` checks and racecheck runs are on sm_89 nodes.
+runs, `reach` checks and racecheck runs are on one sm_89 node (c3, RTX 4060 Ti 16 GB, partition `rtx4060ti16g`). (3) The
+`smoke` phase rebuilds a target for c38's own sm_75 GPU to prove a driver works; its output is debugging evidence quoted in a
+few `notes`, never a result. (4) Per-target deviations (an alternative route, a changed driver argument, a workaround for
+CUDA 13.4 or gcc 12.4) are listed in each target's `route_note` / `notes` in section 1.1; the table shows only the route.

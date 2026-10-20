@@ -1,3 +1,12 @@
+/*******************************************************
+ * Copyright (c) 2014, ArrayFire
+ * All rights reserved.
+ *
+ * This file is distributed under 3-clause BSD license.
+ * The complete license agreement can be obtained at:
+ * http://arrayfire.com/licenses/BSD-3-Clause
+ ********************************************************/
+// (ArrayFire licence header of src/api/c/ops.hpp at a35a2d08, kept because parts of that file are copied below)
 // cuRace R2 shim for src/api/c/ops.hpp (+ optypes.hpp): af_op_t and Binary/Transform.  The generic Binary (init 0, lhs + rhs),
 // Binary<T, af_add_t> and the generic Transform below are copied from ops.hpp (identical in a35a2d08 and a7a297ba); the other
 // operators (min/max/and/or...) are not instantiated by the driver and are omitted.

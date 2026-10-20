@@ -1,0 +1,407 @@
+# compute-sanitizer Version 2026.3.0.0 (build 38855100) (public-release) host c3 cuda /usr/local/cuda-13.4 2026-10-20
+# cmd: /mnt/beegfs/fzheng4/realworld/build/pytorch_cluster-1/buggy/driver
+========= COMPUTE-SANITIZER
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x104 in block (4,0,0) :
+=========     Read Thread (64,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (65,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 195, Incoming Value : 247
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x105 in block (4,0,0) :
+=========     Read Thread (64,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (65,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 137, Incoming Value : 220
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x106 in block (4,0,0) :
+=========     Read Thread (64,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (65,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 111, Incoming Value : 103
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x107 in block (4,0,0) :
+=========     Read Thread (64,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (65,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 69, Incoming Value : 69
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x108 in block (4,0,0) :
+=========     Read Thread (65,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (66,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 247, Incoming Value : 42
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x109 in block (4,0,0) :
+=========     Read Thread (65,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (66,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 220, Incoming Value : 80
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x10a in block (4,0,0) :
+=========     Read Thread (65,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (66,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 103, Incoming Value : 96
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x10b in block (4,0,0) :
+=========     Read Thread (65,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (66,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 69, Incoming Value : 69
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x10c in block (4,0,0) :
+=========     Read Thread (66,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (67,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 42, Incoming Value : 93
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x4 in block (5,0,0) :
+=========     Read Thread (0,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (1,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 177, Incoming Value : 126
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x5 in block (5,0,0) :
+=========     Read Thread (0,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (1,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 179, Incoming Value : 202
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x6 in block (5,0,0) :
+=========     Read Thread (0,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (1,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 118, Incoming Value : 114
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x7 in block (5,0,0) :
+=========     Read Thread (0,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (1,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 70, Incoming Value : 70
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x8 in block (5,0,0) :
+=========     Read Thread (1,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (2,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 126, Incoming Value : 75
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x9 in block (5,0,0) :
+=========     Read Thread (1,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (2,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 202, Incoming Value : 233
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x10d in block (4,0,0) :
+=========     Read Thread (66,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (67,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 80, Incoming Value : 227
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x10e in block (4,0,0) :
+=========     Read Thread (66,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (67,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 96, Incoming Value : 88
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x10f in block (4,0,0) :
+=========     Read Thread (66,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (67,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 69, Incoming Value : 69
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x110 in block (4,0,0) :
+=========     Read Thread (67,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (68,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 93, Incoming Value : 144
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x111 in block (4,0,0) :
+=========     Read Thread (67,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (68,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 227, Incoming Value : 150
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x112 in block (4,0,0) :
+=========     Read Thread (67,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (68,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 88, Incoming Value : 81
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xa in block (5,0,0) :
+=========     Read Thread (1,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (2,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 114, Incoming Value : 110
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xb in block (5,0,0) :
+=========     Read Thread (1,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (2,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 70, Incoming Value : 70
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xc in block (5,0,0) :
+=========     Read Thread (2,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (3,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 75, Incoming Value : 23
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xd in block (5,0,0) :
+=========     Read Thread (2,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (3,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 233, Incoming Value : 16
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xe in block (5,0,0) :
+=========     Read Thread (2,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (3,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 110, Incoming Value : 107
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0xf in block (5,0,0) :
+=========     Read Thread (2,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (3,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 70, Incoming Value : 70
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x113 in block (4,0,0) :
+=========     Read Thread (67,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (68,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 69, Incoming Value : 69
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x114 in block (4,0,0) :
+=========     Read Thread (68,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (69,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 144, Incoming Value : 195
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x115 in block (4,0,0) :
+=========     Read Thread (68,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (69,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 150, Incoming Value : 105
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x116 in block (4,0,0) :
+=========     Read Thread (68,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (69,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 81, Incoming Value : 74
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x117 in block (4,0,0) :
+=========     Read Thread (68,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (69,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 69, Incoming Value : 69
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x118 in block (4,0,0) :
+=========     Read Thread (69,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (70,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 195, Incoming Value : 246
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x10 in block (5,0,0) :
+=========     Read Thread (3,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (4,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 23, Incoming Value : 228
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x11 in block (5,0,0) :
+=========     Read Thread (3,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (4,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 16, Incoming Value : 62
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x12 in block (5,0,0) :
+=========     Read Thread (3,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (4,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 107, Incoming Value : 103
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x13 in block (5,0,0) :
+=========     Read Thread (3,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (4,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 70, Incoming Value : 70
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x14 in block (5,0,0) :
+=========     Read Thread (4,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (5,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 228, Incoming Value : 177
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x15 in block (5,0,0) :
+=========     Read Thread (4,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (5,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 62, Incoming Value : 117
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x119 in block (4,0,0) :
+=========     Read Thread (69,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (70,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 105, Incoming Value : 92
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x11a in block (4,0,0) :
+=========     Read Thread (69,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (70,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 74, Incoming Value : 67
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x11b in block (4,0,0) :
+=========     Read Thread (69,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (70,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 69, Incoming Value : 69
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x11c in block (4,0,0) :
+=========     Read Thread (70,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (71,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 246, Incoming Value : 42
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x11d in block (4,0,0) :
+=========     Read Thread (70,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (71,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 92, Incoming Value : 112
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x11e in block (4,0,0) :
+=========     Read Thread (70,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (71,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 67, Incoming Value : 60
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x16 in block (5,0,0) :
+=========     Read Thread (4,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (5,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 103, Incoming Value : 99
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x17 in block (5,0,0) :
+=========     Read Thread (4,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (5,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 70, Incoming Value : 70
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x18 in block (5,0,0) :
+=========     Read Thread (5,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (6,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 177, Incoming Value : 126
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x19 in block (5,0,0) :
+=========     Read Thread (5,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (6,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 117, Incoming Value : 180
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x1a in block (5,0,0) :
+=========     Read Thread (5,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2520 in nearest_cuda.cu:53
+=========     Write Thread (6,0,0) at void nearest_kernel<float>(const T1 *, const T1 *, const long *, const long *, long *, long, long)+0x2550 in nearest_cuda.cu:54
+=========     Current Value : 99, Incoming Value : 95
+=========     Saved host backtrace up to driver entry point at kernel launch time
+# TRUNCATED: full output (16006 lines, 1590735 bytes, sha256 5d1b715bc86620fb2e639865f5497a76a72d0153f5d84c42b7c11b5a9a8ecbd8) kept at /mnt/beegfs/fzheng4/realworld/racecheck_full/pytorch_cluster-1-buggy.txt
+=========         Host Frame: void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long) [0xaae5] in driver
+=========         Host Frame: main [0x8603] in driver
+========= 
+nearest_kernel<float> N=8 M=128 dim=2 grid=8 block=1024 out[0..3]=127,127,127,127 mismatches=0/8
+========= RACECHECK SUMMARY: 2000 hazards displayed (12964 errors, 46464 warnings)
+# exit 0

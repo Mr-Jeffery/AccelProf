@@ -1,0 +1,905 @@
+# compute-sanitizer Version 2026.3.0.0 (build 38855100) (public-release) host c3 cuda /usr/local/cuda-13.4 2026-10-20
+# cmd: /mnt/beegfs/fzheng4/realworld/build/pytorch-1/buggy/driver
+========= COMPUTE-SANITIZER
+========= Error: Potential WAR hazard detected at __shared__ 0x1f80 in block (0,0,0) :
+=========     Read Thread (0,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (0,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 1, Incoming Value : 21
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1f81 in block (0,0,0) :
+=========     Read Thread (0,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (0,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1f82 in block (0,0,0) :
+=========     Read Thread (0,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (0,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1f83 in block (0,0,0) :
+=========     Read Thread (0,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (0,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1f84 in block (0,0,0) :
+=========     Read Thread (1,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (1,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 32, Incoming Value : 36
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1f85 in block (0,0,0) :
+=========     Read Thread (1,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (1,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1f86 in block (0,0,0) :
+=========     Read Thread (1,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (1,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1f87 in block (0,0,0) :
+=========     Read Thread (1,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (1,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1f88 in block (0,0,0) :
+=========     Read Thread (2,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (2,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 46, Incoming Value : 34
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1f89 in block (0,0,0) :
+=========     Read Thread (2,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (2,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1f8a in block (0,0,0) :
+=========     Read Thread (2,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (2,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1f8b in block (0,0,0) :
+=========     Read Thread (2,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (2,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1f8c in block (0,0,0) :
+=========     Read Thread (3,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (3,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 19, Incoming Value : 55
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1f8d in block (0,0,0) :
+=========     Read Thread (3,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (3,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1f8e in block (0,0,0) :
+=========     Read Thread (3,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (3,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1f8f in block (0,0,0) :
+=========     Read Thread (3,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (3,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1f90 in block (0,0,0) :
+=========     Read Thread (4,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (4,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 61, Incoming Value : 17
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1f91 in block (0,0,0) :
+=========     Read Thread (4,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (4,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1f92 in block (0,0,0) :
+=========     Read Thread (4,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (4,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1f93 in block (0,0,0) :
+=========     Read Thread (4,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (4,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1f94 in block (0,0,0) :
+=========     Read Thread (5,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (5,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 29, Incoming Value : 33
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1f95 in block (0,0,0) :
+=========     Read Thread (5,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (5,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1f96 in block (0,0,0) :
+=========     Read Thread (5,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (5,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1f97 in block (0,0,0) :
+=========     Read Thread (5,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (5,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1f98 in block (0,0,0) :
+=========     Read Thread (6,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (6,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 30, Incoming Value : 18
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1f99 in block (0,0,0) :
+=========     Read Thread (6,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (6,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1f9a in block (0,0,0) :
+=========     Read Thread (6,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (6,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1f9b in block (0,0,0) :
+=========     Read Thread (6,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (6,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1f9c in block (0,0,0) :
+=========     Read Thread (7,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (7,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 53, Incoming Value : 25
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1f9d in block (0,0,0) :
+=========     Read Thread (7,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (7,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1f9e in block (0,0,0) :
+=========     Read Thread (7,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (7,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1f9f in block (0,0,0) :
+=========     Read Thread (7,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (7,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fa0 in block (0,0,0) :
+=========     Read Thread (8,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (8,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 21, Incoming Value : 41
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fa1 in block (0,0,0) :
+=========     Read Thread (8,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (8,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fa2 in block (0,0,0) :
+=========     Read Thread (8,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (8,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fa3 in block (0,0,0) :
+=========     Read Thread (8,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (8,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fa4 in block (0,0,0) :
+=========     Read Thread (9,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (9,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 22, Incoming Value : 26
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fa5 in block (0,0,0) :
+=========     Read Thread (9,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (9,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fa6 in block (0,0,0) :
+=========     Read Thread (9,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (9,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fa7 in block (0,0,0) :
+=========     Read Thread (9,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (9,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fa8 in block (0,0,0) :
+=========     Read Thread (10,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (10,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 28, Incoming Value : 16
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fa9 in block (0,0,0) :
+=========     Read Thread (10,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (10,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1faa in block (0,0,0) :
+=========     Read Thread (10,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (10,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fab in block (0,0,0) :
+=========     Read Thread (10,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (10,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fac in block (0,0,0) :
+=========     Read Thread (11,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (11,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 30, Incoming Value : 2
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fad in block (0,0,0) :
+=========     Read Thread (11,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (11,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fae in block (0,0,0) :
+=========     Read Thread (11,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (11,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1faf in block (0,0,0) :
+=========     Read Thread (11,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (11,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fb0 in block (0,0,0) :
+=========     Read Thread (12,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (12,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 63, Incoming Value : 19
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fb1 in block (0,0,0) :
+=========     Read Thread (12,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (12,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fb2 in block (0,0,0) :
+=========     Read Thread (12,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (12,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fb3 in block (0,0,0) :
+=========     Read Thread (12,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (12,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fb4 in block (0,0,0) :
+=========     Read Thread (13,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (13,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 48, Incoming Value : 52
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fb5 in block (0,0,0) :
+=========     Read Thread (13,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (13,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fb6 in block (0,0,0) :
+=========     Read Thread (13,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (13,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fb7 in block (0,0,0) :
+=========     Read Thread (13,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (13,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fb8 in block (0,0,0) :
+=========     Read Thread (14,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (14,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 62, Incoming Value : 50
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fb9 in block (0,0,0) :
+=========     Read Thread (14,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (14,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fba in block (0,0,0) :
+=========     Read Thread (14,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (14,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fbb in block (0,0,0) :
+=========     Read Thread (14,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (14,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fbc in block (0,0,0) :
+=========     Read Thread (15,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (15,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 17, Incoming Value : 53
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fbd in block (0,0,0) :
+=========     Read Thread (15,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (15,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fbe in block (0,0,0) :
+=========     Read Thread (15,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (15,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fbf in block (0,0,0) :
+=========     Read Thread (15,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (15,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fc0 in block (0,0,0) :
+=========     Read Thread (16,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (16,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 46, Incoming Value : 2
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fc1 in block (0,0,0) :
+=========     Read Thread (16,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (16,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fc2 in block (0,0,0) :
+=========     Read Thread (16,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (16,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fc3 in block (0,0,0) :
+=========     Read Thread (16,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (16,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fc4 in block (0,0,0) :
+=========     Read Thread (17,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (17,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 13, Incoming Value : 17
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fc5 in block (0,0,0) :
+=========     Read Thread (17,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (17,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fc6 in block (0,0,0) :
+=========     Read Thread (17,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (17,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fc7 in block (0,0,0) :
+=========     Read Thread (17,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (17,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fc8 in block (0,0,0) :
+=========     Read Thread (18,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (18,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 24, Incoming Value : 12
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fc9 in block (0,0,0) :
+=========     Read Thread (18,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (18,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fca in block (0,0,0) :
+=========     Read Thread (18,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (18,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fcb in block (0,0,0) :
+=========     Read Thread (18,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (18,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fcc in block (0,0,0) :
+=========     Read Thread (19,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (19,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 18, Incoming Value : 54
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fcd in block (0,0,0) :
+=========     Read Thread (19,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (19,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fce in block (0,0,0) :
+=========     Read Thread (19,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (19,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fcf in block (0,0,0) :
+=========     Read Thread (19,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (19,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fd0 in block (0,0,0) :
+=========     Read Thread (20,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (20,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 23, Incoming Value : 43
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fd1 in block (0,0,0) :
+=========     Read Thread (20,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (20,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fd2 in block (0,0,0) :
+=========     Read Thread (20,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (20,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fd3 in block (0,0,0) :
+=========     Read Thread (20,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (20,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fd4 in block (0,0,0) :
+=========     Read Thread (21,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (21,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 19, Incoming Value : 23
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fd5 in block (0,0,0) :
+=========     Read Thread (21,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (21,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fd6 in block (0,0,0) :
+=========     Read Thread (21,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (21,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fd7 in block (0,0,0) :
+=========     Read Thread (21,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (21,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fd8 in block (0,0,0) :
+=========     Read Thread (22,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (22,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 60, Incoming Value : 48
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fd9 in block (0,0,0) :
+=========     Read Thread (22,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (22,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fda in block (0,0,0) :
+=========     Read Thread (22,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (22,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fdb in block (0,0,0) :
+=========     Read Thread (22,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (22,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fdc in block (0,0,0) :
+=========     Read Thread (23,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (23,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 38, Incoming Value : 10
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fdd in block (0,0,0) :
+=========     Read Thread (23,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (23,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fde in block (0,0,0) :
+=========     Read Thread (23,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (23,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fdf in block (0,0,0) :
+=========     Read Thread (23,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (23,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fe0 in block (0,0,0) :
+=========     Read Thread (24,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (24,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 45, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fe1 in block (0,0,0) :
+=========     Read Thread (24,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (24,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fe2 in block (0,0,0) :
+=========     Read Thread (24,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (24,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fe3 in block (0,0,0) :
+=========     Read Thread (24,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (24,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fe4 in block (0,0,0) :
+=========     Read Thread (25,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (25,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 37, Incoming Value : 41
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fe5 in block (0,0,0) :
+=========     Read Thread (25,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (25,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fe6 in block (0,0,0) :
+=========     Read Thread (25,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (25,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fe7 in block (0,0,0) :
+=========     Read Thread (25,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (25,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fe8 in block (0,0,0) :
+=========     Read Thread (26,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (26,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 52
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fe9 in block (0,0,0) :
+=========     Read Thread (26,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (26,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fea in block (0,0,0) :
+=========     Read Thread (26,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (26,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1feb in block (0,0,0) :
+=========     Read Thread (26,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (26,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fec in block (0,0,0) :
+=========     Read Thread (27,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (27,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 16, Incoming Value : 52
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fed in block (0,0,0) :
+=========     Read Thread (27,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (27,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fee in block (0,0,0) :
+=========     Read Thread (27,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (27,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fef in block (0,0,0) :
+=========     Read Thread (27,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (27,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1ff0 in block (0,0,0) :
+=========     Read Thread (28,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (28,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 36, Incoming Value : 56
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1ff1 in block (0,0,0) :
+=========     Read Thread (28,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (28,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1ff2 in block (0,0,0) :
+=========     Read Thread (28,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (28,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1ff3 in block (0,0,0) :
+=========     Read Thread (28,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (28,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1ff4 in block (0,0,0) :
+=========     Read Thread (29,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (29,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 40, Incoming Value : 44
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1ff5 in block (0,0,0) :
+=========     Read Thread (29,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (29,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1ff6 in block (0,0,0) :
+=========     Read Thread (29,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (29,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1ff7 in block (0,0,0) :
+=========     Read Thread (29,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (29,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1ff8 in block (0,0,0) :
+=========     Read Thread (30,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (30,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 55, Incoming Value : 43
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1ff9 in block (0,0,0) :
+=========     Read Thread (30,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (30,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1ffa in block (0,0,0) :
+=========     Read Thread (30,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (30,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1ffb in block (0,0,0) :
+=========     Read Thread (30,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (30,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1ffc in block (0,0,0) :
+=========     Read Thread (31,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (31,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 20, Incoming Value : 56
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1ffd in block (0,0,0) :
+=========     Read Thread (31,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (31,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1ffe in block (0,0,0) :
+=========     Read Thread (31,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (31,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1fff in block (0,0,0) :
+=========     Read Thread (31,26,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99
+=========     Write Thread (31,31,0) at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x58e5] in driver
+========= 
+========= Error: Race reported between Write access at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x190 in Embedding.cu:66
+=========     and Read access at void at::native::<unnamed>::embedding_backward_feature_kernel<float, float, long>(const T3 *, const T1 *, T1 *, int, long, int)+0x3c0 in Embedding.cu:99 [128 hazards]
+========= 
+embedding_backward_feature_kernel N=2048 D=32 V=64 grid=1 block=(32,32) shmem=8192 mismatches=0/2048
+========= RACECHECK SUMMARY: 129 hazards displayed (129 errors, 0 warnings)
+# exit 0

@@ -1,0 +1,407 @@
+# compute-sanitizer Version 2026.3.0.0 (build 38855100) (public-release) host c3 cuda /usr/local/cuda-13.4 2026-10-20
+# cmd: /mnt/beegfs/fzheng4/realworld/build/lit-fbgemm-1/buggy/driver
+========= COMPUTE-SANITIZER
+========= Error: Potential RAW hazard detected at __shared__ 0x4 in block (0,30,0) :
+=========     Write Thread (32,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Read Thread (1,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0x5 in block (0,30,0) :
+=========     Write Thread (32,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Read Thread (1,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0x6 in block (0,30,0) :
+=========     Write Thread (32,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Read Thread (1,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0x7 in block (0,30,0) :
+=========     Write Thread (32,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Read Thread (1,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0x18 in block (0,30,0) :
+=========     Write Thread (192,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Read Thread (6,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0x19 in block (0,30,0) :
+=========     Write Thread (192,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Read Thread (6,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0x1a in block (0,30,0) :
+=========     Write Thread (192,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Read Thread (6,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Current Value : 16
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0x1b in block (0,30,0) :
+=========     Write Thread (192,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Read Thread (6,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Current Value : 65
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xc in block (0,29,0) :
+=========     Read Thread (3,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (96,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xd in block (0,29,0) :
+=========     Read Thread (3,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (96,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xe in block (0,29,0) :
+=========     Read Thread (3,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (96,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 80, Incoming Value : 80
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xf in block (0,29,0) :
+=========     Read Thread (3,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (96,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 193, Incoming Value : 193
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x14 in block (0,5,0) :
+=========     Read Thread (5,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (160,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x15 in block (0,5,0) :
+=========     Read Thread (5,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (160,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x16 in block (0,5,0) :
+=========     Read Thread (5,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (160,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 80, Incoming Value : 224
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x4 in block (0,31,0) :
+=========     Read Thread (1,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (32,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x5 in block (0,31,0) :
+=========     Read Thread (1,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (32,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x6 in block (0,31,0) :
+=========     Read Thread (1,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (32,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 224, Incoming Value : 128
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1c in block (0,38,0) :
+=========     Read Thread (7,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (224,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1d in block (0,38,0) :
+=========     Read Thread (7,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (224,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1e in block (0,38,0) :
+=========     Read Thread (7,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (224,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 128, Incoming Value : 80
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1f in block (0,38,0) :
+=========     Read Thread (7,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (224,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 63, Incoming Value : 193
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1c in block (0,30,0) :
+=========     Read Thread (7,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (224,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1d in block (0,30,0) :
+=========     Read Thread (7,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (224,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1e in block (0,30,0) :
+=========     Read Thread (7,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (224,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 16, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1f in block (0,30,0) :
+=========     Read Thread (7,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (224,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 65, Incoming Value : 192
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x10 in block (0,29,0) :
+=========     Read Thread (4,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (128,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x11 in block (0,29,0) :
+=========     Read Thread (4,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (128,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x12 in block (0,29,0) :
+=========     Read Thread (4,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (128,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 128, Incoming Value : 64
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x13 in block (0,29,0) :
+=========     Read Thread (4,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (128,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 191, Incoming Value : 65
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x18 in block (0,45,0) :
+=========     Read Thread (6,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (192,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x19 in block (0,45,0) :
+=========     Read Thread (6,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (192,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x7 in block (0,31,0) :
+=========     Read Thread (1,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (32,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 192, Incoming Value : 191
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xc in block (0,31,0) :
+=========     Read Thread (3,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (96,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xd in block (0,31,0) :
+=========     Read Thread (3,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (96,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xe in block (0,31,0) :
+=========     Read Thread (3,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (96,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 0, Incoming Value : 128
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x18 in block (0,38,0) :
+=========     Read Thread (6,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (192,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x19 in block (0,38,0) :
+=========     Read Thread (6,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (192,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1a in block (0,38,0) :
+=========     Read Thread (6,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (192,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 128, Incoming Value : 64
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1b in block (0,38,0) :
+=========     Read Thread (6,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (192,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 64, Incoming Value : 65
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x14 in block (0,38,0) :
+=========     Read Thread (5,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (160,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x15 in block (0,38,0) :
+=========     Read Thread (5,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (160,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x16 in block (0,38,0) :
+=========     Read Thread (5,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (160,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 0, Incoming Value : 64
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x17 in block (0,38,0) :
+=========     Read Thread (5,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (160,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 0, Incoming Value : 64
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x4 in block (0,29,0) :
+=========     Read Thread (1,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (32,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x5 in block (0,29,0) :
+=========     Read Thread (1,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (32,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x6 in block (0,29,0) :
+=========     Read Thread (1,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (32,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 64, Incoming Value : 192
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x7 in block (0,29,0) :
+=========     Read Thread (1,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Write Thread (32,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Current Value : 64, Incoming Value : 64
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0x14 in block (0,16,0) :
+=========     Write Thread (160,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Read Thread (5,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0x4 in block (0,43,0) :
+=========     Write Thread (32,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Read Thread (1,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0x5 in block (0,43,0) :
+=========     Write Thread (32,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Read Thread (1,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0x6 in block (0,43,0) :
+=========     Write Thread (32,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Read Thread (1,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Current Value : 80
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0x7 in block (0,43,0) :
+=========     Write Thread (32,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Read Thread (1,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Current Value : 193
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0x8 in block (0,19,0) :
+=========     Write Thread (64,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Read Thread (2,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0x9 in block (0,19,0) :
+=========     Write Thread (64,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Read Thread (2,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0xa in block (0,19,0) :
+=========     Write Thread (64,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Read Thread (2,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Current Value : 128
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x5777] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0xb in block (0,19,0) :
+=========     Write Thread (64,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141
+=========     Read Thread (2,0,0) at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     Current Value : 191
+=========     Saved host backtrace up to driver entry point at kernel launch time
+# TRUNCATED: full output (11657 lines, 1075934 bytes, sha256 c228435d1a80beaa3858e3be9bb770c30132abb9a9001395b5ab54207d303c8b) kept at /mnt/beegfs/fzheng4/realworld/racecheck_full/lit-fbgemm-1-buggy.txt
+========= Error: Race reported between Read access at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x27d0 in fast_gemv.cu:145
+=========     and Write access at gemv_bf16(__nv_bfloat16 *, __nv_bfloat16 *, __nv_bfloat16 *, unsigned int, unsigned int, unsigned int, unsigned int)+0x2b00 in fast_gemv.cu:141 [1664 hazards]
+========= 
+gemv_bf16 m=2 n=64 k=2048 grid=(1,64) block=(256,1) num_per_thread=8 mismatches=32/128
+========= RACECHECK SUMMARY: 1665 hazards displayed (1665 errors, 0 warnings)
+# exit 0

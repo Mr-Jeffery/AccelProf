@@ -1,0 +1,964 @@
+# compute-sanitizer Version 2026.3.0.0 (build 38855100) (public-release) host c3 cuda /usr/local/cuda-13.4 2026-10-20
+# cmd: /mnt/beegfs/fzheng4/realworld/build/lit-arrayfire-1/buggy/driver
+========= COMPUTE-SANITIZER
+========= Error: Potential WAR hazard detected at __shared__ 0xa00 in block (0,0,0) :
+=========     Read Thread (0,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (0,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa01 in block (0,0,0) :
+=========     Read Thread (1,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (1,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa02 in block (0,0,0) :
+=========     Read Thread (2,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (2,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa03 in block (0,0,0) :
+=========     Read Thread (3,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (3,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa04 in block (0,0,0) :
+=========     Read Thread (4,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (4,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa05 in block (0,0,0) :
+=========     Read Thread (5,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (5,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa06 in block (0,0,0) :
+=========     Read Thread (6,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (6,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa07 in block (0,0,0) :
+=========     Read Thread (7,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (7,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa08 in block (0,0,0) :
+=========     Read Thread (8,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (8,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa09 in block (0,0,0) :
+=========     Read Thread (9,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (9,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa0a in block (0,0,0) :
+=========     Read Thread (10,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (10,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa0b in block (0,0,0) :
+=========     Read Thread (11,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (11,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa0c in block (0,0,0) :
+=========     Read Thread (12,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (12,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa0d in block (0,0,0) :
+=========     Read Thread (13,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (13,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa0e in block (0,0,0) :
+=========     Read Thread (14,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (14,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa0f in block (0,0,0) :
+=========     Read Thread (15,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (15,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa10 in block (0,0,0) :
+=========     Read Thread (16,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (16,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa11 in block (0,0,0) :
+=========     Read Thread (17,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (17,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa12 in block (0,0,0) :
+=========     Read Thread (18,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (18,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa13 in block (0,0,0) :
+=========     Read Thread (19,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (19,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa14 in block (0,0,0) :
+=========     Read Thread (20,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (20,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa15 in block (0,0,0) :
+=========     Read Thread (21,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (21,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa16 in block (0,0,0) :
+=========     Read Thread (22,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (22,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa17 in block (0,0,0) :
+=========     Read Thread (23,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (23,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa18 in block (0,0,0) :
+=========     Read Thread (24,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (24,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa19 in block (0,0,0) :
+=========     Read Thread (25,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (25,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa1a in block (0,0,0) :
+=========     Read Thread (26,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (26,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa1b in block (0,0,0) :
+=========     Read Thread (27,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (27,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa1c in block (0,0,0) :
+=========     Read Thread (28,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (28,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa1d in block (0,0,0) :
+=========     Read Thread (29,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (29,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa1e in block (0,0,0) :
+=========     Read Thread (30,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (30,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa1f in block (0,0,0) :
+=========     Read Thread (31,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (31,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa1d in block (0,0,0) :
+=========     Read Thread (29,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (29,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 1, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0xa00 in block (0,0,0) :
+=========     Write Thread (0,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Read Thread (0,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Current Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0xa01 in block (0,0,0) :
+=========     Write Thread (1,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Read Thread (1,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Current Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0xa02 in block (0,0,0) :
+=========     Write Thread (2,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Read Thread (2,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Current Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0xa03 in block (0,0,0) :
+=========     Write Thread (3,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Read Thread (3,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Current Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0xa04 in block (0,0,0) :
+=========     Write Thread (4,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Read Thread (4,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Current Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0xa05 in block (0,0,0) :
+=========     Write Thread (5,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Read Thread (5,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Current Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0xa06 in block (0,0,0) :
+=========     Write Thread (6,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Read Thread (6,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Current Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0xa07 in block (0,0,0) :
+=========     Write Thread (7,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Read Thread (7,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Current Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0xa08 in block (0,0,0) :
+=========     Write Thread (8,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Read Thread (8,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Current Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0xa09 in block (0,0,0) :
+=========     Write Thread (9,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Read Thread (9,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Current Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0xa0a in block (0,0,0) :
+=========     Write Thread (10,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Read Thread (10,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Current Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0xa0b in block (0,0,0) :
+=========     Write Thread (11,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Read Thread (11,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Current Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0xa0c in block (0,0,0) :
+=========     Write Thread (12,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Read Thread (12,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Current Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0xa0d in block (0,0,0) :
+=========     Write Thread (13,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Read Thread (13,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Current Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0xa0e in block (0,0,0) :
+=========     Write Thread (14,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Read Thread (14,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Current Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0xa0f in block (0,0,0) :
+=========     Write Thread (15,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Read Thread (15,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Current Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0xa10 in block (0,0,0) :
+=========     Write Thread (16,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Read Thread (16,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Current Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0xa11 in block (0,0,0) :
+=========     Write Thread (17,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Read Thread (17,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Current Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0xa12 in block (0,0,0) :
+=========     Write Thread (18,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Read Thread (18,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Current Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0xa13 in block (0,0,0) :
+=========     Write Thread (19,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Read Thread (19,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Current Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0xa14 in block (0,0,0) :
+=========     Write Thread (20,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Read Thread (20,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Current Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0xa15 in block (0,0,0) :
+=========     Write Thread (21,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Read Thread (21,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Current Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0xa16 in block (0,0,0) :
+=========     Write Thread (22,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Read Thread (22,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Current Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0xa17 in block (0,0,0) :
+=========     Write Thread (23,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Read Thread (23,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Current Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0xa18 in block (0,0,0) :
+=========     Write Thread (24,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Read Thread (24,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Current Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0xa19 in block (0,0,0) :
+=========     Write Thread (25,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Read Thread (25,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Current Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0xa1a in block (0,0,0) :
+=========     Write Thread (26,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Read Thread (26,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Current Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0xa1b in block (0,0,0) :
+=========     Write Thread (27,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Read Thread (27,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Current Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0xa1c in block (0,0,0) :
+=========     Write Thread (28,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Read Thread (28,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Current Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0xa1d in block (0,0,0) :
+=========     Write Thread (29,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Read Thread (29,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Current Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0xa1e in block (0,0,0) :
+=========     Write Thread (30,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Read Thread (30,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Current Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0xa1f in block (0,0,0) :
+=========     Write Thread (31,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Read Thread (31,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Current Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa19 in block (0,1,0) :
+=========     Read Thread (25,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (25,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa05 in block (0,0,0) :
+=========     Read Thread (5,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (5,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 1, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa11 in block (0,1,0) :
+=========     Read Thread (17,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (17,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa09 in block (0,1,0) :
+=========     Read Thread (9,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (9,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa1a in block (0,0,0) :
+=========     Read Thread (26,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (26,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 1, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa01 in block (0,1,0) :
+=========     Read Thread (1,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (1,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 0, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa12 in block (0,0,0) :
+=========     Read Thread (18,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (18,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 1, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa0a in block (0,0,0) :
+=========     Read Thread (10,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (10,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 1, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa1e in block (0,1,0) :
+=========     Read Thread (30,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (30,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 1, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa16 in block (0,1,0) :
+=========     Read Thread (22,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (22,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 1, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa02 in block (0,0,0) :
+=========     Read Thread (2,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (2,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 1, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa0e in block (0,1,0) :
+=========     Read Thread (14,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (14,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 1, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa1f in block (0,0,0) :
+=========     Read Thread (31,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (31,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 1, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa17 in block (0,0,0) :
+=========     Read Thread (23,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (23,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 1, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa06 in block (0,1,0) :
+=========     Read Thread (6,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (6,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 1, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa0f in block (0,0,0) :
+=========     Read Thread (15,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (15,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 1, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa07 in block (0,0,0) :
+=========     Read Thread (7,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (7,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 1, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa1b in block (0,1,0) :
+=========     Read Thread (27,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (27,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 1, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa13 in block (0,1,0) :
+=========     Read Thread (19,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (19,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 1, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa0b in block (0,1,0) :
+=========     Read Thread (11,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (11,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 1, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa1c in block (0,0,0) :
+=========     Read Thread (28,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (28,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 1, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa14 in block (0,0,0) :
+=========     Read Thread (20,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (20,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 1, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa03 in block (0,1,0) :
+=========     Read Thread (3,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (3,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 1, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa0c in block (0,0,0) :
+=========     Read Thread (12,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (12,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 1, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa18 in block (0,1,0) :
+=========     Read Thread (24,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (24,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 1, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa04 in block (0,0,0) :
+=========     Read Thread (4,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (4,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 1, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa10 in block (0,1,0) :
+=========     Read Thread (16,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (16,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 1, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa08 in block (0,1,0) :
+=========     Read Thread (8,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (8,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 1, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0xa00 in block (0,1,0) :
+=========     Read Thread (0,0,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     Write Thread (0,7,0) at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176
+=========     Current Value : 1, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_dim_by_key<int, int, int, (af_op_t)0, 1, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0x8659] in driver
+=========         Host Frame: run_dim(int, unsigned long long*) [clone .constprop.0] [0x753b] in driver
+=========         Host Frame: main [0x44fe] in driver
+========= 
+========= Error: Race reported between Read access at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xd50 in scan_dim_by_key_impl.hpp:164
+=========     and Write access at void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, (int)1, (unsigned int)8, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0xe00 in scan_dim_by_key_impl.hpp:176 [94 hazards]
+========= 
+========= Error: Potential RAW hazard detected at __shared__ 0xa08 in block (0,0,0) :
+=========     Write Thread (255,0,0) at void cuda::kernel::scan_nonfinal_kernel<int, int, int, (af_op_t)0, (unsigned int)256, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0x1190 in scan_first_by_key_impl.hpp:157
+=========     Read Thread (0,0,0) at void cuda::kernel::scan_nonfinal_kernel<int, int, int, (af_op_t)0, (unsigned int)256, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0x1100 in scan_first_by_key_impl.hpp:145
+=========     Current Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x84967] in driver
+=========         Host Frame: void cuda::kernel::scan_first_by_key<int, int, int, (af_op_t)0, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>) [0xb7f9] in driver
+=========         Host Frame: run_first(int, unsigned long long*) [clone .constprop.0] [0x7987] in driver
+=========         Host Frame: main [0x451f] in driver
+========= 
+========= Error: Race reported between Read access at void cuda::kernel::scan_nonfinal_kernel<int, int, int, (af_op_t)0, (unsigned int)256, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0x1100 in scan_first_by_key_impl.hpp:145
+=========     and Write access at void cuda::kernel::scan_nonfinal_kernel<int, int, int, (af_op_t)0, (unsigned int)256, (bool)1>(cuda::Param<T3>, cuda::Param<T3>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<T1>, cuda::CParam<T2>, unsigned int, unsigned int, unsigned int)+0x1190 in scan_first_by_key_impl.hpp:157 [1 hazards]
+========= 
+scan_dim_by_key   dims 32x300  (dim 1, DIMY 8, 2 blocks) reps 1: mismatches vs host reference 0, checksum f406e68518276dfa
+scan_first_by_key dims 8193    (dim 0, DIMX 256, 2 blocks) reps 1: mismatches vs host reference 0, checksum 217ef0e24613118f
+lit-arrayfire-1 driver done
+========= RACECHECK SUMMARY: 97 hazards displayed (97 errors, 0 warnings)
+# exit 0

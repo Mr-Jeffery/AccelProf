@@ -1,0 +1,48 @@
+{
+  "id": "ginkgo-5",
+  "tier": "core",
+  "wave": 2,
+  "route": "R1",
+  "kernel": "gko::kernels::cuda::range_minimum_query::compute_lookup_small<int> (the run_kernel lambda, launched as generic_kernel_1d; 129 threads for size 1025) and compute_lookup_large<int> (the level-0 lambda and the per-level lambdas), called from driver.cpp through a real CudaExecutor",
+  "space": "global",
+  "build_revision": {
+    "buggy": "09d861f107293345e2a8c2b7925ac656d3da8cb9",
+    "fixed": "64f194612d3e7f6055716530d45288aae4e320d3"
+  },
+  "sites": [
+    {
+      "role": "read",
+      "file": "core/components/bit_packed_storage.hpp",
+      "line_start": 160,
+      "line_end": 160,
+      "source": "data_[block] &= ~(mask_ << shift);   (clear(), called by set(); the 32-bit word load of the read-modify-write; ptxas merges the &= and the following |= into one load and one store)",
+      "operation": "ld.global.u32 (SASS LDG.E Rx, [word address]; compute_lookup_small<int>: LDG.E R23,[R2.64] at 0x1150)",
+      "strength": "plain"
+    },
+    {
+      "role": "write",
+      "file": "core/components/bit_packed_storage.hpp",
+      "line_start": 154,
+      "line_end": 154,
+      "source": "data_[block] |= value << shift;   (set_from_zero(), called by set(); the word store of the read-modify-write, reached from common/unified/components/range_minimum_query_kernels.cpp:56 block_argmin.set(block_idx, argmin); and, for compute_lookup_large, from :84 and :109 superblocks.set_block_argmin)",
+      "operation": "st.global.u32 (SASS STG.E [word address], Rx; compute_lookup_small<int>: STG.E [R2.64],R23 at 0x1320)",
+      "strength": "plain"
+    }
+  ],
+  "thread_relation": "intra-warp",
+  "thread_pair_example": "compute_lookup_small, block 0 (size 1025 -> 129 blocks of 8 values -> 129 threads in one 512-thread block): thread 0 and thread 1 (block_idx 0 and 1, both in warp 0) update 4-bit entries of the same 32-bit word 0 of block_argmin (8 entries per word, aligned groups of 8 never straddle a warp): thread 1 loads the word (L160) before thread 0's store (L154) lands and then stores its merged value, overwriting thread 0's bits (lost update); also store/store on the same word. The same pattern holds for every word of block_argmin and, in compute_lookup_large, for the level-0 table and every superblock level (set_block_argmin uses the same bit_packed_span::set).",
+  "expected_class": "DR",
+  "class_reason": "The load and the store are plain global accesses (PTX ld.global.u32 / st.global.u32, SASS LDG.E / STG.E without .STRONG, no atomic, no fence, no barrier between threads of the launch). Several threads perform a non-atomic read-modify-write of one word: load vs store (RAW/WAR) and store vs store (WAW) on the same address, unordered -> data race of plain accesses (DR); no strong/atomic access, so no SC component. It is a true lost update, visible in the output.",
+  "buggy_expected": "DR on the global word for block_argmin in compute_lookup_small and for the level-0 / per-level superblock words in compute_lookup_large: the pair (LDG at bit_packed_storage.hpp:160, STG at :154) of different lanes; reported file:line may be the inlined call sites range_minimum_query_kernels.cpp:56 / :84 / :109 depending on how the detector maps lines. The smoke run on sm_75 showed the symptom: 104 of 129 block_argmin entries and 742 superblock entries differ from the host brute force in the buggy build, 0 and 0 in the fixed build.",
+  "fixed": {
+    "expected": "absent",
+    "residual_sites": null,
+    "reason": "The fix collates the work so one thread handles all entries that live in the same memory word (collation_width = 1 << (bits_per_word_log2 - ceil_log2(ceil_log2(small_block_size))) blocks per thread for compute_lookup_small; level0_collation_width = bits(word_type) and word_bits/round_up_pow2(level+1) per level for compute_lookup_large), so no two threads touch a word; each level is a separate launch. The same RMW instructions are still present in the fixed SASS (bit_packed_storage.hpp:160 LDG / :154 STG, now in a per-thread loop), so absence of a report relies on a detector reasoning about distinct words per thread, not on a code difference at the site."
+  },
+  "sass_notes": "sm_89 SASS, driver kernels (index type int32). Buggy compute_lookup_small<int>: LDG.E R23,[R2.64] (L160) at 0x1150 ... STG.E [R2.64],R23 (L154) at 0x1320, then STG.E [R10.64],R21 (min, L57) at 0x1330 and STG.E.U16 (block_type, L58) at 0x1340; plain 4-byte LDG/STG, no ATOM/RED/LOP.OR-to-memory. Buggy compute_lookup_large<int>: level-0 kernel LDG.E R9,[R6.64] (L160) 0x0170 / STG.E [R6.64],R9 (L154) 0x01f0 after the L81/L82 loads of block_min; per-level kernel LDG.E R17,[R6.64] (L160) 0x22e0 / STG.E [R6.64],R17 (L154) 0x23c0 after the L105/L106 block_min loads. Fixed: same instruction pairs inside the collation loops (compute_lookup_small<int> LDG 0x13a0 / STG 0x1470; compute_lookup_large<int> several LDG/STG pairs, e.g. 0x03e0/0x04b0, 0x0670/0x0750). The int64 instantiations (<long>) exist in the binary too but are not launched by the driver. No .STRONG token on any of these accesses. The project's own CMake compile command of the kernel TU is recorded in kernel_tu_cmd.txt (CUDA flags -O3 -DNDEBUG -std=c++17 --generate-code=arch=compute_89,code=[compute_89,sm_89] -lineinfo --expt-relaxed-constexpr --expt-extended-lambda). Only 3 cubins sm_89 plus compute_89 PTX are in the driver.",
+  "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against core/components/bit_packed_storage.hpp@09d861f and common/unified/components/range_minimum_query_kernels.cpp@09d861f / @64f1946, the sm_89 SASS (/home/fzheng4/sassfn.sh, a per-kernel variant of sassline.sh) of the built drivers, and the sm_75 smoke outputs, on 2026-10-20",
+  "open_questions": [
+    "The record's fix-commit file list names core/components/bit_packed_storage.hpp, but the two revisions differ only in common/unified/components/range_minimum_query_kernels.cpp (git diff 09d861f 64f1946 touches that one file); the packed-storage header is identical, so the racing sites are the same two lines at both revisions.",
+    "Warp mapping assumes the one-thread-per-block launch of generic_kernel_1d with default_block_size = 512 threads and 129 / (levels) work items: threads 0..7 share word 0 and are in warp 0; the word-sharing groups never straddle a warp for 4-bit entries but entries of other levels use 8/16-bit fields (more entries per word, still within a warp). A detector's thread-pair choice is not fixed by this oracle."
+  ]
+}
