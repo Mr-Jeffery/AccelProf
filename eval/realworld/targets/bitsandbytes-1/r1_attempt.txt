@@ -1,0 +1,12 @@
+=== buggy: cmake -DCOMPUTE_BACKEND=cuda -DCOMPUTE_CAPABILITY=89 -S . -B build   (nvcc: Build cuda_13.4.r13.4/compiler.38855100_0)
+-- CUDA Version: 134 (13.4.92)
+CMake Error at CMakeLists.txt:82 (message):
+  CUDA Version > 12 is not supported
+-- Configuring incomplete, errors occurred!
+cmake rc=1
+=== fixed: cmake -DCOMPUTE_BACKEND=cuda -DCOMPUTE_CAPABILITY=89 -S . -B build   (nvcc: Build cuda_13.4.r13.4/compiler.38855100_0)
+-- CUDA Version: 134 (13.4.92)
+CMake Error at CMakeLists.txt:82 (message):
+  CUDA Version > 12 is not supported
+-- Configuring incomplete, errors occurred!
+cmake rc=1

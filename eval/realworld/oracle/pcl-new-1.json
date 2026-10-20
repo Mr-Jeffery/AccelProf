@@ -1,0 +1,57 @@
+{
+  "id": "pcl-new-1",
+  "tier": "candidate",
+  "wave": null,
+  "route": "n/a (not compiled in T21a; build_notes: full PCL -DBUILD_GPU=ON build, or a standalone copy of warp.hpp Warp::reduce + the NormalsEstimator body)",
+  "kernel": "pcl::device::EstimateNormalsKernel (gpu/features/src/normal_3d.cu L183) calling NormalsEstimator::operator() (L73-172), which uses pcl::device::Warp::reduce (gpu/utils/include/pcl/gpu/utils/device/warp.hpp L144-175); launched <<<divUp(normals.size, WAPRS), CTA_SIZE = 256>>> at normal_3d.cu L247-249 (one warp per point)",
+  "space": "shared",
+  "build_revision": {"buggy": "66e1d0ea8cc3fa54820eb38e18ad0adac6345b94", "fixed": null},
+  "sites": [
+    {"role": "write", "file": "gpu/features/src/normal_3d.cu", "line_start": 124, "line_end": 124,
+     "source": "cov_buffer[0][tid] += d.x * d.x; //cov (0, 0)",
+     "operation": "plain ld.shared + st.shared (non-volatile `__shared__ float cov_buffer[6][CTA_SIZE + 1]` declared at L75; tid = threadIdx.x) of the lane's own slot cov_buffer[0][tid]; L125-L129 are the same for rows 1..5 (cov(0,1), cov(0,2), cov(1,1), cov(1,2), cov(2,2)); the zeroing stores are L114-L115 `cov_buffer[i][tid] = 0.f;`; expected LDS/STS, not compiled in T21a so the lowering is unverified",
+     "strength": "plain"},
+    {"role": "read", "file": "gpu/utils/include/pcl/gpu/utils/device/warp.hpp", "line_start": 152, "line_end": 152,
+     "source": "buffer[lane] = val = op(val, buffer[lane + 16]);",
+     "operation": "volatile load of buffer[lane + 16] (buffer = `volatile T*` = &cov_buffer[k][tid - lane], passed at normal_3d.cu L132-L137 to the two-argument Warp::reduce, warp.hpp L144-158) by lanes 0..15, i.e. the slot written plainly by lane + 16 at normal_3d.cu L124-L129; the same statement volatile-stores buffer[lane] (the store is the write side of the SC pairs); expected LDS/STS (shared volatile may lower to plain LDS/STS on sm_89, see open_questions); not compiled in T21a",
+     "strength": "volatile(strong)"}
+  ],
+  "additional_pairs": [
+    {"class": "SC",
+     "description": "first reduction (centroid c.x, c.y, c.z, normal_3d.cu L103-L105, three-argument Warp::reduce, warp.hpp L160-175): volatile store `T val = buffer[lane] = init;` (L164) by lane 16 vs volatile load buffer[lane + 16] (L168) by lane 0, no __syncwarp between them (volatile vs volatile, unordered strong conflict)",
+     "sites": [
+       {"role": "write", "file": "gpu/utils/include/pcl/gpu/utils/device/warp.hpp", "line_start": 164, "line_end": 164, "source": "T val = buffer[lane] = init;", "operation": "volatile store of init to buffer[lane] (buffer = &cov_buffer[0][threadIdx.x - lane], normal_3d.cu L101)", "strength": "volatile(strong)"},
+       {"role": "read", "file": "gpu/utils/include/pcl/gpu/utils/device/warp.hpp", "line_start": 168, "line_end": 168, "source": "buffer[lane] = val = op(val, buffer[lane + 16]);", "operation": "volatile load of buffer[lane + 16] by lanes 0..15", "strength": "volatile(strong)"}
+     ],
+     "thread_pair_example": "block 0 warp 0: lane 16 writes buffer[16] at warp.hpp L164; lane 0 reads buffer[16] at L168. The same step-to-step pattern (L168 store of step k by lane t+16.. vs L169 load by lane t, ..., L172) and in the two-argument reduce (L152 store vs L153 load, ..., L156) are further volatile-vs-volatile SC pairs."},
+    {"class": "DR",
+     "description": "end of the centroid reduction vs the covariance zeroing: warp.hpp L174 `return buffer[0];` (volatile load of cov_buffer[0][tid - lane] by every lane of the warp after the c.z reduction) vs normal_3d.cu L115 `cov_buffer[i][tid] = 0.f;` (plain store of lane 0's slot cov_buffer[0][tid] for i = 0); only __threadfence_block() (L109, an nvcc-bug workaround) lies between, which is not a warp barrier",
+     "sites": [
+       {"role": "read", "file": "gpu/utils/include/pcl/gpu/utils/device/warp.hpp", "line_start": 174, "line_end": 174, "source": "return buffer[0];", "operation": "volatile load of buffer[0] by all 32 lanes", "strength": "volatile(strong)"},
+       {"role": "write", "file": "gpu/features/src/normal_3d.cu", "line_start": 114, "line_end": 115, "source": "for(int i = 0; i < 6; ++i) cov_buffer[i][tid] = 0.f;", "operation": "plain st.shared of 0 to the lane's own slots; for lane 0, i = 0 targets the slot read by the other lanes at warp.hpp L174", "strength": "plain"}
+     ],
+     "thread_pair_example": "warp 0: lane 5 reads buffer[0] (= cov_buffer[0][base]) at warp.hpp L174 while lane 0 has already run on to normal_3d.cu L115 and zeroes cov_buffer[0][base]"}
+  ],
+  "other_conflicting_accesses": [
+    "normal_3d.cu L139-L141 `volatile float *cov = &cov_buffer[0][tid-lane]; if (lane < 6) cov[lane] = cov_buffer[lane][tid-lane];`: the plain read cov_buffer[lane][tid-lane] (L141) by lanes 0..5 of the slot that lane 0 volatile-stored in the last step of the corresponding Warp::reduce (warp.hpp L156): DR (plain vs volatile, cross-lane).",
+    "normal_3d.cu L150-L155 (lane 0 only): `Mat33& tmp = (Mat33&)cov_buffer[1][tid - lane]; vec_tmp = cov_buffer[2]...; evecs = cov_buffer[3]...; eigen33.compute(tmp, vec_tmp, evecs, evals);` plain writes of lane 0 into rows 1..3 starting at slot tid - lane vs the L141 reads by lanes 1..3 of those slots: DR (plain vs plain), per the record's corrected list L115, L124-L129, L141, L150-L155.",
+    "Same pattern in gpu/features/src/principal_curvatures.cu (record: L150-L189) and gpu/features/src/fpfh.cu (record: L223-L298): not examined (verification did not verify them)."
+  ],
+  "thread_relation": "intra-warp",
+  "thread_pair_example": "primary DR pair, block 0 warp 0 (CTA_SIZE = 256 = 8 warps, one warp per point): lane 16 does the plain RMW cov_buffer[0][16] at normal_3d.cu L124 (tid = 16); lane 0 volatile-loads buffer[16] (= cov_buffer[0][16]) at warp.hpp L152 in the first step of Warp::reduce(&cov_buffer[0][tid - lane], plus()) (normal_3d.cu L132). Lane-dependent trip counts of the loops at L98 and L117 let lanes drift apart; nothing is a warp barrier (no __syncwarp, no shuffle in Warp::reduce or Eigen33).",
+  "expected_class": "DR+SC",
+  "class_reason": "Accesses made through the volatile `buffer` pointer of Warp::reduce and through `volatile float *cov` are strong; the accumulation and zeroing of cov_buffer in normal_3d.cu (L114-L115, L124-L129) and the reads/writes at L141 and L150-L155 are plain. By D20 a pair is SC when BOTH accesses are strong (volatile-vs-volatile pairs inside Warp::reduce, additional_pairs[0], and step to step), and DR when at least one is plain (L124-L129 vs warp.hpp L148/L152, L115 vs warp.hpp L174, L141, L150-L155). All pairs are intra-warp with no warp-level barrier.",
+  "buggy_expected": "intra-warp SC pairs inside Warp::reduce (volatile vs volatile, no __syncwarp: warp.hpp L164 vs L168, L152..L156 step to step, L168..L172 step to step) plus intra-warp DR pairs involving the plain cov_buffer accesses at normal_3d.cu L115, L124-L129 (vs warp.hpp L152), L141 and L150-L155",
+  "fixed": {"expected": "n/a (unfixed candidate)", "residual_sites": null, "reason": "pinned HEAD is the buggy build"},
+  "sass_notes": "not compiled in T21a; SASS attribution to be added when T21c/T21b builds it",
+  "built": false,
+  "derived_from": "verify.accesses + verify.thread_pair (+ corrections.race_description) of targets.jsonl, re-checked against gpu/features/src/normal_3d.cu and gpu/utils/include/pcl/gpu/utils/device/warp.hpp@66e1d0e on 2026-10-20",
+  "open_questions": [
+    "Corrections to the record text itself (the record already contains the verification's corrections): the __threadfence_block() is at normal_3d.cu L109 (not L108); the volatile read named in verify.accesses as 'L174 (volatile buffer[0] read ...)' is warp.hpp L174 `return buffer[0];` (the one-line `L174` in normal_3d.cu is fetch()), which pairs with the normal_3d.cu L115 zeroing.",
+    "D20 caveat: volatile accesses to SHARED memory may lower to plain LDS/STS on sm_89 (no .STRONG qualifier in SASS), in which case the SC pairs inside Warp::reduce would look plain at SASS level and be reported as DR by a detector that reads strength from SASS. To be checked with cuobjdump -sass when the target is built.",
+    "Warp::reduce is __forceinline__ and instantiated nine times in the kernel (three three-argument calls L103-L105, six two-argument calls L132-L137); SASS lines for the pair will repeat; only the first DR pair (row 0) is named in sites.",
+    "Not verified (per verify.notes): the claims about principal_curvatures.cu and fpfh.cu, and the 2020 octree shfl-fix git history.",
+    "Eigen33 (gpu/features/include/pcl/gpu/features/device/eigen.hpp, referenced at L43/L147-L148) reads cov through a volatile pointer and has no barrier per verify.notes; its accesses were not enumerated here."
+  ],
+  "upstream_status": {"still_unfixed_at":"66e1d0ea8cc3fa54820eb38e18ad0adac6345b94 (git fetch origin HEAD == pinned; normal_3d.cu and warp.hpp identical)","already_reported_check":"git log -i --grep='race|sync|volatile|warp' -- gpu/ on a blobless clone shows only the 2020 octree-search fixes (49b80de60, 33a862295, bb49225aa, 3dcfd6c2c); site search for gpu/features volatile race not done (web search unverified).","dispute_points":"A skeptic will say: classic warp-synchronous programming, valid on all architectures when compiled with volatile and no divergence, and PCL's CI/users never reported wrong normals on Volta+. Detector must model independent thread scheduling for this to count; under -arch=sm_89 compile mode without -gencode compute_60 the volatile accesses are still emitted as plain LD/ST with no warp barrier, so racecheck-style analysis would flag them. Kernel only compiled when PCL gpu module is built (often disabled).","proposed_fix_per_record":null,"links":["https://github.com/PointCloudLibrary/pcl/blob/66e1d0ea8cc3fa54820eb38e18ad0adac6345b94/gpu/features/src/normal_3d.cu","https://github.com/PointCloudLibrary/pcl/blob/66e1d0ea8cc3fa54820eb38e18ad0adac6345b94/gpu/utils/include/pcl/gpu/utils/device/warp.hpp"],"merged_into_default":null}
+}

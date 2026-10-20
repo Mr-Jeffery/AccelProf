@@ -1,0 +1,39 @@
+{
+  "id": "llamacpp-open-2",
+  "tier": "candidate",
+  "wave": null,
+  "route": "n/a (not compiled in T21a; build_notes: R1 cmake of test-backend-ops with GGML_CUDA=ON, CMAKE_CUDA_ARCHITECTURES=89)",
+  "kernel": "flash_attn_ext_vec<D, ncols, type_K, type_V, use_logit_softcap> (fattn-vec.cuh L19-; main KV loop L254-377)",
+  "space": "shared",
+  "build_revision": {"buggy": "1b70350c92563449576bcbbf552994b1d1ed847d", "fixed": null},
+  "sites": [
+    {"role": "write", "file": "ggml/src/ggml-cuda/fattn-vec.cuh", "line_start": 303, "line_end": 303,
+     "source": "KQ[j*nthreads + tid] = KQ_reg[j];",
+     "operation": "st.shared.b32 (float) of the softmax score into `__shared__ float KQ[...]` (CUDA build: fattn-vec.cuh L129; the half KQ at L126 is only under V_DOT2_F32_F16_AVAILABLE, defined for HIP only, common.cuh L760-762), slot j*nthreads + tid with nthreads = 128 (L86) and tid = WARP_SIZE*threadIdx.y + threadIdx.x (L119); executed by every lane in every iteration of the k_VKQ_0 loop (L254); expected STS, not compiled in T21a so the lowering is unverified",
+     "strength": "plain"},
+    {"role": "read", "file": "ggml/src/ggml-cuda/fattn-vec.cuh", "line_start": 359, "line_end": 359,
+     "source": "KQ_k[j] = KQ[j*nthreads + k];",
+     "operation": "ld.shared.b32 (float) of the score written by a sibling lane, slot j*nthreads + k with k = threadIdx.y*WARP_SIZE + k0 + (nthreads_V == WARP_SIZE ? 0 : threadIdx.x / nthreads_V) (L324), in the V-accumulation loop L323-376 (`#else` branch L355-375 = the CUDA path); expected LDS, unverified",
+     "strength": "plain"}
+  ],
+  "other_conflicting_accesses": [
+    "fattn-vec.cuh L330 `KQ_k[j] = __half2half2(KQ[j*nthreads + k]);` is the same read in the `#ifdef V_DOT2_F32_F16_AVAILABLE` branch (half KQ); that macro is defined only for HIP, so L330 is not compiled for CUDA/sm_89 (verify.accesses lists it as the 'f16 path')."
+  ],
+  "thread_relation": "intra-warp",
+  "thread_pair_example": "block b, one warp (ncols = 1, f16 V: nthreads_V = 128 / cpy_nb = 8 with cpy_nb = ggml_cuda_get_max_cpy_bytes() (L71, L88; common.cuh L399-409 returns 16 for CUDA __CUDA_ARCH__ >= Volta, so nthreads_V = 8 for f16 V on sm_89), V_cols_per_iter = 4): in iteration n lane 8 reads KQ slot k0 + 1 (k0 = 0, threadIdx.x/8 = 1) at L359; in iteration n+1 lane 1 writes slot 1 at L303. The only warp sync in the loop is ggml_cuda_syncwarp() (= __syncwarp(), common.cuh L127-131) at L320, which orders the L303 store before the L359 loads (RAW) but nothing orders the L359 loads of iteration n before the L303 stores of iteration n+1: the loop body ends at L377 with no sync. Between them each lane executes full-mask __shfl_xor_sync in warp_reduce_sum (L274) and at L296.",
+  "expected_class": "DR",
+  "class_reason": "Both accesses are plain (non-volatile, non-atomic) accesses to the shared float array KQ (verify.strong_accesses: none) by different lanes of one warp; the loop-carried WAR (read in iteration n, write in iteration n+1) has no happens-before edge unless a full-mask shfl.sync counts as an ordering point (PTX: it is not a memory-ordering operation, per the record). Plain vs plain unordered = DR under D20. Formal ITS race: in practice the next iteration's shuffles force all lanes to have issued their loads.",
+  "buggy_expected": "the pair (L359 load by lane 8, iteration n) x (L303 store by lane 1, iteration n+1) on KQ is reported as DR (WAR, shared, intra-warp, loop-carried); the RAW L303 -> L359 within the iteration is ordered by the __syncwarp at L320 and must not be reported",
+  "fixed": {"expected": "n/a (unfixed candidate)", "residual_sites": null, "reason": "pinned HEAD is the buggy build"},
+  "sass_notes": "not compiled in T21a; SASS attribution to be added when T21c/T21b builds it",
+  "built": false,
+  "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against ggml/src/ggml-cuda/fattn-vec.cuh@1b70350 on 2026-10-20",
+  "open_questions": [
+    "Discrepancy with the record: verify.accesses names L330 (f16 path) / L359 (f32 path) as the read. At 1b70350 L330 is under `#ifdef V_DOT2_F32_F16_AVAILABLE`, which common.cuh L760-762 defines only for GGML_USE_HIP (RDNA2/3/4, gfx906, CDNA); for CUDA (sm_89) the `#else` branch is compiled, so the load is L359 and KQ is float (L129), not half (L126). The oracle therefore lists L359 as the read and L330 only under other_conflicting_accesses. Everything else (store L303, __syncwarp L320, loop L254-377 with no sync at its end) is as stated.",
+    "The thread-pair arithmetic (lane 8 reads slot 1, lane 1 writes slot 1) assumes nthreads_V = 8, i.e. type_V f16 and ggml_cuda_get_max_cpy_bytes() = 16; cpy_nb = 16 on sm_89 (common.cuh L399-409), so nthreads_V = 128/16 = 8 for f16 V.",
+    "Per the record, a detector that models __shfl_xor_sync as a convergence/ordering point (not a memory barrier) would still flag it; one that treats full-mask shfl.sync as a barrier would not. The same shfl-only argument was rejected by maintainers for another kernel (llamacpp-2, mmid).",
+    "Evidence for the race at runtime is unverified: the claimed racecheck hazards come from an unmerged AI-assisted PR (28358) without logs.",
+    "Driver condition from the record: vec kernel needs kv a multiple of 256 (kv = 512 or 1024), nb = 1, nr3 == 1 and f16 K/V on sm89; host dispatch not re-verified here."
+  ],
+  "upstream_status": {"still_unfixed_at":"fcac19079f3f2985fe74ed845f0880e7e9a8030a (fattn-vec.cuh identical to 1b70350c)","already_reported_check":"Same search as llamacpp-15. Only the unmerged PR 28358 (jdziat) and indirect comments by am17an. HEAD code lacks the end-of-loop sync.","dispute_points":"Full-mask __shfl_xor_sync in the next iteration's warp_reduce_sum happens before the store at L303, so all lanes must reach it first; in practice the loads have long completed. Also AI-written PR without logs. A detector that models shfl as a convergence point (not memory barrier) would still flag it.","proposed_fix_per_record":"Proposed (PR 28358, unmerged): add one __syncwarp() (ggml_cuda_syncwarp() at master) at the end of the loop body.","links":["https://github.com/ggml-org/llama.cpp/pull/28358 (closed, not merged)"],"merged_into_default":false}
+}

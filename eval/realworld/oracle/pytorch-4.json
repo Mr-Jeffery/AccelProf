@@ -1,0 +1,45 @@
+{
+  "id": "pytorch-4",
+  "tier": "core",
+  "wave": 1,
+  "route": "R2",
+  "kernel": "gatherKthValue",
+  "space": "global",
+  "build_revision": {"buggy": "9d0b77f4cdf467cc57b39161c8ab5362d8e12731", "fixed": "79a4a9c02e730ec2331f49d8e0d066fd70aa3f9b"},
+  "sites": [
+    {"role": "write", "file": "aten/src/ATen/native/cuda/Sorting.cu", "line_start": 85, "line_end": 85,
+     "source": "kthValueSliceStart[0] = kValue;",
+     "operation": "STG.E [R18.64], R13 (st.global.f32, SASS 0x2000; executed by every thread with foundKValue)",
+     "strength": "plain"},
+    {"role": "write", "file": "aten/src/ATen/native/cuda/Sorting.cu", "line_start": 86, "line_end": 86,
+     "source": "indicesSliceStart[0] = kValueIndex;",
+     "operation": "STG.E.64 [R16.64], R24 (st.global.s64, SASS 0x2010; executed by every thread with foundKValue)",
+     "strength": "plain"}
+  ],
+  "thread_relation": "cross-warp-same-block",
+  "thread_pair_example": "driver input: one slice of 4096 equal elements (0.0f), k = 5, launch <<<1, 1024>>>: every thread's first element (i = threadIdx.x) equals kValue, so all 1024 threads execute L85 and L86 on the same two global words (kthValue[0], indices[0]). E.g. block 0: thread 0 (warp 0) and thread 32 (warp 1) both store indices[0] at L86 (values 0 vs 32) and kthValue[0] at L85 (equal values). Each store site races with ITSELF as executed by another thread (WAW, the two sites are the two words of the same finding: L86 carries the observable nondeterminism, L85 stores identical values), also between lanes of one warp.",
+  "expected_class": "DR",
+  "class_reason": "Plain (non-atomic, non-volatile) global stores to one word from many threads of different warps (and lanes) with no barrier or other ordering between them; there is no strong/atomic access involved, so DR (not SC) under D20. The values written to kthValue[0] are identical but the indices written to indices[0] differ per thread, so the surviving index is arbitrary (smoke run on sm_75: index=208 instead of 0).",
+  "buggy_expected": "WAW on the global words kthValue[slice] (L85) and indices[slice] (L86), reported as DR between different threads of block 0, cross-warp (and intra-warp pairs as well)",
+  "fixed": {
+    "expected": "residual",
+    "residual_sites": [
+      {"role": "read", "file": "aten/src/ATen/native/cuda/Sorting.cu", "line_start": 77, "line_end": 77,
+       "source": "if (i >= minIndexFound) {",
+       "operation": "LDS R5, [0x80] (ld.shared.s32 of the __shared__ int32_t minIndexFound; SASS 0x1ea0 in the fixed driver)",
+       "strength": "plain"},
+      {"role": "atomic", "file": "aten/src/ATen/native/cuda/Sorting.cu", "line_start": 86, "line_end": 86,
+       "source": "atomicMin(&minIndexFound, static_cast<int32_t>(i));",
+       "operation": "REDUX.MIN.S32 UR5,R24 / VOTEU.ANY / @P0 ATOMS.MIN.S32 RZ,[0x80],R0 (warp-aggregated shared atomicMin; SASS 0x2070-0x20c0 in the fixed driver)",
+       "strength": "atomic"}
+    ],
+    "reason": "the fix removes the global WAW: each thread now atomicMin's its first match into the __shared__ minIndexFound (fixed L86), __syncthreads (fixed L91), and only thread 0 writes indices[0] and kthValue[0] (fixed L94-95). verify.expected_report_fixed: the WAW pair is gone; BUT the early-exit read `if (i >= minIndexFound)` (fixed L77, plain LDS) runs concurrently with other threads' atomicMin on the same shared word with no barrier in between: a plain-read vs atomic-RMW conflict, benign by design (the read only prunes the search; any stale value still yields the correct minimum), that a detector may report on the fixed commit (class DR by D20: one side is a plain access). The initialising store L71 (thread 0) is ordered before the loop by the barrier at L73, and the final read L94 follows the barrier at L91."
+  },
+  "sass_notes": "cuobjdump/nvdisasm -g (via /home/fzheng4/sassline.sh) of sm_89 gatherKthValue<float,int,1> (the instantiation the driver launches). Buggy driver: Sorting.cu:85 STG.E [R18.64],R13 (0x2000), Sorting.cu:86 STG.E.64 [R16.64],R24 (0x2010); preceding k-value scan LDG.E.CONSTANT (doLdg, 0x1eb0, attributed to sm_32_intrinsics.hpp:166). Fixed driver: Sorting.cu:71 @!P1 STS [0x80] (0x1e60), :73 WARPSYNC + BAR.SYNC (0x1e40/0x1e70), :77 LDS R5,[0x80] (0x1ea0), doLdg LDG.E.CONSTANT (0x1f20), :86 atomicMin lowered (attributed to device_atomic_functions.hpp:142) to REDUX.MIN.S32 UR5,R24 (0x2070) + VOTEU.ANY (0x2080) + @P0 ATOMS.MIN.S32 RZ,[0x80],R0 (0x20c0), :91 BAR.SYNC (0x20f0), :94 LDS R2,[0x80] (0x2110) + STG.E.64 (0x2130), :95 STG.E (0x2140). No .STRONG token on any of these sites (plain STG.E / LDS; the shared atomic is ATOMS). radixSelect (SortingRadixSelect.cuh, same blob in both revisions) precedes in both variants and contains its own barriers; it is not part of the racing pair. Instantiation notes: driver launches scalar float, index_t int32_t, Dim 1 (as run_launcher does for a contiguous 1-D slice); other instantiations in the fatbin are the host dispatcher's and are never launched. Lineinfo: line attribution above is from the -lineinfo build; R2 lineinfo check cited from targets/lit-arrayfire-1/lineinfo.check: RESULT SAME, -lineinfo does not change the SASS.",
+  "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against aten/src/ATen/native/cuda/Sorting.cu@9d0b77f (buggy) and @79a4a9c (fixed) on 2026-10-20",
+  "open_questions": [
+    "T_RACECHECK=na for this target (the buggy race is global memory), but the residual in the fixed variant (plain LDS vs ATOMS.MIN on shared minIndexFound) is shared memory: racecheck on the fixed variant could be informative; the coordinator decides.",
+    "The D20 class of the residual (plain read vs atomic RMW, no strong read) is assigned DR here by reading the plain side; not checked against a detector.",
+    "Not the target pair, but present in BOTH variants with the all-equal input: findPattern in SortingRadixSelect.cuh (verbatim, same blob in both revisions) lets every matching thread store smem[0] and smem[1] (same values, benign shared WAW) before its barrier, so a shared-memory detector or racecheck may report extra benign findings in radixSelect for both variants; they are unrelated to the L85/L86 pair of gatherKthValue."
+  ]
+}

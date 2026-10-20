@@ -1,0 +1,52 @@
+{
+  "id": "opencv_contrib-new-1",
+  "tier": "candidate",
+  "wave": null,
+  "route": "n/a (not compiled in T21a; build_notes: full OpenCV + opencv_contrib CUDA build, or a standalone copy of compute_hists_kernel_many_blocks)",
+  "kernel": "cv::cuda::device::hog::compute_hists_kernel_many_blocks<nblocks> (modules/cudaobjdetect/src/cuda/hog.cu L134-234; launched by hog::compute_hists L237-280 with grid (divUp(img_block_width, nblocks), img_block_height), block (threads_cell * ncells_block_x, ncells_block_y, nblocks) = (32, 2, 4) for the default 8x8-cell config, dynamic shared memory `smem`)",
+  "space": "shared",
+  "build_revision": {"buggy": "eca97a4adb2fa32afc82478947d7f049fce57ee1", "fixed": null},
+  "sites": [
+    {"role": "write", "file": "modules/cudaobjdetect/src/cuda/hog.cu", "line_start": 191, "line_end": 192,
+     "source": "hist[bin.x * block_patch_size * nblocks] += gaussian * interp_weight * vote.x; hist[bin.y * block_patch_size * nblocks] += gaussian * interp_weight * vote.y;",
+     "operation": "plain ld.shared + st.shared (non-volatile `float* hist`, a pointer into the dynamic `extern __shared__ float smem[]` at L148-149) of the lane's own histogram column (hist = hists + patch_size * (...) + cell_thread_x, L163-165) for the bins hit by each pixel of the patch (loop L173-193); the zeroing store `hist[bin_id * block_patch_size * nblocks] = 0.f;` at L166-167 is the same kind of plain store for bins not hit; expected LDS/STS, not compiled in T21a so the lowering is unverified",
+     "strength": "plain"},
+    {"role": "read", "file": "modules/cudaobjdetect/src/cuda/hog.cu", "line_start": 199, "line_end": 199,
+     "source": "if (cell_thread_x < patch_size/2) hist_[0] += hist_[patch_size/2];",
+     "operation": "volatile load of hist_[patch_size/2] (= hist_[6] for patch_size = 12) through `volatile float* hist_ = hist` (L196), by lanes cell_thread_x < patch_size/2 = 6, i.e. the column written by lane cell_thread_x + 6 (first reduction step); the statement also loads and stores hist_[0] volatilely (the L199 store is the write of the SC pair below); expected LDS/STS (shared volatile may lower to plain LDS/STS on sm_89, see open_questions); not compiled in T21a",
+     "strength": "volatile(strong)"}
+  ],
+  "additional_pairs": [
+    {"class": "SC",
+     "description": "second reduction step: L199 volatile store hist_[0] (lanes cell_thread_x 3..5 hold the partial sums that lanes 0..2 read) vs L201 volatile load hist_[patch_size/4] = hist_[3] by lanes 0..2 (unordered strong-vs-strong conflict, no __syncwarp between L199 and L201)",
+     "sites": [
+       {"role": "write", "file": "modules/cudaobjdetect/src/cuda/hog.cu", "line_start": 199, "line_end": 199, "source": "if (cell_thread_x < patch_size/2) hist_[0] += hist_[patch_size/2];", "operation": "volatile store of hist_[0] (own column, lanes < 6)", "strength": "volatile(strong)"},
+       {"role": "read", "file": "modules/cudaobjdetect/src/cuda/hog.cu", "line_start": 200, "line_end": 201, "source": "if (cell_thread_x < patch_size/4 && (!((patch_size/4) < 3 && cell_thread_x == 0))) hist_[0] += hist_[patch_size/4];", "operation": "volatile load of hist_[patch_size/4] (= hist_[3]) by lanes 0..2 (condition at L200, statement L201; for patch_size = 12, patch_size/4 = 3 so lane 0 is included)", "strength": "volatile(strong)"}
+     ],
+     "thread_pair_example": "lane 3 (cell_thread_x = 3) volatile-stores hist_[0] (column 3) at L199; lane 0 volatile-loads hist_[3] (column 3) at L201"},
+    {"class": "SC",
+     "description": "third step: L201 volatile store hist_[0] by lanes 1,2 vs L204 volatile loads hist_[1], hist_[2] by lane 0 (no __syncwarp between L201 and L204)",
+     "sites": [
+       {"role": "write", "file": "modules/cudaobjdetect/src/cuda/hog.cu", "line_start": 201, "line_end": 201, "source": "hist_[0] += hist_[patch_size/4];", "operation": "volatile store of hist_[0] (own column, lanes < 3)", "strength": "volatile(strong)"},
+       {"role": "read", "file": "modules/cudaobjdetect/src/cuda/hog.cu", "line_start": 202, "line_end": 204, "source": "if (cell_thread_x == 0) final_hist[((cell_x + block_x * cncells_block_x) * cncells_block_y + cell_y) * cnbins + bin_id] = hist_[0] + hist_[1] + hist_[2];", "operation": "volatile loads of hist_[1] and hist_[2] (L204, columns written by lanes 1 and 2 at L201) by lane 0; the store to final_hist is plain", "strength": "volatile(strong)"}
+     ],
+     "thread_pair_example": "lane 1 volatile-stores hist_[0] (column 1) at L201; lane 0 volatile-loads hist_[1] at L204 (and hist_[2] written by lane 2)"}
+  ],
+  "thread_relation": "intra-warp",
+  "thread_pair_example": "primary DR pair, warp 0 of the 256-thread block (blockDim (32,2,4): a warp is a fixed (y,z) with 32 consecutive x; a cell is a half-warp of threads_cell = 16 lanes, 12 active since cell_thread_x < patch_size = 12 at L153): lane 6 (cell_thread_x = 6) plainly stores its histogram column (col 6) at L191/L192 (or zeroes it at L167); lane 0 (cell_thread_x = 0) volatile-loads hist_[6] at L199. No __syncwarp anywhere in hog.cu; the first __syncthreads after the loop is at L208.",
+  "expected_class": "DR+SC",
+  "class_reason": "The exchanged shared memory is written during accumulation through a plain float* (L166-167 zeroing, L191-192 +=) and read in the reduction through a volatile float* alias (L196-205). Pair 1 (L191/L192 plain store by lane t+6 vs L199 volatile load by lane t): one access is plain -> DR under D20. Pairs 2 and 3 (L199 volatile store vs L201 volatile load; L201 volatile store vs L204 volatile load): both accesses strong (volatile) and unordered -> SC under D20. All intra-warp, no happens-before edge (no __syncwarp).",
+  "buggy_expected": "DR for step 1 (L191/L192 plain store vs L199 volatile load of hist_[6]); SC for steps 2 and 3 (L199 vs L201 and L201 vs L204); all intra-warp for the default 8x8 cell configuration (a 16-lane cell lies inside one warp)",
+  "fixed": {"expected": "n/a (unfixed candidate)", "residual_sites": null, "reason": "pinned HEAD is the buggy build"},
+  "sass_notes": "not compiled in T21a; SASS attribution to be added when T21c/T21b builds it",
+  "built": false,
+  "derived_from": "verify.accesses + verify.thread_pair (+ corrections.thread_pair/race_description) of targets.jsonl, re-checked against modules/cudaobjdetect/src/cuda/hog.cu@eca97a4 on 2026-10-20",
+  "open_questions": [
+    "No discrepancy with the record (which already carries the verification's correction: DR for the plain-vs-volatile step, SC for the volatile-vs-volatile steps): L166-167 zeroing, L191-192 accumulate, volatile alias at L196, L199/L201/L204 reduction, first __syncthreads at L208, absence of __syncwarp/other sync in hog.cu (only `volatile` hit is L196) were re-checked at eca97a4.",
+    "D20 caveat: volatile accesses to SHARED memory may lower to plain LDS/STS on sm_89 (no .STRONG qualifier in SASS), in which case the SASS-level strength of L199/L201/L204 would look plain and the SC pairs would appear as DR to a detector reading only SASS. To be checked with cuobjdump -sass when the target is built.",
+    "The default configuration (cell_size 8, patch_size = 12, threads_cell = 16, nblocks = 4, cnbins = 9) is derived from the record and the launch code (L247-262); cnbins and the exact patch/nblocks values for a given HOG object were not re-derived here. For other cell sizes (16x16 -> threads_cell = 32) the cell still fits in one warp.",
+    "Because `hist` is a plain float* and `hist_` a volatile alias of the same address, ptxas may keep or reorder the plain accumulation relative to the volatile reduction; in program order nvcc emits the STS before the volatile LDS (per the record), not verified without SASS.",
+    "Lanes 12..15 of each cell skip the whole block (`if (cell_thread_x < patch_size)` L153) and the reduction loop contains lane-dependent conditions (L199-L204): the code is divergent inside a warp but has no barrier."
+  ],
+  "upstream_status": {"still_unfixed_at":"eca97a4adb2fa32afc82478947d7f049fce57ee1 (fetched HEAD is the pinned sha; hog.cu unchanged; grep: no __syncwarp in hog.cu)","already_reported_check":"git log of hog.cu in opencv/opencv and opencv_contrib clones: the only sync-related commit is 5a72be08 (opencv-1, normalize_hists kernel); later commits (variable params, streams, texture objects, module move) do not touch the compute_hists reduction. No web search for this specific reduction; no issue found.","dispute_points":"A skeptic will say: textbook warp-synchronous reduction, deliberately volatile, works on every GPU in practice and HOG tests pass on Volta+/Ampere/Ada. Cells of 16 threads are fully inside one warp for the default config, so the exchange never crosses warps. The accumulation stores use a non-volatile pointer, so a compiler could in principle keep them in registers, but nvcc emits them as STS before the volatile LDS in program order. The race exists only under the ITS memory model that the detector enforces. For non-default cell sizes (16x16 -> threads_cell=32) the cell still occupies one full warp, so the situation is the same.","proposed_fix_per_record":null,"links":["https://github.com/opencv/opencv_contrib/blob/eca97a4adb2fa32afc82478947d7f049fce57ee1/modules/cudaobjdetect/src/cuda/hog.cu"],"merged_into_default":null}
+}

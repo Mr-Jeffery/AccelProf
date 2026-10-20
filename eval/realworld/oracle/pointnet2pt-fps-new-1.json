@@ -1,0 +1,37 @@
+{
+  "id": "pointnet2pt-fps-new-1",
+  "tier": "candidate",
+  "wave": null,
+  "route": "n/a (not compiled in T21a; build_notes: stand-alone torch extension pointnet2_ops_lib, only sampling_gpu.cu matters)",
+  "kernel": "furthest_point_sampling_kernel<block_size> (sampling_gpu.cu L69-173); launched with <<<b, n_threads>>> where n_threads = opt_n_threads(n) (switch in furthest_point_sampling_kernel_wrapper L175-)",
+  "space": "shared",
+  "build_revision": {"buggy": "b5ceb6d9ca0467ea34beb81023f96ee82228f626", "fixed": null},
+  "sites": [
+    {"role": "write", "file": "pointnet2_ops_lib/pointnet2_ops/_ext-src/src/sampling_gpu.cu", "line_start": 112, "line_end": 112,
+     "source": "dists_i[tid] = besti;",
+     "operation": "st.shared.u32 into `__shared__ int dists_i[block_size]` (L75), executed by every thread at the top of the NEXT outer iteration j+1 (after its per-thread distance loop L95-110); thread 0's store hits dists_i[0]; expected STS, not compiled in T21a so the lowering is unverified",
+     "strength": "plain"},
+    {"role": "read", "file": "pointnet2_ops_lib/pointnet2_ops/_ext-src/src/sampling_gpu.cu", "line_start": 170, "line_end": 170,
+     "source": "old = dists_i[0];",
+     "operation": "ld.shared.u32 of dists_i[0] by every thread of the block at the end of outer iteration j (after the reduction ends with __syncthreads() at L167); expected LDS, unverified",
+     "strength": "plain"}
+  ],
+  "other_conflicting_accesses": [
+    "none: dists[tid] (L111) is not part of a conflict: dists[0] is last read by thread 0 itself in the final __update (L165) and the __syncthreads at L167 orders thread 0's read of dists[1] before thread 1's next L111 store. Only dists_i[0] is read after the last barrier (L170), per verify.notes."
+  ],
+  "thread_relation": "cross-warp-same-block",
+  "thread_pair_example": "block b (batch_index = blockIdx.x), driver furthest_point_sample(xyz(B,N,3), npoint) with N = 2048: opt_n_threads(2048) = 512 (TOTAL_THREADS = 512, cuda_utils.h L13-19), so furthest_point_sampling_kernel<512>: thread 33 (warp 1) reads dists_i[0] at L170 in iteration j; thread 0 (warp 0) passes L170/L171, runs iteration j+1 up to L112 and writes dists_i[0] there. The last barrier of iteration j is L167 (before the read) and the next barrier (L113) comes after the write, so nothing orders the read before the write. Needs m >= 3 (the loop `for (int j = 1; j < m; j++)` at L89 must run twice; the record says m>=2, which would give a single iteration) and block_size >= 64 for another warp to exist (for block_size 32 the same pair is intra-warp, lanes 1..31 vs lane 0).",
+  "expected_class": "DR",
+  "class_reason": "Both accesses are plain (non-volatile, non-atomic) accesses to the int shared array dists_i (verify.strong_accesses: none) from different warps; the barrier at L167 precedes the read and the barrier at L113 follows the write, so there is no happens-before edge between the L170 read and the next iteration's L112 write. Plain vs plain unordered conflicting pair = DR under D20. A real race in practice only if thread 0 runs the whole next distance loop before a slow reader executes L170, so it essentially never fails.",
+  "buggy_expected": "the pair (L170 read of dists_i[0] by all threads, iteration j) x (L112 write by thread 0, iteration j+1) is reported as DR (WAR, shared, cross-warp)",
+  "fixed": {"expected": "n/a (unfixed candidate)", "residual_sites": null, "reason": "pinned HEAD is the buggy build"},
+  "sass_notes": "not compiled in T21a; SASS attribution to be added when T21c/T21b builds it",
+  "built": false,
+  "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against pointnet2_ops_lib/pointnet2_ops/_ext-src/src/sampling_gpu.cu@b5ceb6d on 2026-10-20",
+  "open_questions": [
+    "No discrepancy with the record: L111-L112 stores, L170 load, barrier L167 (before the read), L113 (after the next write), template block_size with n_threads from opt_n_threads(n) were re-checked at b5ceb6d. The record's first-quoted location 'L111-L112 (write dists_i[tid])' contains one relevant store, L112 (L111 writes dists[tid], which is not in a conflict).",
+    "The reduction helper __update (L59-65) is a non-inline __device__ function with __restrict__ parameters; the compiler may inline it; the shared accesses inside it (dists/dists_i reads and writes at L61-L64) are ordered by the __syncthreads after each reduction step and are not part of the pair.",
+    "The same pattern (read of dists_i[0] after the last reduction barrier, store by thread 0 in the next iteration) exists in mmcv-fps-new-1 and openpcdet-fps-new-1; the code differs in details (e.g. this file keeps the `mag <= 1e-3` skip at L100-101)."
+  ],
+  "upstream_status": {"still_unfixed_at":"b5ceb6d9ca0467ea34beb81023f96ee82228f626 (repo's master still equals the pinned sha, last commit 2021-07-30)","already_reported_check":"Same as fps-mmcv-1. Not verified exhaustively.","dispute_points":"Same as fps-mmcv-1.","proposed_fix_per_record":null,"links":["https://github.com/erikwijmans/Pointnet2_PyTorch/blob/b5ceb6d9ca0467ea34beb81023f96ee82228f626/pointnet2_ops_lib/pointnet2_ops/_ext-src/src/sampling_gpu.cu#L70-L172"],"merged_into_default":null}
+}

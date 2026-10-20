@@ -28,7 +28,7 @@ HERE=$(cd "$(dirname "$0")" && pwd)
 RWD=$(dirname "$HERE")
 id=$1; phase=$2; only=${3:-}
 [ -n "$id" ] && [ -n "$phase" ] || { sed -n 2,30p "$0"; exit 2; }
-if [ "$phase" = export ]; then      # login node: no BeeGFS, no CUDA
+if [ "$phase" = export ] || [ "$phase" = info ]; then      # login node: no BeeGFS, no CUDA
   export WT=/home/fzheng4/wt-t21a RW=/mnt/beegfs/fzheng4/realworld INCOMING=/home/fzheng4/incoming/realworld HARNESS=$HERE
 else
   source "$HERE/job_header.sh"
@@ -58,11 +58,16 @@ LOCAL=/mnt/local/$USER/rw/$id
 
 unpack() {   # $1 variant -> $LOCAL/$1/src
   rm -rf "$LOCAL/$1"; mkdir -p "$LOCAL/$1/src" "$LOCAL/$1/build"
-  tar -xzf "$RW/src/$id/$1.tar.gz" -C "$LOCAL/$1/src" || return 1
+  tar -xizf "$RW/src/$id/$1.tar.gz" -C "$LOCAL/$1/src" || return 1
   echo "unpack $id/$1: $(find "$LOCAL/$1/src" -type f | wc -l) files in $LOCAL/$1/src"
 }
 
 case $phase in
+  info)       # machine-readable summary for mk_manifest.py (login node, no side effects)
+    for v in $variants; do
+      export ART=$RW/build/$id/$v RUNDIR=$RW/runs/$id/$v
+      printf 'ROW\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$id" "$v" "$T_ROUTE" "$T_KERNEL" "$T_SPACE" "${T_RACECHECK:-yes}" "$ART/$T_EXE" "$(t_cmd "$v")" "$(sha_of $v)"
+    done ;;
   export)
     for v in $variants; do
       d=$INCOMING/export/$id/$v.tar.gz; rm -f "$d"; mkdir -p "$(dirname "$d")"

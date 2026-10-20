@@ -1,0 +1,50 @@
+{
+ "id": "cmssw-1",
+ "tier": "core",
+ "wave": 1,
+ "route": "R2",
+ "kernel": "cms::cuda::multiBlockPrefixScan<unsigned int> (HeterogeneousCore/CUDAUtilities/interface/prefixScan.h)",
+ "space": "global",
+ "build_revision": {"buggy": "37a05c6bb60b2db8fb521b9043e6acd9a123be0d", "fixed": "d1ce91e53c1060176f666c3aa0b933e84d06c39b"},
+ "sites": [
+  {"role": "write", "file": "HeterogeneousCore/CUDAUtilities/interface/prefixScan.h", "line_start": 77, "line_end": 77,
+   "source": "co[i] += ws[warpId - 1];",
+   "operation": "st.global (SASS: STG.E [R4.64], R9 at 0x06f0, preceded by the same thread's LDG.E R8,[R4.64] at 0x0680 of its own earlier store; the cross-block conflicting part is the store). Executed in blockPrefixScan(ci+off, co+off, ...) by each block for i >= 32 of its tile.",
+   "strength": "plain"},
+  {"role": "read", "file": "HeterogeneousCore/CUDAUtilities/interface/prefixScan.h", "line_start": 172, "line_end": 172,
+   "source": "psum[i] = (j < size) ? co[j] : T(0);",
+   "operation": "ld.global (SASS: LDG.E R5, [R4.64] at 0x0930; plain, not .CONSTANT, not .STRONG) in the block whose atomicAdd returned gridDim.x-1 (the 'last block done')",
+   "strength": "plain"}
+ ],
+ "thread_relation": "cross-block",
+ "thread_pair_example": "driver, 20000 items: grid 20 x 1024 threads, dynamic shared 80 bytes. Block 0, thread 1023 stores the final co[1023] at L77 (earlier partial value at L22); the block B whose thread 0 gets value == 19 from atomicAdd(pc,1) at L155 (the last one to finish; any blockIdx) runs, in its thread 0, i = 0: j = blockDim.x*0 + 1023, loads co[1023] at L172. There is no __threadfence() before the atomicAdd in block 0 and no acquire after it in block B, and nothing else orders them (different blocks): global RAW. (driver, 2000 items: grid 2 x 1024: the same pair when block 1 finishes last.)",
+ "expected_class": "DR",
+ "class_reason": "In the buggy program co and ci are plain pointers: every access to co is an ordinary LDG.E / STG.E (no volatile, no .STRONG token, no atomic); the only atomic is the block counter pc (ATOMG.E.ADD.STRONG.GPU, L155) which is not the data. A conflicting pair of two plain accesses with no happens-before edge (no fence on either side of the counter handoff) is a data race (DR), not SC.",
+ "buggy_expected": "The pair (L77 store of block b vs L172 load by the last-done block) is reported as DR (global RAW across blocks). Also expected as DR in the same kernel (extra_pairs): the L22 store vs the L172 load, and the L22/L77 stores of other blocks vs the last block's L179 read-modify-write (RAW and WAW across blocks).",
+ "fixed": {"expected": "residual",
+  "residual_sites": [
+   {"role": "write", "file": "HeterogeneousCore/CUDAUtilities/interface/prefixScan.h", "line_start": 77, "line_end": 77,
+    "source": "co[i] += ws[warpId - 1];",
+    "operation": "st.volatile.global (SASS: STG.E.STRONG.SYS [R4.64], R9 at 0x0740; co is now volatile T*)", "strength": "volatile(strong)"},
+   {"role": "read", "file": "HeterogeneousCore/CUDAUtilities/interface/prefixScan.h", "line_start": 175, "line_end": 175,
+    "source": "psum[i] = (j < size) ? co[j] : T(0);",
+    "operation": "ld.volatile.global (SASS: LDG.E.STRONG.SYS R5, [R4.64] at 0x09b0)", "strength": "volatile(strong)"}
+  ],
+  "reason": "UNCERTAIN, taken from verify.expected_report_fixed. The fix makes ci/co volatile (all accesses become strong: LDG.E.STRONG.SYS / STG.E.STRONG.SYS) and puts __threadfence() (L157, SASS MEMBAR.SC.GPU; ERRBAR; CCTL.IVALL at 0x07c0-0x0800) before the counter atomicAdd (L158, ATOMG.E.ADD.STRONG.GPU), i.e. a release pattern on the writing side. The last-done block has NO fence after its atomicAdd (only the block barrier BAR.SYNC at L162 and the strong loads), so by the formal PTX model there is no acquire pattern and the strong-vs-strong conflict is not ordered: the formal expectation is a residual of class SC on the same pair (moved to L77 / L175 in the fixed file). A detector that accepts 'fence; atomic' as a complete handoff (the CUDA threadFenceReduction idiom) reports nothing, so 'absent' is also a legitimate outcome; the pair is therefore recorded as residual with this caveat and listed in open_questions."},
+ "extra_pairs": [
+  {"sites": [
+    {"role": "write", "file": "HeterogeneousCore/CUDAUtilities/interface/prefixScan.h", "line_start": 22, "line_end": 22, "source": "co[i] = x;", "operation": "st.global (SASS STG.E [R10.64], R7 at 0x0360, in warpPrefixScan called from blockPrefixScan L61)", "strength": "plain"},
+    {"role": "read", "file": "HeterogeneousCore/CUDAUtilities/interface/prefixScan.h", "line_start": 172, "line_end": 172, "source": "psum[i] = (j < size) ? co[j] : T(0);", "operation": "ld.global (LDG.E 0x0930)", "strength": "plain"}],
+   "thread_relation": "cross-block", "expected_class": "DR", "note": "same read as the primary pair, against the first (partial-scan) store of the same element"},
+  {"sites": [
+    {"role": "write", "file": "HeterogeneousCore/CUDAUtilities/interface/prefixScan.h", "line_start": 77, "line_end": 77, "source": "co[i] += ws[warpId - 1];", "operation": "st.global (STG.E 0x06f0)", "strength": "plain"},
+    {"role": "rmw", "file": "HeterogeneousCore/CUDAUtilities/interface/prefixScan.h", "line_start": 179, "line_end": 179, "source": "co[i] += psum[k];", "operation": "ld.global + st.global (SASS LDG.E R5,[R2.64] at 0x1000 and STG.E [R2.64],R5 at 0x1050) by threads of the last-done block over the elements of the other blocks", "strength": "plain"}],
+   "thread_relation": "cross-block", "expected_class": "DR", "note": "WAW/RAW: block b's final store of co[i] vs the last-done block's read-modify-write of the same element (the two sides are unordered in the buggy program). Fixed file: L77 and L182 (volatile, STRONG.SYS)."}
+ ],
+ "sass_notes": "sm_89, nvdisasm -g of the driver built with -lineinfo. Buggy multiBlockPrefixScan<unsigned int>: input load LDG.E.CONSTANT (L14, 0x0170; ci is read-only in the kernel: no conflict); co accesses are plain: STG.E L22 0x0360, LDG.E/STG.E L77 0x0680/0x06f0, LDG.E L172 0x0930, LDG.E/STG.E L179 0x1000/0x1050. Block counter: ATOMG.E.ADD.STRONG.GPU at 0x07a0 (L155; the file:line attributed by nvdisasm is device_atomic_functions.hpp:107) with NO MEMBAR/fence anywhere in the kernel. Fixed: every co/ci access is LDG.E.STRONG.SYS / STG.E.STRONG.SYS (L14 0x0170, L22 0x0360, L77 0x06c0/0x0740, L175 0x09b0, L182 0x1090/0x10f0, plus a LDG.E.STRONG.SYS at L66 0x0380 that re-reads co[i] for ws[warpId]), MEMBAR.SC.GPU; ERRBAR; CCTL.IVALL at 0x07c0-0x0800 (the __threadfence at L157) directly before ATOMG.E.ADD.STRONG.GPU (0x0820); no fence after the atomic in the last block. YIELD instructions appear next to the volatile accesses (fixed only). No WARPSYNC. T_RACECHECK=na (global memory).",
+ "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against HeterogeneousCore/CUDAUtilities/interface/prefixScan.h@37a05c6 (and @d1ce91e for the fixed lines) on 2026-10-20; lines and SASS offsets taken from the files as compiled (R2 harness file names = repo paths).",
+ "open_questions": [
+  "Fixed side: whether a detector must report the volatile pair as SC (formally no acquire pattern in the last block) or may accept the fence + atomic handoff is not settled by the sources; verify.expected_report_fixed is 'uncertain'. Both outcomes are possible; the draft registers 'residual' (SC) as the formal reading.",
+  "Which block is the 'last block done' is timing dependent (the block whose atomicAdd returns gridDim.x-1), so the thread/block ids in thread_pair_example are one instance of the pair, not fixed ids; a dynamic detector sees the pair for whichever block finishes last."
+ ]
+}

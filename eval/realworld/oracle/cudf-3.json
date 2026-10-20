@@ -1,0 +1,42 @@
+{
+  "id": "cudf-3",
+  "tier": "core",
+  "wave": 3,
+  "route": "n/a (not compiled in T21a; route to be assigned by the builder; build_notes: full libcudf PARQUET_TEST build)",
+  "kernel": "cudf::io::parquet::detail::(anonymous)::decode_delta_length_byte_array_kernel<level_t> (template over uint8_t/uint16_t; page_delta_decode.cu L749-), which calls delta_binary_decoder::init_binary_block",
+  "space": "shared",
+  "build_revision": {"buggy": "d28aebf3599c194a9f2f4cdc5aad3d4a361527eb", "fixed": "30435a26ab499e4055a900deefc563a3c5be2734"},
+  "sites": [
+    {"role": "read", "file": "cpp/src/io/parquet/page_delta_decode.cu", "line_start": 848, "line_end": 848,
+     "source": ": min(db->values_per_mb, static_cast<uint32_t>(delta_max_batch_size));",
+     "operation": "ld.shared.u32 of db_state.values_per_mb (db = &db_state, a __shared__ delta_binary_decoder declared at L759/L770; statement `uint32_t const batch_size = resumes_mid_page ? warp_size : min(db->values_per_mb, ...)` spans L846-848); executed by all 128 threads when !resumes_mid_page (always true for flat pages); expected LDS, not compiled in T21a so the lowering is unverified",
+     "strength": "plain"},
+    {"role": "write", "file": "cpp/src/io/parquet/delta_binary.cuh", "line_start": 191, "line_end": 191,
+     "source": "values_per_mb = block_size / mini_block_count;",
+     "operation": "st.shared.u32 of delta_binary_decoder::values_per_mb inside init_binary_block (L163-198), reached from page_delta_decode.cu L863 `if (not has_repetition) { db->init_binary_block(s->stream.data_start, s->stream.data_end); }` executed by warp 0 lane 0 (L852 meta_group_rank()==0, L858 thread_rank()==0) when is_skip_resume (bounds page with start_val > 0); expected STS, not compiled in T21a",
+     "strength": "plain"}
+  ],
+  "other_conflicting_accesses": [
+    "delta_binary.cuh L172 `current_value_idx = 0;` (same init_binary_block call): the PR 24034 racecheck log lists [20 hazards] for the read at page_delta_decode.cu:848 against BOTH delta_binary.cuh:172 and delta_binary.cuh:191. current_value_idx (L101) is the 4-byte field right after values_per_mb (L100) in struct delta_binary_decoder (delta_binary.cuh L90-110); the source reads values_per_mb, not current_value_idx, at L848, so the L172 attribution is probably a vectorised/merged store or line attribution (the lowering was not examined)."
+  ],
+  "thread_relation": "cross-warp-same-block",
+  "thread_pair_example": "block 0 (decode_block_size = 128, page_delta_decode.cu L24: 4 warps), a flat DELTA_LENGTH_BYTE_ARRAY bounds page with start_val > 0: thread 32 (warp 1, or threads 64/96 of warps 2/3) reads db_state.values_per_mb at L848 after the only earlier barrier (block.sync() at L834); thread 0 (warp 0, lane 0) passes L848, enters `if (is_skip_resume)` (L851), runs skip_values_and_sum, warp.sync() at L857, then calls init_binary_block at L863 which writes values_per_mb at delta_binary.cuh L191 (and current_value_idx at L172). The next block-wide barrier is block.sync() at L866, after the write. Warp 0's own lanes are ordered by the warp.sync() at L857.",
+  "expected_class": "DR",
+  "class_reason": "Both accesses are ordinary (non-volatile, non-atomic) accesses to a member of a __shared__ struct (verify.strong_accesses: none) from different warps with no barrier between the read (L848) and the write (L191): the barrier at L834 precedes the read and the one at L866 follows the write. Plain vs plain unordered conflicting pair = DR under D20. The value written may equal the old value (re-init of the same header), which does not matter for the happens-before based definition.",
+  "buggy_expected": "the pair (L848 read by warps 1..3, and by warp 0 lanes != 0 before they diverge) x (delta_binary.cuh L191 write by warp 0 lane 0) on db_state.values_per_mb is reported as DR (cross-warp shared WAR/RAW); the fix commit's racecheck reports 20 hazards each for the :172 and :191 writes in ParquetReaderTest.DeltaSkipRowsWithNulls",
+  "fixed": {
+    "expected": "absent",
+    "residual_sites": null,
+    "reason": "The fix moves the block.sync() from before the bounds-page setup (buggy L833-834, including the comment) to fixed page_delta_decode.cu L851, directly after batch_size/passes_per_batch are computed (fixed read at L844-846, passes_per_batch L847, comment L849-850) and before `if (is_skip_resume)` (fixed L853); init_binary_block is called at fixed L865 and delta_binary.cuh is unchanged by the fix (L172/L191 as in the buggy tree). So every thread's read precedes warp 0's re-init. verify.expected_report_fixed: nothing for that pair. The barrier is block-uniform (placed before the if)."
+  },
+  "sass_notes": "not compiled in T21a; SASS attribution to be added when T21c/T21b builds it",
+  "built": false,
+  "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against cpp/src/io/parquet/page_delta_decode.cu and cpp/src/io/parquet/delta_binary.cuh@d28aebf (buggy) and @30435a2 (fixed) on 2026-10-20",
+  "open_questions": [
+    "No discrepancy between record and source: read at page_delta_decode.cu L848 (statement L846-848), writes at delta_binary.cuh L172/L191, kernel decode_delta_length_byte_array_kernel (L749-), barriers at L819/L834/L866 are all as stated. The 'single' sync at L834 in the record is the one preceded by the L833 comment `db->init_binary_block below resets db->values_per_mb`; there is an earlier block.sync() at L819 after the thread-0 find_end_of_block (L815-818).",
+    "The same `min(db->values_per_mb, delta_max_batch_size)` pattern exists in decode_delta_binary_kernel (L430-432) and decode_delta_byte_array_kernel (L637-639) of the same file; there the read follows block.sync() at L413 / L604 after the (thread-0) init at L412 / L598, with no re-init between them in the code shown (the skip paths were not examined). The fix does not touch them; they are not part of this pair.",
+    "Lowering of db->values_per_mb loads/stores (LDS/STS vs generic LD/ST) and of the L172 store (possible merged vector store with neighbouring fields) not checked because the target is not compiled in T21a.",
+    "Flat page with has_repetition == false and start_val > 0 is needed so that init_binary_block runs at L863; the record's driver notes: ParquetReaderTest.DeltaSkipRowsWithNulls columns 12, 13, 16, 17 with skip_rows > 0."
+  ],
+  "upstream_status": "n/a (fixed target; merged 2026-09-09 as PR 24034; parent d28aebf)"
+}

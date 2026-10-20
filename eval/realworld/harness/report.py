@@ -81,7 +81,7 @@ def main():
                 status = "not built: " + st["reason"]
             chk = []
             for f in ("fixdiff.check", "lineinfo.check"):
-                s = txt(os.path.join(RW, "targets", i, f))
+                s = txt(os.path.join(RW, "targets", i, f)) or txt(os.path.join(RW, "targets", i, "r2", f))
                 if s:
                     r = [l for l in s.splitlines() if l.startswith("RESULT")]
                     chk.append("%s %s" % (f.split(".")[0], r[-1].split()[1] if r else "?"))

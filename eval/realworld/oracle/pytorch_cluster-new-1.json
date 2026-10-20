@@ -1,0 +1,39 @@
+{
+  "id": "pytorch_cluster-new-1",
+  "tier": "candidate",
+  "wave": null,
+  "route": "n/a (not compiled in T21a; build_notes: extract fps_kernel and launch <<<1,256>>> with random float points, as for pytorch_cluster-2)",
+  "kernel": "fps_kernel<scalar_t> (csrc/cuda/fps_cuda.cu L9-65; launched <<<batch_size, THREADS = 256>>> at L103-106 via AT_DISPATCH_FLOATING_TYPES_AND(Half, ...))",
+  "space": "shared",
+  "build_revision": {"buggy": "e9a855c284b45edcbf0282cf70ac09bee0ce4e49", "fixed": null},
+  "sites": [
+    {"role": "write", "file": "csrc/cuda/fps_cuda.cu", "line_start": 55, "line_end": 55,
+     "source": "best_dist[thread_idx] = best_dist[thread_idx + i];",
+     "operation": "st.shared of scalar_t (f32 for the float instantiation) into `__shared__ scalar_t best_dist[THREADS]` (L20) at index thread_idx, executed inside the reduction loop (L51-58, i = 1, 2, 4, ..., 128) by threads with thread_idx + i < THREADS and best_dist[thread_idx] < best_dist[thread_idx + i]; the same statement loads best_dist[thread_idx + i]; expected STS/LDS, not compiled in T21a so the lowering is unverified",
+     "strength": "plain"},
+    {"role": "read", "file": "csrc/cuda/fps_cuda.cu", "line_start": 54, "line_end": 54,
+     "source": "best_dist[thread_idx] < best_dist[thread_idx + i]) {",
+     "operation": "ld.shared of best_dist[thread_idx + i] (and of best_dist[thread_idx]) in the guard of the if (the condition spans L53-L54: `(thread_idx + i) < THREADS && best_dist[thread_idx] < best_dist[thread_idx + i]`); read by thread t of the slot that thread t + i may overwrite at L55 in the same barrier interval (the barrier is at L52 at the top of each i-step); expected LDS, unverified",
+     "strength": "plain"}
+  ],
+  "other_conflicting_accesses": [
+    "L55 itself re-loads best_dist[thread_idx + i] (right-hand side) and L56 `best_dist_idx[thread_idx] = best_dist_idx[thread_idx + i];` loads best_dist_idx[thread_idx + i] and stores best_dist_idx[thread_idx] (int64_t array `best_dist_idx[THREADS]` at L21, st/ld.shared.u64): the same cross-thread WAR/torn-read pattern on the index array. In all, thread t performs three separate reads of slots t+i (L54, L55 for best_dist; L56 for best_dist_idx) that thread t + i may overwrite (L55, L56) in the same barrier interval, so the (value, index) pair read by thread t can be torn.",
+    "The pre-loop stores L48-L49 (`best_dist[thread_idx] = best; best_dist_idx[thread_idx] = best_idx;`) are ordered by the first barrier of the loop (L52) and do not race."
+  ],
+  "thread_relation": "cross-warp-same-block",
+  "thread_pair_example": "fps_kernel, block 0 (256 threads = 8 warps), reduction step i = 64: thread 0 (warp 0) reads best_dist[64] at L54 (and L55) while thread 64 (warp 2) evaluates `best_dist[64] < best_dist[128]` and writes best_dist[64] at L55 in the same barrier interval (the barrier is L52 of this i-step; the next is L52 of the i = 128 step). For i < 32 the same pair is intra-warp (e.g. i = 1: thread 0 reads best_dist[1], thread 1 writes best_dist[1]).",
+  "expected_class": "DR",
+  "class_reason": "Both accesses are plain (non-volatile, non-atomic) accesses to the shared array best_dist (verify.strong_accesses: none); within one barrier interval thread t reads the slot t + i that thread t + i may overwrite, with no ordering between the read and the write (the barrier at L52 only separates the i-steps). Plain vs plain unordered conflicting pair = DR under D20. The same in-place reduction shape was fixed upstream in nearest_cuda.cu (commit a5abfee).",
+  "buggy_expected": "the pair (L54/L55 read of best_dist[thread_idx + i] by thread t) x (L55 write best_dist[thread_idx] by thread t + i) in the same barrier interval is reported as DR (WAR, shared), cross-warp for i >= 32 and intra-warp for i < 32, and the analogous pair on best_dist_idx (L56)",
+  "fixed": {"expected": "n/a (unfixed candidate)", "residual_sites": null, "reason": "pinned HEAD is the buggy build"},
+  "sass_notes": "not compiled in T21a; SASS attribution to be added when T21c/T21b builds it",
+  "built": false,
+  "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against csrc/cuda/fps_cuda.cu@e9a855c on 2026-10-20",
+  "open_questions": [
+    "No discrepancy with the record: loop L51-58 (the corrected location_buggy), reads L54-L56, writes L55-L56, pre-loop stores L48-L49 ordered by the barrier at L52, barriers at L28 / L52 / L60, launch at L103 were re-checked at e9a855c.",
+    "The kernel is templated over scalar_t (float, double, Half via AT_DISPATCH_FLOATING_TYPES_AND); each dtype is a separate instantiation, and test/test_fps.py (per the record) uses float; the index array is int64_t in every instantiation.",
+    "Whether a stale read can actually produce a wrong result is timing dependent (the record: a max-reduction is monotone, but value and index are copied by separate loads/stores, so a torn pair is possible); detection is by happens-before regardless.",
+    "The sibling fix in nearest_cuda.cu (commit a5abfee, 'fix nearest parallel reduction') is not examined here; only the record cites it."
+  ],
+  "upstream_status": {"still_unfixed_at":"e9a855c284b45edcbf0282cf70ac09bee0ce4e49 (git fetch origin HEAD == pinned; repo deprecated in favour of pyg-lib, commit #271)","already_reported_check":"git log of the repo (blobless clone) for fps_cuda.cu; no web search for a matching issue was done. The sibling fix in nearest_cuda.cu is the strongest evidence. No issue number known.","dispute_points":"Maintainer might argue that the max-reduction is monotone so reading a newer value is harmless; but value and index are copied by separate loads, so a torn pair is possible. Practically the tear needs thread t+i to commit its update between thread t's loads; real hardware would rarely show it. Also for i<32 the warp-lockstep assumption (pre-Volta) hides it. Disputable but formally a data race.","proposed_fix_per_record":null,"links":["https://github.com/rusty1s/pytorch_cluster/blob/e9a855c284b45edcbf0282cf70ac09bee0ce4e49/csrc/cuda/fps_cuda.cu","https://github.com/rusty1s/pytorch_cluster/commit/a5abfee85636b8369cef237ee175c3c45bedfafe (same bug fixed in nearest_cuda.cu, see pytorch_cluster-1)"],"merged_into_default":null}
+}

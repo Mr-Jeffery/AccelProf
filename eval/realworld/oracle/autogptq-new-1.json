@@ -1,0 +1,38 @@
+{
+  "id": "autogptq-new-1",
+  "tier": "candidate",
+  "wave": null,
+  "route": "n/a (not compiled in T21a; build_notes: standalone copy of the kernel compiles with plain nvcc -arch=sm_89, torch-extension route is heavy)",
+  "kernel": "gptq_repack_kernel",
+  "space": "shared",
+  "build_revision": {"buggy": "9f7d37072917ab3a7545835f23e808294a542153", "fixed": null},
+  "sites": [
+    {"role": "write", "file": "autogptq_extension/marlin/marlin_repack.cu", "line_start": 30, "line_end": 30,
+     "source": "block[block_idx][i][offset] = v1 & 0xf;",
+     "operation": "st.shared.u8 into `__shared__ uint8_t block[4][16][pad_len]` (pad_len = 18, declared L19-20), tile row i = 0..7 (unrolled loop L28-34, inside the `for (int offset = block_offset; offset < 16; offset += 8)` loop L25), written by lane t with block_idx = t/8, block_offset = t%8; expected STS.U8, not compiled in T21a so the lowering is unverified",
+     "strength": "plain"},
+    {"role": "read", "file": "autogptq_extension/marlin/marlin_repack.cu", "line_start": 58, "line_end": 58,
+     "source": "v[j] = block[i][idx[j][0]][idx[j][1]];",
+     "operation": "ld.shared.u8 from block[i][srow-based row][scol-based column], i = 0..3, j = 0..7 (unrolled loops L53-65; idx[][] built at L39-51 from srow = (t%4)*2, scol = t/4); expected LDS.U8, unverified",
+     "strength": "plain"}
+  ],
+  "other_conflicting_accesses": [
+    "autogptq_extension/marlin/marlin_repack.cu L32 `block[block_idx][i + 8][offset] = v2 & 0xf;` (st.shared.u8, tile rows 8..15, same loop and same lane mapping as L30): conflicts with the L58 reads that use idx[1], idx[3], idx[5], idx[7] (row srow + 8 / srow + 9), exactly like L30 does for the rows 0..7 reads. verify.accesses names L30 and L32 against L58."
+  ],
+  "thread_relation": "intra-warp",
+  "thread_pair_example": "block (0,0), blockDim = 32 (one warp; launch `const dim3 threads(32)` L82, `gptq_repack_kernel<<<blocks, threads, 0, stream>>>` L86-91): lane 0 (t = 0: block_idx 0, block_offset 0) stores block[0][2][0] at L30 (i = 2, offset = 0); lane 1 (t = 1: srow = 2, scol = 0) loads block[0][2][0] at L58 (i = 0, j = 0: idx[0] = (srow, scol)). Every lane reads elements written by other lanes (e.g. lane 0 reads block[1][0][0], written by lane 8). The kernel has no __syncwarp/__syncthreads/shuffle between the unpack phase (L22-35) and the repack phase (L37-65).",
+  "expected_class": "DR",
+  "class_reason": "Both accesses are plain (non-volatile, non-atomic) accesses to the uint8 shared array block (verify.strong_accesses: none) by different lanes of one warp, with no warp-level barrier between the store phase and the load phase. Plain vs plain unordered conflicting pair = DR under D20. It is a formal, ITS-style race: all loop trip counts are warp-uniform, so the warp stays converged in practice and the result is correct on real hardware.",
+  "buggy_expected": "the pair (L30 / L32 store by one lane) x (L58 load by another lane) on block[4][16][18] is reported as DR (intra-warp shared RAW); blockDim = 32 so there is no cross-warp variant",
+  "fixed": {"expected": "n/a (unfixed candidate)", "residual_sites": null, "reason": "pinned HEAD is the buggy build"},
+  "sass_notes": "not compiled in T21a; SASS attribution to be added when T21c/T21b builds it",
+  "built": false,
+  "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against autogptq_extension/marlin/marlin_repack.cu@9f7d370 on 2026-10-20",
+  "open_questions": [
+    "No discrepancy with the record: L30, L32 (stores), L58 (load), launch at L82-L91 and the absence of any barrier/shuffle in L8-L66 were re-checked at 9f7d370 (the whole file was read; it contains no __syncwarp, __syncthreads or __shfl).",
+    "Formal-only race (warp-synchronous code): a detector that assumes convergence / lock-step will report nothing; under the PTX model with independent thread scheduling it is a DR. Whether racecheck reports intra-warp shared hazards for this kernel is unverified (not run).",
+    "The kernel's global accesses (in[] L26/L27, out[] L64) are race-free (disjoint per block/lane) and not part of the pair.",
+    "Lowering of the byte accesses (STS.U8/LDS.U8, possible merging of adjacent byte stores) not checked: not compiled in T21a."
+  ],
+  "upstream_status": {"still_unfixed_at":"9f7d37072917ab3a7545835f23e808294a542153 (git fetch origin HEAD == pinned; archived 2025-04-11)","already_reported_check":"Not searched on GitHub issues beyond the repo being archived on 2025-04-11 (read-only, so no fix will land). git grep for syncwarp/syncthreads in marlin_repack.cu: none. The kernel was written for Marlin repacking by the AutoGPTQ authors; the separate Marlin main kernel (marlin_cuda_kernel.cu) is not part of this record.","dispute_points":"A skeptic will say all loop trip counts are warp-uniform (2 iterations in the unpack loop, 4/8 constants after), so the warp never diverges and both phases execute in lockstep; the program has run correctly for years, including on Volta and newer. Only the formal PTX-model race remains (same class as the other warp-synchronous records). Whether racecheck reports intra-warp shared hazards for this kernel is unverified (not run). The repo is archived, so the kernel's practical value is as a test target, not as a bug to fix.","proposed_fix_per_record":"Insert __syncwarp() (or __syncthreads()) between the unpack loop and the repack loop.","links":["https://github.com/AutoGPTQ/AutoGPTQ/blob/9f7d37072917ab3a7545835f23e808294a542153/autogptq_extension/marlin/marlin_repack.cu#L8-L66"],"merged_into_default":null}
+}

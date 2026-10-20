@@ -1,0 +1,39 @@
+{
+  "id": "openpcdet-fps-new-1",
+  "tier": "candidate",
+  "wave": null,
+  "route": "n/a (not compiled in T21a; build_notes: `python setup.py develop` builds all OpenPCDet ops; the same kernel is in the smaller Pointnet2_PyTorch extension (pointnet2pt-fps-new-1))",
+  "kernel": "farthest_point_sampling_kernel<block_size> (pcdet/ops/pointnet2/pointnet2_batch/src/sampling_gpu.cu L100-216; launcher L218-, <<<b, n_threads>>> with n_threads = opt_n_threads(n) at L226; opt_n_threads / TOTAL_THREADS = 1024 in pointnet2_batch/src/cuda_utils.h L6-13); stack variants in pointnet2_stack/src/sampling_gpu.cu: farthest_point_sampling_kernel<block_size> (L24-140) and stack_farthest_point_sampling_kernel<block_size> (L187-319)",
+  "space": "shared",
+  "build_revision": {"buggy": "233f849829b6ac19afb8af8837a0246890908755", "fixed": null},
+  "sites": [
+    {"role": "write", "file": "pcdet/ops/pointnet2/pointnet2_batch/src/sampling_gpu.cu", "line_start": 147, "line_end": 147,
+     "source": "dists_i[tid] = besti;",
+     "operation": "st.shared.u32 into `__shared__ int dists_i[block_size]` (L110), executed by every thread at the top of the NEXT sampling iteration j+1 (after its distance loop L131-145); thread 0's store hits dists_i[0]; expected STS, not compiled in T21a so the lowering is unverified",
+     "strength": "plain"},
+    {"role": "read", "file": "pcdet/ops/pointnet2/pointnet2_batch/src/sampling_gpu.cu", "line_start": 212, "line_end": 212,
+     "source": "old = dists_i[0];",
+     "operation": "ld.shared.u32 of dists_i[0] by every thread at the end of sampling iteration j, after the unrolled `if (block_size >= N)` reduction stages (L150-210) whose last __syncthreads is L209; expected LDS, unverified",
+     "strength": "plain"}
+  ],
+  "other_conflicting_accesses": [
+    "pointnet2_stack/src/sampling_gpu.cu, farthest_point_sampling_kernel: write `dists_i[tid] = besti;` L71 (with `dists[tid] = best;` at L70) vs read `old = dists_i[0];` L136 (last barrier L133, loop L49-139).",
+    "pointnet2_stack/src/sampling_gpu.cu, stack_farthest_point_sampling_kernel: write `dists_i[tid] = besti;` L250 (dists[tid] at L249) vs read `old = dists_i[0];` L315 (last barrier L312, loop L228-318).",
+    "In every instance dists[tid] (the float array) is not part of a conflict; only dists_i[0] is read after the last reduction barrier."
+  ],
+  "thread_relation": "cross-warp-same-block",
+  "thread_pair_example": "batch kernel, block 0 with n >= 1024 (opt_n_threads gives up to 1024 threads): thread 200 (warp 6) reads dists_i[0] at L212 in iteration j; thread 0 (warp 0) passes L212/L213-214, runs iteration j+1 up to L147 and writes dists_i[0] there. The last barrier of iteration j is L209 (before the read) and the next barrier, L148, follows the write; requires m >= 3 so that the loop `for (int j = 1; j < m; j++)` (L125) runs twice, and a block of more than 32 threads.",
+  "expected_class": "DR",
+  "class_reason": "Both accesses are plain (non-volatile, non-atomic) accesses to the int shared array dists_i (verify.strong_accesses: none) from different warps; no barrier orders the L212 read of iteration j before the L147 write of iteration j+1. Plain vs plain unordered = DR under D20. Timing argument (thread 0 must scan n/blockDim points from global memory first) makes a wrong result essentially unobservable, but it is unordered under PTX.",
+  "buggy_expected": "the pair (L212 read, iteration j, all threads) x (L147 write, iteration j+1, thread 0) is reported as DR (WAR, shared, cross-warp) in the batch kernel and in both stack kernels (other_conflicting_accesses)",
+  "fixed": {"expected": "n/a (unfixed candidate)", "residual_sites": null, "reason": "pinned HEAD is the buggy build"},
+  "sass_notes": "not compiled in T21a; SASS attribution to be added when T21c/T21b builds it",
+  "built": false,
+  "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against pcdet/ops/pointnet2/pointnet2_batch/src/{sampling_gpu.cu,cuda_utils.h} and pcdet/ops/pointnet2/pointnet2_stack/src/sampling_gpu.cu@233f849 on 2026-10-20",
+  "open_questions": [
+    "No discrepancy with the record: batch L147/L212/L209/L148 and stack L70-71/L136 and L249-250/L315 (corrected locations of the verification) were re-checked at 233f849. The stack file defines TOTAL_THREADS 1024 and opt_n_threads itself (sampling_gpu.cu L6-13), the batch file takes them from cuda_utils.h.",
+    "The reduction here is the hand-unrolled `if (block_size >= N) { if (tid < N/2) __update(...); __syncthreads(); }` form; __update is a non-inline __device__ function with __restrict__ parameters.",
+    "This is a sibling copy of the same kernel as pointnet2pt-fps-new-1 and mmcv-fps-new-1 (useful for prevalence only); the record's driver needs N >= 1024 and m >= 3 (not re-verified)."
+  ],
+  "upstream_status": {"still_unfixed_at":"233f849829b6ac19afb8af8837a0246890908755 (FETCH_HEAD equals the pinned sha, 2025-10-08; pcdet/ops/pointnet2 unchanged)","already_reported_check":"Same search as fps-mmcv-1 (no relevant result). The identical code exists at L212 of the batch file and at L136/L315 of the stack file.","dispute_points":"Same as fps-mmcv-1 (tiny timing window; never observed as wrong output). Additionally, this repo is a sibling copy, so it counts as the same bug; useful only for demonstrating prevalence.","proposed_fix_per_record":null,"links":["https://github.com/open-mmlab/OpenPCDet/blob/233f849829b6ac19afb8af8837a0246890908755/pcdet/ops/pointnet2/pointnet2_batch/src/sampling_gpu.cu#L101-L117"],"merged_into_default":null}
+}

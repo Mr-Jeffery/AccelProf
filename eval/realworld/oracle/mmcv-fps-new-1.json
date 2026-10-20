@@ -1,0 +1,38 @@
+{
+  "id": "mmcv-fps-new-1",
+  "tier": "candidate",
+  "wave": null,
+  "route": "n/a (not compiled in T21a; build_notes: standalone harness with a stub pytorch_cuda_helper.hpp is suggested, full mmcv CUDA build is slow)",
+  "kernel": "furthest_point_sampling_forward_cuda_kernel<block_size> (mmcv/ops/csrc/common/cuda/furthest_point_sample_cuda_kernel.cuh L19-83; launched from FurthestPointSamplingForwardCUDAKernelLauncher in mmcv/ops/csrc/pytorch/cuda/furthest_point_sample_cuda.cu L16- with <<<b, n_threads>>>, n_threads = opt_n_threads(n)); same pattern in furthest_point_sampling_with_dist_forward_cuda_kernel<block_size> (L87-150)",
+  "space": "shared",
+  "build_revision": {"buggy": "d2111bda571f3b3eb53954af6f9cff25f34e626f", "fixed": null},
+  "sites": [
+    {"role": "write", "file": "mmcv/ops/csrc/common/cuda/furthest_point_sample_cuda_kernel.cuh", "line_start": 67, "line_end": 67,
+     "source": "dists_i[tid] = besti;",
+     "operation": "st.shared.u32 into `__shared__ int dists_i[block_size]` (L30), executed by every thread at the top of the NEXT sampling iteration j+1 (after its distance loop L50-65); thread 0's store hits dists_i[0]; expected STS, not compiled in T21a so the lowering is unverified",
+     "strength": "plain"},
+    {"role": "read", "file": "mmcv/ops/csrc/common/cuda/furthest_point_sample_cuda_kernel.cuh", "line_start": 80, "line_end": 80,
+     "source": "old = dists_i[0];",
+     "operation": "ld.shared.u32 of dists_i[0] by every thread of the block at the end of sampling iteration j, after the unrolled reduction loop (L70-78) whose last __syncthreads (L77) precedes it; expected LDS, unverified",
+     "strength": "plain"}
+  ],
+  "other_conflicting_accesses": [
+    "same kernel template, second kernel furthest_point_sampling_with_dist_forward_cuda_kernel<block_size>: write `dists_i[tid] = besti;` L134 vs read `old = dists_i[0];` L147 (last barrier L144, loop L112-149). The dists[tid] store (L66 / L133) is not part of a conflict (dists[0] is only read by thread 0 itself inside the reduction)."
+  ],
+  "thread_relation": "cross-warp-same-block",
+  "thread_pair_example": "block 0 with n = 2048 (opt_n_threads(2048) = min(2048, 1024) = 1024 threads, furthest_point_sample_cuda.cu L10-14, so furthest_point_sampling_forward_cuda_kernel<1024>), m >= 3: thread 32 (warp 1) reads dists_i[0] at L80 in iteration j; thread 0 (warp 0) passes L80/L81, runs iteration j+1 up to L67 and writes dists_i[0] there. The only barriers are L43, L68 and the L77 barriers of the reduction loop, none between the L80 read of iteration j and the L67 write of iteration j+1 (L68 follows the write).",
+  "expected_class": "DR",
+  "class_reason": "Both accesses are plain (non-volatile, non-atomic) accesses to the int shared array dists_i (verify.strong_accesses: none) from different warps; no happens-before edge orders the L80 read of iteration j before the L67 write of iteration j+1. Plain vs plain unordered = DR under D20. In practice thread 0 must first run the global-load heavy loop L50-65, so the window is tiny; a late reader would take a wrong `old` (starting point of the next sample), so output corruption is possible but never observed.",
+  "buggy_expected": "the pair (L80 read of dists_i[0] by all threads, iteration j) x (L67 write by thread 0, iteration j+1) is reported as DR (WAR, shared, cross-warp); needs m >= 3 (loop `for (int j = 1; j < m; j++)` must run twice) and block_size >= 64",
+  "fixed": {"expected": "n/a (unfixed candidate)", "residual_sites": null, "reason": "pinned HEAD is the buggy build"},
+  "sass_notes": "not compiled in T21a; SASS attribution to be added when T21c/T21b builds it",
+  "built": false,
+  "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against mmcv/ops/csrc/common/cuda/furthest_point_sample_cuda_kernel.cuh and mmcv/ops/csrc/pytorch/cuda/furthest_point_sample_cuda.cu@d2111bd on 2026-10-20",
+  "open_questions": [
+    "No discrepancy in the kernel lines (L67 write, L80 read, barriers L43/L68/L77, with_dist L134/L147 all re-checked). Small deviation: the record cites opt_n_threads at furthest_point_sample_cuda.cu L9-13; at d2111bd it is L10-14 (cap 1024, `max(min(1 << pow_2, 1024), 1)`).",
+    "The reduction is the unrolled loop `for (block_size_thres = 1024; ... >= 2; >>= 1)` with `__syncthreads()` at L77 each step; __update (L11-17) is a non-inline __device__ function with __restrict__ parameters whose shared accesses are not part of the pair.",
+    "The repo test (tests/test_ops/test_furthest_point_sample.py) uses N = 5 (block of 4 threads, intra-warp only); the cross-warp pair needs N >= 64 and m >= 3 (record: use N = 2048). Not re-verified.",
+    "The widespread-copy claim in the record (1,584 code-search hits) was not checked, per verify.notes."
+  ],
+  "upstream_status": {"still_unfixed_at":"d2111bda571f3b3eb53954af6f9cff25f34e626f (git fetch origin HEAD == pinned)","already_reported_check":"GitHub issue search tool returned unrelated results for the query (furthest point sampling race condition missing __syncthreads dists_i); no hit found. Not verified exhaustively. Code search shows no copy with a trailing barrier.","dispute_points":"(1) Window is tiny in practice: thread 0 must run a global-load-heavy loop (reads dataset[old*3], k-loop) before it hits the L67 store while the other warps only need one LDS, so no wrong output has ever been observed; a skeptic will say it is a benign latent race. (2) A detector must see the read at L80 and the write at L67 of the next iteration inside one barrier epoch -- it does, since the only barriers are at L43, L68 and L77. (3) mmcv maintainers are unlikely to act (repo in maintenance mode); the fix is one trailing __syncthreads() after L81, trivial for the paper to mention.","proposed_fix_per_record":null,"links":["https://github.com/open-mmlab/mmcv/blob/d2111bda571f3b3eb53954af6f9cff25f34e626f/mmcv/ops/csrc/common/cuda/furthest_point_sample_cuda_kernel.cuh#L44-L82"],"merged_into_default":null}
+}

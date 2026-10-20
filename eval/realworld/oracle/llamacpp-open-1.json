@@ -1,0 +1,35 @@
+{
+  "id": "llamacpp-open-1",
+  "tier": "candidate",
+  "wave": null,
+  "route": "n/a (not compiled in T21a; build_notes: R1 cmake of test-backend-ops with GGML_CUDA=ON, CMAKE_CUDA_ARCHITECTURES=89)",
+  "kernel": "quantize_q8_1_to_shared<float2, ni=16> (fattn-common.cuh L331-373, __forceinline__ device function) inlined into flash_attn_ext_vec<D=64, ncols, type_K quantized, type_V, use_logit_softcap> (fattn-vec.cuh L19-)",
+  "space": "shared",
+  "build_revision": {"buggy": "1b70350c92563449576bcbbf552994b1d1ed847d", "fixed": null},
+  "sites": [
+    {"role": "write", "file": "ggml/src/ggml-cuda/fattn-common.cuh", "line_start": 365, "line_end": 365,
+     "source": "yq32[threadIdx.x] = q32;",
+     "operation": "st.shared.b32 of the (zero-padding) quantized word, executed unconditionally by all 32 lanes of the quantizing warp; yq32 = tmp_q_i32 + i0 = (int*)&KQ[j*D] where KQ is `__shared__ float KQ[...]` on CUDA (fattn-vec.cuh L129; the half variant at L126 is HIP-only: V_DOT2_F32_F16_AVAILABLE is defined only for HIP, common.cuh L760-762). For D = 64, ni = nthreads_quantize = 16 (fattn-vec.cuh L178), so lanes 16..31 write yq32[16..31], which are outside the 16 real words; expected STS, not compiled in T21a so the lowering is unverified",
+     "strength": "plain"},
+    {"role": "write", "file": "ggml/src/ggml-cuda/fattn-common.cuh", "line_start": 370, "line_end": 370,
+     "source": "((float2 *) yds)[threadIdx.x/QI8_1] = make_float2(d, sum);",
+     "operation": "st.shared.v2.f32 (8 bytes) of (d, sum) into yds = tmp_q_ds + i0/QI8_1 = (float2*)(tmp_q_i32 + D/sizeof(int)) (fattn-vec.cuh L161/L182), executed by lanes with threadIdx.x % QI8_1 == 0 && threadIdx.x < ni, i.e. lanes 0 and 8 for ni = 16 (QI8_1 = 8); Tds = float2 for this call (the half2 variant is L368, other instantiations); expected STS.64, unverified",
+     "strength": "plain"}
+  ],
+  "thread_relation": "intra-warp",
+  "thread_pair_example": "flash_attn_ext_vec<D=64,...>, block b, warp 0 (threadIdx.y == 0; for ncols = 1 only this warp quantizes, fattn-vec.cuh L152-157, nthreads = 128 so nwarps = 4): yds = yq32 + 16 ints, so yq32[16..19] alias yds[0].x, yds[0].y, yds[1].x, yds[1].y. Lane 16 writes yq32[16] = 0 at L365 vs lane 0 writes yds[0].x = d at L370 (same 4-byte word); lane 17 vs lane 0 (.y); lanes 18/19 vs lane 8. No __syncwarp/shuffle sits between the two stores (the full-mask __shfl_xor_sync at L350-351 precede both); the next ordering point for these words is the __syncthreads() at fattn-vec.cuh L187.",
+  "expected_class": "DR",
+  "class_reason": "Both accesses are plain (non-volatile, non-atomic) stores to the same shared words (verify.strong_accesses: none) by different lanes of one warp, in different control-flow paths (L365 unconditional, L370 under `threadIdx.x % QI8_1 == 0 && ...`) with no warp barrier between them: write-write conflict with no happens-before edge. Plain vs plain = DR under D20. The final value (d,sum vs zero) depends on the order; both pointers are __restrict__, so the compiler may also reorder.",
+  "buggy_expected": "the pair (L365 store by lanes 16..19) x (L370 store by lanes 0/8) on shared words yq32[16..19] = yds[0..1] is reported as DR (WAW, shared, intra-warp); only reachable for head size 64 with quantized K (ni = 16 < WARP_SIZE)",
+  "fixed": {"expected": "n/a (unfixed candidate)", "residual_sites": null, "reason": "pinned HEAD is the buggy build"},
+  "sass_notes": "not compiled in T21a; SASS attribution to be added when T21c/T21b builds it",
+  "built": false,
+  "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against ggml/src/ggml-cuda/fattn-common.cuh and ggml/src/ggml-cuda/fattn-vec.cuh@1b70350 on 2026-10-20",
+  "open_questions": [
+    "No discrepancy with the record: L365, L370 (stores), the caller at fattn-vec.cuh L181-182 with ni = nthreads_quantize = D/sizeof(int) = 16 for D = 64 (L178), yds = tmp_q_i32 + D/sizeof(int) (L161) and the __syncthreads at L187 were re-checked at 1b70350. Additional fact: the KQ buffer is float on CUDA (the half KQ at L126 is only under V_DOT2_F32_F16_AVAILABLE, which common.cuh defines for HIP only).",
+    "Driver condition from the record: the vec kernel is selected only when K->ne[1] % 256 == 0 (kv = 512 or 1024), nb = 1, head size 64 with a quantized K type (q8_0, q5_1, q5_0, q4_1, q4_0, iq4_nl); not re-verified here (host-side dispatch code not read).",
+    "The lowering of the two stores (STS.32 / STS.64, and their relative order after ptxas scheduling given __restrict__) was not examined because the target is not compiled in T21a.",
+    "The skeptic's lock-step argument (program order within a converged warp) does not apply under PTX, per the record; a detector assuming convergence would report nothing."
+  ],
+  "upstream_status": {"still_unfixed_at":"fcac19079f3f2985fe74ed845f0880e7e9a8030a (master 2026-10-14; fattn-common.cuh and fattn-vec.cuh byte-identical to 1b70350c)","already_reported_check":"Searched PRs/issues in ggml-org/llama.cpp for 'racecheck' (8 PR hits) and read PR 28358 in full. Only reported in that unmerged PR; no issue number. Code at master HEAD still contains the pattern.","dispute_points":"PR authored with AI assistance and no raw racecheck log was posted. Skeptic: lanes 16..31 store a *before* the branch and lanes 0/8 store yds *after*, in program order of one warp, so on real hardware the final value is deterministic; also the HEAD kernel is only reached for q8_0/q4_0 etc. K with D = 64. But the same-address cross-lane WAW is real in the memory model and racecheck reportedly flags it.","proposed_fix_per_record":"Proposed (PR 28358, unmerged): predicate the yq32 store with `(ni == WARP_SIZE || threadIdx.x < ni)`, mirroring the yds guard.","links":"PR 28358 closure (not merged, 2026-10-06, AI-policy) could not be confirmed from the fetched page; it read as open. Not needed for the verdict: the code is unchanged on master.","merged_into_default":false}
+}

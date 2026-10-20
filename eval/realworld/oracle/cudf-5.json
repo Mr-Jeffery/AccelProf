@@ -1,0 +1,40 @@
+{
+  "id": "cudf-5",
+  "tier": "core",
+  "wave": 3,
+  "route": "n/a (not compiled in T21a; route to be assigned by the builder; build_notes: full libcudf PARQUET_TEST build)",
+  "kernel": "totalDeltaByteArraySize (__device__ function, page_string_decode.cu L409-), called only from compute_delta_page_string_sizes_kernel (L600-, 64 threads = delta_preproc_block_size, L31; warp 0 = prefix decoder, warp 1 = suffix decoder); second instance of the same pattern in compute_delta_length_page_string_sizes_kernel (L691-, 32 threads = delta_length_block_size, L32)",
+  "space": "shared",
+  "build_revision": {"buggy": "1d3dafe152ffbc8a2d7da480ef34c3a3865f8ec6", "fixed": "b0638274a06796f64e87d6c6cbcfe609375b67de"},
+  "sites": [
+    {"role": "read", "file": "cpp/src/io/parquet/page_string_decode.cu", "line_start": 455, "line_end": 455,
+     "source": "uint32_t const idx = db->current_value_idx + p * warp_size + lane_id;",
+     "operation": "ld of delta_binary_decoder::current_value_idx (4-byte field) through the pointer db = (warp_id == 0) ? &prefixes : warp_id == 1 ? &suffixes : nullptr (L432) to the two __shared__ decoders declared at L416-417; read by all 32 lanes of warp 0 (prefixes) and of warp 1 (suffixes) in every pass p; because db is a select between two shared addresses and nullptr the compiler may emit a generic LD instead of LDS (not compiled in T21a, unverified)",
+     "strength": "plain"},
+    {"role": "write", "file": "cpp/src/io/parquet/delta_binary.cuh", "line_start": 208, "line_end": 208,
+     "source": "current_value_idx += values_per_mb;",
+     "operation": "plain read-modify-write of delta_binary_decoder::current_value_idx (ld, add, st; the same function also reads it at L206 `if (current_value_idx >= num_encoded_values(is_decode)) { return; }`) inside setup_next_mini_block (L204-220), reached from page_string_decode.cu L465 `if (lane_id == 0) { db->setup_next_mini_block(true); }` by lane 0 of warp 0 / warp 1; expected generic ST (or STS), unverified",
+     "strength": "plain"}
+  ],
+  "thread_relation": "intra-warp",
+  "thread_pair_example": "compute_delta_page_string_sizes_kernel, block 0: warp 0 lane 5 reads prefixes.current_value_idx at page_string_decode.cu L455 in the last pass of a mini-block (calc_mini_block_pass ends with warp.sync() at delta_binary.cuh L320, which orders earlier passes, but there is no sync after the read), while warp 0 lane 0 leaves the pass loop and executes setup_next_mini_block at L465, which writes current_value_idx at delta_binary.cuh L208. Under independent thread scheduling lane 0 may advance before lane 5 has read. Identical pair in warp 1 for the suffix decoder. Second instance: compute_delta_length_page_string_sizes_kernel, thread 5 reads string_lengths.current_value_idx at L779 vs thread 0 writes at delta_binary.cuh L208 via L785.",
+  "expected_class": "DR",
+  "class_reason": "Both accesses are ordinary (non-volatile, non-atomic) accesses to a member of a __shared__ struct (verify.strong_accesses: none) by different lanes of one warp with no warp barrier between them (the only warp.sync() in the loop body is at L466, after the write; the sync inside calc_mini_block_pass at delta_binary.cuh L320 precedes the read). Plain vs plain unordered conflicting pair = DR under D20; it is an ITS-style intra-warp race: lanes are likely converged on current hardware (no wrong output in practice), racecheck labels it a Warning.",
+  "buggy_expected": "the pair (page_string_decode.cu L455 read by lanes != 0) x (delta_binary.cuh L208 write by lane 0) on current_value_idx is reported as DR (intra-warp shared WAR); the fix commit's racecheck lists [1250960 hazards] for ParquetStringsTest.ReadLargeStrings (read L455 vs write delta_binary.cuh:208)",
+  "fixed": {
+    "expected": "absent",
+    "residual_sites": null,
+    "reason": "The fix inserts `warp.sync();` immediately before the lane-0-only setup_next_mini_block(true) at fixed page_string_decode.cu L465 (call now at L466, trailing warp.sync() at L467) and the same in compute_delta_length_page_string_sizes_kernel (fixed L786 sync, L787 call, L788 sync). Fixed read L455 and delta_binary.cuh L208 are unchanged. All lanes' reads of the last pass therefore happen before lane 0's write. verify.expected_report_fixed: nothing for that pair. Earlier passes are already ordered by the warp.sync() at the end of calc_mini_block_pass (delta_binary.cuh L320)."
+  },
+  "sass_notes": "not compiled in T21a; SASS attribution to be added when T21c/T21b builds it",
+  "built": false,
+  "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against cpp/src/io/parquet/page_string_decode.cu and cpp/src/io/parquet/delta_binary.cuh@1d3dafe (buggy) and @b063827 (fixed) on 2026-10-20",
+  "open_questions": [
+    "No discrepancy with the record: read at page_string_decode.cu L455, write at delta_binary.cuh L208 (called at L465), and the second instance L779 -> L785 are exactly as stated. The record's 'kernel' correction (device function called from compute_delta_page_string_sizes_kernel with 64 threads; second instance in the 32-thread delta-length kernel) is confirmed at L409/L600/L691 and L31-32.",
+    "In the second instance the loop only runs for bounds pages (L750: else-branch of `if (not is_bounds_pg)`); in totalDeltaByteArraySize it is skipped for non-bounds pages that have value info (L651-657, from the record's driver notes).",
+    "The while-condition read of current_value_idx at L443 and the reads in calc_mini_block_pass (delta_binary.cuh L283/L314) are ordered against the lane-0 write by the warp.sync() at L466 / L320, so they do not form additional pairs.",
+    "db is a generic pointer (select of two shared addresses and nullptr), so a detector must resolve generic LD/ST to the shared window; the SASS form is unverified (not compiled).",
+    "Per-element value[] / last_value writes inside calc_mini_block_pass (delta_binary.cuh L315/L319) vs the lane reads at L457/L461 are separated by the warp.sync() at L320, not part of this pair."
+  ],
+  "upstream_status": "n/a (fixed target; merged 2026-08-19 as PR 23681; bug introduced by PR 23314; parent 1d3dafe)"
+}

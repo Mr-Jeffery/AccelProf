@@ -1,0 +1,41 @@
+{
+  "id": "cudf-9",
+  "tier": "core",
+  "wave": 3,
+  "route": "n/a (not compiled in T21a; route to be assigned by the builder; build_notes: full libcudf build + COMPRESSION_TEST gtest binary)",
+  "kernel": "cudf::io::detail::gpu_debrotli_kernel (cpp/src/io/comp/debrotli.cu L1905-, block_size = 256 at L63); the write is in the device function initbits (L193-205)",
+  "space": "shared",
+  "build_revision": {"buggy": "fa9f27e258c2518d784a12dc55d2a1c4a536db04", "fixed": "9d768f7ca4bc782098063ad6ed8a80d8f37d5c71"},
+  "sites": [
+    {"role": "read", "file": "cpp/src/io/comp/debrotli.cu", "line_start": 1956, "line_end": 1956,
+     "source": "uint8_t const* src = s->cur + ((s->bitpos + 7) >> 3);",
+     "operation": "ld.shared of debrotli_state_s::cur (8-byte pointer) and ::bitpos (s = &state_g, `__shared__ __align__(16) debrotli_state_s state_g` at L1912); executed by all 256 threads in the uncompressed-block branch (`if (s->is_uncompressed)` L1954); expected LDS (.64 / .32), not compiled in T21a so the lowering is unverified",
+     "strength": "plain"},
+    {"role": "write", "file": "cpp/src/io/comp/debrotli.cu", "line_start": 200, "line_end": 200,
+     "source": "s->cur      = p;",
+     "operation": "st.shared of debrotli_state_s::cur (8-byte pointer) in initbits (L193-205), reached from L1964 `initbits(s, s->base, s->end - s->base, src - s->base);` executed by thread 0 only (`if (!t)` L1958, after getbits_bytealign(s) == 0 at L1959 and src + meta_block_len <= s->end at L1961); expected STS.64, not compiled in T21a",
+     "strength": "plain"}
+  ],
+  "other_conflicting_accesses": [
+    "same thread-0 branch, L1959 getbits_bytealign(s) -> skipbits (debrotli.cu L220-231): writes s->cur at L227 (`s->cur = cur - 4;` only when bitpos + n >= 32), s->bitpos at L230 (`s->bitpos = bitpos;`), s->bitbuf.x/.y at L225/L226; initbits also writes s->bitpos at L204 and s->bitbuf at L201/L203. The read at L1956 also loads s->bitpos, so L1956 conflicts with the L204 / L230 stores as well; the racecheck log in PR 20806 names only L200 ([8 hazards])."
+  ],
+  "thread_relation": "cross-warp-same-block",
+  "thread_pair_example": "gpu_debrotli_kernel block 0 (block_size 256 = 8 warps), BrotliDecompressTest.HelloWorld/0 (one uncompressed meta-block): thread 32 (warp 1) executes L1956 and loads s->cur / s->bitpos; thread 0 (warp 0) proceeds into `if (!t)` (L1958), getbits_bytealign (L1959) and initbits (L1964) and stores s->cur (L200) and s->bitpos (L204). The last barrier before the read is __syncthreads() at L1952 and the next one is at L1967, after the write.",
+  "expected_class": "DR",
+  "class_reason": "Both accesses are ordinary (non-volatile, non-atomic) accesses to members of the __shared__ struct state_g (verify.strong_accesses: none), by different warps with no barrier between the all-thread read (L1956) and thread 0's write (L200 via L1964): barriers are at L1952 (before) and L1967 (after). Plain vs plain unordered conflicting pair = DR under D20. The race is functionally real: a late reader computes src from the realigned s->cur and copies from the wrong address.",
+  "buggy_expected": "the pair (L1956 read by threads != 0, e.g. warp 1) x (L200 write by thread 0, via initbits at L1964) on state_g.cur is reported as DR (cross-warp shared WAR/RAW); the fix commit's racecheck lists [8 hazards] for BrotliDecompressTest/BrotliDecompressTest.HelloWorld/0 (read debrotli.cu:1956 vs write initbits debrotli.cu:200)",
+  "fixed": {
+    "expected": "absent",
+    "residual_sites": null,
+    "reason": "The fix inserts `__syncthreads();` right after the s->cur read (fixed L1957, the read stays at fixed L1956; `uint8_t* dst = s->out;` moves to fixed L1958 and the thread-0 block starts at L1959; initbits is called at fixed L1965). Every thread's read of s->cur / s->bitpos is therefore ordered before thread 0's writes. The branch is block-uniform (s->is_uncompressed and s->error are decided before the barrier at L1952), so the new barrier is not divergent. verify.expected_report_fixed: nothing for that pair."
+  },
+  "sass_notes": "not compiled in T21a; SASS attribution to be added when T21c/T21b builds it",
+  "built": false,
+  "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against cpp/src/io/comp/debrotli.cu@fa9f27e (buggy) and @9d768f7 (fixed) on 2026-10-20",
+  "open_questions": [
+    "No discrepancy with the record: read at L1956, write at L200 (initbits called at L1964; record's 'L1959-L1964 ... getbits_bytealign/skipbits -> L227/L230, initbits -> L200 s->cur = p, L204 s->bitpos' confirmed), barrier at L1952, kernel gpu_debrotli_kernel with block_size 256.",
+    "Whether skipbits (L227/L230) in getbits_bytealign changes s->cur for the HelloWorld input depends on the bit position (only when bitpos + n >= 32); the PR's racecheck names L200 only.",
+    "Lowering (LDS/STS widths, merged accesses to cur/bitpos) not checked because the target is not compiled in T21a."
+  ],
+  "upstream_status": "n/a (fixed target; merged 2025-12-09 as PR 20806; parent fa9f27e)"
+}

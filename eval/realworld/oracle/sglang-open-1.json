@@ -1,0 +1,39 @@
+{
+  "id": "sglang-open-1",
+  "tier": "candidate",
+  "wave": null,
+  "route": "n/a (not compiled in T21a; build_notes: plain CUDA kernel, standalone harness copying L1-L241 of the AOT file, or `pip install sgl-kernel`; the jit/ copy compiles at runtime)",
+  "kernel": "moe_align_block_size_kernel<scalar_t> (CUDA branch, the #else of `#ifndef __CUDA_ARCH__` at python/sglang/kernels/aot/csrc/moe/moe_align_kernel.cu L119/L172-221; the general kernel is launched <<<2, threads = 1024, shared_mem_size>>> at L366-370; blockIdx.x == 1 only fills sorted_token_ids and returns, L72-87)",
+  "space": "shared",
+  "build_revision": {"buggy": "08550acc281a12b986018fd62aa74268741f5093", "fixed": null},
+  "sites": [
+    {"role": "write", "file": "python/sglang/kernels/aot/csrc/moe/moe_align_kernel.cu", "line_start": 220, "line_end": 220,
+     "source": "if (tid < num_experts) prefix[tid] = scan_buf[tid];",
+     "operation": "st.shared.u32 into `int32_t* prefix = shared_counts + num_experts` (dynamic shared memory `extern __shared__ int32_t smem[]`, L89-92) by threads tid < num_experts of block 0; the last __syncthreads() before it is L217; no barrier follows it before the binary search; expected STS, not compiled in T21a so the lowering is unverified",
+     "strength": "plain"},
+    {"role": "read", "file": "python/sglang/kernels/aot/csrc/moe/moe_align_kernel.cu", "line_start": 233, "line_end": 233,
+     "source": "if (prefix[mid] <= block_start) {",
+     "operation": "ld.shared.s32 of prefix[mid] in the binary search over prefix[0..num_experts) (L228-240) executed by every thread tid < num_blocks (for i = tid; i < num_blocks; i += stride, L228); the first probe is mid = num_experts / 2; expected LDS, unverified",
+     "strength": "plain"}
+  ],
+  "other_conflicting_accesses": [
+    "Same pair in the sibling copies: python/sglang/kernels/jit/csrc/moe/moe_align_kernel.cu L217 (`if (tid < num_experts) prefix[tid] = scan_buf[tid];`, last barrier L214) vs L230 (`if (prefix[mid] <= block_start) {`), and python/sglang/kernels/jit/csrc/lora/trtllm_lora_temp/moe_lora_merged_align_kernel.cu L262 vs L274 (the same file has a second, ordered occurrence at L406 vs L417 with a __syncthreads at L408). Found by grep for the pattern in those files; the surrounding code of the jit/lora copies was not read in full.",
+    "The prefix[num_experts] slot is written by tid 0 at L193 and read in the cumsum copy at L224 and via s_total_tokens_post_pad (L194, L227); those are ordered by the __syncthreads at L197 and do not race."
+  ],
+  "thread_relation": "cross-warp-same-block",
+  "thread_pair_example": "block 0, 256 experts, topk_ids numel such that num_blocks > 0 (e.g. 4096 tokens): thread 128 (warp 4) writes prefix[128] at L220; thread 0 (warp 0), the first thread of the fill-expert_ids loop (i = 0), reads prefix[128] at L233 as its first binary-search probe (left = 0, right = 256, mid = 128). The __syncthreads at L217 ordered scan_buf (L216), not prefix; the HIP branch of the same kernel has the barrier (L170). Cross-warp when num_blocks > 32 (readers beyond warp 0) or num_experts > 32 (writers in other warps).",
+  "expected_class": "DR",
+  "class_reason": "Both accesses are plain (non-volatile, non-atomic) accesses to the dynamic shared int32 array prefix (verify.strong_accesses: none) from different warps; between the store at L220 and the binary-search load at L233 there is no barrier (L217 is before the store). Plain write vs plain read unordered = DR under D20 (RAW).",
+  "buggy_expected": "the pair (L220 write of prefix[tid] by thread tid < num_experts) x (L233 read of prefix[mid] by any thread with tid < num_blocks) is reported as DR (cross-warp RAW on prefix[], shared) for num_experts >= 2 with num_blocks > 0; the open PR sgl-project/sglang#43030 reports the same RAW hazards under racecheck",
+  "fixed": {"expected": "n/a (unfixed candidate)", "residual_sites": null, "reason": "pinned HEAD is the buggy build"},
+  "sass_notes": "not compiled in T21a; SASS attribution to be added when T21c/T21b builds it",
+  "built": false,
+  "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against python/sglang/kernels/aot/csrc/moe/moe_align_kernel.cu@08550ac (and grep of the jit/lora copies) on 2026-10-20",
+  "open_questions": [
+    "No discrepancy with the record: AOT L220 / L233, last barrier L217, HIP-branch barrier absent from the CUDA branch (#else at L172), launch <<<2, threads, shared_mem_size>>> at L370 were re-checked at 08550ac; jit L217/L230 and lora L262/L274 were located by grep only.",
+    "The record's still_unfixed_at is a later HEAD (684fea8) at which the three files are byte-identical to the pinned commit (see upstream_status); the pinned commit itself is the buggy build.",
+    "At native speed the race did not show (4.1M launches, per the PR); the detector must flag it by happens-before. The general kernel is chosen when numel >= 1024 or num_experts > 64 (small_batch_expert_mode otherwise, L346); the simplest driver uses num_experts in {64, 128, 256, 384} with thousands of tokens.",
+    "scan_buf / warp_sums / warp_exclusive_scan accesses and the shared_counts atomics are ordered by the barriers at L181-L217 and are not part of the pair."
+  ],
+  "upstream_status": {"still_unfixed_at":"684fea8af3b11a5b51ec9966c02959a32ad3421c (fetched HEAD; the three kernel files are byte-identical to 08550acc; no #43030 in git log; WebFetch of PR #43030: state Open, CI failing, claims racecheck RAW hazards and wrong expert_ids 11/18 launches under racecheck, 0 wrong in 4.1M native launches)","already_reported_check":"PR #43030 is the report/fix; also flashinfer-ai/flashinfer#6222 (same kernel, alphamoe_nvfp4_sm100.cu). vLLM's moe_align_block_size_kernel (csrc/moe/moe_align_sum_kernels.cu) uses cub::BlockScan and has no prefix[] binary search, so it is not affected (checked at vllm HEAD 6463d046).","dispute_points":"Maintainer may call it benign: author saw no wrong output in 4.1M native launches because in practice the tid<num_experts writers finish before the readers reach the search (the search follows a global store and a cumsum store). Under the PTX model it is still a race (RAW with no bar/fence); the detector should flag it independent of the schedule. Also the PR's CI is red (unrelated?).","proposed_fix_per_record":"Proposed (PR #43030, open): add one __syncthreads() right after the prefix[tid] write in each CUDA copy; alternative: read scan_buf[mid] instead of prefix[mid].","links":["https://github.com/sgl-project/sglang/pull/43030","https://github.com/flashinfer-ai/flashinfer/pull/6222"],"merged_into_default":false}
+}

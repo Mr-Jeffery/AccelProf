@@ -1,0 +1,35 @@
+{
+  "id": "lightgbm-new-2",
+  "tier": "candidate",
+  "wave": null,
+  "route": "n/a (not compiled in T21a; build_notes: same build as lightgbm-new-1, R1 cmake -DUSE_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=89)",
+  "kernel": "LightGBM::EvalKernel<CUDA_METRIC, USE_WEIGHTS=true> (src/metric/cuda/cuda_pointwise_metric.cu L20-45; launched <<<num_blocks, NUM_DATA_PER_EVAL_THREAD = 1024>>> at L51 when cuda_weights_ != nullptr) calling the inlined helper ShuffleReduceSum<double> (include/LightGBM/cuda/cuda_algorithms.hpp L124-140)",
+  "space": "shared",
+  "build_revision": {"buggy": "c8be3579413199a6e0f769e74c15ee119735471c", "fixed": null},
+  "sites": [
+    {"role": "read", "file": "include/LightGBM/cuda/cuda_algorithms.hpp", "line_start": 136, "line_end": 136,
+     "source": "value = (warpLane < num_warp ? shared_mem_buffer[warpLane] : 0);",
+     "operation": "ld.shared.f64 of shared_mem_buffer[warpLane] (`__shared__ double shared_mem_buffer[WARPSIZE]`, cuda_pointwise_metric.cu L23) by the lanes of warp 0 with warpLane < num_warp = ceil(1024 / 32) = 32, in the FIRST call (cuda_pointwise_metric.cu L31, ShuffleReduceSum<double>(point_metric, shared_mem_buffer, NUM_DATA_PER_EVAL_THREAD)); no barrier follows inside the helper; expected LDS.64, not compiled in T21a so the lowering is unverified",
+     "strength": "plain"},
+    {"role": "write", "file": "include/LightGBM/cuda/cuda_algorithms.hpp", "line_start": 131, "line_end": 131,
+     "source": "shared_mem_buffer[warpID] = value;",
+     "operation": "st.shared.f64 of the warp partial sum into shared_mem_buffer[warpID] by lane 0 of every warp that executes the SECOND call (cuda_pointwise_metric.cu L39, inside `if (index < num_data)` L37, USE_WEIGHTS only), on the same buffer; the helper's __syncthreads (L133) follows this write; expected STS.64, unverified",
+     "strength": "plain"}
+  ],
+  "thread_relation": "cross-warp-same-block",
+  "thread_pair_example": "full 1024-thread block (e.g. block 0 with ~5000 rows, blocks 0-3 full), weighted instantiation: thread 5 (warp 0, lane 5) reads shared_mem_buffer[5] at cuda_algorithms.hpp L136 in the first call (cuda_pointwise_metric.cu L31); thread 160 (warp 5, lane 0) writes shared_mem_buffer[5] at L131 in the second call (cuda_pointwise_metric.cu L39). No barrier between the first call's read and the second call's write; k up to 31 (num_warp = 32).",
+  "expected_class": "DR",
+  "class_reason": "Both accesses are plain (non-volatile, non-atomic) accesses to the shared double array shared_mem_buffer (verify.strong_accesses: none) from different warps; the L133 barrier of call 1 orders write->read but nothing orders call 1's read before call 2's write (buffer reuse). Plain vs plain unordered = DR under D20. The second call sits behind a global weights[] load (L38), so in practice warp k reaches its store much later than warp 0 reaches its load.",
+  "buggy_expected": "the pair (cuda_algorithms.hpp L136 read in call 1 from cuda_pointwise_metric.cu L31) x (cuda_algorithms.hpp L131 write in call 2 from L39) on shared_mem_buffer is reported as DR (WAR, shared, cross-warp, double) in every full block of EvalKernel<..., true>; the unweighted instantiation calls the reduction once and has no such pair",
+  "fixed": {"expected": "n/a (unfixed candidate)", "residual_sites": null, "reason": "pinned HEAD is the buggy build"},
+  "sass_notes": "not compiled in T21a; SASS attribution to be added when T21c/T21b builds it",
+  "built": false,
+  "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against include/LightGBM/cuda/cuda_algorithms.hpp and src/metric/cuda/cuda_pointwise_metric.cu@c8be357 on 2026-10-20",
+  "open_questions": [
+    "No discrepancy with the record: first ShuffleReduceSum at cuda_pointwise_metric.cu L31, second at L39 inside `if (index < num_data)` (L37), buffer at L23, block size NUM_DATA_PER_EVAL_THREAD = 1024 (cuda_pointwise_metric.hpp L18), weighted launch at L51 (L50 condition) were re-checked at c8be357. The record's corrected race_description (race in EVERY full block, not only the last) is consistent with the code.",
+    "In the last (partial) block, the second call is entered only by threads with index < num_data while the helper contains __syncthreads and full-mask __shfl_down_sync: a divergent-barrier / undefined-behaviour issue that is separate from this data race and out of scope here (synccheck territory).",
+    "The helper is __forceinline__, so the SASS lines of the pair are expected to be attributed to cuda_algorithms.hpp L131/L136 with cuda_pointwise_metric.cu L31/L39 as inline call sites; unverified (not compiled in T21a).",
+    "Which CUDA metric (CUDA_METRIC template argument) is exercised depends on the driver's metric; each CUDA_METRIC is a separate instantiation. Whether the CUDA pointwise metrics are used by default depends on build/config (record: unverified)."
+  ],
+  "upstream_status": {"still_unfixed_at":"c8be3579413199a6e0f769e74c15ee119735471c (FETCH_HEAD equals the pinned sha)","already_reported_check":"Same search as lightgbm-1: nothing found. Not exhaustively verified.","dispute_points":"Same as lightgbm-1 (tiny window, never observed). The divergent barrier is not a data race by itself and exited threads release hardware barriers, so on hardware it works; synccheck would still flag it. Whether the CUDA pointwise metrics are reached by default depends on build/config (unverified).","proposed_fix_per_record":"Add `__syncthreads()` between the two reductions and hoist the second reduction out of the `if (index < num_data)` guard.","links":["https://github.com/microsoft/LightGBM/blob/c8be3579413199a6e0f769e74c15ee119735471c/src/metric/cuda/cuda_pointwise_metric.cu#L20-L45"],"merged_into_default":null}
+}

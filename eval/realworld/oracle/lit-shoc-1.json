@@ -1,0 +1,41 @@
+{
+ "id": "lit-shoc-1",
+ "tier": "core",
+ "wave": 1,
+ "route": "R2",
+ "kernel": "bottom_scan<T,vecT,256> (src/cuda/level1/scan/scan_kernel.h), launched by the driver for <float,float4> and <double,double4> as <<<64,256,2*sizeof(T)*256>>>",
+ "space": "shared",
+ "build_revision": {"buggy": "785d9ee65c78c8c7a84227d5155e538d7979e042", "fixed": "700ab82668dcb125356e1bebc242da872c6120b8"},
+ "sites": [
+  {"role": "read", "file": "src/cuda/level1/scan/scan_kernel.h", "line_start": 298, "line_end": 301,
+   "source": "val_4.x += res + s_seed;  val_4.y += res + s_seed;  val_4.z += res + s_seed;  val_4.w += res + s_seed;",
+   "operation": "ld.shared (SASS: LDS R8, [RZ] at 0x06b0 in the first unrolled window copy, attributed to L298 (the four uses of s_seed are one load); further copies at 0x0bc0, 0x0fe0; s_seed is the static __shared__ T at shared offset 0, the dynamic sdata starts at 0x10). Executed by all 256 threads of the block.",
+   "strength": "plain"},
+  {"role": "write", "file": "src/cuda/level1/scan/scan_kernel.h", "line_start": 309, "line_end": 309,
+   "source": "if (threadIdx.x == blockSize-1) s_seed = val_4.w;",
+   "operation": "st.shared (SASS: @!P0 STS [RZ], R7 at 0x0740 in the first window copy; further copies 0x0c90 (@!P2), 0x10a0 (@!P2)). Executed only by thread blockSize-1 = 255 (warp 7).",
+   "strength": "plain"}
+ ],
+ "thread_relation": "cross-warp-same-block",
+ "thread_pair_example": "bottom_scan<float,float4,256>, grid 64 x block 256, size 262144 -> region 1024 vec4 per block = 4 windows of 256 vec4 (windows 0..3), block b, any window w: thread 5 (warp 0) reads s_seed at L298-L301 after the last barrier inside scanLocalMem (L185), while thread 255 (warp 7) writes s_seed = val_4.w at L309; nothing orders them, so if warp 7 gets there first thread 5 (and any other lagging thread) adds the NEXT window's seed (WAR). Same code for <double,double4,256>.",
+ "expected_class": "DR+SC",
+ "class_reason": "Two pairs, two classes (record: DR+SC). (1) s_seed is a plain __shared__ T: both the read (L298-L301) and the write (L309) are ordinary LDS/STS, no volatile, no atomic, so the unordered cross-warp WAR is a data race (DR). (2) the extra pair on the dynamic shared array sdata (extra_pairs) goes through 'volatile T* s_data' in scanLocalMem, so both accesses are volatile (strong): the unordered conflict is SC. verify.expected_report_buggy: 'DR for the s_seed pair (cross-warp); SC for the sdata cross-window pair (volatile vs volatile)'.",
+ "buggy_expected": "Two findings in bottom_scan: (1) DR, shared WAR on s_seed (read L298-L301 vs write L309, cross-warp); (2) SC, shared sdata, volatile read L198 in window w vs volatile writes L147/L152 of window w+1 (extra_pairs).",
+ "fixed": {"expected": "absent", "residual_sites": null,
+  "reason": "The fix adds __syncthreads() after the initial s_seed load (fixed L274; redundant, scanLocalMem's barriers already order the init) and, the important one, __syncthreads() immediately before the s_seed update inside the window loop (fixed L311, SASS BAR.SYNC at 0x0760 / 0x0cb0 / 0x10b0, between the s_seed read LDS 0x06c0 and the update STS 0x0770). That barrier orders all reads of s_seed (L301-L304 in the fixed file) and all volatile sdata reads of scanLocalMem (L198) in window w before the writes of s_seed and the next window's sdata writes (L147/L152). Nothing is expected for either pair (verify.expected_report_fixed). The barriers are at loop-body level in a loop whose trip count is uniform per block (while (window < block_stop)), so every thread of the block reaches them."},
+ "extra_pairs": [
+  {"sites": [
+    {"role": "read", "file": "src/cuda/level1/scan/scan_kernel.h", "line_start": 198, "line_end": 198, "source": "return s_data[idx-1]; // exclusive", "operation": "ld.volatile.shared (SASS LDS R15, [R0.X4+0x40c] at 0x06c0 in the first window copy; 0x0bd0, 0x0ff0 in the others)", "strength": "volatile(strong)"},
+    {"role": "write", "file": "src/cuda/level1/scan/scan_kernel.h", "line_start": 152, "line_end": 152, "source": "s_data[idx] = val;   (idx = threadIdx.x + blockSize; L147 'idx = threadIdx.x; s_data[idx] = 0.0f;' is the second write that can hit the same cell: thread 255 clears s_data[255] which thread 0 returns from at L198)", "operation": "st.volatile.shared (SASS STS [R0.X4+0x410], R11 at 0x0850 / 0x0cc0 in the window copies after the first; L147 is STS [R0.X4+0x10], RZ at 0x0810 / 0x0ca0)", "strength": "volatile(strong)"}],
+   "thread_relation": "cross-warp-same-block (thread 0 / warp 0 reads s_data[255] at L198 vs thread 255 / warp 7 clears it at L147 in the next window) and intra-warp (the record's example: thread 17 reads s_data[272] at L198 vs thread 16 writes s_data[272] at L152 in the next window; both in warp 0)",
+   "expected_class": "SC",
+   "note": "scanLocalMem is called once per window; its first writes (L147, L152) of window w+1 follow the L198 read of window w with only the s_seed code in between and, in the buggy file, no barrier. In the fixed file the barrier L311 sits between them."}
+ ],
+ "sass_notes": "sm_89, nvdisasm -g of the driver built with -lineinfo (the lineinfo check of the R2 route is SAME: targets/lit-arrayfire-1/lineinfo.check). bottom_scan<float,float4,256> (and the double instance) are emitted with the window loop unrolled into several copies (three copies of the L298 / L309 pair in the float kernel: 0x06b0/0x0740, 0x0bc0/0x0c90, 0x0fe0/0x10a0), so detectors may report several SASS addresses for the same source line. Inside scanLocalMem every step has BAR.SYNC.DEFER_BLOCKING (L153, L157, L158, ...; last at L185, 0x06a0 in the first copy); between that last barrier and the STS at L309 (0x0740) there is no BAR. Fixed: BAR.SYNC at L274 (0x0250), and at L311 (0x0760, 0x0cb0, 0x10b0) directly before the @!P STS [RZ] of L313. All shared accesses, volatile or not, are plain LDS / STS on sm_89 (no .STRONG token on any site, no WARPSYNC emitted in these kernels), so the volatile qualifier of the sdata pair is not visible as a SASS token. The other kernels of the header (reduce, scan_single_block) are compiled and launched by the driver in both variants.",
+ "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against src/cuda/level1/scan/scan_kernel.h@785d9ee (and @700ab82 for the fixed lines: L274, L311, L313; the commit also reformats lines) on 2026-10-20; lines and SASS offsets taken from the file as compiled (R2 harness file name = repo path).",
+ "open_questions": [
+  "The same header also contains the reduce kernel (L126-L131), a warp-synchronous tail reduction on volatile shared memory (sdata[tid] += sdata[tid + 32] ... + 1 for tid < warpSize) with no __syncwarp. It is identical in the buggy and the fixed file, is not part of the registered pair and may be reported by a detector in both variants as an intra-warp finding unrelated to the fix; the oracle does not register it.",
+  "Native manifestation (sm_75 smoke build on c38, not a deliverable): the buggy float run FAILS the host check in every run (10 runs: 128, 256, 512, 640, 768 or 896 mismatching elements of 262144), the double run passed, and the fixed variant passes both in all 10 runs. This is the s_seed race becoming visible; the sm_89 native phase will show whether it also appears there.",
+  "Route: SHOC's own autotools build (R1) fails on CUDA 13.4 in the project's host main (src/common/main.cpp:104: cudaDeviceProp has no member clockRate); the build is R2 (verbatim scan_kernel.h + the driver)."
+ ]
+}
