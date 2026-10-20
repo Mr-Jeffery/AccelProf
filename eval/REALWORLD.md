@@ -56,6 +56,8 @@ CUDA 13.4 or gcc 12.4) are listed in each target's `route_note` / `notes` in sec
 
 ## 1. Corpus
 
+**Reviewed-oracle commit: `bc71082`** (T21a step 4, 2026-10-20; every change and the decisions it leaves open are in `eval/realworld/oracle/REVIEW.md`). T21b and T21c score against the oracles at this commit.
+
 Per-target status, written by `eval/realworld/harness/report.py` from `eval/realworld/targets/<id>/status.json`, `native/`, `racecheck/` and the checks in each target directory. Waves 1 and 2 (28 targets) are the commitment (D22); wave 3 is not started unless Jeffery says so.
 
 | wave | id | route | status | driver (short; full text in 1.1) | kernel reached (nsys) | native (3 runs) | racecheck | checks |
@@ -458,9 +460,9 @@ Drafts are in `eval/realworld/oracle/<id>.json`: 28 for the built targets (sites
 `nvdisasm -g` of the built binaries, `harness/sassline.sh`), plus 22 source-derived drafts for the 18 candidates and 4 wave-3
 core targets (`"built": false`, lines re-checked against the source at the pinned/buggy commit; discrepancies between records
 and sources are in each file's `open_questions`). Optional keys beyond the brief's schema were added where a target has more
-than one pair (`pairs`, `extra_pairs`, `additional_pairs`, `other_conflicting_accesses`, `upstream_status`). **The
-fresh-context review (step 4) has not been done**: the oracle commit hash is not written here yet, and T21b/T21c must not
-score before it.
+than one pair (`pairs`, `extra_pairs`, `additional_pairs`, `other_conflicting_accesses`, `upstream_status`). **Step 4 is done:** four fresh-context Opus reviewers confirmed 32 and corrected 18 of the 50 drafts and rejected none.
+The reviewed oracles are commit `bc71082` (section 1); `eval/realworld/oracle/REVIEW.md` lists every changed field and the
+decisions left to Jeffery. The reviewers did not re-check the SASS statements in the oracles.
 
 ## 3. Facts found while building that T21b/T21c need
 
@@ -491,7 +493,7 @@ score before it.
 
 ## 4. Not done / left
 
-- Step 4 review of the 50 oracle drafts by a fresh-context reader and the reviewed-oracle commit (coordinating session).
+- Step 4: done (`bc71082`); the decisions it leaves open are in `eval/realworld/oracle/REVIEW.md`.
 - Wave 3 (`pytorch-8` R4 wheels, `cudf-3/5/9` R1 + R3) is not started (D22 default). The four oracle drafts exist.
 - The extended tier is untouched. No detector was run.
 - The candidates' builds are T21c's (routes in the corpus section of CLAUDE.md); their oracle drafts are source-derived only.
