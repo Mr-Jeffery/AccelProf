@@ -4,3 +4,31 @@ node c25 job 315828 2026-10-20T19:13:47-04:00 select=partial 500-2000 MB slots=1
               total        used        free      shared  buff/cache   available
 Mem:            125           2         108           0          15         122
 11 files (partial, 500.0-2000.0 MB, shard 0/2), 1 slots x 109.0 GB
+1/11 15463s {'rc': 0, 'secs': 182.9, 'maxrss_mb': 12804} completed=254429 pend=4927667  /mnt/beegfs/fzheng4/cuvein_traces/evcand/P4-uts-norace-large/scalar-clock/kernel_0.json
+Traceback (most recent call last):
+  File "/home/fzheng4/wt-warpsync-join-gap/eval/baselines/setup/wjg_census.py", line 619, in <module>
+    p.add_argument("--data", default="", help="a local copy of --real to read instead")
+             ^^^^^^
+  File "/home/fzheng4/wt-warpsync-join-gap/eval/baselines/setup/wjg_census.py", line 614, in main
+    p.add_argument("--match", default="", help="only files whose path contains this")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    p.add_argument("--no-oracle", action="store_true", help="census and barrier-only pass only")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fzheng4/wt-warpsync-join-gap/eval/baselines/setup/wjg_census.py", line 562, in cmd_run
+    f"{a.slots} slots x {a.mem_gb} GB", flush=True)
+          ^^^^^^^^^^
+  File "/home/fzheng4/AccelProf/.env/lib/python3.14/concurrent/futures/_base.py", line 443, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/home/fzheng4/AccelProf/.env/lib/python3.14/concurrent/futures/_base.py", line 395, in __get_result
+    raise self._exception
+  File "/home/fzheng4/AccelProf/.env/lib/python3.14/concurrent/futures/thread.py", line 86, in run
+    result = ctx.run(self.task)
+  File "/home/fzheng4/AccelProf/.env/lib/python3.14/concurrent/futures/thread.py", line 73, in run
+    return fn(*args, **kwargs)
+  File "/home/fzheng4/wt-warpsync-join-gap/eval/baselines/setup/wjg_census.py", line 481, in one_file
+    try:
+    
+  File "<frozen genericpath>", line 86, in getsize
+OSError: [Errno 70] Communication error on send: '/mnt/beegfs/fzheng4/cuvein_traces/t5b-final-timeout/P4-uts-norace-large/scalar-clock/kernel_0.json'
+done 2026-10-20T23:31:34-04:00

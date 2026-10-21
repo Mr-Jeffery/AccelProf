@@ -11,9 +11,10 @@
 W=${W:-/home/fzheng4/wt-warpsync-join-gap}
 RT=${RT:-/home/fzheng4/AccelProf}
 PY=$RT/.env/bin/python
-for d in /home/fzheng4/AccelProf /mnt/beegfs/fzheng4; do
+for d in /home/fzheng4/AccelProf ${COVERAGE:+/mnt/beegfs/fzheng4}; do   # tables read home only
   [ -d "$d" ] || { echo "PREFLIGHT FAIL $(hostname): $d missing"; exit 3; }
 done
+[ -f "$W/eval/results/wjg/scan_fix_315868.jsonl" ] || gunzip -k "$W/eval/results/wjg/scan_fix_315868.jsonl.gz"
 cd "$W" || exit 1
 unset ACCEL_PROF_HOME
 export CUVEIN_HOME=$W

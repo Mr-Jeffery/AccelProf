@@ -475,6 +475,15 @@ def run_child(args, mem_gb, timeout):
 
 
 def one_file(real, a, idx):
+    """one_file_ with any exception (a BeeGFS `Communication error on send`) recorded, not raised:
+    one unreadable file must not end the run."""
+    try:
+        return one_file_(real, a, idx)
+    except Exception as e:                   # noqa: BLE001
+        return {"real": real, "budget_gb": a.mem_gb, "census_child": {"rc": f"driver: {e!r}"[:300]}}
+
+
+def one_file_(real, a, idx):
     work = Path(a.tmpdir) / f"wjg_{os.getpid()}_{idx}"
     work.mkdir(parents=True, exist_ok=True)
     rec = {"real": real, "budget_gb": a.mem_gb}
@@ -551,8 +560,13 @@ def cmd_run(a):
             for ln in open(p):
                 r = json.loads(ln)
                 c = r.get("census") or {}
+
+                def settled(ch):             # done, or would fail the same way at this budget
+                    rc = ch.get("rc")
+                    return rc == 0 or (rc == "timeout" and ch.get("secs", 0) >= a.timeout - 60) or \
+                        (rc == "MemoryError" and r.get("budget_gb", 0) >= a.mem_gb)
                 if r.get("census_child", {}).get("rc") == 0 and not c.get("error") and (
-                        not c.get("merged") or all(r.get(f"{k}_{n}_child", {}).get("rc") == 0
+                        not c.get("merged") or all(settled(r.get(f"{k}_{n}_child", {}))
                                                    for k in kinds for n in ("as_recorded", "merged"))):
                     complete.add(r["real"])
         todo = [p for p in todo if p not in complete]
