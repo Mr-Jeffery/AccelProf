@@ -1,0 +1,43 @@
+host=c63 NVIDIA GeForce RTX 4060 Ti, 8.9, 580.82.07 HEAD=119de17 dirty=0 SHARDS=unset 2026-10-21T15:33:06-04:00
+runtime: lib -> /home/fzheng4/AccelProf/lib collector 83af143748adb80c libsanalyzer a01c16667b592e5d
+      {(80, 132): 1}
+      Use -v to get more diff)
+/home/fzheng4/wt-t24/python/test_syncwarp.py:181: assert ({} == {(80, 132): 1}
+E   AssertionError: []
+    assert set() == {(192, 368, 'WAW', 'shared')}
+      
+      Extra items in the right set:
+      (192, 368, 'WAW', 'shared')
+      Use -v to get more diff
+/home/fzheng4/wt-t24/python/test_syncwarp.py:291: AssertionError: []
+E   AssertionError: {}
+    assert set() == {(192, 368)}
+      
+      Extra items in the right set:
+      (192, 368)
+      Use -v to get more diff
+/home/fzheng4/wt-t24/python/test_syncwarp.py:296: AssertionError: {}
+=============================== warnings summary ===============================
+test_syncwarp.py::test_diverged_instance_joins_at_its_completion
+test_syncwarp.py::test_diverged_instance_joins_at_its_completion
+test_syncwarp.py::test_diverged_instance_joins_at_its_completion
+test_syncwarp.py::test_diverged_instance_joins_at_its_completion
+test_syncwarp.py::test_diverged_instance_joins_at_its_completion
+test_syncwarp.py::test_diverged_instance_joins_at_its_completion
+test_syncwarp.py::test_diverged_instance_joins_at_its_completion
+test_syncwarp.py::test_diverged_instance_joins_at_its_completion
+=========================== short test summary info ============================
+FAILED python/test_syncwarp.py::test_diverged_instance_joins_at_its_completion
+FAILED python/test_syncwarp.py::test_three_groups - assert ({} == {(80, 132): 1}
+FAILED python/test_syncwarp.py::test_completed_instance_orders_later_accesses
+FAILED python/test_syncwarp.py::test_exit_of_a_missing_lane_completes_the_instance
+FAILED python/test_syncwarp.py::test_lanes_exited_before_the_syncwarp - sync_...
+FAILED python/test_syncwarp.py::test_tv_record_of_an_arrived_lane - Failed: D...
+FAILED python/test_syncwarp.py::test_tv_exit_of_an_arrived_lane - Failed: DID...
+FAILED python/test_syncwarp.py::test_tv_syncwarp_pending_at_end - Failed: DID...
+FAILED python/test_syncwarp.py::test_instances_per_warp_and_pc - assert ({} =...
+FAILED python/test_syncwarp.py::test_the_waw_is_reported[vector-clock] - Asse...
+FAILED python/test_syncwarp.py::test_the_waw_is_reported[scalar-clock] - Asse...
+SKIPPED [1] python/test_syncwarp.py:306: the specification is compared on the vector-clock recording
+============= 11 failed, 9 passed, 1 skipped, 8 warnings in 14.57s =============
+== done 2026-10-21T15:33:25-04:00

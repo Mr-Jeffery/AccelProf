@@ -22,11 +22,12 @@ echo "host=$(hostname) $(nvidia-smi -i ${CUDA_VISIBLE_DEVICES:-0} --query-gpu=na
 echo "runtime: libsanalyzer $(h $(ldd $W/lib/libcompute_sanitizer.so | awk '/sanalyzer/{print $3}')) collector $(h $W/lib/libcompute_sanitizer.so) fatbin $(h $W/nv-compute/lib/gpu_patch/gpu_patch_pc_dependency.fatbin) late $(h $W/nv-compute/lib/gpu_patch/gpu_patch_pc_dependency_late.fatbin)"
 
 if [ -z "${SKIP_GREEN:-}" ]; then
-echo "== (1a) green set: A4 files + test_instance_gate.py"
+echo "== (1a) green set: A4 files + test_instance_gate.py + test_syncwarp.py (T24)"
 rm -rf ScoR/microbenchmarks/artifacts/* cuHadron/_coherent_ldst cuHadron/_mm_handoff cuHadron/_gate_held cuHadron/_t12_*
 $PY -m pytest python/test_sync_dominance.py python/test_barrier_soundness.py \
     python/test_coherent_ldst.py python/test_atomic_memory_model.py \
     python/test_barrier_exit.py python/test_hb_substitutions.py python/test_cp_async.py python/test_instance_gate.py \
+    python/test_syncwarp.py \
     -rfExXs --tb=short -p no:cacheprovider 2>&1 | grep -v "Warning\|setParseAction\|^$\|capture-warnings" | tail -40
 echo "== (1b) test_instance_gate.py alone on the fresh artifacts"
 $PY -m pytest python/test_instance_gate.py -q -p no:cacheprovider 2>&1 | tail -3

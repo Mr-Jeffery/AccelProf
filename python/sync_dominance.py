@@ -1011,9 +1011,13 @@ def barrier_only_pairs(trace, rmw, coh, max_lanes=None, dist_out=None, order_out
     (T1a; one-to-one with HbClock::async_issue/commit/wait).
     Exit records (T3b) take their threads out of the expected count of the block's later
     whole-block barrier segments and re-check its open ones, as in HbClock / hb_oracle.
+    Syncwarp records (T24) form warp-barrier instances as in HbClock / hb_oracle: one record per
+    convergence group, per (block, warp, pc), joined when the groups' lanes cover sync_mask minus
+    the warp's exited lanes and the lanes past the block's last thread (an exit re-checks them).
     tv_out, if given, receives the one trace-validity check this pass runs,
     TV-barrier-pending-at-end (a segment still open at the end; only on dumps with the
-    `hb_exits` marker). The pass has no other TV checks (T11 unifies them).
+    `hb_exits` marker), and its warp-barrier twin TV-syncwarp-pending-at-end. The pass has no
+    other TV checks (T11 unifies them).
     -> None if the dump has no hb_events or exceeds max_lanes."""
     events = trace.get("hb_events")
     if not events:
@@ -1029,6 +1033,7 @@ def barrier_only_pairs(trace, rmw, coh, max_lanes=None, dist_out=None, order_out
     pend_cnt = {}                      # (block, bar_index) -> the segment's thread_count
     exited = {}                        # block -> number of exited threads
     exited_lanes = {}                  # (block, warp) -> exited lane mask
+    pending_sw = {}                    # T24: (block, warp, pc) -> [sync_mask, arrived lanes]
     buckets, pairs = {}, {}            # loc -> {(kind, scope): {tid: (epoch, pc)}}
     groups = {}                        # T1a: t -> [its agent's clock at each commit]
 
@@ -1101,6 +1106,18 @@ def barrier_only_pairs(trace, rmw, coh, max_lanes=None, dist_out=None, order_out
             sync_group(sorted(pending.pop(key)))
             pend_cnt.pop(key, None)
 
+    def sw_expected(b, w, sync_mask):  # T24: sync_mask minus the exited and the absent lanes
+        first = 32 * w
+        lanes = 0xFFFFFFFF if not block_tc or block_tc >= first + 32 else \
+            ((1 << (block_tc - first)) - 1 if block_tc > first else 0)
+        return sync_mask & ~exited_lanes.get((b, w), 0) & lanes
+
+    def sw_complete(key):              # T24: procedure Complete for an open warp barrier
+        exp = sw_expected(key[0], key[1], pending_sw[key][0])
+        if pending_sw[key][1] & exp == exp:
+            del pending_sw[key]
+            sync_group([tid_of(key[0], key[1], k) for k in range(32) if (exp >> k) & 1])
+
     for e in events:
         typ = e["type"]
         if typ == "exit":             # T3b: the exiting lanes of one warp
@@ -1110,6 +1127,8 @@ def barrier_only_pairs(trace, rmw, coh, max_lanes=None, dist_out=None, order_out
             exited[b] = exited.get(b, 0) + bin(fresh).count("1")
             for key in sorted(k for k in pending if k[0] == b):
                 complete(key)
+            for key in sorted(k for k in pending_sw if k[:2] == (b, w)):   # T24
+                sw_complete(key)
             continue
         if typ in ("pipeline_commit", "pipeline_wait"):   # T1a
             for k in range(32):
@@ -1120,9 +1139,18 @@ def barrier_only_pairs(trace, rmw, coh, max_lanes=None, dist_out=None, order_out
                     else:
                         async_wait(t, e["groups"])
             continue
-        if typ == "syncwarp":
-            m = e["sync_mask"]
-            sync_group([tid_of(e["block"], e["warp"], k) for k in range(32) if (m >> k) & 1])
+        if typ == "syncwarp":         # T24: one record per convergence group
+            b, w, m = e["block"], e["warp"], e["sync_mask"]
+            key = (b, w, e["pc"])
+            if key not in pending_sw:
+                exp = sw_expected(b, w, m)
+                if e["active_mask"] & exp == exp:          # converged: joins at once
+                    sync_group([tid_of(b, w, k) for k in range(32) if (exp >> k) & 1])
+                    continue
+                pending_sw[key] = [0, 0]
+            pending_sw[key][0] |= m
+            pending_sw[key][1] |= e["active_mask"] & m
+            sw_complete(key)
             continue
         if typ == "barrier":
             key, m = (e["block"], e["bar_index"]), e["active_mask"]
@@ -1172,6 +1200,11 @@ def barrier_only_pairs(trace, rmw, coh, max_lanes=None, dist_out=None, order_out
         tv_out.append(f"TV-barrier-pending-at-end: {len(pending)} barrier segment(s) open "
                       f"at the end of the kernel; first: {k}, arrived {len(pending[k])} of "
                       f"expected {expected_of(k)}")
+    if tv_out is not None and trace.get("hb_exits") and pending_sw:   # T24
+        k = min(pending_sw)
+        tv_out.append(f"TV-syncwarp-pending-at-end: {len(pending_sw)} syncwarp instance(s) open "
+                      f"at the end of the kernel; first: block {k[0]}, warp {k[1]}, pc {k[2]}, "
+                      f"arrived lanes {pending_sw[k][1]} of sync_mask {pending_sw[k][0]}")
     return pairs
 
 

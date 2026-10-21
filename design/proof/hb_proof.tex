@@ -142,10 +142,47 @@ which $|\arrv_k|=\exp_k$, where $\exp_k=n$ if the segment's arrivals carry a cou
 and $\exp_k=N_\beta-|\gone_\beta|$ otherwise; then it forms an \emph{instance} $B$ with
 participants $S(B)=\arrv_k$ and completion position $\cpl(B)$ = that record's $\seq$, and
 $\arrv_k$ is emptied. A trailing incomplete segment forms no instance ($\cpl=+\infty$). A
-\texttt{syncwarp} arrival is an instance by itself: $S(B)$ its masked lanes, $\cpl(B)$ its
-position. (An exit can complete an instance: the last non-arrived thread of the block
-leaving is what the hardware waits for.)
+\texttt{syncwarp} record is the arrival of one convergence group at a \emph{warp barrier}
+(T24): it carries the mask $m$ and the group's active lanes $a$, and a warp diverged at a
+\texttt{WARPSYNC} yields one record per group. For a key $k=(\beta,\omega,\pc)$ it adds
+$a\cap m$ to $\arrv_k$; the open warp segment of $k$ completes at the first record (a
+\texttt{syncwarp} with key $k$ or an exit in warp $\omega$ of $\beta$) after which
+$\arrv_k\supseteq\exp_k$, where $\exp_k=m\setminus\gone_\beta$ minus the lanes of $\omega$ that
+do not exist in a block of $N_\beta$ threads; then it forms an instance with $S(B)=\exp_k$ and
+$\cpl(B)$ that record's $\seq$, and $\arrv_k$ is emptied. A converged warp's record completes
+its segment by itself. (An exit can complete an instance: the last non-arrived thread of the
+block, or lane of the mask, leaving is what the hardware waits for.)
 \end{definition}
+
+\paragraph{Warp barriers (T24; awaiting Jeffery's check).} Before T24 a \texttt{syncwarp}
+record was an instance by itself with $S(B)=m$, so the first group's record of a diverged warp
+ordered the pre-arrival records of the lanes still to arrive after the arrived lanes'
+pre-arrival records (\texttt{eval/X5\_BYTE\_PAIRS.md} \S4). The warp case needs three
+statements more. (A3$'$), in the trusted base next to A3: a warp-barrier instance completes
+exactly when the hardware releases the \texttt{bar.warp.sync}, i.e.\ the hardware waits for the
+non-exited lanes of $m$ that exist in the block and for no other thread, and the records of one
+instance carry one $m$ (the W1 analogue; not checked, the code joins the union of their masks).
+(W2$'$), part of (W2): no record of a lane (memory, arrival, \texttt{syncwarp}, pipeline or exit)
+lies strictly between its \texttt{syncwarp} record and the completion of that warp segment;
+checked per lane in \texttt{HbClock} and the oracle (\texttt{TV-syncwarp-completion-order}),
+while the exit of a lane that has not arrived is allowed and shrinks $\exp_k$. (W3) reads a
+record's active lanes, a \texttt{syncwarp}'s included: its mask names participants, and one of
+them may exit while the segment is open. The fifth check covers open warp segments
+(\texttt{TV-syncwarp-pending-at-end}, the runtime form of A3$'$, in \texttt{HbClock}, the oracle
+and \texttt{barrier\_only\_pairs}). In Algorithm~\ref{alg:detect} a warp key's
+\textsc{Complete} is \textsc{Sync}$(\exp_k)$ once $\arrv_k\supseteq\exp_k\ne\emptyset$, called
+after each \texttt{syncwarp} with that key (line~\ref{ln:syncwarp}) and each exit in its warp
+(line~\ref{ln:exit}). Lemma~\ref{lem:assembly} holds for warp keys as stated ($\arrv_k$ only
+grows, so no count argument is needed), and by (W2$'$) a waiting lane's clock at $\cpl(B)$ is
+its clock at its own record, so \S\ref{sec:single} applies unchanged. The change only removes
+happens-before edges. Let $p_1<\dots<p_n=\cpl(B)$ be the positions of a warp instance's
+records and $p_j$ that of $s$'s group; an edge $a\PO\arr{s}{B}\HB\dep{t}{B}\PO b$ was, before
+T24, $a\PO\arr{s}{B_j}\HB\dep{t}{B_j}\PO b$ through the one-record instance $B_j$ at $p_j$, whose
+participants were all of $m\supseteq S(B)$, since $\seq(a)<p_j\le p_n<\seq(b)$. (PO) is
+unchanged, and so is (ATOM): $\rel$ and $\acq$ (T12) and the A2 windows (T14) still take a
+\texttt{syncwarp} record as the next record of every lane of its mask, as before T24. Hence
+$\HB$ after T24 $\subseteq$ $\HB$ before on memory records, and by
+Lemma~\ref{lem:mono} T24 can add reports and never removes one.
 
 \begin{definition}[Ghost events, program order]\label{def:po}
 For each instance $B$ and $t\in S(B)$: an \emph{arrival event} $\arr{t}{B}$ at the position
@@ -339,7 +376,7 @@ needs one shared base per instance plus one scalar per thread.}\label{alg:detect
 \ForAll{records $e$ of $T$ in $\seq$ order}
   \If{$e=\ext{t}$}\ $\gone_{\blk(t)}\gets\gone_{\blk(t)}\cup\{t\}$;\ \Call{Complete}{$k$} for every open key $k$ of $\blk(t)$\label{ln:exit}
   \ElsIf{$e$ is a \texttt{barrier} arrival with key $k$}\ $\arrv_k\gets\arrv_k\cup\mathrm{lanes}(e)$;\ \Call{Complete}{$k$}\label{ln:barrier}
-  \ElsIf{$e$ is a \texttt{syncwarp}}\ \Call{Sync}{masked lanes of $e$}
+  \ElsIf{$e$ is a \texttt{syncwarp} with key $k$}\ $\arrv_k\gets\arrv_k\cup(\mathrm{lanes}(e)\cap m(e))$;\ \Call{Complete}{$k$}\Comment{T24: warp key}\label{ln:syncwarp}
   \Else\Comment{memory record $a=e$ by $t$ on $\ell$}
     \If{$\M=\mathsf{vec}$ \textbf{and} $\kind(a)=\mathtt{RMW}$}\label{ln:acquire}
       \State \textbf{if} $\lastr_\ell$ defined \textbf{and} $\neg\ms(\lastr_\ell,a)$: $\Ch_\ell\gets\bot$\Comment{chain broken}
