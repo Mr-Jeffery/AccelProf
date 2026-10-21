@@ -443,11 +443,15 @@ def cmd_bpass(a):
     Path(a.out).write_text(json.dumps(out))
 
 
-def run_child(args, mem_gb, timeout):
-    """-> (returncode or signal name, seconds, max RSS in MB, stderr tail)."""
+def run_child(args, mem_gb, timeout, lenient=False):
+    """-> (returncode or signal name, seconds, max RSS in MB, stderr tail). lenient: the oracle
+    under YOSEMITE_HB_STRICT=0 (its trace-validity checks off, "replaying a known-bad trace";
+    HbClock records a violation in tv_violation and continues whatever the setting)."""
     env = {k: v for k, v in os.environ.items()
            if not k.startswith(("CUVEIN_GATE", "CUVEIN_STRONG_LDST", "YOSEMITE_HB_STRICT"))}
     env["CUVEIN_HOME"] = str(WT)
+    if lenient:
+        env["YOSEMITE_HB_STRICT"] = "0"
     lim = int(mem_gb * (1 << 30))
 
     def pre():
@@ -515,9 +519,11 @@ def one_file_(real, a, idx):
         for kind in ("bpass",) if a.no_oracle else ("bpass", "replay"):   # the cheap pass first
             for name, trace in (("as_recorded", data), ("merged", str(mrg))):
                 o = work / f"{kind}_{name}.json"
+                lenient = a.tv_lenient and kind == "replay"
                 rc, secs, rss, err = run_child([kind, "--dot", rec["census"]["dot"], "--trace", trace,
-                                                "--out", str(o)], a.mem_gb, a.timeout)
-                rec[f"{kind}_{name}_child"] = {"rc": rc, "secs": secs, "maxrss_mb": rss}
+                                                "--out", str(o)], a.mem_gb, a.timeout, lenient)
+                rec[f"{kind}_{name}_child"] = {"rc": rc, "secs": secs, "maxrss_mb": rss,
+                                               **({"strict": False} if lenient else {})}
                 if rc != 0 or not o.exists():
                     rec[f"{kind}_{name}_child"]["stderr"] = err
                     continue
@@ -561,12 +567,16 @@ def cmd_run(a):
                 r = json.loads(ln)
                 c = r.get("census") or {}
 
-                def settled(ch):             # done, or would fail the same way at this budget
+                def settled(k, n):           # done, or would fail the same way at this budget
+                    ch = r.get(f"{k}_{n}_child", {})
                     rc = ch.get("rc")
+                    if rc == 0 and a.tv_lenient and "TV-" in (r.get(f"{k}_{n}") or {}).get("error", "") \
+                            and ch.get("strict", True):
+                        return False         # refused by the strict trace-validity check: redo lenient
                     return rc == 0 or (rc == "timeout" and ch.get("secs", 0) >= a.timeout - 60) or \
                         (rc == "MemoryError" and r.get("budget_gb", 0) >= a.mem_gb)
                 if r.get("census_child", {}).get("rc") == 0 and not c.get("error") and (
-                        not c.get("merged") or all(settled(r.get(f"{k}_{n}_child", {}))
+                        not c.get("merged") or all(settled(k, n)
                                                    for k in kinds for n in ("as_recorded", "merged"))):
                     complete.add(r["real"])
         todo = [p for p in todo if p not in complete]
@@ -628,6 +638,8 @@ def main():
     p.add_argument("--match", default="", help="only files whose path contains this")
     p.add_argument("--no-oracle", action="store_true", help="census and barrier-only pass only")
     p.add_argument("--done-glob", default="", help="census outputs: skip files already complete there")
+    p.add_argument("--tv-lenient", action="store_true",
+                   help="oracle replays under YOSEMITE_HB_STRICT=0; with --done-glob, redo the strict refusals")
     p = sub.add_parser("census")
     p.add_argument("--real", required=True)
     p.add_argument("--data", default="", help="a local copy of --real to read instead")

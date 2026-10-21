@@ -1,0 +1,42 @@
+node c51 job 315992 2026-10-20T23:48:40-04:00
+8b2b9ebe75f52e617b9c3770fda8ebefb8e0a057
+### A2. Per suite (rows with records, all stores)
+
+| suite | rows | rows with a diverged instance | (1) instances completed / open | (2) late memory records | rows fully replayed | rows where a pair moves (races / sync-only) | rows missing |
+|---|---|---|---|---|---|---|---|
+| other | 684 | 17 | 9,942 / 8 | 14,733 | 2 | 0 / 0 | 13 |
+| P1 | 5838 | 311 | 919,301 / 0 | 7,829,832 | 40 | 0 / 0 | 273 |
+| P2 | 876 | 0 | 0 / 0 | 0 | 0 | 0 / 0 | 0 |
+| P3 | 1282 | 525 | 332,590 / 0 | 734,254 | 404 | 0 / 0 | 121 |
+| P4 | 984 | 561 | 1,250,173 / 9,240 | 23,957,841 | 432 | 0 / 0 | 171 |
+| P5 | 1251 | 0 | 0 / 0 | 0 | 0 | 0 / 0 | 0 |
+| P6 | 778 | 0 | 0 / 0 | 0 | 0 | 0 / 0 | 0 |
+| P6small | 32 | 0 | 0 / 0 | 0 | 0 | 0 / 0 | 0 |
+| P7 | 112 | 0 | 0 / 0 | 0 | 0 | 0 / 0 | 0 |
+| P8 | 16 | 0 | 0 / 0 | 0 | 0 | 0 / 0 | 0 |
+| P9 | 105 | 0 | 0 / 0 | 0 | 0 | 0 / 0 | 0 |
+| PI | 546 | 0 | 0 / 0 | 0 | 0 | 0 / 0 | 0 |
+
+streamcheck {'files': 8607, 'equal': 8607}; validation {'files': 8622, 'recs equal': 8622, 'sw_full equal': 8622, 'sw_partial equal': 8622, 'seq sorted in file': 8622, 'streamed census': 15}
+moves: 48 x5 rows: 60
+evcand P4-graph-connectivity-racy-small scalar-clock {'races_L2': [['linkKernel(int*, int*, int*, int*, int*, int*, int*)', 'global:0x160-0x400:WAR:DR:warp:']]} {}
+evcand P4-graph-connectivity-racy-small vector-clock {'races_L2': [['linkKernel(int*, int*, int*, int*, int*, int*, int*)', 'global:0x160-0x400:WAR:DR:warp:']]} {}
+evcand_smoke P4-graph-connectivity-racy-small scalar-clock {'races_L2': [['linkKernel(int*, int*, int*, int*, int*, int*, int*)', 'global:0x160-0x400:WAR:DR:warp:']]} {}
+evcand_smoke P4-graph-connectivity-racy-small vector-clock {'races_L2': [['linkKernel(int*, int*, int*, int*, int*, int*, int*)', 'global:0x160-0x400:WAR:DR:warp:']]} {}
+t10-after P4-graph-connectivity-racy-small scalar-clock {'races_L2': [['linkKernel(int*, int*, int*, int*, int*, int*, int*)', 'global:0x160-0x400:WAR:DR:warp:']]} {}
+t10-after P4-graph-connectivity-racy-small vector-clock {'races_L2': [['linkKernel(int*, int*, int*, int*, int*, int*, int*)', 'global:0x160-0x400:WAR:DR:warp:']]} {}
+t12-after P4-graph-connectivity-racy-small scalar-clock {'races_L2': [['linkKernel(int*, int*, int*, int*, int*, int*, int*)', 'global:0x160-0x400:WAR:DR:warp:']]} {}
+t12-after P4-graph-connectivity-racy-small vector-clock {'races_L2': [['linkKernel(int*, int*, int*, int*, int*, int*, int*)', 'global:0x160-0x400:WAR:DR:warp:']]} {}
+t12-eval-main P4-graph-connectivity-racy-small scalar-clock {'races_L2': [['linkKernel(int*, int*, int*, int*, int*, int*, int*)', 'global:0x160-0x400:WAR:DR:warp:']]} {}
+t12-eval-main P4-graph-connectivity-racy-small vector-clock {'races_L2': [['linkKernel(int*, int*, int*, int*, int*, int*, int*)', 'global:0x160-0x400:WAR:DR:warp:']]} {}
+t12-eval-t12 P4-graph-connectivity-racy-small scalar-clock {'races_L2': [['linkKernel(int*, int*, int*, int*, int*, int*, int*)', 'global:0x160-0x400:WAR:DR:warp:']]} {}
+t12-eval-t12 P4-graph-connectivity-racy-small vector-clock {'races_L2': [['linkKernel(int*, int*, int*, int*, int*, int*, int*)', 'global:0x160-0x400:WAR:DR:warp:']]} {}
+t12-eval-t12rb P4-graph-connectivity-racy-small scalar-clock {'races_L2': [['linkKernel(int*, int*, int*, int*, int*, int*, int*)', 'global:0x160-0x400:WAR:DR:warp:']]} {}
+t12-eval-t12rb P4-graph-connectivity-racy-small vector-clock {'races_L2': [['linkKernel(int*, int*, int*, int*, int*, int*, int*)', 'global:0x160-0x400:WAR:DR:warp:']]} {}
+t12-parity P4-graph-connectivity-racy-small vector-clock {'races_L2': [['linkKernel(int*, int*, int*, int*, int*, int*, int*)', 'global:0x160-0x400:WAR:DR:warp:']]} {}
+t14-after P4-graph-connectivity-racy-small scalar-clock {'races_L2': [['linkKernel(int*, int*, int*, int*, int*, int*, int*)', 'global:0x160-0x400:WAR:DR:warp:']]} {}
+t14-after P4-graph-connectivity-racy-small vector-clock {'races_L2': [['linkKernel(int*, int*, int*, int*, int*, int*, int*)', 'global:0x160-0x400:WAR:DR:warp:']]} {}
+t16-certain P4-graph-connectivity-racy-small scalar-clock {'races_L2': [['linkKernel(int*, int*, int*, int*, int*, int*, int*)', 'global:0x160-0x400:WAR:DR:warp:']]} {}
+t16-certain P4-graph-connectivity-racy-small vector-clock {'races_L2': [['linkKernel(int*, int*, int*, int*, int*, int*, int*)', 'global:0x160-0x400:WAR:DR:warp:']]} {}
+t16-certain-exits P4-graph-connectivity-racy-small scalar-clock {'races_L2': [['linkKernel(int*, int*, int*, int*, int*, int*, int*)', 'global:0x160-0x400:WAR:DR:warp:']]} {}
+done 2026-10-20T23:48:49-04:00

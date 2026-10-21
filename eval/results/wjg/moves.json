@@ -560,6 +560,41 @@
   }
  },
  {
+  "store": "t14-after",
+  "rundir": "P4-graph-connectivity-racy-small/vector-clock",
+  "id": "P4-graph-connectivity-racy-small",
+  "mode": "vector-clock",
+  "launches": [
+   {
+    "kernel_json": "P4-graph-connectivity-racy-small/vector-clock/kernel_1.json",
+    "kname": "linkKernel(int*, int*, int*, int*, int*, int*, int*)",
+    "races_L2": {
+     "appear": [
+      "global:0x160-0x400:WAR:DR:warp:"
+     ],
+     "disappear": []
+    }
+   }
+  ],
+  "appear": {
+   "races_L1": [],
+   "sync_only_L1": [],
+   "races_L2": [
+    [
+     "linkKernel(int*, int*, int*, int*, int*, int*, int*)",
+     "global:0x160-0x400:WAR:DR:warp:"
+    ]
+   ],
+   "bpass_sync_only_L1": []
+  },
+  "disappear": {
+   "races_L1": [],
+   "sync_only_L1": [],
+   "races_L2": [],
+   "bpass_sync_only_L1": []
+  }
+ },
+ {
   "store": "t16-certain",
   "rundir": "P4-graph-connectivity-racy-small/scalar-clock",
   "id": "P4-graph-connectivity-racy-small",
