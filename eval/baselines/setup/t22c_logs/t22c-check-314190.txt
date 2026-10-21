@@ -1,0 +1,168 @@
+host=c66 NVIDIA GeForce RTX 4060 Ti, 8.9, 595.58.03 nproc=16 HEAD=1ce4389 dirty=7 2026-10-17T17:54:14-04:00
+runtime /home/fzheng4/AccelProf collector ee78cb899e8a0a65 -> libsanalyzer 2201fcb7d57ae783
+runtime /home/fzheng4/AccelProf/.claude/worktrees/wt-t22 collector bf629f05757b1d73 -> libsanalyzer 502028a87d54301c
+== (0) default path
+norace_interblock_atom default: live vs t20: IDENTICAL up to device addresses and dist (kernel_pc dropped) (1 files)
+norace_interblock_atom default: t20 vs t20b: IDENTICAL up to device addresses and dist (kernel_pc kept) (1 files)
+norace_interblock_atom default: t20 vs t20b byte for byte: IDENTICAL; t20 kernel_pc values [0]
+race_interblock_none-lock_rtraw default: live vs t20: IDENTICAL up to device addresses and dist (kernel_pc dropped) (1 files)
+race_interblock_none-lock_rtraw default: t20 vs t20b: IDENTICAL up to device addresses and dist (kernel_pc kept) (1 files)
+race_interblock_none-lock_rtraw default: t20 vs t20b byte for byte: IDENTICAL; t20 kernel_pc values [0]
+ALL IDENTICAL
+==== config 1: YOSEMITE_HB_SHARDS=unset YOSEMITE_HB_SHARD_INLINE_MAX=unset 2026-10-17T17:54:21-04:00
+== (1a) green set: A4 files + test_instance_gate.py
+============================= test session starts ==============================
+platform linux -- Python 3.14.4, pytest-9.1.1, pluggy-1.6.0
+rootdir: /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/python
+collected 314 items
+python/test_sync_dominance.py .......................................... [ 13%]
+........................................................                 [ 31%]
+python/test_barrier_soundness.py .......                                 [ 33%]
+python/test_coherent_ldst.py ..............................              [ 42%]
+python/test_atomic_memory_model.py ..................................... [ 54%]
+..                                                                       [ 55%]
+python/test_barrier_exit.py .....................                        [ 62%]
+python/test_hb_substitutions.py .................................        [ 72%]
+python/test_cp_async.py ................................................ [ 87%]
+...................                                                      [ 93%]
+python/test_instance_gate.py ......ss...........                         [100%]
+=============================== warnings summary ===============================
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+=========================== short test summary info ============================
+SKIPPED [1] python/test_instance_gate.py:104: got empty parameter set for (d)
+SKIPPED [1] python/test_instance_gate.py:118: got empty parameter set for (d)
+============ 312 passed, 2 skipped, 8 warnings in 282.46s (0:04:42) ============
+== (1b) test_instance_gate.py alone on the fresh artifacts
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+55 passed, 8 warnings in 8.52s
+== (1c) test_no_dump.py
+    graph_stmt.setParseAction(push_graph_stmt)
+
+test_no_dump.py::test_sync_instance_equals_offline_pass[strong_stores_barrier_weak_load-vector-clock]
+  /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/.env/lib/python3.14/site-packages/pydot/dot_parser.py:381: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    parser.setParseAction(push_top_graph_stmt)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+31 passed, 8 warnings in 23.16s
+== (1d) test_sync_shapes.py (T22 cont.: the bfs and nbody shapes)
+    graph_stmt.setParseAction(push_graph_stmt)
+
+test_sync_shapes.py::test_aggregates_equal_records_counts_le[flag_writers]
+  /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/.env/lib/python3.14/site-packages/pydot/dot_parser.py:381: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    parser.setParseAction(push_top_graph_stmt)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+4 passed, 8 warnings in 14.23s
+==== config 8t: YOSEMITE_HB_SHARDS=8 YOSEMITE_HB_SHARD_INLINE_MAX=0 2026-10-17T18:00:11-04:00
+== (1a) green set: A4 files + test_instance_gate.py
+============================= test session starts ==============================
+platform linux -- Python 3.14.4, pytest-9.1.1, pluggy-1.6.0
+rootdir: /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/python
+collected 314 items
+python/test_sync_dominance.py .......................................... [ 13%]
+........................................................                 [ 31%]
+python/test_barrier_soundness.py .......                                 [ 33%]
+python/test_coherent_ldst.py ..............................              [ 42%]
+python/test_atomic_memory_model.py ..................................... [ 54%]
+..                                                                       [ 55%]
+python/test_barrier_exit.py .....................                        [ 62%]
+python/test_hb_substitutions.py .................................        [ 72%]
+python/test_cp_async.py ................................................ [ 87%]
+...................                                                      [ 93%]
+python/test_instance_gate.py ......ss...........                         [100%]
+=============================== warnings summary ===============================
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+=========================== short test summary info ============================
+SKIPPED [1] python/test_instance_gate.py:104: got empty parameter set for (d)
+SKIPPED [1] python/test_instance_gate.py:118: got empty parameter set for (d)
+============ 312 passed, 2 skipped, 8 warnings in 288.27s (0:04:48) ============
+== (1b) test_instance_gate.py alone on the fresh artifacts
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+55 passed, 8 warnings in 8.23s
+== (1c) test_no_dump.py
+    graph_stmt.setParseAction(push_graph_stmt)
+
+test_no_dump.py::test_sync_instance_equals_offline_pass[strong_stores_barrier_weak_load-vector-clock]
+  /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/.env/lib/python3.14/site-packages/pydot/dot_parser.py:381: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    parser.setParseAction(push_top_graph_stmt)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+31 passed, 8 warnings in 24.10s
+== (1d) test_sync_shapes.py (T22 cont.: the bfs and nbody shapes)
+    graph_stmt.setParseAction(push_graph_stmt)
+
+test_sync_shapes.py::test_aggregates_equal_records_counts_le[flag_writers]
+  /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/.env/lib/python3.14/site-packages/pydot/dot_parser.py:381: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    parser.setParseAction(push_top_graph_stmt)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+4 passed, 8 warnings in 13.08s
+==== config 8: YOSEMITE_HB_SHARDS=8 YOSEMITE_HB_SHARD_INLINE_MAX=unset 2026-10-17T18:05:52-04:00
+== (1a) green set: A4 files + test_instance_gate.py
+============================= test session starts ==============================
+platform linux -- Python 3.14.4, pytest-9.1.1, pluggy-1.6.0
+rootdir: /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/python
+collected 314 items
+python/test_sync_dominance.py .......................................... [ 13%]
+........................................................                 [ 31%]
+python/test_barrier_soundness.py .......                                 [ 33%]
+python/test_coherent_ldst.py ..............................              [ 42%]
+python/test_atomic_memory_model.py ..................................... [ 54%]
+..                                                                       [ 55%]
+python/test_barrier_exit.py .....................                        [ 62%]
+python/test_hb_substitutions.py .................................        [ 72%]
+python/test_cp_async.py ................................................ [ 87%]
+...................                                                      [ 93%]
+python/test_instance_gate.py ......ss...........                         [100%]
+=============================== warnings summary ===============================
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+=========================== short test summary info ============================
+SKIPPED [1] python/test_instance_gate.py:104: got empty parameter set for (d)
+SKIPPED [1] python/test_instance_gate.py:118: got empty parameter set for (d)
+============ 312 passed, 2 skipped, 8 warnings in 280.44s (0:04:40) ============
+== (1b) test_instance_gate.py alone on the fresh artifacts
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+55 passed, 8 warnings in 8.40s
+== (1c) test_no_dump.py
+    graph_stmt.setParseAction(push_graph_stmt)
+
+test_no_dump.py::test_sync_instance_equals_offline_pass[strong_stores_barrier_weak_load-vector-clock]
+  /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/.env/lib/python3.14/site-packages/pydot/dot_parser.py:381: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    parser.setParseAction(push_top_graph_stmt)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+31 passed, 8 warnings in 23.77s
+== (1d) test_sync_shapes.py (T22 cont.: the bfs and nbody shapes)
+    graph_stmt.setParseAction(push_graph_stmt)
+
+test_sync_shapes.py::test_aggregates_equal_records_counts_le[flag_writers]
+  /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/.env/lib/python3.14/site-packages/pydot/dot_parser.py:381: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    parser.setParseAction(push_top_graph_stmt)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+4 passed, 8 warnings in 13.15s
+== done 2026-10-17T18:11:25-04:00

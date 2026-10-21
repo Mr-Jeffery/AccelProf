@@ -397,3 +397,66 @@ def test_r3_declines_write_before_lock_on_a_real_trace(monkeypatch, tmp_path):
     monkeypatch.setenv("CUVEIN_R3_BEFORE_ACQUIRE", "0")    # without the decline R3 certifies it
     assert all(v["verdict"] == "ORDERED" and v["hb_chain"] for v in
                _pair_verdicts(dots, traces[0], pair) + _pair_verdicts(dots, sc, pair))
+
+
+def test_r3_location_classes_are_transitive():
+    """T23: the pairs of observed atomic edges are not a location relation (0x330 ~ 0x1b0 and
+    0x1b0 ~ 0x230 do not make 0x330 ~ 0x230); the gates of R3 read the connected components.
+    The edges are X4's A2-inverted rtraw trace (eval/FINAL_RTRAW.md section 6); 0x400 shares
+    no edge with any of them."""
+    g = _graph({"B": [(0x400, "STG.E"), (0x410, "EXIT")]}, [])
+    atom = {pc: sd.GRID for pc in (0xb0, 0x230, 0x1b0, 0x330)}
+    g.attach_trace(atom, [], atom, {frozenset((0xb0, 0x230)), frozenset((0x230,)),
+                                    frozenset((0x230, 0x1b0)), frozenset((0x1b0, 0x330))})
+    assert g.same_location(0x330, 0x230) and g.same_location(0x230, 0x330)
+    assert g.same_location(0x330, 0xb0) and g.same_location(0xb0, 0x1b0)
+    assert not g.same_location(0x330, 0x400) and not g.same_location(0x500, 0x600)
+
+
+def _r3_a2_inverted_lock():
+    """X4's schedule C (eval/FINAL_RTRAW.md section 6) as a hand-built kernel: block 1 runs the
+    arm 0xb0 CAS ... 0x140 read ... 0x1b0 unlock, block 0 the arm 0x230 CAS ... 0x330 unlock,
+    0x340 write. Block 0's winning CAS is recorded before block 1's unlock, so the observed
+    atomic edges are 0xb0->0x230, 0x230->0x230, 0x230->0x1b0 and 0x1b0->0x330: no edge joins the
+    unlock 0x330 to a CAS pc."""
+    g = _graph({
+        "E": [(0x10, "BRA")],
+        "A1": [(0xb0, "ATOMG.E.CAS.STRONG.GPU"), (0xb8, "ISETP.NE.AND"), (0xc0, "BRA")],
+        "A1b": [(0x100, "MEMBAR.SC.GPU"), (0x110, "CCTL.IVALL"), (0x140, "LDG.E"),
+                (0x180, "MEMBAR.SC.GPU"), (0x1b0, "ATOMG.E.EXCH.STRONG.GPU"), (0x1c0, "EXIT")],
+        "A0": [(0x230, "ATOMG.E.CAS.STRONG.GPU"), (0x238, "ISETP.NE.AND"), (0x240, "BRA")],
+        "A0b": [(0x280, "MEMBAR.SC.GPU"), (0x290, "CCTL.IVALL"), (0x2f0, "STG.E"),
+                (0x320, "MEMBAR.SC.GPU"), (0x330, "ATOMG.E.EXCH.STRONG.GPU"), (0x340, "STG.E"),
+                (0x350, "EXIT")],
+    }, [("E", "A1"), ("E", "A0"), ("A1", "A1"), ("A1", "A1b"), ("A0", "A0"), ("A0", "A0b")])
+    atom = {pc: sd.GRID for pc in (0xb0, 0x230, 0x1b0, 0x330)}
+    edges = [(0xb0, 0x230), (0x230, 0x230), (0x230, 0x1b0), (0x1b0, 0x330)]
+    g.attach_trace(atom, [(a, b, sd.GRID) for a, b in edges], atom,
+                   {frozenset(e) for e in edges},
+                   {0x140: frozenset({0x1b0}), 0x340: frozenset()},
+                   {0x140: frozenset({0xb0}), 0x340: frozenset({0x330})})
+    return g
+
+
+def test_r3_declines_the_landing_on_an_unobserved_cas_location(monkeypatch):
+    """T23: the chain 0x1b0 -> 0x330 from block 1's read lands on block 0's own unlock, past the
+    release of the lock block 0 acquired with the CAS 0x230 -- but only the closure of the
+    observed edge pairs says 0x330 and 0x230 are one word. Edge pairs alone certify the racy
+    pair (the pre-T23 rule); the closure declines, and names the pair that decided."""
+    monkeypatch.delenv("CUVEIN_R3_LOC_CLOSURE", raising=False)
+    ev = _r3_a2_inverted_lock().ordered(0x340, 0x140, sd.GRID, False, True)
+    assert ev["chain"] is None
+    gates = {(g, lo, hi) for g, lo, hi in ev["loc_closure"]}
+    assert ("landing", 0x230, 0x330) in gates or ("landing", 0xb0, 0x330) in gates, gates
+    monkeypatch.setenv("CUVEIN_R3_LOC_CLOSURE", "0")                       # the rule before T23
+    old = _r3_a2_inverted_lock().ordered(0x340, 0x140, sd.GRID, False, True)
+    assert old["chain"] == [0x1b0, 0x330] and old["loc_closure"] == []
+
+
+def test_r3_closure_keeps_the_lock_hand_off_certified():
+    """The closure only adds location pairs: the lock hand-off of test_r3_certifies_the_lock_hand_off
+    (one CAS pc, one unlock pc, edges joining them) is certified as before, with no closure pair
+    consulted."""
+    g = _r3_lock()
+    assert g.chain(0x80, 0x70) == [0xa0, 0x30]
+    assert g.ordered(0x70, 0x80, sd.GRID, True, False)["loc_closure"] == []

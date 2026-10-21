@@ -1,0 +1,43 @@
+host=c62 nproc=16 Model name: AMD EPYC 8124P 16-Core Processor 2026-10-18T12:32:40-04:00
+######## runtime final (W=/home/fzheng4/AccelProf/.claude/worktrees/wt-t22) cap 1200 tag t22c-d1200ctl runs: P7-pathfinder-cuda:1 P7-pathfinder-cuda:8  2026-10-18T12:32:40-04:00
+host=c62 nproc=16 mem=188G Model name: AMD EPYC 8124P 16-Core Processor NVIDIA GeForce RTX 4060 Ti, 8.9, 580.82.07 HEAD=1ce4389 dirty=7 libsanalyzer 502028a87d54301c
+cdc5a70a8c3f4fb4
+8c0560eed583b31e
+==== P7-pathfinder-cuda YOSEMITE_HB_SHARDS=1 reps 1 cap 1200 2026-10-18T12:32:41-04:00
+[run 1/1] P7-pathfinder-cuda
+run: 1 programs -> /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-d1200ctl-P7-pathfinder-cuda-n1/baselines-cuvein-shardt22c-d1200ctl-P7-pathfinder-cuda-n1all.csv
+kept traces: 0.00 GB in /mnt/beegfs/fzheng4/cuvein_traces/t22c-d1200ctl-P7-pathfinder-cuda-n1
+P7-pathfinder-cuda,scalar-clock,1,TIMEOUT,0,1200.005,1.721,5761.4,cap=1200;timeout=1200s;dump_mb=0.3;err=./pathfinder-cuda 100000 1000 5 | Running the pc_dependency_analysis tool for pathfinder-cuda...
+==== P7-pathfinder-cuda YOSEMITE_HB_SHARDS=8 reps 1 cap 1200 2026-10-18T12:52:45-04:00
+[run 1/1] P7-pathfinder-cuda
+run: 1 programs -> /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-d1200ctl-P7-pathfinder-cuda-n8/baselines-cuvein-shardt22c-d1200ctl-P7-pathfinder-cuda-n8all.csv
+kept traces: 0.00 GB in /mnt/beegfs/fzheng4/cuvein_traces/t22c-d1200ctl-P7-pathfinder-cuda-n8
+P7-pathfinder-cuda,scalar-clock,1,TIMEOUT,0,1200.004,1.52,34913.1,cap=1200;timeout=1200s;dump_mb=0.4;err=./pathfinder-cuda 100000 1000 5 | Running the pc_dependency_analysis tool for pathfinder-cuda...
+== done 2026-10-18T13:12:49-04:00
+== /mnt/beegfs/fzheng4/cuvein_traces/t22c-d1200ctl-P7-pathfinder-cuda-n1
+  kernel_0.json    1792341245.0         -  events 35325026 pathfinder(int const*, int const*, int*, pairs 1 count 8588 locs 907498 entries 1333695 bytes 65192896
+  kernel_1.json    1792341325.0      80.0  events 35325026 pathfinder(int const*, int const*, int*, pairs 1 count 5435 locs 907514 entries 1333695 bytes 65193328
+  kernel_2.json    1792341405.0      80.0  events 35325026 pathfinder(int const*, int const*, int*, pairs 1 count 4698 locs 907516 entries 1333695 bytes 65193920
+  kernel_3.json    1792341486.0      81.0  events 35325026 pathfinder(int const*, int const*, int*, pairs 1 count 4363 locs 907515 entries 1333695 bytes 65193328
+  kernel_4.json    1792341566.0      80.0  events 35325026 pathfinder(int const*, int const*, int*, pairs 1 count 4025 locs 907522 entries 1333695 bytes 65193440
+  kernel_5.json    1792341646.0      80.0  events 35325026 pathfinder(int const*, int const*, int*, pairs 1 count 3929 locs 907521 entries 1333695 bytes 65193360
+  kernel_6.json    1792341727.0      81.0  events 35325026 pathfinder(int const*, int const*, int*, pairs 1 count 3806 locs 907525 entries 1333695 bytes 65194176
+  kernel_7.json    1792341807.0      80.0  events 35325026 pathfinder(int const*, int const*, int*, pairs 1 count 3666 locs 907525 entries 1333695 bytes 65193984
+  kernel_8.json    1792341887.0      80.0  events 35325026 pathfinder(int const*, int const*, int*, pairs 1 count 3541 locs 907525 entries 1333695 bytes 65193824
+  kernel_9.json    1792341968.0      81.0  events 35325026 pathfinder(int const*, int const*, int*, pairs 1 count 3449 locs 907525 entries 1333695 bytes 65193520
+  kernel_10.json   1792342048.0      80.0  events 35325026 pathfinder(int const*, int const*, int*, pairs 1 count 3303 locs 907524 entries 1333695 bytes 65193664
+  ... (14 kernel JSONs: /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-d1200ctl-P7-pathfinder-cuda-n1/kstats.txt)
+== /mnt/beegfs/fzheng4/cuvein_traces/t22c-d1200ctl-P7-pathfinder-cuda-n8
+  kernel_0.json    1792342452.0         -  events 35325026 pathfinder(int const*, int const*, int*, pairs 1 count 8588 locs 907498 entries 1333695 bytes 65422272
+  kernel_1.json    1792342532.0      80.0  events 35325026 pathfinder(int const*, int const*, int*, pairs 1 count 5435 locs 907514 entries 1333695 bytes 65422704
+  kernel_2.json    1792342611.0      79.0  events 35325026 pathfinder(int const*, int const*, int*, pairs 1 count 4698 locs 907516 entries 1333695 bytes 65423296
+  kernel_3.json    1792342691.0      80.0  events 35325026 pathfinder(int const*, int const*, int*, pairs 1 count 4363 locs 907515 entries 1333695 bytes 65422704
+  kernel_4.json    1792342770.0      79.0  events 35325026 pathfinder(int const*, int const*, int*, pairs 1 count 4025 locs 907522 entries 1333695 bytes 65422816
+  kernel_5.json    1792342849.0      79.0  events 35325026 pathfinder(int const*, int const*, int*, pairs 1 count 3929 locs 907521 entries 1333695 bytes 65422736
+  kernel_6.json    1792342929.0      80.0  events 35325026 pathfinder(int const*, int const*, int*, pairs 1 count 3806 locs 907525 entries 1333695 bytes 65423552
+  kernel_7.json    1792343008.0      79.0  events 35325026 pathfinder(int const*, int const*, int*, pairs 1 count 3666 locs 907525 entries 1333695 bytes 65423360
+  kernel_8.json    1792343087.0      79.0  events 35325026 pathfinder(int const*, int const*, int*, pairs 1 count 3541 locs 907525 entries 1333695 bytes 65423200
+  kernel_9.json    1792343167.0      80.0  events 35325026 pathfinder(int const*, int const*, int*, pairs 1 count 3449 locs 907525 entries 1333695 bytes 65422896
+  kernel_10.json   1792343246.0      79.0  events 35325026 pathfinder(int const*, int const*, int*, pairs 1 count 3303 locs 907524 entries 1333695 bytes 65423040
+  ... (15 kernel JSONs: /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-d1200ctl-P7-pathfinder-cuda-n8/kstats.txt)
+== done 2026-10-18T13:12:49-04:00

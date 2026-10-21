@@ -1,0 +1,44 @@
+host=c63 nproc=16 Model name: AMD EPYC 8124P 16-Core Processor 2026-10-18T10:12:19-04:00
+######## runtime final (W=/home/fzheng4/AccelProf/.claude/worktrees/wt-t22) cap 5400 tag t22c-d5400 runs: P9-knn-cuda:16 P7-stencil1d-cuda:16  2026-10-18T10:12:19-04:00
+host=c63 nproc=16 mem=188G Model name: AMD EPYC 8124P 16-Core Processor NVIDIA GeForce RTX 4060 Ti, 8.9, 580.82.07 HEAD=1ce4389 dirty=7 libsanalyzer 502028a87d54301c
+cdc5a70a8c3f4fb4
+8c0560eed583b31e
+==== P9-knn-cuda YOSEMITE_HB_SHARDS=16 reps 1 cap 5400 2026-10-18T10:12:20-04:00
+[run 1/1] P9-knn-cuda
+run: 1 programs -> /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-d5400-P9-knn-cuda-n16/baselines-cuvein-shardt22c-d5400-P9-knn-cuda-n16all.csv
+kept traces: 0.00 GB in /mnt/beegfs/fzheng4/cuvein_traces/t22c-d5400-P9-knn-cuda-n16
+P9-knn-cuda,scalar-clock,1,TIMEOUT,0,5400.005,13.693,30382.6,cap=5400;timeout=5400s;dump_mb=21.2;err=./knn-cuda 100 | Running the pc_dependency_analysis tool for knn-cuda...
+==== P7-stencil1d-cuda YOSEMITE_HB_SHARDS=16 reps 1 cap 5400 2026-10-18T11:42:37-04:00
+[run 1/1] P7-stencil1d-cuda
+run: 1 programs -> /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-d5400-P7-stencil1d-cuda-n16/baselines-cuvein-shardt22c-d5400-P7-stencil1d-cuda-n16all.csv
+kept traces: 0.00 GB in /mnt/beegfs/fzheng4/cuvein_traces/t22c-d5400-P7-stencil1d-cuda-n16
+P7-stencil1d-cuda,scalar-clock,1,TIMEOUT,0,5400.005,4.877,168248.7,cap=5400;timeout=5400s;dump_mb=1.8;err=./stencil1d-cuda 134217728 1000 | Running the pc_dependency_analysis tool for stencil1d-cuda...
+== done 2026-10-18T13:12:44-04:00
+== /mnt/beegfs/fzheng4/cuvein_traces/t22c-d5400-P9-knn-cuda-n16
+  kernel_0.json    1792332854.0         -  events 99876864 cuComputeDistanceGlobal(float const*, in pairs 0 count 0 locs 50888704 entries 729808896 bytes 18715262976
+  kernel_1.json    1792332858.0       4.0  events 11563045 cuInsertionSort(float*, int*, int, int,  pairs 0 count 0 locs 16859136 entries 17018876 bytes 1113104384
+  kernel_2.json    1792332858.0       0.0  events 9216 cuParallelSqrt(float*, int, int)         pairs 0 count 0 locs 81920 entries 163840 bytes 6201344
+  kernel_3.json    1792332929.0      71.0  events 99876864 cuComputeDistanceGlobal(float const*, in pairs 0 count 0 locs 50888704 entries 729808896 bytes 18715262976
+  kernel_4.json    1792332933.0       4.0  events 11563045 cuInsertionSort(float*, int*, int, int,  pairs 0 count 0 locs 16859136 entries 17018876 bytes 1113104384
+  kernel_5.json    1792332934.0       1.0  events 9216 cuParallelSqrt(float*, int, int)         pairs 0 count 0 locs 81920 entries 163840 bytes 6201344
+  kernel_6.json    1792333005.0      71.0  events 99876864 cuComputeDistanceGlobal(float const*, in pairs 0 count 0 locs 50888704 entries 729808896 bytes 18715262976
+  kernel_7.json    1792333009.0       4.0  events 11563045 cuInsertionSort(float*, int*, int, int,  pairs 0 count 0 locs 16859136 entries 17018876 bytes 1113104384
+  kernel_8.json    1792333009.0       0.0  events 9216 cuParallelSqrt(float*, int, int)         pairs 0 count 0 locs 81920 entries 163840 bytes 6201344
+  kernel_9.json    1792333082.0      73.0  events 99876864 cuComputeDistanceGlobal(float const*, in pairs 0 count 0 locs 50888704 entries 729808896 bytes 18715262976
+  kernel_10.json   1792333086.0       4.0  events 11563045 cuInsertionSort(float*, int*, int, int,  pairs 0 count 0 locs 16859136 entries 17018876 bytes 1113104384
+  ... (213 kernel JSONs: /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-d5400-P9-knn-cuda-n16/kstats.txt)
+== /mnt/beegfs/fzheng4/cuvein_traces/t22c-d5400-P7-stencil1d-cuda-n16
+  kernel_0.json    1792338428.0         -  events 85983231 stencil_1d(int const*, int*)             pairs 0 count 0 locs 409993223 entries 2430599161 bytes 74449421152
+  kernel_1.json    1792338622.0     194.0  events 85983231 stencil_1d(int const*, int*)             pairs 0 count 0 locs 409993223 entries 2430599161 bytes 74449421152
+  kernel_2.json    1792338816.0     194.0  events 85983231 stencil_1d(int const*, int*)             pairs 0 count 0 locs 409993223 entries 2430599161 bytes 74449421152
+  kernel_3.json    1792339009.0     193.0  events 85983231 stencil_1d(int const*, int*)             pairs 0 count 0 locs 409993223 entries 2430599161 bytes 74449421152
+  kernel_4.json    1792339202.0     193.0  events 85983231 stencil_1d(int const*, int*)             pairs 0 count 0 locs 409993223 entries 2430599161 bytes 74449421152
+  kernel_5.json    1792339396.0     194.0  events 85983231 stencil_1d(int const*, int*)             pairs 0 count 0 locs 409993223 entries 2430599161 bytes 74449421152
+  kernel_6.json    1792339590.0     194.0  events 85983231 stencil_1d(int const*, int*)             pairs 0 count 0 locs 409993223 entries 2430599161 bytes 74449421152
+  kernel_7.json    1792339782.0     192.0  events 85983231 stencil_1d(int const*, int*)             pairs 0 count 0 locs 409993223 entries 2430599161 bytes 74449421152
+  kernel_8.json    1792339977.0     195.0  events 85983231 stencil_1d(int const*, int*)             pairs 0 count 0 locs 409993223 entries 2430599161 bytes 74449421152
+  kernel_9.json    1792340170.0     193.0  events 85983231 stencil_1d(int const*, int*)             pairs 0 count 0 locs 409993223 entries 2430599161 bytes 74449421152
+  kernel_10.json   1792340363.0     193.0  events 85983231 stencil_1d(int const*, int*)             pairs 0 count 0 locs 409993223 entries 2430599161 bytes 74449421152
+  kernel_27.json   1792343522.0      74.0  not JSON (57383 bytes)
+  ... (28 kernel JSONs: /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-d5400-P7-stencil1d-cuda-n16/kstats.txt)
+== done 2026-10-18T13:12:44-04:00

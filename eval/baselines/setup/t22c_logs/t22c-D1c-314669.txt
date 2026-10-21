@@ -1,0 +1,109 @@
+host=c64 nproc=16 Model name: AMD EPYC 8124P 16-Core Processor 2026-10-18T05:05:27-04:00
+######## runtime final (W=/home/fzheng4/AccelProf/.claude/worktrees/wt-t22) cap 1200 tag t22c-d1200 runs: P7-stencil1d-cuda:16 P9-atomicCAS-cuda:16 P9-dxtc2-cuda:16 P9-expdist-cuda:16 P9-knn-cuda:16 P9-tridiagonal-cuda:16   2026-10-18T05:05:27-04:00
+host=c64 nproc=16 mem=188G Model name: AMD EPYC 8124P 16-Core Processor NVIDIA GeForce RTX 4060 Ti, 8.9, 580.95.05 HEAD=1ce4389 dirty=7 libsanalyzer 502028a87d54301c
+cdc5a70a8c3f4fb4
+8c0560eed583b31e
+==== P7-stencil1d-cuda YOSEMITE_HB_SHARDS=16 reps 1 cap 1200 2026-10-18T05:05:28-04:00
+[run 1/1] P7-stencil1d-cuda
+run: 1 programs -> /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-d1200-P7-stencil1d-cuda-n16/baselines-cuvein-shardt22c-d1200-P7-stencil1d-cuda-n16all.csv
+kept traces: 0.00 GB in /mnt/beegfs/fzheng4/cuvein_traces/t22c-d1200-P7-stencil1d-cuda-n16
+P7-stencil1d-cuda,scalar-clock,1,TIMEOUT,0,1200.005,5.09,167902.6,cap=1200;timeout=1200s;dump_mb=0.4;err=./stencil1d-cuda 134217728 1000 | Running the pc_dependency_analysis tool for stencil1d-cuda...
+==== P9-atomicCAS-cuda YOSEMITE_HB_SHARDS=16 reps 1 cap 1200 2026-10-18T05:25:36-04:00
+[run 1/1] P9-atomicCAS-cuda
+run: 1 programs -> /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-d1200-P9-atomicCAS-cuda-n16/baselines-cuvein-shardt22c-d1200-P9-atomicCAS-cuda-n16all.csv
+kept traces: 0.00 GB in /mnt/beegfs/fzheng4/cuvein_traces/t22c-d1200-P9-atomicCAS-cuda-n16
+P9-atomicCAS-cuda,scalar-clock,1,TIMEOUT,0,1200.004,3.788,949.2,cap=1200;timeout=1200s;dump_mb=56.5;err=./atomicCAS-cuda 10000 | Running the pc_dependency_analysis tool for atomicCAS-cuda...
+==== P9-dxtc2-cuda YOSEMITE_HB_SHARDS=16 reps 1 cap 1200 2026-10-18T05:45:45-04:00
+[run 1/1] P9-dxtc2-cuda
+run: 1 programs -> /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-d1200-P9-dxtc2-cuda-n16/baselines-cuvein-shardt22c-d1200-P9-dxtc2-cuda-n16all.csv
+kept traces: 0.04 GB in /mnt/beegfs/fzheng4/cuvein_traces/t22c-d1200-P9-dxtc2-cuda-n16
+P9-dxtc2-cuda,scalar-clock,1,RACE,3,571.579,0.532,3511.5,cap=1200;node=c64;arch=8.9;events=634278100;nkernels=100;classes=race:3
+==== P9-expdist-cuda YOSEMITE_HB_SHARDS=16 reps 1 cap 1200 2026-10-18T05:58:16-04:00
+[run 1/1] P9-expdist-cuda
+run: 1 programs -> /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-d1200-P9-expdist-cuda-n16/baselines-cuvein-shardt22c-d1200-P9-expdist-cuda-n16all.csv
+kept traces: 0.00 GB in /mnt/beegfs/fzheng4/cuvein_traces/t22c-d1200-P9-expdist-cuda-n16
+P9-expdist-cuda,scalar-clock,1,TIMEOUT,0,1200.005,2.089,13727.3,cap=1200;timeout=1200s;dump_mb=3.6;err=./expdist-cuda 10000 10 | Running the pc_dependency_analysis tool for expdist-cuda...
+==== P9-knn-cuda YOSEMITE_HB_SHARDS=16 reps 1 cap 1200 2026-10-18T06:18:24-04:00
+[run 1/1] P9-knn-cuda
+run: 1 programs -> /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-d1200-P9-knn-cuda-n16/baselines-cuvein-shardt22c-d1200-P9-knn-cuda-n16all.csv
+kept traces: 0.00 GB in /mnt/beegfs/fzheng4/cuvein_traces/t22c-d1200-P9-knn-cuda-n16
+P9-knn-cuda,scalar-clock,1,TIMEOUT,0,1200.004,13.844,30379.0,cap=1200;timeout=1200s;dump_mb=4.5;err=./knn-cuda 100 | Running the pc_dependency_analysis tool for knn-cuda...
+==== P9-tridiagonal-cuda YOSEMITE_HB_SHARDS=16 reps 1 cap 1200 2026-10-18T06:38:41-04:00
+[run 1/1] P9-tridiagonal-cuda
+run: 1 programs -> /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-d1200-P9-tridiagonal-cuda-n16/baselines-cuvein-shardt22c-d1200-P9-tridiagonal-cuda-n16all.csv
+kept traces: 0.00 GB in /mnt/beegfs/fzheng4/cuvein_traces/t22c-d1200-P9-tridiagonal-cuda-n16
+P9-tridiagonal-cuda,scalar-clock,1,TIMEOUT,0,1200.005,0.697,11391.1,cap=1200;timeout=1200s;dump_mb=6.2;err=./tridiagonal-cuda -num_systems=30000 | Running the pc_dependency_analysis tool for tridiagonal-cuda...
+== done 2026-10-18T06:58:54-04:00
+== /mnt/beegfs/fzheng4/cuvein_traces/t22c-d1200-P7-stencil1d-cuda-n16
+  kernel_0.json    1792314599.0         -  events 85983231 stencil_1d(int const*, int*)             pairs 0 count 0 locs 409993223 entries 2430599161 bytes 74449421152
+  kernel_1.json    1792314788.0     189.0  events 85983231 stencil_1d(int const*, int*)             pairs 0 count 0 locs 409993223 entries 2430599161 bytes 74449421152
+  kernel_2.json    1792314979.0     191.0  events 85983231 stencil_1d(int const*, int*)             pairs 0 count 0 locs 409993223 entries 2430599161 bytes 74449421152
+  kernel_3.json    1792315168.0     189.0  events 85983231 stencil_1d(int const*, int*)             pairs 0 count 0 locs 409993223 entries 2430599161 bytes 74449421152
+  kernel_4.json    1792315359.0     191.0  events 85983231 stencil_1d(int const*, int*)             pairs 0 count 0 locs 409993223 entries 2430599161 bytes 74449421152
+  kernel_5.json    1792315432.0      73.0  not JSON (57375 bytes)
+== /mnt/beegfs/fzheng4/cuvein_traces/t22c-d1200-P9-atomicCAS-cuda-n16
+  kernel_0.json    1792315547.0         -  events 18262 void atomicMinDerived<unsigned long long pairs 1 count 274016 locs 1 entries 291808 bytes 7139536
+  kernel_1.json    1792315547.0       0.0  events 16384 void atomicMinDerived<unsigned long long pairs 0 count 0 locs 1 entries 262144 bytes 7139536
+  kernel_2.json    1792315547.0       0.0  events 16384 void atomicMinDerived<unsigned long long pairs 0 count 0 locs 1 entries 262144 bytes 7139536
+  kernel_3.json    1792315547.0       0.0  events 16384 void atomicMinDerived<unsigned long long pairs 0 count 0 locs 1 entries 262144 bytes 7139536
+  kernel_4.json    1792315548.0       1.0  events 16384 void atomicMinDerived<unsigned long long pairs 0 count 0 locs 1 entries 262144 bytes 7139536
+  kernel_5.json    1792315548.0       0.0  events 16384 void atomicMinDerived<unsigned long long pairs 0 count 0 locs 1 entries 262144 bytes 7139536
+  kernel_6.json    1792315548.0       0.0  events 16384 void atomicMinDerived<unsigned long long pairs 0 count 0 locs 1 entries 262144 bytes 7139536
+  kernel_7.json    1792315548.0       0.0  events 16384 void atomicMinDerived<unsigned long long pairs 0 count 0 locs 1 entries 262144 bytes 7139536
+  kernel_8.json    1792315548.0       0.0  events 16384 void atomicMinDerived<unsigned long long pairs 0 count 0 locs 1 entries 262144 bytes 7139536
+  kernel_9.json    1792315548.0       0.0  events 16384 void atomicMinDerived<unsigned long long pairs 0 count 0 locs 1 entries 262144 bytes 7139536
+  kernel_10.json   1792315548.0       0.0  events 16384 void atomicMinDerived<unsigned long long pairs 0 count 0 locs 1 entries 262144 bytes 7139536
+  ... (13715 kernel JSONs: /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-d1200-P9-atomicCAS-cuda-n16/kstats.txt)
+== /mnt/beegfs/fzheng4/cuvein_traces/t22c-d1200-P9-dxtc2-cuda-n16
+  kernel_0.json    1792316757.0         -  events 6342781 compress(unsigned int const*, unsigned i pairs 3 count 730815 locs 7914464 entries 60242390 bytes 1689860944
+  kernel_1.json    1792316763.0       6.0  events 6342781 compress(unsigned int const*, unsigned i pairs 3 count 730815 locs 7914464 entries 60242390 bytes 1689860944
+  kernel_2.json    1792316768.0       5.0  events 6342781 compress(unsigned int const*, unsigned i pairs 3 count 730815 locs 7914464 entries 60242390 bytes 1689860944
+  kernel_3.json    1792316774.0       6.0  events 6342781 compress(unsigned int const*, unsigned i pairs 3 count 730815 locs 7914464 entries 60242390 bytes 1689860944
+  kernel_4.json    1792316780.0       6.0  events 6342781 compress(unsigned int const*, unsigned i pairs 3 count 730815 locs 7914464 entries 60242390 bytes 1689860944
+  kernel_5.json    1792316785.0       5.0  events 6342781 compress(unsigned int const*, unsigned i pairs 3 count 730815 locs 7914464 entries 60242390 bytes 1689860944
+  kernel_6.json    1792316791.0       6.0  events 6342781 compress(unsigned int const*, unsigned i pairs 3 count 730815 locs 7914464 entries 60242390 bytes 1689860944
+  kernel_7.json    1792316797.0       6.0  events 6342781 compress(unsigned int const*, unsigned i pairs 3 count 730815 locs 7914464 entries 60242390 bytes 1689860944
+  kernel_8.json    1792316803.0       6.0  events 6342781 compress(unsigned int const*, unsigned i pairs 3 count 730815 locs 7914464 entries 60242390 bytes 1689860944
+  kernel_9.json    1792316808.0       5.0  events 6342781 compress(unsigned int const*, unsigned i pairs 3 count 730815 locs 7914464 entries 60242390 bytes 1689860944
+  kernel_10.json   1792316814.0       6.0  events 6342781 compress(unsigned int const*, unsigned i pairs 3 count 730815 locs 7914464 entries 60242390 bytes 1689860944
+  ... (100 kernel JSONs: /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-d1200-P9-dxtc2-cuda-n16/kstats.txt)
+== /mnt/beegfs/fzheng4/cuvein_traces/t22c-d1200-P9-expdist-cuda-n16
+  kernel_0.json    1792317614.0         -  events 82499086 void distance<float>(float const*, float pairs 13 count 1220163878 locs 11789856 entries 316221984 bytes 8505719216
+  kernel_1.json    1792317614.0       0.0  events 3110 void reduce_cross_term<float>(float*, fl pairs 1 count 41330 locs 24338 entries 24850 bytes 2502816
+  kernel_2.json    1792317720.0     106.0  events 82609528 void distance<float>(float const*, float pairs 13 count 1221335716 locs 11789856 entries 316221984 bytes 8505719216
+  kernel_3.json    1792317720.0       0.0  events 2946 void reduce_cross_term<float>(float*, fl pairs 1 count 39358 locs 24338 entries 24850 bytes 2502816
+  kernel_4.json    1792317827.0     107.0  events 82571048 void distance<float>(float const*, float pairs 13 count 1220998038 locs 11789856 entries 316221984 bytes 8505719216
+  kernel_5.json    1792317827.0       0.0  events 2926 void reduce_cross_term<float>(float*, fl pairs 1 count 37372 locs 24338 entries 24850 bytes 2502816
+  kernel_6.json    1792317933.0     106.0  events 82572206 void distance<float>(float const*, float pairs 13 count 1220944474 locs 11789856 entries 316221984 bytes 8505719216
+  kernel_7.json    1792317934.0       1.0  events 3102 void reduce_cross_term<float>(float*, fl pairs 1 count 41998 locs 24338 entries 24850 bytes 2502816
+  kernel_8.json    1792318040.0     106.0  events 82505896 void distance<float>(float const*, float pairs 13 count 1219975460 locs 11789856 entries 316221984 bytes 8505719216
+  kernel_9.json    1792318040.0       0.0  events 3024 void reduce_cross_term<float>(float*, fl pairs 1 count 37460 locs 24338 entries 24850 bytes 2502816
+  kernel_10.json   1792318146.0     106.0  events 82497028 void distance<float>(float const*, float pairs 13 count 1220189240 locs 11789856 entries 316221984 bytes 8505719216
+  ... (22 kernel JSONs: /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-d1200-P9-expdist-cuda-n16/kstats.txt)
+== /mnt/beegfs/fzheng4/cuvein_traces/t22c-d1200-P9-knn-cuda-n16
+  kernel_0.json    1792318817.0         -  events 99876864 cuComputeDistanceGlobal(float const*, in pairs 0 count 0 locs 50888704 entries 729808896 bytes 18715262976
+  kernel_1.json    1792318821.0       4.0  events 11563045 cuInsertionSort(float*, int*, int, int,  pairs 0 count 0 locs 16859136 entries 17018876 bytes 1113104384
+  kernel_2.json    1792318821.0       0.0  events 9216 cuParallelSqrt(float*, int, int)         pairs 0 count 0 locs 81920 entries 163840 bytes 6201344
+  kernel_3.json    1792318891.0      70.0  events 99876864 cuComputeDistanceGlobal(float const*, in pairs 0 count 0 locs 50888704 entries 729808896 bytes 18715262976
+  kernel_4.json    1792318895.0       4.0  events 11563045 cuInsertionSort(float*, int*, int, int,  pairs 0 count 0 locs 16859136 entries 17018876 bytes 1113104384
+  kernel_5.json    1792318895.0       0.0  events 9216 cuParallelSqrt(float*, int, int)         pairs 0 count 0 locs 81920 entries 163840 bytes 6201344
+  kernel_6.json    1792318966.0      71.0  events 99876864 cuComputeDistanceGlobal(float const*, in pairs 0 count 0 locs 50888704 entries 729808896 bytes 18715262976
+  kernel_7.json    1792318970.0       4.0  events 11563045 cuInsertionSort(float*, int*, int, int,  pairs 0 count 0 locs 16859136 entries 17018876 bytes 1113104384
+  kernel_8.json    1792318970.0       0.0  events 9216 cuParallelSqrt(float*, int, int)         pairs 0 count 0 locs 81920 entries 163840 bytes 6201344
+  kernel_9.json    1792319041.0      71.0  events 99876864 cuComputeDistanceGlobal(float const*, in pairs 0 count 0 locs 50888704 entries 729808896 bytes 18715262976
+  kernel_10.json   1792319045.0       4.0  events 11563045 cuInsertionSort(float*, int*, int, int,  pairs 0 count 0 locs 16859136 entries 17018876 bytes 1113104384
+  ... (45 kernel JSONs: /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-d1200-P9-knn-cuda-n16/kstats.txt)
+== /mnt/beegfs/fzheng4/cuvein_traces/t22c-d1200-P9-tridiagonal-cuda-n16
+  kernel_0.json    1792319959.0         -  events 16740000 pcr_small_systems_kernel(float const*, f pairs 0 count 0 locs 38400000 entries 232500000 bytes 7120295936
+  kernel_1.json    1792319978.0      19.0  events 16740000 pcr_small_systems_kernel(float const*, f pairs 0 count 0 locs 38400000 entries 232500000 bytes 7120295936
+  kernel_2.json    1792319998.0      20.0  events 16740000 pcr_small_systems_kernel(float const*, f pairs 0 count 0 locs 38400000 entries 232500000 bytes 7120295936
+  kernel_3.json    1792320017.0      19.0  events 16740000 pcr_small_systems_kernel(float const*, f pairs 0 count 0 locs 38400000 entries 232500000 bytes 7120295936
+  kernel_4.json    1792320037.0      20.0  events 16740000 pcr_small_systems_kernel(float const*, f pairs 0 count 0 locs 38400000 entries 232500000 bytes 7120295936
+  kernel_5.json    1792320056.0      19.0  events 16740000 pcr_small_systems_kernel(float const*, f pairs 0 count 0 locs 38400000 entries 232500000 bytes 7120295936
+  kernel_6.json    1792320076.0      20.0  events 16740000 pcr_small_systems_kernel(float const*, f pairs 0 count 0 locs 38400000 entries 232500000 bytes 7120295936
+  kernel_7.json    1792320096.0      20.0  events 16740000 pcr_small_systems_kernel(float const*, f pairs 0 count 0 locs 38400000 entries 232500000 bytes 7120295936
+  kernel_8.json    1792320115.0      19.0  events 16740000 pcr_small_systems_kernel(float const*, f pairs 0 count 0 locs 38400000 entries 232500000 bytes 7120295936
+  kernel_9.json    1792320135.0      20.0  events 16740000 pcr_small_systems_kernel(float const*, f pairs 0 count 0 locs 38400000 entries 232500000 bytes 7120295936
+  kernel_10.json   1792320154.0      19.0  events 16740000 pcr_small_systems_kernel(float const*, f pairs 0 count 0 locs 38400000 entries 232500000 bytes 7120295936
+  ... (61 kernel JSONs: /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-d1200-P9-tridiagonal-cuda-n16/kstats.txt)
+== done 2026-10-18T06:59:02-04:00

@@ -1,0 +1,18 @@
+host=c78 date=2026-10-18T14:49:11-04:00 store=final-2026-10 shard=11/32 head=627369cd8f370b4ba6b218ea59758a5b427d21aa
+Traceback (most recent call last):
+  File "/home/fzheng4/wt-t23/eval/baselines/setup/t23_closure.py", line 283, in <module>
+    main()
+    ~~~~^^
+  File "/home/fzheng4/wt-t23/eval/baselines/setup/t23_closure.py", line 279, in main
+    a.fn(a)
+    ~~~~^^^
+  File "/home/fzheng4/wt-t23/eval/baselines/setup/t23_closure.py", line 141, in cmd_scan
+    for rec in scan_task(t):
+               ~~~~~~~~~^^^
+  File "/home/fzheng4/wt-t23/eval/baselines/setup/t23_closure.py", line 101, in scan_task
+    dots = [(p, sd.parse_dot(p)) for p in dot_paths]
+                ~~~~~~~~~~~~^^^
+  File "/home/fzheng4/wt-t23/python/sync_dominance.py", line 417, in parse_dot
+    raise AlignmentError(f"no kernel clusters found in {path}")
+sync_dominance.AlignmentError: no kernel clusters found in /mnt/beegfs/fzheng4/cuvein_traces/final-2026-10/P4-graph-connectivity-norace-small/dots/gcon_main-gcon_kernel.sm_89.dot
+done rc=1 date=2026-10-18T14:49:29-04:00

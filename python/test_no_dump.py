@@ -14,6 +14,9 @@ records of the SAME recording (design/no_dump.md section 6):
      (CUVEIN_PREFER_AGGREGATES=1), every verdict field; and (X0) analyze() with no
      environment -- the production path, the aggregates -- == the records with the lane
      cutoff lifted.
+T22: in scalar-clock mode Check stops scanning a pc at its first conflict, so there 1 and 3
+compare each pair's count and an event candidate's contested_weight as aggregates <= records
+(everything else exactly); vector-clock mode, whose Check is unchanged, is compared exactly.
 A no-dump recording has no hb_events, the counts, and analyze() runs on it; its verdicts
 equal the dump recording's (the forced-order kernel; the barrier kernel's race set does not
 depend on the schedule either). D4: YOSEMITE_HB_HOST_MEMCPY with YOSEMITE_HB_DUMP=0 is refused.
@@ -125,17 +128,44 @@ def _analyze(dots, trace, prefer_aggregates=False, path=None):
     raise AssertionError("no CFG aligns with the trace")
 
 
-def _vkey(v, full):
+def _vkey(v, full, weight=True):
     """A verdict's content: the pair and its verdict/class (two recordings), or every field
-    the report carries (one recording, two paths)."""
+    the report carries (one recording, two paths); weight=False leaves contested_weight out."""
     k = (frozenset((v["current_pc"], v["ancient_pc"])), v["verdict"], v.get("hb_class"),
          v.get("conflict_class"), v["race_type"])
     if full:
-        k += (v.get("matrix_class"), v["observed_distance"], v["contested_weight"],
+        k += (v.get("matrix_class"), v["observed_distance"],
+              v["contested_weight"] if weight else None,
               bool(v.get("event_candidate")), bool(v.get("edge_rescued")),
               v.get("a2_uncertain"), v.get("model_bug"),
               tuple(v["hb_chain"]) if v.get("hb_chain") else None, v["strength"])
     return k
+
+
+def _same_verdicts(agg, rec, mode, tag):
+    """Every verdict field of the aggregates' analyze() == the records'. T22: scalar-clock
+    mode's Check stops scanning a pc at its first conflict, so hb_sync_pass counts are lower
+    bounds of the records' and contested_weight (an event candidate's count) is compared as
+    agg <= rec there; vector-clock mode is compared exactly."""
+    if mode != "scalar-clock":
+        assert sorted(map(str, (_vkey(v, True) for v in agg))) == \
+            sorted(map(str, (_vkey(v, True) for v in rec))), tag
+        return
+    ka = sorted((str(_vkey(v, True, weight=False)), v["contested_weight"]) for v in agg)
+    kb = sorted((str(_vkey(v, True, weight=False)), v["contested_weight"]) for v in rec)
+    assert [k for k, _ in ka] == [k for k, _ in kb], tag
+    assert all(x <= y for (_, x), (_, y) in zip(ka, kb)), (tag, ka, kb)
+
+
+def _same_sync_pass(got, want, mode, tag):
+    """(pairs, dist, order) of hb_sync_pass == the records' barrier_only_pairs; T22: in
+    scalar-clock mode each pair's count is 1 <= got <= the records' (see _same_verdicts)."""
+    if mode != "scalar-clock":
+        assert got == want, tag
+        return
+    (gp, gd, go), (wp, wd, wo) = got, want
+    assert set(gp) == set(wp) and gd == wd and go == wo, tag
+    assert all(1 <= gp[k] <= wp[k] for k in gp), (tag, gp, wp)
 
 
 def _offline(dots, t):
@@ -178,7 +208,7 @@ def test_sync_instance_equals_offline_pass(rec, mode):
     dots, trace = runs[(mode, 1)]
     t = _load(trace)
     (pairs, dist, order), _ = _offline(dots, t)
-    assert sd.aggregated_sync_pass(t) == (pairs, dist, order), f"{name}/{mode}"
+    _same_sync_pass(sd.aggregated_sync_pass(t), (pairs, dist, order), mode, f"{name}/{mode}")
     if mode == "vector-clock":
         assert t["hb_races_sync_only"] == [[a, b, n] for a, b, n, *_ in t["hb_sync_pass"]]
     assert "tv_violation" not in t, f"{name}/{mode}: {t.get('tv_violation')}"
@@ -199,8 +229,7 @@ def test_verdicts_from_aggregates_equal_verdicts_from_records(rec, mode):
     dots, trace = runs[(mode, 1)]
     a = _analyze(dots, trace)
     b = _analyze(dots, trace, prefer_aggregates=True)
-    assert sorted(map(str, (_vkey(v, True) for v in a["verdicts"]))) == \
-        sorted(map(str, (_vkey(v, True) for v in b["verdicts"]))), f"{name}/{mode}"
+    _same_verdicts(b["verdicts"], a["verdicts"], mode, f"{name}/{mode}")
     assert a["skipped_edges"] == b["skipped_edges"]
     assert a["diagnostics"]["event_candidates"] == b["diagnostics"]["event_candidates"]
 
@@ -217,8 +246,7 @@ def test_default_path_equals_records_without_cutoff(rec, mode):
     _default_reads_aggregates(t)
     a = _analyze(dots, trace, path="default")
     b = _analyze(dots, trace, path="records")
-    assert sorted(map(str, (_vkey(v, True) for v in a["verdicts"]))) == \
-        sorted(map(str, (_vkey(v, True) for v in b["verdicts"]))), f"{name}/{mode}"
+    _same_verdicts(a["verdicts"], b["verdicts"], mode, f"{name}/{mode}")
     assert a["skipped_edges"] == b["skipped_edges"]
     assert a["diagnostics"]["event_candidates"] == b["diagnostics"]["event_candidates"]
     assert a["summary"] == b["summary"]

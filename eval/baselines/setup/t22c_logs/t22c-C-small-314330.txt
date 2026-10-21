@@ -1,0 +1,229 @@
+host=c40 nproc=16 Model name: AMD EPYC 7302P 16-Core Processor 2026-10-18T01:33:04-04:00
+######## runtime final (W=/home/fzheng4/AccelProf/.claude/worktrees/wt-t22) cap 84600 tag t22c-c runs: P7-bfs-cuda:1 P7-bfs-cuda:8 P7-bfs-cuda:16 P7-nbody-cuda:1 P7-nbody-cuda:8 P7-nbody-cuda:16  2026-10-18T01:33:04-04:00
+host=c40 nproc=16 mem=125G Model name: AMD EPYC 7302P 16-Core Processor NVIDIA GeForce RTX 4060 Ti, 8.9, 580.82.07 HEAD=1ce4389 dirty=7 libsanalyzer 502028a87d54301c
+cdc5a70a8c3f4fb4
+8c0560eed583b31e
+==== P7-bfs-cuda YOSEMITE_HB_SHARDS=1 reps 1 cap 84600 2026-10-18T01:33:04-04:00
+[run 1/1] P7-bfs-cuda
+run: 1 programs -> /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-c-P7-bfs-cuda-n1/baselines-cuvein-shardt22c-c-P7-bfs-cuda-n1all.csv
+kept traces: 0.00 GB in /mnt/beegfs/fzheng4/cuvein_traces/t22c-c-P7-bfs-cuda-n1
+P7-bfs-cuda,scalar-clock,1,RACE,31,39.546,2.436,1813.9,cap=84600;node=c40;arch=8.9;events=7436165;nkernels=24;classes=race:31
+==== P7-bfs-cuda YOSEMITE_HB_SHARDS=8 reps 1 cap 84600 2026-10-18T01:33:54-04:00
+[run 1/1] P7-bfs-cuda
+run: 1 programs -> /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-c-P7-bfs-cuda-n8/baselines-cuvein-shardt22c-c-P7-bfs-cuda-n8all.csv
+kept traces: 0.00 GB in /mnt/beegfs/fzheng4/cuvein_traces/t22c-c-P7-bfs-cuda-n8
+P7-bfs-cuda,scalar-clock,1,RACE,31,14.1,1.471,2050.8,cap=84600;node=c40;arch=8.9;events=7436165;nkernels=24;classes=race:31
+==== P7-bfs-cuda YOSEMITE_HB_SHARDS=16 reps 1 cap 84600 2026-10-18T01:34:17-04:00
+[run 1/1] P7-bfs-cuda
+run: 1 programs -> /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-c-P7-bfs-cuda-n16/baselines-cuvein-shardt22c-c-P7-bfs-cuda-n16all.csv
+kept traces: 0.00 GB in /mnt/beegfs/fzheng4/cuvein_traces/t22c-c-P7-bfs-cuda-n16
+P7-bfs-cuda,scalar-clock,1,RACE,31,13.88,1.521,2379.4,cap=84600;node=c40;arch=8.9;events=7436165;nkernels=24;classes=race:31
+==== P7-nbody-cuda YOSEMITE_HB_SHARDS=1 reps 1 cap 84600 2026-10-18T01:34:39-04:00
+[run 1/1] P7-nbody-cuda
+run: 1 programs -> /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-c-P7-nbody-cuda-n1/baselines-cuvein-shardt22c-c-P7-nbody-cuda-n1all.csv
+kept traces: 0.00 GB in /mnt/beegfs/fzheng4/cuvein_traces/t22c-c-P7-nbody-cuda-n1
+P7-nbody-cuda,scalar-clock,1,CLEAN,0,3783.024,14.179,28945.5,cap=84600;node=c40;arch=8.9;events=320355120;nkernels=30
+==== P7-nbody-cuda YOSEMITE_HB_SHARDS=8 reps 1 cap 84600 2026-10-18T02:38:11-04:00
+[run 1/1] P7-nbody-cuda
+run: 1 programs -> /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-c-P7-nbody-cuda-n8/baselines-cuvein-shardt22c-c-P7-nbody-cuda-n8all.csv
+kept traces: 0.00 GB in /mnt/beegfs/fzheng4/cuvein_traces/t22c-c-P7-nbody-cuda-n8
+P7-nbody-cuda,scalar-clock,1,CLEAN,0,559.096,14.195,23752.8,cap=84600;node=c40;arch=8.9;events=320355120;nkernels=30
+==== P7-nbody-cuda YOSEMITE_HB_SHARDS=16 reps 1 cap 84600 2026-10-18T02:47:59-04:00
+[run 1/1] P7-nbody-cuda
+run: 1 programs -> /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-c-P7-nbody-cuda-n16/baselines-cuvein-shardt22c-c-P7-nbody-cuda-n16all.csv
+kept traces: 0.00 GB in /mnt/beegfs/fzheng4/cuvein_traces/t22c-c-P7-nbody-cuda-n16
+P7-nbody-cuda,scalar-clock,1,CLEAN,0,387.443,14.195,23989.0,cap=84600;node=c40;arch=8.9;events=320355120;nkernels=30
+== done 2026-10-18T02:54:55-04:00
+== /mnt/beegfs/fzheng4/cuvein_traces/t22c-c-P7-bfs-cuda-n1
+  kernel_0.json    1792301592.0         -  events 62525 Kernel(Node const*, int const*, char*, c pairs 0 count 0 locs 1000015 entries 1000016 bytes 86076272
+  kernel_1.json    1792301593.0       1.0  events 62521 Kernel2(char*, char*, char*, char*, int) pairs 1 count 3 locs 1000007 entries 1000012 bytes 86073808
+  kernel_2.json    1792301594.0       1.0  events 62644 Kernel(Node const*, int const*, char*, c pairs 0 count 0 locs 1000109 entries 1000114 bytes 86101936
+  kernel_3.json    1792301594.0       0.0  events 62616 Kernel2(char*, char*, char*, char*, int) pairs 1 count 276 locs 1000049 entries 1000096 bytes 86084768
+  kernel_4.json    1792301595.0       1.0  events 63276 Kernel(Node const*, int const*, char*, c pairs 0 count 0 locs 1000635 entries 1000680 bytes 86214784
+  kernel_5.json    1792301595.0       0.0  events 63076 Kernel2(char*, char*, char*, char*, int) pairs 1 count 2086 locs 1000269 entries 1000536 bytes 86115568
+  kernel_6.json    1792301596.0       1.0  events 66828 Kernel(Node const*, int const*, char*, c pairs 0 count 0 locs 1003756 entries 1004000 bytes 86953872
+  kernel_7.json    1792301597.0       1.0  events 65951 Kernel2(char*, char*, char*, char*, int) pairs 1 count 2751 locs 1001599 entries 1003196 bytes 86364768
+  kernel_8.json    1792301597.0       0.0  events 87850 Kernel(Node const*, int const*, char*, c pairs 14 count 14 locs 1021625 entries 1023110 bytes 91430736
+  kernel_9.json    1792301598.0       1.0  events 81116 Kernel2(char*, char*, char*, char*, int) pairs 1 count 6523 locs 1009143 entries 1018284 bytes 87726896
+  kernel_10.json   1792301599.0       1.0  events 200258 Kernel(Node const*, int const*, char*, c pairs 30 count 630 locs 1121353 entries 1130644 bytes 144399632
+  ... (24 kernel JSONs: /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-c-P7-bfs-cuda-n1/kstats.txt)
+== /mnt/beegfs/fzheng4/cuvein_traces/t22c-c-P7-bfs-cuda-n8
+  kernel_0.json    1792301640.0         -  events 62525 Kernel(Node const*, int const*, char*, c pairs 0 count 0 locs 1000015 entries 1000016 bytes 86076272
+  kernel_1.json    1792301640.0       0.0  events 62521 Kernel2(char*, char*, char*, char*, int) pairs 1 count 3 locs 1000007 entries 1000012 bytes 86073808
+  kernel_2.json    1792301640.0       0.0  events 62644 Kernel(Node const*, int const*, char*, c pairs 0 count 0 locs 1000109 entries 1000114 bytes 86101936
+  kernel_3.json    1792301640.0       0.0  events 62616 Kernel2(char*, char*, char*, char*, int) pairs 1 count 276 locs 1000049 entries 1000096 bytes 86084768
+  kernel_4.json    1792301641.0       1.0  events 63276 Kernel(Node const*, int const*, char*, c pairs 0 count 0 locs 1000635 entries 1000680 bytes 86214784
+  kernel_5.json    1792301641.0       0.0  events 63076 Kernel2(char*, char*, char*, char*, int) pairs 1 count 2086 locs 1000269 entries 1000536 bytes 86115568
+  kernel_6.json    1792301641.0       0.0  events 66828 Kernel(Node const*, int const*, char*, c pairs 0 count 0 locs 1003756 entries 1004000 bytes 86953872
+  kernel_7.json    1792301641.0       0.0  events 65951 Kernel2(char*, char*, char*, char*, int) pairs 1 count 2751 locs 1001599 entries 1003196 bytes 86364768
+  kernel_8.json    1792301641.0       0.0  events 87850 Kernel(Node const*, int const*, char*, c pairs 14 count 14 locs 1021625 entries 1023110 bytes 91430736
+  kernel_9.json    1792301642.0       1.0  events 81116 Kernel2(char*, char*, char*, char*, int) pairs 1 count 6523 locs 1009143 entries 1018284 bytes 87726896
+  kernel_10.json   1792301642.0       0.0  events 200258 Kernel(Node const*, int const*, char*, c pairs 30 count 630 locs 1121353 entries 1130644 bytes 131816720
+  ... (24 kernel JSONs: /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-c-P7-bfs-cuda-n8/kstats.txt)
+== /mnt/beegfs/fzheng4/cuvein_traces/t22c-c-P7-bfs-cuda-n16
+  kernel_0.json    1792301663.0         -  events 62525 Kernel(Node const*, int const*, char*, c pairs 0 count 0 locs 1000015 entries 1000016 bytes 92367728
+  kernel_1.json    1792301663.0       0.0  events 62521 Kernel2(char*, char*, char*, char*, int) pairs 1 count 3 locs 1000007 entries 1000012 bytes 92365264
+  kernel_2.json    1792301663.0       0.0  events 62644 Kernel(Node const*, int const*, char*, c pairs 0 count 0 locs 1000109 entries 1000114 bytes 92393392
+  kernel_3.json    1792301663.0       0.0  events 62616 Kernel2(char*, char*, char*, char*, int) pairs 1 count 276 locs 1000049 entries 1000096 bytes 92376224
+  kernel_4.json    1792301663.0       0.0  events 63276 Kernel(Node const*, int const*, char*, c pairs 0 count 0 locs 1000635 entries 1000680 bytes 92506240
+  kernel_5.json    1792301664.0       1.0  events 63076 Kernel2(char*, char*, char*, char*, int) pairs 1 count 2086 locs 1000269 entries 1000536 bytes 92407024
+  kernel_6.json    1792301664.0       0.0  events 66828 Kernel(Node const*, int const*, char*, c pairs 0 count 0 locs 1003756 entries 1004000 bytes 93245328
+  kernel_7.json    1792301664.0       0.0  events 65951 Kernel2(char*, char*, char*, char*, int) pairs 1 count 2751 locs 1001599 entries 1003196 bytes 92656224
+  kernel_8.json    1792301664.0       0.0  events 87850 Kernel(Node const*, int const*, char*, c pairs 14 count 14 locs 1021625 entries 1023110 bytes 99819344
+  kernel_9.json    1792301664.0       0.0  events 81116 Kernel2(char*, char*, char*, char*, int) pairs 1 count 6523 locs 1009143 entries 1018284 bytes 94018352
+  kernel_10.json   1792301665.0       1.0  events 200258 Kernel(Node const*, int const*, char*, c pairs 30 count 630 locs 1121353 entries 1130644 bytes 125525264
+  ... (24 kernel JSONs: /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-c-P7-bfs-cuda-n16/kstats.txt)
+== /mnt/beegfs/fzheng4/cuvein_traces/t22c-c-P7-nbody-cuda-n1
+  kernel_0.json    1792302082.0         -  events 32005004 accelerate_particles(Particle*, int, flo pairs 0 count 0 locs 112000 entries 1024096000 bytes 23313461376
+  kernel_1.json    1792302082.0       0.0  events 10504 update_particles(Particle*, float*, int, pairs 0 count 0 locs 176000 entries 320000 bytes 11581376
+  kernel_2.json    1792302082.0       0.0  events 20004 accumulate_energy(float*, int)           pairs 0 count 0 locs 16000 entries 16001 bytes 1089344
+  kernel_3.json    1792302456.0     374.0  events 32005004 accelerate_particles(Particle*, int, flo pairs 0 count 0 locs 112000 entries 1024096000 bytes 23313461376
+  kernel_4.json    1792302456.0       0.0  events 10504 update_particles(Particle*, float*, int, pairs 0 count 0 locs 176000 entries 320000 bytes 11581376
+  kernel_5.json    1792302456.0       0.0  events 20004 accumulate_energy(float*, int)           pairs 0 count 0 locs 16000 entries 16001 bytes 1089344
+  kernel_6.json    1792302832.0     376.0  events 32005004 accelerate_particles(Particle*, int, flo pairs 0 count 0 locs 112000 entries 1024096000 bytes 23313461376
+  kernel_7.json    1792302832.0       0.0  events 10504 update_particles(Particle*, float*, int, pairs 0 count 0 locs 176000 entries 320000 bytes 11581376
+  kernel_8.json    1792302832.0       0.0  events 20004 accumulate_energy(float*, int)           pairs 0 count 0 locs 16000 entries 16001 bytes 1089344
+  kernel_9.json    1792303204.0     372.0  events 32005004 accelerate_particles(Particle*, int, flo pairs 0 count 0 locs 112000 entries 1024096000 bytes 23313461376
+  kernel_10.json   1792303204.0       0.0  events 10504 update_particles(Particle*, float*, int, pairs 0 count 0 locs 176000 entries 320000 bytes 11581376
+  ... (30 kernel JSONs: /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-c-P7-nbody-cuda-n1/kstats.txt)
+== /mnt/beegfs/fzheng4/cuvein_traces/t22c-c-P7-nbody-cuda-n8
+  kernel_0.json    1792305563.0         -  events 32005004 accelerate_particles(Particle*, int, flo pairs 0 count 0 locs 112000 entries 1024096000 bytes 23313690752
+  kernel_1.json    1792305564.0       1.0  events 10504 update_particles(Particle*, float*, int, pairs 0 count 0 locs 176000 entries 320000 bytes 11810752
+  kernel_2.json    1792305564.0       0.0  events 20004 accumulate_energy(float*, int)           pairs 0 count 0 locs 16000 entries 16001 bytes 1490752
+  kernel_3.json    1792305618.0      54.0  events 32005004 accelerate_particles(Particle*, int, flo pairs 0 count 0 locs 112000 entries 1024096000 bytes 23313690752
+  kernel_4.json    1792305618.0       0.0  events 10504 update_particles(Particle*, float*, int, pairs 0 count 0 locs 176000 entries 320000 bytes 11810752
+  kernel_5.json    1792305618.0       0.0  events 20004 accumulate_energy(float*, int)           pairs 0 count 0 locs 16000 entries 16001 bytes 1490752
+  kernel_6.json    1792305672.0      54.0  events 32005004 accelerate_particles(Particle*, int, flo pairs 0 count 0 locs 112000 entries 1024096000 bytes 23313690752
+  kernel_7.json    1792305673.0       1.0  events 10504 update_particles(Particle*, float*, int, pairs 0 count 0 locs 176000 entries 320000 bytes 11810752
+  kernel_8.json    1792305673.0       0.0  events 20004 accumulate_energy(float*, int)           pairs 0 count 0 locs 16000 entries 16001 bytes 1490752
+  kernel_9.json    1792305727.0      54.0  events 32005004 accelerate_particles(Particle*, int, flo pairs 0 count 0 locs 112000 entries 1024096000 bytes 23313690752
+  kernel_10.json   1792305727.0       0.0  events 10504 update_particles(Particle*, float*, int, pairs 0 count 0 locs 176000 entries 320000 bytes 11810752
+  ... (30 kernel JSONs: /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-c-P7-nbody-cuda-n8/kstats.txt)
+== /mnt/beegfs/fzheng4/cuvein_traces/t22c-c-P7-nbody-cuda-n16
+  kernel_0.json    1792306136.0         -  events 32005004 accelerate_particles(Particle*, int, flo pairs 0 count 0 locs 112000 entries 1024096000 bytes 23314149504
+  kernel_1.json    1792306137.0       1.0  events 10504 update_particles(Particle*, float*, int, pairs 0 count 0 locs 176000 entries 320000 bytes 12269504
+  kernel_2.json    1792306137.0       0.0  events 20004 accumulate_energy(float*, int)           pairs 0 count 0 locs 16000 entries 16001 bytes 1949504
+  kernel_3.json    1792306173.0      36.0  events 32005004 accelerate_particles(Particle*, int, flo pairs 0 count 0 locs 112000 entries 1024096000 bytes 23314149504
+  kernel_4.json    1792306173.0       0.0  events 10504 update_particles(Particle*, float*, int, pairs 0 count 0 locs 176000 entries 320000 bytes 12269504
+  kernel_5.json    1792306173.0       0.0  events 20004 accumulate_energy(float*, int)           pairs 0 count 0 locs 16000 entries 16001 bytes 1949504
+  kernel_6.json    1792306209.0      36.0  events 32005004 accelerate_particles(Particle*, int, flo pairs 0 count 0 locs 112000 entries 1024096000 bytes 23314149504
+  kernel_7.json    1792306210.0       1.0  events 10504 update_particles(Particle*, float*, int, pairs 0 count 0 locs 176000 entries 320000 bytes 12269504
+  kernel_8.json    1792306210.0       0.0  events 20004 accumulate_energy(float*, int)           pairs 0 count 0 locs 16000 entries 16001 bytes 1949504
+  kernel_9.json    1792306246.0      36.0  events 32005004 accelerate_particles(Particle*, int, flo pairs 0 count 0 locs 112000 entries 1024096000 bytes 23314149504
+  kernel_10.json   1792306246.0       0.0  events 10504 update_particles(Particle*, float*, int, pairs 0 count 0 locs 176000 entries 320000 bytes 12269504
+  ... (30 kernel JSONs: /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-c-P7-nbody-cuda-n16/kstats.txt)
+######## runtime final (W=/home/fzheng4/AccelProf/.claude/worktrees/wt-t22) cap 1200 tag t22c-ctl runs: P5-norace_interblock_atom:1:3 P5-norace_interblock_atom:8:3 P5-norace_interblock_atom:16:3 P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n:1:3 P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n:8:3 P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n:16:3  2026-10-18T02:54:57-04:00
+host=c40 nproc=16 mem=125G Model name: AMD EPYC 7302P 16-Core Processor NVIDIA GeForce RTX 4060 Ti, 8.9, 580.82.07 HEAD=1ce4389 dirty=7 libsanalyzer 502028a87d54301c
+cdc5a70a8c3f4fb4
+8c0560eed583b31e
+==== P5-norace_interblock_atom YOSEMITE_HB_SHARDS=1 reps 3 cap 1200 2026-10-18T02:54:57-04:00
+[run 1/1] P5-norace_interblock_atom
+run: 1 programs -> /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-ctl-P5-norace_interblock_atom-n1/baselines-cuvein-shardt22c-ctl-P5-norace_interblock_atom-n1all.csv
+kept traces: 0.00 GB in /mnt/beegfs/fzheng4/cuvein_traces/t22c-ctl-P5-norace_interblock_atom-n1
+P5-norace_interblock_atom,scalar-clock,1,CLEAN,0,1.12,0.268,848.7,cap=1200;node=c40;arch=8.9;events=4;nkernels=1
+P5-norace_interblock_atom,scalar-clock,2,CLEAN,0,1.171,0.268,846.8,cap=1200;node=c40;arch=8.9;events=4;nkernels=1
+P5-norace_interblock_atom,scalar-clock,3,CLEAN,0,0.97,0.268,848.7,cap=1200;node=c40;arch=8.9;events=4;nkernels=1
+==== P5-norace_interblock_atom YOSEMITE_HB_SHARDS=8 reps 3 cap 1200 2026-10-18T02:55:04-04:00
+[run 1/1] P5-norace_interblock_atom
+run: 1 programs -> /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-ctl-P5-norace_interblock_atom-n8/baselines-cuvein-shardt22c-ctl-P5-norace_interblock_atom-n8all.csv
+kept traces: 0.00 GB in /mnt/beegfs/fzheng4/cuvein_traces/t22c-ctl-P5-norace_interblock_atom-n8
+P5-norace_interblock_atom,scalar-clock,1,CLEAN,0,1.021,0.268,853.3,cap=1200;node=c40;arch=8.9;events=4;nkernels=1
+P5-norace_interblock_atom,scalar-clock,2,CLEAN,0,1.07,0.268,849.4,cap=1200;node=c40;arch=8.9;events=4;nkernels=1
+P5-norace_interblock_atom,scalar-clock,3,CLEAN,0,0.97,0.268,853.4,cap=1200;node=c40;arch=8.9;events=4;nkernels=1
+==== P5-norace_interblock_atom YOSEMITE_HB_SHARDS=16 reps 3 cap 1200 2026-10-18T02:55:10-04:00
+[run 1/1] P5-norace_interblock_atom
+run: 1 programs -> /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-ctl-P5-norace_interblock_atom-n16/baselines-cuvein-shardt22c-ctl-P5-norace_interblock_atom-n16all.csv
+kept traces: 0.00 GB in /mnt/beegfs/fzheng4/cuvein_traces/t22c-ctl-P5-norace_interblock_atom-n16
+P5-norace_interblock_atom,scalar-clock,1,CLEAN,0,1.07,0.269,854.1,cap=1200;node=c40;arch=8.9;events=4;nkernels=1
+P5-norace_interblock_atom,scalar-clock,2,CLEAN,0,1.12,0.269,852.2,cap=1200;node=c40;arch=8.9;events=4;nkernels=1
+P5-norace_interblock_atom,scalar-clock,3,CLEAN,0,0.97,0.269,852.2,cap=1200;node=c40;arch=8.9;events=4;nkernels=1
+==== P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n YOSEMITE_HB_SHARDS=1 reps 3 cap 1200 2026-10-18T02:55:16-04:00
+[run 1/1] P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n
+run: 1 programs -> /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-ctl-P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n-n1/baselines-cuvein-shardt22c-ctl-P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n-n1all.csv
+kept traces: 0.00 GB in /mnt/beegfs/fzheng4/cuvein_traces/t22c-ctl-P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n-n1
+P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n,scalar-clock,1,RACE,4,1.772,0.269,853.5,cap=1200;node=c40;arch=8.9;events=94470;nkernels=11;classes=race:4
+P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n,scalar-clock,2,RACE,4,1.521,0.269,855.3,cap=1200;node=c40;arch=8.9;events=94470;nkernels=11;classes=race:4
+P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n,scalar-clock,3,RACE,4,1.32,0.269,854.4,cap=1200;node=c40;arch=8.9;events=94470;nkernels=10;classes=race:4
+==== P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n YOSEMITE_HB_SHARDS=8 reps 3 cap 1200 2026-10-18T02:55:26-04:00
+[run 1/1] P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n
+run: 1 programs -> /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-ctl-P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n-n8/baselines-cuvein-shardt22c-ctl-P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n-n8all.csv
+kept traces: 0.00 GB in /mnt/beegfs/fzheng4/cuvein_traces/t22c-ctl-P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n-n8
+P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n,scalar-clock,1,RACE,4,1.472,0.269,876.1,cap=1200;node=c40;arch=8.9;events=85344;nkernels=10;classes=race:4
+P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n,scalar-clock,2,RACE,4,1.421,0.269,876.8,cap=1200;node=c40;arch=8.9;events=85344;nkernels=10;classes=race:4
+P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n,scalar-clock,3,RACE,4,1.321,0.269,877.6,cap=1200;node=c40;arch=8.9;events=85344;nkernels=11;classes=race:4
+==== P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n YOSEMITE_HB_SHARDS=16 reps 3 cap 1200 2026-10-18T02:55:36-04:00
+[run 1/1] P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n
+run: 1 programs -> /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-ctl-P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n-n16/baselines-cuvein-shardt22c-ctl-P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n-n16all.csv
+kept traces: 0.00 GB in /mnt/beegfs/fzheng4/cuvein_traces/t22c-ctl-P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n-n16
+P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n,scalar-clock,1,RACE,4,1.273,0.268,899.9,cap=1200;node=c40;arch=8.9;events=85338;nkernels=10;classes=race:4
+P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n,scalar-clock,2,RACE,4,1.471,0.268,899.4,cap=1200;node=c40;arch=8.9;events=85338;nkernels=11;classes=race:4
+P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n,scalar-clock,3,RACE,4,1.221,0.268,901.0,cap=1200;node=c40;arch=8.9;events=85338;nkernels=10;classes=race:4
+== done 2026-10-18T02:55:44-04:00
+== /mnt/beegfs/fzheng4/cuvein_traces/t22c-ctl-P5-norace_interblock_atom-n1
+  kernel_0.json    1792306501.0         -  events 4 kmain(unsigned int*)                     pairs 0 count 0 locs 1 entries 2 bytes 57920
+== /mnt/beegfs/fzheng4/cuvein_traces/t22c-ctl-P5-norace_interblock_atom-n8
+  kernel_0.json    1792306507.0         -  events 4 kmain(unsigned int*)                     pairs 0 count 0 locs 1 entries 2 bytes 459328
+== /mnt/beegfs/fzheng4/cuvein_traces/t22c-ctl-P5-norace_interblock_atom-n16
+  kernel_0.json    1792306513.0         -  events 4 kmain(unsigned int*)                     pairs 0 count 0 locs 1 entries 2 bytes 918080
+== /mnt/beegfs/fzheng4/cuvein_traces/t22c-ctl-P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n-n1
+  kernel_0.json    1792306520.0         -  events 90 init(int*, int)                          pairs 0 count 0 locs 1296 entries 1296 bytes 141200
+  kernel_1.json    1792306520.0       0.0  events 10722 cc(ECLgraph, int*, int*)                 pairs 4 count 79133 locs 12962 entries 122712 bytes 4013488
+  kernel_2.json    1792306520.0       0.0  events 10761 cc(ECLgraph, int*, int*)                 pairs 4 count 61207 locs 12962 entries 120786 bytes 3940912
+  kernel_3.json    1792306520.0       0.0  events 10605 cc(ECLgraph, int*, int*)                 pairs 4 count 52801 locs 12962 entries 119892 bytes 3927536
+  kernel_4.json    1792306520.0       0.0  events 10407 cc(ECLgraph, int*, int*)                 pairs 4 count 44634 locs 12962 entries 118960 bytes 3916448
+  kernel_5.json    1792306520.0       0.0  events 9993 cc(ECLgraph, int*, int*)                 pairs 4 count 34668 locs 12962 entries 117838 bytes 3876288
+  kernel_6.json    1792306520.0       0.0  events 9411 cc(ECLgraph, int*, int*)                 pairs 4 count 22819 locs 12962 entries 116506 bytes 3843760
+  kernel_7.json    1792306520.0       0.0  events 8727 cc(ECLgraph, int*, int*)                 pairs 4 count 12129 locs 12962 entries 115256 bytes 3816848
+  kernel_8.json    1792306520.0       0.0  events 8184 cc(ECLgraph, int*, int*)                 pairs 4 count 5395 locs 12962 entries 114454 bytes 3803680
+  kernel_9.json    1792306520.0       0.0  events 7794 cc(ECLgraph, int*, int*)                 pairs 4 count 112 locs 12962 entries 114060 bytes 3797424
+  kernel_10.json   1792306520.0       0.0  events 7776 cc(ECLgraph, int*, int*)                 pairs 0 count 0 locs 12961 entries 114048 bytes 3796592
+== /mnt/beegfs/fzheng4/cuvein_traces/t22c-ctl-P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n-n8
+  kernel_0.json    1792306530.0         -  events 90 init(int*, int)                          pairs 0 count 0 locs 1296 entries 1296 bytes 542608
+  kernel_1.json    1792306530.0       0.0  events 10749 cc(ECLgraph, int*, int*)                 pairs 4 count 78224 locs 12962 entries 122626 bytes 4414368
+  kernel_2.json    1792306530.0       0.0  events 10716 cc(ECLgraph, int*, int*)                 pairs 4 count 61796 locs 12962 entries 120862 bytes 4345840
+  kernel_3.json    1792306530.0       0.0  events 10599 cc(ECLgraph, int*, int*)                 pairs 4 count 53611 locs 12962 entries 119966 bytes 4330000
+  kernel_4.json    1792306530.0       0.0  events 10416 cc(ECLgraph, int*, int*)                 pairs 4 count 43395 locs 12962 entries 118818 bytes 4290368
+  kernel_5.json    1792306530.0       0.0  events 9846 cc(ECLgraph, int*, int*)                 pairs 4 count 31002 locs 12962 entries 117410 bytes 4274704
+  kernel_6.json    1792306530.0       0.0  events 9081 cc(ECLgraph, int*, int*)                 pairs 4 count 16895 locs 12962 entries 115798 bytes 4231168
+  kernel_7.json    1792306530.0       0.0  events 8247 cc(ECLgraph, int*, int*)                 pairs 4 count 6265 locs 12962 entries 114558 bytes 4207536
+  kernel_8.json    1792306530.0       0.0  events 7824 cc(ECLgraph, int*, int*)                 pairs 4 count 583 locs 12962 entries 114092 bytes 4199456
+  kernel_9.json    1792306530.0       0.0  events 7776 cc(ECLgraph, int*, int*)                 pairs 0 count 0 locs 12961 entries 114048 bytes 4198000
+== /mnt/beegfs/fzheng4/cuvein_traces/t22c-ctl-P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n-n16
+  kernel_0.json    1792306539.0         -  events 90 init(int*, int)                          pairs 0 count 0 locs 1296 entries 1296 bytes 1001360
+  kernel_1.json    1792306539.0       0.0  events 10740 cc(ECLgraph, int*, int*)                 pairs 4 count 77651 locs 12962 entries 122560 bytes 4869072
+  kernel_2.json    1792306539.0       0.0  events 10734 cc(ECLgraph, int*, int*)                 pairs 4 count 61592 locs 12962 entries 120836 bytes 4799840
+  kernel_3.json    1792306539.0       0.0  events 10587 cc(ECLgraph, int*, int*)                 pairs 4 count 51232 locs 12962 entries 119724 bytes 4783648
+  kernel_4.json    1792306539.0       0.0  events 10347 cc(ECLgraph, int*, int*)                 pairs 4 count 42262 locs 12962 entries 118690 bytes 4748944
+  kernel_5.json    1792306539.0       0.0  events 9843 cc(ECLgraph, int*, int*)                 pairs 4 count 29661 locs 12962 entries 117272 bytes 4729760
+  kernel_6.json    1792306539.0       0.0  events 9090 cc(ECLgraph, int*, int*)                 pairs 4 count 16548 locs 12962 entries 115758 bytes 4689568
+  kernel_7.json    1792306539.0       0.0  events 8301 cc(ECLgraph, int*, int*)                 pairs 4 count 6545 locs 12962 entries 114590 bytes 4666640
+  kernel_8.json    1792306539.0       0.0  events 7830 cc(ECLgraph, int*, int*)                 pairs 4 count 518 locs 12962 entries 114088 bytes 4658384
+  kernel_9.json    1792306539.0       0.0  events 7776 cc(ECLgraph, int*, int*)                 pairs 0 count 0 locs 12961 entries 114048 bytes 4656752
+######## runtime old (W=/mnt/beegfs/fzheng4/t22c/rt-old) cap 5400 tag t22c-cold runs: P7-bfs-cuda:1  2026-10-18T02:55:46-04:00
+fatal: not a git repository (or any parent up to mount point /mnt)
+Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).
+fatal: not a git repository (or any parent up to mount point /mnt)
+Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).
+host=c40 nproc=16 mem=125G Model name: AMD EPYC 7302P 16-Core Processor NVIDIA GeForce RTX 4060 Ti, 8.9, 580.82.07 HEAD= dirty=0 libsanalyzer d9c16d82d2465602
+cdc5a70a8c3f4fb4
+8c0560eed583b31e
+==== P7-bfs-cuda YOSEMITE_HB_SHARDS=1 reps 1 cap 5400 2026-10-18T02:55:46-04:00
+[run 1/1] P7-bfs-cuda
+run: 1 programs -> /mnt/beegfs/fzheng4/t22c/rt-old/eval/results/t22c-cold-P7-bfs-cuda-n1/baselines-cuvein-shardt22c-cold-P7-bfs-cuda-n1all.csv
+kept traces: 0.00 GB in /mnt/beegfs/fzheng4/cuvein_traces/t22c-cold-P7-bfs-cuda-n1
+P7-bfs-cuda,scalar-clock,1,RACE,31,1841.472,1.521,1717.6,cap=5400;node=c40;arch=8.9;events=7436165;nkernels=24;classes=race:31
+== done 2026-10-18T03:26:37-04:00
+== /mnt/beegfs/fzheng4/cuvein_traces/t22c-cold-P7-bfs-cuda-n1
+  kernel_0.json    1792306552.0         -  events 62525 Kernel(Node const*, int const*, char*, c pairs 0 count 0 locs 1000015 entries 1000016 bytes 86076272
+  kernel_1.json    1792306553.0       1.0  events 62521 Kernel2(char*, char*, char*, char*, int) pairs 1 count 3 locs 1000007 entries 1000012 bytes 86073808
+  kernel_2.json    1792306554.0       1.0  events 62644 Kernel(Node const*, int const*, char*, c pairs 0 count 0 locs 1000109 entries 1000114 bytes 86101936
+  kernel_3.json    1792306554.0       0.0  events 62616 Kernel2(char*, char*, char*, char*, int) pairs 1 count 276 locs 1000049 entries 1000096 bytes 86084768
+  kernel_4.json    1792306555.0       1.0  events 63276 Kernel(Node const*, int const*, char*, c pairs 0 count 0 locs 1000635 entries 1000680 bytes 86214784
+  kernel_5.json    1792306556.0       1.0  events 63076 Kernel2(char*, char*, char*, char*, int) pairs 1 count 8911 locs 1000269 entries 1000536 bytes 86115536
+  kernel_6.json    1792306556.0       0.0  events 66828 Kernel(Node const*, int const*, char*, c pairs 0 count 0 locs 1003756 entries 1004000 bytes 86953872
+  kernel_7.json    1792306557.0       1.0  events 65951 Kernel2(char*, char*, char*, char*, int) pairs 1 count 318801 locs 1001599 entries 1003196 bytes 86364720
+  kernel_8.json    1792306557.0       0.0  events 87850 Kernel(Node const*, int const*, char*, c pairs 14 count 14 locs 1021625 entries 1023110 bytes 91430736
+  kernel_9.json    1792306558.0       1.0  events 81116 Kernel2(char*, char*, char*, char*, int) pairs 1 count 10444735 locs 1009143 entries 1018284 bytes 87726864
+  kernel_10.json   1792306559.0       1.0  events 200258 Kernel(Node const*, int const*, char*, c pairs 30 count 630 locs 1121353 entries 1130644 bytes 144399632
+  ... (24 kernel JSONs: /home/fzheng4/AccelProf/.claude/worktrees/wt-t22/eval/results/t22c-cold-P7-bfs-cuda-n1/kstats.txt)
+== done 2026-10-18T03:26:37-04:00
