@@ -1,0 +1,66 @@
+host=c55 NVIDIA GeForce RTX 4060 Ti, 8.9 Model name: AMD EPYC 9115 16-Core Processor nproc=16 mem=125G HEAD=fe07ba5 2026-10-21T15:54:24-04:00
+==== heartwall before: runtime /home/fzheng4/AccelProf libsanalyzer a01c16667b592e5d
+cdc5a70a8c3f4fb4
+8c0560eed583b31e 2026-10-21T15:54:24-04:00
+[heartwall before] host=c55 NVIDIA GeForce RTX 4060 Ti, 8.9 mem=125G HEAD=fe07ba5 libsanalyzer a01c16667b592e5d
+[heartwall before] cdc5a70a8c3f4fb4
+[heartwall before] 8c0560eed583b31e id=P7-heartwall-cuda exe=/home/fzheng4/AccelProf/eval/baselines/bin/P7/heartwall-cuda args=[104] cap=9000s every=0
+[heartwall before] == scalar-clock start 2026-10-21T15:54:30-04:00
+[heartwall before] == scalar-clock end 2026-10-21T17:00:12-04:00 elapsed=3942s rc=0 maxrss_kb=6519976 wall_s=3942.18 
+[heartwall before] kernel JSONs: 104
+[heartwall before] [HB_STATS] kernel_101 hw(int, params_common, float const*, int*, int*, int*, int*, int*, int*, int*, int*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*) {"hb_events": {"count": 78362425, "json_bytes": 0, "ram_bytes_est": 0}, "hb_clock": {"vc": {"threads": 0, "entries": 
+[heartwall before] [HB_STATS] kernel_102 hw(int, params_common, float const*, int*, int*, int*, int*, int*, int*, int*, int*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*) {"hb_events": {"count": 78362422, "json_bytes": 0, "ram_bytes_est": 0}, "hb_clock": {"vc": {"threads": 0, "entries": 
+[heartwall before] [HB_STATS] kernel_103 hw(int, params_common, float const*, int*, int*, int*, int*, int*, int*, int*, int*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*) {"hb_events": {"count": 78362422, "json_bytes": 0, "ram_bytes_est": 0}, "hb_clock": {"vc": {"threads": 0, "entries": 
+[heartwall before] == done 2026-10-21T17:00:12-04:00
+==== heartwall after: runtime /home/fzheng4/wt-t24 libsanalyzer d8c5d656394f3e01
+cdc5a70a8c3f4fb4
+8c0560eed583b31e 2026-10-21T17:00:13-04:00
+[heartwall after] host=c55 NVIDIA GeForce RTX 4060 Ti, 8.9 mem=125G HEAD=d497f9e libsanalyzer d8c5d656394f3e01
+[heartwall after] cdc5a70a8c3f4fb4
+[heartwall after] 8c0560eed583b31e id=P7-heartwall-cuda exe=/home/fzheng4/AccelProf/eval/baselines/bin/P7/heartwall-cuda args=[104] cap=9000s every=0
+[heartwall after] == scalar-clock start 2026-10-21T17:00:19-04:00
+[heartwall after] == scalar-clock end 2026-10-21T18:05:41-04:00 elapsed=3922s rc=0 maxrss_kb=6512404 wall_s=3922.31 
+[heartwall after] kernel JSONs: 104
+[heartwall after] [HB_STATS] kernel_101 hw(int, params_common, float const*, int*, int*, int*, int*, int*, int*, int*, int*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*) {"hb_events": {"count": 78362425, "json_bytes": 0, "ram_bytes_est": 0}, "hb_clock": {"vc": {"threads": 0, "entries": 
+[heartwall after] [HB_STATS] kernel_102 hw(int, params_common, float const*, int*, int*, int*, int*, int*, int*, int*, int*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*) {"hb_events": {"count": 78362422, "json_bytes": 0, "ram_bytes_est": 0}, "hb_clock": {"vc": {"threads": 0, "entries": 
+[heartwall after] [HB_STATS] kernel_103 hw(int, params_common, float const*, int*, int*, int*, int*, int*, int*, int*, int*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*) {"hb_events": {"count": 78362422, "json_bytes": 0, "ram_bytes_est": 0}, "hb_clock": {"vc": {"threads": 0, "entries": 
+[heartwall after] == done 2026-10-21T18:05:41-04:00
+==== cc before: runtime /home/fzheng4/AccelProf libsanalyzer a01c16667b592e5d
+cdc5a70a8c3f4fb4
+8c0560eed583b31e 2026-10-21T18:05:41-04:00
+[cc before] host=c55 NVIDIA GeForce RTX 4060 Ti, 8.9 mem=125G HEAD=d497f9e libsanalyzer a01c16667b592e5d
+[cc before] cdc5a70a8c3f4fb4
+[cc before] 8c0560eed583b31e id=P1-CC_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-default-1296n exe=/home/fzheng4/AccelProf/eval/baselines/bin/P1/CC_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug__default args=[/home/fzheng4/AccelProf/eval/baselines/corpora/Indigo3Suite/inputs/undirect4dim_rand_torus_1296n_10368e.egr 1 0 1] cap=3600s every=0
+[cc before] == scalar-clock start 2026-10-21T18:05:42-04:00
+[cc before] == scalar-clock end 2026-10-21T18:05:44-04:00 elapsed=2s rc=0 maxrss_kb=875276 wall_s=1.46 
+[cc before] kernel JSONs: 11
+[cc before] [HB_STATS] kernel_8 cc_vertex_data(ECLgraph, int*, int const*, int, int*, int*, int, int*) {"hb_events": {"count": 9413, "json_bytes": 0, "ram_bytes_est": 0}, "hb_clock": {"vc": {"threads": 0, "entries": 0, "bases": 0, "base_entries": 0, "max_base": 0, "delta_entries": 0, "max_delta": 0, "bytes_est": 0}, "released": {"records": 0, "entries": 0, "own_bases": 0, "delta_entries": 0, "bytes_est": 0}, 
+[cc before] [HB_STATS] kernel_9 cc_vertex_data(ECLgraph, int*, int const*, int, int*, int*, int, int*) {"hb_events": {"count": 4642, "json_bytes": 0, "ram_bytes_est": 0}, "hb_clock": {"vc": {"threads": 0, "entries": 0, "bases": 0, "base_entries": 0, "max_base": 0, "delta_entries": 0, "max_delta": 0, "bytes_est": 0}, "released": {"records": 0, "entries": 0, "own_bases": 0, "delta_entries": 0, "bytes_est": 0}, 
+[cc before] [HB_STATS] kernel_10 cc_vertex_data(ECLgraph, int*, int const*, int, int*, int*, int, int*) {"hb_events": {"count": 857, "json_bytes": 0, "ram_bytes_est": 0}, "hb_clock": {"vc": {"threads": 0, "entries": 0, "bases": 0, "base_entries": 0, "max_base": 0, "delta_entries": 0, "max_delta": 0, "bytes_est": 0}, "released": {"records": 0, "entries": 0, "own_bases": 0, "delta_entries": 0, "bytes_est": 0}, 
+[cc before] == vector-clock start 2026-10-21T18:05:44-04:00
+[cc before] == vector-clock end 2026-10-21T18:05:45-04:00 elapsed=1s rc=0 maxrss_kb=884272 wall_s=1.20 
+[cc before] kernel JSONs: 12
+[cc before] [HB_STATS] kernel_9 cc_vertex_data(ECLgraph, int*, int const*, int, int*, int*, int, int*) {"hb_events": {"count": 4684, "json_bytes": 0, "ram_bytes_est": 0}, "hb_clock": {"vc": {"threads": 9600, "entries": 19200, "bases": 300, "base_entries": 9600, "max_base": 32, "delta_entries": 0, "max_delta": 0, "bytes_est": 1616648}, "released": {"records": 100, "entries": 100, "own_bases": 0, "delta_entries
+[cc before] [HB_STATS] kernel_10 cc_vertex_data(ECLgraph, int*, int const*, int, int*, int*, int, int*) {"hb_events": {"count": 1519, "json_bytes": 0, "ram_bytes_est": 0}, "hb_clock": {"vc": {"threads": 3168, "entries": 6336, "bases": 99, "base_entries": 3168, "max_base": 32, "delta_entries": 0, "max_delta": 0, "bytes_est": 1500872}, "released": {"records": 23, "entries": 23, "own_bases": 0, "delta_entries": 
+[cc before] [HB_STATS] kernel_11 cc_vertex_data(ECLgraph, int*, int const*, int, int*, int*, int, int*) {"hb_events": {"count": 318, "json_bytes": 0, "ram_bytes_est": 0}, "hb_clock": {"vc": {"threads": 704, "entries": 1408, "bases": 22, "base_entries": 704, "max_base": 32, "delta_entries": 0, "max_delta": 0, "bytes_est": 1456520}, "released": {"records": 0, "entries": 0, "own_bases": 0, "delta_entries": 0, "b
+[cc before] == done 2026-10-21T18:05:45-04:00
+==== cc after: runtime /home/fzheng4/wt-t24 libsanalyzer d8c5d656394f3e01
+cdc5a70a8c3f4fb4
+8c0560eed583b31e 2026-10-21T18:05:45-04:00
+[cc after] host=c55 NVIDIA GeForce RTX 4060 Ti, 8.9 mem=125G HEAD=d497f9e libsanalyzer d8c5d656394f3e01
+[cc after] cdc5a70a8c3f4fb4
+[cc after] 8c0560eed583b31e id=P1-CC_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-default-1296n exe=/home/fzheng4/AccelProf/eval/baselines/bin/P1/CC_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Warp_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug__default args=[/home/fzheng4/AccelProf/eval/baselines/corpora/Indigo3Suite/inputs/undirect4dim_rand_torus_1296n_10368e.egr 1 0 1] cap=3600s every=0
+[cc after] == scalar-clock start 2026-10-21T18:05:46-04:00
+[cc after] == scalar-clock end 2026-10-21T18:05:47-04:00 elapsed=1s rc=0 maxrss_kb=877272 wall_s=0.99 
+[cc after] kernel JSONs: 11
+[cc after] [HB_STATS] kernel_8 cc_vertex_data(ECLgraph, int*, int const*, int, int*, int*, int, int*) {"hb_events": {"count": 8077, "json_bytes": 0, "ram_bytes_est": 0}, "hb_clock": {"vc": {"threads": 0, "entries": 0, "bases": 0, "base_entries": 0, "max_base": 0, "delta_entries": 0, "max_delta": 0, "bytes_est": 0}, "released": {"records": 0, "entries": 0, "own_bases": 0, "delta_entries": 0, "bytes_est": 0}, 
+[cc after] [HB_STATS] kernel_9 cc_vertex_data(ECLgraph, int*, int const*, int, int*, int*, int, int*) {"hb_events": {"count": 3236, "json_bytes": 0, "ram_bytes_est": 0}, "hb_clock": {"vc": {"threads": 0, "entries": 0, "bases": 0, "base_entries": 0, "max_base": 0, "delta_entries": 0, "max_delta": 0, "bytes_est": 0}, "released": {"records": 0, "entries": 0, "own_bases": 0, "delta_entries": 0, "bytes_est": 0}, 
+[cc after] [HB_STATS] kernel_10 cc_vertex_data(ECLgraph, int*, int const*, int, int*, int*, int, int*) {"hb_events": {"count": 701, "json_bytes": 0, "ram_bytes_est": 0}, "hb_clock": {"vc": {"threads": 0, "entries": 0, "bases": 0, "base_entries": 0, "max_base": 0, "delta_entries": 0, "max_delta": 0, "bytes_est": 0}, "released": {"records": 0, "entries": 0, "own_bases": 0, "delta_entries": 0, "bytes_est": 0}, 
+[cc after] == vector-clock start 2026-10-21T18:05:47-04:00
+[cc after] == vector-clock end 2026-10-21T18:05:48-04:00 elapsed=1s rc=0 maxrss_kb=884368 wall_s=1.10 
+[cc after] kernel JSONs: 12
+[cc after] [HB_STATS] kernel_9 cc_vertex_data(ECLgraph, int*, int const*, int, int*, int*, int, int*) {"hb_events": {"count": 4349, "json_bytes": 0, "ram_bytes_est": 0}, "hb_clock": {"vc": {"threads": 9120, "entries": 18240, "bases": 285, "base_entries": 9120, "max_base": 32, "delta_entries": 0, "max_delta": 0, "bytes_est": 1608008}, "released": {"records": 72, "entries": 72, "own_bases": 0, "delta_entries":
+[cc after] [HB_STATS] kernel_10 cc_vertex_data(ECLgraph, int*, int const*, int, int*, int*, int, int*) {"hb_events": {"count": 1053, "json_bytes": 0, "ram_bytes_est": 0}, "hb_clock": {"vc": {"threads": 2272, "entries": 4544, "bases": 71, "base_entries": 2272, "max_base": 32, "delta_entries": 0, "max_delta": 0, "bytes_est": 1484744}, "released": {"records": 10, "entries": 10, "own_bases": 0, "delta_entries": 
+[cc after] [HB_STATS] kernel_11 cc_vertex_data(ECLgraph, int*, int const*, int, int*, int*, int, int*) {"hb_events": {"count": 133, "json_bytes": 0, "ram_bytes_est": 0}, "hb_clock": {"vc": {"threads": 288, "entries": 576, "bases": 9, "base_entries": 288, "max_base": 32, "delta_entries": 0, "max_delta": 0, "bytes_est": 1449032}, "released": {"records": 0, "entries": 0, "own_bases": 0, "delta_entries": 0, "byt
+[cc after] == done 2026-10-21T18:05:48-04:00
+== done 2026-10-21T18:05:48-04:00

@@ -181,13 +181,96 @@ programs' global records (shared-only replay: neither their pairs nor W2 on them
 
 ## 5. Timing (step 6)
 
-(pending)
+`eval/baselines/setup/t24_time.sh`, job 316800, **one node** (c55: AMD EPYC 9115 16-core, 125 GB, RTX 4060 Ti
+sm_89), one run each, in the order heartwall before → after → CC before → after, through `t19_long.sh`
+(accelprof directly, `YOSEMITE_HB_DUMP=0` — the production default — `YOSEMITE_HB_STATS=1` at kernel end).
+Before = the installed runtime (38af04e, libsanalyzer `a01c16667b592e5d`); after = this branch's private
+runtime (`d8c5d656394f3e01`). Traces under `/mnt/beegfs/fzheng4/t24-time-{before,after}/`.
 
-## 6. The proof paragraph (step 5) — awaiting Jeffery's check
+| program | mode | before wall (s) | after wall (s) | after / before | max RSS before / after (KB) | kernel JSONs |
+|---|---|---|---|---|---|---|
+| P7-heartwall-cuda | scalar-clock, `YOSEMITE_HB_SHARDS=16` | 3,942.18 | 3,922.31 | 0.995 | 6,519,976 / 6,512,404 | 104 / 104 |
+| P1 CC `…Push_NonDeterm…NonPersist_RaceBug_Warp…-default-1296n` | scalar-clock (serial) | 1.46 | 0.99 | 0.68 | 875,276 / 877,272 | 11 / 11 |
+| same | vector-clock | 1.20 | 1.10 | 0.92 | 884,272 / 884,368 | 12 / 12 |
 
-In `design/proof/hb_proof.tex` (Definition "Instances", the paragraph "Warp barriers (T24)", Algorithm 1's
-syncwarp line).
+heartwall: −0.5 % in one pair of runs, no measurable change. The CC program, the X5b program with the
+most diverged instances (9,480 / 9,239 in X5b's dumped recordings), runs about one second with the dump
+off, so its walls are startup-dominated and show nothing either way; it says only that the slow path
+costs no visible time there. One rep each: no variance estimate (unverified).
 
-## 7. What remains unverified
+## 6. The proof paragraph (step 5) — written by Opus, **awaiting Jeffery's check**
 
-(to be completed)
+In `design/proof/hb_proof.tex` (commit fe07ba5), three edits, nothing else in the document:
+1. Definition "Instances": the sentence "A `syncwarp` arrival is an instance by itself: S(B) its masked
+   lanes, cpl(B) its position" is replaced by the warp-barrier case (key (β, ω, pc); `arrived_k` gains
+   `a ∩ m`; completion at the first syncwarp-with-key-k or exit-in-ω record after which `arrived_k ⊇
+   exp_k`, `exp_k` = m minus `exited_β` minus the lanes of ω absent from a block of N_β threads; S(B) =
+   exp_k; a converged record completes by itself).
+2. Algorithm 1's syncwarp line (`\label{ln:syncwarp}`): `arrived_k ← arrived_k ∪ (lanes(e) ∩ m(e));
+   Complete(k)`.
+3. A new paragraph after the Definition:
+
+```latex
+\paragraph{Warp barriers (T24; awaiting Jeffery's check).} Before T24 a \texttt{syncwarp}
+record was an instance by itself with $S(B)=m$, so the first group's record of a diverged warp
+ordered the pre-arrival records of the lanes still to arrive after the arrived lanes'
+pre-arrival records (\texttt{eval/X5\_BYTE\_PAIRS.md} \S4). The warp case needs three
+statements more. (A3$'$), in the trusted base next to A3: a warp-barrier instance completes
+exactly when the hardware releases the \texttt{bar.warp.sync}, i.e.\ the hardware waits for the
+non-exited lanes of $m$ that exist in the block and for no other thread, and the records of one
+instance carry one $m$ (the W1 analogue; not checked, the code joins the union of their masks).
+(W2$'$), part of (W2): no record of a lane (memory, arrival, \texttt{syncwarp}, pipeline or exit)
+lies strictly between its \texttt{syncwarp} record and the completion of that warp segment;
+checked per lane in \texttt{HbClock} and the oracle (\texttt{TV-syncwarp-completion-order}),
+while the exit of a lane that has not arrived is allowed and shrinks $\exp_k$. (W3) reads a
+record's active lanes, a \texttt{syncwarp}'s included: its mask names participants, and one of
+them may exit while the segment is open. The fifth check covers open warp segments
+(\texttt{TV-syncwarp-pending-at-end}, the runtime form of A3$'$, in \texttt{HbClock}, the oracle
+and \texttt{barrier\_only\_pairs}). In Algorithm~\ref{alg:detect} a warp key's
+\textsc{Complete} is \textsc{Sync}$(\exp_k)$ once $\arrv_k\supseteq\exp_k\ne\emptyset$, called
+after each \texttt{syncwarp} with that key (line~\ref{ln:syncwarp}) and each exit in its warp
+(line~\ref{ln:exit}). Lemma~\ref{lem:assembly} holds for warp keys as stated ($\arrv_k$ only
+grows, so no count argument is needed), and by (W2$'$) a waiting lane's clock at $\cpl(B)$ is
+its clock at its own record, so \S\ref{sec:single} applies unchanged. The change only removes
+happens-before edges. Let $p_1<\dots<p_n=\cpl(B)$ be the positions of a warp instance's
+records and $p_j$ that of $s$'s group; an edge $a\PO\arr{s}{B}\HB\dep{t}{B}\PO b$ was, before
+T24, $a\PO\arr{s}{B_j}\HB\dep{t}{B_j}\PO b$ through the one-record instance $B_j$ at $p_j$, whose
+participants were all of $m\supseteq S(B)$, since $\seq(a)<p_j\le p_n<\seq(b)$. (PO) is
+unchanged, and so is (ATOM): $\rel$ and $\acq$ (T12) and the A2 windows (T14) still take a
+\texttt{syncwarp} record as the next record of every lane of its mask, as before T24. Hence
+$\HB$ after T24 $\subseteq$ $\HB$ before on memory records, and by
+Lemma~\ref{lem:mono} T24 can add reports and never removes one.
+```
+
+Points for the check: (i) the inclusion argument maps each warp-instance SYNC edge to the one-record
+instance of the source lane's group; (ii) "(ATOM) unchanged" holds for the code as it is, because T12/T14
+still read `sync_mask` (§7 item 2) — if that is changed to the active lanes, the inclusion needs a
+separate argument for the gate; (iii) not compiled with LaTeX on this cluster (no TeX run was made).
+
+## 7. What remains unverified, and decisions for Jeffery
+
+1. **The key (block, warp, pc), as the brief specifies.** On sm_70+ lanes may meet at *different*
+   `__syncwarp()` call sites with the same mask. Such an instance would never complete under this key:
+   `TV-syncwarp-completion-order` (an arrived lane continues) and `TV-syncwarp-pending-at-end` would fire,
+   and the join would be lost (reports added, flagged by the monitor, never hidden). Not observed: 0 open
+   instances and 0 TV in the 680 X5b launches and the 992 parity-store kernel JSONs. A key of (block, warp,
+   sync_mask) would assemble that case; not done (decision for Jeffery).
+2. **T12's `note_pc` and T14's `a2_close_lanes` (and the oracle's `close_lanes`) still take a syncwarp
+   record as the next record of every lane of `sync_mask`**, including lanes that have not arrived. Under
+   the instance model only the arrived lanes' next record is that record. This affects R3 release points
+   and `a2_uncertain` flags, not the HB joins; left unchanged (outside the brief's list, and it keeps
+   (ATOM) identical, §6). Decision for Jeffery.
+3. **`design/algorithms_check.py`** (the simulator `test_barrier_exit.py` and `test_hb_substitutions.py`
+   compare with the oracle) still implements the per-record join; no green-set test feeds it a diverged
+   syncwarp, so it did not fail. Not in the freeze exception; mirroring it is a decision for Jeffery.
+4. **CLAUDE.md A4's green-set command** does not list `python/test_syncwarp.py`; `merge_check.sh` does.
+   CLAUDE.md was not edited by this task.
+5. **Old dumps without exit records (`hb_exits`)**: a syncwarp whose mask names a lane that exited
+   early can no longer complete there (the end check is skipped on those dumps, as for block barriers),
+   so such a dump loses that join on replay. Not measured on any pre-T3b store.
+6. **The mask-agreement part of A3$'$/W1** (all records of an instance carry one sync_mask) is not
+   checked; the code joins the union of the masks.
+7. **Global records of the 1296-node X5b programs** were not replayed (shared-only, as X5b; memory).
+8. **Corpus-wide effect** (beyond X5b's 60 recordings and the 65-program parity set): not measured here.
+9. **The proof paragraph** is unchecked by Jeffery and was not compiled.
+10. Hardware: every GPU run on RTX 4060 Ti (sm_89, driver 580.82.07); no other architecture.
