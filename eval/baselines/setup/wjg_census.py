@@ -420,10 +420,12 @@ def cmd_bpass(a):
     import orjson
     sd, _ = _imports()
     t0 = time.time()
-    try:
-        tj = orjson.loads(Path(a.trace).read_bytes())
-    except orjson.JSONDecodeError:           # orjson's buffer for a 10 GB dump: stdlib json instead
+    if os.path.getsize(a.trace) >= 2000 * (1 << 20):
+        # a 10 GB dump: orjson cannot allocate its buffer under RLIMIT_AS (JSONDecodeError on one
+        # node, SIGSEGV on others, census_p4b1.jsonl); stdlib json, as hb_oracle.analyze reads it
         tj = json.loads(Path(a.trace).read_text())
+    else:
+        tj = orjson.loads(Path(a.trace).read_bytes())
     kernels = sd.parse_dot(a.dot)
     eng = sd.HBGraph(*kernels[sd.select_kernel(kernels, tj["kernel"]["kernel_name"])])
     policy = sd.strong_ldst_policy(None)
@@ -542,6 +544,18 @@ def cmd_run(a):
             if r.get("census_child", {}).get("rc") in (0, "0") or r.get("budget_gb", 0) >= a.mem_gb:
                 done.add(r["real"])
     todo = [p for _, p in todo if p not in done]
+    if a.done_glob:                          # skip files complete in any census output
+        kinds = ("bpass",) if a.no_oracle else ("bpass", "replay")
+        complete = set()
+        for p in glob.glob(a.done_glob):
+            for ln in open(p):
+                r = json.loads(ln)
+                c = r.get("census") or {}
+                if r.get("census_child", {}).get("rc") == 0 and not c.get("error") and (
+                        not c.get("merged") or all(r.get(f"{k}_{n}_child", {}).get("rc") == 0
+                                                   for k in kinds for n in ("as_recorded", "merged"))):
+                    complete.add(r["real"])
+        todo = [p for p in todo if p not in complete]
     si, sn = map(int, a.shard.split("/"))
     todo = todo[si::sn]
     print(f"{len(todo)} files ({a.select}, {a.min_mb}-{a.max_mb} MB, shard {a.shard}), "
@@ -599,6 +613,7 @@ def main():
     p.add_argument("--shard", default="0/1", help="i/n: every n-th file of the selection from i")
     p.add_argument("--match", default="", help="only files whose path contains this")
     p.add_argument("--no-oracle", action="store_true", help="census and barrier-only pass only")
+    p.add_argument("--done-glob", default="", help="census outputs: skip files already complete there")
     p = sub.add_parser("census")
     p.add_argument("--real", required=True)
     p.add_argument("--data", default="", help="a local copy of --real to read instead")
