@@ -1,0 +1,180 @@
+{
+ "id": "P7-nbody-cuda",
+ "name": "nbody-vc-0b64d34",
+ "config": "vector-clock",
+ "workers": "1",
+ "cap": 600,
+ "runtime": "/mnt/beegfs/fzheng4/x1_follow/bisect/0b64d34/rt",
+ "mode_knob": "mode",
+ "no_dump": false,
+ "hb_stats": true,
+ "node": "c66",
+ "cpu": "AMD EPYC 8124P 16-Core Processor",
+ "nproc": 32,
+ "slurm_job": "312742",
+ "started": "2026-10-16 02:18:03",
+ "native": [
+  {
+   "wall": 12.189,
+   "rc": 0,
+   "timed_out": false
+  },
+  {
+   "wall": 12.138,
+   "rc": 0,
+   "timed_out": false
+  },
+  {
+   "wall": 12.139,
+   "rc": 0,
+   "timed_out": false
+  }
+ ],
+ "sidecar_rc": 0,
+ "sidecar": "/mnt/beegfs/fzheng4/x1_follow/bisect/runs/nbody-vc-0b64d34/work/cubins/atomic_scope.cand.txt",
+ "scope_file": true,
+ "env": {
+  "ACCEL_PROF_HOME": "/mnt/beegfs/fzheng4/x1_follow/bisect/0b64d34/rt",
+  "CUVEIN_HOME": "/mnt/beegfs/fzheng4/x1_follow/bisect/0b64d34/rt",
+  "YOSEMITE_HB_TRACE": "1",
+  "YOSEMITE_HB_MODE": "vector-clock",
+  "YOSEMITE_ATOMIC_SCOPE_FILE": "/mnt/beegfs/fzheng4/x1_follow/bisect/runs/nbody-vc-0b64d34/work/cubins/atomic_scope.cand.txt",
+  "YOSEMITE_HB_STATS": "1"
+ },
+ "libs": "/mnt/beegfs/fzheng4/x1_follow/bisect/0b64d34/san-install/lib/libsanalyzer.so\n/home/fzheng4/AccelProf/build/sanalyzer/cpp_trace/lib/libcpp_trace.so\n/home/fzheng4/AccelProf/build/sanalyzer/py_frame/lib/libpy_frame.so",
+ "cmd": "accelprof -v -t pc_dependency_analysis -n 1 ./nbody-cuda 16000 10",
+ "wall": 600.034,
+ "peak_mb_sumrss": 117015.0,
+ "maxrss_mb_hwm": 117011.9,
+ "maxrss_mb_rusage": 136.2,
+ "rc": 124,
+ "timed_out": true,
+ "t0": 1792131522.8188,
+ "finished": "2026-10-16 02:28:42",
+ "kernels": [
+  {
+   "file": "kernel_0.json",
+   "t": 416.181,
+   "mb": 44150.07,
+   "hb_events_count": null,
+   "seq_records": 32005004,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_1.json",
+   "t": 461.181,
+   "mb": 13.84,
+   "hb_events_count": null,
+   "seq_records": 10504,
+   "hb_stats": {
+    "hb_events": {
+     "count": 10504,
+     "json_bytes": 13748574,
+     "ram_bytes_est": 1087717952
+    },
+    "engine": {
+     "vc": {
+      "threads": 16000,
+      "entries": 16000,
+      "max_entries": 1,
+      "bytes_est": 3622024
+     },
+     "released": {
+      "records": 0,
+      "entries": 0,
+      "bytes_est": 0
+     },
+     "last_write": {
+      "locations": 160000,
+      "bytes_est": 17920000
+     },
+     "last_reads": {
+      "locations": 176000,
+      "readers": 16000,
+      "bytes_est": 40192000
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 16000,
+      "unique_bases": 0,
+      "base_entries": 0,
+      "bytes_est": 934024
+     },
+     "races": {
+      "records": 0,
+      "bytes_est": 0
+     },
+     "sync_pairs": 0,
+     "coherence_addrs": 0
+    },
+    "rss_kb": 119820212,
+    "hwm_kb": 119820212
+   }
+  },
+  {
+   "file": "kernel_2.json",
+   "t": 461.181,
+   "mb": 3.39,
+   "hb_events_count": null,
+   "seq_records": 20004,
+   "hb_stats": {
+    "hb_events": {
+     "count": 20004,
+     "json_bytes": 3214479,
+     "ram_bytes_est": 1077262448
+    },
+    "engine": {
+     "vc": {
+      "threads": 1,
+      "entries": 1,
+      "max_entries": 1,
+      "bytes_est": 166240
+     },
+     "released": {
+      "records": 0,
+      "entries": 0,
+      "bytes_est": 0
+     },
+     "last_write": {
+      "locations": 1,
+      "bytes_est": 112
+     },
+     "last_reads": {
+      "locations": 16000,
+      "readers": 15999,
+      "bytes_est": 4735936
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 1,
+      "unique_bases": 0,
+      "base_entries": 0,
+      "bytes_est": 166072
+     },
+     "races": {
+      "records": 0,
+      "bytes_est": 0
+     },
+     "sync_pairs": 0,
+     "coherence_addrs": 0
+    },
+    "rss_kb": 119820212,
+    "hwm_kb": 119820212
+   }
+  }
+ ],
+ "nkernels": 3,
+ "vlog_mb": 0.01,
+ "drains": 25,
+ "drained_records": 46715576,
+ "hb_events_count": null,
+ "tool_tail": "./nbody-cuda 16000 10\nstdout redirect: /mnt/beegfs/fzheng4/x1_follow/bisect/runs/nbody-vc-0b64d34/work/nbody-cuda.accelprof.log\nRunning the pc_dependency_analysis tool for nbody-cuda...\nfatal: not a git repository (or any parent up to mount point /mnt)\nStopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).\nfatal: not a git repository (or any parent up to mount point /mnt)\nStopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set)."
+}

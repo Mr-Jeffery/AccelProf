@@ -1,0 +1,105 @@
+== bfs-cuda
+CMakeLists.txt
+Makefile
+README
+bfs.cu
+bfs.o
+main
+--- /home/fzheng4/AccelProf/eval/baselines/corpora/HeCBench/src/bfs-cuda/bfs.cu
+     1	#include <stdlib.h>
+     2	#include <stdio.h>
+     3	#include <string.h>
+     4	#include <math.h>
+     5	#include <chrono>
+     6	#include <cuda.h>
+     7	
+     8	#define MAX_THREADS_PER_BLOCK 256
+     9	
+    10	#include "util.h"
+    11	
+    12	//Structure to hold a node information
+    13	struct Node
+    14	{
+    15	  int starting;
+    16	  int no_of_edges;
+    17	};
+    18	
+    19	__global__ void
+    20	Kernel(const Node* __restrict__ d_graph_nodes, 
+    21	       const int* __restrict__ d_graph_edges,
+    22	       char* __restrict__ d_graph_mask,
+    23	       char* __restrict__ d_updatind_graph_mask,
+    24	       const char *__restrict__ d_graph_visited,
+    25	       int* __restrict__ d_cost,
+    26	       const int no_of_nodes) 
+    27	{
+    28	  int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    29	  if( tid<no_of_nodes && d_graph_mask[tid])
+    30	  {
+    31	    d_graph_mask[tid]=0;
+    32	    const int num_edges = d_graph_nodes[tid].no_of_edges;
+    33	    const int starting = d_graph_nodes[tid].starting;
+    34	
+    35	    for(int i=starting; i<(num_edges + starting); i++)
+    36	    {
+    37	      int id = d_graph_edges[i];
+    38	      if(!d_graph_visited[id])
+    39	      {
+    40	        d_cost[id]=d_cost[tid]+1;
+    41	        d_updatind_graph_mask[id]=1;
+    42	      }
+    43	    }
+    44	  }
+    45	}
+    46	
+    47	__global__ void
+    48	Kernel2(char* __restrict__ d_graph_mask,
+    49	        char* __restrict__ d_updatind_graph_mask,
+    50	        char* __restrict__ d_graph_visited,
+    51	        char* __restrict__ d_over,
+    52	        const int no_of_nodes)
+    53	{
+    54	  int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    55	  if( tid<no_of_nodes && d_updatind_graph_mask[tid])
+    56	  {
+    57	    d_graph_mask[tid]=1;
+    58	    d_graph_visited[tid]=1;
+    59	    *d_over=1;
+    60	    d_updatind_graph_mask[tid]=0;
+    61	  }
+    62	}
+    63	
+    64	void run_bfs_cpu(int no_of_nodes, Node *h_graph_nodes, int edge_list_size,
+    65	    int *h_graph_edges, char *h_graph_mask, char *h_updating_graph_mask,
+    66	    char *h_graph_visited, int *h_cost_ref)
+    67	{
+    68	  char stop;
+    69	  do{
+    70	    //if no thread changes this value then the loop stops
+    71	    stop=0;
+    72	    for(int tid = 0; tid < no_of_nodes; tid++ )
+    73	    {
+    74	      if (h_graph_mask[tid] == 1){ 
+    75	        h_graph_mask[tid]=0;
+    76	        for(int i=h_graph_nodes[tid].starting; 
+    77	            i<(h_graph_nodes[tid].no_of_edges + h_graph_nodes[tid].starting); i++){
+    78	          int id = h_graph_edges[i];  // node id is connected with node tid
+    79	          if(!h_graph_visited[id]){   // if node id has not been visited, enter the body below
+    80	            h_cost_ref[id]=h_cost_ref[tid]+1;
+== nbody-cuda
+CMakeLists.txt
+GSimulation.cu
+GSimulation.hpp
+GSimulation.o
+GSimulationKernels.hpp
+GSimulationReference.hpp
+License.txt
+Makefile
+Particle.hpp
+README.md
+main
+main.cu
+main.o
+type.hpp
+--- /home/fzheng4/AccelProf/eval/baselines/corpora/HeCBench/src/nbody-cuda/GSimulation.cu
+--- /home/fzheng4/AccelProf/eval/baselines/corpora/HeCBench/src/nbody-cuda/main.cu

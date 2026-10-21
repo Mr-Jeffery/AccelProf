@@ -1,0 +1,174 @@
+{
+ "id": "P7-nbody-cuda",
+ "name": "nbody-vc-ebc464f",
+ "config": "vector-clock",
+ "workers": "1",
+ "cap": 600,
+ "runtime": "/mnt/beegfs/fzheng4/x1_follow/bisect/ebc464f/rt",
+ "mode_knob": "mode",
+ "no_dump": false,
+ "hb_stats": true,
+ "node": "c66",
+ "cpu": "AMD EPYC 8124P 16-Core Processor",
+ "nproc": 32,
+ "slurm_job": "312742",
+ "started": "2026-10-16 02:06:39",
+ "native": [
+  {
+   "wall": 12.189,
+   "rc": 0,
+   "timed_out": false
+  },
+  {
+   "wall": 12.139,
+   "rc": 0,
+   "timed_out": false
+  },
+  {
+   "wall": 12.139,
+   "rc": 0,
+   "timed_out": false
+  }
+ ],
+ "sidecar_rc": 0,
+ "sidecar": "/mnt/beegfs/fzheng4/x1_follow/bisect/runs/nbody-vc-ebc464f/work/cubins/atomic_scope.cand.txt",
+ "scope_file": true,
+ "env": {
+  "ACCEL_PROF_HOME": "/mnt/beegfs/fzheng4/x1_follow/bisect/ebc464f/rt",
+  "CUVEIN_HOME": "/mnt/beegfs/fzheng4/x1_follow/bisect/ebc464f/rt",
+  "YOSEMITE_HB_TRACE": "1",
+  "YOSEMITE_HB_MODE": "vector-clock",
+  "YOSEMITE_ATOMIC_SCOPE_FILE": "/mnt/beegfs/fzheng4/x1_follow/bisect/runs/nbody-vc-ebc464f/work/cubins/atomic_scope.cand.txt",
+  "YOSEMITE_HB_STATS": "1"
+ },
+ "libs": "/mnt/beegfs/fzheng4/x1_follow/bisect/ebc464f/san-install/lib/libsanalyzer.so\n/home/fzheng4/AccelProf/build/sanalyzer/cpp_trace/lib/libcpp_trace.so\n/home/fzheng4/AccelProf/build/sanalyzer/py_frame/lib/libpy_frame.so",
+ "cmd": "accelprof -v -t pc_dependency_analysis -n 1 ./nbody-cuda 16000 10",
+ "wall": 600.115,
+ "peak_mb_sumrss": 101395.2,
+ "maxrss_mb_hwm": 101392.2,
+ "maxrss_mb_rusage": 137.1,
+ "rc": 124,
+ "timed_out": true,
+ "t0": 1792130838.2887123,
+ "finished": "2026-10-16 02:17:18",
+ "kernels": [
+  {
+   "file": "kernel_0.json",
+   "t": 430.711,
+   "mb": 44150.07,
+   "hb_events_count": null,
+   "seq_records": 32005004,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_1.json",
+   "t": 473.711,
+   "mb": 13.84,
+   "hb_events_count": null,
+   "seq_records": 10504,
+   "hb_stats": {
+    "hb_events": {
+     "count": 10504,
+     "json_bytes": 13748574,
+     "ram_bytes_est": 1087717888
+    },
+    "engine": {
+     "vc": {
+      "threads": 16000,
+      "entries": 16000,
+      "max_entries": 1,
+      "bytes_est": 3622024
+     },
+     "released": {
+      "records": 0,
+      "entries": 0,
+      "bytes_est": 0
+     },
+     "buckets": {
+      "locations": 176000,
+      "groups": 320000,
+      "entries": 320000,
+      "bytes_est": 88832000
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 16000,
+      "unique_bases": 0,
+      "base_entries": 0,
+      "bytes_est": 934024
+     },
+     "races": {
+      "records": 0,
+      "bytes_est": 0
+     },
+     "sync_pairs": 0,
+     "coherence_addrs": 0
+    },
+    "rss_kb": 103825572,
+    "hwm_kb": 103825572
+   }
+  },
+  {
+   "file": "kernel_2.json",
+   "t": 473.711,
+   "mb": 3.39,
+   "hb_events_count": null,
+   "seq_records": 20004,
+   "hb_stats": {
+    "hb_events": {
+     "count": 20004,
+     "json_bytes": 3214479,
+     "ram_bytes_est": 1077262448
+    },
+    "engine": {
+     "vc": {
+      "threads": 1,
+      "entries": 1,
+      "max_entries": 1,
+      "bytes_est": 166240
+     },
+     "released": {
+      "records": 0,
+      "entries": 0,
+      "bytes_est": 0
+     },
+     "buckets": {
+      "locations": 16000,
+      "groups": 16001,
+      "entries": 16001,
+      "bytes_est": 5248216
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 1,
+      "unique_bases": 0,
+      "base_entries": 0,
+      "bytes_est": 166072
+     },
+     "races": {
+      "records": 0,
+      "bytes_est": 0
+     },
+     "sync_pairs": 0,
+     "coherence_addrs": 0
+    },
+    "rss_kb": 103825572,
+    "hwm_kb": 103825572
+   }
+  }
+ ],
+ "nkernels": 3,
+ "vlog_mb": 0.01,
+ "drains": 24,
+ "drained_records": 44618424,
+ "hb_events_count": null,
+ "tool_tail": "./nbody-cuda 16000 10\nstdout redirect: /mnt/beegfs/fzheng4/x1_follow/bisect/runs/nbody-vc-ebc464f/work/nbody-cuda.accelprof.log\nRunning the pc_dependency_analysis tool for nbody-cuda...\nfatal: not a git repository (or any parent up to mount point /mnt)\nStopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).\nfatal: not a git repository (or any parent up to mount point /mnt)\nStopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set)."
+}

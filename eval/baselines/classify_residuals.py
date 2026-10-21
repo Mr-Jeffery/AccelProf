@@ -39,6 +39,25 @@ setup/residual_ids.txt and every mode, the best row of the *diagnostic* shard
 Writes eval/results/baselines-diagnose.csv (id, pset, program, mode, verdict,
 cause, native_rc, timeout_s, dump_mb, evidence). make_tables.py renders it as
 BASELINES.md section 1b. No GPU needed.
+
+X1 (the final no-dump recording; every row at a timeout equal to the cap, i.e. the
+20-min protocol or longer, so its own rows are diagnostic-grade):
+  --ids FILE        residual ids (default setup/residual_ids.txt)
+  --diag GLOB[,..]  diagnostic rows (default the shardresid + shardp9 CSVs)
+  --logs GLOB[,..]  runner logs scanned for a Killed runner (default diag-*/p7fix*)
+  --base PATH       last-resort rows ('' = none; default eval/results/baselines-cuvein.csv)
+  --no-dump         the rows were recorded with BASELINE_HB_DUMP=0: dump_mb is the size of
+                    the aggregates-only kernel JSONs, not trace volume, so TIMEOUT is split by
+                    what the row does say --
+      hb-state-memory   TIMEOUT at >= 32 GB RSS: HbClock's state (both modes run HbClock
+                        without a dump) and the collector's buffers grew past 32 GB
+      hb-clock-hang     vector-clock TIMEOUT while scalar-clock of the same program resolved
+      time-cap          TIMEOUT after >= 1 kernel JSON was written (nkernels > 0): the run
+                        makes progress but is longer than the cap
+      no-kernel-in-cap  TIMEOUT with no kernel finished and < 32 GB RSS: the first kernel
+                        alone exceeds the cap (a hang is not distinguished from a long kernel)
+  needs-sm90        (any mode) a missing-exe row: the 16 cuHadron bulkcpy/dsmem targets need sm_90
+                    and were never built for the sm_89 nodes
 """
 import csv
 import glob
@@ -55,7 +74,8 @@ import hb_modes  # noqa: E402  (vector-clock / scalar-clock; legacy names accept
 VC, SC = hb_modes.VECTOR_CLOCK, hb_modes.SCALAR_CLOCK
 OTHER = {VC: SC, SC: VC}
 PRI = {"RACE": 3, "CLEAN": 2, "TIMEOUT": 1, "ERROR": 0}
-_KV = re.compile(r"(native_rc|dump_mb|timeout|events)=([\d.]+)")
+_KV = re.compile(r"(native_rc|dump_mb|timeout|events|nkernels)=([\d.]+)")
+NO_DUMP = False     # --no-dump (X1)
 
 
 def _kv(notes):
@@ -74,6 +94,8 @@ def classify(r, manifest_label, other_mode_row=None):
     dump = float(kv.get("dump_mb", 0) or 0)
     if v in ("RACE", "CLEAN"):
         return "resolved"
+    if "missing-exe" in (r["notes"] or ""):
+        return "needs-sm90"         # X1: the binary was never built for the sm_89 nodes
     if nrc != 0:
         # a native exec failure while the SAME program's tool run in the other
         # mode reached a verdict is a launch artefact of that node, not the app
@@ -99,6 +121,13 @@ def classify(r, manifest_label, other_mode_row=None):
         peak_gb = float(r.get("peak_mb") or 0) / 1024.0
     except ValueError:
         peak_gb = 0.0
+    if v == "TIMEOUT" and NO_DUMP:
+        if peak_gb >= 32:
+            return "hb-state-memory"
+        if (r["mode"] == VC and other_mode_row
+                and other_mode_row["verdict"] in ("RACE", "CLEAN")):
+            return "hb-clock-hang"
+        return "time-cap" if float(kv.get("nkernels", 0) or 0) > 0 else "no-kernel-in-cap"
     if v == "TIMEOUT":
         if dump > 1.0:
             return "trace-volume"
@@ -111,14 +140,29 @@ def classify(r, manifest_label, other_mode_row=None):
     return "collector-fail"
 
 
+def _globs(spec):
+    return sorted(p for g in spec.split(",") if g for p in glob.glob(g))
+
+
 def main():
+    import argparse
+    global NO_DUMP
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--ids", default=f"{HERE}/setup/residual_ids.txt")
+    ap.add_argument("--diag", default=f"{RES}/baselines-cuvein-shardresid*.csv,"
+                                      f"{RES}/baselines-cuvein-shardp9*.csv")
+    ap.add_argument("--logs", default=f"{HERE}/setup/build_logs/diag-*.log,"
+                                      f"{HERE}/setup/build_logs/p7fix*.log")
+    ap.add_argument("--base", default=f"{RES}/baselines-cuvein.csv")
+    ap.add_argument("--no-dump", dest="no_dump", action="store_true")
+    a = ap.parse_args()
+    NO_DUMP = a.no_dump
     man = {r["id"]: r for r in csv.DictReader(open(f"{HERE}/manifest.csv", newline=""))}
-    ids = [l.strip() for l in open(f"{HERE}/setup/residual_ids.txt") if l.strip()]
+    ids = [l.strip() for l in open(a.ids) if l.strip()]
     best = {}
     # the P9 sweep rows (tag p9) were produced under the same 20-min-floor protocol
     # as the diagnostic shards, so they count as diagnostic input for P9 ids
-    for path in sorted(glob.glob(f"{RES}/baselines-cuvein-shardresid*.csv")
-                       + glob.glob(f"{RES}/baselines-cuvein-shardp9*.csv")):
+    for path in _globs(a.diag):
         for r in csv.DictReader(open(path, newline="")):
             r["mode"] = hb_modes.canon(r["mode"], path)
             # a runner-level exception row carries no mode: it applies to both
@@ -131,19 +175,23 @@ def main():
     # diagnostic shard logs: an id whose runner process was itself Killed leaves
     # no row -> analysis-oom (the collector finished; the Python analysis died)
     killed = {}
-    for lg in glob.glob(f"{HERE}/setup/build_logs/diag-*.log") + glob.glob(f"{HERE}/setup/build_logs/p7fix*.log"):
+    for lg in _globs(a.logs):
         txt = open(lg, errors="replace").read()
-        mm = re.search(r"\[run \d+/\d+\] (\S+)", txt)
-        if mm and "Killed" in txt and "run: " not in txt:
-            killed[mm.group(1)] = re.search(r"(Killed[^\n]{0,80})", txt).group(1)
+        # the program running when the runner was Killed = the last "[run i/n] <id>" line
+        # before the first "Killed" (a multi-program shard log, X1; the diag-* logs held one)
+        kk = re.search(r"(Killed[^\n]{0,80})", txt)
+        if kk and "run: " not in txt:
+            mm = re.findall(r"\[run \d+/\d+\] (\S+)", txt[:kk.start()])
+            if mm:
+                killed[mm[-1]] = kk.group(1)
     # last-resort input: the main sweep's own rows (baselines-cuvein.csv, 120 s floor).
     # Used only for a residual id the diagnostic pass never produced a row for (its
     # shard was cancelled/hung). The stable, floor-independent causes are honoured
     # (a hang that also hung for ~50 min by hand, an OOM, a growing dump, a native
     # fail, or an actual verdict); the evidence field flags the weaker provenance.
     base = {}
-    bpath = f"{RES}/baselines-cuvein.csv"
-    if os.path.exists(bpath):
+    bpath = a.base
+    if bpath and os.path.exists(bpath):
         for r in csv.DictReader(open(bpath, newline="")):
             r["mode"] = hb_modes.canon(r["mode"], bpath)
             k = (r["id"], r["mode"])

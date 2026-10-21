@@ -1,0 +1,223 @@
+{
+ "id": "P6-interkernel-global_readwrite_race-fixed",
+ "name": "P6-interkernel-global_readwrite_race-fix-scalar-clock-n1",
+ "config": "scalar-clock",
+ "workers": "1",
+ "cap": 1200,
+ "runtime": "/home/fzheng4/AccelProf",
+ "mode_knob": "mode",
+ "no_dump": true,
+ "hb_stats": true,
+ "node": "c66",
+ "cpu": "AMD EPYC 8124P 16-Core Processor",
+ "nproc": 32,
+ "slurm_job": "312731",
+ "started": "2026-10-15 20:59:22",
+ "native": [
+  {
+   "wall": 0.717,
+   "rc": 0,
+   "timed_out": false
+  },
+  {
+   "wall": 0.717,
+   "rc": 0,
+   "timed_out": false
+  },
+  {
+   "wall": 0.717,
+   "rc": 0,
+   "timed_out": false
+  }
+ ],
+ "scope_file": true,
+ "env": {
+  "ACCEL_PROF_HOME": "/home/fzheng4/AccelProf",
+  "CUVEIN_HOME": "/home/fzheng4/AccelProf",
+  "YOSEMITE_HB_TRACE": "1",
+  "YOSEMITE_HB_MODE": "scalar-clock",
+  "YOSEMITE_HB_DUMP": "0",
+  "YOSEMITE_ATOMIC_SCOPE_FILE": "/mnt/beegfs/fzheng4/x1_follow/runs/P6-interkernel-global_readwrite_race-fix-scalar-clock-n1/work/cubins/atomic_scope.txt",
+  "YOSEMITE_HB_STATS": "1"
+ },
+ "libs": "/home/fzheng4/AccelProf/build/sanalyzer/lib/libsanalyzer.so\n/home/fzheng4/AccelProf/build/sanalyzer/cpp_trace/lib/libcpp_trace.so\n/home/fzheng4/AccelProf/build/sanalyzer/py_frame/lib/libpy_frame.so",
+ "cmd": "accelprof -v -t pc_dependency_analysis -n 1 ./interkernel__global_readwrite_race__fixed.sm86.out",
+ "wall": 4.907,
+ "peak_mb_sumrss": 858.1,
+ "maxrss_mb_hwm": 857.1,
+ "maxrss_mb_rusage": 857.1,
+ "rc": 0,
+ "timed_out": false,
+ "t0": 1792112365.7145596,
+ "finished": "2026-10-15 20:59:30",
+ "kernels": [
+  {
+   "file": "kernel_0.json",
+   "t": 1.285,
+   "mb": 0.0,
+   "hb_events_count": 2,
+   "seq_records": null,
+   "hb_stats": {
+    "hb_events": {
+     "count": 2,
+     "json_bytes": 0,
+     "ram_bytes_est": 0
+    },
+    "hb_clock": {
+     "vc": {
+      "threads": 0,
+      "entries": 0,
+      "bases": 0,
+      "base_entries": 0,
+      "max_base": 0,
+      "delta_entries": 0,
+      "max_delta": 0,
+      "bytes_est": 0
+     },
+     "released": {
+      "records": 0,
+      "entries": 0,
+      "own_bases": 0,
+      "delta_entries": 0,
+      "bytes_est": 0
+     },
+     "merge_memo": 0,
+     "buckets": {
+      "locations": 32,
+      "segments": 1,
+      "groups": 32,
+      "entries": 32,
+      "bytes": 59408,
+      "bytes_est": 7168
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 32,
+      "unique_bases": 0,
+      "base_entries": 0,
+      "bytes_est": 395272
+     },
+     "races": {
+      "records": 0,
+      "bytes_est": 0
+     },
+     "sync_pairs": 0,
+     "coherence_addrs": 0,
+     "a2": {
+      "pd_threads": 0,
+      "pd_entries": 0,
+      "pd_bases": 0,
+      "released_pd_entries": 0,
+      "windows": 0,
+      "held": 0,
+      "clusters": 0,
+      "multi": 0,
+      "cluster_clock_entries": 0
+     },
+     "gate_policy": "recorded",
+     "chain": {
+      "edges": 0,
+      "uncertain": 0,
+      "unsafe": 0,
+      "refused": 0,
+      "open": 0,
+      "xwarp": 0
+     }
+    },
+    "rss_kb": 867696,
+    "hwm_kb": 867696
+   }
+  },
+  {
+   "file": "kernel_1.json",
+   "t": 4.285,
+   "mb": 0.03,
+   "hb_events_count": 1000002,
+   "seq_records": null,
+   "hb_stats": {
+    "hb_events": {
+     "count": 1000002,
+     "json_bytes": 0,
+     "ram_bytes_est": 0
+    },
+    "hb_clock": {
+     "vc": {
+      "threads": 0,
+      "entries": 0,
+      "bases": 0,
+      "base_entries": 0,
+      "max_base": 0,
+      "delta_entries": 0,
+      "max_delta": 0,
+      "bytes_est": 0
+     },
+     "released": {
+      "records": 0,
+      "entries": 0,
+      "own_bases": 0,
+      "delta_entries": 0,
+      "bytes_est": 0
+     },
+     "merge_memo": 0,
+     "buckets": {
+      "locations": 64,
+      "segments": 2,
+      "groups": 64,
+      "entries": 1056,
+      "bytes": 87072,
+      "bytes_est": 70144
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 32,
+      "unique_bases": 0,
+      "base_entries": 0,
+      "bytes_est": 395272
+     },
+     "races": {
+      "records": 0,
+      "bytes_est": 0
+     },
+     "sync_pairs": 0,
+     "coherence_addrs": 0,
+     "a2": {
+      "pd_threads": 0,
+      "pd_entries": 0,
+      "pd_bases": 0,
+      "released_pd_entries": 0,
+      "windows": 0,
+      "held": 0,
+      "clusters": 0,
+      "multi": 0,
+      "cluster_clock_entries": 0
+     },
+     "gate_policy": "recorded",
+     "chain": {
+      "edges": 0,
+      "uncertain": 0,
+      "unsafe": 0,
+      "refused": 0,
+      "open": 0,
+      "xwarp": 0
+     }
+    },
+    "rss_kb": 875480,
+    "hwm_kb": 875480
+   }
+  }
+ ],
+ "nkernels": 2,
+ "vlog_mb": 0.01,
+ "drains": 2,
+ "drained_records": 1000004,
+ "hb_events_count": 1000004,
+ "tool_tail": "./interkernel__global_readwrite_race__fixed.sm86.out \nstdout redirect: /mnt/beegfs/fzheng4/x1_follow/runs/P6-interkernel-global_readwrite_race-fix-scalar-clock-n1/work/interkernel__global_readwrite_race__fixed.sm86.out.accelprof.log\nRunning the pc_dependency_analysis tool for interkernel__global_readwrite_race__fixed.sm86.out..."
+}

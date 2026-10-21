@@ -5,8 +5,10 @@
 # the knob defaults in effect. Exits 3 if HbClock library is older than any
 # sanalyzer/ source (the harness never rebuilds the detector; the blocker names the
 # command). Usage: bash cuvein_rev.sh [label]   -> setup/cuvein_rev.status
+# CUVEIN_REV_OUT=<dir> (X1): write cuvein_rev.status and cuvein_rev/<label>.diff into <dir>
+# (a harness worktree) while still pinning the runtime checkout below.
 cd /home/fzheng4/AccelProf || exit 1
-HERE=eval/baselines/setup
+HERE=${CUVEIN_REV_OUT:-eval/baselines/setup}
 LABEL="${1:-working-tree-$(date +%F)}"
 OUT="$HERE/cuvein_rev.status"
 mkdir -p "$HERE/cuvein_rev"

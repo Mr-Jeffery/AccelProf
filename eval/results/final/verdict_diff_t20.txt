@@ -1,0 +1,19 @@
+(id, mode) keys: final 130, parity 130; same verdict 122 (of which RACE with a different report set: 9); differing 8
+  DIFF P6-interkernel-global_writewrite_race-racy scalar-clock: final CLEAN vs parity TIMEOUT -> cap  parity timeout=120s, final cap=1200s
+  DIFF P6-interkernel-global_writewrite_race-racy vector-clock: final CLEAN vs parity TIMEOUT -> cap  parity timeout=120s, final cap=1200s
+  DIFF P7-bfs-cuda scalar-clock: final RACE vs parity TIMEOUT -> cap  parity timeout=120s, final cap=5400s
+  DIFF P7-bfs-cuda vector-clock: final RACE vs parity TIMEOUT -> cap  parity timeout=120s, final cap=86400s
+  DIFF P7-particlefilter-cuda scalar-clock: final RACE vs parity TIMEOUT -> cap  parity timeout=120s, final cap=86400s
+  DIFF P7-particlefilter-cuda vector-clock: final RACE vs parity TIMEOUT -> cap  parity timeout=120s, final cap=5400s
+  DIFF P9-overlap-cuda scalar-clock: final CLEAN vs parity TIMEOUT -> cap  parity timeout=120s, final cap=1200s
+  DIFF P9-overlap-cuda vector-clock: final CLEAN vs parity TIMEOUT -> cap  parity timeout=120s, final cap=1200s
+  REPORTS P1-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_RaceBug_NoBoundsBug_NoLivelockBug_NoFieldBug-default-100n scalar-clock: final-only ['global:0xf0-0x160:WAR'] parity-only ['global:0xf0-0x160:RAW']
+  REPORTS P1-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_RaceBug_NoBoundsBug_NoLivelockBug_NoFieldBug-default-100n vector-clock: final-only ['global:0xe0-0x160:RAW', 'global:0xf0-0x160:RAW'] parity-only ['global:0xe0-0x160:WAR', 'global:0xf0-0x160:WAR']
+  REPORTS P1-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_RaceBug_NoBoundsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n vector-clock: final-only ['global:0xe0-0x160:RAW'] parity-only ['global:0xe0-0x160:WAR']
+  REPORTS P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_Persist_RaceBug_Thread_NoNbrBoundsBug_NoBoundsBug_NoLivelockBug_NoFieldBug-default-1296n vector-clock: final-only ['global:0x250-0x2d0:WAR'] parity-only ['global:0x250-0x2d0:RAW']
+  REPORTS P4-graph-connectivity-racy-small vector-clock: final-only ['global:0x3f0-0x5d0:WAW', 'shared:0x100-0x5d0:WAW'] parity-only ['global:0x540-0x5c0:WAW', 'shared:0x3f0-0x5d0:WAW']
+  REPORTS PI-populate_worklist_neighbors_persistent_atomicBug-counterDAG_200n_1000e scalar-clock: final-only ['global:0x1c0-0x1f0:WAR', 'global:0x390-0x580:WAR', 'global:0x3a0-0x5e0:WAW', 'global:0x470-0x540:WAR', 'global:0x470-0x5d0:RAW', 'global:0x4b0-0x580:RAW', 'global:0x4b0-0x610:WAR', 'global:0x4f0-0x5d0:RAW', 'global:0x540-0x610:RAW'] parity-only ['global:0x1c0-0x1f0:RAW', 'global:0x390-0x580:RAW', 'global:0x470-0x540:RAW', 'global:0x470-0x5d0:WAR', 'global:0x4b0-0x580:WAR', 'global:0x4b0-0x610:RAW', 'global:0x4f0-0x5d0:WAR', 'global:0x540-0x610:WAR']
+  REPORTS PI-populate_worklist_neighbors_persistent_atomicBug-counterDAG_200n_1000e vector-clock: final-only ['global:0x1c0-0x1f0:WAR', 'global:0x1f0-0x2a0:RAW', 'global:0x470-0x540:WAR', 'global:0x580-0x690:RAW', 'global:0x5d0-0x610:RAW'] parity-only ['global:0x1c0-0x1f0:RAW', 'global:0x1f0-0x2a0:WAR', 'global:0x200-0x2e0:WAW', 'global:0x2e0-0x3a0:WAW', 'global:0x3a0-0x4c0:WAW', 'global:0x3a0-0x5e0:WAW', 'global:0x470-0x540:RAW', 'global:0x580-0x690:WAR', 'global:0x5d0-0x610:WAR']
+  REPORTS PI-push_node_neighbors_boundsBug_reverse_atomicBug-counterDAG_200n_1000e scalar-clock: final-only ['global:0x200-0x380:RAW'] parity-only ['global:0x200-0x380:WAR']
+  REPORTS PI-push_node_neighbors_boundsBug_reverse_atomicBug-counterDAG_200n_1000e vector-clock: final-only ['global:0x200-0x380:WAR', 'global:0x270-0x3c0:RAW', 'global:0x270-0x420:RAW'] parity-only ['global:0x200-0x380:RAW', 'global:0x270-0x3c0:WAR', 'global:0x270-0x420:WAR']
+causes: cap 8, schedule 0, other 0, missing-one-side 0
