@@ -9,7 +9,7 @@ t_build() {
   local cc arch
   cc=$(printf '%s' "$RW_NVCC_FLAGS" | sed -E 's/.*sm_([0-9]+).*/\1/'); arch="${cc:0:1}.${cc:1}"
   local args=(-DCMAKE_BUILD_TYPE=Release -DAMReX_GPU_BACKEND=CUDA -DAMReX_CUDA_ARCH=$arch -DAMReX_SPACEDIM=3 -DAMReX_MPI=OFF -DAMReX_OMP=OFF
-              -DAMReX_LINEAR_SOLVERS=ON -DAMReX_ENABLE_TESTS=ON "-DCMAKE_CUDA_FLAGS=$RW_LINEINFO")
+              -DAMReX_LINEAR_SOLVERS=ON -DAMReX_ENABLE_TESTS=ON "-DCMAKE_CUDA_FLAGS=$RW_LINEINFO" ${RW_CMAKE_EXTRA:-})   # T21b: RW_CMAKE_EXTRA="-DCMAKE_CUDA_RUNTIME_LIBRARY=Shared ..." (relink_job.sh); empty = T21a as built
   echo "cmake args: ${args[*]}  (AMReX_CUDA_ARCH from RW_NVCC_FLAGS=$RW_NVCC_FLAGS)" | tee cmake_args.txt
   cmake -S "$SRC" -B bld "${args[@]}" > cmake.log 2>&1 || { tail -30 cmake.log; return 1; }
   make -C bld -j"${NJOBS:-8}" Test_LinearSolvers_ABecLaplacian_C_3d > make.log 2>&1 || { grep -n -E "error|Error" make.log | head -30; tail -15 make.log; return 1; }

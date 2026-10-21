@@ -39,7 +39,7 @@ EOF
   # toolkit-compat pre-include (CUDA >= 12.2 vs. Kokkos 3.6/3.7 half-conversion header), see rw_cuda_compat.h.  nvcc_wrapper
   # forwards unknown flags only to the host compiler, so use nvcc's own NVCC_APPEND_FLAGS (applies to every nvcc call).
   cp "$TDIR/rw_cuda_compat.h" "$PWD/rw_cuda_compat.h"
-  export NVCC_APPEND_FLAGS="-include $PWD/rw_cuda_compat.h"
+  export NVCC_APPEND_FLAGS="-include $PWD/rw_cuda_compat.h ${RW_NVCC_APPEND_EXTRA:-}"   # T21b: RW_NVCC_APPEND_EXTRA="--cudart shared ..." (relink_job.sh); empty = T21a as built
   local args="-DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=$PWD/wrap/nvcc_wrapper -DCMAKE_CXX_FLAGS=$RW_LINEINFO
  -DKokkos_ENABLE_CUDA=ON -DKokkos_ARCH_$kw=ON -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_TESTS=OFF -DKokkos_ENABLE_EXAMPLES=OFF"
   echo "cmake args: $args $*  (host g++ $NVCC_WRAPPER_DEFAULT_COMPILER, nvcc $(nvcc --version | tail -1), NVCC_APPEND_FLAGS=$NVCC_APPEND_FLAGS)" | tee cmake_args.txt
@@ -48,7 +48,7 @@ EOF
   # relocatable: Kokkos' CMake links the shared libcudart.so.13 and sets no rpath; relink the driver with the static CUDA runtime
   # (nvcc adds -lcudart_static itself once the .so is dropped) and an rpath to the gcc-12.4 libstdc++ dir; needs only libcuda.so.1 + system libs.
   local gcclib; gcclib=$(dirname "$(readlink -f "$(g++ -print-file-name=libstdc++.so)")")
-  ( cd bld && sed -E "s# [^ ]*/libcudart\.so##; s#\$# -Wl,-rpath,$gcclib#" CMakeFiles/driver.dir/link.txt > relink.sh && sh relink.sh ) > relink.log 2>&1 \
+  ( cd bld && if [ -n "${RW_CUDART_SHARED:-}" ]; then sed -E "s#\$# -Wl,-rpath,$gcclib -Wl,-rpath,/usr/local/cuda-13.4/lib64#" CMakeFiles/driver.dir/link.txt > relink.sh; else sed -E "s# [^ ]*/libcudart\.so##; s#\$# -Wl,-rpath,$gcclib#" CMakeFiles/driver.dir/link.txt > relink.sh; fi && sh relink.sh ) > relink.log 2>&1 \
     || { echo "relink failed"; cat relink.log | tail -20; return 1; }
   cp bld/driver driver
   { echo "# compile and link commands of the driver target"; cat bld/CMakeFiles/driver.dir/flags.make bld/CMakeFiles/driver.dir/link.txt; echo "# relink actually used (static cudart, rpath to gcc libstdc++):"; cat bld/relink.sh; echo "# note: -arch=sm_86 above is rewritten to -arch=sm_$cc by wrap/nvcc_wrapper (cc from RW_NVCC_FLAGS)"; } > build_flags.txt

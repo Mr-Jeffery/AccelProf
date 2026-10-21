@@ -1,0 +1,131 @@
+{
+  "_doc": "T21b scoring spec, derived by hand from eval/realworld/oracle/<id>.json at bc71082 (the oracle files are not edited). A pair = two sides A and B, each a list of alternative sites [file-pattern (fnmatch on the basename), line_start, line_end]; a report matches when the frames (inlined-at frames included) of its two pcs hit A and B in either order, within +-tol lines (default 2). role: primary = the oracle's pair; family = the same statements the oracle says conflict in the same way; extra = the oracle's extra_pairs/additional_pairs; both_builds = pairs the review says are present in both builds and unrelated to the fix. fixed.equiv = the buggy pair at the fixed build's line numbers (a report on it = STILL-REPORTED); fixed.residual = the oracle's residual pairs (a report = RESIDUAL-AS-EXPECTED). cls = the class the oracle pre-registers for the pair.",
+  "amrex-1": {"pairs": [
+      {"name": "adotx stencil load vs jacobi store", "role": "primary", "cls": "DR", "A": [["AMReX_MLNodeABecLap_3D_K.H", 86, 87]], "B": [["AMReX_MLNodeLap_3D_K.H", 227, 228]]},
+      {"name": "any of the 27-point stencil loads vs jacobi store", "role": "family", "cls": "DR", "A": [["AMReX_MLNodeABecLap_3D_K.H", 86, 87]], "B": [["AMReX_MLNodeLap_3D_K.H", 207, 232]]},
+      {"name": "masked-node store vs stencil loads", "role": "extra", "cls": "DR", "A": [["AMReX_MLNodeABecLap_3D_K.H", 77, 77]], "B": [["AMReX_MLNodeLap_3D_K.H", 207, 232]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "gauss-seidel store vs stencil loads", "cls": "DR", "A": [["AMReX_MLNodeABecLap_3D_K.H", 60, 60]], "B": [["AMReX_MLNodeABecLap_3D_K.H", 30, 58]]}]}},
+  "bitsandbytes-1": {"pairs": [
+      {"name": "clear store vs scatter store", "role": "primary", "cls": "DR", "A": [["kernels.cu", 655, 655]], "B": [["kernels.cu", 661, 661]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "clear store vs scatter store (scatter moves to L663)", "cls": "DR", "A": [["kernels.cu", 655, 655]], "B": [["kernels.cu", 663, 663]]}]}},
+  "cccl-1": {"pairs": [
+      {"name": "raking reads vs volatile warp-reduce store", "role": "primary", "cls": "DR", "A": [["block_reduce_raking.cuh", 222, 222], ["block_reduce_raking.cuh", 161, 161]], "B": [["thread_store.cuh", 284, 284], ["warp_reduce_smem.cuh", 160, 160]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "raking reads vs volatile warp-reduce store", "cls": "DR", "A": [["block_reduce_raking.cuh", 222, 222], ["block_reduce_raking.cuh", 161, 161]], "B": [["thread_store.cuh", 284, 284], ["warp_reduce_smem.cuh", 160, 160]]}]}},
+  "cccl-2": {"pairs": [
+      {"name": "warp_aggregates reads vs exchange store", "role": "primary", "cls": "DR", "A": [["agent_rle.cuh", 455, 455], ["agent_rle.cuh", 461, 469]], "B": [["warp_exchange_smem.cuh", 156, 156]]}],
+    "both_builds": [{"name": "discarded items all stored to items_shared[480] (intra-warp WAW)", "A": [["warp_exchange_smem.cuh", 156, 156]], "B": [["warp_exchange_smem.cuh", 156, 156]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "warp_aggregates reads vs exchange store", "cls": "DR", "A": [["agent_rle.cuh", 455, 455], ["agent_rle.cuh", 461, 469]], "B": [["warp_exchange_smem.cuh", 156, 156]]}]}},
+  "cccl-3": {"pairs": [
+      {"name": "merge atomicAdd vs volatile load (SC half)", "role": "primary", "cls": "SC", "A": [["agent_topk.cuh", 441, 448]], "B": [["agent_topk.cuh", 589, 589], ["block_load.cuh", 379, 379]]},
+      {"name": "merge atomicAdd vs init_histograms plain store (DR half)", "role": "primary", "cls": "DR", "A": [["agent_topk.cuh", 441, 448]], "B": [["agent_topk.cuh", 422, 427]]}],
+    "fixed": {"oracle": "residual", "equiv": [],
+      "residual": [{"name": "merge atomicAdd vs volatile load (SC)", "cls": "SC", "A": [["agent_topk.cuh", 441, 448]], "B": [["agent_topk.cuh", 589, 589], ["block_load.cuh", 379, 379]]},
+                   {"name": "merge atomicAdd vs init_histograms plain store (DR)", "cls": "DR", "A": [["agent_topk.cuh", 441, 448]], "B": [["agent_topk.cuh", 422, 427]]}]},
+    "open_decision": "REVIEW item 2 (fixed-build ground truth: residual under strict PTX vs absent under the fence+counter idiom)"},
+  "cccl-4": {"pairs": [
+      {"name": "tile_data read vs tile_data writes (tid 0)", "role": "primary", "cls": "DR", "A": [["driver_*.cu", 60, 60]], "B": [["driver_*.cu", 85, 85], ["driver_*.cu", 68, 68]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "tile_data read vs writes (fixed driver lines +2)", "cls": "DR", "A": [["driver_*.cu", 60, 62]], "B": [["driver_*.cu", 87, 87], ["driver_*.cu", 70, 70]]}]}},
+  "cmssw-1": {"pairs": [
+      {"name": "co[i] += ws[warpId-1] store vs psum load (last block)", "role": "primary", "cls": "DR", "A": [["prefixScan.h", 77, 77]], "B": [["prefixScan.h", 172, 172]]},
+      {"name": "partial-scan store L22 vs psum load", "role": "extra", "cls": "DR", "A": [["prefixScan.h", 22, 22]], "B": [["prefixScan.h", 172, 172]]},
+      {"name": "block store L77 vs last block RMW L179", "role": "extra", "cls": "DR", "A": [["prefixScan.h", 77, 77]], "B": [["prefixScan.h", 179, 179]]}],
+    "fixed": {"oracle": "residual", "equiv": [],
+      "residual": [{"name": "co[i] += ws store (volatile) vs psum load (volatile, fixed L175)", "cls": "SC?", "A": [["prefixScan.h", 77, 77]], "B": [["prefixScan.h", 175, 175]]},
+                   {"name": "store L77 vs last block RMW (fixed L182)", "cls": "SC?", "A": [["prefixScan.h", 77, 77]], "B": [["prefixScan.h", 182, 182]]}]},
+    "open_decision": "REVIEW item 2 (fixed-build ground truth: uncertain residual vs absent)"},
+  "ginkgo-1": {"pairs": [
+      {"name": "block_partial store vs warp-0 reads", "role": "primary", "cls": "DR", "A": [["kernel_launch_reduction.hpp", 309, 309]], "B": [["kernel_launch_reduction.hpp", 317, 317]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "block_partial store vs warp-0 reads", "cls": "DR", "A": [["kernel_launch_reduction.hpp", 309, 309]], "B": [["kernel_launch_reduction.hpp", 317, 317]]}]}},
+  "ginkgo-5": {"pairs": [
+      {"name": "packed-word RMW load vs store (lost update)", "role": "primary", "cls": "DR", "A": [["bit_packed_storage.hpp", 160, 160]], "B": [["bit_packed_storage.hpp", 154, 154]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "packed-word RMW load vs store", "cls": "DR", "A": [["bit_packed_storage.hpp", 160, 160]], "B": [["bit_packed_storage.hpp", 154, 154]]}]}},
+  "hecbench-dxtc2-1": {"pairs": [
+      {"name": "sums[idx] store vs sums[idx^8] load", "role": "primary", "cls": "DR", "A": [["main.cu", 70, 70]], "B": [["main.cu", 71, 71]]}],
+    "both_builds": [{"name": "colors[xrefs[idx]] scatter (buggy L176-178)", "A": [["main.cu", 176, 178]], "B": [["main.cu", 176, 178]]}],
+    "fixed": {"oracle": "residual", "equiv": [],
+      "residual": [{"name": "colors[xrefs[idx]] = colors[idx] scatter (fixed L448)", "cls": "DR", "A": [["main.cu", 448, 448]], "B": [["main.cu", 448, 448]]}]},
+    "open_decision": "REVIEW item 2 (residual label: absent or DR)"},
+  "hecbench-hungarian-1": {"pairs": [
+      {"name": "sdata[tid] store (volatile) vs sdata[tid+16] load (volatile)", "role": "primary", "cls": "SC", "A": [["main.cu", 144, 144]], "B": [["main.cu", 145, 145]]}],
+    "fixed": {"oracle": "residual", "equiv": [],
+      "residual": [{"name": "intra-step sdata[tid] store vs sdata[tid+16] load (fixed L146)", "cls": "DR", "A": [["main.cu", 146, 146]], "B": [["main.cu", 146, 146]]}]},
+    "open_decision": "REVIEW item 1 (D20, volatile shared has no .STRONG in SASS) and item 2 (residual label)"},
+  "hecbench-morphology-1": {"pairs": [
+      {"name": "opArray store vs opArray load (same statement, cross-warp)", "role": "primary", "cls": "DR", "A": [["morphology.cu", 94, 95]], "B": [["morphology.cu", 95, 95]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "read phase vs write phase (fixed L102-103 / L107-108)", "cls": "DR", "A": [["morphology.cu", 107, 108]], "B": [["morphology.cu", 102, 103]]}]}},
+  "hecbench-surfel-1": {"pairs": [
+      {"name": "sh[] staging store vs tile reads", "role": "primary", "cls": "DR", "A": [["main.cu", 87, 87]], "B": [["main.cu", 97, 105]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "sh[] staging store vs tile reads", "cls": "DR", "A": [["main.cu", 87, 87]], "B": [["main.cu", 97, 105]]}]}},
+  "kokkos-5": {"pairs": [
+      {"name": "broadcast *value = *(value-lane_id): lane 0 store vs lanes 1..31 load", "role": "primary", "cls": "DR", "A": [["Kokkos_Cuda_ReduceScan.hpp", 551, 551]], "B": [["Kokkos_Cuda_ReduceScan.hpp", 551, 551]]}],
+    "both_builds": [{"name": "tree-loop join step (volatile) L547", "A": [["Kokkos_Cuda_ReduceScan.hpp", 547, 547]], "B": [["Kokkos_Cuda_ReduceScan.hpp", 547, 547]]},
+                    {"name": "join store L547 vs broadcast load (second call)", "A": [["Kokkos_Cuda_ReduceScan.hpp", 547, 547]], "B": [["Kokkos_Cuda_ReduceScan.hpp", 551, 552]]}],
+    "fixed": {"oracle": "residual", "equiv": [{"name": "broadcast guarded by lane_id != 0 (fixed L552)", "cls": "DR", "A": [["Kokkos_Cuda_ReduceScan.hpp", 552, 552]], "B": [["Kokkos_Cuda_ReduceScan.hpp", 552, 552]]}],
+      "residual": [{"name": "result store L577 vs global[i]=shared[i] load (Parallel_Range.hpp L321)", "cls": "DR", "A": [["Kokkos_Cuda_ReduceScan.hpp", 577, 577]], "B": [["Kokkos_Cuda_Parallel_Range.hpp", 321, 321]]}]}},
+  "kokkos-6": {"pairs": [
+      {"name": "sh_result store vs inter-warp reads", "role": "primary", "cls": "DR", "A": [["Kokkos_Cuda_ReduceScan.hpp", 105, 105]], "B": [["Kokkos_Cuda_ReduceScan.hpp", 116, 118]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "sh_result store vs inter-warp reads", "cls": "DR", "A": [["Kokkos_Cuda_ReduceScan.hpp", 105, 105]], "B": [["Kokkos_Cuda_ReduceScan.hpp", 116, 118]]}]}},
+  "lit-arrayfire-1": {"pairs": [
+      {"name": "scan_first: s_ftmp read L145 vs write L157", "role": "primary", "cls": "DR", "A": [["scan_first_by_key_impl.hpp", 145, 145]], "B": [["scan_first_by_key_impl.hpp", 157, 157]]},
+      {"name": "scan_dim: s_ftmp read L164 vs write L176", "role": "extra", "cls": "DR", "A": [["scan_dim_by_key_impl.hpp", 164, 164]], "B": [["scan_dim_by_key_impl.hpp", 176, 176]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "scan_first read vs write (fixed L158)", "cls": "DR", "A": [["scan_first_by_key_impl.hpp", 145, 145]], "B": [["scan_first_by_key_impl.hpp", 158, 158]]},
+                                            {"name": "scan_dim read vs write (fixed L177)", "cls": "DR", "A": [["scan_dim_by_key_impl.hpp", 164, 164]], "B": [["scan_dim_by_key_impl.hpp", 177, 177]]}]}},
+  "lit-exllamav3-1": {"pairs": [
+      {"name": "topk stage: sh_* stores vs sh_* loads", "role": "primary", "cls": "DR", "A": [["routing.cu", 290, 292]], "B": [["routing.cu", 277, 279]]},
+      {"name": "routing_std_topk_kernel stores vs loads", "role": "extra", "cls": "DR", "A": [["routing.cu", 544, 545]], "B": [["routing.cu", 531, 533]]},
+      {"name": "routing_std_kernel sh_v store vs max_red load", "role": "extra", "cls": "DR", "A": [["routing.cu", 655, 655]], "B": [["routing.cu", 636, 636]]}],
+    "both_builds": [{"name": "warp_radixsort_posf16 L103 vs L101 (ballot/shuffle only)", "A": [["routing.cu", 103, 103]], "B": [["routing.cu", 101, 101]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "topk stage stores (fixed L294-296) vs loads (fixed L277-280)", "cls": "DR", "A": [["routing.cu", 294, 296]], "B": [["routing.cu", 277, 280]]},
+                                            {"name": "std_topk stores (fixed L550-551) vs loads (fixed L534-536)", "cls": "DR", "A": [["routing.cu", 550, 551]], "B": [["routing.cu", 534, 536]]},
+                                            {"name": "std_kernel sh_v store (fixed L664) vs load", "cls": "DR", "A": [["routing.cu", 664, 664]], "B": [["routing.cu", 636, 636]]}]}},
+  "lit-fbgemm-1": {"pairs": [
+      {"name": "warpLevelSums store vs load", "role": "primary", "cls": "DR", "A": [["fast_gemv.cu", 141, 141]], "B": [["fast_gemv.cu", 145, 145]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "warpLevelSums store vs load", "cls": "DR", "A": [["fast_gemv.cu", 141, 141]], "B": [["fast_gemv.cu", 145, 145]]}]}},
+  "lit-shoc-1": {"pairs": [
+      {"name": "s_seed loads vs s_seed update (DR half)", "role": "primary", "cls": "DR", "A": [["scan_kernel.h", 298, 301]], "B": [["scan_kernel.h", 309, 309]]},
+      {"name": "scanLocalMem volatile s_data read L198 vs next window's writes L147/L152 (SC half)", "role": "extra", "cls": "SC", "A": [["scan_kernel.h", 198, 198]], "B": [["scan_kernel.h", 152, 152], ["scan_kernel.h", 147, 147]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "s_seed loads vs update (fixed lines +3)", "cls": "DR", "A": [["scan_kernel.h", 298, 305]], "B": [["scan_kernel.h", 309, 313]]},
+                                            {"name": "scanLocalMem read L198 vs writes L147/L152", "cls": "SC", "A": [["scan_kernel.h", 198, 198]], "B": [["scan_kernel.h", 152, 152], ["scan_kernel.h", 147, 147]]}]},
+    "open_decision": "REVIEW item 1 (D20: the SC half is volatile shared, no .STRONG in SASS)"},
+  "llamacpp-2": {"pairs": [
+      {"name": "mm_ids_helper store vs load", "role": "primary", "cls": "DR", "A": [["mmid.cu", 96, 96]], "B": [["mmid.cu", 106, 106]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "mm_ids_helper store vs load (fixed: __syncwarp became a NOP, SASS unchanged)", "cls": "DR", "A": [["mmid.cu", 96, 96]], "B": [["mmid.cu", 106, 108]]}]},
+    "open_decision": "REVIEW item 3 (ptxas turned the added __syncwarp into a NOP; the fixed SASS equals the buggy SASS)"},
+  "llamacpp-4": {"pairs": [
+      {"name": "shared_vals read (reduction 1) vs write (reduction 2)", "role": "primary", "cls": "DR", "A": [["common.cuh", 643, 643]], "B": [["common.cuh", 638, 638]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "shared_vals read vs write", "cls": "DR", "tol": 6, "A": [["common.cuh", 643, 643]], "B": [["common.cuh", 638, 638]]}]}},
+  "llamacpp-5": {"pairs": [
+      {"name": "smemB/smemC store (iteration i+1) vs load (iteration i)", "role": "primary", "cls": "DR", "A": [["ssm-scan.cu", 87, 88]], "B": [["ssm-scan.cu", 103, 104]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "smemB/smemC store vs load (fixed lines +1)", "cls": "DR", "A": [["ssm-scan.cu", 88, 89]], "B": [["ssm-scan.cu", 104, 105]]}]}},
+  "opencv-2": {"pairs": [
+      {"name": "neighbour read L285 vs smem write L297", "role": "primary", "cls": "SC", "A": [["canny.cu", 285, 285]], "B": [["canny.cu", 297, 297]]},
+      {"name": "any neighbour read L284-293 vs smem write L297", "role": "family", "cls": "SC", "A": [["canny.cu", 284, 293]], "B": [["canny.cu", 297, 297]]},
+      {"name": "last-iteration write L297 vs post-loop reads L308-317", "role": "extra", "cls": "SC", "A": [["canny.cu", 297, 297]], "B": [["canny.cu", 308, 317]]}],
+    "both_builds": [{"name": "halo loads L252-268 vs neighbouring block's stores L302/L306", "A": [["canny.cu", 252, 268]], "B": [["canny.cu", 302, 302], ["canny.cu", 306, 306]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "neighbour reads vs smem write (fixed L299)", "cls": "SC", "A": [["canny.cu", 283, 295]], "B": [["canny.cu", 297, 301]]},
+                                            {"name": "write vs post-loop reads (fixed +4)", "cls": "SC", "A": [["canny.cu", 297, 301]], "B": [["canny.cu", 308, 321]]}]},
+    "open_decision": "REVIEW item 1 (D20: volatile shared, no .STRONG in SASS)"},
+  "pytorch-1": {"pairs": [
+      {"name": "indices_batch store vs load", "role": "primary", "cls": "DR", "A": [["Embedding.cu", 66, 66]], "B": [["Embedding.cu", 99, 99]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "indices_batch store (fixed L71) vs load (fixed L104)", "cls": "DR", "A": [["Embedding.cu", 71, 71]], "B": [["Embedding.cu", 104, 104]]}]}},
+  "pytorch-3": {"pairs": [
+      {"name": "gradInput_k[target_k] store (thread 0) vs gradInput_k[i] *= (all threads)", "role": "primary", "cls": "DR", "A": [["MultiMarginLoss.cu", 121, 121]], "B": [["MultiMarginLoss.cu", 125, 125]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "store vs RMW (fixed L126)", "cls": "DR", "A": [["MultiMarginLoss.cu", 121, 121]], "B": [["MultiMarginLoss.cu", 126, 126]]}]}},
+  "pytorch-4": {"pairs": [
+      {"name": "indices[0] = kValueIndex WAW (two threads)", "role": "primary", "cls": "DR", "A": [["Sorting.cu", 86, 86]], "B": [["Sorting.cu", 86, 86]]},
+      {"name": "kthValue[0] = kValue WAW (two threads)", "role": "extra", "cls": "DR", "A": [["Sorting.cu", 85, 85]], "B": [["Sorting.cu", 85, 85]]}],
+    "fixed": {"oracle": "residual", "equiv": [],
+      "residual": [{"name": "minIndexFound read (fixed L77) vs atomicMin (fixed L86)", "cls": "DR", "A": [["Sorting.cu", 77, 77]], "B": [["Sorting.cu", 86, 86]]}]}},
+  "pytorch_cluster-1": {"pairs": [
+      {"name": "best_dist store vs best_dist[thread_idx+i] load", "role": "primary", "cls": "DR", "A": [["nearest_cuda.cu", 54, 55]], "B": [["nearest_cuda.cu", 53, 55]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "tree reduction (fixed L52-L58)", "cls": "DR", "A": [["nearest_cuda.cu", 52, 58]], "B": [["nearest_cuda.cu", 52, 58]]}]}},
+  "raft-1": {"pairs": [
+      {"name": "histogram atomicAdd vs volatile load in scan (SC half)", "role": "primary", "cls": "SC", "A": [["select_radix.cuh", 322, 322]], "B": [["select_radix.cuh", 361, 361], ["select_radix.cuh", 349, 349], ["block_load.cuh", 312, 312]]},
+      {"name": "histogram atomicAdd vs plain loads in choose_bucket (DR half)", "role": "primary", "cls": "DR", "A": [["select_radix.cuh", 322, 322]], "B": [["select_radix.cuh", 382, 383]]},
+      {"name": "atomicAdd vs scan's volatile store L366", "role": "extra", "cls": "SC", "A": [["select_radix.cuh", 322, 322]], "B": [["select_radix.cuh", 366, 366]]},
+      {"name": "atomicAdd vs plain reset store L776", "role": "extra", "cls": "DR", "A": [["select_radix.cuh", 322, 322]], "B": [["select_radix.cuh", 776, 776]]}],
+    "fixed": {"oracle": "residual", "equiv": [],
+      "residual": [{"name": "atomicAdd vs volatile load (SC)", "cls": "SC", "A": [["select_radix.cuh", 322, 322]], "B": [["select_radix.cuh", 361, 361], ["select_radix.cuh", 349, 349], ["block_load.cuh", 312, 312]]},
+                   {"name": "atomicAdd vs plain loads (DR)", "cls": "DR", "A": [["select_radix.cuh", 322, 322]], "B": [["select_radix.cuh", 382, 383]]}]},
+    "open_decision": "REVIEW item 2 (fixed-build ground truth: residual under strict PTX vs absent under the fence+counter idiom)"}
+}
