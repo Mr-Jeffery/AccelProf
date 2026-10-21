@@ -32,15 +32,81 @@ The skip is by design (the specification is compared on the vector-clock recordi
 
 ## 2. The change (steps 2, 3)
 
-(to be completed)
+Same assembly in the three implementations, in one commit (fe07ba5): `HbClock`
+(`sanalyzer/src/tools/pc_dependency_analysis.cpp`: `pending_syncwarps`, `syncwarp_waiting`, `warp_lanes`,
+`sw_expected`, `sw_fire`, `sw_complete`, `on_syncwarp`, `on_exit`, `check_pending_at_end`, `process_one`),
+the specification (`python/hb_oracle.py`: `pending_sw`, `sw_waiting`, `on_syncwarp`, `sw_complete`) and the
+record-replay reference (`python/sync_dominance.barrier_only_pairs`).
+
+- **Instance.** An open entry per (block, warp, pc) accumulates `active_mask & sync_mask` of its records.
+  It completes when the arrived lanes cover the **expected lanes** = `sync_mask` minus the warp's exited
+  lanes (`exited_lanes`) minus the lanes past the block's last thread (a warp of a block whose size is not
+  a multiple of 32: those lanes never run and have no exit record). On completion the expected lanes join
+  (`sync_group`), the entry is erased, its lanes leave `syncwarp_waiting`. A new instance at the same key
+  starts with the next record (a lane cannot reach instance k+1 before k completes).
+- **Fast path.** No open entry and the record's active lanes already hold every expected lane: join at
+  once (the code before T24 for a converged warp).
+- **Exit.** After the block's barrier segments (unchanged order), each open instance of the exiting warp:
+  the W2 check below, then the completion test with the new exited lanes. An exit of a lane that has not
+  arrived can complete the instance, as for a block barrier.
+- **Who joins.** The expected lanes, not every lane of `sync_mask`: a lane that exited before the instance
+  completed is not a participant. Before T24 this case could not arise on a valid trace, because W3 read
+  `sync_mask` (below).
+- **W2 analogue, `TV-syncwarp-completion-order`** (strict only; HbClock records it, the oracle raises): a
+  lane that has arrived at an open instance issues no record (memory, barrier, syncwarp, pipeline: checked
+  before the record is dispatched) and does not exit before the instance completes. Per lane.
+- **A3 analogue at runtime, `TV-syncwarp-pending-at-end`**: an instance still open at the end of the kernel.
+  HbClock whatever the strict setting (as `TV-barrier-pending-at-end`); the oracle under strict and on dumps
+  with `hb_exits`; `barrier_only_pairs` into `tv_out` on dumps with `hb_exits`.
+- **W3 (`TV-record-after-exit`) — decision: it reads `active_mask` for a syncwarp record too.** Under the
+  instance assembly `sync_mask` names the participants and `active_mask` the lanes that issue the record.
+  A lane of `sync_mask` may exit while the instance is open (CUDA allows exited lanes in the mask; the
+  hardware stops waiting for them), and the later groups' records still carry it in `sync_mask`. Reading
+  `sync_mask` would flag that valid trace and would leave the "minus exited lanes" rule able to act only
+  on exits that happen while an instance is open. The cost: an exited lane named in a mask is no longer a
+  TV violation, so the join must exclude it — which the expected-lanes rule does.
+- **Unchanged, deliberately:** the memory-record path; T12's `note_pc` and T14's `a2_close_lanes` (and the
+  oracle's `close_lanes`) still treat a syncwarp record as the next record of every lane of `sync_mask`
+  (§7); `design/algorithms_check.py` (not in the freeze exception) still implements the per-record join
+  (§7).
+- **Sharded scalar-clock pass.** Every synchronization record already goes to every shard, so every shard
+  assembles the same instances (the open-instance map is maintained whatever a shard's TV flag says);
+  the W2 check runs in the block's monitoring shard; `merge_into` copies shard 0's open instances to the
+  emitter for the end-of-kernel check, as it does for `pending_barriers`.
+- The green set gains `python/test_syncwarp.py` in `eval/baselines/setup/merge_check.sh`. CLAUDE.md A4's
+  command list is not edited here (§7).
 
 ## 3. Parity (step 4)
 
 (running)
 
-## 4. The 60 recordings of X5b §4 (step 4)
+## 4. The 60 recordings of X5b §4 (step 4) — tested, 60 recordings
 
-(pending)
+`eval/baselines/setup/t24_replay60.py`, job 316799 (c15, partition `normal`, 16 shard processes, 6.5 min;
+`eval/x_logs/t24-replay60-316799*.log`, rows `eval/results/t24/replay60.jsonl`). Groups: X5b's
+`eval/results/x5b/partial.jsonl` (b5e10b4) — the 60 (program, mode) recordings of the byte-pair rows in
+`cuvein_traces/t16-certain` (sm_89, same dot md5 as X1). Every launch, the records as recorded, replayed
+three times: 38af04e's oracle (extracted from git), this tree's oracle (strict; a TV message would be
+recorded and the launch replayed with checks off), and 38af04e's oracle on X5b's merged records (each
+completed partial instance one record at its completion). As X5b, the 1296-node programs replay without
+their global records (memory; X5b checked the shared-only answer against the full replay on 104 rows).
+
+| | count |
+|---|---|
+| recordings (program × mode) / launches | 60 / 680 |
+| recordings with a diverged `WARPSYNC` | 24 |
+| instances of 2 records / of 3 records / never completed | 72,160 / 1,734 / 0 |
+| race pc pairs only after T24 (`races` + `races_sync_only`) | **0** |
+| race pc pairs only before T24 | 0 |
+| launches where this tree's oracle ≠ X5b's merged replay | **0** |
+| trace-validity violations under strict, this tree (incl. `TV-syncwarp-completion-order`, `TV-syncwarp-pending-at-end`) | **0** |
+| replay errors | 0 |
+
+**No recording gained a report**, as X5b's merged replay predicted, and the new assembly gives exactly
+X5b's merged construction on every launch. The W2 analogue holds on all 73,894 diverged instances (no lane
+that has arrived issues a replayed record before its instance completes) and A3's runtime form holds (no
+instance open at a kernel's end) — proved-in-effect over these 680 launches. Not covered: the 1296-node
+programs' global records (shared-only replay: neither their pairs nor W2 on them).
 
 ## 5. Timing (step 6)
 
