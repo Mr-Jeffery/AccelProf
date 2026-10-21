@@ -78,7 +78,32 @@ record-replay reference (`python/sync_dominance.barrier_only_pairs`).
 
 ## 3. Parity (step 4)
 
-(running)
+### 3.1 The green set at N = 1, 8, 16 — tested
+
+`eval/baselines/setup/t24_check.sh`, job 316793 (c62, RTX 4060 Ti sm_89, driver 580.82.07, 16 min), the
+private runtime (collector `3dad1ffdad521833` -> libsanalyzer `d8c5d656394f3e01`), every trace re-recorded
+per configuration (`ScoR/microbenchmarks/artifacts` and `cuHadron/_*` are private to the worktree, so no
+other checkout's artifacts were wiped or read). (1a) = CLAUDE.md A4's seven files + `test_instance_gate.py`
++ `test_syncwarp.py`.
+
+| configuration | (1a) green set | (1b) gate alone | (1c) `test_no_dump.py` | (1d) `test_sync_shapes.py` |
+|---|---|---|---|---|
+| `YOSEMITE_HB_SHARDS` unset (serial) | **341 passed, 3 skipped** | **58 passed** | **31 passed** | **4 passed** |
+| `YOSEMITE_HB_SHARDS=8` | **341 passed, 3 skipped** | **58 passed** | **31 passed** | **4 passed** |
+| `YOSEMITE_HB_SHARDS=16` | **341 passed, 3 skipped** | **58 passed** | **31 passed** | **4 passed** |
+
+Against the 59a98aa install check (job 315525: 321 passed / 2 skipped, 58, 31, 4): +20 passed and +1
+skipped, which are `test_syncwarp.py`'s 20 and its one by-design skip; the other two skips are the two
+empty-parameter gate cases, as before. 0 failed, no xfail. (0) the default tool path (no
+`YOSEMITE_HB_TRACE`), installed runtime vs this one and two runs of this one on two ScoR programs:
+**ALL IDENTICAL** (`kernel_pc` 0).
+
+The test kernel's drains are far below the sharded pass's inline threshold, so `test_syncwarp.py` was
+also run with every drain through the shard threads: `SHARDS=16 INLINE=0 t24_test.sh`
+(`YOSEMITE_HB_SHARDS=16 YOSEMITE_HB_SHARD_INLINE_MAX=0`), job 316806 (c63): **20 passed, 1 skipped**; the
+tool's notices in the kept temp dirs: `scalar-clock pass sharded by location: 16 shards` for the two
+scalar-clock recordings, `YOSEMITE_HB_SHARDS=16 ignored: vector-clock mode runs the serial pass` for the
+two vector-clock ones.
 
 ## 4. The 60 recordings of X5b §4 (step 4) — tested, 60 recordings
 
