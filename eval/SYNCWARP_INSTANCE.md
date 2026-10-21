@@ -1,11 +1,23 @@
-# T24 — a diverged WARPSYNC is one warp-barrier instance (DRAFT, in progress)
+# T24 — a diverged WARPSYNC is one warp-barrier instance
 
-Branch `fix/syncwarp-instance` from `cuVein` 38af04e, worktree `/home/fzheng4/wt-t24`. Unmerged; the
-runtime is not installed (a private build in `/home/fzheng4/stage-t24`, see §6). Nothing under
-`nv-compute/` changes. Legend as in CLAUDE.md A4: **proved-in-effect** (an invariant checked over N real
-traces), **tested** (a specific verdict asserted), **assumed/unverified**.
+Branch `fix/syncwarp-instance` from `cuVein` 38af04e, worktree `/home/fzheng4/wt-t24`, pushed to
+`origin/fix/syncwarp-instance`; unmerged, nothing pushed to `cuVein`. The runtime is **not installed**:
+a private build in `/home/fzheng4/stage-t24` (§8), `wt-t24/lib` points at it; no installed file was
+written (the install hashes are unchanged in every build/check log). Nothing under `nv-compute/` changes.
+Hardware: RTX 4060 Ti (sm_89), driver 580.82.07, CUDA 13.3. Legend as in CLAUDE.md A4:
+**proved-in-effect** (an invariant checked over N real traces), **tested** (a specific verdict asserted),
+**assumed/unverified**.
 
-Status of this draft: steps 1–3 and 5 done; step 4 (parity) and step 6 (timing) running.
+**Two lines for Jeffery.**
+- **Parity:** green set 341 passed / 3 skipped at N = 1, 8 and 16 (gate 58, `test_no_dump.py` 31,
+  `test_sync_shapes.py` 4, default path identical); HbClock == specification 61/61 programs (430 kernels),
+  aggregates == records 876/876 kernel JSONs (counts-le), 0 mismatches; P7 bfs and P1 CC_Topo 1296n still
+  being compared when this was written (§3.2).
+- **The 60 recordings:** none gained (or lost) a report — 0 race pc pairs differ in 680 launches, and the
+  new assembly equals X5b's merged replay on every launch (§4).
+
+Steps: 1 (test, failing first) §1; 2–3 (the change) §2; 4 (parity, the 60 recordings) §3–4; 5 (proof
+paragraph, awaiting Jeffery's check) §6; 6 (timing) §5.
 
 ## 1. The test (step 1) — tested
 
@@ -290,3 +302,45 @@ separate argument for the gate; (iii) not compiled with LaTeX on this cluster (n
 8. **Corpus-wide effect** (beyond X5b's 60 recordings and the 65-program parity set): not measured here.
 9. **The proof paragraph** is unchecked by Jeffery and was not compiled.
 10. Hardware: every GPU run on RTX 4060 Ti (sm_89, driver 580.82.07); no other architecture.
+11. **Timing**: one run per side; the CC program is too short to measure (§5).
+12. **Aggregates == records for P7 bfs and the CC_Topo 1296n program** under the counts-le protocol: not
+    finished when this was written (§3.2).
+
+## 8. Runtime, commands, jobs
+
+Private runtime (`t24_build.sh`, job 316790, c63; the first try, 316789 on c13, failed to link: that
+`normal` node has no `/usr/local/cuda-13.3/compute-sanitizer`): libsanalyzer from this tree with
+`install_merged.sh`'s make line (`OBJ_DIR/LIB_DIR/INSTALL_DIR` under `/home/fzheng4/stage-t24`), the
+collector relinked from `/home/fzheng4/stage-t22t23-59a98aa/nvc/obj/*.o` (the installed collector's objects)
+with RPATH `stage-t24/san-install/lib` — libsanalyzer `d8c5d656394f3e01`, collector `3dad1ffdad521833`;
+installed libsanalyzer `a01c16667b592e5d` and collector `83af143748adb80c` unchanged. The worktree links
+`build .env nv-compute/lib eval/baselines/{bin,corpora}` to the main checkout and `lib` to
+`stage-t24/rt-lib`; `ScoR/` and `cuHadron/` are directories of links with private
+`ScoR/microbenchmarks/artifacts` and `cuHadron/_*`.
+
+```
+X=c2,c21,c23,c37,c46,c54; S=eval/baselines/setup; L=eval/x_logs
+sbatch -p rtx4060ti16g -x $X -o $L/t24-explore-%j.log $S/t24_explore.sh                 # 316786 probe
+sbatch -p rtx4060ti16g -x $X -o $L/t24-test-before-%j.log $S/t24_test.sh                # 316788 (lib -> installed)
+sbatch -p rtx4060ti16g -x $X -o $L/t24-build-%j.log $S/t24_build.sh                     # 316790
+sbatch -p rtx4060ti16g -x $X -o $L/t24-test-after-%j.log $S/t24_test.sh                 # 316792 (lib -> stage)
+sbatch -p rtx4060ti16g -x $X -o $L/t24-check-%j.log $S/t24_check.sh                     # 316793 green set 1/8/16
+sbatch -p rtx4060ti16g -x $X --cpus-per-task=16 --export=ALL,SHARDS=16,INLINE=0 $S/t24_test.sh   # 316806
+sbatch -p rtx4060ti16g -x $X --array=0-7 --export=ALL,STEP=rec $S/t24_parity.sh         # 316794
+sbatch -p normal -x $X --array=0-7 --dependency=afterany:316794 --export=ALL,STEP=spec $S/t24_parity.sh  # 316795
+sbatch -p normal -x $X --array=0-7 --dependency=afterany:316794 --export=ALL,STEP=agg $S/t24_parity.sh   # 316796
+sbatch -p normal -x $X --cpus-per-task=12 --time=06:00:00 --export=ALL,STEP=agg-le $S/t24_parity.sh     # 316864
+sbatch -p normal -x $X --export=ALL,STEP=agg-ids,OFF=1,IDS=<id>:<id>:... $S/t24_parity.sh            # 317321, 317322
+sbatch -p normal -x $X $S/t24_py.sh $S/t4_parity.py table $S/t22_parity/t24-parity/*.json           # 317339
+sbatch -p normal -x $X $S/t24_py.sh $S/t24_exact_check.py $S/t4_parity/t24-parity/shard*.json       # 317337
+sbatch -p normal -x $X -o $L/t24-replay60-%j.log $S/t24_replay60.sh                     # 316799
+sbatch -p normal -x $X -o $L/t24-census-%j.log $S/t24_census.sh                         # 316821
+sbatch -p normal -x $X $S/t24_replay_store.sh                                           # 316823
+sbatch -p normal -x $X --export=ALL,NPROC=3,SUF=-b,SKIP=eval/results/t24/replay-t24-parity.jsonl $S/t24_replay_store.sh  # 316831
+sbatch -p rtx4060ti16g -x $X -o $L/t24-time-%j.log $S/t24_time.sh                       # 316800
+```
+
+Outputs: `eval/results/t24/` (replay60, census, store replays), `eval/results/t24-parity/` (rows),
+`eval/baselines/setup/t5b_parity/t24-parity/`, `t4_parity/t24-parity/` (exact counts),
+`t22_parity/t24-parity/` (counts-le), logs `eval/x_logs/t24-*` (force-added). Kept on BeeGFS:
+`cuvein_traces/t24-parity`, `t24-check`, `t24-time-{before,after}`.
