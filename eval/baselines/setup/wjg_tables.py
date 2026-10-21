@@ -73,13 +73,26 @@ def census_failure(r):
 
 
 def best_attempt(recs):
-    def ok(r):
-        return census_failure(r) is None and (not r["census"].get("merged") or
-                                              (outcome(r, "replay") is None and outcome(r, "bpass") is None))
-    good = [r for r in recs if ok(r)]
-    if good:
-        return good[-1]
-    return max(recs, key=lambda r: (r.get("budget_gb", 0), census_failure(r) is None))
+    """One record per file from its attempts (budgets, classes, a --no-oracle pass): the last
+    attempt whose census finished, with each kind of result (bpass, replay) taken from an attempt
+    where both of its children finished, else from the attempt with the largest budget."""
+    good = [r for r in recs if census_failure(r) is None]
+    if not good:
+        return max(recs, key=lambda r: r.get("budget_gb", 0))
+    out = dict(good[-1])
+    for kind in ("bpass", "replay"):
+        keys = [f"{kind}_{n}{s}" for n in ("as_recorded", "merged") for s in ("", "_child")]
+        done = [r for r in good if outcome(r, kind) is None]
+        tried = [r for r in good if f"{kind}_as_recorded_child" in r]
+        src = done[-1] if done else max(tried, key=lambda r: r.get("budget_gb", 0)) if tried else None
+        for k in keys:
+            out.pop(k, None)
+            if src is not None and k in src:
+                out[k] = src[k]
+    sc = [r["streamcheck"] for r in good if "streamcheck" in r]
+    if sc:
+        out["streamcheck"] = sc[-1]
+    return out
 
 
 def main():

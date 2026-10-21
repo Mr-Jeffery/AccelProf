@@ -501,7 +501,7 @@ def one_file(real, a, idx):
                 {"rc": rc, "stderr": err[-300:]}
         if not rec["census"].get("merged"):
             return rec
-        for kind in ("bpass", "replay"):          # the cheap pass first: it survives an oracle OOM
+        for kind in ("bpass",) if a.no_oracle else ("bpass", "replay"):   # the cheap pass first
             for name, trace in (("as_recorded", data), ("merged", str(mrg))):
                 o = work / f"{kind}_{name}.json"
                 rc, secs, rss, err = run_child([kind, "--dot", rec["census"]["dot"], "--trace", trace,
@@ -598,6 +598,7 @@ def main():
                    help="for dumps under 2,000 MB, also compare the streamed census with the verbatim one")
     p.add_argument("--shard", default="0/1", help="i/n: every n-th file of the selection from i")
     p.add_argument("--match", default="", help="only files whose path contains this")
+    p.add_argument("--no-oracle", action="store_true", help="census and barrier-only pass only")
     p = sub.add_parser("census")
     p.add_argument("--real", required=True)
     p.add_argument("--data", default="", help="a local copy of --real to read instead")
