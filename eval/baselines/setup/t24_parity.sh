@@ -29,4 +29,14 @@ case ${STEP:?set STEP=rec|spec|agg} in
   # T22 cont.'s protocol for a runtime with its Fix 2 (scalar-clock counts as aggregates <= records):
   # t22_parity_cmp.sh with LE=1, PAR processes in this job, then the table
   agg-le) export LE=1 PAR=${PAR:-12} CAP=${CAP:-7200}; exec bash $S/t22_parity_cmp.sh ;;
+  # the same comparer on the programs IDS names, one process each, into extra-<k>.json beside the
+  # agg-le shards (programs an agg-le shard holds behind a long one); IDS separated by ":" (sbatch --export
+  # splits on commas); OFF numbers the outputs from OFF
+  agg-ids) D=$S/t22_parity/$TAG; IDS=$(echo ${IDS:?} | tr : ,); N=$(echo $IDS | tr , '\n' | wc -l)
+        echo "host=$(hostname) nproc=$(nproc) HEAD=$(git rev-parse --short HEAD) ids=$N $(date -Is)"
+        for k in $(seq 0 $((N - 1))); do
+          .env/bin/python $S/t4_parity.py compare --store /mnt/beegfs/$USER/cuvein_traces/$TAG \
+              --out $D/extra-$((k + ${OFF:-0})).json --cap ${CAP:-7200} --ids $IDS --shard $k/$N --counts-le > $D/extra-$((k + ${OFF:-0})).log 2>&1 &
+        done
+        wait; .env/bin/python $S/t4_parity.py table $D/extra-*.json; echo "== done $(date -Is)" ;;
 esac

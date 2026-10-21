@@ -118,9 +118,25 @@ racy, P7 particlefilter); vector-clock: 35 CLEAN, 26 RACE, 4 TIMEOUT (those two,
 8 shards on `normal`) — proved-in-effect: **61/61 programs with a vector-clock dump ok, 430 kernels, 0
 mismatches**; the 4 vector-clock TIMEOUTs have no dump to compare.
 
-**Aggregates == records** (`STEP=agg` -> `p_t4_parity_cmp.sh` -> `t4_parity.py compare`, cap 25,000 s,
-job 316796): (running). This is T4's own parity protocol (NO_DUMP.md §3, run by T4 on this same 65-program
-set, a superset of the brief's 20 programs).
+**Aggregates == records** — T4's parity protocol (NO_DUMP.md §3, which T4 ran on this same 65-program
+set, a superset of the brief's 20 programs), in the form T22 cont. uses since its Fix 2 (scalar-clock
+counts and contested weights compared as aggregates <= records, everything else equal):
+`STEP=agg-le t24_parity.sh` -> `t22_parity_cmp.sh LE=1` (`t4_parity.py compare --counts-le`, CAP 7,200 s per
+program and mode, 12 processes), job 316864 (c12, `normal`), plus `STEP=agg-ids` jobs 317321 / 317322 for
+the five programs two of its processes held behind a long one. Table over everything finished
+(`t4_parity.py table`, job 317339): **121 program × mode rows, 876 kernel JSONs, 876 ok, 0 MISMATCH** (78
+of them above the production lane cutoff, compared all the same) — proved-in-effect. Not finished at the
+time of writing: **P7-bfs-cuda** (scalar-clock; its Python record replay is the slow side — T22 cont. could
+not finish its kernels 15 and 17 in 14.7 h) and **P1-CC_CUDA_V_Topo_Pull_Determ_…_RaceBug_Block_…-
+slower_atomic-1296n** (both modes); job 316864's log (`eval/x_logs/t24-parity-agg-le-316864.log`) and
+`eval/baselines/setup/t22_parity/t24-parity/` will hold them if they finish within the job's 6 h.
+
+The first comparison (`STEP=agg`, job 316796: `t4_parity.py compare` with exact counts, T4's original
+form) was stopped on bfs after its other shards finished: 904 kernel results, 776 ok and 128 MISMATCH, and
+every one of the 128 is a scalar-clock count difference with aggregates < records (T22 cont.'s Fix 2,
+the early exit of the scalar-clock Check); in 3 of them the verdicts differ only in the count-derived
+weight field (same pair, verdict, class and race type) — `t24_exact_check.py`, job 317337. That
+comparison covered the CC_Topo 1296n program in full.
 
 **Rows against earlier recordings of the same ids** (different GPU executions, so schedule-dependent
 counts can move): against T22 cont.'s `t22c-parity` (scalar-clock, N=8; 65 rows) one row differs,
