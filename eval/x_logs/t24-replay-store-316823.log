@@ -1,0 +1,14 @@
+host=c4 job 316823 HEAD=311a287 dirty=0 store t24-parity 2026-10-21T16:23:49-04:00
+/var/spool/slurmd/job316823/slurm_script: line 25: 255658 Killed                  $PY eval/baselines/setup/t24_replay_store.py --store /mnt/beegfs/$USER/cuvein_traces/$TAG --census $R/census-$TAG.jsonl --old-oracle $T/hb_oracle_38af04e.py --old-sd $T/sync_dominance_38af04e.py --out $R/replay-$TAG-$I.jsonl --shard $I/8 > eval/x_logs/t24-replay-store-${SLURM_JOB_ID}-$I.log 2>&1
+tracebacks: 3
+dirs 9 kernels 66 only_new 0 only_old 0 tv_new 0 tv_old 0 errors 0
+P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Block_NoNbrBoundsBug_NoBoundsBug_N 10 ONLY-NEW {} ONLY-OLD {} TVn [] TVo [] []
+P4-reduction-norace-large/scalar-clock 1 ONLY-NEW {} ONLY-OLD {} TVn [] TVo [] []
+P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_Atomic_Warp_Dup_NoNbrBoun 13 ONLY-NEW {} ONLY-OLD {} TVn [] TVo [] []
+P4-reduction-norace-large/vector-clock 1 ONLY-NEW {} ONLY-OLD {} TVn [] TVo [] []
+P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_Atomic_Warp_Dup_NoNbrBoun 13 ONLY-NEW {} ONLY-OLD {} TVn [] TVo [] []
+P4-reduction-racy-large/scalar-clock 1 ONLY-NEW {} ONLY-OLD {} TVn [] TVo [] []
+P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_Block_Dup_NoNb 13 ONLY-NEW {} ONLY-OLD {} TVn [] TVo [] []
+P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_Block_Dup_NoNb 13 ONLY-NEW {} ONLY-OLD {} TVn [] TVo [] []
+P4-reduction-racy-large/vector-clock 1 ONLY-NEW {} ONLY-OLD {} TVn [] TVo [] []
+== done 2026-10-21T16:31:05-04:00

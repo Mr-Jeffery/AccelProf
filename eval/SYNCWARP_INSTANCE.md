@@ -105,6 +105,52 @@ tool's notices in the kept temp dirs: `scalar-clock pass sharded by location: 16
 scalar-clock recordings, `YOSEMITE_HB_SHARDS=16 ignored: vector-clock mode runs the serial pass` for the
 two vector-clock ones.
 
+### 3.2 The T20 parity set re-recorded with the dump
+
+**Recording** (`STEP=rec t24_parity.sh` -> `p_t5b_timeout.sh`, job 316794, 8 shards on `rtx4060ti16g`
+c3/c55/c56/c63/c64, all RTX 4060 Ti sm_89; 15:37–16:14): the 65 ids of `setup/t5b_parity_ids.txt`, both
+modes, dump on, the 120 s floor, one rep, `YOSEMITE_HB_SHARDS=16` (scalar-clock; vector-clock runs the
+serial pass), `YOSEMITE_HB_STATS=1`; store `cuvein_traces/t24-parity`, rows
+`eval/results/t24-parity/`. Scalar-clock: 37 CLEAN, 26 RACE, 2 TIMEOUT (P6 interkernel-global_writewrite
+racy, P7 particlefilter); vector-clock: 35 CLEAN, 26 RACE, 4 TIMEOUT (those two, P7 bfs, P9 crs); 0 ERROR.
+
+**HbClock == specification** (`STEP=spec` -> `p_t5b_parity_cmp.sh` -> `t5b_parity.py compare`, job 316795,
+8 shards on `normal`) — proved-in-effect: **61/61 programs with a vector-clock dump ok, 430 kernels, 0
+mismatches**; the 4 vector-clock TIMEOUTs have no dump to compare.
+
+**Aggregates == records** (`STEP=agg` -> `p_t4_parity_cmp.sh` -> `t4_parity.py compare`, cap 25,000 s,
+job 316796): (running). This is T4's own parity protocol (NO_DUMP.md §3, run by T4 on this same 65-program
+set, a superset of the brief's 20 programs).
+
+**Rows against earlier recordings of the same ids** (different GPU executions, so schedule-dependent
+counts can move): against T22 cont.'s `t22c-parity` (scalar-clock, N=8; 65 rows) one row differs,
+`PI-populate_worklist_neighbors_persistent_atomicBug-counterDAG_200n_1000e` RACE 90 -> 91; against T20's
+`t20-parity2` (130 rows) the same program (90 <-> 91 in both directions), P4 graph-coloring-racy-small
+scalar-clock 13 -> 12 (T22 cont. saw the same 12), P7 bfs scalar-clock TIMEOUT -> RACE 31 (T22 cont.'s
+Fix 2), P9 crs vector-clock CLEAN -> TIMEOUT and P9 overlap TIMEOUT -> CLEAN in both modes (the 120 s cap).
+The populate_worklist program has no syncwarp record that T24 reads differently (§3.3), so its ±1 is the
+schedule, not this change.
+
+### 3.3 Where T24 can act in the parity store, and before/after on the same records — proved-in-effect
+
+`t24_census.py` (job 316821, `normal`): 992 kernel JSONs (4 above 3 GB not read: P6
+interkernel-global_writewrite and P7 particlefilter, both modes), 174,784 syncwarp records, 15,673 partial
+ones, **7,525 diverged instances, 0 open at a kernel's end**, 150 records whose sync_mask names lanes
+outside the expected set (P4 graph-connectivity-racy-small, 75 per mode). 20 (program, mode) dirs have
+syncwarp records; 16 have a diverged instance or such a record: P3 CC ×3 programs, P4 graph-coloring-racy-
+small, graph-connectivity-racy-small, reduction-norace-large, reduction-racy-large, reduction-racy-small
+(both modes each). Every other kernel replays identically by construction (every syncwarp record takes the
+fast path and joins its sync_mask, as before).
+
+`t24_replay_store.py` over those 16 dirs (jobs 316823 and 316831; the first job's 8 processes ran a node
+out of memory — one process killed, three stopped on a host-side dot without kernel clusters — and the 7
+dirs they left were replayed by the second with 3 processes and the dot skipped): 168 kernel JSONs, each
+replayed with 38af04e's oracle and `barrier_only_pairs` and with this tree's, the records as recorded:
+**race pc pairs only after T24: 0, only before: 0** (oracle `races`, `races_sync_only`, and the offline
+pass's pairs); **trace-validity violations: 0 before, 0 after** (strict; includes the two new checks).
+38af04e's strict W3 accepted the 150 graph-connectivity records, so the lanes they name outside the
+expected set are absent lanes (a partial last warp), not exited ones.
+
 ## 4. The 60 recordings of X5b §4 (step 4) — tested, 60 recordings
 
 `eval/baselines/setup/t24_replay60.py`, job 316799 (c15, partition `normal`, 16 shard processes, 6.5 min;
