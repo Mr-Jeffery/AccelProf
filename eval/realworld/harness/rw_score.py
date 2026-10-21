@@ -124,7 +124,7 @@ def main():
                                 n_race=(am or {}).get("n_race", ""), n_sc=(am or {}).get("n_sc", ""),
                                 racecheck=racecheck(id_), open_decision=spec.get("open_decision") or "")
                     reps = (am or {}).get("reports", [])
-                    ok_run = status in ("RACE", "CLEAN")
+                    ok_run = status in ("RACE", "CLEAN") and am is not None
                     if variant == "buggy":
                         comps = OrderedDict()
                         for cl in ("DR", "SC"):
