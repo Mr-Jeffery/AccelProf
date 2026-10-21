@@ -11,8 +11,8 @@ Hardware: RTX 4060 Ti (sm_89), driver 580.82.07, CUDA 13.3. Legend as in CLAUDE.
 **Two lines for Jeffery.**
 - **Parity:** green set 341 passed / 3 skipped at N = 1, 8 and 16 (gate 58, `test_no_dump.py` 31,
   `test_sync_shapes.py` 4, default path identical); HbClock == specification 61/61 programs (430 kernels),
-  aggregates == records 876/876 kernel JSONs (counts-le), 0 mismatches; P7 bfs and P1 CC_Topo 1296n still
-  being compared when this was written (§3.2).
+  aggregates == records 906/906 kernel JSONs over 123 program × mode rows (counts-le), 0 mismatches;
+  P7 bfs (scalar-clock) still being compared when this was written (§3.2).
 - **The 60 recordings:** none gained (or lost) a report — 0 race pc pairs differ in 680 launches, and the
   new assembly equals X5b's merged replay on every launch (§4).
 
@@ -135,13 +135,15 @@ set, a superset of the brief's 20 programs), in the form T22 cont. uses since it
 counts and contested weights compared as aggregates <= records, everything else equal):
 `STEP=agg-le t24_parity.sh` -> `t22_parity_cmp.sh LE=1` (`t4_parity.py compare --counts-le`, CAP 7,200 s per
 program and mode, 12 processes), job 316864 (c12, `normal`), plus `STEP=agg-ids` jobs 317321 / 317322 for
-the five programs two of its processes held behind a long one. Table over everything finished
-(`t4_parity.py table`, job 317339): **121 program × mode rows, 876 kernel JSONs, 876 ok, 0 MISMATCH** (78
-of them above the production lane cutoff, compared all the same) — proved-in-effect. Not finished at the
-time of writing: **P7-bfs-cuda** (scalar-clock; its Python record replay is the slow side — T22 cont. could
-not finish its kernels 15 and 17 in 14.7 h) and **P1-CC_CUDA_V_Topo_Pull_Determ_…_RaceBug_Block_…-
-slower_atomic-1296n** (both modes); job 316864's log (`eval/x_logs/t24-parity-agg-le-316864.log`) and
-`eval/baselines/setup/t22_parity/t24-parity/` will hold them if they finish within the job's 6 h.
+the five programs two of its processes held behind a long one (four of them later also finished in job
+316864; the table counts each program once: `shard*.json` + `extra-4.json`). Table over everything
+finished (`t4_parity.py table`, job 317349): **123 program × mode rows, 906 kernel JSONs, 906 ok, 0
+MISMATCH** (78 of them above the production lane cutoff, compared all the same; the CC_Topo 1296n program
+took 4,540 s and 2,515 s) — proved-in-effect. Not finished at the time of writing: **P7-bfs-cuda**
+(scalar-clock; its Python record replay is the slow side — T22 cont. could not finish its kernels 15 and
+17 in 14.7 h); job 316864 keeps running until its 6 h limit (23:37), and its log
+(`eval/x_logs/t24-parity-agg-le-316864.log`, the full table at the end) and
+`eval/baselines/setup/t22_parity/t24-parity/shard3.json` will hold bfs if it finishes.
 
 The first comparison (`STEP=agg`, job 316796: `t4_parity.py compare` with exact counts, T4's original
 form) was stopped on bfs after its other shards finished: 904 kernel results, 776 ok and 128 MISMATCH, and
@@ -303,8 +305,9 @@ separate argument for the gate; (iii) not compiled with LaTeX on this cluster (n
 9. **The proof paragraph** is unchecked by Jeffery and was not compiled.
 10. Hardware: every GPU run on RTX 4060 Ti (sm_89, driver 580.82.07); no other architecture.
 11. **Timing**: one run per side; the CC program is too short to measure (§5).
-12. **Aggregates == records for P7 bfs and the CC_Topo 1296n program** under the counts-le protocol: not
-    finished when this was written (§3.2).
+12. **Aggregates == records for P7 bfs** (scalar-clock) under the counts-le protocol: not finished when
+    this was written (§3.2); missing. Its HbClock == specification row does not exist either (bfs has no
+    vector-clock dump: TIMEOUT at the 120 s floor).
 
 ## 8. Runtime, commands, jobs
 
@@ -331,7 +334,8 @@ sbatch -p normal -x $X --array=0-7 --dependency=afterany:316794 --export=ALL,STE
 sbatch -p normal -x $X --array=0-7 --dependency=afterany:316794 --export=ALL,STEP=agg $S/t24_parity.sh   # 316796
 sbatch -p normal -x $X --cpus-per-task=12 --time=06:00:00 --export=ALL,STEP=agg-le $S/t24_parity.sh     # 316864
 sbatch -p normal -x $X --export=ALL,STEP=agg-ids,OFF=1,IDS=<id>:<id>:... $S/t24_parity.sh            # 317321, 317322
-sbatch -p normal -x $X $S/t24_py.sh $S/t4_parity.py table $S/t22_parity/t24-parity/*.json           # 317339
+sbatch -p normal -x $X $S/t24_py.sh $S/t4_parity.py table $S/t22_parity/t24-parity/*.json           # 317339 (partial)
+sbatch -p normal -x $X $S/t24_py.sh $S/t4_parity.py table $S/t22_parity/t24-parity/shard*.json $S/t22_parity/t24-parity/extra-4.json   # 317349
 sbatch -p normal -x $X $S/t24_py.sh $S/t24_exact_check.py $S/t4_parity/t24-parity/shard*.json       # 317337
 sbatch -p normal -x $X -o $L/t24-replay60-%j.log $S/t24_replay60.sh                     # 316799
 sbatch -p normal -x $X -o $L/t24-census-%j.log $S/t24_census.sh                         # 316821
