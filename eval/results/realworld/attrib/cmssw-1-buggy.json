@@ -1,0 +1,1866 @@
+{
+ "id": "cmssw-1-buggy",
+ "target": "cmssw-1",
+ "exe": "/mnt/beegfs/fzheng4/realworld_t21b/build/cmssw-1/buggy/driver",
+ "cuda_home": "/usr/local/cuda-13.3",
+ "n_cubins": 1,
+ "n_dots": 1,
+ "oracle_kernel_substr": "multiBlockPrefixScan",
+ "spec_found": true,
+ "modes": {
+  "vector-clock": {
+   "n_kernel_jsons": 4,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "init(unsigned int*, unsigned int, unsigned int)",
+     "mangled": "_Z4initPjjj",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 1,
+      "hb_classes": {
+       "structural": 0,
+       "latent": 0,
+       "benign": 0,
+       "warp-po-ordered": 0,
+       "barrier-ordered": 0,
+       "sc": 0,
+       "latent-sc": 0
+      },
+      "model_bug": 0
+     },
+     "gate_policy": "recorded"
+    },
+    {
+     "kernel_json": "kernel_1.json",
+     "name": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 5,
+      "sc": 0,
+      "ordered": 6,
+      "skipped": 16,
+      "hb_classes": {
+       "structural": 5,
+       "latent": 0,
+       "benign": 0,
+       "warp-po-ordered": 0,
+       "barrier-ordered": 0,
+       "sc": 0,
+       "latent-sc": 0
+      },
+      "model_bug": 0
+     },
+     "gate_policy": "recorded"
+    },
+    {
+     "kernel_json": "kernel_2.json",
+     "name": "init(unsigned int*, unsigned int, unsigned int)",
+     "mangled": "_Z4initPjjj",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 1,
+      "hb_classes": {
+       "structural": 0,
+       "latent": 0,
+       "benign": 0,
+       "warp-po-ordered": 0,
+       "barrier-ordered": 0,
+       "sc": 0,
+       "latent-sc": 0
+      },
+      "model_bug": 0
+     },
+     "gate_policy": "recorded"
+    },
+    {
+     "kernel_json": "kernel_3.json",
+     "name": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 7,
+      "sc": 0,
+      "ordered": 5,
+      "skipped": 17,
+      "hb_classes": {
+       "structural": 7,
+       "latent": 0,
+       "benign": 0,
+       "warp-po-ordered": 0,
+       "barrier-ordered": 0,
+       "sc": 0,
+       "latent-sc": 0
+      },
+      "model_bug": 0
+     },
+     "gate_policy": "recorded"
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 2,
+   "n_race": 7,
+   "n_sc": 0,
+   "reports": [
+    {
+     "mode": "vector-clock",
+     "kernel": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 864,
+     "b_pc": 2352,
+     "a_op": "STG.E",
+     "b_op": "LDG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 22
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 61
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 150
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 172
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "block",
+     "hb_class": "structural",
+     "hb_chain": null,
+     "matrix_class": "structural",
+     "conflict_class": "DR",
+     "a2": "robust",
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "vector-clock",
+     "kernel": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 864,
+     "b_pc": 4096,
+     "a_op": "STG.E",
+     "b_op": "LDG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 22
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 61
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 150
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 179
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "block",
+     "hb_class": "structural",
+     "hb_chain": null,
+     "matrix_class": "structural",
+     "conflict_class": "DR",
+     "a2": "robust",
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json",
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "vector-clock",
+     "kernel": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 864,
+     "b_pc": 4176,
+     "a_op": "STG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 22
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 61
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 150
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 179
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAW",
+     "strength": "block",
+     "hb_class": "structural",
+     "hb_chain": null,
+     "matrix_class": "structural",
+     "conflict_class": "DR",
+     "a2": "robust",
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json",
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "vector-clock",
+     "kernel": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 1664,
+     "b_pc": 4176,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 77
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 150
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 179
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "block",
+     "hb_class": "structural",
+     "hb_chain": null,
+     "matrix_class": "structural",
+     "conflict_class": "DR",
+     "a2": "robust",
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json",
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "vector-clock",
+     "kernel": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 1776,
+     "b_pc": 2352,
+     "a_op": "STG.E",
+     "b_op": "LDG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 77
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 150
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 172
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "block",
+     "hb_class": "structural",
+     "hb_chain": null,
+     "matrix_class": "structural",
+     "conflict_class": "DR",
+     "a2": "robust",
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "vector-clock",
+     "kernel": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 1776,
+     "b_pc": 4096,
+     "a_op": "STG.E",
+     "b_op": "LDG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 77
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 150
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 179
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "block",
+     "hb_class": "structural",
+     "hb_chain": null,
+     "matrix_class": "structural",
+     "conflict_class": "DR",
+     "a2": "robust",
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json",
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "vector-clock",
+     "kernel": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 1776,
+     "b_pc": 4176,
+     "a_op": "STG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 77
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 150
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 179
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAW",
+     "strength": "block",
+     "hb_class": "structural",
+     "hb_chain": null,
+     "matrix_class": "structural",
+     "conflict_class": "DR",
+     "a2": "robust",
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json",
+      "kernel_3.json"
+     ]
+    }
+   ],
+   "site_verdicts": [
+    {
+     "current_pc": 1664,
+     "current_pc_hex": "0x680",
+     "ancient_pc": 864,
+     "ancient_pc_hex": "0x360",
+     "opcodes": [
+      "LDG.E",
+      "STG.E"
+     ],
+     "space": "global",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 1936,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      1024,
+      1040
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "ordered",
+     "matrix_class": "ordered",
+     "model_bug": false,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 77
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 150
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 22
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 61
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 150
+      }
+     ]
+    },
+    {
+     "current_pc": 2352,
+     "current_pc_hex": "0x930",
+     "ancient_pc": 1776,
+     "ancient_pc_hex": "0x6f0",
+     "opcodes": [
+      "LDG.E",
+      "STG.E"
+     ],
+     "space": "global",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 1,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2080
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "ordered",
+     "matrix_class": "ordered",
+     "model_bug": false,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 172
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 77
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 150
+      }
+     ]
+    },
+    {
+     "current_pc": 4064,
+     "current_pc_hex": "0xfe0",
+     "ancient_pc": 3056,
+     "ancient_pc_hex": "0xbf0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 1,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      3216,
+      3232
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "ordered",
+     "matrix_class": "ordered",
+     "model_bug": false,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 179
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 22
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 61
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 175
+      }
+     ]
+    },
+    {
+     "current_pc": 4096,
+     "current_pc_hex": "0x1000",
+     "ancient_pc": 864,
+     "ancient_pc_hex": "0x360",
+     "opcodes": [
+      "LDG.E",
+      "STG.E"
+     ],
+     "space": "global",
+     "race_type": "RAW",
+     "observed_distance": "grid",
+     "contested_weight": 32,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2080
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "structural",
+     "matrix_class": "structural",
+     "model_bug": false,
+     "a2_uncertain": false,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 179
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 22
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 61
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 150
+      }
+     ]
+    },
+    {
+     "current_pc": 4096,
+     "current_pc_hex": "0x1000",
+     "ancient_pc": 1776,
+     "ancient_pc_hex": "0x6f0",
+     "opcodes": [
+      "LDG.E",
+      "STG.E"
+     ],
+     "space": "global",
+     "race_type": "RAW",
+     "observed_distance": "grid",
+     "contested_weight": 944,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2080
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "structural",
+     "matrix_class": "structural",
+     "model_bug": false,
+     "a2_uncertain": false,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 179
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 77
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 150
+      }
+     ]
+    },
+    {
+     "current_pc": 4176,
+     "current_pc_hex": "0x1050",
+     "ancient_pc": 864,
+     "ancient_pc_hex": "0x360",
+     "opcodes": [
+      "STG.E",
+      "STG.E"
+     ],
+     "space": "global",
+     "race_type": "WAW",
+     "observed_distance": "grid",
+     "contested_weight": 976,
+     "access_size": null,
+     "strength": "block",
+     "ordering_syncs": [
+      2080
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": true,
+     "hb_class": "structural",
+     "matrix_class": "structural",
+     "model_bug": false,
+     "a2_uncertain": false,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 179
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 22
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 61
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 150
+      }
+     ]
+    },
+    {
+     "current_pc": 4176,
+     "current_pc_hex": "0x1050",
+     "ancient_pc": 1664,
+     "ancient_pc_hex": "0x680",
+     "opcodes": [
+      "STG.E",
+      "LDG.E"
+     ],
+     "space": "global",
+     "race_type": "WAR",
+     "observed_distance": "grid",
+     "contested_weight": 944,
+     "access_size": null,
+     "strength": "block",
+     "ordering_syncs": [
+      2080
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": true,
+     "hb_class": "structural",
+     "matrix_class": "structural",
+     "model_bug": false,
+     "a2_uncertain": false,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 179
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 77
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 150
+      }
+     ]
+    },
+    {
+     "current_pc": 4176,
+     "current_pc_hex": "0x1050",
+     "ancient_pc": 1776,
+     "ancient_pc_hex": "0x6f0",
+     "opcodes": [
+      "STG.E",
+      "STG.E"
+     ],
+     "space": "global",
+     "race_type": "WAW",
+     "observed_distance": "grid",
+     "contested_weight": 944,
+     "access_size": null,
+     "strength": "block",
+     "ordering_syncs": [
+      2080
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": true,
+     "hb_class": "structural",
+     "matrix_class": "structural",
+     "model_bug": false,
+     "a2_uncertain": false,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 179
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 77
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 150
+      }
+     ]
+    },
+    {
+     "current_pc": 2352,
+     "current_pc_hex": "0x930",
+     "ancient_pc": 1776,
+     "ancient_pc_hex": "0x6f0",
+     "opcodes": [
+      "LDG.E",
+      "STG.E"
+     ],
+     "space": "global",
+     "race_type": "RAW",
+     "observed_distance": "grid",
+     "contested_weight": 18,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2080
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "structural",
+     "matrix_class": "structural",
+     "model_bug": false,
+     "a2_uncertain": false,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "kernel_json": "kernel_3.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 172
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 77
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 150
+      }
+     ]
+    },
+    {
+     "current_pc": 2352,
+     "current_pc_hex": "0x930",
+     "ancient_pc": 864,
+     "ancient_pc_hex": "0x360",
+     "opcodes": [
+      "LDG.E",
+      "STG.E"
+     ],
+     "space": "global",
+     "race_type": "RAW",
+     "observed_distance": "grid",
+     "contested_weight": 18,
+     "access_size": null,
+     "strength": "block",
+     "ordering_syncs": [
+      2080
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": true,
+     "hb_class": "structural",
+     "matrix_class": "structural",
+     "model_bug": false,
+     "a2_uncertain": false,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "kernel_json": "kernel_3.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 172
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 22
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 61
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 150
+      }
+     ]
+    }
+   ],
+   "site_skipped": {
+    "read_read": 5,
+    "intra_thread_only": 8
+   }
+  },
+  "scalar-clock": {
+   "n_kernel_jsons": 4,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "init(unsigned int*, unsigned int, unsigned int)",
+     "mangled": "_Z4initPjjj",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 1,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_1.json",
+     "name": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 5,
+      "sc": 0,
+      "ordered": 6,
+      "skipped": 16,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_2.json",
+     "name": "init(unsigned int*, unsigned int, unsigned int)",
+     "mangled": "_Z4initPjjj",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 1,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_3.json",
+     "name": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 7,
+      "sc": 0,
+      "ordered": 5,
+      "skipped": 17,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 2,
+   "n_race": 7,
+   "n_sc": 0,
+   "reports": [
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 864,
+     "b_pc": 2352,
+     "a_op": "STG.E",
+     "b_op": "LDG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 22
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 61
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 150
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 172
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "block",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 864,
+     "b_pc": 4096,
+     "a_op": "STG.E",
+     "b_op": "LDG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 22
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 61
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 150
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 179
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "block",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json",
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 864,
+     "b_pc": 4176,
+     "a_op": "STG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 22
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 61
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 150
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 179
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAW",
+     "strength": "block",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json",
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 1664,
+     "b_pc": 4176,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 77
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 150
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 179
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "block",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json",
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 1776,
+     "b_pc": 2352,
+     "a_op": "STG.E",
+     "b_op": "LDG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 77
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 150
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 172
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "block",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 1776,
+     "b_pc": 4096,
+     "a_op": "STG.E",
+     "b_op": "LDG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 77
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 150
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 179
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "block",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json",
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 1776,
+     "b_pc": 4176,
+     "a_op": "STG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 77
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 150
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 179
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAW",
+     "strength": "block",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json",
+      "kernel_3.json"
+     ]
+    }
+   ],
+   "site_verdicts": [
+    {
+     "current_pc": 1664,
+     "current_pc_hex": "0x680",
+     "ancient_pc": 864,
+     "ancient_pc_hex": "0x360",
+     "opcodes": [
+      "LDG.E",
+      "STG.E"
+     ],
+     "space": "global",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 1936,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      1024,
+      1040
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 77
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 150
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 22
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 61
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 150
+      }
+     ]
+    },
+    {
+     "current_pc": 2352,
+     "current_pc_hex": "0x930",
+     "ancient_pc": 1776,
+     "ancient_pc_hex": "0x6f0",
+     "opcodes": [
+      "LDG.E",
+      "STG.E"
+     ],
+     "space": "global",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 1,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2080
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 172
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 77
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 150
+      }
+     ]
+    },
+    {
+     "current_pc": 4064,
+     "current_pc_hex": "0xfe0",
+     "ancient_pc": 3056,
+     "ancient_pc_hex": "0xbf0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 1,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      3216,
+      3232
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 179
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 22
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 61
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 175
+      }
+     ]
+    },
+    {
+     "current_pc": 4096,
+     "current_pc_hex": "0x1000",
+     "ancient_pc": 864,
+     "ancient_pc_hex": "0x360",
+     "opcodes": [
+      "LDG.E",
+      "STG.E"
+     ],
+     "space": "global",
+     "race_type": "RAW",
+     "observed_distance": "grid",
+     "contested_weight": 32,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2080
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 179
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 22
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 61
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 150
+      }
+     ]
+    },
+    {
+     "current_pc": 4096,
+     "current_pc_hex": "0x1000",
+     "ancient_pc": 1776,
+     "ancient_pc_hex": "0x6f0",
+     "opcodes": [
+      "LDG.E",
+      "STG.E"
+     ],
+     "space": "global",
+     "race_type": "RAW",
+     "observed_distance": "grid",
+     "contested_weight": 944,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2080
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 179
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 77
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 150
+      }
+     ]
+    },
+    {
+     "current_pc": 4176,
+     "current_pc_hex": "0x1050",
+     "ancient_pc": 864,
+     "ancient_pc_hex": "0x360",
+     "opcodes": [
+      "STG.E",
+      "STG.E"
+     ],
+     "space": "global",
+     "race_type": "WAW",
+     "observed_distance": "grid",
+     "contested_weight": 976,
+     "access_size": null,
+     "strength": "block",
+     "ordering_syncs": [
+      2080
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": true,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 179
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 22
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 61
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 150
+      }
+     ]
+    },
+    {
+     "current_pc": 4176,
+     "current_pc_hex": "0x1050",
+     "ancient_pc": 1664,
+     "ancient_pc_hex": "0x680",
+     "opcodes": [
+      "STG.E",
+      "LDG.E"
+     ],
+     "space": "global",
+     "race_type": "WAR",
+     "observed_distance": "grid",
+     "contested_weight": 944,
+     "access_size": null,
+     "strength": "block",
+     "ordering_syncs": [
+      2080
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": true,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 179
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 77
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 150
+      }
+     ]
+    },
+    {
+     "current_pc": 4176,
+     "current_pc_hex": "0x1050",
+     "ancient_pc": 1776,
+     "ancient_pc_hex": "0x6f0",
+     "opcodes": [
+      "STG.E",
+      "STG.E"
+     ],
+     "space": "global",
+     "race_type": "WAW",
+     "observed_distance": "grid",
+     "contested_weight": 944,
+     "access_size": null,
+     "strength": "block",
+     "ordering_syncs": [
+      2080
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": true,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 179
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 77
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 150
+      }
+     ]
+    },
+    {
+     "current_pc": 2352,
+     "current_pc_hex": "0x930",
+     "ancient_pc": 1776,
+     "ancient_pc_hex": "0x6f0",
+     "opcodes": [
+      "LDG.E",
+      "STG.E"
+     ],
+     "space": "global",
+     "race_type": "RAW",
+     "observed_distance": "grid",
+     "contested_weight": 18,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2080
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "kernel_json": "kernel_3.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 172
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 77
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 150
+      }
+     ]
+    },
+    {
+     "current_pc": 2352,
+     "current_pc_hex": "0x930",
+     "ancient_pc": 864,
+     "ancient_pc_hex": "0x360",
+     "opcodes": [
+      "LDG.E",
+      "STG.E"
+     ],
+     "space": "global",
+     "race_type": "RAW",
+     "observed_distance": "grid",
+     "contested_weight": 18,
+     "access_size": null,
+     "strength": "block",
+     "ordering_syncs": [
+      2080
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": true,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void cms::cuda::multiBlockPrefixScan<unsigned int>(unsigned int const*, unsigned int*, int, int*)",
+     "mangled": "_ZN3cms4cuda20multiBlockPrefixScanIjEEvPKT_PS2_iPi",
+     "kernel_json": "kernel_3.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 172
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 22
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 61
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cmssw-1/buggy/src/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h",
+       "line": 150
+      }
+     ]
+    }
+   ],
+   "site_skipped": {
+    "read_read": 5,
+    "intra_thread_only": 8
+   }
+  }
+ },
+ "dots_checked": 1,
+ "dots_regenerated_equal": 1
+}

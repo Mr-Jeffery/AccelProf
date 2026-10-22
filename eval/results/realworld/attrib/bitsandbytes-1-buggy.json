@@ -1,0 +1,334 @@
+{
+ "id": "bitsandbytes-1-buggy",
+ "target": "bitsandbytes-1",
+ "exe": "/mnt/beegfs/fzheng4/realworld_t21b/build/bitsandbytes-1/buggy/driver",
+ "cuda_home": "/usr/local/cuda-13.3",
+ "n_cubins": 1,
+ "n_dots": 1,
+ "oracle_kernel_substr": "kEstimateQuantiles",
+ "spec_found": true,
+ "modes": {
+  "vector-clock": {
+   "n_kernel_jsons": 1,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 2,
+      "sc": 0,
+      "ordered": 776,
+      "skipped": 371,
+      "hb_classes": {
+       "structural": 2,
+       "latent": 0,
+       "benign": 0,
+       "warp-po-ordered": 0,
+       "barrier-ordered": 64,
+       "sc": 0,
+       "latent-sc": 0
+      },
+      "model_bug": 0
+     },
+     "gate_policy": "recorded"
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 1,
+   "n_race": 1,
+   "n_sc": 0,
+   "reports": [
+    {
+     "mode": "vector-clock",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 8832,
+     "b_pc": 9104,
+     "a_op": "STS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/buggy/src/csrc/kernels.cu",
+       "line": 655
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/buggy/src/csrc/kernels.cu",
+       "line": 661
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAW",
+     "strength": "none",
+     "hb_class": "structural",
+     "hb_chain": null,
+     "matrix_class": "structural",
+     "conflict_class": "DR",
+     "a2": "robust",
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json",
+      "kernel_0.json"
+     ]
+    }
+   ],
+   "site_verdicts": [
+    {
+     "current_pc": 8832,
+     "current_pc_hex": "0x2280",
+     "ancient_pc": 9104,
+     "ancient_pc_hex": "0x2390",
+     "opcodes": [
+      "STS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "WAW",
+     "observed_distance": "block",
+     "contested_weight": 6,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "structural",
+     "matrix_class": "structural",
+     "model_bug": false,
+     "a2_uncertain": false,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/buggy/src/csrc/kernels.cu",
+       "line": 655
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/buggy/src/csrc/kernels.cu",
+       "line": 661
+      }
+     ]
+    },
+    {
+     "current_pc": 9104,
+     "current_pc_hex": "0x2390",
+     "ancient_pc": 8832,
+     "ancient_pc_hex": "0x2280",
+     "opcodes": [
+      "STS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "WAW",
+     "observed_distance": "block",
+     "contested_weight": 954,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "structural",
+     "matrix_class": "structural",
+     "model_bug": false,
+     "a2_uncertain": false,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/buggy/src/csrc/kernels.cu",
+       "line": 661
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/buggy/src/csrc/kernels.cu",
+       "line": 655
+      }
+     ]
+    }
+   ],
+   "site_skipped": {}
+  },
+  "scalar-clock": {
+   "n_kernel_jsons": 1,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 2,
+      "sc": 0,
+      "ordered": 777,
+      "skipped": 371,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 1,
+   "n_race": 1,
+   "n_sc": 0,
+   "reports": [
+    {
+     "mode": "scalar-clock",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 8832,
+     "b_pc": 9104,
+     "a_op": "STS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/buggy/src/csrc/kernels.cu",
+       "line": 655
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/buggy/src/csrc/kernels.cu",
+       "line": 661
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json",
+      "kernel_0.json"
+     ]
+    }
+   ],
+   "site_verdicts": [
+    {
+     "current_pc": 8832,
+     "current_pc_hex": "0x2280",
+     "ancient_pc": 9104,
+     "ancient_pc_hex": "0x2390",
+     "opcodes": [
+      "STS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "WAW",
+     "observed_distance": "block",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/buggy/src/csrc/kernels.cu",
+       "line": 655
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/buggy/src/csrc/kernels.cu",
+       "line": 661
+      }
+     ]
+    },
+    {
+     "current_pc": 9104,
+     "current_pc_hex": "0x2390",
+     "ancient_pc": 8832,
+     "ancient_pc_hex": "0x2280",
+     "opcodes": [
+      "STS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "WAW",
+     "observed_distance": "block",
+     "contested_weight": 952,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/buggy/src/csrc/kernels.cu",
+       "line": 661
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/buggy/src/csrc/kernels.cu",
+       "line": 655
+      }
+     ]
+    }
+   ],
+   "site_skipped": {}
+  }
+ },
+ "dots_checked": 1,
+ "dots_regenerated_equal": 1
+}

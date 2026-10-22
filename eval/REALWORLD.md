@@ -497,3 +497,103 @@ decisions left to Jeffery. The reviewers did not re-check the SASS statements in
 - Wave 3 (`pytorch-8` R4 wheels, `cudf-3/5/9` R1 + R3) is not started (D22 default). The four oracle drafts exist.
 - The extended tier is untouched. No detector was run.
 - The candidates' builds are T21c's (routes in the corpus section of CLAUDE.md); their oracle drafts are source-derived only.
+
+
+
+## 2. Recall (T21b)
+
+**Runtime (every result below).** Install commit `f551ca0` (cuVein, merged into this branch as `9e29b3f`): libsanalyzer `5a20fd14ab6c6806`,
+collector `b746b4dd23e90f46`, fatbin `a2d7368bc1c61986` (late fatbin `e96343121c74ca0a`). The hashes were verified on the compute node by
+prep job 317627 (c26) and again at the top of every recall job (exit 99 on a mismatch); each `meta.json` of the store
+`/mnt/beegfs/fzheng4/cuvein_traces/realworld-2026-10/<id>/` carries them under `t21b.runtime`. Oracles: commit `bc71082`, read, never edited.
+Pre-T24 outputs of the first attempt were moved to `/mnt/beegfs/fzheng4/realworld/pre-t24-discarded/` before any new result was written.
+
+**Status at this writing: partial.** Not all 28 targets are scored; the rows below are what has run. Pending and open items are in 2.4.
+
+**Configuration** (X1b's, with shards): `harness/recall_job.sh`; one job per target variant pair, both modes (vector-clock then scalar-clock)
+per id, 16 CPUs (`nproc` = 16, so `YOSEMITE_HB_SHARDS=16` for the scalar-clock sync pass; the script would take 32 at nproc >= 64),
+`BASELINE_HB_DUMP=0`, `YOSEMITE_HB_STATS=1`, `--confirm`, `--reps 1`, `--timeout-cap 1200`, `--analysis-timeout 3600`, atomic-scope sidecar via
+`accelprof -n 1` (parallel.py), CUDA 13.3 toolchain for the sanitizer (`/usr/local/cuda-13.3`), artifacts relinked with `--cudart shared`
+(manifest `eval/realworld/manifest_t21b.csv`; llamacpp excepted). Results `eval/results/realworld/`, confirm files `eval/baselines/confirm_realworld/`.
+`certain` flavor (`YOSEMITE_HB_GATE_POLICY=certain`, vector-clock only) for `cccl-3`, `raft-1`, `cmssw-1`; `vc5400` flavor for timeouts.
+Attribution: `harness/rw_attribute.py` (kernel-aware, after the alignment stage, `nvdisasm --print-line-info-inline` of the loaded cubin,
+inlined frames included; the regenerated CFG equals the stored dot where `dots equal` is reported). Scoring: `harness/rw_score.py`;
+pair table `eval/realworld/recall_pairs.json`; queue `eval/realworld/triage_queue.md`.
+
+**Defects and facts found while running (harness-side; nothing under `python/`, `sanalyzer/`, `nv-compute/`, `bin/` was touched).**
+1. `llamacpp-2/-4/-5`: `parallel.py`/`run_cuvein.py` split the manifest `args` on whitespace without a shell, so the single quotes of
+   `-p '...'` reached `test-backend-ops` literally and the filter matched no test ("0/0 tests passed" in the native line of the first run: no kernel
+   launched, status ERROR `no-kernel-json`). Fixed in `manifest_t21b.csv` and `mk_manifest_t21b.py` (quotes removed; the strings contain no
+   spaces); the first-run rows of these three targets are void and were re-queued (2.4). This is a driver defect (cause m1 class), not a detector one.
+2. Attribution of runs with thousands of kernel launches is the slowest step: it re-runs `sync_dominance.analyze` over every kernel JSON of both modes
+   and calls `nvdisasm` on whole cubins. `raft-1-buggy` took about 4 h 40 min, `amrex-1-buggy` and `hecbench-hungarian-1-buggy` (1,246 and about
+   6,900 kernel JSONs) had not finished at the 5 h job limit. For runs whose status is ERROR or TIMEOUT the attribution is not needed for scoring (not scored).
+3. `lit-fbgemm-1` (miss, 2.2): the pair reported at pcs `0x27d0` (LDS) and `0x2b00` (STS) is the pair the oracle's own SASS note lists
+   (`LDS at 0x27d0 (first copy)`, `STS at 0x2b00 (second copy)`), but `nvdisasm --print-line-info-inline` attributes both pcs to
+   `sm_30_intrinsics.hpp:439 <- fast_gemv.cuh:65 <- fast_gemv.cu:149`, not to `fast_gemv.cu:141/145`; by the brief's line rule it scores MISSED. Queued
+   for triage as an attribution (line-table) question, not as a detector miss. The oracle SASS offsets are the builder's and were not re-checked by the reviewers.
+4. BeeGFS: from about 06:00 on 2026-10-22 newly allocated nodes (c26, c40, c41, c43, c56, c61, c62, c63, c76, c77) reported
+   `/mnt/beegfs/fzheng4` missing at job start (the header exits 97 with the hostname); several of these had worked at 02:14. Jobs submitted through
+   `harness/recall_retry.sh` re-queue themselves without the node (list in `eval/x_logs/bad_nodes.txt`). c26 carries a second GPU (RTX 2060); the
+   job selects the sm_89 device (`CUDA_VISIBLE_DEVICES`).
+5. A second helper replaced `recall_job.sh` in place while array 317630 tasks 0-6 ran; tasks 2, 3, 6 exited non-zero in the loop's tail. Detector runs and
+   attribution of the ids they had finished are unaffected (task 6 = `kokkos-6`: both ids complete).
+
+### 2.1 Detected, by mode and expected_class (main flavor, buggy builds, rows scored so far)
+
+A target of class DR+SC has two components (DR pair, SC pair), counted separately. Outcome words as in the T21b brief; `DETECTED-AS-DR` = reported in the other class (D20 option (i)).
+
+| mode | expected_class | component | DETECTED | DETECTED-AS-other | MISSED | n |
+|---|---|---|---|---|---|---|
+| scalar-clock | DR | DR | 18 | 0 | 2 | 20 |
+| scalar-clock | DR+SC | DR | 3 | 0 | 0 | 3 |
+| scalar-clock | DR+SC | SC | 2 | 1 | 0 | 3 |
+| scalar-clock | SC | SC | 0 | 1 | 1 | 2 |
+| vector-clock | DR | DR | 18 | 0 | 2 | 20 |
+| vector-clock | DR+SC | DR | 3 | 0 | 0 | 3 |
+| vector-clock | DR+SC | SC | 2 | 1 | 0 | 3 |
+| vector-clock | SC | SC | 0 | 1 | 1 | 2 |
+
+### 2.2 Per target (main flavor; vc = vector-clock mode, sc = scalar-clock mode; fixed: outcome per mode)
+
+| target | wave | class | buggy vc | buggy sc | op. point (vc) | a2 | .STRONG | fixed vc | fixed sc | racecheck (buggy) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| bitsandbytes-1 | 1 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 3813 errors, 256 warnings (displayed 2000) |
+| cccl-1 | 1 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | STILL-REPORTED | STILL-REPORTED | 0 errors, 22 warnings (displayed 22) |
+| cccl-2 | 1 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 835 errors, 84 warnings (displayed 919) |
+| cccl-3 | 1 | DR+SC | DR: DETECTED / SC: DETECTED | DR: DETECTED / SC: DETECTED | Race, SC report (informational class) | None,robust | yes | RESIDUAL-AS-EXPECTED | RESIDUAL-AS-EXPECTED | n/a (global memory) |
+| cccl-4 | 1 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | n/a (global memory) |
+| cmssw-1 | 1 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | RESIDUAL-AS-EXPECTED | RESIDUAL-AS-EXPECTED | n/a (global memory) |
+| hecbench-dxtc2-1 | 1 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | RESIDUAL-AS-EXPECTED | RESIDUAL-AS-EXPECTED | 0 errors, 139502 warnings (displayed 2000) |
+| hecbench-hungarian-1 | 1 | SC | SC: MISSED | SC: MISSED |  |  |  | - | - | 0 errors, 10002296 warnings (displayed 2000) |
+| hecbench-morphology-1 | 1 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 142588 errors, 1046016 warnings (displayed 2000) |
+| hecbench-surfel-1 | 1 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 3717 errors, 0 warnings (displayed 2000) |
+| lit-arrayfire-1 | 1 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 97 errors, 0 warnings (displayed 97) |
+| lit-fbgemm-1 | 1 | DR | DR: MISSED | DR: MISSED |  |  |  | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 1665 errors, 0 warnings (displayed 1665) |
+| lit-shoc-1 | 1 | DR+SC | DR: DETECTED / SC: DETECTED-AS-DR | DR: DETECTED / SC: DETECTED-AS-DR | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 12575 errors, 515594 warnings (displayed 2000) |
+| llamacpp-2 | 1 | DR | DR: VOID | DR: VOID |  |  |  | - | - | 0 errors, 493 warnings (displayed 493) |
+| llamacpp-4 | 1 | DR | DR: VOID | DR: VOID |  |  |  | VOID | VOID | 6890 errors, 272 warnings (displayed 2000) |
+| llamacpp-5 | 1 | DR | DR: VOID | DR: VOID |  |  |  | VOID | VOID | 131170 errors, 259648 warnings (displayed 2000) |
+| opencv-2 | 1 | SC | SC: DETECTED-AS-DR | SC: DETECTED-AS-DR |  | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 1788 errors, 4752 warnings (displayed 2000) |
+| pytorch-1 | 1 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 129 errors, 0 warnings (displayed 129) |
+| pytorch-3 | 1 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | n/a (global memory) |
+| pytorch-4 | 1 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | RESIDUAL-AS-EXPECTED | RESIDUAL-AS-EXPECTED | n/a (global memory) |
+| pytorch_cluster-1 | 1 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 12964 errors, 46464 warnings (displayed 2000) |
+| amrex-1 | 2 | DR | DR: MISSED | DR: MISSED |  |  |  | - | - | n/a (global memory) |
+| ginkgo-1 | 2 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 3841 errors, 0 warnings (displayed 2000) |
+| ginkgo-5 | 2 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | n/a (global memory) |
+| kokkos-5 | 2 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 0 errors, 35671 warnings (displayed 2000) |
+| kokkos-6 | 2 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 6690 errors, 7767 warnings (displayed 2000) |
+| lit-exllamav3-1 | 2 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 710 errors, 38521 warnings (displayed 2000) |
+| raft-1 | 2 | DR+SC | DR: DETECTED / SC: DETECTED | DR: DETECTED / SC: DETECTED | Race, SC report (informational class) | None,robust | yes | - | - | n/a (global memory) |
+
+### 2.3 Other flavors (vector-clock only)
+
+| flavor | target | variant | component | run | outcome | operating point |
+|---|---|---|---|---|---|---|
+| certain | cccl-3 | buggy | DR | RACE | DETECTED | Race |
+| certain | cccl-3 | buggy | SC | RACE | DETECTED | SC report (informational class) |
+| certain | cccl-3 | fixed |  | RACE | RESIDUAL-AS-EXPECTED |  |
+| certain | raft-1 | buggy | DR | RACE | DETECTED | Race |
+| certain | raft-1 | buggy | SC | RACE | DETECTED | SC report (informational class) |
+| certain | raft-1 | fixed |  | RACE | NOT-SCORED |  |

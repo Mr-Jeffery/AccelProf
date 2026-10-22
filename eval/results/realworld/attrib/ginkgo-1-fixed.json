@@ -1,0 +1,2902 @@
+{
+ "id": "ginkgo-1-fixed",
+ "target": "ginkgo-1",
+ "exe": "/mnt/beegfs/fzheng4/realworld_t21b/build/ginkgo-1/fixed/driver",
+ "cuda_home": "/usr/local/cuda-13.3",
+ "n_cubins": 1,
+ "n_dots": 1,
+ "oracle_kernel_substr": "generic_kernel_col_reduction_2d_blocked",
+ "spec_found": true,
+ "modes": {
+  "vector-clock": {
+   "n_kernel_jsons": 1,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 30,
+      "skipped": 4,
+      "hb_classes": {
+       "structural": 0,
+       "latent": 0,
+       "benign": 0,
+       "warp-po-ordered": 0,
+       "barrier-ordered": 0,
+       "sc": 0,
+       "latent-sc": 0
+      },
+      "model_bug": 0
+     },
+     "gate_policy": "recorded"
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 1,
+   "n_race": 0,
+   "n_sc": 0,
+   "reports": [],
+   "site_verdicts": [
+    {
+     "current_pc": 2208,
+     "current_pc_hex": "0x8a0",
+     "ancient_pc": 2352,
+     "ancient_pc_hex": "0x930",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 64,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "ordered",
+     "matrix_class": "ordered",
+     "model_bug": false,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ]
+    },
+    {
+     "current_pc": 2208,
+     "current_pc_hex": "0x8a0",
+     "ancient_pc": 2384,
+     "ancient_pc_hex": "0x950",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 64,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "ordered",
+     "matrix_class": "ordered",
+     "model_bug": false,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ]
+    },
+    {
+     "current_pc": 2208,
+     "current_pc_hex": "0x8a0",
+     "ancient_pc": 2400,
+     "ancient_pc_hex": "0x960",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 64,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "ordered",
+     "matrix_class": "ordered",
+     "model_bug": false,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ]
+    },
+    {
+     "current_pc": 2208,
+     "current_pc_hex": "0x8a0",
+     "ancient_pc": 2416,
+     "ancient_pc_hex": "0x970",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 64,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "ordered",
+     "matrix_class": "ordered",
+     "model_bug": false,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ]
+    },
+    {
+     "current_pc": 2208,
+     "current_pc_hex": "0x8a0",
+     "ancient_pc": 2432,
+     "ancient_pc_hex": "0x980",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 64,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "ordered",
+     "matrix_class": "ordered",
+     "model_bug": false,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ]
+    },
+    {
+     "current_pc": 2208,
+     "current_pc_hex": "0x8a0",
+     "ancient_pc": 2448,
+     "ancient_pc_hex": "0x990",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 64,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "ordered",
+     "matrix_class": "ordered",
+     "model_bug": false,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ]
+    },
+    {
+     "current_pc": 2208,
+     "current_pc_hex": "0x8a0",
+     "ancient_pc": 2496,
+     "ancient_pc_hex": "0x9c0",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 64,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "ordered",
+     "matrix_class": "ordered",
+     "model_bug": false,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ]
+    },
+    {
+     "current_pc": 2208,
+     "current_pc_hex": "0x8a0",
+     "ancient_pc": 2528,
+     "ancient_pc_hex": "0x9e0",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 64,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "ordered",
+     "matrix_class": "ordered",
+     "model_bug": false,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ]
+    },
+    {
+     "current_pc": 2208,
+     "current_pc_hex": "0x8a0",
+     "ancient_pc": 2560,
+     "ancient_pc_hex": "0xa00",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 64,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "ordered",
+     "matrix_class": "ordered",
+     "model_bug": false,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ]
+    },
+    {
+     "current_pc": 2208,
+     "current_pc_hex": "0x8a0",
+     "ancient_pc": 2592,
+     "ancient_pc_hex": "0xa20",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 64,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "ordered",
+     "matrix_class": "ordered",
+     "model_bug": false,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ]
+    },
+    {
+     "current_pc": 2208,
+     "current_pc_hex": "0x8a0",
+     "ancient_pc": 2624,
+     "ancient_pc_hex": "0xa40",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 64,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "ordered",
+     "matrix_class": "ordered",
+     "model_bug": false,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ]
+    },
+    {
+     "current_pc": 2208,
+     "current_pc_hex": "0x8a0",
+     "ancient_pc": 2656,
+     "ancient_pc_hex": "0xa60",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 64,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "ordered",
+     "matrix_class": "ordered",
+     "model_bug": false,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ]
+    },
+    {
+     "current_pc": 2208,
+     "current_pc_hex": "0x8a0",
+     "ancient_pc": 2688,
+     "ancient_pc_hex": "0xa80",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 64,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "ordered",
+     "matrix_class": "ordered",
+     "model_bug": false,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ]
+    },
+    {
+     "current_pc": 2208,
+     "current_pc_hex": "0x8a0",
+     "ancient_pc": 2720,
+     "ancient_pc_hex": "0xaa0",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 64,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "ordered",
+     "matrix_class": "ordered",
+     "model_bug": false,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ]
+    },
+    {
+     "current_pc": 2208,
+     "current_pc_hex": "0x8a0",
+     "ancient_pc": 2752,
+     "ancient_pc_hex": "0xac0",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 64,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "ordered",
+     "matrix_class": "ordered",
+     "model_bug": false,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ]
+    },
+    {
+     "current_pc": 2352,
+     "current_pc_hex": "0x930",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "ordered",
+     "matrix_class": "ordered",
+     "model_bug": false,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ]
+    },
+    {
+     "current_pc": 2384,
+     "current_pc_hex": "0x950",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "ordered",
+     "matrix_class": "ordered",
+     "model_bug": false,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ]
+    },
+    {
+     "current_pc": 2400,
+     "current_pc_hex": "0x960",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "ordered",
+     "matrix_class": "ordered",
+     "model_bug": false,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ]
+    },
+    {
+     "current_pc": 2416,
+     "current_pc_hex": "0x970",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "ordered",
+     "matrix_class": "ordered",
+     "model_bug": false,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ]
+    },
+    {
+     "current_pc": 2432,
+     "current_pc_hex": "0x980",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "ordered",
+     "matrix_class": "ordered",
+     "model_bug": false,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ]
+    },
+    {
+     "current_pc": 2448,
+     "current_pc_hex": "0x990",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "ordered",
+     "matrix_class": "ordered",
+     "model_bug": false,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ]
+    },
+    {
+     "current_pc": 2496,
+     "current_pc_hex": "0x9c0",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "ordered",
+     "matrix_class": "ordered",
+     "model_bug": false,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ]
+    },
+    {
+     "current_pc": 2528,
+     "current_pc_hex": "0x9e0",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "ordered",
+     "matrix_class": "ordered",
+     "model_bug": false,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ]
+    },
+    {
+     "current_pc": 2560,
+     "current_pc_hex": "0xa00",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "ordered",
+     "matrix_class": "ordered",
+     "model_bug": false,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ]
+    },
+    {
+     "current_pc": 2592,
+     "current_pc_hex": "0xa20",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "ordered",
+     "matrix_class": "ordered",
+     "model_bug": false,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ]
+    },
+    {
+     "current_pc": 2624,
+     "current_pc_hex": "0xa40",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "ordered",
+     "matrix_class": "ordered",
+     "model_bug": false,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ]
+    },
+    {
+     "current_pc": 2656,
+     "current_pc_hex": "0xa60",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "ordered",
+     "matrix_class": "ordered",
+     "model_bug": false,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ]
+    },
+    {
+     "current_pc": 2688,
+     "current_pc_hex": "0xa80",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "ordered",
+     "matrix_class": "ordered",
+     "model_bug": false,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ]
+    },
+    {
+     "current_pc": 2720,
+     "current_pc_hex": "0xaa0",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "ordered",
+     "matrix_class": "ordered",
+     "model_bug": false,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ]
+    },
+    {
+     "current_pc": 2752,
+     "current_pc_hex": "0xac0",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "ordered",
+     "matrix_class": "ordered",
+     "model_bug": false,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ]
+    }
+   ],
+   "site_skipped": {
+    "intra_thread_only": 2
+   }
+  },
+  "scalar-clock": {
+   "n_kernel_jsons": 1,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 30,
+      "skipped": 4,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 1,
+   "n_race": 0,
+   "n_sc": 0,
+   "reports": [],
+   "site_verdicts": [
+    {
+     "current_pc": 2208,
+     "current_pc_hex": "0x8a0",
+     "ancient_pc": 2352,
+     "ancient_pc_hex": "0x930",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 64,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ]
+    },
+    {
+     "current_pc": 2208,
+     "current_pc_hex": "0x8a0",
+     "ancient_pc": 2384,
+     "ancient_pc_hex": "0x950",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 64,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ]
+    },
+    {
+     "current_pc": 2208,
+     "current_pc_hex": "0x8a0",
+     "ancient_pc": 2400,
+     "ancient_pc_hex": "0x960",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 64,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ]
+    },
+    {
+     "current_pc": 2208,
+     "current_pc_hex": "0x8a0",
+     "ancient_pc": 2416,
+     "ancient_pc_hex": "0x970",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 64,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ]
+    },
+    {
+     "current_pc": 2208,
+     "current_pc_hex": "0x8a0",
+     "ancient_pc": 2432,
+     "ancient_pc_hex": "0x980",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 64,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ]
+    },
+    {
+     "current_pc": 2208,
+     "current_pc_hex": "0x8a0",
+     "ancient_pc": 2448,
+     "ancient_pc_hex": "0x990",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 64,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ]
+    },
+    {
+     "current_pc": 2208,
+     "current_pc_hex": "0x8a0",
+     "ancient_pc": 2496,
+     "ancient_pc_hex": "0x9c0",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 64,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ]
+    },
+    {
+     "current_pc": 2208,
+     "current_pc_hex": "0x8a0",
+     "ancient_pc": 2528,
+     "ancient_pc_hex": "0x9e0",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 64,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ]
+    },
+    {
+     "current_pc": 2208,
+     "current_pc_hex": "0x8a0",
+     "ancient_pc": 2560,
+     "ancient_pc_hex": "0xa00",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 64,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ]
+    },
+    {
+     "current_pc": 2208,
+     "current_pc_hex": "0x8a0",
+     "ancient_pc": 2592,
+     "ancient_pc_hex": "0xa20",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 64,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ]
+    },
+    {
+     "current_pc": 2208,
+     "current_pc_hex": "0x8a0",
+     "ancient_pc": 2624,
+     "ancient_pc_hex": "0xa40",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 64,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ]
+    },
+    {
+     "current_pc": 2208,
+     "current_pc_hex": "0x8a0",
+     "ancient_pc": 2656,
+     "ancient_pc_hex": "0xa60",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 64,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ]
+    },
+    {
+     "current_pc": 2208,
+     "current_pc_hex": "0x8a0",
+     "ancient_pc": 2688,
+     "ancient_pc_hex": "0xa80",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 64,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ]
+    },
+    {
+     "current_pc": 2208,
+     "current_pc_hex": "0x8a0",
+     "ancient_pc": 2720,
+     "ancient_pc_hex": "0xaa0",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 64,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ]
+    },
+    {
+     "current_pc": 2208,
+     "current_pc_hex": "0x8a0",
+     "ancient_pc": 2752,
+     "ancient_pc_hex": "0xac0",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 64,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ]
+    },
+    {
+     "current_pc": 2352,
+     "current_pc_hex": "0x930",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ]
+    },
+    {
+     "current_pc": 2384,
+     "current_pc_hex": "0x950",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ]
+    },
+    {
+     "current_pc": 2400,
+     "current_pc_hex": "0x960",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ]
+    },
+    {
+     "current_pc": 2416,
+     "current_pc_hex": "0x970",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ]
+    },
+    {
+     "current_pc": 2432,
+     "current_pc_hex": "0x980",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ]
+    },
+    {
+     "current_pc": 2448,
+     "current_pc_hex": "0x990",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ]
+    },
+    {
+     "current_pc": 2496,
+     "current_pc_hex": "0x9c0",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ]
+    },
+    {
+     "current_pc": 2528,
+     "current_pc_hex": "0x9e0",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ]
+    },
+    {
+     "current_pc": 2560,
+     "current_pc_hex": "0xa00",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ]
+    },
+    {
+     "current_pc": 2592,
+     "current_pc_hex": "0xa20",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ]
+    },
+    {
+     "current_pc": 2624,
+     "current_pc_hex": "0xa40",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ]
+    },
+    {
+     "current_pc": 2656,
+     "current_pc_hex": "0xa60",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ]
+    },
+    {
+     "current_pc": 2688,
+     "current_pc_hex": "0xa80",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ]
+    },
+    {
+     "current_pc": 2720,
+     "current_pc_hex": "0xaa0",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ]
+    },
+    {
+     "current_pc": 2752,
+     "current_pc_hex": "0xac0",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2256
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin>(long, long, (anonymous namespace)::rw_fn, (anonymous namespace)::rw_op, (anonymous namespace)::rw_fin, double, double*)",
+     "mangled": "_ZN3gko7kernels4cuda39generic_kernel_col_reduction_2d_blockedIdN37_GLOBAL__N__66749e15_9_driver_cu_main5rw_fnENS3_5rw_opENS3_6rw_finEJEEEvllT0_T1_T2_T_PSA_DpT3_",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 317
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/ginkgo-1/fixed/src/common/cuda_hip/base/kernel_launch_reduction.hpp",
+       "line": 309
+      }
+     ]
+    }
+   ],
+   "site_skipped": {
+    "intra_thread_only": 2
+   }
+  }
+ },
+ "dots_checked": 0,
+ "dots_regenerated_equal": 0
+}

@@ -135,8 +135,13 @@ def main():
                         for cl, ps in comps.items():
                             row = dict(base, component=cl)
                             if not ok_run:
-                                row.update(outcome="MISSED", miss_cause=f"m4: {status or 'no run'} ({(cr.get('notes') or '')[:160]})",
-                                           matched="", operating_point="", a2="", strong_token="")
+                                if "no-kernel-json" in (cr.get("notes") or ""):
+                                    row.update(outcome="VOID", miss_cause="first run void: no kernel launched (driver args defect, re-queued)",
+                                               matched="", operating_point="", a2="", strong_token="")
+                                else:
+                                    row.update(outcome="MISSED", miss_cause=f"m4: {status or 'no run'} ({(cr.get('notes') or '')[:160]})",
+                                               matched="", operating_point="", a2="", strong_token="")
+                                    queue_miss.append(dict(row, kind="MISSED", evidence=[], kernel_seen=""))
                             else:
                                 inc, oth, which = [], [], []
                                 for r in reps:
@@ -197,7 +202,7 @@ def main():
                         fx = spec.get("fixed", {})
                         row = dict(base, component="")
                         if not ok_run:
-                            row.update(outcome="NOT-SCORED", miss_cause=f"m4: {status or 'no run'} ({(cr.get('notes') or '')[:160]})", matched="",
+                            row.update(outcome="VOID" if "no-kernel-json" in (cr.get("notes") or "") else "NOT-SCORED", miss_cause=f"m4: {status or 'no run'} ({(cr.get('notes') or '')[:160]})", matched="",
                                        operating_point="", a2="", strong_token="")
                         else:
                             eq = [(r, p) for r in reps for p in fx.get("equiv", []) if match(r, p)]

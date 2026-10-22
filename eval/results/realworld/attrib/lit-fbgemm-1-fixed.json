@@ -1,0 +1,76 @@
+{
+ "id": "lit-fbgemm-1-fixed",
+ "target": "lit-fbgemm-1",
+ "exe": "/mnt/beegfs/fzheng4/realworld_t21b/build/lit-fbgemm-1/fixed/driver",
+ "cuda_home": "/usr/local/cuda-13.3",
+ "n_cubins": 1,
+ "n_dots": 1,
+ "oracle_kernel_substr": "gemv_bf16",
+ "spec_found": true,
+ "modes": {
+  "vector-clock": {
+   "n_kernel_jsons": 1,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "gemv_bf16(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, unsigned int, unsigned int, unsigned int, unsigned int)",
+     "mangled": "_Z9gemv_bf16P13__nv_bfloat16S0_S0_jjjj",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 3,
+      "skipped": 8,
+      "hb_classes": {
+       "structural": 0,
+       "latent": 0,
+       "benign": 0,
+       "warp-po-ordered": 0,
+       "barrier-ordered": 0,
+       "sc": 0,
+       "latent-sc": 0
+      },
+      "model_bug": 0
+     },
+     "gate_policy": "recorded"
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 1,
+   "n_race": 0,
+   "n_sc": 0,
+   "reports": [],
+   "site_verdicts": [],
+   "site_skipped": {}
+  },
+  "scalar-clock": {
+   "n_kernel_jsons": 1,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "gemv_bf16(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, unsigned int, unsigned int, unsigned int, unsigned int)",
+     "mangled": "_Z9gemv_bf16P13__nv_bfloat16S0_S0_jjjj",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 3,
+      "skipped": 8,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 1,
+   "n_race": 0,
+   "n_sc": 0,
+   "reports": [],
+   "site_verdicts": [],
+   "site_skipped": {}
+  }
+ },
+ "dots_checked": 0,
+ "dots_regenerated_equal": 0
+}
