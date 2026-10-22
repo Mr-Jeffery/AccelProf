@@ -46,6 +46,32 @@ if other:
     out += ["", "### 2.3 Other flavors (vector-clock only)", "", "| flavor | target | variant | component | run | outcome | operating point |", "|---|---|---|---|---|---|---|"]
     for r in other:
         out.append(f"| {r['flavor']} | {r['target']} | {r['variant']} | {r['component']} | {r['run_verdict']} | {r['outcome']} | {r['operating_point']} |")
+
+out += ["", "### 2.5 Changes by the attribution parser fix (D-T2) and by the Opus triage (`triage_opus.md`, 7eb1eb9)", "",
+        "D-T2: `rw_attribute.cubin_frames` ran `nvdisasm --print-line-info-inline` without `-c` and let a non-`.text` section's `/*offset*/` lines "
+        "overwrite the frames of the current function; fixed by `-c` and by resetting the current function at every `.section` line. Check on "
+        "`eval/realworld/defects/attrib-global-init-frames/` (`dt2_fix_check.txt`): the STS at line 12 and the LDS at line 14 attribute to 12 and 14. "
+        "Every target and flavor already run was re-attributed on `normal` and rescored; the old table is `eval/results/realworld/recall_before_dt2.csv`.", "",
+        "| target | variant | mode | flavor | old | new | reason |", "|---|---|---|---|---|---|---|"]
+old = {(r["target"], r["variant"], r["mode"], r["flavor"], r["component"]): r for r in csv.DictReader(open(f"{WT}/eval/results/realworld/recall_before_dt2.csv"))}
+for r in rows:
+    k = (r["target"], r["variant"], r["mode"], r["flavor"], r["component"])
+    if k in old and old[k]["outcome"] != r["outcome"] and old[k]["outcome"] not in ("VOID", "NOT-SCORED"):
+        out.append(f"| {r['target']} | {r['variant']} | {r['mode']} | {r['flavor']} | {old[k]['outcome']} | {r['outcome']} ({r['operating_point']}) | attribution parser fix (D-T2) |")
+out += ["", "Rows new since that table (void or unrun before) are not D-T2 changes: `llamacpp-2/-4/-5` (re-run after Defect 1), `cmssw-1` `certain`.", "",
+        "Opus triage outcomes applied: the 4 `DETECTED-AS-DR` rows (`opencv-2`, `lit-shoc-1` SC half, both modes) stay (SASS of volatile shared on sm_89 has no `.STRONG` token; D20 option (i)); "
+        "the 9 `RESIDUAL-AS-EXPECTED` rows are confirmed; `cccl-1` outcomes are left as scored because D-T1 (score kernels with `tv_violation`, or call them unscoreable) is not decided; "
+        "`recall.csv` has a `tv_violation` column (kernel JSONs with `tv_violation` / kernel JSONs, fact only, from `harness/scan_tv.py`): set only on the four `cccl-1` stores "
+        "(buggy and fixed, both modes); `hecbench-hungarian-1` (whose fix adds `__syncwarp`): 0 of 6,874 (vector-clock) and 0 of 7,018 (scalar-clock) kernel JSONs of the fixed build, but those are the truncated long-cap collections (2.6); no main-flavor run of the fixed build exists yet, and the buggy main-flavor stores have 0. The `cccl-1` reports in the other-reports queue "
+        "(artifacts of the syncwarp-record defect) were moved to `other_reports_removed.csv`; the `lit-fbgemm-1` duplicate disappeared because the pair now matches."]
+lc = [r for r in rows if r["flavor"].startswith("longcap")]
+out += ["", "### 2.6 Long-cap pass (separate from the X1b-configuration rows above)", "",
+        "Jeffery's separate pass: tool cap 84,600 s inside 24 h jobs on the 4060 partitions (`longcap-vc` = vector-clock, `longcap-sc` = scalar-clock). Collection on a GPU node, analysis and attribution on `normal` "
+        "(`recall_analyze.sh`, analysis timeout 84,600 s). **Status: the collection of every long-cap run so far is void**: `parallel.py collect` does not pass `--timeout-floor` on, "
+        "so the tool timeout was `min(max(10 x native, 120), 84,600)` = 120 s (`timeout=120s` in the notes of the rows below), not 84,600 s. Rows below are the truncated runs and are not results.", "",
+        "| flavor | target | variant | mode | run | outcome | notes |", "|---|---|---|---|---|---|---|"]
+for r in lc:
+    out.append(f"| {r['flavor']} | {r['target']} | {r['variant']} | {r['mode']} | {r['run_verdict']} | {r['outcome']} | {r['miss_cause'][:90]} |")
 sec = "\n".join(out) + "\n"
 p = f"{WT}/eval/REALWORLD.md"
 s = open(p).read()

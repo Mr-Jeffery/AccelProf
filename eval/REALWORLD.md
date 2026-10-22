@@ -500,6 +500,8 @@ decisions left to Jeffery. The reviewers did not re-check the SASS statements in
 
 
 
+
+
 ## 2. Recall (T21b)
 
 **Runtime (every result below).** Install commit `f551ca0` (cuVein, merged into this branch as `9e29b3f`): libsanalyzer `5a20fd14ab6c6806`,
@@ -545,11 +547,11 @@ A target of class DR+SC has two components (DR pair, SC pair), counted separatel
 
 | mode | expected_class | component | DETECTED | DETECTED-AS-other | MISSED | n |
 |---|---|---|---|---|---|---|
-| scalar-clock | DR | DR | 18 | 0 | 2 | 20 |
+| scalar-clock | DR | DR | 19 | 0 | 4 | 23 |
 | scalar-clock | DR+SC | DR | 3 | 0 | 0 | 3 |
 | scalar-clock | DR+SC | SC | 2 | 1 | 0 | 3 |
 | scalar-clock | SC | SC | 0 | 1 | 1 | 2 |
-| vector-clock | DR | DR | 18 | 0 | 2 | 20 |
+| vector-clock | DR | DR | 19 | 0 | 4 | 23 |
 | vector-clock | DR+SC | DR | 3 | 0 | 0 | 3 |
 | vector-clock | DR+SC | SC | 2 | 1 | 0 | 3 |
 | vector-clock | SC | SC | 0 | 1 | 1 | 2 |
@@ -569,11 +571,11 @@ A target of class DR+SC has two components (DR pair, SC pair), counted separatel
 | hecbench-morphology-1 | 1 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 142588 errors, 1046016 warnings (displayed 2000) |
 | hecbench-surfel-1 | 1 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 3717 errors, 0 warnings (displayed 2000) |
 | lit-arrayfire-1 | 1 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 97 errors, 0 warnings (displayed 97) |
-| lit-fbgemm-1 | 1 | DR | DR: MISSED | DR: MISSED |  |  |  | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 1665 errors, 0 warnings (displayed 1665) |
+| lit-fbgemm-1 | 1 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 1665 errors, 0 warnings (displayed 1665) |
 | lit-shoc-1 | 1 | DR+SC | DR: DETECTED / SC: DETECTED-AS-DR | DR: DETECTED / SC: DETECTED-AS-DR | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 12575 errors, 515594 warnings (displayed 2000) |
-| llamacpp-2 | 1 | DR | DR: VOID | DR: VOID |  |  |  | - | - | 0 errors, 493 warnings (displayed 493) |
-| llamacpp-4 | 1 | DR | DR: VOID | DR: VOID |  |  |  | VOID | VOID | 6890 errors, 272 warnings (displayed 2000) |
-| llamacpp-5 | 1 | DR | DR: VOID | DR: VOID |  |  |  | VOID | VOID | 131170 errors, 259648 warnings (displayed 2000) |
+| llamacpp-2 | 1 | DR | DR: MISSED | DR: MISSED |  |  |  | - | - | 0 errors, 493 warnings (displayed 493) |
+| llamacpp-4 | 1 | DR | DR: MISSED | DR: MISSED |  |  |  | NOT-SCORED | NOT-SCORED | 6890 errors, 272 warnings (displayed 2000) |
+| llamacpp-5 | 1 | DR | DR: MISSED | DR: MISSED |  |  |  | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 131170 errors, 259648 warnings (displayed 2000) |
 | opencv-2 | 1 | SC | SC: DETECTED-AS-DR | SC: DETECTED-AS-DR |  | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 1788 errors, 4752 warnings (displayed 2000) |
 | pytorch-1 | 1 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 129 errors, 0 warnings (displayed 129) |
 | pytorch-3 | 1 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | n/a (global memory) |
@@ -594,6 +596,30 @@ A target of class DR+SC has two components (DR pair, SC pair), counted separatel
 | certain | cccl-3 | buggy | DR | RACE | DETECTED | Race |
 | certain | cccl-3 | buggy | SC | RACE | DETECTED | SC report (informational class) |
 | certain | cccl-3 | fixed |  | RACE | RESIDUAL-AS-EXPECTED |  |
+| certain | cmssw-1 | buggy | DR | RACE | DETECTED | Race |
+| certain | cmssw-1 | fixed |  | CLEAN | RESIDUAL-AS-EXPECTED |  |
 | certain | raft-1 | buggy | DR | RACE | DETECTED | Race |
 | certain | raft-1 | buggy | SC | RACE | DETECTED | SC report (informational class) |
 | certain | raft-1 | fixed |  | RACE | NOT-SCORED |  |
+
+### 2.5 Changes by the attribution parser fix (D-T2) and by the Opus triage (`triage_opus.md`, 7eb1eb9)
+
+D-T2: `rw_attribute.cubin_frames` ran `nvdisasm --print-line-info-inline` without `-c` and let a non-`.text` section's `/*offset*/` lines overwrite the frames of the current function; fixed by `-c` and by resetting the current function at every `.section` line. Check on `eval/realworld/defects/attrib-global-init-frames/` (`dt2_fix_check.txt`): the STS at line 12 and the LDS at line 14 attribute to 12 and 14. Every target and flavor already run was re-attributed on `normal` and rescored; the old table is `eval/results/realworld/recall_before_dt2.csv`.
+
+| target | variant | mode | flavor | old | new | reason |
+|---|---|---|---|---|---|---|
+| lit-fbgemm-1 | buggy | vector-clock | main | MISSED | DETECTED (Race) | attribution parser fix (D-T2) |
+| lit-fbgemm-1 | buggy | scalar-clock | main | MISSED | DETECTED (scalar-clock (one point)) | attribution parser fix (D-T2) |
+
+Rows new since that table (void or unrun before) are not D-T2 changes: `llamacpp-2/-4/-5` (re-run after Defect 1), `cmssw-1` `certain`.
+
+Opus triage outcomes applied: the 4 `DETECTED-AS-DR` rows (`opencv-2`, `lit-shoc-1` SC half, both modes) stay (SASS of volatile shared on sm_89 has no `.STRONG` token; D20 option (i)); the 9 `RESIDUAL-AS-EXPECTED` rows are confirmed; `cccl-1` outcomes are left as scored because D-T1 (score kernels with `tv_violation`, or call them unscoreable) is not decided; `recall.csv` has a `tv_violation` column (kernel JSONs with `tv_violation` / kernel JSONs, fact only, from `harness/scan_tv.py`): set only on the four `cccl-1` stores (buggy and fixed, both modes); `hecbench-hungarian-1` (whose fix adds `__syncwarp`): 0 of 6,874 (vector-clock) and 0 of 7,018 (scalar-clock) kernel JSONs of the fixed build, but those are the truncated long-cap collections (2.6); no main-flavor run of the fixed build exists yet, and the buggy main-flavor stores have 0. The `cccl-1` reports in the other-reports queue (artifacts of the syncwarp-record defect) were moved to `other_reports_removed.csv`; the `lit-fbgemm-1` duplicate disappeared because the pair now matches.
+
+### 2.6 Long-cap pass (separate from the X1b-configuration rows above)
+
+Jeffery's separate pass: tool cap 84,600 s inside 24 h jobs on the 4060 partitions (`longcap-vc` = vector-clock, `longcap-sc` = scalar-clock). Collection on a GPU node, analysis and attribution on `normal` (`recall_analyze.sh`, analysis timeout 84,600 s). **Status: the collection of every long-cap run so far is void**: `parallel.py collect` does not pass `--timeout-floor` on, so the tool timeout was `min(max(10 x native, 120), 84,600)` = 120 s (`timeout=120s` in the notes of the rows below), not 84,600 s. Rows below are the truncated runs and are not results.
+
+| flavor | target | variant | mode | run | outcome | notes |
+|---|---|---|---|---|---|---|
+| longcap-vc | amrex-1 | buggy | vector-clock | TIMEOUT | MISSED | m4: TIMEOUT (cap=84600;timeout=120s;dump_mb=0.0;nkernels=0;err=s_ABecLaplacian_C_3d /mnt/b |
+| longcap-vc | amrex-1 | fixed | vector-clock | TIMEOUT | NOT-SCORED | m4: TIMEOUT (cap=84600;timeout=120s;dump_mb=0.0;nkernels=0;err=s_ABecLaplacian_C_3d /mnt/b |
