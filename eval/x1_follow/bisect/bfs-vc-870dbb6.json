@@ -1,0 +1,666 @@
+{
+ "id": "P7-bfs-cuda",
+ "name": "bfs-vc-870dbb6",
+ "config": "vector-clock",
+ "workers": "1",
+ "cap": 600,
+ "runtime": "/mnt/beegfs/fzheng4/x1_follow/bisect/870dbb6/rt",
+ "mode_knob": "mode",
+ "no_dump": false,
+ "hb_stats": true,
+ "node": "c66",
+ "cpu": "AMD EPYC 8124P 16-Core Processor",
+ "nproc": 32,
+ "slurm_job": "312742",
+ "started": "2026-10-15 22:52:28",
+ "native": [
+  {
+   "wall": 1.069,
+   "rc": 0,
+   "timed_out": false
+  },
+  {
+   "wall": 1.068,
+   "rc": 0,
+   "timed_out": false
+  },
+  {
+   "wall": 1.069,
+   "rc": 0,
+   "timed_out": false
+  }
+ ],
+ "sidecar_rc": 0,
+ "sidecar": "/mnt/beegfs/fzheng4/x1_follow/bisect/runs/bfs-vc-870dbb6/work/cubins/atomic_scope.cand.txt",
+ "scope_file": true,
+ "env": {
+  "ACCEL_PROF_HOME": "/mnt/beegfs/fzheng4/x1_follow/bisect/870dbb6/rt",
+  "CUVEIN_HOME": "/mnt/beegfs/fzheng4/x1_follow/bisect/870dbb6/rt",
+  "YOSEMITE_HB_TRACE": "1",
+  "YOSEMITE_HB_MODE": "vector-clock",
+  "YOSEMITE_ATOMIC_SCOPE_FILE": "/mnt/beegfs/fzheng4/x1_follow/bisect/runs/bfs-vc-870dbb6/work/cubins/atomic_scope.cand.txt",
+  "YOSEMITE_HB_STATS": "1"
+ },
+ "libs": "/mnt/beegfs/fzheng4/x1_follow/bisect/870dbb6/san-install/lib/libsanalyzer.so\n/home/fzheng4/AccelProf/build/sanalyzer/cpp_trace/lib/libcpp_trace.so\n/home/fzheng4/AccelProf/build/sanalyzer/py_frame/lib/libpy_frame.so",
+ "cmd": "accelprof -v -t pc_dependency_analysis -n 1 ./bfs-cuda ../data/bfs/graph1MW_6.txt",
+ "wall": 600.147,
+ "peak_mb_sumrss": 3018.3,
+ "maxrss_mb_hwm": 3015.2,
+ "maxrss_mb_rusage": 173.1,
+ "rc": 124,
+ "timed_out": true,
+ "t0": 1792119153.6152587,
+ "finished": "2026-10-15 23:02:33",
+ "kernels": [
+  {
+   "file": "kernel_0.json",
+   "t": 2.385,
+   "mb": 46.21,
+   "hb_events_count": null,
+   "seq_records": 62525,
+   "hb_stats": {
+    "hb_events": {
+     "count": 62525,
+     "json_bytes": 45818426,
+     "ram_bytes_est": 49100720
+    },
+    "engine": {
+     "vc": {
+      "threads": 1000000,
+      "entries": 1000000,
+      "max_entries": 1,
+      "bytes_est": 227577224
+     },
+     "released": {
+      "records": 0,
+      "entries": 0,
+      "bytes_est": 0
+     },
+     "buckets": {
+      "locations": 1000015,
+      "groups": 1000016,
+      "entries": 1000016,
+      "bytes_est": 328005136
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 1000000,
+      "unique_bases": 0,
+      "base_entries": 0,
+      "bytes_est": 59577224
+     },
+     "races": {
+      "records": 0,
+      "bytes_est": 0
+     },
+     "sync_pairs": 0,
+     "coherence_addrs": 0
+    },
+    "rss_kb": 1598904,
+    "hwm_kb": 1598904
+   }
+  },
+  {
+   "file": "kernel_1.json",
+   "t": 4.385,
+   "mb": 46.2,
+   "hb_events_count": null,
+   "seq_records": 62521,
+   "hb_stats": {
+    "hb_events": {
+     "count": 62521,
+     "json_bytes": 45817721,
+     "ram_bytes_est": 49100080
+    },
+    "engine": {
+     "vc": {
+      "threads": 1000000,
+      "entries": 1000000,
+      "max_entries": 1,
+      "bytes_est": 227577224
+     },
+     "released": {
+      "records": 0,
+      "entries": 0,
+      "bytes_est": 0
+     },
+     "buckets": {
+      "locations": 1000007,
+      "groups": 1000010,
+      "entries": 1000012,
+      "bytes_est": 328003040
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 1000000,
+      "unique_bases": 0,
+      "base_entries": 0,
+      "bytes_est": 59577224
+     },
+     "races": {
+      "records": 1,
+      "bytes_est": 216
+     },
+     "sync_pairs": 1,
+     "coherence_addrs": 0
+    },
+    "rss_kb": 1602268,
+    "hwm_kb": 1602268
+   }
+  },
+  {
+   "file": "kernel_2.json",
+   "t": 5.385,
+   "mb": 46.26,
+   "hb_events_count": null,
+   "seq_records": 62644,
+   "hb_stats": {
+    "hb_events": {
+     "count": 62644,
+     "json_bytes": 45838541,
+     "ram_bytes_est": 49123088
+    },
+    "engine": {
+     "vc": {
+      "threads": 1000000,
+      "entries": 1000000,
+      "max_entries": 1,
+      "bytes_est": 227577224
+     },
+     "released": {
+      "records": 0,
+      "entries": 0,
+      "bytes_est": 0
+     },
+     "buckets": {
+      "locations": 1000109,
+      "groups": 1000112,
+      "entries": 1000114,
+      "bytes_est": 328036496
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 1000000,
+      "unique_bases": 0,
+      "base_entries": 0,
+      "bytes_est": 59577224
+     },
+     "races": {
+      "records": 0,
+      "bytes_est": 168
+     },
+     "sync_pairs": 0,
+     "coherence_addrs": 0
+    },
+    "rss_kb": 1615340,
+    "hwm_kb": 1615340
+   }
+  },
+  {
+   "file": "kernel_3.json",
+   "t": 6.385,
+   "mb": 46.22,
+   "hb_events_count": null,
+   "seq_records": 62616,
+   "hb_stats": {
+    "hb_events": {
+     "count": 62616,
+     "json_bytes": 45832599,
+     "ram_bytes_est": 49116560
+    },
+    "engine": {
+     "vc": {
+      "threads": 1000000,
+      "entries": 1000000,
+      "max_entries": 1,
+      "bytes_est": 227577224
+     },
+     "released": {
+      "records": 0,
+      "entries": 0,
+      "bytes_est": 0
+     },
+     "buckets": {
+      "locations": 1000049,
+      "groups": 1000073,
+      "entries": 1000096,
+      "bytes_est": 328022488
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 1000000,
+      "unique_bases": 0,
+      "base_entries": 0,
+      "bytes_est": 59577224
+     },
+     "races": {
+      "records": 2,
+      "bytes_est": 328
+     },
+     "sync_pairs": 1,
+     "coherence_addrs": 0
+    },
+    "rss_kb": 1615340,
+    "hwm_kb": 1615340
+   }
+  },
+  {
+   "file": "kernel_4.json",
+   "t": 8.385,
+   "mb": 46.37,
+   "hb_events_count": null,
+   "seq_records": 63276,
+   "hb_stats": {
+    "hb_events": {
+     "count": 63276,
+     "json_bytes": 45945784,
+     "ram_bytes_est": 49241440
+    },
+    "engine": {
+     "vc": {
+      "threads": 1000000,
+      "entries": 1000000,
+      "max_entries": 1,
+      "bytes_est": 227577224
+     },
+     "released": {
+      "records": 0,
+      "entries": 0,
+      "bytes_est": 0
+     },
+     "buckets": {
+      "locations": 1000635,
+      "groups": 1000659,
+      "entries": 1000680,
+      "bytes_est": 328214472
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 1000000,
+      "unique_bases": 0,
+      "base_entries": 0,
+      "bytes_est": 59577224
+     },
+     "races": {
+      "records": 0,
+      "bytes_est": 232
+     },
+     "sync_pairs": 0,
+     "coherence_addrs": 0
+    },
+    "rss_kb": 1644540,
+    "hwm_kb": 1644540
+   }
+  },
+  {
+   "file": "kernel_5.json",
+   "t": 9.385,
+   "mb": 46.29,
+   "hb_events_count": null,
+   "seq_records": 63076,
+   "hb_stats": {
+    "hb_events": {
+     "count": 63076,
+     "json_bytes": 45906018,
+     "ram_bytes_est": 49197712
+    },
+    "engine": {
+     "vc": {
+      "threads": 1000000,
+      "entries": 1000000,
+      "max_entries": 1,
+      "bytes_est": 227577224
+     },
+     "released": {
+      "records": 0,
+      "entries": 0,
+      "bytes_est": 0
+     },
+     "buckets": {
+      "locations": 1000269,
+      "groups": 1000403,
+      "entries": 1000536,
+      "bytes_est": 328125512
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 1000000,
+      "unique_bases": 0,
+      "base_entries": 0,
+      "bytes_est": 59577224
+     },
+     "races": {
+      "records": 3,
+      "bytes_est": 504
+     },
+     "sync_pairs": 1,
+     "coherence_addrs": 0
+    },
+    "rss_kb": 1644540,
+    "hwm_kb": 1644540
+   }
+  },
+  {
+   "file": "kernel_6.json",
+   "t": 10.385,
+   "mb": 47.01,
+   "hb_events_count": null,
+   "seq_records": 66828,
+   "hb_stats": {
+    "hb_events": {
+     "count": 66828,
+     "json_bytes": 46557121,
+     "ram_bytes_est": 52010688
+    },
+    "engine": {
+     "vc": {
+      "threads": 1000000,
+      "entries": 1000000,
+      "max_entries": 1,
+      "bytes_est": 227577224
+     },
+     "released": {
+      "records": 0,
+      "entries": 0,
+      "bytes_est": 0
+     },
+     "buckets": {
+      "locations": 1003756,
+      "groups": 1003890,
+      "entries": 1004000,
+      "bytes_est": 329266192
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 1000000,
+      "unique_bases": 0,
+      "base_entries": 0,
+      "bytes_est": 59577224
+     },
+     "races": {
+      "records": 0,
+      "bytes_est": 360
+     },
+     "sync_pairs": 0,
+     "coherence_addrs": 0
+    },
+    "rss_kb": 1671176,
+    "hwm_kb": 1671176
+   }
+  },
+  {
+   "file": "kernel_7.json",
+   "t": 12.385,
+   "mb": 46.77,
+   "hb_events_count": null,
+   "seq_records": 65951,
+   "hb_stats": {
+    "hb_events": {
+     "count": 65951,
+     "json_bytes": 46361250,
+     "ram_bytes_est": 51798736
+    },
+    "engine": {
+     "vc": {
+      "threads": 1000000,
+      "entries": 1000000,
+      "max_entries": 1,
+      "bytes_est": 227577224
+     },
+     "released": {
+      "records": 0,
+      "entries": 0,
+      "bytes_est": 0
+     },
+     "buckets": {
+      "locations": 1001599,
+      "groups": 1002398,
+      "entries": 1003196,
+      "bytes_est": 328744128
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 1000000,
+      "unique_bases": 0,
+      "base_entries": 0,
+      "bytes_est": 59577224
+     },
+     "races": {
+      "records": 3,
+      "bytes_est": 504
+     },
+     "sync_pairs": 1,
+     "coherence_addrs": 0
+    },
+    "rss_kb": 1671176,
+    "hwm_kb": 1671176
+   }
+  },
+  {
+   "file": "kernel_8.json",
+   "t": 13.385,
+   "mb": 50.73,
+   "hb_events_count": null,
+   "seq_records": 87850,
+   "hb_stats": {
+    "hb_events": {
+     "count": 87850,
+     "json_bytes": 50144817,
+     "ram_bytes_est": 55958064
+    },
+    "engine": {
+     "vc": {
+      "threads": 1000000,
+      "entries": 1000000,
+      "max_entries": 1,
+      "bytes_est": 227577224
+     },
+     "released": {
+      "records": 0,
+      "entries": 0,
+      "bytes_est": 0
+     },
+     "buckets": {
+      "locations": 1021625,
+      "groups": 1022424,
+      "entries": 1023110,
+      "bytes_est": 335298640
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 1000000,
+      "unique_bases": 0,
+      "base_entries": 0,
+      "bytes_est": 59577224
+     },
+     "races": {
+      "records": 14,
+      "bytes_est": 1928
+     },
+     "sync_pairs": 14,
+     "coherence_addrs": 0
+    },
+    "rss_kb": 1688400,
+    "hwm_kb": 1688400
+   }
+  },
+  {
+   "file": "kernel_9.json",
+   "t": 15.385,
+   "mb": 49.3,
+   "hb_events_count": null,
+   "seq_records": 81116,
+   "hb_stats": {
+    "hb_events": {
+     "count": 81116,
+     "json_bytes": 48806339,
+     "ram_bytes_est": 54501424
+    },
+    "engine": {
+     "vc": {
+      "threads": 1000000,
+      "entries": 1000000,
+      "max_entries": 1,
+      "bytes_est": 227577224
+     },
+     "released": {
+      "records": 0,
+      "entries": 0,
+      "bytes_est": 0
+     },
+     "buckets": {
+      "locations": 1009143,
+      "groups": 1013714,
+      "entries": 1018284,
+      "bytes_est": 332246192
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 1000000,
+      "unique_bases": 0,
+      "base_entries": 0,
+      "bytes_est": 59577224
+     },
+     "races": {
+      "records": 3,
+      "bytes_est": 1400
+     },
+     "sync_pairs": 1,
+     "coherence_addrs": 0
+    },
+    "rss_kb": 1688400,
+    "hwm_kb": 1688400
+   }
+  },
+  {
+   "file": "kernel_10.json",
+   "t": 16.385,
+   "mb": 70.96,
+   "hb_events_count": null,
+   "seq_records": 200258,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_11.json",
+   "t": 29.385,
+   "mb": 60.5,
+   "hb_events_count": null,
+   "seq_records": 142441,
+   "hb_stats": {
+    "hb_events": {
+     "count": 142441,
+     "json_bytes": 59637394,
+     "ram_bytes_est": 70535584
+    },
+    "engine": {
+     "vc": {
+      "threads": 1000000,
+      "entries": 1000000,
+      "max_entries": 1,
+      "bytes_est": 227577224
+     },
+     "released": {
+      "records": 0,
+      "entries": 0,
+      "bytes_est": 0
+     },
+     "buckets": {
+      "locations": 1050855,
+      "groups": 1076282,
+      "entries": 1101708,
+      "bytes_est": 351729360
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 1000000,
+      "unique_bases": 0,
+      "base_entries": 0,
+      "bytes_est": 59577224
+     },
+     "races": {
+      "records": 3,
+      "bytes_est": 4712
+     },
+     "sync_pairs": 1,
+     "coherence_addrs": 0
+    },
+    "rss_kb": 1749116,
+    "hwm_kb": 1749116
+   }
+  },
+  {
+   "file": "kernel_12.json",
+   "t": 32.385,
+   "mb": 165.72,
+   "hb_events_count": null,
+   "seq_records": 697358,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_13.json",
+   "t": 355.385,
+   "mb": 86.76,
+   "hb_events_count": null,
+   "seq_records": 215886,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_14.json",
+   "t": 364.385,
+   "mb": 419.95,
+   "hb_events_count": null,
+   "seq_records": 1631641,
+   "hb_stats": null
+  }
+ ],
+ "nkernels": 15,
+ "vlog_mb": 0.03,
+ "drains": 15,
+ "drained_records": 3565987,
+ "hb_events_count": null,
+ "tool_tail": "./bfs-cuda ../data/bfs/graph1MW_6.txt\nstdout redirect: /mnt/beegfs/fzheng4/x1_follow/bisect/runs/bfs-vc-870dbb6/work/bfs-cuda.accelprof.log\nRunning the pc_dependency_analysis tool for bfs-cuda...\nfatal: not a git repository (or any parent up to mount point /mnt)\nStopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).\nfatal: not a git repository (or any parent up to mount point /mnt)\nStopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set)."
+}

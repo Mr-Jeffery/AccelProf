@@ -293,6 +293,14 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False, gate=None,
     pending_cnt = {}                  # (block, bar_index) -> the segment's thread_count
     exited = defaultdict(set)         # block -> exited tids
     exited_lanes = defaultdict(int)   # (block, warp) -> exited lane mask
+    # T24 (hb_proof.tex Definition "Instances", the warp barrier): a warp diverged at a WARPSYNC
+    # executes it once per convergence group, one syncwarp record per group (sync_mask, the
+    # group's lanes in active_mask). An instance is open per (block, warp, pc) from its first
+    # record until its arrived lanes cover the expected ones -- sync_mask minus the warp's exited
+    # lanes and the lanes past the block's last thread -- and then joins the expected lanes; a
+    # converged record completes it at once. Mirrors HbClock::on_syncwarp / sw_complete.
+    pending_sw = {}                   # (block, warp, pc) -> [sync_mask, arrived lanes]
+    sw_waiting = defaultdict(int)     # (block, warp) -> lanes arrived at an open instance
     # --- Trace-validity (TV) invariant bookkeeping (see _strict_enabled) ---
     strict = _strict_enabled()
     bar_warps_seen = defaultdict(set)  # (block, bar_index) -> set of warp ids ever arrived
@@ -448,6 +456,51 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False, gate=None,
             fire(key)
             return True
         return False
+
+    def warp_lanes(warp):
+        """T24: the lanes of `warp` that exist in a block of block_tc threads (all if unknown)."""
+        first = 32 * warp
+        if not block_tc or block_tc >= first + 32:
+            return 0xFFFFFFFF
+        return (1 << (block_tc - first)) - 1 if block_tc > first else 0
+
+    def sw_expected(block, warp, sync_mask):
+        return sync_mask & ~exited_lanes.get((block, warp), 0) & warp_lanes(warp)
+
+    def sw_fire(block, warp, lanes):
+        sync_group([tid_of(block, warp, k) for k in range(32) if (lanes >> k) & 1])
+
+    def sw_complete(key):
+        """procedure Complete for an open warp barrier: after each of its records and each exit
+        in its warp; on completion its waiting lanes are released and the expected lanes join."""
+        block, warp, _ = key
+        sync_mask, arrived = pending_sw[key]
+        exp = sw_expected(block, warp, sync_mask)
+        if arrived & exp != exp:
+            return False
+        sw_waiting[(block, warp)] &= ~arrived
+        if not sw_waiting[(block, warp)]:
+            del sw_waiting[(block, warp)]
+        del pending_sw[key]
+        sw_fire(block, warp, exp)
+        return True
+
+    def on_syncwarp(e):
+        """a syncwarp record: a converged warp (its group holds every expected lane) joins at
+        once, as before T24; else the group's lanes arrive at the open instance."""
+        block, warp = e["block"], e["warp"]
+        key = (block, warp, e["pc"])
+        if key not in pending_sw:
+            exp = sw_expected(block, warp, e["sync_mask"])
+            if e["active_mask"] & exp == exp:
+                sw_fire(block, warp, exp)
+                return
+            pending_sw[key] = [0, 0]
+        lanes = e["active_mask"] & e["sync_mask"]
+        pending_sw[key][0] |= e["sync_mask"]  # one mask per instance on a well-formed trace
+        pending_sw[key][1] |= lanes
+        sw_waiting[(block, warp)] |= lanes
+        sw_complete(key)
 
     def loc_of(space, block, addr):
         # shared memory is per-block; global keyed by absolute address.
@@ -636,6 +689,7 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False, gate=None,
                 raise sd.AlignmentError(
                     f"TV-record-after-exit: block {block} warp {warp} lanes mask "
                     f"{mask & exited_lanes[(block, warp)]} exit twice (seq {seq})")
+            fresh = mask & ~exited_lanes[(block, warp)]       # T24: the newly exiting lanes
             exited_lanes[(block, warp)] |= mask
             gone = {tid_of(block, warp, k) for k in range(32) if (mask >> k) & 1}
             exited[block] |= gone
@@ -646,18 +700,37 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False, gate=None,
                         f"TV-barrier-completion-order: block {block} warp {warp} exits a "
                         f"thread still pending at barrier {key} (seq {seq})")
                 complete(key)
+            # T24: the warp's open syncwarp instances, after the block's segments. W2: an
+            # exiting lane cannot be waiting at one; an exiting lane that has not arrived leaves
+            # the expected lanes, which can complete the instance (as for a block barrier).
+            for key in sorted(k for k in pending_sw if k[:2] == (block, warp)):
+                if strict and pending_sw[key][1] & fresh:
+                    raise sd.AlignmentError(
+                        f"TV-syncwarp-completion-order: block {block} warp {warp} exits lanes "
+                        f"mask {pending_sw[key][1] & fresh} still pending at the syncwarp at pc "
+                        f"{hex(key[2])} (seq {seq})")
+                sw_complete(key)
             continue
         if e.get("space") == "local":
             # I5 (D14): local memory is outside the HB model (hb_proof.tex Definition
             # "Records"). The T9 collector no longer serializes local records; an older dump
             # still carries them and is replayed as if it did not -- before any monitor check.
             continue
-        # TV-record-after-exit (W3): no record of a thread follows its exit.
-        lanes_mask = e["sync_mask"] if typ == "syncwarp" else e.get("active_mask", 0)
-        if strict and lanes_mask & exited_lanes.get((e["block"], e["warp"]), 0):
+        # TV-record-after-exit (W3): no record of a thread follows its exit. A record's threads
+        # are its active lanes, a syncwarp's too (T24): its sync_mask names the participants, and
+        # a lane of it may exit while the instance is open (it then leaves the expected lanes),
+        # so a later group's record still names it.
+        if strict and e.get("active_mask", 0) & exited_lanes.get((e["block"], e["warp"]), 0):
             raise sd.AlignmentError(
                 f"TV-record-after-exit: block {e['block']} warp {e['warp']} issues a {typ} "
                 f"at pc {hex(e['pc'])} (seq {seq}) after its exit")
+        # T24, W2 for a warp barrier: a lane that has arrived at an open syncwarp instance issues
+        # no record (memory, arrival, syncwarp, pipeline) before the instance completes.
+        if strict and e.get("active_mask", 0) & sw_waiting.get((e["block"], e["warp"]), 0):
+            raise sd.AlignmentError(
+                f"TV-syncwarp-completion-order: block {e['block']} warp {e['warp']} issues a "
+                f"{typ} at pc {hex(e['pc'])} (seq {seq}) while pending at a syncwarp")
+        lanes_mask = e["sync_mask"] if typ == "syncwarp" else e.get("active_mask", 0)
         if "lanes" not in e:          # T14: a sync record is its lanes' next record
             close_lanes(e["block"], e["warp"], lanes_mask, e["pc"])
         if typ in ("pipeline_commit", "pipeline_wait"):   # T1a: cp.async commit / wait_group N
@@ -670,10 +743,9 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False, gate=None,
                         async_wait(t, e["groups"])
             continue
         if typ == "syncwarp":
-            # syncwarp is genuinely per-warp: join THIS warp's masked lanes now.
-            mask = e["sync_mask"]
-            tids = [tid_of(e["block"], e["warp"], k) for k in range(32) if (mask >> k) & 1]
-            sync_group(tids)
+            # syncwarp is per-warp. T24: one record per convergence group; the instance joins
+            # its expected lanes when the groups' lanes cover them, at once for a converged warp.
+            on_syncwarp(e)
             continue
         if typ == "barrier":
             block, warp = e["block"], e["warp"]
@@ -854,6 +926,13 @@ def analyze(dot_path, trace_path, strong_ldst=None, records=False, gate=None,
             f"TV-barrier-pending-at-end: {len(open_segs)} barrier segment(s) open at the end "
             f"of the kernel; first: {k}, arrived {len(open_segs[k])} of expected "
             f"{expected_of(k)}")
+    # T24: likewise every open syncwarp instance (A3's warp-barrier analogue), same conditions
+    if strict and trace.get("hb_exits") and pending_sw:
+        k = min(pending_sw)
+        raise sd.AlignmentError(
+            f"TV-syncwarp-pending-at-end: {len(pending_sw)} syncwarp instance(s) open at the end "
+            f"of the kernel; first: block {k[0]}, warp {k[1]}, pc {k[2]}, arrived lanes "
+            f"{pending_sw[k][1]} of sync_mask {pending_sw[k][0]}")
 
     # aggregated race records, in first-report order (HbClock emits the same); each carries
     # a2_uncertain, how many of its instances the possible clock orders (T14; DR and SC)

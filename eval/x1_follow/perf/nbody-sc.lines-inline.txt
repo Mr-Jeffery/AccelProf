@@ -1,0 +1,133 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 73K of event 'cycles:u'
+# Event count (approx.): 4442875573932
+#
+# Overhead  Source:Line                                                                                                                                                                                                                                                                                                                                                                                                                        
+# ........  ...................................................................................................................................................................................................................................................................................................................................................................................................................................
+#
+    44.46%  pc_dependency_analysis.cpp:561
+            |
+            ---?? (inlined)
+               ?? (inlined)
+               yosemite::HbClock::process
+               yosemite::PcDependency::gpu_data_analysis
+               yosemite_gpu_data_analysis
+               LaunchEndCallback
+               ComputeSanitizerCallback
+
+    38.29%  pc_dependency_analysis.cpp:359
+            |
+            ---?? (inlined)
+               |          
+               |--33.85%--?? (inlined)
+               |          |          
+               |           --33.75%--?? (inlined)
+               |                     yosemite::HbClock::process
+               |                     yosemite::PcDependency::gpu_data_analysis
+               |                     yosemite_gpu_data_analysis
+               |                     LaunchEndCallback
+               |                     ComputeSanitizerCallback
+               |          
+                --4.13%--yosemite::HbClock::FlatBuckets::own_slot(yosemite::HbClock::LocSlots&, unsigned char, unsigned int)::{lambda(yosemite::HbClock::Slot const&, unsigned long)#1}::operator() (inlined)
+                          ?? (inlined)
+                          ?? (inlined)
+                          ?? (inlined)
+                          ?? (inlined)
+                          yosemite::HbClock::process
+                          yosemite::PcDependency::gpu_data_analysis
+                          yosemite_gpu_data_analysis
+                          LaunchEndCallback
+                          ComputeSanitizerCallback
+
+     1.72%  stl_algo.h:2030
+            |
+            ---?? (inlined)
+               ?? (inlined)
+               ?? (inlined)
+               yosemite::HbClock::process
+               yosemite::PcDependency::gpu_data_analysis
+               yosemite_gpu_data_analysis
+               LaunchEndCallback
+               ComputeSanitizerCallback
+
+     1.39%  pc_dependency_analysis.cpp:363
+            |
+            ---?? (inlined)
+               ?? (inlined)
+               ?? (inlined)
+               yosemite::HbClock::process
+               yosemite::PcDependency::gpu_data_analysis
+               yosemite_gpu_data_analysis
+               LaunchEndCallback
+               ComputeSanitizerCallback
+
+     0.90%  stl_algobase.h:1468
+            |
+            ---?? (inlined)
+               ?? (inlined)
+               ?? (inlined)
+               yosemite::HbClock::process
+               yosemite::PcDependency::gpu_data_analysis
+               yosemite_gpu_data_analysis
+               LaunchEndCallback
+               ComputeSanitizerCallback
+
+     0.85%  stl_iterator_base_funcs.h:105
+            |
+            ---?? (inlined)
+               ?? (inlined)
+               ?? (inlined)
+               ?? (inlined)
+               ?? (inlined)
+               yosemite::HbClock::process
+               yosemite::PcDependency::gpu_data_analysis
+               yosemite_gpu_data_analysis
+               LaunchEndCallback
+               ComputeSanitizerCallback
+
+     0.73%  pc_dependency_analysis.cpp:96
+            |
+            ---?? (inlined)
+
+     0.68%  stl_algobase.h:1472
+            |
+            ---?? (inlined)
+               ?? (inlined)
+               ?? (inlined)
+               yosemite::HbClock::process
+               yosemite::PcDependency::gpu_data_analysis
+               yosemite_gpu_data_analysis
+               LaunchEndCallback
+               ComputeSanitizerCallback
+
+     0.60%  pc_dependency_analysis.cpp:1502
+            |
+            ---?? (inlined)
+               yosemite::HbClock::process
+               yosemite::PcDependency::gpu_data_analysis
+               yosemite_gpu_data_analysis
+               LaunchEndCallback
+               ComputeSanitizerCallback
+
+     0.59%  stl_iterator_base_funcs.h:194
+            |
+            ---?? (inlined)
+               ?? (inlined)
+               ?? (inlined)
+               ?? (inlined)
+               ?? (inlined)
+               yosemite::HbClock::process
+               yosemite::PcDependency::gpu_data_analysis
+               yosemite_gpu_data_analysis
+               LaunchEndCallback
+               ComputeSanitizerCallback
+
+
+
+#
+# (Tip: To report cacheline events from previous recording: perf c2c report)
+#

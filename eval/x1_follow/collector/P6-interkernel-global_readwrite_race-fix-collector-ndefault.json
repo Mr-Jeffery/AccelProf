@@ -1,0 +1,71 @@
+{
+ "id": "P6-interkernel-global_readwrite_race-fixed",
+ "name": "P6-interkernel-global_readwrite_race-fix-collector-ndefault",
+ "config": "collector",
+ "workers": "default",
+ "cap": 1200,
+ "runtime": "/home/fzheng4/AccelProf",
+ "mode_knob": "mode",
+ "no_dump": false,
+ "hb_stats": false,
+ "node": "c66",
+ "cpu": "AMD EPYC 8124P 16-Core Processor",
+ "nproc": 32,
+ "slurm_job": "312731",
+ "started": "2026-10-15 20:59:16",
+ "native": [
+  {
+   "wall": 0.718,
+   "rc": 0,
+   "timed_out": false
+  },
+  {
+   "wall": 0.718,
+   "rc": 0,
+   "timed_out": false
+  },
+  {
+   "wall": 0.718,
+   "rc": 0,
+   "timed_out": false
+  }
+ ],
+ "env": {
+  "ACCEL_PROF_HOME": "/home/fzheng4/AccelProf",
+  "CUVEIN_HOME": "/home/fzheng4/AccelProf"
+ },
+ "libs": "/home/fzheng4/AccelProf/build/sanalyzer/lib/libsanalyzer.so\n/home/fzheng4/AccelProf/build/sanalyzer/cpp_trace/lib/libcpp_trace.so\n/home/fzheng4/AccelProf/build/sanalyzer/py_frame/lib/libpy_frame.so",
+ "cmd": "accelprof -v -t pc_dependency_analysis ./interkernel__global_readwrite_race__fixed.sm86.out",
+ "wall": 3.553,
+ "peak_mb_sumrss": 862.3,
+ "maxrss_mb_hwm": 860.9,
+ "maxrss_mb_rusage": 861.7,
+ "rc": 0,
+ "timed_out": false,
+ "t0": 1792112358.9437194,
+ "finished": "2026-10-15 20:59:22",
+ "kernels": [
+  {
+   "file": "kernel_0.json",
+   "t": 1.056,
+   "mb": 0.0,
+   "hb_events_count": null,
+   "seq_records": null,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_1.json",
+   "t": 3.056,
+   "mb": 0.02,
+   "hb_events_count": null,
+   "seq_records": null,
+   "hb_stats": null
+  }
+ ],
+ "nkernels": 2,
+ "vlog_mb": 0.0,
+ "drains": 2,
+ "drained_records": 1000004,
+ "hb_events_count": null,
+ "tool_tail": "./interkernel__global_readwrite_race__fixed.sm86.out \nstdout redirect: /mnt/beegfs/fzheng4/x1_follow/runs/P6-interkernel-global_readwrite_race-fix-collector-ndefault/work/interkernel__global_readwrite_race__fixed.sm86.out.accelprof.log\nRunning the pc_dependency_analysis tool for interkernel__global_readwrite_race__fixed.sm86.out..."
+}

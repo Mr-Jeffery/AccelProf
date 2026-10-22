@@ -1,0 +1,959 @@
+{
+ "id": "P7-bfs-cuda",
+ "name": "bfs-vc-3331d35",
+ "config": "vector-clock",
+ "workers": "1",
+ "cap": 600,
+ "runtime": "/mnt/beegfs/fzheng4/x1_follow/bisect/3331d35/rt",
+ "mode_knob": "mode",
+ "no_dump": false,
+ "hb_stats": true,
+ "node": "c66",
+ "cpu": "AMD EPYC 8124P 16-Core Processor",
+ "nproc": 32,
+ "slurm_job": "312742",
+ "started": "2026-10-15 22:36:27",
+ "native": [
+  {
+   "wall": 1.068,
+   "rc": 0,
+   "timed_out": false
+  },
+  {
+   "wall": 1.068,
+   "rc": 0,
+   "timed_out": false
+  },
+  {
+   "wall": 1.068,
+   "rc": 0,
+   "timed_out": false
+  }
+ ],
+ "sidecar_rc": 0,
+ "sidecar": "/mnt/beegfs/fzheng4/x1_follow/bisect/runs/bfs-vc-3331d35/work/cubins/atomic_scope.cand.txt",
+ "scope_file": true,
+ "env": {
+  "ACCEL_PROF_HOME": "/mnt/beegfs/fzheng4/x1_follow/bisect/3331d35/rt",
+  "CUVEIN_HOME": "/mnt/beegfs/fzheng4/x1_follow/bisect/3331d35/rt",
+  "YOSEMITE_HB_TRACE": "1",
+  "YOSEMITE_HB_MODE": "vector-clock",
+  "YOSEMITE_ATOMIC_SCOPE_FILE": "/mnt/beegfs/fzheng4/x1_follow/bisect/runs/bfs-vc-3331d35/work/cubins/atomic_scope.cand.txt",
+  "YOSEMITE_HB_STATS": "1"
+ },
+ "libs": "/mnt/beegfs/fzheng4/x1_follow/bisect/3331d35/san-install/lib/libsanalyzer.so\n/home/fzheng4/AccelProf/build/sanalyzer/cpp_trace/lib/libcpp_trace.so\n/home/fzheng4/AccelProf/build/sanalyzer/py_frame/lib/libpy_frame.so",
+ "cmd": "accelprof -v -t pc_dependency_analysis -n 1 ./bfs-cuda ../data/bfs/graph1MW_6.txt",
+ "wall": 80.792,
+ "peak_mb_sumrss": 4343.0,
+ "maxrss_mb_hwm": 4339.9,
+ "maxrss_mb_rusage": 4339.9,
+ "rc": 0,
+ "timed_out": false,
+ "t0": 1792118192.3727229,
+ "finished": "2026-10-15 22:37:53",
+ "kernels": [
+  {
+   "file": "kernel_0.json",
+   "t": 2.627,
+   "mb": 43.09,
+   "hb_events_count": null,
+   "seq_records": 31268,
+   "hb_stats": {
+    "hb_events": {
+     "count": 31268,
+     "json_bytes": 42893883,
+     "ram_bytes_est": 44551424
+    },
+    "engine": {
+     "vc": {
+      "threads": 1000000,
+      "entries": 1000000,
+      "max_entries": 1,
+      "bytes_est": 227577224
+     },
+     "released": {
+      "records": 0,
+      "entries": 0,
+      "bytes_est": 0
+     },
+     "last_write": {
+      "locations": 7,
+      "bytes_est": 784
+     },
+     "last_reads": {
+      "locations": 1000015,
+      "readers": 1000008,
+      "bytes_est": 296003368
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 1000000,
+      "unique_bases": 0,
+      "base_entries": 0,
+      "bytes_est": 59577224
+     },
+     "races": {
+      "records": 0,
+      "bytes_est": 0
+     },
+     "sync_pairs": 0,
+     "coherence_addrs": 0
+    },
+    "rss_kb": 1562260,
+    "hwm_kb": 1562260
+   }
+  },
+  {
+   "file": "kernel_1.json",
+   "t": 3.627,
+   "mb": 43.09,
+   "hb_events_count": null,
+   "seq_records": 31262,
+   "hb_stats": {
+    "hb_events": {
+     "count": 31262,
+     "json_bytes": 42893039,
+     "ram_bytes_est": 44550544
+    },
+    "engine": {
+     "vc": {
+      "threads": 1000000,
+      "entries": 1000000,
+      "max_entries": 1,
+      "bytes_est": 227577224
+     },
+     "released": {
+      "records": 0,
+      "entries": 0,
+      "bytes_est": 0
+     },
+     "last_write": {
+      "locations": 10,
+      "bytes_est": 1120
+     },
+     "last_reads": {
+      "locations": 1000007,
+      "readers": 999997,
+      "bytes_est": 296000704
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 1000000,
+      "unique_bases": 0,
+      "base_entries": 0,
+      "bytes_est": 59577224
+     },
+     "races": {
+      "records": 2,
+      "bytes_est": 128
+     },
+     "sync_pairs": 1,
+     "coherence_addrs": 0
+    },
+    "rss_kb": 1566356,
+    "hwm_kb": 1566356
+   }
+  },
+  {
+   "file": "kernel_2.json",
+   "t": 4.627,
+   "mb": 43.14,
+   "hb_events_count": null,
+   "seq_records": 31385,
+   "hb_stats": {
+    "hb_events": {
+     "count": 31385,
+     "json_bytes": 42913831,
+     "ram_bytes_est": 44573600
+    },
+    "engine": {
+     "vc": {
+      "threads": 1000000,
+      "entries": 1000000,
+      "max_entries": 1,
+      "bytes_est": 227577224
+     },
+     "released": {
+      "records": 0,
+      "entries": 0,
+      "bytes_est": 0
+     },
+     "last_write": {
+      "locations": 51,
+      "bytes_est": 5712
+     },
+     "last_reads": {
+      "locations": 1000109,
+      "readers": 1000060,
+      "bytes_est": 296024136
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 1000000,
+      "unique_bases": 0,
+      "base_entries": 0,
+      "bytes_est": 59577224
+     },
+     "races": {
+      "records": 0,
+      "bytes_est": 128
+     },
+     "sync_pairs": 0,
+     "coherence_addrs": 0
+    },
+    "rss_kb": 1581476,
+    "hwm_kb": 1581476
+   }
+  },
+  {
+   "file": "kernel_3.json",
+   "t": 5.627,
+   "mb": 43.11,
+   "hb_events_count": null,
+   "seq_records": 31338,
+   "hb_stats": {
+    "hb_events": {
+     "count": 31338,
+     "json_bytes": 42906222,
+     "ram_bytes_est": 44564944
+    },
+    "engine": {
+     "vc": {
+      "threads": 1000000,
+      "entries": 1000000,
+      "max_entries": 1,
+      "bytes_est": 227577224
+     },
+     "released": {
+      "records": 0,
+      "entries": 0,
+      "bytes_est": 0
+     },
+     "last_write": {
+      "locations": 73,
+      "bytes_est": 8176
+     },
+     "last_reads": {
+      "locations": 1000049,
+      "readers": 999976,
+      "bytes_est": 296004736
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 1000000,
+      "unique_bases": 0,
+      "base_entries": 0,
+      "bytes_est": 59577224
+     },
+     "races": {
+      "records": 23,
+      "bytes_est": 2048
+     },
+     "sync_pairs": 1,
+     "coherence_addrs": 0
+    },
+    "rss_kb": 1581476,
+    "hwm_kb": 1581476
+   }
+  },
+  {
+   "file": "kernel_4.json",
+   "t": 6.627,
+   "mb": 43.26,
+   "hb_events_count": null,
+   "seq_records": 31998,
+   "hb_stats": {
+    "hb_events": {
+     "count": 31998,
+     "json_bytes": 43019357,
+     "ram_bytes_est": 44689808
+    },
+    "engine": {
+     "vc": {
+      "threads": 1000000,
+      "entries": 1000000,
+      "max_entries": 1,
+      "bytes_est": 227577224
+     },
+     "released": {
+      "records": 0,
+      "entries": 0,
+      "bytes_est": 0
+     },
+     "last_write": {
+      "locations": 292,
+      "bytes_est": 32704
+     },
+     "last_reads": {
+      "locations": 1000635,
+      "readers": 1000364,
+      "bytes_est": 296142744
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 1000000,
+      "unique_bases": 0,
+      "base_entries": 0,
+      "bytes_est": 59577224
+     },
+     "races": {
+      "records": 0,
+      "bytes_est": 2048
+     },
+     "sync_pairs": 0,
+     "coherence_addrs": 0
+    },
+    "rss_kb": 1610676,
+    "hwm_kb": 1610676
+   }
+  },
+  {
+   "file": "kernel_5.json",
+   "t": 7.627,
+   "mb": 43.19,
+   "hb_events_count": null,
+   "seq_records": 31706,
+   "hb_stats": {
+    "hb_events": {
+     "count": 31706,
+     "json_bytes": 42971439,
+     "ram_bytes_est": 44636176
+    },
+    "engine": {
+     "vc": {
+      "threads": 1000000,
+      "entries": 1000000,
+      "max_entries": 1,
+      "bytes_est": 227577224
+     },
+     "released": {
+      "records": 0,
+      "entries": 0,
+      "bytes_est": 0
+     },
+     "last_write": {
+      "locations": 403,
+      "bytes_est": 45136
+     },
+     "last_reads": {
+      "locations": 1000269,
+      "readers": 999866,
+      "bytes_est": 296025856
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 1000000,
+      "unique_bases": 0,
+      "base_entries": 0,
+      "bytes_est": 59577224
+     },
+     "races": {
+      "records": 133,
+      "bytes_est": 16384
+     },
+     "sync_pairs": 1,
+     "coherence_addrs": 0
+    },
+    "rss_kb": 1610676,
+    "hwm_kb": 1610676
+   }
+  },
+  {
+   "file": "kernel_6.json",
+   "t": 9.627,
+   "mb": 43.88,
+   "hb_events_count": null,
+   "seq_records": 35451,
+   "hb_stats": {
+    "hb_events": {
+     "count": 35451,
+     "json_bytes": 43621767,
+     "ram_bytes_est": 46399808
+    },
+    "engine": {
+     "vc": {
+      "threads": 1000000,
+      "entries": 1000000,
+      "max_entries": 1,
+      "bytes_est": 227577224
+     },
+     "released": {
+      "records": 0,
+      "entries": 0,
+      "bytes_est": 0
+     },
+     "last_write": {
+      "locations": 1732,
+      "bytes_est": 193984
+     },
+     "last_reads": {
+      "locations": 1003756,
+      "readers": 1002134,
+      "bytes_est": 296841776
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 1000000,
+      "unique_bases": 0,
+      "base_entries": 0,
+      "bytes_est": 59577224
+     },
+     "races": {
+      "records": 0,
+      "bytes_est": 16384
+     },
+     "sync_pairs": 0,
+     "coherence_addrs": 0
+    },
+    "rss_kb": 1635744,
+    "hwm_kb": 1635744
+   }
+  },
+  {
+   "file": "kernel_7.json",
+   "t": 10.627,
+   "mb": 43.7,
+   "hb_events_count": null,
+   "seq_records": 34006,
+   "hb_stats": {
+    "hb_events": {
+     "count": 34006,
+     "json_bytes": 43375443,
+     "ram_bytes_est": 46127552
+    },
+    "engine": {
+     "vc": {
+      "threads": 1000000,
+      "entries": 1000000,
+      "max_entries": 1,
+      "bytes_est": 227577224
+     },
+     "released": {
+      "records": 0,
+      "entries": 0,
+      "bytes_est": 0
+     },
+     "last_write": {
+      "locations": 2398,
+      "bytes_est": 268576
+     },
+     "last_reads": {
+      "locations": 1001599,
+      "readers": 999201,
+      "bytes_est": 296153536
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 1000000,
+      "unique_bases": 0,
+      "base_entries": 0,
+      "bytes_est": 59577224
+     },
+     "races": {
+      "records": 798,
+      "bytes_est": 65536
+     },
+     "sync_pairs": 1,
+     "coherence_addrs": 0
+    },
+    "rss_kb": 1635744,
+    "hwm_kb": 1635744
+   }
+  },
+  {
+   "file": "kernel_8.json",
+   "t": 11.627,
+   "mb": 47.55,
+   "hb_events_count": null,
+   "seq_records": 55849,
+   "hb_stats": {
+    "hb_events": {
+     "count": 55849,
+     "json_bytes": 47153248,
+     "ram_bytes_est": 50279712
+    },
+    "engine": {
+     "vc": {
+      "threads": 1000000,
+      "entries": 1000000,
+      "max_entries": 1,
+      "bytes_est": 227577224
+     },
+     "released": {
+      "records": 0,
+      "entries": 0,
+      "bytes_est": 0
+     },
+     "last_write": {
+      "locations": 9941,
+      "bytes_est": 1113392
+     },
+     "last_reads": {
+      "locations": 1021625,
+      "readers": 1012356,
+      "bytes_est": 300857144
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 1000000,
+      "unique_bases": 0,
+      "base_entries": 0,
+      "bytes_est": 59577224
+     },
+     "races": {
+      "records": 14,
+      "bytes_est": 65536
+     },
+     "sync_pairs": 14,
+     "coherence_addrs": 0
+    },
+    "rss_kb": 1651096,
+    "hwm_kb": 1651096
+   }
+  },
+  {
+   "file": "kernel_9.json",
+   "t": 12.627,
+   "mb": 46.5,
+   "hb_events_count": null,
+   "seq_records": 46138,
+   "hb_stats": {
+    "hb_events": {
+     "count": 46138,
+     "json_bytes": 45549812,
+     "ram_bytes_est": 48506048
+    },
+    "engine": {
+     "vc": {
+      "threads": 1000000,
+      "entries": 1000000,
+      "max_entries": 1,
+      "bytes_est": 227577224
+     },
+     "released": {
+      "records": 0,
+      "entries": 0,
+      "bytes_est": 0
+     },
+     "last_write": {
+      "locations": 13714,
+      "bytes_est": 1535968
+     },
+     "last_reads": {
+      "locations": 1009143,
+      "readers": 995429,
+      "bytes_est": 296877760
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 1000000,
+      "unique_bases": 0,
+      "base_entries": 0,
+      "bytes_est": 59577224
+     },
+     "races": {
+      "records": 4570,
+      "bytes_est": 524288
+     },
+     "sync_pairs": 1,
+     "coherence_addrs": 0
+    },
+    "rss_kb": 1651096,
+    "hwm_kb": 1651096
+   }
+  },
+  {
+   "file": "kernel_10.json",
+   "t": 14.627,
+   "mb": 67.52,
+   "hb_events_count": null,
+   "seq_records": 164897,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_11.json",
+   "t": 15.627,
+   "mb": 59.54,
+   "hb_events_count": null,
+   "seq_records": 95198,
+   "hb_stats": {
+    "hb_events": {
+     "count": 95198,
+     "json_bytes": 55265837,
+     "ram_bytes_est": 65308384
+    },
+    "engine": {
+     "vc": {
+      "threads": 1000000,
+      "entries": 1000000,
+      "max_entries": 1,
+      "bytes_est": 227577224
+     },
+     "released": {
+      "records": 0,
+      "entries": 0,
+      "bytes_est": 0
+     },
+     "last_write": {
+      "locations": 76282,
+      "bytes_est": 8543584
+     },
+     "last_reads": {
+      "locations": 1050855,
+      "readers": 974573,
+      "bytes_est": 300882112
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 1000000,
+      "unique_bases": 0,
+      "base_entries": 0,
+      "bytes_est": 59577224
+     },
+     "races": {
+      "records": 25426,
+      "bytes_est": 2097152
+     },
+     "sync_pairs": 1,
+     "coherence_addrs": 0
+    },
+    "rss_kb": 1707056,
+    "hwm_kb": 1707056
+   }
+  },
+  {
+   "file": "kernel_12.json",
+   "t": 18.627,
+   "mb": 163.39,
+   "hb_events_count": null,
+   "seq_records": 646110,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_13.json",
+   "t": 21.627,
+   "mb": 99.67,
+   "hb_events_count": null,
+   "seq_records": 153954,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_14.json",
+   "t": 30.627,
+   "mb": 465.07,
+   "hb_events_count": null,
+   "seq_records": 1542303,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_15.json",
+   "t": 35.627,
+   "mb": 196.06,
+   "hb_events_count": null,
+   "seq_records": 156250,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_16.json",
+   "t": 56.627,
+   "mb": 890.37,
+   "hb_events_count": null,
+   "seq_records": 1769541,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_17.json",
+   "t": 62.627,
+   "mb": 171.66,
+   "hb_events_count": null,
+   "seq_records": 156246,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_18.json",
+   "t": 71.627,
+   "mb": 383.0,
+   "hb_events_count": null,
+   "seq_records": 909748,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_19.json",
+   "t": 74.627,
+   "mb": 55.12,
+   "hb_events_count": null,
+   "seq_records": 81022,
+   "hb_stats": {
+    "hb_events": {
+     "count": 81022,
+     "json_bytes": 52117048,
+     "ram_bytes_est": 120657856
+    },
+    "engine": {
+     "vc": {
+      "threads": 1000000,
+      "entries": 1000000,
+      "max_entries": 1,
+      "bytes_est": 227577224
+     },
+     "released": {
+      "records": 0,
+      "entries": 0,
+      "bytes_est": 0
+     },
+     "last_write": {
+      "locations": 51820,
+      "bytes_est": 5803840
+     },
+     "last_reads": {
+      "locations": 1034547,
+      "readers": 982727,
+      "bytes_est": 299316544
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 1000000,
+      "unique_bases": 0,
+      "base_entries": 0,
+      "bytes_est": 59577224
+     },
+     "races": {
+      "records": 17272,
+      "bytes_est": 134217728
+     },
+     "sync_pairs": 1,
+     "coherence_addrs": 0
+    },
+    "rss_kb": 4313596,
+    "hwm_kb": 4444108
+   }
+  },
+  {
+   "file": "kernel_20.json",
+   "t": 75.627,
+   "mb": 69.12,
+   "hb_events_count": null,
+   "seq_records": 171275,
+   "hb_stats": null
+  },
+  {
+   "file": "kernel_21.json",
+   "t": 77.627,
+   "mb": 43.11,
+   "hb_events_count": null,
+   "seq_records": 31362,
+   "hb_stats": {
+    "hb_events": {
+     "count": 31362,
+     "json_bytes": 42910158,
+     "ram_bytes_est": 110629568
+    },
+    "engine": {
+     "vc": {
+      "threads": 1000000,
+      "entries": 1000000,
+      "max_entries": 1,
+      "bytes_est": 227577224
+     },
+     "released": {
+      "records": 0,
+      "entries": 0,
+      "bytes_est": 0
+     },
+     "last_write": {
+      "locations": 88,
+      "bytes_est": 9856
+     },
+     "last_reads": {
+      "locations": 1000059,
+      "readers": 999971,
+      "bytes_est": 296005696
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 1000000,
+      "unique_bases": 0,
+      "base_entries": 0,
+      "bytes_est": 59577224
+     },
+     "races": {
+      "records": 28,
+      "bytes_est": 134217728
+     },
+     "sync_pairs": 1,
+     "coherence_addrs": 0
+    },
+    "rss_kb": 4313596,
+    "hwm_kb": 4444108
+   }
+  },
+  {
+   "file": "kernel_22.json",
+   "t": 78.627,
+   "mb": 43.12,
+   "hb_events_count": null,
+   "seq_records": 31446,
+   "hb_stats": {
+    "hb_events": {
+     "count": 31446,
+     "json_bytes": 42924396,
+     "ram_bytes_est": 110645280
+    },
+    "engine": {
+     "vc": {
+      "threads": 1000000,
+      "entries": 1000000,
+      "max_entries": 1,
+      "bytes_est": 227577224
+     },
+     "released": {
+      "records": 0,
+      "entries": 0,
+      "bytes_est": 0
+     },
+     "last_write": {
+      "locations": 29,
+      "bytes_est": 3248
+     },
+     "last_reads": {
+      "locations": 1000174,
+      "readers": 1000145,
+      "bytes_est": 296049648
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 1000000,
+      "unique_bases": 0,
+      "base_entries": 0,
+      "bytes_est": 59577224
+     },
+     "races": {
+      "records": 0,
+      "bytes_est": 134217728
+     },
+     "sync_pairs": 0,
+     "coherence_addrs": 0
+    },
+    "rss_kb": 4313596,
+    "hwm_kb": 4444108
+   }
+  },
+  {
+   "file": "kernel_23.json",
+   "t": 79.627,
+   "mb": 43.08,
+   "hb_events_count": null,
+   "seq_records": 31250,
+   "hb_stats": {
+    "hb_events": {
+     "count": 31250,
+     "json_bytes": 42890995,
+     "ram_bytes_est": 110608576
+    },
+    "engine": {
+     "vc": {
+      "threads": 1000000,
+      "entries": 1000000,
+      "max_entries": 1,
+      "bytes_est": 227577224
+     },
+     "released": {
+      "records": 0,
+      "entries": 0,
+      "bytes_est": 0
+     },
+     "last_write": {
+      "locations": 0,
+      "bytes_est": 0
+     },
+     "last_reads": {
+      "locations": 1000000,
+      "readers": 1000000,
+      "bytes_est": 296000000
+     },
+     "pending_barriers": {
+      "instances": 0,
+      "arrivals": 0,
+      "bytes_est": 0
+     },
+     "vs": {
+      "threads": 1000000,
+      "unique_bases": 0,
+      "base_entries": 0,
+      "bytes_est": 59577224
+     },
+     "races": {
+      "records": 0,
+      "bytes_est": 134217728
+     },
+     "sync_pairs": 0,
+     "coherence_addrs": 0
+    },
+    "rss_kb": 4313596,
+    "hwm_kb": 4444108
+   }
+  }
+ ],
+ "nkernels": 24,
+ "vlog_mb": 0.04,
+ "drains": 24,
+ "drained_records": 7436165,
+ "hb_events_count": null,
+ "tool_tail": "./bfs-cuda ../data/bfs/graph1MW_6.txt\nstdout redirect: /mnt/beegfs/fzheng4/x1_follow/bisect/runs/bfs-vc-3331d35/work/bfs-cuda.accelprof.log\nRunning the pc_dependency_analysis tool for bfs-cuda...\nfatal: not a git repository (or any parent up to mount point /mnt)\nStopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).\nfatal: not a git repository (or any parent up to mount point /mnt)\nStopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set)."
+}
