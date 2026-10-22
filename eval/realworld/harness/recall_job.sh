@@ -28,8 +28,12 @@ echo "T21b job: runtime libsanalyzer=$HS ($LSA) collector=$HC fatbin=$HF late=$H
 if [ "${HS:0:8}" != 5a20fd14 ] || [ "${HC:0:8}" != b746b4dd ] || [ "${HF:0:8}" != a2d7368b ]; then
   echo "T21b: RUNTIME HASH MISMATCH on $(hostname): want 5a20fd14/b746b4dd/a2d7368b" >&2; exit 99
 fi
-[ "$(nvidia-smi --query-gpu=name --format=csv,noheader | wc -l)" = 1 ] || { echo "T21b: not exactly one GPU on $(hostname)" >&2; exit 98; }
-nvidia-smi --query-gpu=compute_cap --format=csv,noheader | grep -qx '8\.9' || { echo "T21b: not an sm_89 GPU on $(hostname): $GPU" >&2; exit 98; }
+# exactly one sm_89 device; other devices (c26 also carries an RTX 2060, sm_75) are hidden with CUDA_VISIBLE_DEVICES
+IDX=$(nvidia-smi --query-gpu=index,compute_cap --format=csv,noheader | awk -F', *' '$2=="8.9"{print $1}')
+[ "$(echo "$IDX" | grep -c .)" = 1 ] || { echo "T21b: not exactly one sm_89 GPU on $(hostname): $GPU" >&2; exit 98; }
+export CUDA_VISIBLE_DEVICES=$IDX
+GPU="$GPU used_index=$IDX"
+echo "T21b job: CUDA_VISIBLE_DEVICES=$IDX"
 
 TO=1200
 case "$FLAVOR" in

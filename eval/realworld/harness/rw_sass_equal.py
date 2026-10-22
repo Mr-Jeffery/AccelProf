@@ -7,7 +7,7 @@ names are compared as multisets. Prints SAME/DIFFERENT with counts; exit 0 iff S
 import re, subprocess, sys
 from collections import defaultdict
 
-NORM = [(re.compile(r"_GLOBAL__N__[0-9a-f]{8}_"), "_GLOBAL__N__X_"), (re.compile(r"(_cpp|_cu)_[0-9a-f]{8}_\d+"), r"\1_X")]
+NORM = [(re.compile(r"\d*_GLOBAL__N__[0-9a-f]{8}_"), "N_GLOBAL__N__X_"), (re.compile(r"(_cpp|_cu)_[0-9a-f]{8}_\d+"), r"\1_X")]
 
 
 def norm(s):
