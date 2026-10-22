@@ -1,6 +1,6 @@
 #!/bin/bash
 # T21b long pass, CPU half: `parallel.py analyze` of the stored traces of <ids> with a long --analysis-timeout, then the attribution.
-# Env: FLAVOR (longcap-vc | longcap-sc), IDS, LONG_ATO (default 172800 s).
+# Env: FLAVOR (longcap-vc | longcap-sc), IDS, LONG_ATO (default 84600 s, Jeffery: tool cap inside a 24 h job).
 source /home/fzheng4/wt-t21b/eval/realworld/harness/recall_header.sh || exit $?
 export ACCEL_PROF_HOME=$A
 for CH in ${RW_CUDA_HOME:-/usr/local/cuda-13.3} /usr/local/cuda-13.4 /usr/local/cuda; do [ -x $CH/bin/nvdisasm ] && { export CUDA_HOME=$CH; break; }; done
@@ -8,7 +8,7 @@ for CH in ${RW_CUDA_HOME:-/usr/local/cuda-13.3} /usr/local/cuda-13.4 /usr/local/
 source $W/eval/baselines/gpu_env.sh
 export LD_LIBRARY_PATH=/opt/ohpc/pub/compiler/gcc/12.4.0/lib64:${LD_LIBRARY_PATH:-}
 cd $W || exit 1
-ATO=${LONG_ATO:-172800}
+ATO=${LONG_ATO:-84600}
 case "$FLAVOR" in
   longcap-vc) M=vector-clock ;;
   longcap-sc) M=scalar-clock ;;

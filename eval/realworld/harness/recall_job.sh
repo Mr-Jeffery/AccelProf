@@ -43,9 +43,9 @@ case "$FLAVOR" in
   vc5400)  S=$S0/vc5400;   RES=$W/eval/results/realworld/vc5400;   CONF=$W/eval/baselines/confirm_realworld/vc5400
            TO=5400; export BASELINE_MODES=vector-clock ;;
   longcap-vc) S=$S0/longcap-vc; RES=$W/eval/results/realworld/longcap-vc; CONF=$W/eval/baselines/confirm_realworld/longcap-vc
-           TO=${LONG_TO:-84600}; ATO=${LONG_ATO:-172800}; CMD=collect; ATTR=run; export BASELINE_MODES=vector-clock ;;
+           TO=${LONG_TO:-84600}; ATO=${LONG_ATO:-84600}; CMD=collect; ATTR=run; export BASELINE_MODES=vector-clock ;;
   longcap-sc) S=$S0/longcap-sc; RES=$W/eval/results/realworld/longcap-sc; CONF=$W/eval/baselines/confirm_realworld/longcap-sc
-           TO=${LONG_TO:-84600}; ATO=${LONG_ATO:-172800}; CMD=collect; ATTR=run; export BASELINE_MODES=scalar-clock ;;
+           TO=${LONG_TO:-84600}; ATO=${LONG_ATO:-84600}; CMD=collect; ATTR=run; export BASELINE_MODES=scalar-clock ;;
   proto)   S=${PROTO_STORE:-/mnt/beegfs/fzheng4/cuvein_traces/realworld-2026-10-proto}; RES=$S/results; CONF=$S/confirm ;;
   *) echo "bad FLAVOR $FLAVOR" >&2; exit 2 ;;
 esac
@@ -71,7 +71,7 @@ for id in ${IDS:-}; do
   CP=$W/eval/x_logs/store_copy/$FLAVOR/$id; mkdir -p $CP; cp $S/$id/meta.json $CP/ 2>/dev/null; for f in $S/$id/logs/*.txt; do tail -c 30000 "$f" > $CP/$(basename $f); done 2>/dev/null
 done
 if [ "${ATTR:-both}" = run ] && [ -n "${IDS:-}" ]; then
-  if [ "${CMD:-run}" = collect ]; then SC=recall_analyze.sh; TL=4-00:00:00; else SC=recall_attr.sh; TL=23:50:00; fi
-  ( cd $W && sbatch --parsable --job-name="t21b-attr-${IDS%% *}" --partition=normal --nodes=1 --ntasks=1 --cpus-per-task=8 --time=$TL       --export=ALL,FLAVOR=$FLAVOR,IDS="$IDS",LONG_ATO=${LONG_ATO:-172800} --output=$W/eval/x_logs/t21b-attr-$FLAVOR-${IDS%% *}-%j.log eval/realworld/harness/$SC )
+  if [ "${CMD:-run}" = collect ]; then SC=recall_analyze.sh; TL=24:00:00; else SC=recall_attr.sh; TL=23:50:00; fi
+  ( cd $W && sbatch --parsable --job-name="t21b-attr-${IDS%% *}" --partition=normal --nodes=1 --ntasks=1 --cpus-per-task=8 --time=$TL       --export=ALL,FLAVOR=$FLAVOR,IDS="$IDS",LONG_ATO=${LONG_ATO:-84600} --output=$W/eval/x_logs/t21b-attr-$FLAVOR-${IDS%% *}-%j.log eval/realworld/harness/$SC )
 fi
 echo "=== $(date -Is) done"
