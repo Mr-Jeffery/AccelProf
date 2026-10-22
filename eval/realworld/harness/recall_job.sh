@@ -35,15 +35,17 @@ export CUDA_VISIBLE_DEVICES=$IDX
 GPU="$GPU used_index=$IDX"
 echo "T21b job: CUDA_VISIBLE_DEVICES=$IDX"
 
-TO=1200; ATO=3600
+TO=1200; ATO=3600; CMD=run
 case "$FLAVOR" in
   main)    S=$S0;          RES=$W/eval/results/realworld;          CONF=$W/eval/baselines/confirm_realworld ;;
   certain) S=$S0/certain;  RES=$W/eval/results/realworld/certain;  CONF=$W/eval/baselines/confirm_realworld/certain
            export BASELINE_MODES=vector-clock YOSEMITE_HB_GATE_POLICY=certain ;;
   vc5400)  S=$S0/vc5400;   RES=$W/eval/results/realworld/vc5400;   CONF=$W/eval/baselines/confirm_realworld/vc5400
            TO=5400; export BASELINE_MODES=vector-clock ;;
-  longcap) S=$S0/longcap;  RES=$W/eval/results/realworld/longcap;  CONF=$W/eval/baselines/confirm_realworld/longcap
-           TO=5400; ATO=${LONG_ATO:-36000} ;;
+  longcap-vc) S=$S0/longcap-vc; RES=$W/eval/results/realworld/longcap-vc; CONF=$W/eval/baselines/confirm_realworld/longcap-vc
+           TO=${LONG_TO:-84600}; ATO=${LONG_ATO:-172800}; CMD=collect; ATTR=run; export BASELINE_MODES=vector-clock ;;
+  longcap-sc) S=$S0/longcap-sc; RES=$W/eval/results/realworld/longcap-sc; CONF=$W/eval/baselines/confirm_realworld/longcap-sc
+           TO=${LONG_TO:-84600}; ATO=${LONG_ATO:-172800}; CMD=collect; ATTR=run; export BASELINE_MODES=scalar-clock ;;
   proto)   S=${PROTO_STORE:-/mnt/beegfs/fzheng4/cuvein_traces/realworld-2026-10-proto}; RES=$S/results; CONF=$S/confirm ;;
   *) echo "bad FLAVOR $FLAVOR" >&2; exit 2 ;;
 esac
@@ -52,7 +54,7 @@ MANIFEST=${MANIFEST:-$W/eval/realworld/manifest_t21b.csv}
 LOG=$W/eval/x_logs; mkdir -p $LOG $RES $CONF $S
 for id in ${IDS:-}; do
   echo "=== $(date -Is) run $id flavor=$FLAVOR"
-  $PY $W/eval/baselines/parallel.py run --manifest $MANIFEST --id $id --reps 1 --confirm \
+  $PY $W/eval/baselines/parallel.py ${CMD:-run} --manifest $MANIFEST --id $id --reps 1 --confirm \
       --timeout-floor $TO --timeout-cap $TO --analysis-timeout $ATO --tag "$id-" \
       --results-dir $RES --confirm-dir $CONF > $LOG/run-$FLAVOR-$id.out 2>&1
   echo "  parallel.py rc=$? ($(tail -1 $LOG/run-$FLAVOR-$id.out | cut -c1-120))"
@@ -69,6 +71,7 @@ for id in ${IDS:-}; do
   CP=$W/eval/x_logs/store_copy/$FLAVOR/$id; mkdir -p $CP; cp $S/$id/meta.json $CP/ 2>/dev/null; for f in $S/$id/logs/*.txt; do tail -c 30000 "$f" > $CP/$(basename $f); done 2>/dev/null
 done
 if [ "${ATTR:-both}" = run ] && [ -n "${IDS:-}" ]; then
-  ( cd $W && sbatch --parsable --job-name="t21b-attr-${IDS%% *}" --partition=normal --nodes=1 --ntasks=1 --cpus-per-task=8 --time=23:50:00       --export=ALL,FLAVOR=$FLAVOR,IDS="$IDS" --output=$W/eval/x_logs/t21b-attr-$FLAVOR-${IDS%% *}-%j.log eval/realworld/harness/recall_attr.sh )
+  if [ "${CMD:-run}" = collect ]; then SC=recall_analyze.sh; TL=4-00:00:00; else SC=recall_attr.sh; TL=23:50:00; fi
+  ( cd $W && sbatch --parsable --job-name="t21b-attr-${IDS%% *}" --partition=normal --nodes=1 --ntasks=1 --cpus-per-task=8 --time=$TL       --export=ALL,FLAVOR=$FLAVOR,IDS="$IDS",LONG_ATO=${LONG_ATO:-172800} --output=$W/eval/x_logs/t21b-attr-$FLAVOR-${IDS%% *}-%j.log eval/realworld/harness/$SC )
 fi
 echo "=== $(date -Is) done"

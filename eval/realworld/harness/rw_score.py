@@ -106,14 +106,14 @@ def main():
         exp_class = orc["expected_class"]
         manb, manf = man[f"{t}-buggy"], man[f"{t}-fixed"]
         pr = pats[t]
-        for flavor, resdir in (("main", a.results), ("certain", f"{a.results}/certain"), ("vc5400", f"{a.results}/vc5400"), ("longcap", f"{a.results}/longcap")):
+        for flavor, resdir in (("main", a.results), ("certain", f"{a.results}/certain"), ("vc5400", f"{a.results}/vc5400"), ("longcap-vc", f"{a.results}/longcap-vc"), ("longcap-sc", f"{a.results}/longcap-sc")):
             for variant in ("buggy", "fixed"):
                 id_ = f"{t}-{variant}"
                 att = load(f"{resdir}/attrib/{id_}.json")
                 csvr = read_csv_rows(resdir, id_)
                 if att is None and not csvr:
                     continue
-                modes = MODES if flavor in ("main", "longcap") else ("vector-clock",)
+                modes = MODES if flavor == "main" else (("scalar-clock",) if flavor.endswith("-sc") else ("vector-clock",))
                 for mode in modes:
                     cr = csvr.get(mode, {})
                     am = (att or {}).get("modes", {}).get(mode)

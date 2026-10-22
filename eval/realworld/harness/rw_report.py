@@ -41,7 +41,7 @@ for t in sorted(by, key=lambda t: (list(by[t].values())[0]["wave"], t)):
     st = ",".join(sorted({r["strong_token"] for r in vc if r["strong_token"]}))
     rc = next((r["racecheck"] for r in vc), "")
     out.append(f"| {t} | {any_['wave']} | {any_['expected_class']} | {cell('buggy','vector-clock')} | {cell('buggy','scalar-clock')} | {op} | {a2} | {st} | {cell('fixed','vector-clock')} | {cell('fixed','scalar-clock')} | {rc} |")
-other = [r for r in rows if r["flavor"] not in ("main", "longcap")]
+other = [r for r in rows if r["flavor"] != "main" and not r["flavor"].startswith("longcap")]
 if other:
     out += ["", "### 2.3 Other flavors (vector-clock only)", "", "| flavor | target | variant | component | run | outcome | operating point |", "|---|---|---|---|---|---|---|"]
     for r in other:

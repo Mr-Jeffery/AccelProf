@@ -43,7 +43,7 @@ def cubin_frames(cubin, env, cache):
     `.section .text.<function>` lines; /*OFFSET*/ is relative to the function."""
     if cubin in cache:
         return cache[cubin]
-    r = sh(["nvdisasm", "--print-line-info-inline", cubin], env, timeout=3600)
+    r = sh(["nvdisasm", "-c", "--print-line-info-inline", cubin], env, timeout=3600)   # -c: code sections only (D-T2)
     funcs, fn, cur, in_group = {}, None, [], False
     for ln in r.stdout.splitlines():
         m = SECTION_RE.match(ln)
@@ -51,6 +51,9 @@ def cubin_frames(cubin, env, cache):
             fn = m.group(1)
             funcs.setdefault(fn, {})
             cur, in_group = [], False
+            continue
+        if re.match(r"^\s*\.section\s", ln):      # a non-text section (.nv.global.init, ...): its /*offset*/ lines are not code (D-T2)
+            fn, cur, in_group = None, [], False
             continue
         t = ln.strip()
         if t.startswith("//##"):
