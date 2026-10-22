@@ -24,6 +24,7 @@ import argparse
 import glob
 import json
 import os
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -38,6 +39,36 @@ import sync_dominance as sd  # noqa: E402
 import aggregate as agg      # noqa: E402
 import host_hb               # noqa: E402  (T2: host copies / cross-stream kernels)
 
+
+
+def _kernel_base_name(kj):
+    """T21b dot prefilter: the kernel's base identifier from its kernel JSON, or None."""
+    try:
+        d = json.loads(Path(kj).read_text())
+    except Exception:
+        return None
+    k = d.get("kernel") if isinstance(d.get("kernel"), dict) else {}
+    name = k.get("kernel_name") or k.get("name") or d.get("kernel_name") or d.get("name")
+    if not isinstance(name, str) or not name.strip():
+        return None
+    base = re.split(r"[<(]", name)[0].split()
+    return base[-1] if base else None
+
+
+def _dots_for_kernel(kj, dots, dot_text):
+    """Dots whose text names the kernel come first, then every other dot, in the original
+    sorted order. Only the order changes: a wrong dot still raises AlignmentError and the
+    loop moves on, so the verdicts are those of the unfiltered search, just reached sooner."""
+    base = _kernel_base_name(kj)
+    if not base:
+        return dots
+    hit = []
+    for d in dots:
+        if d not in dot_text:
+            dot_text[d] = Path(d).read_text(errors="replace")
+        if base in dot_text[d]:
+            hit.append(d)
+    return hit + [d for d in dots if d not in hit]
 
 def _analyze_reports(depdir, cubindir):
     """Run sync_dominance.analyze over the dump and dedup RACE verdicts on
@@ -64,9 +95,10 @@ def _analyze_reports(depdir, cubindir):
     mbug = set()   # keys with a model_bug annotation (R1 contradicted by hb_races; DR or SC)
     policies = set()   # T16: the chain-edge policy the dumps' hb_races were computed under
     a2s = {}   # T14: key -> [race of this run, some unflagged, latent, flagged without R3, flag seen]
+    dot_text = {}   # T21b: dot path -> text, read once (dot prefilter below)
     for kj in sorted(glob.glob(f"{depdir}/kernel_*.json")):
         rep = None
-        for dot in dots:
+        for dot in _dots_for_kernel(kj, dots, dot_text):
             try:
                 rep = sd.analyze(dot, kj)
                 break
