@@ -102,7 +102,7 @@ def base_env(cuda_home=None, hb_trace=False, hb_mode=None, scope_file=None):
     # drop every HB knob inherited from the shell, the pre-T8 mode switch included
     # (the collector would still honour it and silently flip the mode)
     for k in ("YOSEMITE_HB_TRACE", hb_modes.ENV, hb_modes.LEGACY_ENV, "YOSEMITE_ATOMIC_SCOPE_FILE",
-              "YOSEMITE_HB_DUMP"):
+              "YOSEMITE_HB_DUMP", "YOSEMITE_HB_SHARDS"):
         e.pop(k, None)
     if hb_trace:
         hb_modes.require_collector_support(APH)   # a pre-T8 library ignores YOSEMITE_HB_MODE
@@ -110,9 +110,21 @@ def base_env(cuda_home=None, hb_trace=False, hb_mode=None, scope_file=None):
         e.update(hb_modes.collector_env(hb_mode or hb_modes.VECTOR_CLOCK))
         if not hb_dump():                          # T4: no-dump mode for the whole sweep
             e["YOSEMITE_HB_DUMP"] = "0"
+        if hb_mode == hb_modes.SCALAR_CLOCK and hb_shards():   # X1b: the sharded sync pass (T22)
+            e["YOSEMITE_HB_SHARDS"] = str(hb_shards())
     if scope_file:
         e["YOSEMITE_ATOMIC_SCOPE_FILE"] = scope_file
     return e
+
+
+def hb_shards():
+    """X1b: $BASELINE_HB_SHARDS=N sets YOSEMITE_HB_SHARDS=N for the scalar-clock runs only (T22's sharded
+    sync pass; vector-clock mode never sees the knob). 0 / unset = the serial pass (X1). Recorded in
+    every program's meta.json as `hb_shards` (per mode)."""
+    try:
+        return max(0, int(os.environ.get("BASELINE_HB_SHARDS", "0") or 0))
+    except ValueError:
+        return 0
 
 
 def hb_dump():
