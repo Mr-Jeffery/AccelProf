@@ -17,5 +17,7 @@ with open(dst, "w", newline="") as fh:
                 if OLD in v:
                     r[k] = v.replace(OLD, NEW)
             n += 1
+        if r["target"].startswith("llamacpp-"):
+            r["args"] = r["args"].replace("'", "")   # parallel.py splits args on whitespace (no shell): the quotes would reach -p literally
         w.writerow(r)
 print(f"{len(rows)} rows, {n} repointed to {NEW}")
