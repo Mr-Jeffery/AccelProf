@@ -35,13 +35,15 @@ export CUDA_VISIBLE_DEVICES=$IDX
 GPU="$GPU used_index=$IDX"
 echo "T21b job: CUDA_VISIBLE_DEVICES=$IDX"
 
-TO=1200
+TO=1200; ATO=3600
 case "$FLAVOR" in
   main)    S=$S0;          RES=$W/eval/results/realworld;          CONF=$W/eval/baselines/confirm_realworld ;;
   certain) S=$S0/certain;  RES=$W/eval/results/realworld/certain;  CONF=$W/eval/baselines/confirm_realworld/certain
            export BASELINE_MODES=vector-clock YOSEMITE_HB_GATE_POLICY=certain ;;
   vc5400)  S=$S0/vc5400;   RES=$W/eval/results/realworld/vc5400;   CONF=$W/eval/baselines/confirm_realworld/vc5400
            TO=5400; export BASELINE_MODES=vector-clock ;;
+  longcap) S=$S0/longcap;  RES=$W/eval/results/realworld/longcap;  CONF=$W/eval/baselines/confirm_realworld/longcap
+           TO=5400; ATO=${LONG_ATO:-36000} ;;
   proto)   S=${PROTO_STORE:-/mnt/beegfs/fzheng4/cuvein_traces/realworld-2026-10-proto}; RES=$S/results; CONF=$S/confirm ;;
   *) echo "bad FLAVOR $FLAVOR" >&2; exit 2 ;;
 esac
@@ -51,13 +53,15 @@ LOG=$W/eval/x_logs; mkdir -p $LOG $RES $CONF $S
 for id in ${IDS:-}; do
   echo "=== $(date -Is) run $id flavor=$FLAVOR"
   $PY $W/eval/baselines/parallel.py run --manifest $MANIFEST --id $id --reps 1 --confirm \
-      --timeout-floor $TO --timeout-cap $TO --analysis-timeout 3600 --tag "$id-" \
+      --timeout-floor $TO --timeout-cap $TO --analysis-timeout $ATO --tag "$id-" \
       --results-dir $RES --confirm-dir $CONF > $LOG/run-$FLAVOR-$id.out 2>&1
   echo "  parallel.py rc=$? ($(tail -1 $LOG/run-$FLAVOR-$id.out | cut -c1-120))"
+  if [ ! -s "$S/$id/meta.json" ] || ! timeout 60 ls "$S/$id" >/dev/null 2>&1; then echo "T21b: host=$(hostname) store unreadable after run of $id (BeeGFS lost during the run); result void" >&2; exit 97; fi
   $PY $W/eval/realworld/harness/rw_postmeta.py --meta $S/$id/meta.json --flavor $FLAVOR --shards $N --nproc $NP \
       --libsanalyzer $HS --collector $HC --fatbin $HF --fatbin-late $HL --cuda-home $CUDA_HOME --gpu "$GPU" \
       --job "${SLURM_JOB_ID:-none}" --head "$(git -C $W rev-parse HEAD)" --policy "${YOSEMITE_HB_GATE_POLICY:-recorded}" \
       --timeout $TO 2>&1 | tail -2
+  if ! $PY -c "import csv,sys; sys.exit(0 if any(r['verdict'] in ('RACE','CLEAN') for r in csv.DictReader(open('$RES/baselines-cuvein-shard$id-all.csv'))) else 1)" 2>/dev/null; then echo "  no mode of $id ended RACE or CLEAN: attribution skipped (not scoreable)"; continue; fi
   $PY $W/eval/realworld/harness/rw_attribute.py --id $id --store $S --manifest $MANIFEST \
       --out $RES/attrib/$id.json > $LOG/attrib-$FLAVOR-$id.out 2>&1
   echo "  attribute rc=$? ($(tail -1 $LOG/attrib-$FLAVOR-$id.out | cut -c1-200))"

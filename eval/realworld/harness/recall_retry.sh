@@ -9,8 +9,8 @@ if { [ $rc = 97 ] || [ $rc = 98 ]; } && [ "$TRY" -lt 8 ]; then
   EX=c2,c21,c22,c23,c34,c37,c46,c54,$(sort -u $W/eval/x_logs/bad_nodes.txt | tr '\n' ',' | sed 's/,$//')
   echo "T21b retry: rc=$rc on $(hostname); resubmitting excluding $EX (try $((TRY+1)))"
   cd $W
-  sbatch --parsable --job-name="${SLURM_JOB_NAME}" --partition=rtx4060ti8g,rtx4060ti16g --exclude="$EX" --nodes=1 --ntasks=1 --cpus-per-task=16 --time=05:00:00 \
-    --export=ALL,FLAVOR="$FLAVOR",IDS="$IDS",TRY=$((TRY+1)) --output=$W/eval/x_logs/t21b-retry-$FLAVOR-${IDS%% *}-%j.log eval/realworld/harness/recall_retry.sh
+  sbatch --parsable --job-name="${SLURM_JOB_NAME}" --partition=rtx4060ti8g,rtx4060ti16g --exclude="$EX" --nodes=1 --ntasks=1 --cpus-per-task=16 --time=${TLIM:-05:00:00} \
+    --export=ALL,FLAVOR="$FLAVOR",IDS="$IDS",TLIM="${TLIM:-05:00:00}",TRY=$((TRY+1)) --output=$W/eval/x_logs/t21b-retry-$FLAVOR-${IDS%% *}-%j.log eval/realworld/harness/recall_retry.sh
   exit 0
 fi
 exit $rc
