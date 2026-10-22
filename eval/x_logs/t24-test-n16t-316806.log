@@ -1,0 +1,23 @@
+host=c62 NVIDIA GeForce RTX 4060 Ti, 8.9, 580.82.07 HEAD=d385eca dirty=1 SHARDS=16 2026-10-21T16:03:41-04:00
+runtime: lib -> /home/fzheng4/stage-t24/rt-lib collector 3dad1ffdad521833 libsanalyzer d8c5d656394f3e01
+============================= test session starts ==============================
+platform linux -- Python 3.14.4, pytest-9.1.1, pluggy-1.6.0
+rootdir: /home/fzheng4/wt-t24/python
+collected 21 items
+python/test_syncwarp.py .................s...                            [100%]
+=============================== warnings summary ===============================
+test_syncwarp.py::test_diverged_instance_joins_at_its_completion
+test_syncwarp.py::test_diverged_instance_joins_at_its_completion
+test_syncwarp.py::test_diverged_instance_joins_at_its_completion
+test_syncwarp.py::test_diverged_instance_joins_at_its_completion
+test_syncwarp.py::test_diverged_instance_joins_at_its_completion
+test_syncwarp.py::test_diverged_instance_joins_at_its_completion
+test_syncwarp.py::test_diverged_instance_joins_at_its_completion
+test_syncwarp.py::test_diverged_instance_joins_at_its_completion
+=========================== short test summary info ============================
+SKIPPED [1] python/test_syncwarp.py:306: the specification is compared on the vector-clock recording
+================== 20 passed, 1 skipped, 8 warnings in 14.16s ==================
+recordings: 8; notices:
+      2 [cuVein] YOSEMITE_HB_SHARDS=16 ignored: vector-clock mode runs the serial pass
+      2 [cuVein] scalar-clock pass sharded by location: 16 shards
+== done 2026-10-21T16:03:57-04:00

@@ -1,0 +1,151 @@
+host=c62 NVIDIA GeForce RTX 4060 Ti, 8.9, 580.82.07 HEAD=38af04e 2026-10-21T15:21:05-04:00
+runtime: lib -> /home/fzheng4/AccelProf/lib collector 83af143748adb80c libsanalyzer a01c16667b592e5d
+==== race: SASS (syncwarp-related lines)
+        /*0030*/                   BSSY B0, 0x230 ;                               /* 0x000001f000007945 */
+        /*00c0*/              @!P0 STS.U8 [R0], RZ ;                              /* 0x000000ff00008388 */
+        /*00e0*/                   BSSY B1, 0x1e0 ;                               /* 0x000000f000017945 */
+        /*0120*/                   BSSY B2, 0x190 ;                               /* 0x0000006000027945 */
+        /*0170*/               @P0 STS.U8 [R0], R4 ;                              /* 0x0000000400000388 */
+        /*0180*/                   BSYNC B2 ;                                     /* 0x0000000000027941 */
+        /*0190*/                   BRA.CONV ~URZ, 0x1c0 ;                         /* 0x000000237f007947 */
+        /*01b0*/                   CALL.REL.NOINC 0x2b0 ;                         /* 0x000000f000007944 */
+        /*01c0*/                   NOP ;                                          /* 0x0000000000007918 */
+        /*01d0*/                   BSYNC B1 ;                                     /* 0x0000000000017941 */
+        /*0220*/                   BSYNC B0 ;                                     /* 0x0000000000007941 */
+        /*0230*/                   LDS.U8 R0, [R0] ;                              /* 0x0000000000007984 */
+        /*0250*/              @!P0 EXIT ;                                         /* 0x000000000000894d */
+        /*02a0*/                   EXIT ;                                         /* 0x000000000000794d */
+        /*02c0*/                   WARPSYNC 0xffffffff ;                          /* 0xffffffff00007948 */
+        /*02d0*/                   RET.REL.NODEC R4 0x0 ;                         /* 0xfffffd2004007950 */
+        /*02f0*/                   NOP;                                           /* 0x0000000000007918 */
+        /*0300*/                   NOP;                                           /* 0x0000000000007918 */
+        /*0310*/                   NOP;                                           /* 0x0000000000007918 */
+        /*0320*/                   NOP;                                           /* 0x0000000000007918 */
+        /*0330*/                   NOP;                                           /* 0x0000000000007918 */
+        /*0340*/                   NOP;                                           /* 0x0000000000007918 */
+        /*0350*/                   NOP;                                           /* 0x0000000000007918 */
+        /*0360*/                   NOP;                                           /* 0x0000000000007918 */
+        /*0370*/                   NOP;                                           /* 0x0000000000007918 */
+getall rc=0
+-- /tmp/t24-explore-8ZBS/race/dependency_cc_2026-10-21_15-21-10/kernel_0.json
+kernel cc_vertex_data(int const*, int*) block_thread_count 64 records 72 hb_exits 1
+  seq      6 b0 w0 write shared pc 0xc0 lanes [0] (1)
+  seq      7 b0 w1 write shared pc 0xc0 lanes [0] (1)
+  seq     14 b0 w0 syncwarp pc 0x2c0 sync 0xffffffff active 0x0000ffff
+  seq     15 b0 w1 syncwarp pc 0x2c0 sync 0xffffffff active 0x0000ffff
+  seq     30 b0 w0 write shared pc 0x170 lanes [16] (1)
+  seq     31 b0 w1 write shared pc 0x170 lanes [16] (1)
+  seq     38 b0 w0 syncwarp pc 0x2c0 sync 0xffffffff active 0xffff0000
+  seq     39 b0 w1 syncwarp pc 0x2c0 sync 0xffffffff active 0xffff0000
+  seq     46 b0 w0 syncwarp pc 0x1c0 sync 0xffffffff active 0xffffffff
+  seq     47 b0 w1 syncwarp pc 0x1c0 sync 0xffffffff active 0xffffffff
+  seq     54 b0 w0 read shared pc 0x230 lanes [0, 1, 2, 3]... (32)
+  seq     55 b0 w1 read shared pc 0x230 lanes [0, 1, 2, 3]... (32)
+  seq     70 b0 w0 exit pc 0x2a0 active 0xffffffff
+  seq     71 b0 w1 exit pc 0x2a0 active 0xffffffff
+instances by record count: {2: 8, 1: 8} open at end: 0
+instance pcs: {(704, 2): 8, (448, 1): 8}
+hb_races: []
+hb_races_sync_only: []
+hb_sync_pass: []
+tv_violation: None
+==== control: SASS (syncwarp-related lines)
+        /*0030*/                   BSSY B0, 0x240 ;                               /* 0x0000020000007945 */
+        /*00c0*/              @!P0 STS.U8 [R0], RZ ;                              /* 0x000000ff00008388 */
+        /*00d0*/                   NOP ;                                          /* 0x0000000000007918 */
+        /*00f0*/                   BSSY B1, 0x1f0 ;                               /* 0x000000f000017945 */
+        /*0130*/                   BSSY B2, 0x1a0 ;                               /* 0x0000006000027945 */
+        /*0180*/               @P0 STS.U8 [R0], R4 ;                              /* 0x0000000400000388 */
+        /*0190*/                   BSYNC B2 ;                                     /* 0x0000000000027941 */
+        /*01a0*/                   BRA.CONV ~URZ, 0x1d0 ;                         /* 0x000000237f007947 */
+        /*01c0*/                   CALL.REL.NOINC 0x2c0 ;                         /* 0x000000f000007944 */
+        /*01d0*/                   NOP ;                                          /* 0x0000000000007918 */
+        /*01e0*/                   BSYNC B1 ;                                     /* 0x0000000000017941 */
+        /*0230*/                   BSYNC B0 ;                                     /* 0x0000000000007941 */
+        /*0240*/                   LDS.U8 R0, [R0] ;                              /* 0x0000000000007984 */
+        /*0260*/              @!P0 EXIT ;                                         /* 0x000000000000894d */
+        /*02b0*/                   EXIT ;                                         /* 0x000000000000794d */
+        /*02d0*/                   WARPSYNC 0xffffffff ;                          /* 0xffffffff00007948 */
+        /*02e0*/                   RET.REL.NODEC R4 0x0 ;                         /* 0xfffffd1004007950 */
+        /*0300*/                   NOP;                                           /* 0x0000000000007918 */
+        /*0310*/                   NOP;                                           /* 0x0000000000007918 */
+        /*0320*/                   NOP;                                           /* 0x0000000000007918 */
+        /*0330*/                   NOP;                                           /* 0x0000000000007918 */
+        /*0340*/                   NOP;                                           /* 0x0000000000007918 */
+        /*0350*/                   NOP;                                           /* 0x0000000000007918 */
+        /*0360*/                   NOP;                                           /* 0x0000000000007918 */
+        /*0370*/                   NOP;                                           /* 0x0000000000007918 */
+getall rc=0
+-- /tmp/t24-explore-8ZBS/control/dependency_cc_2026-10-21_15-21-14/kernel_0.json
+kernel cc_vertex_data(int const*, int*) block_thread_count 64 records 80 hb_exits 1
+  seq      6 b0 w0 write shared pc 0xc0 lanes [0] (1)
+  seq      7 b0 w1 write shared pc 0xc0 lanes [0] (1)
+  seq     14 b0 w0 syncwarp pc 0xd0 sync 0xffffffff active 0xffffffff
+  seq     15 b0 w1 syncwarp pc 0xd0 sync 0xffffffff active 0xffffffff
+  seq     22 b0 w0 syncwarp pc 0x2d0 sync 0xffffffff active 0x0000ffff
+  seq     23 b0 w1 syncwarp pc 0x2d0 sync 0xffffffff active 0x0000ffff
+  seq     38 b0 w0 write shared pc 0x180 lanes [16] (1)
+  seq     39 b0 w1 write shared pc 0x180 lanes [16] (1)
+  seq     46 b0 w0 syncwarp pc 0x2d0 sync 0xffffffff active 0xffff0000
+  seq     47 b0 w1 syncwarp pc 0x2d0 sync 0xffffffff active 0xffff0000
+  seq     54 b0 w0 syncwarp pc 0x1d0 sync 0xffffffff active 0xffffffff
+  seq     55 b0 w1 syncwarp pc 0x1d0 sync 0xffffffff active 0xffffffff
+  seq     62 b0 w0 read shared pc 0x240 lanes [0, 1, 2, 3]... (32)
+  seq     63 b0 w1 read shared pc 0x240 lanes [0, 1, 2, 3]... (32)
+  seq     78 b0 w0 exit pc 0x2b0 active 0xffffffff
+  seq     79 b0 w1 exit pc 0x2b0 active 0xffffffff
+instances by record count: {1: 16, 2: 8} open at end: 0
+instance pcs: {(208, 1): 8, (720, 2): 8, (464, 1): 8}
+hb_races: []
+hb_races_sync_only: []
+hb_sync_pass: []
+tv_violation: None
+==== inside: SASS (syncwarp-related lines)
+        /*0030*/                   BSSY B0, 0x240 ;                               /* 0x0000020000007945 */
+        /*00d0*/                   BSSY B1, 0x1f0 ;                               /* 0x0000011000017945 */
+        /*0110*/                   BSSY B2, 0x1a0 ;                               /* 0x0000008000027945 */
+        /*0120*/              @!P0 STS.U8 [R0], RZ ;                              /* 0x000000ff00008388 */
+        /*0180*/               @P0 STS.U8 [R0], R4 ;                              /* 0x0000000400000388 */
+        /*0190*/                   BSYNC B2 ;                                     /* 0x0000000000027941 */
+        /*01a0*/                   BRA.CONV ~URZ, 0x1d0 ;                         /* 0x000000237f007947 */
+        /*01c0*/                   CALL.REL.NOINC 0x2c0 ;                         /* 0x000000f000007944 */
+        /*01d0*/                   NOP ;                                          /* 0x0000000000007918 */
+        /*01e0*/                   BSYNC B1 ;                                     /* 0x0000000000017941 */
+        /*0230*/                   BSYNC B0 ;                                     /* 0x0000000000007941 */
+        /*0240*/                   LDS.U8 R0, [R0] ;                              /* 0x0000000000007984 */
+        /*0260*/              @!P0 EXIT ;                                         /* 0x000000000000894d */
+        /*02b0*/                   EXIT ;                                         /* 0x000000000000794d */
+        /*02d0*/                   WARPSYNC 0xffffffff ;                          /* 0xffffffff00007948 */
+        /*02e0*/                   RET.REL.NODEC R4 0x0 ;                         /* 0xfffffd1004007950 */
+        /*0300*/                   NOP;                                           /* 0x0000000000007918 */
+        /*0310*/                   NOP;                                           /* 0x0000000000007918 */
+        /*0320*/                   NOP;                                           /* 0x0000000000007918 */
+        /*0330*/                   NOP;                                           /* 0x0000000000007918 */
+        /*0340*/                   NOP;                                           /* 0x0000000000007918 */
+        /*0350*/                   NOP;                                           /* 0x0000000000007918 */
+        /*0360*/                   NOP;                                           /* 0x0000000000007918 */
+        /*0370*/                   NOP;                                           /* 0x0000000000007918 */
+getall rc=0
+-- /tmp/t24-explore-8ZBS/inside/dependency_cc_2026-10-21_15-21-17/kernel_0.json
+kernel cc_vertex_data(int const*, int*) block_thread_count 64 records 72 hb_exits 1
+  seq      6 b0 w0 write shared pc 0x120 lanes [0] (1)
+  seq      7 b0 w1 write shared pc 0x120 lanes [0] (1)
+  seq     14 b0 w0 syncwarp pc 0x2d0 sync 0xffffffff active 0x0000ffff
+  seq     15 b0 w1 syncwarp pc 0x2d0 sync 0xffffffff active 0x0000ffff
+  seq     30 b0 w0 write shared pc 0x180 lanes [16] (1)
+  seq     31 b0 w1 write shared pc 0x180 lanes [16] (1)
+  seq     38 b0 w0 syncwarp pc 0x2d0 sync 0xffffffff active 0xffff0000
+  seq     39 b0 w1 syncwarp pc 0x2d0 sync 0xffffffff active 0xffff0000
+  seq     46 b0 w0 syncwarp pc 0x1d0 sync 0xffffffff active 0xffffffff
+  seq     47 b0 w1 syncwarp pc 0x1d0 sync 0xffffffff active 0xffffffff
+  seq     54 b0 w0 read shared pc 0x240 lanes [0, 1, 2, 3]... (32)
+  seq     55 b0 w1 read shared pc 0x240 lanes [0, 1, 2, 3]... (32)
+  seq     70 b0 w0 exit pc 0x2b0 active 0xffffffff
+  seq     71 b0 w1 exit pc 0x2b0 active 0xffffffff
+instances by record count: {2: 8, 1: 8} open at end: 0
+instance pcs: {(720, 2): 8, (464, 1): 8}
+hb_races: []
+hb_races_sync_only: []
+hb_sync_pass: []
+tv_violation: None
+== done 2026-10-21T15:21:17-04:00

@@ -803,6 +803,17 @@ struct HbClock {
     std::map<std::pair<uint64_t, uint32_t>, Pending> pending_barriers;
     std::unordered_map<uint64_t, uint64_t> exited_count;               // block -> exited threads
     std::map<std::pair<uint64_t, uint32_t>, uint32_t> exited_lanes;     // (block,warp) -> lane mask
+    // T24 (eval/SYNCWARP_INSTANCE.md; hb_proof.tex Definition "Instances", the warp barrier): a warp
+    // diverged at a WARPSYNC executes it once per convergence group, and the trace carries one
+    // syncwarp record per group (sync_mask in accessSize, the group's lanes in active_mask). An
+    // instance is open per (block, warp, pc) from its first record until its arrived lanes cover
+    // the expected ones -- sync_mask minus the warp's exited lanes and the lanes past the block's
+    // last thread -- and then joins the expected lanes; a converged record completes it at once.
+    // Key: (block, warp << 32 | pc). syncwarp_waiting: per (block, warp) the lanes arrived at an
+    // open instance (the W2 analogue reads it). Both kept whatever YOSEMITE_HB_STRICT says.
+    struct SwPending { uint32_t sync_mask = 0; uint32_t arrived = 0; };
+    std::map<std::pair<uint64_t, uint64_t>, SwPending> pending_syncwarps;
+    std::map<std::pair<uint64_t, uint32_t>, uint32_t> syncwarp_waiting;
 
     // --- Trace-validity (TV) invariants: 1:1 with hb_oracle. ON by default; set
     // YOSEMITE_HB_STRICT=0 to disable. A violation is a collector/trace bug: it prints
@@ -959,18 +970,96 @@ struct HbClock {
             complete(it);   // erases `it` if it completes
             it = next;
         }
+        // T24: the warp's open syncwarp instances, after the block's segments. W2: an exiting
+        // lane cannot be waiting at one; an exiting lane that has not arrived leaves the
+        // expected lanes, which can complete the instance (as for a block barrier).
+        auto sw = pending_syncwarps.lower_bound({a.ctaId, uint64_t(a.warpId) << 32});
+        while (sw != pending_syncwarps.end() && sw->first.first == a.ctaId
+               && (sw->first.second >> 32) == a.warpId) {
+            if (strict && (sw->second.arrived & fresh))
+                tv_fail("TV-syncwarp-completion-order: block " + std::to_string(a.ctaId)
+                        + " warp " + std::to_string(a.warpId) + " exits lanes mask "
+                        + std::to_string(sw->second.arrived & fresh)
+                        + " still pending at the syncwarp at pc "
+                        + std::to_string(sw->first.second & 0xffffffffu));
+            auto next = std::next(sw);
+            sw_complete(sw);   // erases `sw` if it completes
+            sw = next;
+        }
+    }
+    // T24: the lanes of warp w that exist in a block of block_thread_count threads (all 32 when the
+    // count is unknown); the others never run, so a warp barrier does not wait for them.
+    uint32_t warp_lanes(uint32_t w) const {
+        const uint64_t first = uint64_t(w) * 32;
+        if (block_thread_count == 0 || block_thread_count >= first + 32) return 0xffffffffu;
+        if (block_thread_count <= first) return 0;
+        return (1u << static_cast<uint32_t>(block_thread_count - first)) - 1u;
+    }
+    // the expected lanes of a warp barrier: its sync_mask minus the exited and the absent lanes
+    uint32_t sw_expected(uint64_t block, uint32_t warp, uint32_t sync_mask) const {
+        const auto x = exited_lanes.find({block, warp});
+        return sync_mask & ~(x == exited_lanes.end() ? 0u : x->second) & warp_lanes(warp);
+    }
+    void sw_fire(uint64_t block, uint32_t warp, uint32_t lanes) {
+        std::vector<Tid> tids;
+        tids.reserve(static_cast<size_t>(__builtin_popcount(lanes)));
+        for (uint32_t m = lanes; m != 0; m &= (m - 1))
+            tids.push_back(tid_of(block, warp, static_cast<uint32_t>(__builtin_ctz(m))));
+        sync_group(tids);
+    }
+    // procedure Complete for an open warp barrier: after each of its records and each exit in its
+    // warp; on completion its waiting lanes are released and the expected lanes join
+    bool sw_complete(std::map<std::pair<uint64_t, uint64_t>, SwPending>::iterator it) {
+        const uint64_t block = it->first.first;
+        const uint32_t warp = static_cast<uint32_t>(it->first.second >> 32);
+        const uint32_t exp = sw_expected(block, warp, it->second.sync_mask);
+        if ((it->second.arrived & exp) != exp) return false;
+        const auto w = syncwarp_waiting.find({block, warp});
+        if (w != syncwarp_waiting.end() && (w->second &= ~it->second.arrived) == 0)
+            syncwarp_waiting.erase(w);
+        pending_syncwarps.erase(it);
+        sw_fire(block, warp, exp);
+        return true;
+    }
+    // a syncwarp record: the fast path is a converged warp (its group holds every expected lane),
+    // which joins at once as before T24; else the group's lanes arrive at the open instance
+    void on_syncwarp(const MemoryAccess& a, uint32_t pc) {
+        const std::pair<uint64_t, uint64_t> key{a.ctaId, (uint64_t(a.warpId) << 32) | pc};
+        auto it = pending_syncwarps.find(key);
+        if (it == pending_syncwarps.end()) {
+            const uint32_t exp = sw_expected(a.ctaId, a.warpId, a.accessSize);
+            if ((a.active_mask & exp) == exp) { sw_fire(a.ctaId, a.warpId, exp); return; }
+            it = pending_syncwarps.emplace(key, SwPending{}).first;
+        }
+        const uint32_t lanes = a.active_mask & a.accessSize;
+        it->second.sync_mask |= a.accessSize;   // one mask per instance on a well-formed trace
+        it->second.arrived |= lanes;
+        syncwarp_waiting[{a.ctaId, a.warpId}] |= lanes;
+        sw_complete(it);
     }
     // TV-barrier-pending-at-end (hb_proof.tex section 1, the fifth monitor check, the runtime
     // form of A3): every open segment is complete at the end of the kernel. Independent of
-    // YOSEMITE_HB_STRICT: pending_barriers is maintained regardless.
+    // YOSEMITE_HB_STRICT: pending_barriers is maintained regardless. T24: likewise every open
+    // syncwarp instance (TV-syncwarp-pending-at-end, A3's warp-barrier analogue).
     void check_pending_at_end() {
-        if (pending_barriers.empty()) return;
-        const auto& kv = *pending_barriers.begin();
-        tv_fail("TV-barrier-pending-at-end: " + std::to_string(pending_barriers.size())
-                + " barrier segment(s) open at the end of the kernel; first: block "
-                + std::to_string(kv.first.first) + ", bar " + std::to_string(kv.first.second)
-                + ", arrived " + std::to_string(kv.second.arrived.size()) + " of expected "
-                + std::to_string(expected_of(kv.first, kv.second)));
+        if (!pending_barriers.empty()) {
+            const auto& kv = *pending_barriers.begin();
+            tv_fail("TV-barrier-pending-at-end: " + std::to_string(pending_barriers.size())
+                    + " barrier segment(s) open at the end of the kernel; first: block "
+                    + std::to_string(kv.first.first) + ", bar " + std::to_string(kv.first.second)
+                    + ", arrived " + std::to_string(kv.second.arrived.size()) + " of expected "
+                    + std::to_string(expected_of(kv.first, kv.second)));
+        }
+        if (!pending_syncwarps.empty()) {
+            const auto& kv = *pending_syncwarps.begin();
+            tv_fail("TV-syncwarp-pending-at-end: " + std::to_string(pending_syncwarps.size())
+                    + " syncwarp instance(s) open at the end of the kernel; first: block "
+                    + std::to_string(kv.first.first) + ", warp "
+                    + std::to_string(kv.first.second >> 32) + ", pc "
+                    + std::to_string(kv.first.second & 0xffffffffu) + ", arrived lanes "
+                    + std::to_string(kv.second.arrived) + " of sync_mask "
+                    + std::to_string(kv.second.sync_mask));
+        }
     }
 
     // --- T14 (design/a2_flag.md): the a2_uncertain flag, 1:1 with hb_oracle.py. The
@@ -1333,6 +1422,7 @@ struct HbClock {
         win_lanes.clear();                                          // T14
         races.clear();
         exited_count.clear(); tv_violation.clear();
+        pending_syncwarps.clear(); syncwarp_waiting.clear();        // T24 (empty at a clean end)
         processed = 0; next_snapshot = stats_every;
         if (reap_async && weight >= REAP_MIN) reaper = std::thread([dd = std::move(d)]() mutable { dd.reset(); });
         else d.reset();
@@ -1893,16 +1983,27 @@ struct HbClock {
             // local records (the HB trace no longer carries them, hb_collect_events).
             if (a.type == MemoryType::Local) return;
             const uint32_t pc = static_cast<uint32_t>(a.pc & 0x00FFFFFFu);
-            // TV-record-after-exit (W3): no record of a thread follows its exit.
+            // TV-record-after-exit (W3): no record of a thread follows its exit. A record's threads
+            // are its active lanes, a syncwarp's too (T24): its sync_mask names the participants,
+            // and a lane of it may exit while the instance is open (it then leaves the expected
+            // lanes), so a later group's record still names it.
             if (strict && !exited_lanes.empty()) {
                 const auto xit = exited_lanes.find({a.ctaId, a.warpId});
-                const uint32_t lanes = (a.type == MemoryType::Syncwarp) ? a.accessSize
-                                                                        : a.active_mask;
-                if (xit != exited_lanes.end() && (xit->second & lanes))
+                if (xit != exited_lanes.end() && (xit->second & a.active_mask))
                     tv_fail("TV-record-after-exit: block " + std::to_string(a.ctaId)
                             + " warp " + std::to_string(a.warpId) + " lanes mask "
-                            + std::to_string(xit->second & lanes) + " issue a record at pc "
+                            + std::to_string(xit->second & a.active_mask) + " issue a record at pc "
                             + std::to_string(pc) + " after their exit");
+            }
+            // T24, W2 for a warp barrier: a lane that has arrived at an open syncwarp instance
+            // issues no record (memory, arrival, syncwarp, pipeline) before the instance completes.
+            if (strict && !syncwarp_waiting.empty()) {
+                const auto wit = syncwarp_waiting.find({a.ctaId, a.warpId});
+                if (wit != syncwarp_waiting.end() && (wit->second & a.active_mask))
+                    tv_fail("TV-syncwarp-completion-order: block " + std::to_string(a.ctaId)
+                            + " warp " + std::to_string(a.warpId) + " lanes mask "
+                            + std::to_string(wit->second & a.active_mask) + " issue a record at pc "
+                            + std::to_string(pc) + " while pending at a syncwarp");
             }
             if (a.type != MemoryType::Global && a.type != MemoryType::Shared) {
                 const uint32_t sm = a.type == MemoryType::Syncwarp ? a.accessSize : a.active_mask;
@@ -1920,12 +2021,10 @@ struct HbClock {
             }
 
             if (a.type == MemoryType::Syncwarp) {
-                // syncwarp is genuinely per-warp: join THIS warp's masked lanes now
-                // (sync_mask carried in accessSize).
-                std::vector<Tid> tids;
-                for (uint32_t m = a.accessSize; m != 0; m &= (m - 1))
-                    tids.push_back(tid_of(a.ctaId, a.warpId, static_cast<uint32_t>(__builtin_ctz(m))));
-                sync_group(tids);
+                // syncwarp is per-warp (sync_mask carried in accessSize). T24: one record per
+                // convergence group; the instance joins its expected lanes when the groups'
+                // lanes cover them (on_syncwarp), at once for a converged warp.
+                on_syncwarp(a, pc);
                 return;
             }
             if (a.type == MemoryType::Barrier) {
@@ -3143,6 +3242,7 @@ struct ShardPool {
         }
         if (first_tv != nullptr) out.tv_violation = first_tv->tv_violation;
         out.pending_barriers = shards[0]->pending_barriers;
+        out.pending_syncwarps = shards[0]->pending_syncwarps;   // T24: same in every shard
         out.exited_count = shards[0]->exited_count;
     }
     void stats(std::ostream& o, const HbClock& out) const {
