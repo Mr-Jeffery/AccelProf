@@ -1,0 +1,81 @@
+WSL triage build (cuVein f551ca0 runtime on Jeffery's laptop, RTX 4060 Laptop sm_89, CUDA 13.3; never scored)
+date: 2026-10-22T15:22:04-04:00
+build: nvcc -arch=native -lineinfo --cudart shared -o swpm syncwarp_partial_mask.cu   (Cuda compilation tools, release 13.3, V13.3.73)
+native run: no error out[0]=32
+
+## SASS (cuobjdump -sass swpm), partial_mask
+cuobjdump warning : Function listed in --function '_Z12partial_maskPi' not found
+        /*0050*/                   STS [R4.X4], R4 ;                         
+        /*0060*/                   BAR.SYNC.DEFER_BLOCKING 0x0 ;             
+        /*0070*/               @P0 BRA 0x1f0 ;                               
+        /*0080*/                   LDS R0, [R4.X4] ;                         
+        /*0090*/                   UMOV UR6, 0x3fffff ;                      
+        /*00b0*/                   BRA.CONV UR6, 0xe0 ;                      
+        /*00d0*/                   CALL.REL.NOINC 0x260 ;                    
+        /*00f0*/                   NOP ;                                     
+        /*0120*/                   UMOV UR6, 0x3fffff ;                      
+        /*0160*/                   STS [R3.X4+0x4], R0 ;                     
+        /*0170*/                   BRA.CONV UR6, 0x1a0 ;                     
+        /*0190*/                   CALL.REL.NOINC 0x260 ;                    
+        /*01a0*/                   NOP ;                                     
+        /*01b0*/                   LDS R5, [R4.X4] ;                         
+        /*0210*/               @P0 EXIT ;                                    
+        /*0250*/                   EXIT ;                                    
+        /*0270*/                   WARPSYNC R5 ;                             
+        /*0280*/                   RET.REL.NODEC R2 0x0 ;                    
+        /*0290*/                   BRA 0x290;                                
+
+## ~/curace-wsl/run-detector.sh swpm out   (both modes, dump on)
+vector-clock rc=0 kernels=2 -> /home/jeffery/t21b-triage/def/out/vector-clock
+   kernel_0.json partial_mask(int*) hb_races= 2
+   kernel_1.json full_mask(int*) hb_races= 0
+scalar-clock rc=0 kernels=2 -> /home/jeffery/t21b-triage/def/out/scalar-clock
+   kernel_0.json partial_mask(int*) hb_races= None
+   kernel_1.json full_mask(int*) hb_races= None
+
+## syncwarp records in the dumped trace (vector-clock; scalar-clock identical)
+== vector-clock kernel_0.json partial_mask(int*) races= 2 tv= TV-syncwarp-completion-order: block 0 warp 0 lanes mask 4194303 issue a record at pc 352 while pending at a syncwarp
+  syncwarp pc=0xf0 sync_mask=0xffffffff active=0x3fffff
+  syncwarp pc=0x1a0 sync_mask=0xffffffff active=0x3fffff
+  race {'a_tid': 1, 'a_pc': 128, 'b_tid': 0, 'b_pc': 352, 'kind': 'WAR', 'class': 'DR', 'dist': 'warp', 'count': 21}
+  race {'a_tid': 0, 'a_pc': 352, 'b_tid': 1, 'b_pc': 432, 'kind': 'RAW', 'class': 'DR', 'dist': 'warp', 'count': 21}
+== vector-clock kernel_1.json full_mask(int*) races= 0 tv= 
+  syncwarp pc=0xe0 sync_mask=0xffffffff active=0xffffffff
+  syncwarp pc=0x100 sync_mask=0xffffffff active=0xffffffff
+
+## verdicts (python/sync_dominance.analyze on the no-dump run, the attribution step's call)
+vector-clock nodump kernel_0.json partial_mask(int*) summary {"races": 2, "sc": 0, "ordered": 0, "skipped": 4, "hb_classes": {"structural": 2, "latent": 0, "benign": 0, "warp-po-ordered": 0, "barrier-ordered": 0, "sc": 0, "latent-sc": 0}, "model_bug": 0}
+vector-clock    RACE 0x160<-0x80 shared WAR matrix=structural cls=DR
+vector-clock    RACE 0x1b0<-0x160 shared RAW matrix=structural cls=DR
+vector-clock nodump kernel_1.json full_mask(int*) summary {"races": 0, "sc": 0, "ordered": 2, "skipped": 3, "hb_classes": {"structural": 0, "latent": 0, "benign": 0, "warp-po-ordered": 0, "barrier-ordered": 2, "sc": 0, "latent-sc": 0}, "model_bug": 0}
+scalar-clock nodump kernel_0.json partial_mask(int*) summary {"races": 2, "sc": 0, "ordered": 0, "skipped": 4, "hb_classes": null, "model_bug": 0}
+scalar-clock    RACE 0x160<-0x80 shared WAR matrix=None cls=DR
+scalar-clock    RACE 0x1b0<-0x160 shared RAW matrix=None cls=DR
+scalar-clock nodump kernel_1.json full_mask(int*) summary {"races": 0, "sc": 0, "ordered": 2, "skipped": 3, "hb_classes": null, "model_bug": 0}
+
+## HbClock log (vector-clock)
+[HB_CLOCK] *** TRACE-VALIDITY VIOLATION *** TV-syncwarp-completion-order: block 0 warp 0 lanes mask 4194303 issue a record at pc 352 while pending at a syncwarp
+  (the single-trace certificate assumes this cannot happen; verdict for this kernel is untrustworthy)
+--
+[HB_CLOCK] *** TRACE-VALIDITY VIOLATION *** TV-syncwarp-completion-order: block 0 warp 0 lanes mask 4194303 issue a record at pc 416 while pending at a syncwarp
+  (the single-trace certificate assumes this cannot happen; verdict for this kernel is untrustworthy)
+
+## python/hb_oracle.py on the dumped vector-clock trace: as recorded, and with every syncwarp record's sync_mask set to 0x3fffff (the mask in UR6)
+ALIGNMENT FAILURE: TV-syncwarp-completion-order: block 0 warp 0 issues a write at pc 0x160 (seq 4) while pending at a syncwarp
+patched 2 syncwarp records to sync_mask 0x3fffff
+0 race(s) over 11 events
+
+## same test on the T21b cccl-1 drivers (ARC build, copied), vector-clock dump
+### cccl1_buggy: HbClock races=30 tv_violation: "tv_violation": "TV-syncwarp-completion-order: block 0 warp 0 lanes mask 2097151 issue a record at pc 592 while pending at a syncwarp"
+ALIGNMENT FAILURE: TV-syncwarp-completion-order: block 0 warp 0 issues a read at pc 0x250 (seq 16) while pending at a syncwarp
+patched 10 syncwarp records to sync_mask 0x3fffff
+RACE WAR shared[0x1]  tid0@0x130  vs  tid1@0x1d0  (warp, x7)
+RACE WAR shared[0x2]  tid0@0x140  vs  tid2@0x1d0  (warp, x7)
+RACE WAR shared[0x3]  tid1@0xf0  vs  tid3@0x1d0  (warp, x7)
+3 race(s) over 37 events
+### cccl1_fixed: HbClock races=30 tv_violation: "tv_violation": "TV-syncwarp-completion-order: block 0 warp 0 lanes mask 4194303 issue a record at pc 544 while pending at a syncwarp"
+ALIGNMENT FAILURE: TV-syncwarp-completion-order: block 0 warp 0 issues a write at pc 0x220 (seq 15) while pending at a syncwarp
+patched 11 syncwarp records to sync_mask 0x3fffff
+kernel: block_reduce_kernel(unsigned char const*, unsigned char*)
+atomics: none
+0 race(s) over 38 events

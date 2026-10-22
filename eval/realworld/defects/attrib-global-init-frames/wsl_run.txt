@@ -1,0 +1,52 @@
+WSL triage build box (Jeffery's laptop, CUDA 13.3 nvdisasm; no detector run needed: the defect is in the attribution step)
+date: 2026-10-22T15:22:20-04:00
+build: nvcc -arch=native -lineinfo --cudart shared -o gil global_init_lineinfo.cu ; cuobjdump -xelf all gil
+nvdisasm: Build cuda_13.3.r13.3/compiler.38244171_0
+
+## python3 -I check_frames.py global_init_lineinfo.sm_89.cubin
+_Z1kPj 0x0040 STS [R6.X4], R6              harness: global_init_lineinfo.cu:15               code-only listing: global_init_lineinfo.cu:12
+_Z1kPj 0x00a0 LDS R0, [R0.X4]              harness: global_init_lineinfo.cu:15               code-only listing: global_init_lineinfo.cu:14
+MISMATCH (2 shared-memory pcs attributed differently)
+
+## where the bad frames come from: the listing without -c has a .nv.global.init section after the last .text section
+7:	.section	.debug_frame,"",@progbits
+13:        /*0040*/ 	.byte	0x00, 0x00, 0x00, 0x00
+21:	.section	.debug_line,"",@progbits
+27:        /*0040*/ 	.byte	0x6e, 0x69, 0x74, 0x5f, 0x6c, 0x69, 0x6e, 0x65, 0x69, 0x6e, 0x66, 0x6f, 0x2e, 0x63,
+35:	.section	.nv_debug_line_sass,"",@progbits
+47:	.section	.nv_debug_ptx_txt,"",@progbits
+53:        /*0040*/ 	.byte	0x6c, 0x69, 0x67, 0x6e, 0x20, 0x34, 0x20, 0x2e, 0x62, 0x38, 0x20, 0x74, 0x61, 0x62,
+59:        /*00a0*/ 	.byte	0x32, 0x20, 0x09, 0x25, 0x72, 0x3c, 0x31, 0x32, 0x3e, 0x3b, 0x00, 0x2e, 0x72, 0x65,
+100:	.section	.note.nv.tkinfo,"",@"SHT_NOTE"
+101:	.sectionflags	@"SHF_NOTE_NV_TKINFO"
+113:	.section	.note.nv.cuinfo,"",@"SHT_NOTE"
+114:	.sectionflags	@"SHF_NOTE_NV_CUINFO"
+122:	.section	.nv.info,"",@"SHT_CUDA_INFO"
+160:	.section	.nv.info._Z1kPj,"",@"SHT_CUDA_INFO"
+161:	.sectionflags	@""
+243:        /*0040*/ 	.word	0x000000d0
+248:	.section	.nv.callgraph,"",@"SHT_CUDA_CALLGRAPH"
+250:	.sectionentsize	8
+270:	.section	.nv.rel.action,"",@"SHT_CUDA_RELOCINFO"
+272:	.sectionentsize	8
+277:	.section	.nv.constant4,"a",@progbits
+285:	.section	.nv.constant0._Z1kPj,"a",@progbits
+286:	.sectionflags	@""
+293:	.section	.text._Z1kPj,"ax",@progbits
+294:	.sectioninfo	@"SHI_REGISTERS=10"
+310:        /*0040*/                   STS [R6.X4], R6 ;
+319:        /*00a0*/                   LDS R0, [R0.X4] ;
+339:	.section	.nv.global.init,"aw",@progbits
+349:        /*0040*/ 	.byte	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+355:        /*00a0*/ 	.byte	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+1373:	.section	.nv.shared._Z1kPj,"aw",@nobits
+1374:	.sectionflags	@""
+
+## the same parser on the T21b lit-fbgemm-1 buggy driver cubin (ARC build, copied): the oracle's pcs
+_Z9gemv_bf16P13__nv_bfloat16S0_S0_jjjj 0x27b0 @!P0 STS [R11], R18          harness: sm_30_intrinsics.hpp:439 <- fast_gemv.cuh:65 <- fast_gemv.cu:149 code-only listing: fast_gemv.cu:141
+_Z9gemv_bf16P13__nv_bfloat16S0_S0_jjjj 0x27d0 @!P1 LDS R16, [R12]          harness: sm_30_intrinsics.hpp:439 <- fast_gemv.cuh:65 <- fast_gemv.cu:149 code-only listing: fast_gemv.cu:145
+_Z9gemv_bf16P13__nv_bfloat16S0_S0_jjjj 0x2b00 @!P0 STS [R11], R20          harness: sm_30_intrinsics.hpp:439 <- fast_gemv.cuh:65 <- fast_gemv.cu:149 code-only listing: fast_gemv.cu:141
+_Z9gemv_bf16P13__nv_bfloat16S0_S0_jjjj 0x2b80 @!P1 LDS R18, [R12]          harness: sm_30_intrinsics.hpp:439 <- fast_gemv.cuh:65 <- fast_gemv.cu:149 code-only listing: fast_gemv.cu:145
+_Z9gemv_bf16P13__nv_bfloat16S0_S0_jjjj 0x2f50 @!P0 STS [R11], R4           harness: sm_30_intrinsics.hpp:439 <- fast_gemv.cuh:65 <- fast_gemv.cu:149 code-only listing: fast_gemv.cu:141
+_Z9gemv_bf16P13__nv_bfloat16S0_S0_jjjj 0x2f80 @!P1 LDS R2, [R12]           harness: sm_30_intrinsics.hpp:439 <- fast_gemv.cuh:65 <- fast_gemv.cu:149 code-only listing: fast_gemv.cu:145
+MISMATCH (6 shared-memory pcs attributed differently)
