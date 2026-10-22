@@ -98,6 +98,10 @@ def main():
     for i, r in man.items():
         if r["variant"] == "buggy":
             targets.append(r["target"])
+    try:
+        tvd = json.load(open(f"{a.results}/tv_violation.json"))      # harness/scan_tv.py (fact only; changes no outcome)
+    except (OSError, ValueError):
+        tvd = {}
     rows, queue_miss, queue_fixed, others = [], [], [], []
     detail = {}
     for t in targets:
@@ -122,7 +126,7 @@ def main():
                                 pattern=pr.get("pattern", ""), expected_class=exp_class, run_verdict=status,
                                 wall_s=cr.get("wall_s", ""), native_wall_s=cr.get("native_wall_s", ""), rc=cr.get("rc", ""),
                                 n_race=(am or {}).get("n_race", ""), n_sc=(am or {}).get("n_sc", ""),
-                                racecheck=racecheck(id_), open_decision=spec.get("open_decision") or "")
+                                racecheck=racecheck(id_), tv_violation=tvcell(tvd.get(f"{flavor}/{id_}/{mode}")), open_decision=spec.get("open_decision") or "")
                     reps = (am or {}).get("reports", [])
                     ok_run = status in ("RACE", "CLEAN") and am is not None
                     if variant == "buggy":
@@ -232,10 +236,14 @@ def main():
                                                a_pc=hex(r["a_pc"]), b_pc=hex(r["b_pc"]), cls=rclass(r), verdict=r["verdict"],
                                                matrix_class=r.get("matrix_class"), space=r["space"], race_type=r.get("race_type"),
                                                a=fl(r.get("a_frames")), b=fl(r.get("b_frames")), a_op=r.get("a_op"), b_op=r.get("b_op")))
+    # Opus triage (triage_opus.md, 7eb1eb9): cccl-1 "other" reports are artifacts of the syncwarp record defect (trace sync_mask 0xffffffff for a
+    # __syncwarp(0x3fffff)); they leave T21c's queue and are kept in other_reports_removed.csv with the reason.
+    removed = [dict(o, reason="cccl-1: artifact of the syncwarp-record defect (Opus triage 7eb1eb9, item 1)") for o in others if o["target"] == "cccl-1"]
+    others = [o for o in others if o["target"] != "cccl-1"]
     # ---- outputs
     cols = ["target", "variant", "mode", "flavor", "component", "wave", "route", "pattern", "expected_class", "run_verdict", "n_race", "n_sc",
             "outcome", "matched", "operating_point", "a2", "strong_token", "miss_cause", "also_residual", "open_decision",
-            "wall_s", "native_wall_s", "rc", "racecheck"]
+            "wall_s", "native_wall_s", "rc", "racecheck", "tv_violation"]
     if a.write:
         os.makedirs(a.results, exist_ok=True)
         with open(f"{a.results}/recall.csv", "w", newline="") as fh:
@@ -250,9 +258,19 @@ def main():
             w.writeheader()
             for r in others:
                 w.writerow(r)
+        with open(f"{a.results}/other_reports_removed.csv", "w", newline="") as fh:
+            w = csv.DictWriter(fh, fieldnames=oc + ["reason"])
+            w.writeheader()
+            for r in removed:
+                w.writerow(r)
         json.dump(dict(queue_miss=queue_miss, queue_fixed=queue_fixed), open(f"{a.results}/triage_inputs.json", "w"), indent=1, default=str)
+    print(f"removed from other queue: {len(removed)};")
     print(f"rows {len(rows)}; misses/detected-as {len(queue_miss)}; fixed to triage {len(queue_fixed)}; other reports {len(others)}")
     return rows, queue_miss, queue_fixed, others
+
+
+def tvcell(q):
+    return "" if q is None else f"{q['n_tv_violation']}/{q['n_kernel_jsons']}"
 
 
 def fx_all(spec):

@@ -19,15 +19,18 @@ for e in miss:
 out += ["", f"## B. DETECTED-AS-<other class> on buggy builds ({len(das)} rows; D20 option (i))", "", "| target | mode | component | outcome | .STRONG in SASS | reports |", "|---|---|---|---|---|---|"]
 for e in das:
     out.append(f"| {e['target']} | {e['mode']} | {e['component']} | {e['outcome']} | {e.get('strong_token')} | {' ; '.join(e['reports'][:2])} |")
+out += ["", "Opus triage (`triage_opus.md`, 7eb1eb9): these 4 rows stay DETECTED-AS-DR; the SASS of volatile shared on sm_89 has no `.STRONG` token (D20 option (i), model-boundary fact)."]
 fx = q["queue_fixed"]
 sr = [e for e in fx if e["kind"] == "STILL-REPORTED"]
 ra = [e for e in fx if e["kind"] == "RESIDUAL-AS-EXPECTED"]
 out += ["", f"## C. STILL-REPORTED on fixed builds ({len(sr)} rows)", ""]
 for e in sr:
     out.append(f"- **{e['target']}** ({e['mode']}, {e['flavor']}): oracle fixed = `{e['oracle_fixed']}`; matched `{e['matched']}`; {len(e['reports'])} report(s), first:  `{e['reports'][0]}`")
+out += ["", "Opus triage: the cccl-1 fixed reports are attributed to the syncwarp-record detector defect (trace sync_mask 0xffffffff for __syncwarp(0x3fffff); `tv_violation` set). Whether such kernels are scored or unscoreable is D-T1, NOT decided: the outcomes stay as scored."]
 out += ["", f"## D. RESIDUAL-AS-EXPECTED on fixed builds ({len(ra)} rows; the oracle registers a residual; listed so the residual's identity is checked)", ""]
 for e in ra:
     out.append(f"- {e['target']} ({e['mode']}, {e['flavor']}): `{e['matched']}`, .STRONG in SASS: {e['strong_token']}; first: `{e['reports'][0][:300]}`")
+out += ["", "Opus triage: the 9 residual rows are confirmed (each reported pair is the residual its oracle names); REVIEW.md item 2 labels for cccl-3, cmssw-1, dxtc2 remain open."]
 cnt = collections.Counter()
 if os.path.exists(f"{R}/other_reports.csv"):
     for r in csv.DictReader(open(f"{R}/other_reports.csv")):
@@ -39,3 +42,12 @@ for t, v in keys:
     out.append(f"| {t} | {v} | {cnt.get((t,v,'vector-clock','main'),0)} | {cnt.get((t,v,'scalar-clock','main'),0)} |")
 open(f"{WT}/eval/realworld/triage_queue.md", "w").write("\n".join(out) + "\n")
 print("triage_queue.md written:", len(miss), "misses,", len(das), "detected-as,", len(sr), "still-reported,", len(ra), "residual")
+if os.path.exists(f"{R}/other_reports_removed.csv"):
+    rm = list(csv.DictReader(open(f"{R}/other_reports_removed.csv")))
+    c2 = collections.Counter((r["target"], r["variant"], r["mode"], r["flavor"]) for r in rm)
+    with open(f"{WT}/eval/realworld/triage_queue.md", "a") as fh:
+        fh.write("\n## F. Removed from the other-reports queue (T21c) by the Opus triage\n\n"
+                 "cccl-1 reports (artifacts of the syncwarp-record defect) and the lit-fbgemm-1 buggy duplicate (the oracle pair itself, mis-attributed before D-T2; "
+                 "now matched, so it no longer appears as an other report). Rows kept in `other_reports_removed.csv`.\n\n")
+        for k, n in sorted(c2.items()):
+            fh.write(f"- {k[0]} {k[1]} {k[2]} {k[3]}: {n}\n")
