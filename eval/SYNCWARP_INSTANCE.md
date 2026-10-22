@@ -348,3 +348,7 @@ Outputs: `eval/results/t24/` (replay60, census, store replays), `eval/results/t2
 `eval/baselines/setup/t5b_parity/t24-parity/`, `t4_parity/t24-parity/` (exact counts),
 `t22_parity/t24-parity/` (counts-le), logs `eval/x_logs/t24-*` (force-added). Kept on BeeGFS:
 `cuvein_traces/t24-parity`, `t24-check`, `t24-time-{before,after}`.
+
+## Addendum (coordinating session, 2026-10-22): the P7-bfs scalar-clock aggregates row
+
+Job 316864 (aggregates == records, counts-le, P7-bfs-cuda scalar-clock) ended TIMEOUT at its 6 h limit. Its partial output (t22_parity/t24-parity/shard3.json) covers all 24 kernels: 14 ok, 10 stopped at the per-kernel cap (not compared), 0 mismatches. The Python record-replay reference is quadratic on the flag word (T22 cont. could not finish bfs kernels 15 and 17 in 14.7 h either). Jeffery decided (2026-10-21) to merge with these 10 kernels not compared; every other parity row is 0 mismatches.
