@@ -61,10 +61,14 @@ for id in ${IDS:-}; do
       --libsanalyzer $HS --collector $HC --fatbin $HF --fatbin-late $HL --cuda-home $CUDA_HOME --gpu "$GPU" \
       --job "${SLURM_JOB_ID:-none}" --head "$(git -C $W rev-parse HEAD)" --policy "${YOSEMITE_HB_GATE_POLICY:-recorded}" \
       --timeout $TO 2>&1 | tail -2
+  [ "${ATTR:-both}" = run ] && continue   # attribution runs separately on a CPU node (recall_attr.sh)
   if ! $PY -c "import csv,sys; sys.exit(0 if any(r['verdict'] in ('RACE','CLEAN') for r in csv.DictReader(open('$RES/baselines-cuvein-shard$id-all.csv'))) else 1)" 2>/dev/null; then echo "  no mode of $id ended RACE or CLEAN: attribution skipped (not scoreable)"; continue; fi
   $PY $W/eval/realworld/harness/rw_attribute.py --id $id --store $S --manifest $MANIFEST \
       --out $RES/attrib/$id.json > $LOG/attrib-$FLAVOR-$id.out 2>&1
   echo "  attribute rc=$? ($(tail -1 $LOG/attrib-$FLAVOR-$id.out | cut -c1-200))"
   CP=$W/eval/x_logs/store_copy/$FLAVOR/$id; mkdir -p $CP; cp $S/$id/meta.json $CP/ 2>/dev/null; for f in $S/$id/logs/*.txt; do tail -c 30000 "$f" > $CP/$(basename $f); done 2>/dev/null
 done
+if [ "${ATTR:-both}" = run ] && [ -n "${IDS:-}" ]; then
+  ( cd $W && sbatch --parsable --job-name="t21b-attr-${IDS%% *}" --partition=normal --nodes=1 --ntasks=1 --cpus-per-task=8 --time=23:50:00       --export=ALL,FLAVOR=$FLAVOR,IDS="$IDS" --output=$W/eval/x_logs/t21b-attr-$FLAVOR-${IDS%% *}-%j.log eval/realworld/harness/recall_attr.sh )
+fi
 echo "=== $(date -Is) done"

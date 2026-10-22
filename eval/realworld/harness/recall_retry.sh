@@ -3,6 +3,7 @@
 # eval/x_logs/bad_nodes.txt and resubmit this job excluding every recorded node (at most 8 times). Env: FLAVOR, IDS, TRY.
 TRY=${TRY:-0}
 W=/home/fzheng4/wt-t21b
+export ATTR=${ATTR:-run}
 bash $W/eval/realworld/harness/recall_job.sh; rc=$?
 if { [ $rc = 97 ] || [ $rc = 98 ]; } && [ "$TRY" -lt 8 ]; then
   echo "$(hostname)" >> $W/eval/x_logs/bad_nodes.txt
