@@ -27,6 +27,7 @@ for (m, e, comp), v in sorted(c.items()):
     out.append(f"| {m} | {e} | {comp} | {v['DETECTED']} | {v['DETECTED-AS']} | {v['MISSED']} | {n} |")
 out += ["", "### 2.2 Per target (main flavor; vc = vector-clock mode, sc = scalar-clock mode; fixed: outcome per mode)", "",
         "| target | wave | class | buggy vc | buggy sc | op. point (vc) | a2 | .STRONG | fixed vc | fixed sc | racecheck (buggy) |", "|---|---|---|---|---|---|---|---|---|---|---|"]
+out += ["", "`amrex-1` and `hecbench-hungarian-1` (buggy, both modes): **final m4** (TIMEOUT / ERROR at the X1b caps; see 2.6). They are listed as MISSED in the tables only because the scorer has no separate m4 outcome; they count as neither detected nor missed on the evidence."]
 by = collections.defaultdict(dict)
 for r in main:
     by[r["target"]][(r["variant"], r["mode"], r["component"])] = r
@@ -64,14 +65,14 @@ out += ["", "Rows new since that table (void or unrun before) are not D-T2 chang
         "`recall.csv` has a `tv_violation` column (kernel JSONs with `tv_violation` / kernel JSONs, fact only, from `harness/scan_tv.py`): set only on the four `cccl-1` stores "
         "(buggy and fixed, both modes); `hecbench-hungarian-1` (whose fix adds `__syncwarp`): 0 of 6,874 (vector-clock) and 0 of 7,018 (scalar-clock) kernel JSONs of the fixed build, but those are the truncated long-cap collections (2.6); no main-flavor run of the fixed build exists yet, and the buggy main-flavor stores have 0. The `cccl-1` reports in the other-reports queue "
         "(artifacts of the syncwarp-record defect) were moved to `other_reports_removed.csv`; the `lit-fbgemm-1` duplicate disappeared because the pair now matches."]
-lc = [r for r in rows if r["flavor"].startswith("longcap")]
-out += ["", "### 2.6 Long-cap pass (separate from the X1b-configuration rows above)", "",
-        "Jeffery's separate pass: tool cap 84,600 s inside 24 h jobs on the 4060 partitions (`longcap-vc` = vector-clock, `longcap-sc` = scalar-clock). Collection on a GPU node, analysis and attribution on `normal` "
-        "(`recall_analyze.sh`, analysis timeout 84,600 s). **Status: the collection of every long-cap run so far is void**: `parallel.py collect` does not pass `--timeout-floor` on, "
-        "so the tool timeout was `min(max(10 x native, 120), 84,600)` = 120 s (`timeout=120s` in the notes of the rows below), not 84,600 s. Rows below are the truncated runs and are not results.", "",
-        "| flavor | target | variant | mode | run | outcome | notes |", "|---|---|---|---|---|---|---|"]
-for r in lc:
-    out.append(f"| {r['flavor']} | {r['target']} | {r['variant']} | {r['mode']} | {r['run_verdict']} | {r['outcome']} | {r['miss_cause'][:90]} |")
+out += ["", "### 2.6 Long-cap pass: not run", "",
+        "Jeffery's separate pass (tool cap 84,600 s inside 24 h jobs, collection on a GPU node, analysis on `normal`) for `amrex-1`, `hecbench-hungarian-1` and `llamacpp-2` was **not run**. "
+        "Decision: `amrex-1` and `hecbench-hungarian-1` stay **final m4** (TIMEOUT / ERROR at the X1b caps: vector-clock 1,200 s, analysis timeout 3,600 s); "
+        "they are neither detected nor missed on the evidence. The attempted collections were void and the jobs were cancelled (collection jobs 319051-319060, analysis jobs 319139-319146). "
+        "Harness defect, not fixed: `eval/baselines/parallel.py` `cmd_collect` passes `--timeout-cap` to `collect_one` but drops `--timeout-floor`, so `collect` used the default floor of 120 s and "
+        "the tool timeout was `min(max(10 x native, 120), 84,600)` = 120 s (`timeout=120s`, rc 124, `nkernels=0` in the notes of the amrex-1 rows; the hecbench-hungarian-1 collections ended in about 2 minutes). "
+        "One-line fix: `collect_one(m, cuda, a.reps, floor=getattr(a, \"timeout_floor\", 120), cap=...)`. The `main` flavor is unaffected (the `run` command passes both). "
+        "The void rows are not in `recall.csv`; their files remain under `eval/results/realworld/longcap-*/`. `llamacpp-2/-4/-5` are with the fresh Opus triage (`triage_llamacpp.md`); their rows are unchanged until it lands."]
 sec = "\n".join(out) + "\n"
 p = f"{WT}/eval/REALWORLD.md"
 s = open(p).read()

@@ -110,7 +110,7 @@ def main():
         exp_class = orc["expected_class"]
         manb, manf = man[f"{t}-buggy"], man[f"{t}-fixed"]
         pr = pats[t]
-        for flavor, resdir in (("main", a.results), ("certain", f"{a.results}/certain"), ("vc5400", f"{a.results}/vc5400"), ("longcap-vc", f"{a.results}/longcap-vc"), ("longcap-sc", f"{a.results}/longcap-sc")):
+        for flavor, resdir in (("main", a.results), ("certain", f"{a.results}/certain"), ("vc5400", f"{a.results}/vc5400")):
             for variant in ("buggy", "fixed"):
                 id_ = f"{t}-{variant}"
                 att = load(f"{resdir}/attrib/{id_}.json")
@@ -240,6 +240,10 @@ def main():
     # __syncwarp(0x3fffff)); they leave T21c's queue and are kept in other_reports_removed.csv with the reason.
     removed = [dict(o, reason="cccl-1: artifact of the syncwarp-record defect (Opus triage 7eb1eb9, item 1)") for o in others if o["target"] == "cccl-1"]
     others = [o for o in others if o["target"] != "cccl-1"]
+    # amrex-1 and hecbench-hungarian-1: final m4 (Jeffery's decision; the long-cap pass was not run, see REALWORLD.md 2.6)
+    for r in rows:
+        if r["target"] in ("amrex-1", "hecbench-hungarian-1") and r["flavor"] == "main" and r["variant"] == "buggy" and r["miss_cause"].startswith("m4"):
+            r["miss_cause"] += " [FINAL m4: decision, long-cap pass not run]"
     # ---- outputs
     cols = ["target", "variant", "mode", "flavor", "component", "wave", "route", "pattern", "expected_class", "run_verdict", "n_race", "n_sc",
             "outcome", "matched", "operating_point", "a2", "strong_token", "miss_cause", "also_residual", "open_decision",
