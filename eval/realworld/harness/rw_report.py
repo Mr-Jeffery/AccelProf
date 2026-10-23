@@ -72,7 +72,14 @@ out += ["", "### 2.6 Long-cap pass: not run", "",
         "Harness defect, not fixed: `eval/baselines/parallel.py` `cmd_collect` passes `--timeout-cap` to `collect_one` but drops `--timeout-floor`, so `collect` used the default floor of 120 s and "
         "the tool timeout was `min(max(10 x native, 120), 84,600)` = 120 s (`timeout=120s`, rc 124, `nkernels=0` in the notes of the amrex-1 rows; the hecbench-hungarian-1 collections ended in about 2 minutes). "
         "One-line fix: `collect_one(m, cuda, a.reps, floor=getattr(a, \"timeout_floor\", 120), cap=...)`. The `main` flavor is unaffected (the `run` command passes both). "
-        "The void rows are not in `recall.csv`; their files remain under `eval/results/realworld/longcap-*/`. `llamacpp-2/-4/-5` are with the fresh Opus triage (`triage_llamacpp.md`); their rows are unchanged until it lands."]
+        "The void rows are not in `recall.csv`; their files remain under `eval/results/realworld/longcap-*/`. `llamacpp-2/-4/-5`: see 2.7."]
+out += ["", "### 2.7 llamacpp-2/-4/-5: Opus triage (`eval/realworld/triage_llamacpp.md`, 1efb1ac)", "",
+        "`llamacpp-2/-4` ERROR (scored m4 before): not a detector failure. `run_cuvein._analyze_reports` tried every `.dot` of the program in sorted order for each kernel JSON; llamacpp builds ship many large dots, so the search alone passed `--analysis-timeout 3600`. Fixed by 0d30817 (dots that name the kernel first; verdicts unchanged, only time). "
+        "Reanalysis of the main-flavor recordings (nothing re-recorded): `llamacpp-2` buggy DETECTED, fixed CLEAN-FOR-PAIR (both oracle site pairs ORDERED, barrier-ordered); `llamacpp-4` buggy DETECTED, fixed CLEAN-FOR-PAIR; "
+        "`llamacpp-5` buggy MISSED -> DETECTED (the MISSED came from a stale pre-D-T2 attribution; re-attributed with the fixed parser, all 16 oracle site pairs RACE, structural; the m1/m3 proposal is withdrawn), fixed stays CLEAN-FOR-PAIR. All in both modes. "
+        "Effect on the DR component, main flavor, buggy builds: 19 detected / 4 missed -> 22 detected / 1 missed (the miss is `amrex-1`, final m4).", "",
+        "Known unfixed side defect (cosmetic): `eval/baselines/parallel.py` lines 296-299 build the pc -> line map with `pcmap.update(...)` over every cubin of the executable; pcs are per-cubin offsets, so a pc present in several cubins keeps the line of the last cubin and the CSV column `report_lines` is wrong for multi-cubin builds "
+        "(`llamacpp-4` buggy shows `fattn-tile.cuh:1131` for a `softmax.cu` race). Scoring does not use that column, so no outcome changes."]
 sec = "\n".join(out) + "\n"
 p = f"{WT}/eval/REALWORLD.md"
 s = open(p).read()

@@ -31,6 +31,7 @@ out += ["", f"## D. RESIDUAL-AS-EXPECTED on fixed builds ({len(ra)} rows; the or
 for e in ra:
     out.append(f"- {e['target']} ({e['mode']}, {e['flavor']}): `{e['matched']}`, .STRONG in SASS: {e['strong_token']}; first: `{e['reports'][0][:300]}`")
 out += ["", "Opus triage: the 9 residual rows are confirmed (each reported pair is the residual its oracle names); REVIEW.md item 2 labels for cccl-3, cmssw-1, dxtc2 remain open."]
+out += ["", "llamacpp-2/-4/-5: triaged (`triage_llamacpp.md`, 1efb1ac); all three buggy builds DETECTED in both modes, the fixed builds CLEAN-FOR-PAIR; the earlier m1/m3 proposal for llamacpp-5 is withdrawn (stale pre-D-T2 attribution). Known unfixed cosmetic defect: `parallel.py:296-299` `report_lines` for multi-cubin builds."]
 cnt = collections.Counter()
 if os.path.exists(f"{R}/other_reports.csv"):
     for r in csv.DictReader(open(f"{R}/other_reports.csv")):
