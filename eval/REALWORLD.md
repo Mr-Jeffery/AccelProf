@@ -504,6 +504,7 @@ decisions left to Jeffery. The reviewers did not re-check the SASS statements in
 
 
 
+
 ## 2. Recall (T21b)
 
 **Runtime (every result below).** Install commit `f551ca0` (cuVein, merged into this branch as `9e29b3f`): libsanalyzer `5a20fd14ab6c6806`,
@@ -549,11 +550,11 @@ A target of class DR+SC has two components (DR pair, SC pair), counted separatel
 
 | mode | expected_class | component | DETECTED | DETECTED-AS-other | MISSED | n |
 |---|---|---|---|---|---|---|
-| scalar-clock | DR | DR | 19 | 0 | 4 | 23 |
+| scalar-clock | DR | DR | 21 | 0 | 2 | 23 |
 | scalar-clock | DR+SC | DR | 3 | 0 | 0 | 3 |
 | scalar-clock | DR+SC | SC | 2 | 1 | 0 | 3 |
 | scalar-clock | SC | SC | 0 | 1 | 1 | 2 |
-| vector-clock | DR | DR | 19 | 0 | 4 | 23 |
+| vector-clock | DR | DR | 21 | 0 | 2 | 23 |
 | vector-clock | DR+SC | DR | 3 | 0 | 0 | 3 |
 | vector-clock | DR+SC | SC | 2 | 1 | 0 | 3 |
 | vector-clock | SC | SC | 0 | 1 | 1 | 2 |
@@ -577,8 +578,8 @@ A target of class DR+SC has two components (DR pair, SC pair), counted separatel
 | lit-arrayfire-1 | 1 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 97 errors, 0 warnings (displayed 97) |
 | lit-fbgemm-1 | 1 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 1665 errors, 0 warnings (displayed 1665) |
 | lit-shoc-1 | 1 | DR+SC | DR: DETECTED / SC: DETECTED-AS-DR | DR: DETECTED / SC: DETECTED-AS-DR | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 12575 errors, 515594 warnings (displayed 2000) |
-| llamacpp-2 | 1 | DR | DR: MISSED | DR: MISSED |  |  |  | - | - | 0 errors, 493 warnings (displayed 493) |
-| llamacpp-4 | 1 | DR | DR: MISSED | DR: MISSED |  |  |  | NOT-SCORED | NOT-SCORED | 6890 errors, 272 warnings (displayed 2000) |
+| llamacpp-2 | 1 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | NOT-SCORED | NOT-SCORED | 0 errors, 493 warnings (displayed 493) |
+| llamacpp-4 | 1 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 6890 errors, 272 warnings (displayed 2000) |
 | llamacpp-5 | 1 | DR | DR: MISSED | DR: MISSED |  |  |  | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 131170 errors, 259648 warnings (displayed 2000) |
 | opencv-2 | 1 | SC | SC: DETECTED-AS-DR | SC: DETECTED-AS-DR |  | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 1788 errors, 4752 warnings (displayed 2000) |
 | pytorch-1 | 1 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 129 errors, 0 warnings (displayed 129) |
@@ -591,7 +592,7 @@ A target of class DR+SC has two components (DR pair, SC pair), counted separatel
 | kokkos-5 | 2 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 0 errors, 35671 warnings (displayed 2000) |
 | kokkos-6 | 2 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 6690 errors, 7767 warnings (displayed 2000) |
 | lit-exllamav3-1 | 2 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 710 errors, 38521 warnings (displayed 2000) |
-| raft-1 | 2 | DR+SC | DR: DETECTED / SC: DETECTED | DR: DETECTED / SC: DETECTED | Race, SC report (informational class) | None,robust | yes | - | - | n/a (global memory) |
+| raft-1 | 2 | DR+SC | DR: DETECTED / SC: DETECTED | DR: DETECTED / SC: DETECTED | Race, SC report (informational class) | None,robust | yes | RESIDUAL-AS-EXPECTED | RESIDUAL-AS-EXPECTED | n/a (global memory) |
 
 ### 2.3 Other flavors (vector-clock only)
 
