@@ -505,6 +505,7 @@ decisions left to Jeffery. The reviewers did not re-check the SASS statements in
 
 
 
+
 ## 2. Recall (T21b)
 
 **Runtime (every result below).** Install commit `f551ca0` (cuVein, merged into this branch as `9e29b3f`): libsanalyzer `5a20fd14ab6c6806`,
@@ -618,7 +619,7 @@ D-T2: `rw_attribute.cubin_frames` ran `nvdisasm --print-line-info-inline` withou
 
 Rows new since that table (void or unrun before) are not D-T2 changes: `llamacpp-2/-4/-5` (re-run after Defect 1), `cmssw-1` `certain`.
 
-Opus triage outcomes applied: the 4 `DETECTED-AS-DR` rows (`opencv-2`, `lit-shoc-1` SC half, both modes) stay (SASS of volatile shared on sm_89 has no `.STRONG` token; D20 option (i)); the 9 `RESIDUAL-AS-EXPECTED` rows are confirmed; `cccl-1` outcomes are left as scored because D-T1 (score kernels with `tv_violation`, or call them unscoreable) is not decided; `recall.csv` has a `tv_violation` column (kernel JSONs with `tv_violation` / kernel JSONs, fact only, from `harness/scan_tv.py`): set only on the four `cccl-1` stores (buggy and fixed, both modes); `hecbench-hungarian-1` (whose fix adds `__syncwarp`): 0 of 6,874 (vector-clock) and 0 of 7,018 (scalar-clock) kernel JSONs of the fixed build, but those are the truncated long-cap collections (2.6); no main-flavor run of the fixed build exists yet, and the buggy main-flavor stores have 0. The `cccl-1` reports in the other-reports queue (artifacts of the syncwarp-record defect) were moved to `other_reports_removed.csv`; the `lit-fbgemm-1` duplicate disappeared because the pair now matches.
+Opus triage outcomes applied: the 4 `DETECTED-AS-DR` rows (`opencv-2`, `lit-shoc-1` SC half, both modes) stay (SASS of volatile shared on sm_89 has no `.STRONG` token; D20 option (i)); the 9 `RESIDUAL-AS-EXPECTED` rows are confirmed; `cccl-1` outcomes are final (D-T1 decided by Jeffery, "score it": kernels with `tv_violation` are scored as normal): buggy DETECTED, fixed STILL-REPORTED, both modes; the fixed-build reports trace back to the syncwarp-record detector defect D-T3 (the trace records `__syncwarp(0x3fffff)` with mask 0xffffffff; its fix is post-deadline and not applied here); `recall.csv` has a `tv_violation` column (kernel JSONs with `tv_violation` / kernel JSONs, fact only, from `harness/scan_tv.py`): set only on the four `cccl-1` stores (buggy and fixed, both modes); `hecbench-hungarian-1` (whose fix adds `__syncwarp`): 0 of 6,874 (vector-clock) and 0 of 7,018 (scalar-clock) kernel JSONs of the fixed build, but those are the truncated long-cap collections (2.6); no main-flavor run of the fixed build exists yet, and the buggy main-flavor stores have 0. The `cccl-1` reports in the other-reports queue (artifacts of the syncwarp-record defect) were moved to `other_reports_removed.csv`; the `lit-fbgemm-1` duplicate disappeared because the pair now matches.
 
 ### 2.6 Long-cap pass: not run
 

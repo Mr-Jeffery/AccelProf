@@ -26,7 +26,7 @@ ra = [e for e in fx if e["kind"] == "RESIDUAL-AS-EXPECTED"]
 out += ["", f"## C. STILL-REPORTED on fixed builds ({len(sr)} rows)", ""]
 for e in sr:
     out.append(f"- **{e['target']}** ({e['mode']}, {e['flavor']}): oracle fixed = `{e['oracle_fixed']}`; matched `{e['matched']}`; {len(e['reports'])} report(s), first:  `{e['reports'][0]}`")
-out += ["", "Opus triage: the cccl-1 fixed reports are attributed to the syncwarp-record detector defect (trace sync_mask 0xffffffff for __syncwarp(0x3fffff); `tv_violation` set). Whether such kernels are scored or unscoreable is D-T1, NOT decided: the outcomes stay as scored."]
+out += ["", "Opus triage: the cccl-1 fixed reports trace back to the syncwarp-record detector defect D-T3 (the trace records `__syncwarp(0x3fffff)` with mask 0xffffffff; `tv_violation` set). D-T1 is decided (Jeffery: score it): kernels with `tv_violation` are scored as normal, so cccl-1 is final: buggy DETECTED, fixed STILL-REPORTED, both modes. D-T3 is fixed post-deadline and is not applied here."]
 out += ["", f"## D. RESIDUAL-AS-EXPECTED on fixed builds ({len(ra)} rows; the oracle registers a residual; listed so the residual's identity is checked)", ""]
 for e in ra:
     out.append(f"- {e['target']} ({e['mode']}, {e['flavor']}): `{e['matched']}`, .STRONG in SASS: {e['strong_token']}; first: `{e['reports'][0][:300]}`")

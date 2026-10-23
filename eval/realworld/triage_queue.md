@@ -30,7 +30,7 @@ Opus triage (`triage_opus.md`, 7eb1eb9): these 4 rows stay DETECTED-AS-DR; the S
 - **cccl-1** (vector-clock, main): oracle fixed = `absent`; matched `raking reads vs volatile warp-reduce store`; 15 report(s), first:  `block_reduce_kernel(unsigned char const*, unsigned char*) | pcs 0xf0/0x220 | shared WAR | DR (RACE, matrix structural, a2 robust) | A block_reduce_raking.cuh:222 <- block_reduce_raking.cuh:257 [LDS.U8] | B thread_store.cuh:284 <- thread_store.cuh:318 [STS.U8]`
 - **cccl-1** (scalar-clock, main): oracle fixed = `absent`; matched `raking reads vs volatile warp-reduce store`; 15 report(s), first:  `block_reduce_kernel(unsigned char const*, unsigned char*) | pcs 0xf0/0x220 | shared WAR | DR (RACE, matrix race, a2 None) | A block_reduce_raking.cuh:222 <- block_reduce_raking.cuh:257 [LDS.U8] | B thread_store.cuh:284 <- thread_store.cuh:318 [STS.U8]`
 
-Opus triage: the cccl-1 fixed reports are attributed to the syncwarp-record detector defect (trace sync_mask 0xffffffff for __syncwarp(0x3fffff); `tv_violation` set). Whether such kernels are scored or unscoreable is D-T1, NOT decided: the outcomes stay as scored.
+Opus triage: the cccl-1 fixed reports trace back to the syncwarp-record detector defect D-T3 (the trace records `__syncwarp(0x3fffff)` with mask 0xffffffff; `tv_violation` set). D-T1 is decided (Jeffery: score it): kernels with `tv_violation` are scored as normal, so cccl-1 is final: buggy DETECTED, fixed STILL-REPORTED, both modes. D-T3 is fixed post-deadline and is not applied here.
 
 ## D. RESIDUAL-AS-EXPECTED on fixed builds (12 rows; the oracle registers a residual; listed so the residual's identity is checked)
 
