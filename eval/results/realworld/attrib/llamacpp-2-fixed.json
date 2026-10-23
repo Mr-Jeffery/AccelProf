@@ -1,0 +1,334 @@
+{
+ "id": "llamacpp-2-fixed",
+ "target": "llamacpp-2",
+ "exe": "/mnt/beegfs/fzheng4/realworld/build/llamacpp-2/fixed/test-backend-ops",
+ "cuda_home": "/usr/local/cuda-13.3",
+ "n_cubins": 143,
+ "n_dots": 143,
+ "oracle_kernel_substr": "mm_ids_helper",
+ "spec_found": true,
+ "modes": {
+  "vector-clock": {
+   "n_kernel_jsons": 3,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "void mm_ids_helper<4>(int const*, int*, int*, int*, int, int, int, int, int, bool)",
+     "mangled": "_Z13mm_ids_helperILi4EEvPKiPiS2_S2_iiiiib",
+     "dot": "mmid.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 2,
+      "skipped": 10,
+      "hb_classes": {
+       "structural": 0,
+       "latent": 0,
+       "benign": 0,
+       "warp-po-ordered": 0,
+       "barrier-ordered": 2,
+       "sc": 0,
+       "latent-sc": 0
+      },
+      "model_bug": 0
+     },
+     "gate_policy": "recorded"
+    },
+    {
+     "kernel_json": "kernel_1.json",
+     "name": "void quantize_mmq_q8_1<(mmq_q8_1_ds_layout)1, false>(float const*, int const*, void*, long, long, long, long, long, int, int, int)",
+     "mangled": "_Z17quantize_mmq_q8_1IL18mmq_q8_1_ds_layout1ELb0EEvPKfPKiPvllllliii",
+     "dot": "quantize.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 5,
+      "hb_classes": {
+       "structural": 0,
+       "latent": 0,
+       "benign": 0,
+       "warp-po-ordered": 0,
+       "barrier-ordered": 0,
+       "sc": 0,
+       "latent-sc": 0
+      },
+      "model_bug": 0
+     },
+     "gate_policy": "recorded"
+    },
+    {
+     "kernel_json": "kernel_2.json",
+     "name": "void mul_mat_q<(ggml_type)2, 32, false>(char const*, int const*, int const*, int const*, float*, float*, float const*, uint3, int, int, int, int, int, uint3, uint3, int, int, int, uint3, uint3, int, int, int, uint3)",
+     "mangled": "_Z9mul_mat_qIL9ggml_type2ELi32ELb0EEvPKcPKiS4_S4_PfS5_PKf5uint3iiiiiS8_S8_iiiS8_S8_iiiS8_",
+     "dot": "mmq-instance-q4_0.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 253,
+      "skipped": 270,
+      "hb_classes": {
+       "structural": 0,
+       "latent": 0,
+       "benign": 0,
+       "warp-po-ordered": 0,
+       "barrier-ordered": 6,
+       "sc": 0,
+       "latent-sc": 0
+      },
+      "model_bug": 0
+     },
+     "gate_policy": "recorded"
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 1,
+   "n_race": 0,
+   "n_sc": 0,
+   "reports": [],
+   "site_verdicts": [
+    {
+     "current_pc": 4656,
+     "current_pc_hex": "0x1230",
+     "ancient_pc": 1744,
+     "ancient_pc_hex": "0x6d0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 61,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "barrier-ordered",
+     "matrix_class": "barrier-ordered",
+     "model_bug": false,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void mm_ids_helper<4>(int const*, int*, int*, int*, int, int, int, int, int, bool)",
+     "mangled": "_Z13mm_ids_helperILi4EEvPKiPiS2_S2_iiiiib",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-2/fixed/src/ggml/src/ggml-cuda/mmid.cu",
+       "line": 107
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-2/fixed/src/ggml/src/ggml-cuda/mmid.cu",
+       "line": 96
+      }
+     ]
+    },
+    {
+     "current_pc": 4656,
+     "current_pc_hex": "0x1230",
+     "ancient_pc": 1888,
+     "ancient_pc_hex": "0x760",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 61,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "barrier-ordered",
+     "matrix_class": "barrier-ordered",
+     "model_bug": false,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void mm_ids_helper<4>(int const*, int*, int*, int*, int, int, int, int, int, bool)",
+     "mangled": "_Z13mm_ids_helperILi4EEvPKiPiS2_S2_iiiiib",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-2/fixed/src/ggml/src/ggml-cuda/mmid.cu",
+       "line": 107
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-2/fixed/src/ggml/src/ggml-cuda/mmid.cu",
+       "line": 96
+      }
+     ]
+    }
+   ],
+   "site_skipped": {}
+  },
+  "scalar-clock": {
+   "n_kernel_jsons": 3,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "void mm_ids_helper<4>(int const*, int*, int*, int*, int, int, int, int, int, bool)",
+     "mangled": "_Z13mm_ids_helperILi4EEvPKiPiS2_S2_iiiiib",
+     "dot": "mmid.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 2,
+      "skipped": 10,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_1.json",
+     "name": "void quantize_mmq_q8_1<(mmq_q8_1_ds_layout)1, false>(float const*, int const*, void*, long, long, long, long, long, int, int, int)",
+     "mangled": "_Z17quantize_mmq_q8_1IL18mmq_q8_1_ds_layout1ELb0EEvPKfPKiPvllllliii",
+     "dot": "quantize.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 5,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_2.json",
+     "name": "void mul_mat_q<(ggml_type)2, 32, false>(char const*, int const*, int const*, int const*, float*, float*, float const*, uint3, int, int, int, int, int, uint3, uint3, int, int, int, uint3, uint3, int, int, int, uint3)",
+     "mangled": "_Z9mul_mat_qIL9ggml_type2ELi32ELb0EEvPKcPKiS4_S4_PfS5_PKf5uint3iiiiiS8_S8_iiiS8_S8_iiiS8_",
+     "dot": "mmq-instance-q4_0.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 253,
+      "skipped": 255,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 1,
+   "n_race": 0,
+   "n_sc": 0,
+   "reports": [],
+   "site_verdicts": [
+    {
+     "current_pc": 4656,
+     "current_pc_hex": "0x1230",
+     "ancient_pc": 1744,
+     "ancient_pc_hex": "0x6d0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 61,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "barrier-ordered",
+     "matrix_class": "barrier-ordered",
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void mm_ids_helper<4>(int const*, int*, int*, int*, int, int, int, int, int, bool)",
+     "mangled": "_Z13mm_ids_helperILi4EEvPKiPiS2_S2_iiiiib",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-2/fixed/src/ggml/src/ggml-cuda/mmid.cu",
+       "line": 107
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-2/fixed/src/ggml/src/ggml-cuda/mmid.cu",
+       "line": 96
+      }
+     ]
+    },
+    {
+     "current_pc": 4656,
+     "current_pc_hex": "0x1230",
+     "ancient_pc": 1888,
+     "ancient_pc_hex": "0x760",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 59,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "barrier-ordered",
+     "matrix_class": "barrier-ordered",
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void mm_ids_helper<4>(int const*, int*, int*, int*, int, int, int, int, int, bool)",
+     "mangled": "_Z13mm_ids_helperILi4EEvPKiPiS2_S2_iiiiib",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-2/fixed/src/ggml/src/ggml-cuda/mmid.cu",
+       "line": 107
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-2/fixed/src/ggml/src/ggml-cuda/mmid.cu",
+       "line": 96
+      }
+     ]
+    }
+   ],
+   "site_skipped": {}
+  }
+ },
+ "dots_checked": 0,
+ "dots_regenerated_equal": 0
+}
