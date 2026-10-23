@@ -386,7 +386,15 @@ def _label_lines(label):
 
 
 def parse_dot(path):
-    """-> {mangled: (blocks, edges, entry)}; blocks: {name: [(pc, opcode)]}."""
+    """-> {mangled: (blocks, edges, entry)}; blocks: {name: [(pc, opcode)]}. Cached per
+    file version: analyze() runs once per kernel launch, and pydot takes about 22 min on
+    amrex-1's 48.7 MB dot. Callers only read the result."""
+    st = os.stat(path)
+    return _parse_dot_cached(os.path.realpath(path), st.st_mtime_ns, st.st_size)
+
+
+@functools.lru_cache(maxsize=2)
+def _parse_dot_cached(path, _mtime_ns, _size):
     (graph,) = pydot.graph_from_dot_file(str(path))
     kernels = {}
     for sub in graph.get_subgraphs():
@@ -1216,12 +1224,55 @@ def _demangle(name):
     return None
 
 
+@functools.lru_cache(maxsize=1)
+def _cxa_demangle_fn():
+    """__cxa_demangle of the libstdc++ named by CUVEIN_DEMANGLE_LIB, or None. ARC's
+    c++filt (binutils 2.30) mishandles long AMReX lambda symbols; libstdc++ >= 6.0.30
+    demangles them in the runtime's kernel_name format."""
+    lib = os.environ.get("CUVEIN_DEMANGLE_LIB")
+    if not lib:
+        return None
+    import ctypes
+    try:
+        f = ctypes.CDLL(lib).__cxa_demangle
+    except (OSError, AttributeError):
+        return None
+    f.restype = ctypes.c_void_p
+    f.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_void_p,
+                  ctypes.POINTER(ctypes.c_int)]
+    free = ctypes.CDLL(None).free
+    free.argtypes = [ctypes.c_void_p]
+
+    def demangle(name):
+        st = ctypes.c_int()
+        p = f(name.encode(), None, None, ctypes.byref(st))
+        if st.value != 0 or not p:
+            return None
+        try:
+            return ctypes.string_at(p).decode(errors="replace")
+        finally:
+            free(p)
+    return demangle
+
+
+@functools.lru_cache(maxsize=None)
+def _demangle_fallback(name):
+    fn = _cxa_demangle_fn()
+    return fn(name) if fn else None
+
+
 def select_kernel(kernels, trace_name):
     norm = lambda s: re.sub(r"\s+", "", s)
     for mangled in kernels:
         dm = _demangle(mangled)
         if dm and norm(dm) == norm(trace_name):
             return mangled
+    # Old c++filt leaves some symbols mangled and prints a wrong parameter list for others
+    # (amrex-1: 447 and 309 of 1,169): retry every symbol with the newer demangler. Runs
+    # only when the pass above found nothing, so every match it makes is kept unchanged.
+    hits = [m for m in kernels if norm(_demangle_fallback(m) or "") == norm(trace_name)]
+    if len(hits) == 1:
+        return hits[0]
     # no demangler: the base identifier appears literally in the mangled symbol
     base = re.split(r"[<(]", trace_name)[0].split()[-1]
     hits = [m for m in kernels if base in m]
