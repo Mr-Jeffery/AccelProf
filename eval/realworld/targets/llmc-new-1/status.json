@@ -1,0 +1,13 @@
+{
+  "route": "R1",
+  "route_note": "the repo's own dev/cuda program layernorm_backward.cu at f1e2ace651495b74ae22d45d1723443fd00ecd3a, compiled with the Makefile's own flags: nvcc -O3 --use_fast_math -arch=sm_89 (SASS + PTX sm_89; replaces the Makefile's __nvcc_device_query probe) -lineinfo -lcublas -lcublasLt -std=c++17, no -G. The file defines ENABLE_BF16 itself (floatX = nv_bfloat16). Host-side edits only, applied with sed to a copy in the node-local build tree (one line replaced by one line, kernel line numbers unchanged; diff saved as host-edits.txt in the artifact dir): main() `int B = 8;` -> `int B = 1;`, `int T = 1024;` -> `int T = 64;` (C stays 1600), and the 100-repeat timing sweep after 'now time the kernel' (`for (int j = 0; j < sizeof(block_sizes) / sizeof(int); j++)`) -> `j < 0`. The correctness sweep over block sizes 32..1024 is kept.",
+  "status": "built",
+  "toolkit": "13.4 (c45)",
+  "artifacts": ["/mnt/beegfs/fzheng4/realworld/build/llmc-new-1/buggy/layernorm_backward", "/mnt/beegfs/fzheng4/realworld/build/llmc-new-1/buggy/host-edits.txt"],
+  "kernel_present_sm89": "yes: _Z27layernorm_backward_kernel10P13__nv_bfloat16S0_S0_PfPKS_S3_S3_S3_S3_iii (one instance; sm_89 SASS + PTX compute_89)",
+  "driver": "layernorm_backward 10   (B=1, T=64, C=1600; the program checks against a CPU reference)",
+  "input": "random host data. Access estimate (analytic, 34 SMs): grid = (1024/block_size)*numSMs blocks; every block zero-inits shared, stores 2*C/4 = 800 partial vectors and one block loads gridDim*800; about 3e3 accesses per block, so about 4.5e6 (block 32), 2.3e6 (64), 1.2e6, 6e5, 3e5, 3e5 plus ~1e5 per launch of row work: about 1e7 over the six block sizes (the 1e8 hard limit is not at risk; dropping block sizes 32/64 with another sed would cut it about 10x). Not measured.",
+  "lineinfo_check": "route R1 (direct nvcc) lineinfo check cited from llmc-new-3/lineinfo.check (same nvcc invocation): SAME",
+  "notes": "Global-memory target: T_RACECHECK=na. The oracle sites are dev/cuda/layernorm_backward.cu L1194/L1195 (stores) and L1214/L1215 (loads), unchanged by the sed.",
+  "commands": ["harness/rw.sh llmc-new-1 export", "hrun.sh <job> llmc-new-1 stage; hrun.sh <job> llmc-new-1 build   # about 2 min"]
+}
