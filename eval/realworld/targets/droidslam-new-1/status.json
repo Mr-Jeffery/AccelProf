@@ -1,0 +1,11 @@
+{
+  "route": "R2",
+  "status": "built",
+  "toolkit": "13.4 (c22)",
+  "kernel": "frame_distance_kernel",
+  "route_note": "Candidate (no fix commit): only r2/buggy exists; every file under r2/buggy is byte-identical to the pinned commit (r2/blob.check, RESULT PASS). Stubs/shims are in r2/common/. See target.sh header for flags and dependency headers. sm_89 SASS confirmed with cuobjdump; -arch=sm_89 -lineinfo, never -G.",
+  "input": "4 frames, 48x64 disparities, 6 pairs (i<j), beta 0.5: frame_distance_kernel<<<6,256>>> with PackedTensorAccessor32 built from raw pointers",
+  "access_estimate": "~3e5 (6 blocks x ~50k)",
+  "notes": "Eigen = lietorch-pinned eigen 824272cd in ~/incoming/realworld/deps/eigen-824272c; torch headers from the installed PyTorch 2.14 (as pytorch_cluster-1). volatile accesses compile to plain LDS/STS on sm_89 (no STRONG). Not run on GPU.",
+  "phases_run": ["stage", "build"]
+}

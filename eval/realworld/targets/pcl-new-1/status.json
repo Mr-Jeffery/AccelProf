@@ -1,0 +1,11 @@
+{
+  "route": "R2",
+  "status": "built",
+  "toolkit": "13.4 (c22)",
+  "kernel": "EstimateNormalsKernel",
+  "route_note": "Candidate (no fix commit): only r2/buggy exists; every file under r2/buggy is byte-identical to the pinned commit (r2/blob.check, RESULT PASS). Stubs/shims are in r2/common/. See target.sh header for flags and dependency headers. sm_89 SASS confirmed with cuobjdump; -arch=sm_89 -lineinfo, never -G.",
+  "input": "1,000 points, 40 neighbours each (lanes 0-7 loop twice), grid 125 x 256 threads as computeNormals() launches; est fields filled from raw cudaMalloc buffers (DeviceArray needs PCL .cpp)",
+  "access_estimate": "~3e6 (about 3k per warp x 1,000 warps); estimate, not measured",
+  "notes": "15 verbatim PCL files (normal_3d.cu, warp.hpp + included headers). Stub: pcl/pcl_config.h. lineinfo.check: SAME. Not run on GPU.",
+  "phases_run": ["stage", "build"]
+}
