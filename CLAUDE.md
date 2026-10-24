@@ -772,6 +772,10 @@ atomic chains.
   by `b74f590e`, not a race. **Fill in:** is the coworker's race one of these two? If not:
   issue/PR URL, kernel and file, commit, driver, evidence. Default if unanswered: both run as
   ordinary candidates and the paper names no anchor.
+  **Answered 2026-10-24 (Jeffery): the coworker's race is `llamacpp-open-2`.** It is fixed upstream
+  since 2026-10-19 (`99db719b`, PR #30573), so by T21c step 1 it is the anchor as a recall target
+  (buggy `1b70350c`, fixed `99db719b`) in T21b; `llamacpp-open-1` stays an ordinary candidate
+  (`eval/realworld/candidates/recheck.md`).
 - **D20** (T21b, tables) — how a target whose racing accesses are strong counts. Two core
   targets (`opencv-2`, `hecbench-hungarian-1`) race only through `volatile` shared memory, so
   under PTX they are unordered strong conflicts (SC), not data races, although upstream fixed
