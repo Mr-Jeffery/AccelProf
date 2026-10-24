@@ -18,10 +18,11 @@ PYEOF
 )
 repo=${REALWORLD_INCOMING:-$HOME/incoming/realworld}/$REPO.git
 for p in "$@"; do
-  for pair in "buggy:$B" "fixed:$F"; do
+  pairs="buggy:$B fixed:$F"; case "$F" in None|"") pairs="buggy:$B";; esac   # T21c candidates: pinned commit only
+  for pair in $pairs; do
     v=${pair%%:*}; c=${pair#*:}
     mkdir -p "$RWD/targets/$id/r2/$v/$(dirname "$p")"
     git -C "$repo" cat-file blob "$c:$p" > "$RWD/targets/$id/r2/$v/$p"
   done
-  echo "r2_extract: $id $p ($(wc -c < "$RWD/targets/$id/r2/buggy/$p") / $(wc -c < "$RWD/targets/$id/r2/fixed/$p") bytes)"
+  echo "r2_extract: $id $p ($(wc -c < "$RWD/targets/$id/r2/buggy/$p") / $(cat "$RWD/targets/$id/r2/fixed/$p" 2>/dev/null | wc -c) bytes)"
 done

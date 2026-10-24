@@ -5,7 +5,7 @@
 # Nodes without /home or BeeGFS are excluded (c23, c46 on 2026-10-20) plus c2 c21 c37 c54 (T21 rule).
 # Add nodes found bad to EXCL below and to eval/REALWORLD.md section 1.
 EXCL=${T21_EXCLUDE:-c2,c21,c23,c37,c46,c54}
-WT=/home/fzheng4/wt-t21a
+WT=${T21_WT:-/home/fzheng4/wt-t21a}
 name=$1; script=$2; shift 2
 [ "${1:-}" = "--" ] && shift
 mkdir -p "$WT/eval/x_logs"

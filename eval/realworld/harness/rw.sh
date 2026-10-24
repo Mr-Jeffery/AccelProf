@@ -29,7 +29,7 @@ RWD=$(dirname "$HERE")
 id=$1; phase=$2; only=${3:-}
 [ -n "$id" ] && [ -n "$phase" ] || { sed -n 2,30p "$0"; exit 2; }
 if [ "$phase" = export ] || [ "$phase" = info ]; then      # login node: no BeeGFS, no CUDA
-  export WT=/home/fzheng4/wt-t21a RW=/mnt/beegfs/fzheng4/realworld INCOMING=/home/fzheng4/incoming/realworld HARNESS=$HERE
+  export WT=${T21_WT:-/home/fzheng4/wt-t21a} RW=/mnt/beegfs/fzheng4/realworld INCOMING=/home/fzheng4/incoming/realworld HARNESS=$HERE
 else
   source "$HERE/job_header.sh"
 fi
@@ -52,6 +52,7 @@ export RW_LINEINFO=${RW_LINEINFO--lineinfo}
 export RW_NVCC_FLAGS=${RW_NVCC_FLAGS:--arch=sm_89}
 export NJOBS=${NJOBS:-${SLURM_CPUS_PER_TASK:-16}}
 variants=${only:-buggy fixed}
+case "${FIX:-None}" in None|"") [ -z "$only" ] && variants=buggy;; esac   # T21c candidates: no fix commit, the pinned commit is the only build
 sha_of() { [ "$1" = buggy ] && echo "$BUGGY" || echo "$FIX"; }
 NATIVE=$RWD/native; RC=$RWD/racecheck; mkdir -p "$NATIVE" "$RC"
 LOCAL=/mnt/local/$USER/rw/$id

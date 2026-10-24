@@ -3,7 +3,7 @@
 # queue for `normal` is long); the build/run/racecheck commands are SLURM job steps inside this allocation:
 #   srun --jobid=<this job> --overlap bash eval/realworld/harness/step.sh <logname> <command...>
 # Stops itself when eval/x_logs/HOLD_STOP exists or at the time limit.
-source /home/fzheng4/wt-t21a/eval/realworld/harness/job_header.sh
+source ${T21_WT:-/home/fzheng4/wt-t21a}/eval/realworld/harness/job_header.sh
 echo "--- toolchain"; which gcc g++ cmake ninja make python3 git pip conda 2>&1
 gcc --version | head -1; g++ --version | head -1; cmake --version | head -1; python3 --version
 nproc; free -g | head -2; df -h /mnt/local /tmp 2>&1 | tail -2
