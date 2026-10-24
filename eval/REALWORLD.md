@@ -507,6 +507,8 @@ decisions left to Jeffery. The reviewers did not re-check the SASS statements in
 
 
 
+
+
 ## 2. Recall (T21b)
 
 **Runtime (every result below).** Install commit `f551ca0` (cuVein, merged into this branch as `9e29b3f`): libsanalyzer `5a20fd14ab6c6806`,
@@ -555,18 +557,18 @@ A target of class DR+SC has two components (DR pair, SC pair), counted separatel
 | scalar-clock | DR | DR | 22 | 0 | 1 | 23 |
 | scalar-clock | DR+SC | DR | 3 | 0 | 0 | 3 |
 | scalar-clock | DR+SC | SC | 2 | 1 | 0 | 3 |
-| scalar-clock | SC | SC | 0 | 1 | 1 | 2 |
+| scalar-clock | SC | SC | 0 | 2 | 0 | 2 |
 | vector-clock | DR | DR | 22 | 0 | 1 | 23 |
 | vector-clock | DR+SC | DR | 3 | 0 | 0 | 3 |
 | vector-clock | DR+SC | SC | 2 | 1 | 0 | 3 |
-| vector-clock | SC | SC | 0 | 1 | 1 | 2 |
+| vector-clock | SC | SC | 0 | 2 | 0 | 2 |
 
 ### 2.2 Per target (main flavor; vc = vector-clock mode, sc = scalar-clock mode; fixed: outcome per mode)
 
 | target | wave | class | buggy vc | buggy sc | op. point (vc) | a2 | .STRONG | fixed vc | fixed sc | racecheck (buggy) |
 |---|---|---|---|---|---|---|---|---|---|---|
 
-`amrex-1` and `hecbench-hungarian-1` (buggy, both modes): **final m4** (TIMEOUT / ERROR at the X1b caps; see 2.6). They are listed as MISSED in the tables only because the scorer has no separate m4 outcome; they count as neither detected nor missed on the evidence.
+`amrex-1` (buggy, both modes): **final m4** (see 2.6). It is listed as MISSED in the tables only because the scorer has no separate m4 outcome; it counts as neither detected nor missed on the evidence. `hecbench-hungarian-1` was m4 and is scored since the reanalysis and recording of 2.6.
 | bitsandbytes-1 | 1 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 3813 errors, 256 warnings (displayed 2000) |
 | cccl-1 | 1 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | STILL-REPORTED | STILL-REPORTED | 0 errors, 22 warnings (displayed 22) |
 | cccl-2 | 1 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 835 errors, 84 warnings (displayed 919) |
@@ -574,7 +576,7 @@ A target of class DR+SC has two components (DR pair, SC pair), counted separatel
 | cccl-4 | 1 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | n/a (global memory) |
 | cmssw-1 | 1 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | RESIDUAL-AS-EXPECTED | RESIDUAL-AS-EXPECTED | n/a (global memory) |
 | hecbench-dxtc2-1 | 1 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | RESIDUAL-AS-EXPECTED | RESIDUAL-AS-EXPECTED | 0 errors, 139502 warnings (displayed 2000) |
-| hecbench-hungarian-1 | 1 | SC | SC: MISSED | SC: MISSED |  |  |  | - | - | 0 errors, 10002296 warnings (displayed 2000) |
+| hecbench-hungarian-1 | 1 | SC | SC: DETECTED-AS-DR | SC: DETECTED-AS-DR |  | robust | no | RESIDUAL-AS-EXPECTED | RESIDUAL-AS-EXPECTED | 0 errors, 10002296 warnings (displayed 2000) |
 | hecbench-morphology-1 | 1 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 142588 errors, 1046016 warnings (displayed 2000) |
 | hecbench-surfel-1 | 1 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 3717 errors, 0 warnings (displayed 2000) |
 | lit-arrayfire-1 | 1 | DR | DR: DETECTED | DR: DETECTED | Race | robust | no | CLEAN-FOR-PAIR | CLEAN-FOR-PAIR | 97 errors, 0 warnings (displayed 97) |
@@ -615,6 +617,8 @@ D-T2: `rw_attribute.cubin_frames` ran `nvdisasm --print-line-info-inline` withou
 
 | target | variant | mode | flavor | old | new | reason |
 |---|---|---|---|---|---|---|
+| hecbench-hungarian-1 | buggy | vector-clock | main | MISSED | DETECTED-AS-DR () | attribution parser fix (D-T2) |
+| hecbench-hungarian-1 | buggy | scalar-clock | main | MISSED | DETECTED-AS-DR () | attribution parser fix (D-T2) |
 | lit-fbgemm-1 | buggy | vector-clock | main | MISSED | DETECTED (Race) | attribution parser fix (D-T2) |
 | lit-fbgemm-1 | buggy | scalar-clock | main | MISSED | DETECTED (scalar-clock (one point)) | attribution parser fix (D-T2) |
 
@@ -622,9 +626,16 @@ Rows new since that table (void or unrun before) are not D-T2 changes: `llamacpp
 
 Opus triage outcomes applied: the 4 `DETECTED-AS-DR` rows (`opencv-2`, `lit-shoc-1` SC half, both modes) stay (SASS of volatile shared on sm_89 has no `.STRONG` token; D20 option (i)); the 9 `RESIDUAL-AS-EXPECTED` rows are confirmed; `cccl-1` outcomes are final (D-T1 decided by Jeffery, "score it": kernels with `tv_violation` are scored as normal): buggy DETECTED, fixed STILL-REPORTED, both modes; the fixed-build reports trace back to the syncwarp-record detector defect D-T3 (the trace records `__syncwarp(0x3fffff)` with mask 0xffffffff; its fix is post-deadline and not applied here); `recall.csv` has a `tv_violation` column (kernel JSONs with `tv_violation` / kernel JSONs, fact only, from `harness/scan_tv.py`): set only on the four `cccl-1` stores (buggy and fixed, both modes); `hecbench-hungarian-1` (whose fix adds `__syncwarp`): 0 of 6,874 (vector-clock) and 0 of 7,018 (scalar-clock) kernel JSONs of the fixed build, but those are the truncated long-cap collections (2.6); no main-flavor run of the fixed build exists yet, and the buggy main-flavor stores have 0. The `cccl-1` reports in the other-reports queue (artifacts of the syncwarp-record defect) were moved to `other_reports_removed.csv`; the `lit-fbgemm-1` duplicate disappeared because the pair now matches.
 
-### 2.6 Long-cap pass: not run
+### 2.6 Long-cap pass: not run; m4 reanalysis (amrex-1, hecbench-hungarian-1)
 
-Jeffery's separate pass (tool cap 84,600 s inside 24 h jobs, collection on a GPU node, analysis on `normal`) for `amrex-1`, `hecbench-hungarian-1` and `llamacpp-2` was **not run**. Decision: `amrex-1` and `hecbench-hungarian-1` stay **final m4** (TIMEOUT / ERROR at the X1b caps: vector-clock 1,200 s, analysis timeout 3,600 s); they are neither detected nor missed on the evidence. The attempted collections were void and the jobs were cancelled (collection jobs 319051-319060, analysis jobs 319139-319146). Harness defect, not fixed: `eval/baselines/parallel.py` `cmd_collect` passes `--timeout-cap` to `collect_one` but drops `--timeout-floor`, so `collect` used the default floor of 120 s and the tool timeout was `min(max(10 x native, 120), 84,600)` = 120 s (`timeout=120s`, rc 124, `nkernels=0` in the notes of the amrex-1 rows; the hecbench-hungarian-1 collections ended in about 2 minutes). One-line fix: `collect_one(m, cuda, a.reps, floor=getattr(a, "timeout_floor", 120), cap=...)`. The `main` flavor is unaffected (the `run` command passes both). The void rows are not in `recall.csv`; their files remain under `eval/results/realworld/longcap-*/`. `llamacpp-2/-4/-5`: see 2.7.
+Jeffery's separate long-cap pass (tool cap 84,600 s inside 24 h jobs) for `amrex-1`, `hecbench-hungarian-1` and `llamacpp-2` was **not run**: its collections were void and the jobs were cancelled (collection jobs 319051-319060, analysis jobs 319139-319146). Harness defect, not fixed: `eval/baselines/parallel.py` `cmd_collect` passes `--timeout-cap` to `collect_one` but drops `--timeout-floor`, so `collect` used the default floor of 120 s and the tool timeout was `min(max(10 x native, 120), 84,600)` = 120 s (`timeout=120s`, rc 124, `nkernels=0` in the notes of the amrex-1 rows). One-line fix: `collect_one(m, cuda, a.reps, floor=getattr(a, "timeout_floor", 120), cap=...)`. The `main` flavor is unaffected (the `run` command passes both). The void rows are not in `recall.csv`; their files remain under `eval/results/realworld/longcap-*/`.
+
+Instead, CPU reanalysis of the existing recordings with `run_cuvein.py` 0d30817 (dots that name the kernel first) and `--analysis-timeout 82800`, array 319392:
+
+- **`hecbench-hungarian-1`: m4 lifted.** Buggy: same main-store recording, reanalyzed (319392_2, c33): RACE in both modes (vector-clock 293 structural + 243 SC, scalar-clock 293 race + 241 SC); oracle kernel seen in 974 kernel JSONs, 14 site verdicts. Fixed: the main flavor had never produced a recording (all 6 retries died on BeeGFS), so it was recorded fresh into the main store, both modes, cap 1200 (GPU job 319540, c28, 5.6 min) and analyzed on CPU (319541): RACE in both modes (vector-clock 241 structural + 247 SC, scalar-clock 240 + 243 SC); 4 site verdicts. Both are scored per the oracle and D20 option (i) (2.2); `tv_violation` is 0 of 6,910 / 6,946 (buggy) and 0 of 7,000 / 6,898 (fixed) kernel JSONs. The REVIEW.md item 2 residual label for the fixed build is scored as committed.
+- **`amrex-1`: final m4.** Scalar-clock reanalysis (319392_0 buggy, 319392_1 fixed): ERROR at `--analysis-timeout` 82,800 s after about 23 h, and the attribution was then cut off by the 24 h job limit. Vector-clock long-cap re-recording of the buggy build (319403, c44, 125 GB node): killed for running out of memory at 60,717 s, MaxRSS 122 GiB, no kernel JSON. Jeffery's decision: "M4 is okay", no retry on a 188 GB node.
+
+`llamacpp-2/-4/-5`: see 2.7.
 
 ### 2.7 llamacpp-2/-4/-5: Opus triage (`eval/realworld/triage_llamacpp.md`, 1efb1ac)
 

@@ -27,7 +27,7 @@ for (m, e, comp), v in sorted(c.items()):
     out.append(f"| {m} | {e} | {comp} | {v['DETECTED']} | {v['DETECTED-AS']} | {v['MISSED']} | {n} |")
 out += ["", "### 2.2 Per target (main flavor; vc = vector-clock mode, sc = scalar-clock mode; fixed: outcome per mode)", "",
         "| target | wave | class | buggy vc | buggy sc | op. point (vc) | a2 | .STRONG | fixed vc | fixed sc | racecheck (buggy) |", "|---|---|---|---|---|---|---|---|---|---|---|"]
-out += ["", "`amrex-1` and `hecbench-hungarian-1` (buggy, both modes): **final m4** (TIMEOUT / ERROR at the X1b caps; see 2.6). They are listed as MISSED in the tables only because the scorer has no separate m4 outcome; they count as neither detected nor missed on the evidence."]
+out += ["", "`amrex-1` (buggy, both modes): **final m4** (see 2.6). It is listed as MISSED in the tables only because the scorer has no separate m4 outcome; it counts as neither detected nor missed on the evidence. `hecbench-hungarian-1` was m4 and is scored since the reanalysis and recording of 2.6."]
 by = collections.defaultdict(dict)
 for r in main:
     by[r["target"]][(r["variant"], r["mode"], r["component"])] = r
@@ -65,14 +65,18 @@ out += ["", "Rows new since that table (void or unrun before) are not D-T2 chang
         "`recall.csv` has a `tv_violation` column (kernel JSONs with `tv_violation` / kernel JSONs, fact only, from `harness/scan_tv.py`): set only on the four `cccl-1` stores "
         "(buggy and fixed, both modes); `hecbench-hungarian-1` (whose fix adds `__syncwarp`): 0 of 6,874 (vector-clock) and 0 of 7,018 (scalar-clock) kernel JSONs of the fixed build, but those are the truncated long-cap collections (2.6); no main-flavor run of the fixed build exists yet, and the buggy main-flavor stores have 0. The `cccl-1` reports in the other-reports queue "
         "(artifacts of the syncwarp-record defect) were moved to `other_reports_removed.csv`; the `lit-fbgemm-1` duplicate disappeared because the pair now matches."]
-out += ["", "### 2.6 Long-cap pass: not run", "",
-        "Jeffery's separate pass (tool cap 84,600 s inside 24 h jobs, collection on a GPU node, analysis on `normal`) for `amrex-1`, `hecbench-hungarian-1` and `llamacpp-2` was **not run**. "
-        "Decision: `amrex-1` and `hecbench-hungarian-1` stay **final m4** (TIMEOUT / ERROR at the X1b caps: vector-clock 1,200 s, analysis timeout 3,600 s); "
-        "they are neither detected nor missed on the evidence. The attempted collections were void and the jobs were cancelled (collection jobs 319051-319060, analysis jobs 319139-319146). "
-        "Harness defect, not fixed: `eval/baselines/parallel.py` `cmd_collect` passes `--timeout-cap` to `collect_one` but drops `--timeout-floor`, so `collect` used the default floor of 120 s and "
-        "the tool timeout was `min(max(10 x native, 120), 84,600)` = 120 s (`timeout=120s`, rc 124, `nkernels=0` in the notes of the amrex-1 rows; the hecbench-hungarian-1 collections ended in about 2 minutes). "
-        "One-line fix: `collect_one(m, cuda, a.reps, floor=getattr(a, \"timeout_floor\", 120), cap=...)`. The `main` flavor is unaffected (the `run` command passes both). "
-        "The void rows are not in `recall.csv`; their files remain under `eval/results/realworld/longcap-*/`. `llamacpp-2/-4/-5`: see 2.7."]
+out += ["", "### 2.6 Long-cap pass: not run; m4 reanalysis (amrex-1, hecbench-hungarian-1)", "",
+        "Jeffery's separate long-cap pass (tool cap 84,600 s inside 24 h jobs) for `amrex-1`, `hecbench-hungarian-1` and `llamacpp-2` was **not run**: its collections were void and the jobs were cancelled (collection jobs 319051-319060, analysis jobs 319139-319146). "
+        "Harness defect, not fixed: `eval/baselines/parallel.py` `cmd_collect` passes `--timeout-cap` to `collect_one` but drops `--timeout-floor`, so `collect` used the default floor of 120 s and the tool timeout was `min(max(10 x native, 120), 84,600)` = 120 s "
+        "(`timeout=120s`, rc 124, `nkernels=0` in the notes of the amrex-1 rows). One-line fix: `collect_one(m, cuda, a.reps, floor=getattr(a, \"timeout_floor\", 120), cap=...)`. The `main` flavor is unaffected (the `run` command passes both). "
+        "The void rows are not in `recall.csv`; their files remain under `eval/results/realworld/longcap-*/`.", "",
+        "Instead, CPU reanalysis of the existing recordings with `run_cuvein.py` 0d30817 (dots that name the kernel first) and `--analysis-timeout 82800`, array 319392:", "",
+        "- **`hecbench-hungarian-1`: m4 lifted.** Buggy: same main-store recording, reanalyzed (319392_2, c33): RACE in both modes (vector-clock 293 structural + 243 SC, scalar-clock 293 race + 241 SC); oracle kernel seen in 974 kernel JSONs, 14 site verdicts. "
+        "Fixed: the main flavor had never produced a recording (all 6 retries died on BeeGFS), so it was recorded fresh into the main store, both modes, cap 1200 (GPU job 319540, c28, 5.6 min) and analyzed on CPU (319541): RACE in both modes (vector-clock 241 structural + 247 SC, scalar-clock 240 + 243 SC); 4 site verdicts. "
+        "Both are scored per the oracle and D20 option (i) (2.2); `tv_violation` is 0 of 6,910 / 6,946 (buggy) and 0 of 7,000 / 6,898 (fixed) kernel JSONs. The REVIEW.md item 2 residual label for the fixed build is scored as committed.",
+        "- **`amrex-1`: final m4.** Scalar-clock reanalysis (319392_0 buggy, 319392_1 fixed): ERROR at `--analysis-timeout` 82,800 s after about 23 h, and the attribution was then cut off by the 24 h job limit. "
+        "Vector-clock long-cap re-recording of the buggy build (319403, c44, 125 GB node): killed for running out of memory at 60,717 s, MaxRSS 122 GiB, no kernel JSON. Jeffery's decision: \"M4 is okay\", no retry on a 188 GB node.",
+        "", "`llamacpp-2/-4/-5`: see 2.7."]
 out += ["", "### 2.7 llamacpp-2/-4/-5: Opus triage (`eval/realworld/triage_llamacpp.md`, 1efb1ac)", "",
         "`llamacpp-2/-4` ERROR (scored m4 before): not a detector failure. `run_cuvein._analyze_reports` tried every `.dot` of the program in sorted order for each kernel JSON; llamacpp builds ship many large dots, so the search alone passed `--analysis-timeout 3600`. Fixed by 0d30817 (dots that name the kernel first; verdicts unchanged, only time). "
         "Reanalysis of the main-flavor recordings (nothing re-recorded): `llamacpp-2` buggy DETECTED, fixed CLEAN-FOR-PAIR (both oracle site pairs ORDERED, barrier-ordered); `llamacpp-4` buggy DETECTED, fixed CLEAN-FOR-PAIR; "
