@@ -337,7 +337,7 @@ requeued records included) and the shard logs.
 - **04:57**: d151ceb committed shard 0's CSV ("the rest blocked by BeeGFS being unmounted").
 - **12:31**: 318511 submitted (tasks 2–47, `%14`, `-x c2,c21,c23,c37,c46,c54`). The submission has no line in `~/x1b/log.txt`.
 - **14:25:44**: **seven running tasks of 318511 (11, 18, 33–37) were REQUEUED in the same second.**
-  - The cause is not recorded in `~/x1b/log.txt`.
+  - The coordinating session requeued them (`scontrol requeue`, the seven youngest running x1b-final tasks) to bring fzheng4 down to 10 GPU nodes, after Jeffery relayed the ARC admins' 10-node rule that afternoon. `~/x1b/log.txt` has no line for it.
   - The requeued records hold 10,995 s.
   - All seven re-ran from the start (14:48–14:53) and COMPLETED. No (id, mode, rep) appears twice in any shard CSV (checked over all 112).
 - **15:00**: PI 317638 started; 64 / 64 COMPLETED by 19:57.
@@ -349,7 +349,7 @@ requeued records included) and the shard logs.
 - **21:49**: the coordinating session submitted 319346–319352 (Jeffery approved the exact list), all `%1`.
 - **10-23 03:45 / 03:50**: Jeffery chose to run the scalar-clock knn and expdist (319352) on 125 GB hosts, with a fallback to the 188 GB hosts; the vector-clock ones (319350) went back to the 188 GB hosts.
 - **10-23 08:01**: the fallback watcher submitted 319604 for P9-expdist scalar-clock. It had misread shard 0 of 319352 as expdist; shard 0 is knn, CLEAN in 9,680 s. 319604 was cancelled at 08:02 before it started.
-- **10-23**: the coordinating session's GPU-cap watcher holds pending x1b-* jobs while another user waits on the 4060 partitions and fzheng4 is above 10 nodes.
+- **10-23**: the coordinating session's GPU-cap watcher holds pending x1b-* jobs while another user waits on the 4060 partitions and fzheng4 is at 10 GPU nodes or more.
   - 19:54: atomicCAS scalar-clock reached the cap.
   - 20:05 / 22:12: stencil1d vector-clock / scalar-clock reached the cap.
   - 22:26: 319350_0 (knn vector-clock, CLEAN) ended and 319350_1 (expdist vector-clock) started on c64.
@@ -512,7 +512,6 @@ scalar-clock has 1 against X1's 2.
 - **The 84,600 s rows are single reps** (Jeffery's choice for the long pass), with walls and native walls from one run.
 - **Cross-host walls**: 19 nodes, three CPUs, two RAM sizes, five drivers (§0). §4's X1-vs-X1b walls are not same-host comparisons.
 - **OOM** is inferred from SIGKILL and the peaks; the nodes' kernel logs were not read. The cases are P9-atomicCAS vector-clock ("Killed" at 189.6 GB on a 188 GB host) and P7-particlefilter scalar-clock (`partial(rc=1)` at 189.5–189.7 GB).
-- **The seven tasks requeued at 10-22 14:25:44** (§5): the cause is not recorded. Their reruns wrote the rows; no duplicate (id, mode, rep) exists.
 - **P5 rtraw**: §9 shows the change follows the recording, but which difference of the recording leaves the `dummy` pair unordered is not separated.
 - **Not done for X1b**:
   - X1-follow's partial-run notes (§1 (j)).
