@@ -1,0 +1,17 @@
+{
+  "route": "R2",
+  "route_note": "mmcv/ops/csrc/common/cuda/furthest_point_sample_cuda_kernel.cuh of d2111bda57 copied byte-for-byte (r2_extract.sh; r2/blob.check PASS over 1 file). common/driver.cu #includes it; common/pytorch_cuda_helper.hpp is the include shim (CUDA runtime only: the kernels use just CUDA's min/max builtins). The launcher file mmcv/ops/csrc/pytorch/cuda/furthest_point_sample_cuda.cu needs libtorch for its stream, so it is not included; the driver copies its opt_n_threads (min(2^floor(log2 n), 1024)) and launches kernel<1024><<<b, 1024>>> as the launcher's switch does at N=2048. No torch is used by this target. Flags: mmcv's (setup.py: nvcc -std=c++14, -D__CUDA_NO_HALF_OPERATORS__ / _CONVERSIONS__ / HALF2_OPERATORS__, -DMMCV_WITH_CUDA, MMCV_CUDA_ARGS empty so no -O flag) with -std=c++17 instead of c++14 (CUDA 13 does not accept c++14; deviation), -arch=sm_89, -lineinfo, never -G.",
+  "status": "built",
+  "toolkit": "13.4 (c1)",
+  "driver": "common/driver.cu: furthest_point_sampling_forward_cuda_kernel<1024><<<B=2, 1024>>>(b, n, m=256, dataset[B,N,3], temp=1e10, idxs) then furthest_point_sampling_with_dist_forward_cuda_kernel<1024><<<2, 1024>>>(b, n, m=64, dataset[B,N,N] pairwise squared distances, temp=1e10, idxs); args B N M M2 default 2 2048 256 64. Host FPS references compare all indices of both kernels.",
+  "input": "B=2, N=2048 uniform points in [0,1)^3 (fixed LCG); first kernel M=256 (table), second (with_dist) M2=64 (reduced from 256 to hold the total near 1.3e7; race needs only m >= 3).",
+  "access_estimate": "about 1.34e7 thread-level memory accesses: forward kernel 2.25e4 per block-iteration x 255 x 2 = 1.15e7; with_dist 1.54e4 x 63 x 2 = 1.9e6. Above the 1e7 aim, far below the 1e8 hard limit; 'driver 2 2048 128 32' gives about 6e6.",
+  "kernels_in_sm89_sass": "cuobjdump -sass: furthest_point_sampling_forward_cuda_kernel<1024u>(int, int, int, float const*, float*, int*) and furthest_point_sampling_with_dist_forward_cuda_kernel<1024u>(...) present in driver.sm_89.cubin (2 kernels). lineinfo phase run on this target (once for the R2 route): eval/realworld/targets/mmcv-fps-new-1/lineinfo.check RESULT SAME (-lineinfo does not change the SASS of either kernel; 704 and 576 SASS lines).",
+  "notes": "Candidate (unfixed): only the pinned commit is built (r2/buggy); the check is r2/blob.check (git hash-object of each copied file == git rev-parse <pinned>:<path>, RESULT PASS), not fixdiff. Built only (stage + build + lineinfo are the only phases run; CPU-only constraint): the driver has NOT been executed on a GPU, so its printed 'mismatches=' host check and exit code are unverified until the native run. Build job steps ran on c1 (normal partition, whole node held); that node, like c0, has no /mnt/local/fzheng4, so the node-local build tree was redirected to /tmp/fzheng4 by exporting USER=../../tmp/fzheng4 for the hrun.sh calls (rw.sh builds in /mnt/local/$USER/rw/<id>); artifacts are copied to BeeGFS as usual.",
+  "commands": [
+    "harness/r2_extract.sh mmcv-fps-new-1 mmcv/ops/csrc/common/cuda/furthest_point_sample_cuda_kernel.cuh   # login node (already done)",
+    "r2/blob.check written by a git hash-object vs git rev-parse <pinned>:<path> loop (login node)",
+    "T21_WT=/home/fzheng4/wt-t21c harness/hrun.sh <jobid> mmcv-fps-new-1 stage; harness/hrun.sh <jobid> mmcv-fps-new-1 build",
+    "run: /mnt/beegfs/fzheng4/realworld/build/mmcv-fps-new-1/buggy/driver   (t_cmd prints $ART/driver)"
+  ]
+}
