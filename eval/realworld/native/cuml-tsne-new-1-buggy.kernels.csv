@@ -1,0 +1,21 @@
+Generating SQLite file /mnt/beegfs/fzheng4/realworld/runs/cuml-tsne-new-1/buggy/reach.sqlite from /mnt/beegfs/fzheng4/realworld/runs/cuml-tsne-new-1/buggy/reach.nsys-rep
+Processing [/mnt/beegfs/fzheng4/realworld/runs/cuml-tsne-new-1/buggy/reach.sqlite] with [/opt/nvidia/nsight-systems/2026.3.2/target-linux-x64/reports/cuda_gpu_kern_sum.py]... 
+Time (%),Total Time (ns),Instances,Avg (ns),Med (ns),Min (ns),Max (ns),StdDev (ns),Name
+31.9,27712,1,27712.0,27712.0,27712,27712,0.0,"void ML::TSNE::BH::TreeBuildingKernel<int, float>(T1 *, const T2 *, const T2 *, T1, T1, T1 *, T1 *, const T2 *)"
+22.7,19712,1,19712.0,19712.0,19712,19712,0.0,"void ML::TSNE::BH::SummarizationKernel<int, float>(T1 *, const T1 *, volatile T2 *, T2 *, T2 *, T1, T1, const T1 *)"
+8.9,7744,1,7744.0,7744.0,7744,7744,0.0,"void ML::TSNE::BH::SortKernel<int>(T1 *, const T1 *, volatile T1 *, T1 *, T1, T1, const T1 *)"
+6.1,5280,1,5280.0,5280.0,5280,5280,0.0,"void ML::TSNE::BH::BoundingBoxKernel<int, float>(T1 *, T1 *, T2 *, T2 *, T2 *, T2 *, T2 *, T2 *, T2 *, T1, T1, T1, unsigned int *, T2 *)"
+5.4,4736,3,1578.7,1568.0,1568,1600,18.5,"void cub::_V_300403_SM_890::detail::reduce::DeviceReduceKernel<cub::_V_300403_SM_890::detail::reduce::policy_selector_from_types<float, unsigned int, cuda::std::__4::plus<float>>, float *, unsigned int, cuda::std::__4::plus<float>, float, cuda::std::__4::identity>(T2, T5 *, T3, cub::_V_300403_SM_890::GridEvenShare<T3>, T4, T6)"
+4.5,3936,1,3936.0,3936.0,3936,3936,0.0,"void ML::TSNE::BH::RepulsionKernel<int, float>(float, float, const T1 *, const T1 *, const T2 *, const T2 *, const T2 *, T2 *, T2 *, T2 *, T2, T1, T1, T1, const T2 *, const T1 *)"
+4.1,3584,3,1194.7,1152.0,1120,1312,102.9,"void cub::_V_300403_SM_890::detail::reduce::DeviceReduceSingleTileKernel<cub::_V_300403_SM_890::detail::reduce::policy_selector_from_types<float, unsigned int, cuda::std::__4::plus<float>>, float *, float *, int, cuda::std::__4::plus<float>, float, float, cuda::std::__4::identity>(T2, T3, T4, T5, T6, T8)"
+2.4,2112,2,1056.0,1056.0,960,1152,135.8,"void cub::_V_300403_SM_890::detail::transform::transform_kernel<cub::_V_300403_SM_890::detail::transform::policy_selector_from_types<(bool)0, (bool)1, cuda::std::__4::tuple<>, thrust::_V_300403_SM_890::device_ptr<float>>, int, cuda::__4::always_true, cub::_V_300403_SM_890::detail::__return_constant<float>, float *, >(T2, int, bool, T3, T4, T5, cub::_V_300403_SM_890::detail::transform::kernel_arg<T6>...)"
+2.2,1952,2,976.0,976.0,960,992,22.6,"void raft::linalg::stub_scalar_mul_kernel<float>(T1 *, const T1 *, T1, unsigned long)"
+2.2,1888,1,1888.0,1888.0,1888,1888,0.0,"void ML::TSNE::BH::attractive_kernel_bh<int, float>(const T2 *, const T1 *, const T1 *, const T2 *, const T2 *, T2 *, T2 *, T2 *, T1, T2)"
+2.1,1824,1,1824.0,1824.0,1824,1824,0.0,"void ML::TSNE::BH::IntegrationKernel<int, float>(float, float, float, T2 *, T2 *, const T2 *, const T2 *, const T2 *, const T2 *, T2 *, T2 *, T2 *, T2 *, const T2 *, T1)"
+1.4,1248,1,1248.0,1248.0,1248,1248,0.0,"void ML::TSNE::BH::ClearKernel1<int>(T1 *, T1, T1)"
+1.3,1120,1,1120.0,1120.0,1120,1120,0.0,"void ML::TSNE::BH::InitializationKernel<int, float>(unsigned int *, T1 *, T2 *)"
+1.3,1088,1,1088.0,1088.0,1088,1088,0.0,"void ML::TSNE::BH::Reset_Normalization<int, float>(T2 *, T2 *, T1 *, T1, const T2 *)"
+1.2,1056,1,1056.0,1056.0,1056,1056,0.0,"void compute_kl_div_k<unsigned long, float>(const T2 *, const T2 *, T2 *, T1)"
+1.1,992,1,992.0,992.0,992,992,0.0,"void ML::TSNE::BH::ClearKernel2<int, float>(T1 *, T2 *, T1, const T1 *)"
+1.1,992,1,992.0,992.0,992,992,0.0,"void ML::TSNE::BH::Find_Normalization<int, float>(T2 *, T1)"
+

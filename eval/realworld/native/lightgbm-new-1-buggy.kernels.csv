@@ -1,0 +1,32 @@
+Generating SQLite file /mnt/beegfs/fzheng4/realworld/runs/lightgbm-new-1/buggy/reach.sqlite from /mnt/beegfs/fzheng4/realworld/runs/lightgbm-new-1/buggy/reach.nsys-rep
+Processing [/mnt/beegfs/fzheng4/realworld/runs/lightgbm-new-1/buggy/reach.sqlite] with [/opt/nvidia/nsight-systems/2026.3.2/target-linux-x64/reports/cuda_gpu_kern_sum.py]... 
+Time (%),Total Time (ns),Instances,Avg (ns),Med (ns),Min (ns),Max (ns),StdDev (ns),Name
+34.9,819198,42,19504.7,18720.0,17312,26304,2424.1,"void LightGBM::CUDAConstructHistogramDenseKernel<unsigned char, float, (unsigned long)12288>(const LightGBM::CUDALeafSplitsStruct *, const float *, const float *, const T1 *, const unsigned int *, const unsigned int *, const int *, int)"
+11.6,271648,81,3353.7,3392.0,2720,4128,320.7,"LightGBM::SyncBestSplitForLeafKernel(int, int, LightGBM::CUDASplitInfo *, const LightGBM::SplitFindTask *, const LightGBM::CUDASplitInfo *, int, int, int, bool, int)"
+10.6,248864,42,5925.3,6288.0,4800,6976,741.0,"void LightGBM::FindBestSplitsForLeafKernel<(bool)0, (bool)0, (bool)0, (bool)0>(const signed char *, int, const LightGBM::SplitFindTask *, LightGBM::CUDARandom *, const LightGBM::CUDALeafSplitsStruct *, const LightGBM::CUDALeafSplitsStruct *, int, double, double, double, double, double, double, double, int, int, LightGBM::CUDASplitInfo *, int, int)"
+10.5,247583,39,6348.3,6368.0,4800,6848,440.0,"void LightGBM::FindBestSplitsForLeafKernel<(bool)0, (bool)0, (bool)0, (bool)1>(const signed char *, int, const LightGBM::SplitFindTask *, LightGBM::CUDARandom *, const LightGBM::CUDALeafSplitsStruct *, const LightGBM::CUDALeafSplitsStruct *, int, double, double, double, double, double, double, double, int, int, LightGBM::CUDASplitInfo *, int, int)"
+4.3,101408,42,2414.5,2400.0,2368,2720,52.5,"LightGBM::FixHistogramKernel(const unsigned int *, const unsigned int *, const unsigned int *, const int *, const unsigned int *, const LightGBM::CUDALeafSplitsStruct *)"
+3.4,80352,42,1913.1,1888.0,1760,2368,125.9,"LightGBM::FindBestFromAllSplitsKernel(int, LightGBM::CUDASplitInfo *, int *)"
+3.2,75872,42,1806.5,1792.0,1632,2208,110.4,"void LightGBM::SplitTreeStructureKernel<(bool)0, (bool)0>(int, int, int *, int *, int *, int *, int *, const int *, const LightGBM::CUDASplitInfo *, LightGBM::CUDALeafSplitsStruct *, LightGBM::CUDALeafSplitsStruct *, int, double *, double **, double *, int *)"
+3.1,73727,42,1755.4,1728.0,1696,2048,61.5,"LightGBM::AggregateBlockOffsetKernel1(int, int, int *, int *, int *, int *, int *, const int *, int)"
+3.0,71328,42,1698.3,1664.0,1536,2208,163.8,"LightGBM::SplitKernel(int, int, double, LightGBM::MissingType, const LightGBM::CUDASplitInfo *, int, int *, int *, int *, int *, int *, int *, float *, double *, double *, int *, double *, double *, int *, signed char *, unsigned int *, double *)"
+2.6,61216,42,1457.5,1440.0,1376,1856,68.6,"void LightGBM::GenDataToLeftBitVectorKernel<(bool)0, (bool)0, (bool)0, (bool)0, (bool)0, (bool)0, (bool)0, unsigned char>(const T8 *, int, const int *, unsigned int, unsigned int, unsigned int, unsigned int, unsigned char, unsigned char, unsigned short *, int *, int *)"
+2.5,59456,42,1415.6,1440.0,896,1536,133.5,"LightGBM::SubtractHistogramKernel(int, const LightGBM::CUDALeafSplitsStruct *, const LightGBM::CUDALeafSplitsStruct *)"
+2.2,52576,42,1251.8,1248.0,1184,1600,78.8,"LightGBM::SplitInnerKernel(int, int, const int *, const int *, const int *, const int *, const int *, const unsigned short *, int *)"
+2.0,45792,42,1090.3,1088.0,1024,1376,65.7,"void LightGBM::UpdateDataIndexToLeafIndexKernel<(bool)0, (bool)0, (bool)0, (bool)0, (bool)0, (bool)0, (bool)0, unsigned char>(const T8 *, int, const int *, unsigned int, unsigned int, unsigned int, unsigned int, int, int, int, int, int *)"
+1.7,40544,42,965.3,960.0,928,1184,57.4,"LightGBM::PrepareLeafBestSplitInfo(int, int, int *, const LightGBM::CUDASplitInfo *)"
+1.7,40032,42,953.1,928.0,896,1280,74.6,"LightGBM::CopyDataIndicesKernel(int, const int *, int *)"
+0.6,14304,3,4768.0,4736.0,4672,4896,115.4,"void LightGBM::CUDAInitValuesKernel1<(bool)0>(const float *, const float *, int, const int *, double *, double *)"
+0.6,13760,3,4586.7,4576.0,4576,4608,18.5,"LightGBM::CUDAInitValuesKernel2(double, double, int, double *, double *, int, const int *, double *, LightGBM::CUDALeafSplitsStruct *)"
+0.2,4832,3,1610.7,1600.0,1600,1632,18.5,"void LightGBM::GetGradientsKernel_RegressionL2<(bool)0>(const double *, const float *, const float *, int, float *, float *)"
+0.2,4096,3,1365.3,1376.0,1344,1376,18.5,"void LightGBM::AddPredictionToScoreKernel<(bool)0>(const int *, const double *, double *, const int *, int)"
+0.1,2912,3,970.7,960.0,960,992,18.5,"LightGBM::ShrinkageKernel(double, double *, int)"
+0.1,2720,1,2720.0,2720.0,2720,2720,0.0,"void LightGBM::ShuffleReduceSumGlobalKernel<float, double>(const T1 *, int, T2 *)"
+0.1,2720,3,906.7,896.0,896,928,18.5,"LightGBM::FillDataIndicesBeforeTrainKernel(int, int *, int *)"
+0.1,2656,1,2656.0,2656.0,2656,2656,0.0,"void LightGBM::BlockReduceSum<double>(T1 *, int)"
+0.1,2496,3,832.0,832.0,832,832,0.0,LightGBM::InitValuesEmptyKernel(LightGBM::CUDALeafSplitsStruct *)
+0.1,2496,3,832.0,832.0,800,864,32.0,"LightGBM::SetInvalidLeafSplitInfoKernel(LightGBM::CUDASplitInfo *, bool, bool, int, int)"
+0.1,2176,2,1088.0,1088.0,800,1376,407.3,"LightGBM::AllocateCatVectorsKernel(LightGBM::CUDASplitInfo *, unsigned long, int, bool, unsigned int *, int *)"
+0.1,1184,1,1184.0,1184.0,1184,1184,0.0,"LightGBM::AddScoreConstantKernel(double, int, double *)"
+0.0,960,1,960.0,960.0,960,960,0.0,"LightGBM::AddBiasKernel(double, double *, int)"
+

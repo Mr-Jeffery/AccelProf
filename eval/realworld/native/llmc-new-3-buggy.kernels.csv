@@ -1,0 +1,14 @@
+Generating SQLite file /mnt/beegfs/fzheng4/realworld/runs/llmc-new-3/buggy/reach.sqlite from /mnt/beegfs/fzheng4/realworld/runs/llmc-new-3/buggy/reach.nsys-rep
+Processing [/mnt/beegfs/fzheng4/realworld/runs/llmc-new-3/buggy/reach.sqlite] with [/opt/nvidia/nsight-systems/2026.3.2/target-linux-x64/reports/cuda_gpu_kern_sum.py]... 
+Time (%),Total Time (ns),Instances,Avg (ns),Med (ns),Min (ns),Max (ns),StdDev (ns),Name
+19.6,13888,4,3472.0,3472.0,3392,3552,76.2,void cutlass::Kernel2<cutlass_80_tensorop_s1688gemm_64x64_16x6_nt_align4>(T1::Params)
+18.6,13216,4,3304.0,3328.0,3200,3360,71.0,void cutlass::Kernel2<cutlass_80_tensorop_s1688gemm_64x64_16x6_nn_align4>(T1::Params)
+18.5,13120,4,3280.0,3264.0,3168,3424,131.9,void cutlass::Kernel2<cutlass_80_tensorop_s1688gemm_64x64_16x6_tn_align4>(T1::Params)
+11.9,8448,2,4224.0,4224.0,4224,4224,0.0,"permute_kernel(float *, float *, float *, const float *, int, int, int, int)"
+6.4,4512,2,2256.0,2256.0,2240,2272,22.6,"permute_kernel_backward(float *, const float *, const float *, const float *, int, int, int, int)"
+5.6,3968,1,3968.0,3968.0,3968,3968,0.0,"void softmax_autoregressive_backward_kernel7<(int)256>(float *, const float *, const float *, int, int, int, float)"
+5.1,3616,1,3616.0,3616.0,3616,3616,0.0,"void softmax_autoregressive_backward_kernel8<(int)256>(float *, const float *, const float *, int, int, int, float)"
+5.0,3552,2,1776.0,1776.0,1760,1792,22.6,"softmax_forward_kernel5(float *, float, const float *, int, int)"
+4.8,3392,2,1696.0,1696.0,1696,1696,0.0,"unpermute_kernel_backward(float *, const float *, int, int, int, int)"
+4.5,3200,2,1600.0,1600.0,1600,1600,0.0,"unpermute_kernel(const float *, float *, int, int, int, int)"
+
