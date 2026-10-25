@@ -29,7 +29,7 @@ t_export() {   # login node: main tree (only what CMake needs) + the four submod
 t_build() {    # cwd = $OUT (node-local)
   export PATH=/mnt/beegfs/fzheng4/realworld/src/lightgbm-new-1/cmake-3.31.6/bin:$PATH   # CMake 3.31.6, see header: the revision needs >= 3.28
   local arch; arch=$(echo "$RW_NVCC_FLAGS" | sed -E 's/.*sm_([0-9]+).*/\1/')
-  cmake -S "$SRC" -B "$OUT/cmake-build" -DCMAKE_BUILD_TYPE=Release -DUSE_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES="$arch" -DBUILD_CLI=ON \
+  cmake -S "$SRC" -B "$OUT/cmake-build" ${RW_CMAKE_EXTRA:-} -DCMAKE_BUILD_TYPE=Release -DUSE_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES="$arch" -DBUILD_CLI=ON \
         -DNCCL_ROOT=/mnt/beegfs/fzheng4/realworld/src/lightgbm-new-1/nccl-2.29.3 -DCMAKE_BUILD_RPATH='$ORIGIN' > cmake-configure.txt 2>&1 || { tail -30 cmake-configure.txt; return 1; }
   if [ -z "$RW_LINEINFO" ]; then   # lineinfo phase: generated build files only
     grep -rl -- '-lineinfo' "$OUT/cmake-build" --include=flags.make --include=build.make --include=link.txt 2>/dev/null | xargs -r sed -i 's/ -lineinfo//g'

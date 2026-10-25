@@ -35,7 +35,7 @@ def main():
         if not os.path.exists(sp):
             continue
         st = json.load(open(sp))
-        if st.get("status") != "built":
+        if not str(st.get("status", "")).startswith("built"):   # T21c: some status strings carry a note, e.g. "built (R2)"
             continue
         orp = os.path.join(RW, "oracle", d + ".json")
         orc = json.load(open(orp)) if os.path.exists(orp) else {}

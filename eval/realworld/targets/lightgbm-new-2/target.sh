@@ -12,7 +12,7 @@ t_export() {   # login node: identical tarball to lightgbm-new-1 (same revision)
   cp "$src" "$3"
 }
 t_build() {    # cwd = $OUT (node-local)
-  local b=$RW/build/lightgbm-new-1/buggy
+  local b=${RW_ART_ROOT:-$RW/build}/lightgbm-new-1/buggy
   [ -n "$RW_LINEINFO" ] || { echo "lightgbm-new-2 shares lightgbm-new-1's build; run the lineinfo phase on lightgbm-new-1" >&2; return 1; }
   for f in lightgbm libstdc++.so.6 libgcc_s.so.1 libgomp.so.1; do cp -a "$b/$f" . || return 1; done
   python3 "$TDIR/gen_data.py" . || return 1

@@ -66,7 +66,7 @@ unpack() {   # $1 variant -> $LOCAL/$1/src
 case $phase in
   info)       # machine-readable summary for mk_manifest.py (login node, no side effects)
     for v in $variants; do
-      export ART=$RW/build/$id/$v RUNDIR=$RW/runs/$id/$v
+      export ART=${RW_ART_ROOT:-$RW/build}/$id/$v RUNDIR=$RW/runs/$id/$v
       printf 'ROW\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$id" "$v" "$T_ROUTE" "$T_KERNEL" "$T_SPACE" "${T_RACECHECK:-yes}" "$ART/$T_EXE" "$(t_cmd "$v")" "$(sha_of $v)"
     done ;;
   export)
@@ -87,7 +87,7 @@ case $phase in
   build)
     for v in $variants; do
       unpack "$v" || exit 1
-      export SRC=$LOCAL/$v/src OUT=$LOCAL/$v/build ART=$RW/build/$id/$v ID=$id
+      export SRC=$LOCAL/$v/src OUT=$LOCAL/$v/build ART=${RW_ART_ROOT:-$RW/build}/$id/$v ID=$id
       cd "$OUT" || exit 1
       echo "== build $id/$v  sha $(sha_of $v)  flags: $RW_NVCC_FLAGS $RW_LINEINFO  cuda $(readlink -f /usr/local/cuda)  $(date +%T)"
       t_build "$v"; rc=$?
@@ -117,7 +117,7 @@ case $phase in
     done ;;
   native|reach|racecheck)
     for v in $variants; do
-      export ART=$RW/build/$id/$v RUNDIR=$RW/runs/$id/$v ID=$id
+      export ART=${RW_ART_ROOT:-$RW/build}/$id/$v RUNDIR=$RW/runs/$id/$v ID=$id
       mkdir -p "$RUNDIR"; cd "$RUNDIR" || exit 1
       cmd=$(t_cmd "$v")
       case $phase in

@@ -34,6 +34,7 @@ import json
 import os
 import shutil
 import socket
+import statistics
 import subprocess
 import sys
 import time
@@ -146,6 +147,44 @@ def _arch():
         return "?"
 
 
+_RUNTIME = None
+
+
+def _runtime_info():
+    """X1: the runtime every row of a sweep was recorded with, into each meta.json (once per
+    process): sha256[:16] of the collector, of the libsanalyzer it actually loads (ldd: the
+    RPATH resolution, not a guess) and of the two pc_dependency fatbins, plus the git HEAD of
+    the runtime checkout ($ACCEL_PROF_HOME) and of the harness checkout running this file."""
+    global _RUNTIME
+    if _RUNTIME is not None:
+        return _RUNTIME
+    import hashlib
+
+    def h(p):
+        try:
+            return hashlib.sha256(Path(p).read_bytes()).hexdigest()[:16]
+        except OSError:
+            return ""
+
+    def sh(cwd, *cmd):
+        try:
+            return subprocess.run(cmd, cwd=cwd, capture_output=True, text=True,
+                                  timeout=60).stdout.strip()
+        except (OSError, subprocess.SubprocessError):
+            return ""
+    coll = f"{blib.APH}/lib/libcompute_sanitizer.so"
+    san = next((ln.split("=>")[1].split()[0] for ln in sh(blib.APH, "ldd", coll).splitlines()
+                if "libsanalyzer" in ln and "=>" in ln), "")
+    fb = f"{blib.APH}/nv-compute/lib/gpu_patch/gpu_patch_pc_dependency"
+    _RUNTIME = dict(collector=h(coll), libsanalyzer=h(san), libsanalyzer_path=san,
+                    fatbin=h(f"{fb}.fatbin"), fatbin_late=h(f"{fb}_late.fatbin"),
+                    runtime_head=sh(blib.APH, "git", "rev-parse", "--short=12", "HEAD"),
+                    harness_head=sh(HERE, "git", "rev-parse", "--short=12", "HEAD"),
+                    harness_dirty=len([ln for ln in sh(HERE, "git", "status", "--porcelain",
+                                                       "-uno").splitlines() if ln.strip()]))
+    return _RUNTIME
+
+
 # ---------- collect (GPU) ----------
 def collect_one(mrow, cuda, reps, floor=120, cap=1200):
     """Collect traces for one program with ALL heavy IO on scratch. accelprof
@@ -164,7 +203,7 @@ def collect_one(mrow, cuda, reps, floor=120, cap=1200):
     os.makedirs(logs, exist_ok=True)
     meta = {k: mrow[k] for k in ("id", "pset", "program", "build", "input")}
     meta.update(node=socket.gethostname(), arch=_arch(), mem_total_gb=_mem_total_gb(),
-                modes={}, store=STORE, status="collecting",
+                modes={}, store=STORE, status="collecting", runtime=_runtime_info(),
                 started=time.strftime("%Y-%m-%d %H:%M:%S"),
                 slurm_job=os.environ.get("SLURM_JOB_ID", ""))
 
@@ -227,6 +266,7 @@ def collect_one(mrow, cuda, reps, floor=120, cap=1200):
     # native rc + stderr are recorded so an app that fails on its own is never
     # blamed on the collector.
     native, native_rc = None, None
+    native_walls = []
     for r_ in range(reps):
         w, _, rcode, to = blib.run_timed([link, *args], nenv, work, man_timeout,
                                          stdin_path=stdin,
@@ -234,13 +274,19 @@ def collect_one(mrow, cuda, reps, floor=120, cap=1200):
         native_rc = rcode if native_rc is None else max(native_rc, rcode)
         if not to and isinstance(w, (int, float)):
             native = w if native is None else min(native, w)
+            native_walls.append(w)
     # "10x native or 20 min" read as up to 20 min: floor 120s by default (vector-clock
     # runs 3-218x native, REPORT.md F3), cap 1200s by default. --timeout-floor raises the
     # floor (P7 overhead-only set uses the full 20 min); --timeout-cap raises the cap (X1:
     # 5,400 s for vector-clock mode on the heavy suites). The cap is recorded in meta.json
     # and in every row's notes (cap=<s>) so a table can state it.
     tool_timeout = min(max(int(10 * native), floor), cap) if native else max(man_timeout, floor)
-    meta["native_wall"] = native
+    # X1: the row's native wall is the MEDIAN over the native reps (the overhead table's
+    # ratio is tool wall / native wall, both medians of reps; make_tables takes the median
+    # of the tool's rep walls). The timeout rule above keeps the fastest rep, as before.
+    meta["native_wall"] = statistics.median(native_walls) if native_walls else None
+    meta["native_wall_min"] = native
+    meta["native_walls"] = native_walls
     meta["native_rc"] = native_rc
     meta["native_err"] = blib.tail_text(f"{logs}/native_rep1.txt", 12, 600)
     meta["tool_timeout"] = tool_timeout
@@ -549,7 +595,10 @@ def analyze_one(idir, writer, confirm_dir, analysis_cap=0, analysis_mem=-1):
                               and rm.get("rc") == (native_rc or 0))
             if rm.get("timed_out"):
                 verdict = "TIMEOUT"
-                notes = (f"timeout={meta.get('tool_timeout')}s;dump_mb={rm.get('dump_mb', '')}"
+                # nkernels (X1): kernel JSONs the killed rep had finished -- with no dump
+                # (aggregates only) dump_mb no longer measures trace volume
+                notes = (f"timeout={meta.get('tool_timeout')}s;dump_mb={rm.get('dump_mb', '')};"
+                         f"nkernels={rm.get('nkernels', '')}"
                          f"{nat_note};err={_csvsafe(rm.get('err', ''))[-200:]}")
                 ri, rl, nd = "", "", 0
             elif reason and rm.get("nkernels", 0):
@@ -816,25 +865,56 @@ def cmd_run(a):
 
 
 def cmd_merge(a):
-    """Concatenate eval/results/baselines-<tool>-shard*.csv -> baselines-<tool>.csv
-    for each tool family given (default: cuvein). Shard files are never deleted."""
+    """Concatenate <results-dir>/baselines-<tool>-shard*.csv -> <out-dir>/baselines-<tool>.csv
+    for each tool family given (default: cuvein; results-dir and out-dir default to
+    eval/results). Shard files are never deleted.
+
+    --override DIR[,DIR...] (X1): the shard CSVs in DIR replace, for every (id, mode) they
+    hold a row for, ALL base rows of that (id, mode) -- every rep, not only the TIMEOUT
+    ones, so one (id, mode) never mixes two caps. Base rows of other (id, mode) keys pass
+    through; a runner-level row without a mode (missing-exe, no-trace-collected) is replaced
+    only by an override row without a mode. Later DIRs win over earlier ones."""
     import csv
     tools = [t for t in (getattr(a, "tool", "") or "cuvein").split(",") if t]
+    src = getattr(a, "results_dir", "") or blib.RESULTS_DIR
+    dst = getattr(a, "out_dir", "") or blib.RESULTS_DIR
+    overrides = [d for d in (getattr(a, "override", "") or "").split(",") if d]
     for tool in tools:
-        shards = sorted(glob.glob(f"{blib.RESULTS_DIR}/baselines-{tool}-shard*.csv"))
+        shards = sorted(glob.glob(f"{src}/baselines-{tool}-shard*.csv"))
         if not shards:
-            print(f"merge: no shards for {tool}")
+            print(f"merge: no shards for {tool} in {src}")
             continue
-        out = f"{blib.RESULTS_DIR}/baselines-{tool}.csv"
-        seen = 0
+        over = {}                           # (id, mode) -> [rows], last DIR wins
+        for d in overrides:
+            osh = sorted(glob.glob(f"{d}/baselines-{tool}-shard*.csv"))
+            if not osh:
+                sys.exit(f"merge: --override {d}: no baselines-{tool}-shard*.csv there")
+            got = {}
+            for sh in osh:
+                for r in csv.DictReader(open(sh, newline="")):
+                    got.setdefault((r["id"], r.get("mode", "")), []).append(r)
+            over.update(got)
+            print(f"merge: {tool}: override {d}: {len(osh)} shards, {len(got)} (id, mode) keys")
+        os.makedirs(dst, exist_ok=True)
+        out = f"{dst}/baselines-{tool}.csv"
+        seen = replaced = 0
         with open(out, "w", newline="") as fh:
             w = csv.DictWriter(fh, fieldnames=blib.COLUMNS)
             w.writeheader()
             for sh in shards:
                 for r in csv.DictReader(open(sh, newline="")):
+                    if (r["id"], r.get("mode", "")) in over:
+                        replaced += 1
+                        continue
                     w.writerow({c: r.get(c, "") for c in blib.COLUMNS})
                     seen += 1
-        print(f"merge: {tool}: {len(shards)} shards, {seen} rows -> {out}")
+            for key in sorted(over):
+                for r in over[key]:
+                    w.writerow({c: r.get(c, "") for c in blib.COLUMNS})
+                    seen += 1
+        print(f"merge: {tool}: {len(shards)} shards from {src}, {seen} rows -> {out}"
+              + (f" ({replaced} base rows replaced by {sum(len(v) for v in over.values())} "
+                 f"override rows)" if overrides else ""))
 
 
 def main():
@@ -887,6 +967,13 @@ def main():
                        help="with --confirm: detail JSON dir (default eval/baselines/confirm)")
     pm = sub.add_parser("merge")
     pm.add_argument("--tool", default="cuvein", help="comma list of tool families")
+    pm.add_argument("--results-dir", dest="results_dir", default="",
+                    help="directory holding the shard CSVs (default eval/results)")
+    pm.add_argument("--out-dir", dest="out_dir", default="",
+                    help="directory of the merged baselines-<tool>.csv (default eval/results)")
+    pm.add_argument("--override", default="",
+                    help="comma list of shard-CSV directories whose rows replace every base "
+                         "row of the same (id, mode) (X1: the 5,400 s long pass)")
     a = ap.parse_args()
     {"collect": cmd_collect, "analyze": cmd_analyze, "run": cmd_run,
      "merge": cmd_merge}[a.cmd](a)
