@@ -17,7 +17,7 @@
 set -u
 for d in /home/fzheng4/AccelProf /mnt/beegfs/fzheng4; do timeout 10 ls $d > /dev/null 2>&1 || { echo "NODE-PROBLEM $(hostname): $d not readable"; exit 2; }; done
 W=/home/fzheng4/wt-x1b; RT=/home/fzheng4/AccelProf; H=$(hostname)
-NA=${NA:-10}; NB=${NB:-30}
+NA=${NA:-10}; NB=${NB:-30}; K0=${K0:-1}   # K0: first run number (append runs to an earlier set); SKIP_B=1 skips part B
 ID=P5-race_interblock_none-lock_rtraw
 BASE=/mnt/beegfs/fzheng4/cuvein_traces/x1b-rtraw-rerec
 OUT=$W/eval/results/final-b/rtraw-rerec
@@ -42,7 +42,7 @@ echo "host=$H gpu=[$gpu] cpu=[$(lscpu | sed -n 's/^Model name: *//p')] mem=$(fre
 # A: X1b's harness (p_final.sh's knobs: no dump, hb_stats on, scalar-clock at 16 shards)
 export BASELINE_HB_DUMP=0 YOSEMITE_HB_STATS=1 BASELINE_HB_SHARDS=16
 mkdir -p $OUT/x1b-harness/$H $LOG
-for k in $(seq 1 $NA); do
+for k in $(seq $K0 $((K0 + NA - 1))); do
   export BASELINE_TRACE_DIR=$BASE/x1b-harness/$H/run$k
   mkdir -p $BASELINE_TRACE_DIR $LOG/confirm/$H/run$k
   $PY $W/eval/baselines/parallel.py run --id $ID --shard 0/1 --reps 1 --confirm --keep-all \
@@ -51,6 +51,7 @@ for k in $(seq 1 $NA); do
   echo "A run $k rc=$? $(date -Is)"
 done
 unset BASELINE_TRACE_DIR BASELINE_HB_DUMP YOSEMITE_HB_STATS BASELINE_HB_SHARDS
+[ "${SKIP_B:-0}" = 1 ] && { echo "B skipped; == done $(date -Is)"; exit 0; }
 # B: X4's recorder, as p_final_rtraw.sh's scor-recorded label runs it
 $PY $W/eval/baselines/final_rtraw.py record --store $BASE/x4-recorder \
     --exe $RT/ScoR/microbenchmarks/bin/race_interblock_none-lock_rtraw --label x1b-rerec --runs $NB > $LOG/B-$H.out 2>&1
