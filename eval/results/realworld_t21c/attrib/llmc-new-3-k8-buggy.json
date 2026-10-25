@@ -6,7 +6,7 @@
  "n_cubins": 1,
  "n_dots": 1,
  "oracle_kernel_substr": "softmax_autoregressive_backward_kernel",
- "spec_found": false,
+ "spec_found": true,
  "modes": {
   "scalar-clock": {
    "n_kernel_jsons": 12,
@@ -463,8 +463,668 @@
      ]
     }
    ],
-   "site_verdicts": [],
-   "site_skipped": {}
+   "site_verdicts": [
+    {
+     "current_pc": 1760,
+     "current_pc_hex": "0x6e0",
+     "ancient_pc": 224,
+     "ancient_pc_hex": "0xe0",
+     "opcodes": [
+      "STS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "WAW",
+     "observed_distance": "block",
+     "contested_weight": 1344,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void softmax_autoregressive_backward_kernel8<256>(float*, float const*, float const*, int, int, int, float)",
+     "mangled": "_Z39softmax_autoregressive_backward_kernel8ILi256EEvPfPKfS2_iiif",
+     "kernel_json": "kernel_8.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-3/buggy/build/attention_backward.cu",
+       "line": 706
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-3/buggy/build/attention_backward.cu",
+       "line": 691
+      }
+     ]
+    },
+    {
+     "current_pc": 1760,
+     "current_pc_hex": "0x6e0",
+     "ancient_pc": 1760,
+     "ancient_pc_hex": "0x6e0",
+     "opcodes": [
+      "STS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "WAW",
+     "observed_distance": "warp",
+     "contested_weight": 47616,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": true,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void softmax_autoregressive_backward_kernel8<256>(float*, float const*, float const*, int, int, int, float)",
+     "mangled": "_Z39softmax_autoregressive_backward_kernel8ILi256EEvPfPKfS2_iiif",
+     "kernel_json": "kernel_8.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-3/buggy/build/attention_backward.cu",
+       "line": 706
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-3/buggy/build/attention_backward.cu",
+       "line": 706
+      }
+     ]
+    },
+    {
+     "current_pc": 1792,
+     "current_pc_hex": "0x700",
+     "ancient_pc": 224,
+     "ancient_pc_hex": "0xe0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 4296,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "barrier-ordered",
+     "matrix_class": "barrier-ordered",
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void softmax_autoregressive_backward_kernel8<256>(float*, float const*, float const*, int, int, int, float)",
+     "mangled": "_Z39softmax_autoregressive_backward_kernel8ILi256EEvPfPKfS2_iiif",
+     "kernel_json": "kernel_8.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/bin/../targets/x86_64-linux/include/cooperative_groups/details/coalesced_reduce.h",
+       "line": 66
+      },
+      {
+       "file": "/usr/local/cuda-13.4/bin/../targets/x86_64-linux/include/cooperative_groups/details/reduce.h",
+       "line": 222
+      },
+      {
+       "file": "/usr/local/cuda-13.4/bin/../targets/x86_64-linux/include/cooperative_groups/details/reduce.h",
+       "line": 245
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-3/buggy/build/attention_backward.cu",
+       "line": 691
+      }
+     ]
+    },
+    {
+     "current_pc": 1792,
+     "current_pc_hex": "0x700",
+     "ancient_pc": 1760,
+     "ancient_pc_hex": "0x6e0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 1344,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      1776
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void softmax_autoregressive_backward_kernel8<256>(float*, float const*, float const*, int, int, int, float)",
+     "mangled": "_Z39softmax_autoregressive_backward_kernel8ILi256EEvPfPKfS2_iiif",
+     "kernel_json": "kernel_8.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/bin/../targets/x86_64-linux/include/cooperative_groups/details/coalesced_reduce.h",
+       "line": 66
+      },
+      {
+       "file": "/usr/local/cuda-13.4/bin/../targets/x86_64-linux/include/cooperative_groups/details/reduce.h",
+       "line": 222
+      },
+      {
+       "file": "/usr/local/cuda-13.4/bin/../targets/x86_64-linux/include/cooperative_groups/details/reduce.h",
+       "line": 245
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-3/buggy/build/attention_backward.cu",
+       "line": 706
+      }
+     ]
+    },
+    {
+     "current_pc": 4864,
+     "current_pc_hex": "0x1300",
+     "ancient_pc": 1792,
+     "ancient_pc_hex": "0x700",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 1344,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void softmax_autoregressive_backward_kernel8<256>(float*, float const*, float const*, int, int, int, float)",
+     "mangled": "_Z39softmax_autoregressive_backward_kernel8ILi256EEvPfPKfS2_iiif",
+     "kernel_json": "kernel_8.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-3/buggy/build/attention_backward.cu",
+       "line": 706
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/bin/../targets/x86_64-linux/include/cooperative_groups/details/coalesced_reduce.h",
+       "line": 66
+      },
+      {
+       "file": "/usr/local/cuda-13.4/bin/../targets/x86_64-linux/include/cooperative_groups/details/reduce.h",
+       "line": 222
+      },
+      {
+       "file": "/usr/local/cuda-13.4/bin/../targets/x86_64-linux/include/cooperative_groups/details/reduce.h",
+       "line": 245
+      }
+     ]
+    },
+    {
+     "current_pc": 4864,
+     "current_pc_hex": "0x1300",
+     "ancient_pc": 4864,
+     "ancient_pc_hex": "0x1300",
+     "opcodes": [
+      "STS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "WAW",
+     "observed_distance": "warp",
+     "contested_weight": 47616,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": true,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void softmax_autoregressive_backward_kernel8<256>(float*, float const*, float const*, int, int, int, float)",
+     "mangled": "_Z39softmax_autoregressive_backward_kernel8ILi256EEvPfPKfS2_iiif",
+     "kernel_json": "kernel_8.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-3/buggy/build/attention_backward.cu",
+       "line": 706
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-3/buggy/build/attention_backward.cu",
+       "line": 706
+      }
+     ]
+    },
+    {
+     "current_pc": 4896,
+     "current_pc_hex": "0x1320",
+     "ancient_pc": 4864,
+     "ancient_pc_hex": "0x1300",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 1344,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      4880
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void softmax_autoregressive_backward_kernel8<256>(float*, float const*, float const*, int, int, int, float)",
+     "mangled": "_Z39softmax_autoregressive_backward_kernel8ILi256EEvPfPKfS2_iiif",
+     "kernel_json": "kernel_8.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/bin/../targets/x86_64-linux/include/cooperative_groups/details/coalesced_reduce.h",
+       "line": 66
+      },
+      {
+       "file": "/usr/local/cuda-13.4/bin/../targets/x86_64-linux/include/cooperative_groups/details/reduce.h",
+       "line": 222
+      },
+      {
+       "file": "/usr/local/cuda-13.4/bin/../targets/x86_64-linux/include/cooperative_groups/details/reduce.h",
+       "line": 245
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-3/buggy/build/attention_backward.cu",
+       "line": 706
+      }
+     ]
+    },
+    {
+     "current_pc": 7968,
+     "current_pc_hex": "0x1f20",
+     "ancient_pc": 4896,
+     "ancient_pc_hex": "0x1320",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 1344,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void softmax_autoregressive_backward_kernel8<256>(float*, float const*, float const*, int, int, int, float)",
+     "mangled": "_Z39softmax_autoregressive_backward_kernel8ILi256EEvPfPKfS2_iiif",
+     "kernel_json": "kernel_8.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-3/buggy/build/attention_backward.cu",
+       "line": 706
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/bin/../targets/x86_64-linux/include/cooperative_groups/details/coalesced_reduce.h",
+       "line": 66
+      },
+      {
+       "file": "/usr/local/cuda-13.4/bin/../targets/x86_64-linux/include/cooperative_groups/details/reduce.h",
+       "line": 222
+      },
+      {
+       "file": "/usr/local/cuda-13.4/bin/../targets/x86_64-linux/include/cooperative_groups/details/reduce.h",
+       "line": 245
+      }
+     ]
+    },
+    {
+     "current_pc": 7968,
+     "current_pc_hex": "0x1f20",
+     "ancient_pc": 7968,
+     "ancient_pc_hex": "0x1f20",
+     "opcodes": [
+      "STS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "WAW",
+     "observed_distance": "warp",
+     "contested_weight": 47616,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": true,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void softmax_autoregressive_backward_kernel8<256>(float*, float const*, float const*, int, int, int, float)",
+     "mangled": "_Z39softmax_autoregressive_backward_kernel8ILi256EEvPfPKfS2_iiif",
+     "kernel_json": "kernel_8.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-3/buggy/build/attention_backward.cu",
+       "line": 706
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-3/buggy/build/attention_backward.cu",
+       "line": 706
+      }
+     ]
+    },
+    {
+     "current_pc": 8000,
+     "current_pc_hex": "0x1f40",
+     "ancient_pc": 7968,
+     "ancient_pc_hex": "0x1f20",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 1344,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      7984
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void softmax_autoregressive_backward_kernel8<256>(float*, float const*, float const*, int, int, int, float)",
+     "mangled": "_Z39softmax_autoregressive_backward_kernel8ILi256EEvPfPKfS2_iiif",
+     "kernel_json": "kernel_8.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/bin/../targets/x86_64-linux/include/cooperative_groups/details/coalesced_reduce.h",
+       "line": 66
+      },
+      {
+       "file": "/usr/local/cuda-13.4/bin/../targets/x86_64-linux/include/cooperative_groups/details/reduce.h",
+       "line": 222
+      },
+      {
+       "file": "/usr/local/cuda-13.4/bin/../targets/x86_64-linux/include/cooperative_groups/details/reduce.h",
+       "line": 245
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-3/buggy/build/attention_backward.cu",
+       "line": 706
+      }
+     ]
+    },
+    {
+     "current_pc": 11056,
+     "current_pc_hex": "0x2b30",
+     "ancient_pc": 8000,
+     "ancient_pc_hex": "0x1f40",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 1344,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void softmax_autoregressive_backward_kernel8<256>(float*, float const*, float const*, int, int, int, float)",
+     "mangled": "_Z39softmax_autoregressive_backward_kernel8ILi256EEvPfPKfS2_iiif",
+     "kernel_json": "kernel_8.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-3/buggy/build/attention_backward.cu",
+       "line": 706
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/bin/../targets/x86_64-linux/include/cooperative_groups/details/coalesced_reduce.h",
+       "line": 66
+      },
+      {
+       "file": "/usr/local/cuda-13.4/bin/../targets/x86_64-linux/include/cooperative_groups/details/reduce.h",
+       "line": 222
+      },
+      {
+       "file": "/usr/local/cuda-13.4/bin/../targets/x86_64-linux/include/cooperative_groups/details/reduce.h",
+       "line": 245
+      }
+     ]
+    },
+    {
+     "current_pc": 11056,
+     "current_pc_hex": "0x2b30",
+     "ancient_pc": 11056,
+     "ancient_pc_hex": "0x2b30",
+     "opcodes": [
+      "STS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "WAW",
+     "observed_distance": "warp",
+     "contested_weight": 47616,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": true,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void softmax_autoregressive_backward_kernel8<256>(float*, float const*, float const*, int, int, int, float)",
+     "mangled": "_Z39softmax_autoregressive_backward_kernel8ILi256EEvPfPKfS2_iiif",
+     "kernel_json": "kernel_8.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-3/buggy/build/attention_backward.cu",
+       "line": 706
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-3/buggy/build/attention_backward.cu",
+       "line": 706
+      }
+     ]
+    },
+    {
+     "current_pc": 11088,
+     "current_pc_hex": "0x2b50",
+     "ancient_pc": 11056,
+     "ancient_pc_hex": "0x2b30",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 1344,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      11072
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void softmax_autoregressive_backward_kernel8<256>(float*, float const*, float const*, int, int, int, float)",
+     "mangled": "_Z39softmax_autoregressive_backward_kernel8ILi256EEvPfPKfS2_iiif",
+     "kernel_json": "kernel_8.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/bin/../targets/x86_64-linux/include/cooperative_groups/details/coalesced_reduce.h",
+       "line": 66
+      },
+      {
+       "file": "/usr/local/cuda-13.4/bin/../targets/x86_64-linux/include/cooperative_groups/details/reduce.h",
+       "line": 222
+      },
+      {
+       "file": "/usr/local/cuda-13.4/bin/../targets/x86_64-linux/include/cooperative_groups/details/reduce.h",
+       "line": 245
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-3/buggy/build/attention_backward.cu",
+       "line": 706
+      }
+     ]
+    }
+   ],
+   "site_skipped": {
+    "read_read": 7
+   }
   }
  },
  "dots_checked": 1,

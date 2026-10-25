@@ -6,7 +6,7 @@
  "n_cubins": 1,
  "n_dots": 1,
  "oracle_kernel_substr": "layernorm_backward_kernel10",
- "spec_found": false,
+ "spec_found": true,
  "modes": {
   "scalar-clock": {
    "n_kernel_jsons": 6,
@@ -468,7 +468,216 @@
      ]
     }
    ],
-   "site_verdicts": [],
+   "site_verdicts": [
+    {
+     "current_pc": 20064,
+     "current_pc_hex": "0x4e60",
+     "ancient_pc": 19024,
+     "ancient_pc_hex": "0x4a50",
+     "opcodes": [
+      "LDG.E.128",
+      "STG.E.128"
+     ],
+     "space": "global",
+     "race_type": "RAW",
+     "observed_distance": "grid",
+     "contested_weight": 435200,
+     "access_size": 16,
+     "strength": "block",
+     "ordering_syncs": [
+      19088,
+      19232
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "layernorm_backward_kernel10(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, float*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z27layernorm_backward_kernel10P13__nv_bfloat16S0_S0_PfPKS_S3_S3_S3_S3_iii",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/layernorm_backward.cu",
+       "line": 1217
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/common.h",
+       "line": 168
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/layernorm_backward.cu",
+       "line": 1194
+      }
+     ]
+    },
+    {
+     "current_pc": 20176,
+     "current_pc_hex": "0x4ed0",
+     "ancient_pc": 19024,
+     "ancient_pc_hex": "0x4a50",
+     "opcodes": [
+      "LDG.E.128",
+      "STG.E.128"
+     ],
+     "space": "global",
+     "race_type": "RAW",
+     "observed_distance": "grid",
+     "contested_weight": 433600,
+     "access_size": 16,
+     "strength": "block",
+     "ordering_syncs": [
+      19088,
+      19232
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "layernorm_backward_kernel10(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, float*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z27layernorm_backward_kernel10P13__nv_bfloat16S0_S0_PfPKS_S3_S3_S3_S3_iii",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/layernorm_backward.cu",
+       "line": 1217
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/common.h",
+       "line": 168
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/layernorm_backward.cu",
+       "line": 1194
+      }
+     ]
+    },
+    {
+     "current_pc": 20224,
+     "current_pc_hex": "0x4f00",
+     "ancient_pc": 19024,
+     "ancient_pc_hex": "0x4a50",
+     "opcodes": [
+      "LDG.E.128",
+      "STG.E.128"
+     ],
+     "space": "global",
+     "race_type": "RAW",
+     "observed_distance": "grid",
+     "contested_weight": 435200,
+     "access_size": 16,
+     "strength": "block",
+     "ordering_syncs": [
+      19088,
+      19232
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "layernorm_backward_kernel10(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, float*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z27layernorm_backward_kernel10P13__nv_bfloat16S0_S0_PfPKS_S3_S3_S3_S3_iii",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/layernorm_backward.cu",
+       "line": 1217
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/common.h",
+       "line": 168
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/layernorm_backward.cu",
+       "line": 1194
+      }
+     ]
+    },
+    {
+     "current_pc": 20288,
+     "current_pc_hex": "0x4f40",
+     "ancient_pc": 19024,
+     "ancient_pc_hex": "0x4a50",
+     "opcodes": [
+      "LDG.E.128",
+      "STG.E.128"
+     ],
+     "space": "global",
+     "race_type": "RAW",
+     "observed_distance": "grid",
+     "contested_weight": 435200,
+     "access_size": 16,
+     "strength": "block",
+     "ordering_syncs": [
+      19088,
+      19232
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "layernorm_backward_kernel10(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, float*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z27layernorm_backward_kernel10P13__nv_bfloat16S0_S0_PfPKS_S3_S3_S3_S3_iii",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/layernorm_backward.cu",
+       "line": 1217
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/common.h",
+       "line": 168
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/layernorm_backward.cu",
+       "line": 1194
+      }
+     ]
+    }
+   ],
    "site_skipped": {}
   }
  },

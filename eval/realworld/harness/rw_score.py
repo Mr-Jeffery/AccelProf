@@ -87,6 +87,7 @@ def main():
     ap.add_argument("--manifest", default=f"{WT}/eval/realworld/manifest_t21c.csv")
     ap.add_argument("--pairs", default=f"{WT}/eval/realworld/recall_pairs.json")
     ap.add_argument("--write", action="store_true")
+    ap.add_argument("--exclude", default="", help="comma list of manifest ids or targets left unscored (T21c: colmap-new-1,lightgbm-new-1,lightgbm-new-2)")
     a = ap.parse_args()
     spec_all = json.load(open(a.pairs))
     man = {r["id"]: r for r in csv.DictReader(open(a.manifest, newline=""))}
@@ -94,25 +95,26 @@ def main():
     for l in open(f"{WT}/eval/realworld/targets.jsonl"):
         d = json.loads(l)
         pats[d["id"]] = d
-    targets = []
-    for i, r in man.items():
-        if r["variant"] == "buggy":
-            targets.append(r["target"])
+    excl = {x for x in a.exclude.split(",") if x}
+    brows = [(i, r["target"]) for i, r in man.items()
+             if r["variant"] == "buggy" and i not in excl and r["target"] not in excl]    # T21c: one scored row per buggy manifest id
     try:
         tvd = json.load(open(f"{a.results}/tv_violation.json"))      # harness/scan_tv.py (fact only; changes no outcome)
     except (OSError, ValueError):
         tvd = {}
     rows, queue_miss, queue_fixed, others = [], [], [], []
     detail = {}
-    for t in targets:
+    for bid, t in brows:
         spec = spec_all[t]
         orc = json.load(open(f"{WT}/eval/realworld/oracle/{t}.json"))
         exp_class = orc["expected_class"]
-        manb, manf = man[f"{t}-buggy"], man[f"{t}-fixed"]
+        manb = man[bid]
         pr = pats[t]
         for flavor, resdir in (("main", a.results), ("certain", f"{a.results}/certain"), ("vc5400", f"{a.results}/vc5400")):
             for variant in ("buggy", "fixed"):
-                id_ = f"{t}-{variant}"
+                id_ = bid if variant == "buggy" else f"{t}-fixed"
+                if variant == "fixed" and (id_ not in man or bid != f"{t}-buggy"):
+                    continue                  # T21c: candidates have no fixed row (except llamacpp-open-2)
                 att = load(f"{resdir}/attrib/{id_}.json")
                 csvr = read_csv_rows(resdir, id_)
                 if att is None and not csvr:
@@ -121,8 +123,10 @@ def main():
                 for mode in modes:
                     cr = csvr.get(mode, {})
                     am = (att or {}).get("modes", {}).get(mode)
+                    if not cr and am is None:
+                        continue              # T21c: mode not run (vector-clock skipped on Jeffery's instruction): no row
                     status = cr.get("verdict", "")        # RACE | CLEAN | TIMEOUT | ERROR | ''
-                    base = dict(target=t, variant=variant, mode=mode, flavor=flavor, wave=manb["wave"], route=manb["route"],
+                    base = dict(id=id_, target=t, variant=variant, mode=mode, flavor=flavor, wave=manb["wave"], route=manb["route"],
                                 pattern=pr.get("pattern", ""), expected_class=exp_class, run_verdict=status,
                                 wall_s=cr.get("wall_s", ""), native_wall_s=cr.get("native_wall_s", ""), rc=cr.get("rc", ""),
                                 n_race=(am or {}).get("n_race", ""), n_sc=(am or {}).get("n_sc", ""),
@@ -200,6 +204,9 @@ def main():
                                                  f"{sk}" if sk else "m1/m3 (proposed): no verdict and no skipped edge between the oracle's sites "
                                                  "(the conflicting instance did not run, or the pair is outside the model)")
                                     row.update(outcome="MISSED", miss_cause=cause, matched="", operating_point="", a2="", strong_token="")
+                                    ov = (spec.get("miss_cause") or {}).get(id_)      # T21c: hand-checked cause from recall_pairs.json; the automatic proposal is kept
+                                    if ov:
+                                        row["miss_cause"] = f"{ov} [scorer's automatic proposal: {cause}]"
                                     queue_miss.append(dict(row, kind="MISSED", evidence=ev, kernel_seen=ksn))
                             rows.append(row)
                     else:  # fixed
@@ -232,7 +239,7 @@ def main():
                         known.append(p)
                     for r in reps:
                         if not any(match(r, p) for p in known):
-                            others.append(dict(target=t, variant=variant, mode=mode, flavor=flavor, kernel=r.get("kernel"),
+                            others.append(dict(id=id_, target=t, variant=variant, mode=mode, flavor=flavor, kernel=r.get("kernel"),
                                                a_pc=hex(r["a_pc"]), b_pc=hex(r["b_pc"]), cls=rclass(r), verdict=r["verdict"],
                                                matrix_class=r.get("matrix_class"), space=r["space"], race_type=r.get("race_type"),
                                                a=fl(r.get("a_frames")), b=fl(r.get("b_frames")), a_op=r.get("a_op"), b_op=r.get("b_op")))
@@ -245,7 +252,7 @@ def main():
         if r["target"] == "amrex-1" and r["flavor"] == "main" and r["variant"] == "buggy" and r["miss_cause"].startswith("m4"):
             r["miss_cause"] += " [FINAL m4: decision, long-cap pass not run]"
     # ---- outputs
-    cols = ["target", "variant", "mode", "flavor", "component", "wave", "route", "pattern", "expected_class", "run_verdict", "n_race", "n_sc",
+    cols = ["id", "target", "variant", "mode", "flavor", "component", "wave", "route", "pattern", "expected_class", "run_verdict", "n_race", "n_sc",
             "outcome", "matched", "operating_point", "a2", "strong_token", "miss_cause", "also_residual", "open_decision",
             "wall_s", "native_wall_s", "rc", "racecheck", "tv_violation"]
     if a.write:
@@ -256,7 +263,7 @@ def main():
             for r in rows:
                 w.writerow(r)
         with open(f"{a.results}/other_reports.csv", "w", newline="") as fh:
-            oc = ["target", "variant", "mode", "flavor", "kernel", "a_pc", "b_pc", "cls", "verdict", "matrix_class", "space", "race_type",
+            oc = ["id", "target", "variant", "mode", "flavor", "kernel", "a_pc", "b_pc", "cls", "verdict", "matrix_class", "space", "race_type",
                   "a", "b", "a_op", "b_op"]
             w = csv.DictWriter(fh, fieldnames=oc)
             w.writeheader()

@@ -6,7 +6,7 @@
  "n_cubins": 1,
  "n_dots": 1,
  "oracle_kernel_substr": "furthest_point_sampling_kernel",
- "spec_found": false,
+ "spec_found": true,
  "modes": {
   "scalar-clock": {
    "n_kernel_jsons": 1,
@@ -69,8 +69,56 @@
      ]
     }
    ],
-   "site_verdicts": [],
-   "site_skipped": {}
+   "site_verdicts": [
+    {
+     "current_pc": 3776,
+     "current_pc_hex": "0xec0",
+     "ancient_pc": 5824,
+     "ancient_pc_hex": "0x16c0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 451,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void furthest_point_sampling_kernel<512u>(int, int, int, float const*, float*, int*)",
+     "mangled": "_Z30furthest_point_sampling_kernelILj512EEviiiPKfPfPi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pointnet2pt-fps-new-1/buggy/src/pointnet2_ops_lib/pointnet2_ops/_ext-src/src/sampling_gpu.cu",
+       "line": 112
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pointnet2pt-fps-new-1/buggy/src/pointnet2_ops_lib/pointnet2_ops/_ext-src/src/sampling_gpu.cu",
+       "line": 170
+      }
+     ]
+    }
+   ],
+   "site_skipped": {
+    "read_read": 1
+   }
   }
  },
  "dots_checked": 1,

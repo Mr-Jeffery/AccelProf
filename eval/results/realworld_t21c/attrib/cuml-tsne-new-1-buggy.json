@@ -6,7 +6,7 @@
  "n_cubins": 1,
  "n_dots": 1,
  "oracle_kernel_substr": "RepulsionKernel",
- "spec_found": false,
+ "spec_found": true,
  "modes": {
   "scalar-clock": {
    "n_kernel_jsons": 23,
@@ -3827,8 +3827,191 @@
      ]
     }
    ],
-   "site_verdicts": [],
-   "site_skipped": {}
+   "site_verdicts": [
+    {
+     "current_pc": 3072,
+     "current_pc_hex": "0xc00",
+     "ancient_pc": 3024,
+     "ancient_pc_hex": "0xbd0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 2112,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void ML::TSNE::BH::RepulsionKernel<int, float>(float, float, int const*, int const*, float const*, float const*, float const*, float*, float*, float*, float, int, int, int, float const*, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH15RepulsionKernelIifEEvffPKT_S5_PKT0_S8_S8_PS6_S9_S9_S6_S3_S3_S3_S8_S5_",
+     "kernel_json": "kernel_10.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 596
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 596
+      }
+     ]
+    },
+    {
+     "current_pc": 3600,
+     "current_pc_hex": "0xe10",
+     "ancient_pc": 3536,
+     "ancient_pc_hex": "0xdd0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 1,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": true,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void ML::TSNE::BH::RepulsionKernel<int, float>(float, float, int const*, int const*, float const*, float const*, float const*, float*, float*, float*, float, int, int, int, float const*, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH15RepulsionKernelIifEEvffPKT_S5_PKT0_S8_S8_PS6_S9_S9_S6_S3_S3_S3_S8_S5_",
+     "kernel_json": "kernel_10.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 631
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 625
+      }
+     ]
+    },
+    {
+     "current_pc": 3648,
+     "current_pc_hex": "0xe40",
+     "ancient_pc": 3552,
+     "ancient_pc_hex": "0xde0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 1,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": true,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void ML::TSNE::BH::RepulsionKernel<int, float>(float, float, int const*, int const*, float const*, float const*, float const*, float*, float*, float*, float, int, int, int, float const*, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH15RepulsionKernelIifEEvffPKT_S5_PKT0_S8_S8_PS6_S9_S9_S6_S3_S3_S3_S8_S5_",
+     "kernel_json": "kernel_10.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 632
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 626
+      }
+     ]
+    },
+    {
+     "current_pc": 4192,
+     "current_pc_hex": "0x1060",
+     "ancient_pc": 3072,
+     "ancient_pc_hex": "0xc00",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 1,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": true,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void ML::TSNE::BH::RepulsionKernel<int, float>(float, float, int const*, int const*, float const*, float const*, float const*, float*, float*, float*, float, int, int, int, float const*, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH15RepulsionKernelIifEEvffPKT_S5_PKT0_S8_S8_PS6_S9_S9_S6_S3_S3_S3_S8_S5_",
+     "kernel_json": "kernel_10.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 647
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 596
+      }
+     ]
+    }
+   ],
+   "site_skipped": {
+    "read_read": 5
+   }
   }
  },
  "dots_checked": 1,
