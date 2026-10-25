@@ -1,4 +1,4 @@
-Coverage: 4725 manifest ids x 2 modes; missing (id, mode): 0; ids in the CSV not in the manifest: 0; CSV rows 28236.
+Coverage: 4725 manifest ids x 2 modes; missing (id, mode): 0; ids in the CSV not in the manifest: 0; CSV rows 28234.
 
 | suite | programs | rows | mode | CLEAN | RACE | TIMEOUT | ERROR | cap (s) |
 |---|---|---|---|---|---|---|---|---|
@@ -14,11 +14,11 @@ Coverage: 4725 manifest ids x 2 modes; missing (id, mode): 0; ids in the CSV not
 |  |  |  | scalar-clock | 26 | 8 | 0 | 16 | 1200 |
 | P7 | 14 | 66 | vector-clock | 8 | 3 | 3 | 0 | 1200/5400/84600 |
 |  |  |  | scalar-clock | 9 | 4 | 1 | 0 | 1200/5400/84600 |
-| P9 | 10 | 48 | vector-clock | 6 | 2 | 2 | 0 | 1200/5400/84600 |
+| P9 | 10 | 46 | vector-clock | 6 | 2 | 2 | 0 | 1200/5400/84600 |
 |  |  |  | scalar-clock | 6 | 3 | 1 | 0 | 1200/84600 |
 | PI | 4130 | 24780 | vector-clock | 1710 | 2420 | 0 | 0 | 1200 |
 |  |  |  | scalar-clock | 1710 | 2420 | 0 | 0 | 1200 |
-| all | 4725 | 28236 | vector-clock | 2034 | 2670 | 5 | 16 | |
+| all | 4725 | 28234 | vector-clock | 2034 | 2670 | 5 | 16 | |
 |  |  |  | scalar-clock | 2037 | 2670 | 2 | 16 | |
 
 | suite | mode | verdict | reason class | (id, mode) |
@@ -60,6 +60,7 @@ Long pass, scalar-clock: 2 ids; CLEAN 2
 | P7-pathfinder-cuda | vector-clock | — | RACE | 35024.582 | 17,596 | 0 | c42 | 24 h row |
 | P7-stencil1d-cuda | vector-clock | — | TIMEOUT | 84600.019 | 98,492 | 124 | — | 24 h row |
 | P9-atomicCAS-cuda | vector-clock | — | ERROR | 15229.649 | 189,581 | 1 | — | 5,400 s rows kept (24 h run: ERROR) |
+| P9-expdist-cuda | vector-clock | — | TIMEOUT | 84600.019 | 21,016 | 124 | — | 24 h row |
 | P9-knn-cuda | vector-clock | — | CLEAN | 58674.223 | 22,187 | 0 | c64 | 24 h row |
 | P9-tridiagonal-cuda | vector-clock | — | RACE | 51436.282 | 10,810 | 0 | c78 | 24 h row |
 | P7-haversine-cuda | scalar-clock | — | CLEAN | 4131.136 | 13,999 | 0 | c24 | 24 h row |
@@ -71,7 +72,7 @@ Long pass, scalar-clock: 2 ids; CLEAN 2
 | P9-knn-cuda | scalar-clock | — | CLEAN | 9680.41 | 30,386 | 0 | c74 | 24 h row |
 | P9-tridiagonal-cuda | scalar-clock | — | RACE | 9227.804 | 12,340 | 0 | c74 | 24 h row |
 
-24 h pass, vector-clock: 10 keys; RACE 6, CLEAN 2, TIMEOUT 1, ERROR 1
+24 h pass, vector-clock: 11 keys; RACE 6, CLEAN 2, TIMEOUT 2, ERROR 1
 
 24 h pass, scalar-clock: 8 keys; RACE 4, CLEAN 2, TIMEOUT 2
 
@@ -79,9 +80,9 @@ Long pass, scalar-clock: 2 ids; CLEAN 2
 |---|---|---|---|---|
 | x1b-dryrun | 0.0 | 1 | 2026-10-22T02:12:52 | 2026-10-22T02:13:15 |
 | x1b-final | 51.8 | 16 | 2026-10-22T03:23:12 | 2026-10-22T19:02:42 |
-| x1b-final-24h | 186.5 | 11 | 2026-10-22T16:53:35 | 2026-10-23T22:26:01 |
+| x1b-final-24h | 192.7 | 11 | 2026-10-22T16:53:35 | 2026-10-24T21:56:13 |
 | x1b-final-long | 32.3 | 5 | 2026-10-22T22:01:19 | 2026-10-23T09:56:44 |
 | x1b-final-pi | 15.2 | 12 | 2026-10-22T15:00:10 | 2026-10-22T19:57:49 |
 | x1b-final-r1 | 0.1 | 1 | 2026-10-22T04:37:19 | 2026-10-22T04:41:06 |
 | x1b-final-r2 | 0.1 | 2 | 2026-10-22T04:41:06 | 2026-10-22T04:44:23 |
-| all | 285.8 | 21 | 2026-10-22T02:12:52 | 2026-10-23T22:26:01 |
+| all | 292.1 | 21 | 2026-10-22T02:12:52 | 2026-10-24T21:56:13 |

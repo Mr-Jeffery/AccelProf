@@ -3,12 +3,12 @@
 Branch `eval/final-sweep-b` (from `cuVein` f551ca0, the install commit of the runtime built from
 e0e6431 = T24 merged on T22 cont. + T23), worktree `/home/fzheng4/wt-x1b`, left unmerged for Jeffery.
 `eval/FINAL_SWEEP.md` (X1) stays as the record of the first run; this file repeats its sections for
-the second. Recorded 2026-10-22 02:12 – 2026-10-23 22:26, plus one task still running at writing:
+the second. Recorded 2026-10-22 02:12 – 2026-10-24 21:56:
 dry run 10-22 02:12; first pass 10-22 03:23 – 19:02 (PI pass 15:00 – 19:57); 5,400 s pass
-10-22 22:01 – 10-23 09:57; 84,600 s pass 10-22 16:53 – 10-23 22:26, except **P9-expdist-cuda
-vector-clock (319350_1, c64, started 10-23 22:26), running at writing**. It reaches its cap at about
-21:56 on 10-24. The report was written without waiting for it (§1 (d)). Post-processing ran
-10-24 15:41–15:50 (job 320157) and the store checks 15:55–16:03.
+10-22 22:01 – 10-23 09:57; 84,600 s pass 10-22 16:53 – 10-24 21:56. The report was first written while
+the last task, P9-expdist-cuda vector-clock (319350_1, c64, 10-23 22:26 – 10-24 21:56), was still
+running (§1 (d)). Post-processing ran 10-24 15:41–15:50 (job 320157) and the store checks 15:55–16:03.
+After 319350_1 ended, post-processing ran again 21:58–22:06 (job 320365, c45) and its row was folded in.
 
 Legend as in CLAUDE.md A4: **proved-in-effect** = an invariant checked over the stated stores;
 **tested** = a specific result asserted; **unverified** = said so.
@@ -57,7 +57,7 @@ Each count is the node that wrote the shard's rows (a requeued task counts where
 | c61 | 8124P | 188 GB | 580.82.07 | 1 | 0 | 0 | 0 | 2 | 0 | 0 |
 | c62 | 8124P | 188 GB | 580.82.07 | 5 | 0 | 0 | 0 | 0 | 0 | 0 |
 | c63 | 8124P | 188 GB | 580.82.07 | 2 | 0 | 0 | 0 | 0 | 2 | 0 |
-| c64 | 8124P | 188 GB | 580.95.05 | 6 | 0 | 0 | 0 | 4 (1 running) | 0 | 0 |
+| c64 | 8124P | 188 GB | 580.95.05 | 6 | 0 | 0 | 0 | 4 | 0 | 0 |
 | c73 | 7302P | 125 GB | 580.82.07 | 4 | 3 | 0 | 0 | 0 | 1 | 0 |
 | c74 | 7302P | 125 GB | 580.82.07 | 7 | 5 | 0 | 0 | 0 | 2 | 0 |
 | c75 | 7302P | 125 GB | 580.82.07 | 2 | 4 | 0 | 0 | 1 | 0 | 0 |
@@ -122,9 +122,8 @@ The same for every row of a pass (`setup/p_final.sh`; `p_final_long.sh` for the 
 - (c) Small-memory long-pass keys may run on any good 125 GB `rtx4060ti16g` host; X1 did the same.
   - Jeffery's 10-23 choices: the scalar-clock knn and expdist ran on 125 GB hosts (319352, on c74 and c24) with a fallback to the 188 GB hosts, which was not needed. The vector-clock knn and expdist went back to the 188 GB hosts (319350, c64).
 - (d) **2026-10-24, Jeffery: the report is written without waiting for the HeCBench vector-clock tail.**
-  - P9-expdist's 84,600 s run (319350_1) is running at writing.
+  - P9-expdist's 84,600 s run (319350_1) was running when the report was first written. It ended at 10-24 21:56 as TIMEOUT with no kernel written; its row is folded in (§4).
   - The cap policy's 24 h pass for P7-particlefilter and P7-haversine vector-clock (both TIMEOUT at 5,400 s) is not run: Jeffery's decision of 10-24, after §4's host finding. Both stay TIMEOUT at 5,400 s.
-  - The rows of these three keys are what the earlier passes gave: expdist at 1,200 s, the other two at 5,400 s.
 
 **Comparison rule** (§9): where X1 has a 5,400 s result and X1b does not (deviation (a)), X1's final verdict
 is compared with X1b's long-pass verdict. The cap columns of §9 say which rows each side holds.
@@ -174,15 +173,15 @@ sbatch pf.sh      # 320158: particlefilter / haversine vector-clock 5,400 s reps
 ## 3. Results
 
 Coverage: 4,725 manifest ids × 2 modes. Missing (id, mode): 0. Ids in the CSV that are not in the manifest: 0.
-CSV rows: 28,236.
+CSV rows: 28,234.
 
 The merged file holds the first pass's rows except the keys a later pass overrides:
 - 11 keys at 5,400 s (9 vector-clock, 2 scalar-clock).
-- 17 keys at 84,600 s (9 vector-clock, 8 scalar-clock).
+- 18 keys at 84,600 s (10 vector-clock, 8 scalar-clock).
 
-84 base rows were replaced by 50 override rows. P9-atomicCAS vector-clock (84,600 s run: ERROR) and
-P9-expdist vector-clock (84,600 s run: running) keep their 1,200 s rows. Verdicts are collapsed per
-(id, mode) as `make_tables.py` collapses them: RACE > CLEAN > TIMEOUT > ERROR over the reps.
+87 base rows were replaced by 51 override rows. P9-atomicCAS vector-clock (84,600 s run: ERROR) keeps
+its 1,200 s rows. Verdicts are collapsed per (id, mode) as `make_tables.py` collapses them:
+RACE > CLEAN > TIMEOUT > ERROR over the reps.
 
 | suite | programs | rows | mode | CLEAN | RACE | TIMEOUT | ERROR | cap (s) |
 |---|---|---|---|---|---|---|---|---|
@@ -198,11 +197,11 @@ P9-expdist vector-clock (84,600 s run: running) keep their 1,200 s rows. Verdict
 |  |  |  | scalar-clock | 26 | 8 | 0 | 16 | 1200 |
 | P7 | 14 | 66 | vector-clock | 8 | 3 | 3 | 0 | 1200/5400/84600 |
 |  |  |  | scalar-clock | 9 | 4 | 1 | 0 | 1200/5400/84600 |
-| P9 | 10 | 48 | vector-clock | 6 | 2 | 2 | 0 | 1200/5400/84600 |
+| P9 | 10 | 46 | vector-clock | 6 | 2 | 2 | 0 | 1200/5400/84600 |
 |  |  |  | scalar-clock | 6 | 3 | 1 | 0 | 1200/84600 |
 | PI | 4130 | 24780 | vector-clock | 1710 | 2420 | 0 | 0 | 1200 |
 |  |  |  | scalar-clock | 1710 | 2420 | 0 | 0 | 1200 |
-| all | 4725 | 28236 | vector-clock | 2034 | 2670 | 5 | 16 | |
+| all | 4725 | 28234 | vector-clock | 2034 | 2670 | 5 | 16 | |
 |  |  |  | scalar-clock | 2037 | 2670 | 2 | 16 | |
 
 The rows that are neither RACE nor CLEAN, by reason. The classes are `classify_residuals.py --no-dump`'s
@@ -215,7 +214,7 @@ The rows that are neither RACE nor CLEAN, by reason. The classes are `classify_r
 - `time-cap`: P9-atomicCAS scalar-clock at 84,600 s (60,000 kernel JSONs written).
 - `hb-clock-hang`: the script's name for a vector-clock TIMEOUT below 32 GB whose scalar-clock row resolved.
   - P7-haversine vector-clock at 5,400 s. 59–61 of 100 kernels were written, so this is not a stall.
-  - P9-expdist vector-clock: the 1,200 s rows, no kernel written. Its 84,600 s run is running at writing.
+  - P9-expdist vector-clock: TIMEOUT at 84,600 s with no kernel written (21.0 GB peak).
 
 | suite | mode | verdict | reason class | (id, mode) |
 |---|---|---|---|---|
@@ -283,7 +282,7 @@ No row reached the offline analysis cap (14,400 s): there is no `analysis-timeou
 | P7-pathfinder-cuda | vector-clock | RACE (1) | 35024.582 | 17,596 | 0 | c42 | 84,600 s row | RACE, 28386.115, c63 |
 | P7-stencil1d-cuda | vector-clock | TIMEOUT | 84600.019 | 98,492 | 124 | (c61) | 84,600 s row | TIMEOUT, 86400.019 |
 | P9-atomicCAS-cuda | vector-clock | **ERROR (out of memory)** | 15229.649 | 189,581 | 1 | (c64) | dropped: the 1,200 s TIMEOUT rows stand | ERROR (OOM), 17624.601; the 5,400 s TIMEOUT stood |
-| P9-expdist-cuda | vector-clock | **running at writing (319350_1)** | — | — | — | c64 | the 1,200 s TIMEOUT rows stand | TIMEOUT, 86400.015 (no kernel in the cap) |
+| P9-expdist-cuda | vector-clock | TIMEOUT | 84600.019 | 21,016 | 124 | (c64) | 84,600 s row | TIMEOUT, 86400.015 (no kernel in the cap) |
 | P9-knn-cuda | vector-clock | CLEAN | 58674.223 | 22,187 | 0 | c64 | 84,600 s row | CLEAN, 57215.724, c62 |
 | P9-tridiagonal-cuda | vector-clock | RACE (24) | 51436.282 | 10,810 | 0 | c78 | 84,600 s row | RACE, 42483.9, c61 |
 | P7-haversine-cuda | scalar-clock | CLEAN | 4131.136 | 13,999 | 0 | c24 | 84,600 s row | CLEAN, 6931.599, c63 |
@@ -296,15 +295,16 @@ No row reached the offline analysis cap (14,400 s): there is no `analysis-timeou
 | P9-tridiagonal-cuda | scalar-clock | RACE (24) | 9227.804 | 12,340 | 0 | c74 | 84,600 s row | RACE, 36768.052, c61 |
 
 **Totals.**
-- 84,600 s pass, vector-clock: 11 keys. Of the 10 with a row: RACE 6, CLEAN 2, TIMEOUT 1, ERROR 1; 1 running.
+- 84,600 s pass, vector-clock: 11 keys; RACE 6, CLEAN 2, TIMEOUT 2, ERROR 1.
 - 84,600 s pass, scalar-clock: 8 keys; RACE 4, CLEAN 2, TIMEOUT 2.
-- Every task of 319061, 319062 and 319349–319352 is COMPLETED as a SLURM job, except 319350_1.
+- Every task of 319061, 319062 and 319349–319352 is COMPLETED as a SLURM job.
 
 **Notes.**
 - **P9-atomicCAS vector-clock is ERROR because the host ran out of memory. It is not a detector verdict.**
   - The row's notes: `incomplete-trace(rc=1;nkernels=30000;peak_mb=189581.2)`, err `Killed`, after 15,229 s on c64 (188 GB).
   - Under X1's merge rule the ERROR is dropped (`final-b-24h-kept-vc/dropped.txt`) and the earlier TIMEOUT stands. In X1b that earlier TIMEOUT is the 1,200 s first pass, because deviation (a) skipped the 5,400 s pass; in X1 it was the 5,400 s TIMEOUT.
   - X1's 24 h run of the same key was OOM-killed too (17,625 s, 186.3 GB, 30,000 kernels).
+- **P9-expdist vector-clock** reached the 84,600 s cap with no kernel written (`nkernels=0`, 21.0 GB peak, rc 124), as X1's 86,400 s run did.
 - **P9-expdist scalar-clock** is RACE (22) in 2,697 s with N = 16. X1's serial pass was TIMEOUT at 86,400 s.
 - **Other scalar-clock keys that finished in a fraction of X1's time**: heartwall (5,729 s against 32,057 s), knn (9,680 against 44,762), tridiagonal (9,228 against 36,768). These are cross-host walls.
 - **Scalar-clock peaks are higher at N = 16**: pathfinder 68.9 GB (X1: 6.8 GB), stencil1d 168.1 GB (X1: 84.1 GB), knn 30.4 GB (X1: 20.6 GB), haversine 14.0 GB (X1: 8.3 GB).
@@ -357,7 +357,7 @@ requeued records included) and the shard logs.
   - Jeffery: write the report without waiting (§1 (d)).
   - 15:41–15:50: post-processing 320157 (c25).
   - 15:55–16:03: store checks 320158–320161.
-  - **319350_1 is running at writing.**
+  - 21:56: 319350_1 (expdist vector-clock) reached the cap: TIMEOUT, no kernel written. The sacct record was retaken and post-processing ran again, 21:58–22:06 (320365, c45).
 
 ## 6. Sanity checks
 
@@ -365,8 +365,8 @@ requeued records included) and the shard logs.
 `-long:5400`, `-long-sc:5400`, `-24h-vc:84600` and `-24h-sc:84600` → `eval/results/final-b/merged/sanity.json`.
 
 - **(a) proved-in-effect over 4,755 `meta.json` files** (4,725 + 9 + 2 + 11 + 8).
-  - Every one except 17 has `hb_dump: false`, the f551ca0 hashes (collector `b746b4dd`, libsanalyzer `5a20fd14`, fatbin `a2d7368b`, late fatbin `e9634312`), status done, arch 8.9, no excluded node, `tool_timeout == tool_timeout_cap ==` its store's cap, and `hb_shards = {"vector-clock": 0, "scalar-clock": 16}`.
-  - The 17 are the 16 `needs-sm90` programs (no binary; `error=missing-exe`), and P9-expdist in `-24h-vc` (status `collecting`: the running task).
+  - Every one except 16 has `hb_dump: false`, the f551ca0 hashes (collector `b746b4dd`, libsanalyzer `5a20fd14`, fatbin `a2d7368b`, late fatbin `e9634312`), status done, arch 8.9, no excluded node, `tool_timeout == tool_timeout_cap ==` its store's cap, and `hb_shards = {"vector-clock": 0, "scalar-clock": 16}`.
+  - The 16 are the `needs-sm90` programs (no binary; `error=missing-exe`). At first writing P9-expdist in `-24h-vc` was a 17th (status `collecting`, the running task); after 319350_1 ended it passes.
   - The harness HEAD (with `dirty=0`) and runtime HEAD (f551ca0) of each store's `meta.json` files are listed in the post log.
   - **73,136 kernel JSONs** (vector-clock 51,500, scalar-clock 21,636): none has `hb_events`; all have `hb_aggregates`, `hb_sync_pass`, `hb_rmw_points` and `hb_stats`, and vector-clock ones also `hb_races` and `hb_chain`. 0 bad.
   - **N = 16, from the runtime itself** (job 320160, `checks/shall-320160.log`):
@@ -406,8 +406,8 @@ write X1's `baselines-{disagreements,fp-causes}.csv`, tables and revision pin.
 
 ## 8. Node-hours
 
-From `sacct` (`eval/results/final-b/sacct.txt`, the x1b-* job ids with `-D`, taken 10-24 15:41; the
-post-processing job added from its own record). Counted: the 87 node-probe failures (1,242 s) and the 7
+From `sacct` (`eval/results/final-b/sacct.txt`, the x1b-* job ids with `-D`, retaken 10-24 21:57 after the
+last task ended; the two post-processing jobs added from their own records). Counted: the 87 node-probe failures (1,242 s) and the 7
 REQUEUED records (10,995 s). Not counted: the BeeGFS probe jobs (`probe.sh`, 24 jobs, 47 s on
 `rtx4060ti16g`) and the CPU inspection jobs.
 
@@ -419,13 +419,13 @@ REQUEUED records (10,995 s). Not counted: the BeeGFS probe jobs (`probe.sh`, 24 
 | x1b-final-r2 | 0.1 | 2 | 2026-10-22T04:41:06 | 2026-10-22T04:44:23 |
 | x1b-final-pi | 15.2 | 12 | 2026-10-22T15:00:10 | 2026-10-22T19:57:49 |
 | x1b-final-long | 32.3 | 5 | 2026-10-22T22:01:19 | 2026-10-23T09:56:44 |
-| x1b-final-24h | 186.5 (of which 17.2 h is the running 319350_1 at 15:41) | 11 | 2026-10-22T16:53:35 | 2026-10-23T22:26:01; 319350_1 running |
-| x1b-post | 0.1 (530 s) | 1 | 2026-10-24T15:41:26 | 2026-10-24T15:50:16 |
-| all | 286.0 | 21 | 2026-10-22T02:12:52 | (319350_1 running) |
+| x1b-final-24h | 192.7 | 11 | 2026-10-22T16:53:35 | 2026-10-24T21:56:13 |
+| x1b-post | 0.3 (530 s + 512 s) | 2 | 2026-10-24T15:41:26 | 2026-10-24T22:06:27 |
+| all | 292.4 | 22 | 2026-10-22T02:12:52 | 2026-10-24T22:06:27 |
 
-The 21 nodes are 20 GPU hosts (c77 among them, where every task stopped at the node probe) and c25 for
-the post job. X1 used 434.4 node-hours. When 319350_1 reaches its cap (84,600 s, plus native run,
-extraction and analysis), X1b's 24 h line grows by at least 6.3 h.
+The 22 nodes are 20 GPU hosts (c77 among them, where every task stopped at the node probe) and c25 and
+c45 for the post jobs. (`report_tables.md` counts 21 for the GPU jobs because 319604, cancelled before it
+started, has `None assigned`.) X1 used 434.4 node-hours.
 
 ## 9. Against X1 (the 2026-10-13/16 recording)
 
@@ -487,7 +487,7 @@ column: P7-particlefilter vector-clock became TIMEOUT, not CLEAN (§4: the detec
 - Most are the cap-policy changes: 84,600 s instead of 86,400 s, or 1,200 s instead of 5,400 s / 86,400 s where X1b's scalar-clock finished in the first pass.
 - P4-matrix-multiplication-norace-large vector-clock: CLEAN at 1,200 s in X1, CLEAN at 5,400 s in X1b (interpretation (c)).
 - P9-atomicCAS vector-clock: TIMEOUT at 5,400 s in X1, TIMEOUT at 1,200 s in X1b (§4).
-- P9-expdist vector-clock: TIMEOUT at 86,400 s in X1, TIMEOUT at 1,200 s in X1b (running at writing).
+- P9-expdist vector-clock: TIMEOUT at 86,400 s in X1, TIMEOUT at 84,600 s in X1b.
 
 **RACE in both runs, with a different report set** (not a verdict change; not investigated here).
 
@@ -507,7 +507,6 @@ scalar-clock has 1 against X1's 2.
 
 ## 10. What remains unverified
 
-- **P9-expdist vector-clock** is running at writing (319350_1). Its row is the first pass's 1,200 s TIMEOUT.
 - **P7-particlefilter and P7-haversine vector-clock stay TIMEOUT at 5,400 s**: the 24 h pass is not run (Jeffery, 10-24; §1 (d)). particlefilter's 5,400 s task ran on a 125 GB host (c43), where X1's runs needed 185 GB before they were killed. Whether the TIMEOUT reflects that host is not established. haversine's walls are cross-host (c24, EPYC 7302P, against X1's c52, EPYC 9115).
 - **The 84,600 s rows are single reps** (Jeffery's choice for the long pass), with walls and native walls from one run.
 - **Cross-host walls**: 19 nodes, three CPUs, two RAM sizes, five drivers (§0). §4's X1-vs-X1b walls are not same-host comparisons.

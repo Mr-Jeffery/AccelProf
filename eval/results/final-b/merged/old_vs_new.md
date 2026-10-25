@@ -61,7 +61,7 @@ Same verdict, different cap (s):
 | P7-srad-cuda | scalar-clock | CLEAN | 5400 | 1200 |
 | P7-stencil1d-cuda | scalar-clock | TIMEOUT | 86400 | 84600 |
 | P9-atomicCAS-cuda | vector-clock | TIMEOUT | 5400 | 1200 |
-| P9-expdist-cuda | vector-clock | TIMEOUT | 86400 | 1200 |
+| P9-expdist-cuda | vector-clock | TIMEOUT | 86400 | 84600 |
 | P9-knn-cuda | vector-clock | CLEAN | 86400 | 84600 |
 | P9-tridiagonal-cuda | vector-clock | RACE | 86400 | 84600 |
 | P9-atomicCAS-cuda | scalar-clock | TIMEOUT | 86400 | 84600 |
