@@ -235,15 +235,53 @@ def tail_text(path, n=40, maxch=2000):
     return "\n".join(lines)[-maxch:]
 
 
+_LONG_ID = __import__("re").compile(rb"[ -~]{240,}")   # a fatbin identifier: >= 240 printable bytes
+
+
+def xelf_all(exe_abs, outdir, env):
+    """`cuobjdump -xelf all exe` into outdir; returns the extracted cubins (or .elf files).
+    cuobjdump names a device-linked ELF after the fatbin entry's identifier, the space-separated list of
+    every linked object (LightGBM: 4,746 bytes -> a 1,500-character file name). Creating that file fails
+    (name longer than NAME_MAX) and cuobjdump stops there, so nothing is extracted. Fallback (T21c,
+    lightgbm-new-1/2): a copy of exe, under the same basename so the other ELFs keep their names, whose
+    identifier strings of >= 240 bytes that list .o/.a inputs are overwritten in place by a short name
+    padded with NULs. Offsets, sizes and the ELF payloads are unchanged; the caller compares SASS."""
+    subprocess.run(["cuobjdump", "-xelf", "all", exe_abs], cwd=outdir, env=env,
+                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    cubs = glob.glob(f"{outdir}/*.cubin") or glob.glob(f"{outdir}/*.elf")
+    if cubs:
+        return cubs
+    b = bytearray(Path(exe_abs).read_bytes())
+    base = os.path.basename(exe_abs)
+    n = 0
+    for m in list(_LONG_ID.finditer(b)):
+        txt = m.group(0)
+        toks = txt.split()
+        if len(toks) < 2 or not all(t.endswith((b".o", b".a")) for t in toks):
+            continue
+        short = f"{base}_dlink{n}.o".encode()
+        b[m.start():m.end()] = short + b"\0" * (len(txt) - len(short))
+        n += 1
+    if not n:
+        return []
+    tmp = os.path.join(outdir, ".xelf_short")
+    os.makedirs(tmp, exist_ok=True)
+    copy = os.path.join(tmp, base)
+    Path(copy).write_bytes(bytes(b))
+    os.chmod(copy, 0o755)
+    subprocess.run(["cuobjdump", "-xelf", "all", copy], cwd=outdir, env=env,
+                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    shutil.rmtree(tmp, ignore_errors=True)
+    return glob.glob(f"{outdir}/*.cubin") or glob.glob(f"{outdir}/*.elf")
+
+
 def extract(exe_abs, cubindir, env):
     """cubin -> CFG .dot per cubin -> atomic-scope sidecar. Returns (scope_or_'',
     list_of_cubins). Uses .env/bin/python for the sidecar (no nested conda run,
     unlike getall.sh)."""
     shutil.rmtree(cubindir, ignore_errors=True)
     os.makedirs(cubindir)
-    subprocess.run(["cuobjdump", "-xelf", "all", exe_abs], cwd=cubindir, env=env,
-                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    cubs = glob.glob(f"{cubindir}/*.cubin") or glob.glob(f"{cubindir}/*.elf")
+    cubs = xelf_all(exe_abs, cubindir, env)   # T21c: falls back for over-long device-link ELF names
     for c in cubs:
         dot = os.path.splitext(c)[0] + ".dot"
         with open(dot, "w") as f:

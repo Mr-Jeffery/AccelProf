@@ -126,8 +126,7 @@ def main():
     env = blib.base_env(cuda)
     tmp = tempfile.mkdtemp(prefix=f"rwattr-{a.id}-", dir=os.environ.get("TMPDIR", "/tmp"))
     try:
-        sh(["cuobjdump", "-xelf", "all", exe], env, cwd=tmp)
-        cubs = sorted(glob.glob(f"{tmp}/*.cubin") or glob.glob(f"{tmp}/*.elf"))
+        cubs = sorted(blib.xelf_all(exe, tmp, env))   # T21c: same extraction as the run (over-long ELF names)
         dots = sorted(glob.glob(f"{idir}/dots/*.dot"))
         cubin_of = {}
         for c in cubs:
