@@ -74,13 +74,32 @@ results in `rtraw-rerec/`). Each job records it two ways:
 | c79 (X1b, 10-22) | EPYC 7302P, 615.71.09 | 6 of 6 | RACE 6 | not run |
 | c42 (job 320490) | EPYC 7302P, 580.82.07 | 0 of 20 (10 per mode) | CLEAN 20 | A 28, C 2 (the 2 report the `dummy` WAW, flagged: RACE) |
 | c60 or c62 (job 320429) | EPYC 8124P, 580.82.07 | queued | | |
-| c79 (job 320428) | EPYC 7302P, 615.71.09 | queued (node held to about Nov 1) | | |
+| c79 (job 320428, runs 1-10) | EPYC 7302P, 615.71.09 | 5 of 20 (vector-clock 3 of 10, scalar-clock 2 of 10) | RACE 5, CLEAN 15 | not run |
+| c79 (hold 320880, runs 11-60) | EPYC 7302P, 615.71.09 | 24 of 100 (vector-clock 9 of 50, scalar-clock 15 of 50) | RACE 24, CLEAN 76 | not run |
+| c79, all 60 runs | | **29 of 120** (vector-clock 12 of 60, scalar-clock 17 of 60) | RACE 29, CLEAN 91 | |
 
-With the same runtime and harness, c42, which has c79's CPU and c62's driver, does not reproduce c79's
-inversion: 0 of 20 against 6 of 6. Schedule C still occurs on c42 under the dumping recorder (2 of 30), as it did
-on c58 under X4's runtime (1 of 50). What is left for c79's every-time inversion is its driver (615.71.09; no
-other node X1b used has it) or the node itself. The queued c79 job will show whether c79 still does it.
-Not established: the cause beyond that.
+With the same runtime and harness, c42 (c79's CPU, c62's driver) never inverts the hand-off in X1b's harness: 0 of
+20. c79 inverts it in 29 of 120 recordings (24%), so the effect is tied to c79's driver (615.71.09; no other
+node X1b used has it) or to the node itself, not to the CPU type. Schedule C still occurs on c42 under the
+dumping recorder (2 of 30), as it did on c58 under X4's runtime (1 of 50).
+
+The c79 recordings (`rtraw-rerec/x1b-harness/c79/classify.csv`, runs 1-60; runs 11-60 by
+`NA=50 K0=11 SKIP_B=1` inside hold job 320880):
+- **Inversion decides the verdict in every recording.** Each inverted recording has 14 events and is RACE on the
+  `dummy` WAW (0x170 / 0x2f0) alone. Each normal one has 15 events and is CLEAN.
+- **The modes invert independently.** Only 3 of the 60 runs inverted in both modes, and the inverted runs are
+  spread through the sequence, not clustered.
+- **X1b's 6 of 6 is unlikely at this rate.** At 24% per recording, six in a row has odds of about 1 in 5,000
+  (0.24^6). Either c79 inverted more often on 10-22, or something in that sweep made inversion more likely.
+  Which is not established.
+
+Other programs: no other X1/X1b result on c79 shows the effect. Over the 9,434 program/mode keys common to X1
+and X1b (674 recorded on c79 in X1b, 1,446 in X1), lock_rtraw is the only verdict change on c79. Its 3
+vector-clock rows are the only X1b rows anywhere with `a2_uncertain` > 0, and it is the only c79 key whose report
+set gains a pair. c79's other report-set changes (about 10% of keys, against 9% on other nodes) are RAW/WAR
+label swaps on the same pair, or schedule-dependent pair sets in PI programs that are RACE either way.
+
+Not established: the mechanism on c79.
 
 ## For the scoring
 
