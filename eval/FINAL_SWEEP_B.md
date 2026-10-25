@@ -123,7 +123,7 @@ The same for every row of a pass (`setup/p_final.sh`; `p_final_long.sh` for the 
   - Jeffery's 10-23 choices: the scalar-clock knn and expdist ran on 125 GB hosts (319352, on c74 and c24) with a fallback to the 188 GB hosts, which was not needed. The vector-clock knn and expdist went back to the 188 GB hosts (319350, c64).
 - (d) **2026-10-24, Jeffery: the report is written without waiting for the HeCBench vector-clock tail.**
   - P9-expdist's 84,600 s run (319350_1) is running at writing.
-  - The cap policy's 24 h pass for P7-particlefilter and P7-haversine vector-clock (both TIMEOUT at 5,400 s) had not been run at writing; Jeffery is being asked.
+  - The cap policy's 24 h pass for P7-particlefilter and P7-haversine vector-clock (both TIMEOUT at 5,400 s) is not run: Jeffery's decision of 10-24, after §4's host finding. Both stay TIMEOUT at 5,400 s.
   - The rows of these three keys are what the earlier passes gave: expdist at 1,200 s, the other two at 5,400 s.
 
 **Comparison rule** (§9): where X1 has a 5,400 s result and X1b does not (deviation (a)), X1's final verdict
@@ -254,8 +254,8 @@ No row reached the offline analysis cap (14,400 s): there is no `analysis-timeou
 
 5,400 s pass, vector-clock: 9 ids; RACE 1, CLEAN 6, TIMEOUT 2. Scalar-clock: 2 ids; CLEAN 2.
 
-**The two keys still out at 5,400 s.** Their 24 h pass, as the cap policy gives it, had not been run at
-writing (§1 (d)).
+**The two keys still out at 5,400 s.** Their 24 h pass, as the cap policy gives it, is not run (Jeffery,
+10-24; §1 (d)).
 
 - **P7-particlefilter vector-clock: X1's detection is lost at this cap, and on this host.**
   - X1: the three 5,400 s reps ran on c64 (`mem_total_gb` 202.3). Each ended with rc 1 before the cap (not timed out; OOM per X1 §1 (j)), at 5,313–5,331 s and 185.3–185.4 GB after 3 kernels. The races are in `kernel_2.json` (31 `hb_races`), and the harness's rule ("a race already visible in a partial dump is still a race") made the rows RACE (31).
@@ -466,7 +466,7 @@ Collapsed verdicts per suite, X1's merged file (`eval/results/baselines-cuvein.c
 column: P7-particlefilter vector-clock became TIMEOUT, not CLEAN (§4: the detection is lost at the
 5,400 s cap on a 125 GB host).
 
-- **P7-haversine and P7-particlefilter vector-clock** (CLEAN → TIMEOUT, RACE → TIMEOUT): both are at 5,400 s on both sides; §4 has the reps, hosts and memory. The cap policy's 24 h pass for both had not been run at writing (§1 (d)).
+- **P7-haversine and P7-particlefilter vector-clock** (CLEAN → TIMEOUT, RACE → TIMEOUT): both are at 5,400 s on both sides; §4 has the reps, hosts and memory. The cap policy's 24 h pass for both is not run (Jeffery, 10-24; §1 (d)).
 - **P9-expdist scalar-clock** (TIMEOUT → RACE): X1's serial scalar-clock run was TIMEOUT at 86,400 s. X1b's run at N = 16 finished in 2,697 s with 22 reports (§4). The coordinator's triage of the 22 reports is in §11.
 - **P5-race_interblock_none-lock_rtraw, both modes** (CLEAN → RACE; labelled RACE in the manifest). Verified from the stores (`checks/rtraw*.log`, `checks/rtt23-320161.log`, `eval/results/final-b/rtraw-t23/`):
   - *The two recordings differ.* X1: c62 (EPYC 8124P, driver 580.82.07, runtime 4094187), 15 events, vector-clock `hb_chain` 7 edges / 3 uncertain, `hb_races` empty. X1b: c79 (EPYC 7302P, driver 615.71.09, runtime f551ca0), 14 events, 6 edges / 2 uncertain.
@@ -508,7 +508,7 @@ scalar-clock has 1 against X1's 2.
 ## 10. What remains unverified
 
 - **P9-expdist vector-clock** is running at writing (319350_1). Its row is the first pass's 1,200 s TIMEOUT.
-- **The 24 h pass for P7-particlefilter and P7-haversine vector-clock** had not been run at writing (§1 (d); Jeffery is asked). particlefilter's 5,400 s task ran on a 125 GB host (c43), where X1's runs needed 185 GB before they were killed. Whether the TIMEOUT reflects that host is not established. haversine's walls are cross-host (c24, EPYC 7302P, against X1's c52, EPYC 9115).
+- **P7-particlefilter and P7-haversine vector-clock stay TIMEOUT at 5,400 s**: the 24 h pass is not run (Jeffery, 10-24; §1 (d)). particlefilter's 5,400 s task ran on a 125 GB host (c43), where X1's runs needed 185 GB before they were killed. Whether the TIMEOUT reflects that host is not established. haversine's walls are cross-host (c24, EPYC 7302P, against X1's c52, EPYC 9115).
 - **The 84,600 s rows are single reps** (Jeffery's choice for the long pass), with walls and native walls from one run.
 - **Cross-host walls**: 19 nodes, three CPUs, two RAM sizes, five drivers (§0). §4's X1-vs-X1b walls are not same-host comparisons.
 - **OOM** is inferred from SIGKILL and the peaks; the nodes' kernel logs were not read. The cases are P9-atomicCAS vector-clock ("Killed" at 189.6 GB on a 188 GB host) and P7-particlefilter scalar-clock (`partial(rc=1)` at 189.5–189.7 GB).
