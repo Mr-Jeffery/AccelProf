@@ -59,12 +59,28 @@ closure off and on. X1's recording is CLEAN both ways and X1b's is RACE both way
 mode, T23's closure moves only the rtraw pair, from ORDERED to SC. That ORDERED was FINAL_RTRAW.md §6's
 R3 hole on schedule C, which T23 fixed. The closure does not touch the `dummy` pair.
 
-## Not established
+## Re-recordings (2026-10-25)
 
-Why c79 inverts in every recording. It differs from X1's c62 in CPU, driver and runtime build. c79 is
-the only node with driver 615.71.09. c77, also an EPYC 7302P, gave schedule B in 50 of 50 in X4 (driver
-580.95.05, the X4 runtime). Re-recording the program a few times on c79 and on c62 with the f551ca0
-runtime would tell node from runtime (two GPU nodes for a few minutes, not run).
+Jeffery approved re-recording the program with the installed f551ca0 runtime (`setup/p_final_b_rtraw_rerec.sh`;
+results in `rtraw-rerec/`). Each job records it two ways:
+- **(A) X1b's harness exactly:** no dump, `YOSEMITE_HB_STATS=1`, scalar-clock at 16 shards, 10 invocations of one
+  rep each, every recording kept. `setup/final_b_rtraw_rerec_classify.py` classifies each from the lock word's
+  dependency edges (hand-off edge 0x230 <- 0x1b0 present: normal; 0x330 <- 0x1b0 instead: inverted).
+- **(B) X4's recorder:** `final_rtraw.py record` with the lossless dump, 30 vector-clock runs, read by
+  `final_rtraw.py analyze` and `tables` (`rtraw-rerec/x4-recorder/runs_summary.md`).
+
+| node | CPU, driver | (A) hand-off inverted | (A) verdicts | (B) schedules |
+|---|---|---|---|---|
+| c79 (X1b, 10-22) | EPYC 7302P, 615.71.09 | 6 of 6 | RACE 6 | not run |
+| c42 (job 320490) | EPYC 7302P, 580.82.07 | 0 of 20 (10 per mode) | CLEAN 20 | A 28, C 2 (the 2 report the `dummy` WAW, flagged: RACE) |
+| c60 or c62 (job 320429) | EPYC 8124P, 580.82.07 | queued | | |
+| c79 (job 320428) | EPYC 7302P, 615.71.09 | queued (node held to about Nov 1) | | |
+
+With the same runtime and harness, c42, which has c79's CPU and c62's driver, does not reproduce c79's
+inversion: 0 of 20 against 6 of 6. Schedule C still occurs on c42 under the dumping recorder (2 of 30), as it did
+on c58 under X4's runtime (1 of 50). What is left for c79's every-time inversion is its driver (615.71.09; no
+other node X1b used has it) or the node itself. The queued c79 job will show whether c79 still does it.
+Not established: the cause beyond that.
 
 ## For the scoring
 
