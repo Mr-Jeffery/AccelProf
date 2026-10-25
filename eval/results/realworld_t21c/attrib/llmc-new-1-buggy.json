@@ -1,0 +1,477 @@
+{
+ "id": "llmc-new-1-buggy",
+ "target": "llmc-new-1",
+ "exe": "/mnt/beegfs/fzheng4/realworld_t21c/build/llmc-new-1/buggy/layernorm_backward",
+ "cuda_home": "/usr/local/cuda-13.3",
+ "n_cubins": 1,
+ "n_dots": 1,
+ "oracle_kernel_substr": "layernorm_backward_kernel10",
+ "spec_found": false,
+ "modes": {
+  "scalar-clock": {
+   "n_kernel_jsons": 6,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "layernorm_backward_kernel10(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, float*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z27layernorm_backward_kernel10P13__nv_bfloat16S0_S0_PfPKS_S3_S3_S3_S3_iii",
+     "dot": "layernorm_backward.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 12,
+      "skipped": 35,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_1.json",
+     "name": "layernorm_backward_kernel10(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, float*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z27layernorm_backward_kernel10P13__nv_bfloat16S0_S0_PfPKS_S3_S3_S3_S3_iii",
+     "dot": "layernorm_backward.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 21,
+      "skipped": 37,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_2.json",
+     "name": "layernorm_backward_kernel10(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, float*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z27layernorm_backward_kernel10P13__nv_bfloat16S0_S0_PfPKS_S3_S3_S3_S3_iii",
+     "dot": "layernorm_backward.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 37,
+      "skipped": 37,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_3.json",
+     "name": "layernorm_backward_kernel10(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, float*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z27layernorm_backward_kernel10P13__nv_bfloat16S0_S0_PfPKS_S3_S3_S3_S3_iii",
+     "dot": "layernorm_backward.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 69,
+      "skipped": 37,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_4.json",
+     "name": "layernorm_backward_kernel10(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, float*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z27layernorm_backward_kernel10P13__nv_bfloat16S0_S0_PfPKS_S3_S3_S3_S3_iii",
+     "dot": "layernorm_backward.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 133,
+      "skipped": 37,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_5.json",
+     "name": "layernorm_backward_kernel10(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, float*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z27layernorm_backward_kernel10P13__nv_bfloat16S0_S0_PfPKS_S3_S3_S3_S3_iii",
+     "dot": "layernorm_backward.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 133,
+      "skipped": 37,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 6,
+   "n_race": 8,
+   "n_sc": 0,
+   "reports": [
+    {
+     "mode": "scalar-clock",
+     "kernel": "layernorm_backward_kernel10(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, float*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z27layernorm_backward_kernel10P13__nv_bfloat16S0_S0_PfPKS_S3_S3_S3_S3_iii",
+     "dot": "layernorm_backward.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 19024,
+     "b_pc": 20064,
+     "a_op": "STG.E.128",
+     "b_op": "LDG.E.128",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/common.h",
+       "line": 168
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/layernorm_backward.cu",
+       "line": 1194
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/layernorm_backward.cu",
+       "line": 1217
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "block",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json",
+      "kernel_1.json",
+      "kernel_2.json",
+      "kernel_3.json",
+      "kernel_4.json",
+      "kernel_5.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "layernorm_backward_kernel10(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, float*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z27layernorm_backward_kernel10P13__nv_bfloat16S0_S0_PfPKS_S3_S3_S3_S3_iii",
+     "dot": "layernorm_backward.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 19024,
+     "b_pc": 20176,
+     "a_op": "STG.E.128",
+     "b_op": "LDG.E.128",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/common.h",
+       "line": 168
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/layernorm_backward.cu",
+       "line": 1194
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/layernorm_backward.cu",
+       "line": 1217
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "block",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json",
+      "kernel_1.json",
+      "kernel_2.json",
+      "kernel_3.json",
+      "kernel_4.json",
+      "kernel_5.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "layernorm_backward_kernel10(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, float*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z27layernorm_backward_kernel10P13__nv_bfloat16S0_S0_PfPKS_S3_S3_S3_S3_iii",
+     "dot": "layernorm_backward.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 19024,
+     "b_pc": 20224,
+     "a_op": "STG.E.128",
+     "b_op": "LDG.E.128",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/common.h",
+       "line": 168
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/layernorm_backward.cu",
+       "line": 1194
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/layernorm_backward.cu",
+       "line": 1217
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "block",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json",
+      "kernel_1.json",
+      "kernel_2.json",
+      "kernel_3.json",
+      "kernel_4.json",
+      "kernel_5.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "layernorm_backward_kernel10(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, float*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z27layernorm_backward_kernel10P13__nv_bfloat16S0_S0_PfPKS_S3_S3_S3_S3_iii",
+     "dot": "layernorm_backward.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 19024,
+     "b_pc": 20288,
+     "a_op": "STG.E.128",
+     "b_op": "LDG.E.128",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/common.h",
+       "line": 168
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/layernorm_backward.cu",
+       "line": 1194
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/layernorm_backward.cu",
+       "line": 1217
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "block",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json",
+      "kernel_1.json",
+      "kernel_2.json",
+      "kernel_3.json",
+      "kernel_4.json",
+      "kernel_5.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "layernorm_backward_kernel10(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, float*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z27layernorm_backward_kernel10P13__nv_bfloat16S0_S0_PfPKS_S3_S3_S3_S3_iii",
+     "dot": "layernorm_backward.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 19040,
+     "b_pc": 20144,
+     "a_op": "STG.E.128",
+     "b_op": "LDG.E.128",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/common.h",
+       "line": 168
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/layernorm_backward.cu",
+       "line": 1194
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/layernorm_backward.cu",
+       "line": 1218
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "block",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json",
+      "kernel_1.json",
+      "kernel_2.json",
+      "kernel_3.json",
+      "kernel_4.json",
+      "kernel_5.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "layernorm_backward_kernel10(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, float*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z27layernorm_backward_kernel10P13__nv_bfloat16S0_S0_PfPKS_S3_S3_S3_S3_iii",
+     "dot": "layernorm_backward.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 19040,
+     "b_pc": 20256,
+     "a_op": "STG.E.128",
+     "b_op": "LDG.E.128",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/common.h",
+       "line": 168
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/layernorm_backward.cu",
+       "line": 1194
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/layernorm_backward.cu",
+       "line": 1218
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "block",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json",
+      "kernel_1.json",
+      "kernel_2.json",
+      "kernel_3.json",
+      "kernel_4.json",
+      "kernel_5.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "layernorm_backward_kernel10(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, float*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z27layernorm_backward_kernel10P13__nv_bfloat16S0_S0_PfPKS_S3_S3_S3_S3_iii",
+     "dot": "layernorm_backward.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 19040,
+     "b_pc": 20304,
+     "a_op": "STG.E.128",
+     "b_op": "LDG.E.128",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/common.h",
+       "line": 168
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/layernorm_backward.cu",
+       "line": 1194
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/layernorm_backward.cu",
+       "line": 1218
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "block",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json",
+      "kernel_1.json",
+      "kernel_2.json",
+      "kernel_3.json",
+      "kernel_4.json",
+      "kernel_5.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "layernorm_backward_kernel10(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, float*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z27layernorm_backward_kernel10P13__nv_bfloat16S0_S0_PfPKS_S3_S3_S3_S3_iii",
+     "dot": "layernorm_backward.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 19040,
+     "b_pc": 20320,
+     "a_op": "STG.E.128",
+     "b_op": "LDG.E.128",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/common.h",
+       "line": 168
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/layernorm_backward.cu",
+       "line": 1194
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-1/buggy/build/layernorm_backward.cu",
+       "line": 1218
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "block",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json",
+      "kernel_1.json",
+      "kernel_2.json",
+      "kernel_3.json",
+      "kernel_4.json",
+      "kernel_5.json"
+     ]
+    }
+   ],
+   "site_verdicts": [],
+   "site_skipped": {}
+  }
+ },
+ "dots_checked": 1,
+ "dots_regenerated_equal": 1
+}

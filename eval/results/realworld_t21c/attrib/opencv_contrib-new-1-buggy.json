@@ -1,0 +1,2346 @@
+{
+ "id": "opencv_contrib-new-1-buggy",
+ "target": "opencv_contrib-new-1",
+ "exe": "/mnt/beegfs/fzheng4/realworld_t21c/build/opencv_contrib-new-1/buggy/driver",
+ "cuda_home": "/usr/local/cuda-13.3",
+ "n_cubins": 1,
+ "n_dots": 1,
+ "oracle_kernel_substr": "compute_hists_kernel_many_blocks",
+ "spec_found": false,
+ "modes": {
+  "scalar-clock": {
+   "n_kernel_jsons": 1,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 64,
+      "sc": 0,
+      "ordered": 5,
+      "skipped": 244,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 1,
+   "n_race": 64,
+   "n_sc": 0,
+   "reports": [
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1520,
+     "b_pc": 7888,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 167
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1584,
+     "b_pc": 8224,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 167
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1632,
+     "b_pc": 8512,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 167
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1664,
+     "b_pc": 8768,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 167
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1696,
+     "b_pc": 7888,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 167
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1728,
+     "b_pc": 8224,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 167
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1760,
+     "b_pc": 8512,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 167
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1776,
+     "b_pc": 8768,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 167
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2128,
+     "b_pc": 9152,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 167
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4880,
+     "b_pc": 7888,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 191
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4880,
+     "b_pc": 8224,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 191
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4880,
+     "b_pc": 8512,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 191
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4880,
+     "b_pc": 8768,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 191
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4880,
+     "b_pc": 9152,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 191
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 5232,
+     "b_pc": 7888,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 192
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 5232,
+     "b_pc": 8224,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 192
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 5232,
+     "b_pc": 8512,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 192
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 5232,
+     "b_pc": 8768,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 192
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 5232,
+     "b_pc": 9152,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 192
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 5712,
+     "b_pc": 7888,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 191
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 5712,
+     "b_pc": 8224,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 191
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 5712,
+     "b_pc": 8512,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 191
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 5712,
+     "b_pc": 8768,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 191
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 5712,
+     "b_pc": 9152,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 191
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 6064,
+     "b_pc": 7888,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 192
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 6064,
+     "b_pc": 8224,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 192
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 6064,
+     "b_pc": 8512,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 192
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 6064,
+     "b_pc": 8768,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 192
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 6064,
+     "b_pc": 9152,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 192
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 6560,
+     "b_pc": 7888,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 191
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 6560,
+     "b_pc": 8224,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 191
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 6560,
+     "b_pc": 8512,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 191
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 6560,
+     "b_pc": 8768,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 191
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 6560,
+     "b_pc": 9152,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 191
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 6896,
+     "b_pc": 7888,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 192
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 6896,
+     "b_pc": 8224,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 192
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 6896,
+     "b_pc": 8512,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 192
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 6896,
+     "b_pc": 8768,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 192
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 6896,
+     "b_pc": 9152,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 192
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 7312,
+     "b_pc": 7888,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 191
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 7312,
+     "b_pc": 8224,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 191
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 7312,
+     "b_pc": 8512,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 191
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 7312,
+     "b_pc": 8768,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 191
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 7312,
+     "b_pc": 9152,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 191
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 7360,
+     "b_pc": 7888,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 192
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 7360,
+     "b_pc": 8224,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 192
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 7360,
+     "b_pc": 8512,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 192
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 7360,
+     "b_pc": 8768,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 192
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 7360,
+     "b_pc": 9152,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 192
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 7968,
+     "b_pc": 8032,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 201
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 8080,
+     "b_pc": 8112,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 201
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 204
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 8080,
+     "b_pc": 8128,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 201
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 204
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 8256,
+     "b_pc": 8288,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 201
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 8352,
+     "b_pc": 8384,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 201
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 204
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 8352,
+     "b_pc": 8400,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 201
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 204
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 8560,
+     "b_pc": 8592,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 201
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 8640,
+     "b_pc": 8672,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 201
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 204
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 8640,
+     "b_pc": 8688,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 201
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 204
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 8800,
+     "b_pc": 8832,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 201
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 8864,
+     "b_pc": 8896,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 201
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 204
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 8864,
+     "b_pc": 8912,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 201
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 204
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 9248,
+     "b_pc": 9296,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 199
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 201
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 9344,
+     "b_pc": 9376,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 201
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 204
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cv::cuda::device::hog::compute_hists_kernel_many_blocks<4>(int, cv::cuda::PtrStep<float>, cv::cuda::PtrStep<unsigned char>, float, float*, int, int, int, int, int, int)",
+     "mangled": "_ZN2cv4cuda6device3hog32compute_hists_kernel_many_blocksILi4EEEviNS0_7PtrStepIfEENS4_IhEEfPfiiiiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 9344,
+     "b_pc": 9392,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 201
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv_contrib-new-1/buggy/src/modules/cudaobjdetect/src/cuda/hog.cu",
+       "line": 204
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    }
+   ],
+   "site_verdicts": [],
+   "site_skipped": {}
+  }
+ },
+ "dots_checked": 1,
+ "dots_regenerated_equal": 1
+}

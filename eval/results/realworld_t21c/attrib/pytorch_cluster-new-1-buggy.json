@@ -1,0 +1,546 @@
+{
+ "id": "pytorch_cluster-new-1-buggy",
+ "target": "pytorch_cluster-new-1",
+ "exe": "/mnt/beegfs/fzheng4/realworld_t21c/build/pytorch_cluster-new-1/buggy/driver",
+ "cuda_home": "/usr/local/cuda-13.3",
+ "n_cubins": 1,
+ "n_dots": 1,
+ "oracle_kernel_substr": "fps_kernel",
+ "spec_found": false,
+ "modes": {
+  "scalar-clock": {
+   "n_kernel_jsons": 1,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "void fps_kernel<float>(float const*, long const*, long const*, long const*, float*, long*, long)",
+     "mangled": "_Z10fps_kernelIfEvPKT_PKlS4_S4_PS0_Pll",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 14,
+      "sc": 0,
+      "ordered": 55,
+      "skipped": 145,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 1,
+   "n_race": 14,
+   "n_sc": 0,
+   "reports": [
+    {
+     "mode": "scalar-clock",
+     "kernel": "void fps_kernel<float>(float const*, long const*, long const*, long const*, float*, long*, long)",
+     "mangled": "_Z10fps_kernelIfEvPKT_PKlS4_S4_PS0_Pll",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 5168,
+     "b_pc": 5216,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-new-1/buggy/src/csrc/cuda/fps_cuda.cu",
+       "line": 54
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-new-1/buggy/src/csrc/cuda/fps_cuda.cu",
+       "line": 55
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void fps_kernel<float>(float const*, long const*, long const*, long const*, float*, long*, long)",
+     "mangled": "_Z10fps_kernelIfEvPKT_PKlS4_S4_PS0_Pll",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 5200,
+     "b_pc": 5232,
+     "a_op": "LDS.64",
+     "b_op": "STS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-new-1/buggy/src/csrc/cuda/fps_cuda.cu",
+       "line": 56
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-new-1/buggy/src/csrc/cuda/fps_cuda.cu",
+       "line": 56
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void fps_kernel<float>(float const*, long const*, long const*, long const*, float*, long*, long)",
+     "mangled": "_Z10fps_kernelIfEvPKT_PKlS4_S4_PS0_Pll",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 5344,
+     "b_pc": 5392,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-new-1/buggy/src/csrc/cuda/fps_cuda.cu",
+       "line": 54
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-new-1/buggy/src/csrc/cuda/fps_cuda.cu",
+       "line": 55
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void fps_kernel<float>(float const*, long const*, long const*, long const*, float*, long*, long)",
+     "mangled": "_Z10fps_kernelIfEvPKT_PKlS4_S4_PS0_Pll",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 5376,
+     "b_pc": 5408,
+     "a_op": "LDS.64",
+     "b_op": "STS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-new-1/buggy/src/csrc/cuda/fps_cuda.cu",
+       "line": 56
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-new-1/buggy/src/csrc/cuda/fps_cuda.cu",
+       "line": 56
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void fps_kernel<float>(float const*, long const*, long const*, long const*, float*, long*, long)",
+     "mangled": "_Z10fps_kernelIfEvPKT_PKlS4_S4_PS0_Pll",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 5520,
+     "b_pc": 5568,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-new-1/buggy/src/csrc/cuda/fps_cuda.cu",
+       "line": 54
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-new-1/buggy/src/csrc/cuda/fps_cuda.cu",
+       "line": 55
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void fps_kernel<float>(float const*, long const*, long const*, long const*, float*, long*, long)",
+     "mangled": "_Z10fps_kernelIfEvPKT_PKlS4_S4_PS0_Pll",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 5552,
+     "b_pc": 5584,
+     "a_op": "LDS.64",
+     "b_op": "STS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-new-1/buggy/src/csrc/cuda/fps_cuda.cu",
+       "line": 56
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-new-1/buggy/src/csrc/cuda/fps_cuda.cu",
+       "line": 56
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void fps_kernel<float>(float const*, long const*, long const*, long const*, float*, long*, long)",
+     "mangled": "_Z10fps_kernelIfEvPKT_PKlS4_S4_PS0_Pll",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 5680,
+     "b_pc": 5728,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-new-1/buggy/src/csrc/cuda/fps_cuda.cu",
+       "line": 54
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-new-1/buggy/src/csrc/cuda/fps_cuda.cu",
+       "line": 55
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void fps_kernel<float>(float const*, long const*, long const*, long const*, float*, long*, long)",
+     "mangled": "_Z10fps_kernelIfEvPKT_PKlS4_S4_PS0_Pll",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 5712,
+     "b_pc": 5744,
+     "a_op": "LDS.64",
+     "b_op": "STS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-new-1/buggy/src/csrc/cuda/fps_cuda.cu",
+       "line": 56
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-new-1/buggy/src/csrc/cuda/fps_cuda.cu",
+       "line": 56
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void fps_kernel<float>(float const*, long const*, long const*, long const*, float*, long*, long)",
+     "mangled": "_Z10fps_kernelIfEvPKT_PKlS4_S4_PS0_Pll",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 5840,
+     "b_pc": 5888,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-new-1/buggy/src/csrc/cuda/fps_cuda.cu",
+       "line": 54
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-new-1/buggy/src/csrc/cuda/fps_cuda.cu",
+       "line": 55
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void fps_kernel<float>(float const*, long const*, long const*, long const*, float*, long*, long)",
+     "mangled": "_Z10fps_kernelIfEvPKT_PKlS4_S4_PS0_Pll",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 5872,
+     "b_pc": 5904,
+     "a_op": "LDS.64",
+     "b_op": "STS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-new-1/buggy/src/csrc/cuda/fps_cuda.cu",
+       "line": 56
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-new-1/buggy/src/csrc/cuda/fps_cuda.cu",
+       "line": 56
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void fps_kernel<float>(float const*, long const*, long const*, long const*, float*, long*, long)",
+     "mangled": "_Z10fps_kernelIfEvPKT_PKlS4_S4_PS0_Pll",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 6000,
+     "b_pc": 6048,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-new-1/buggy/src/csrc/cuda/fps_cuda.cu",
+       "line": 54
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-new-1/buggy/src/csrc/cuda/fps_cuda.cu",
+       "line": 55
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void fps_kernel<float>(float const*, long const*, long const*, long const*, float*, long*, long)",
+     "mangled": "_Z10fps_kernelIfEvPKT_PKlS4_S4_PS0_Pll",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 6032,
+     "b_pc": 6064,
+     "a_op": "LDS.64",
+     "b_op": "STS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-new-1/buggy/src/csrc/cuda/fps_cuda.cu",
+       "line": 56
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-new-1/buggy/src/csrc/cuda/fps_cuda.cu",
+       "line": 56
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void fps_kernel<float>(float const*, long const*, long const*, long const*, float*, long*, long)",
+     "mangled": "_Z10fps_kernelIfEvPKT_PKlS4_S4_PS0_Pll",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 6160,
+     "b_pc": 6208,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-new-1/buggy/src/csrc/cuda/fps_cuda.cu",
+       "line": 54
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-new-1/buggy/src/csrc/cuda/fps_cuda.cu",
+       "line": 55
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void fps_kernel<float>(float const*, long const*, long const*, long const*, float*, long*, long)",
+     "mangled": "_Z10fps_kernelIfEvPKT_PKlS4_S4_PS0_Pll",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 6192,
+     "b_pc": 6224,
+     "a_op": "LDS.64",
+     "b_op": "STS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-new-1/buggy/src/csrc/cuda/fps_cuda.cu",
+       "line": 56
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-new-1/buggy/src/csrc/cuda/fps_cuda.cu",
+       "line": 56
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    }
+   ],
+   "site_verdicts": [],
+   "site_skipped": {}
+  }
+ },
+ "dots_checked": 1,
+ "dots_regenerated_equal": 1
+}

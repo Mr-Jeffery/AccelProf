@@ -1,0 +1,3836 @@
+{
+ "id": "cuml-tsne-new-1-buggy",
+ "target": "cuml-tsne-new-1",
+ "exe": "/mnt/beegfs/fzheng4/realworld_t21c/build/cuml-tsne-new-1/buggy/driver",
+ "cuda_home": "/usr/local/cuda-13.3",
+ "n_cubins": 1,
+ "n_dots": 1,
+ "oracle_kernel_substr": "RepulsionKernel",
+ "spec_found": false,
+ "modes": {
+  "scalar-clock": {
+   "n_kernel_jsons": 23,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "void ML::TSNE::BH::InitializationKernel<int, float>(unsigned int*, int*, float*)",
+     "mangled": "_ZN2ML4TSNE2BH20InitializationKernelIifEEvPjPT_PT0_",
+     "dot": "main.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 3,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_1.json",
+     "name": "void cub::_V_300403_SM_890::detail::transform::transform_kernel<cub::_V_300403_SM_890::detail::transform::policy_selector_from_types<false, true, cuda::std::__4::tuple<>, thrust::_V_300403_SM_890::device_ptr<float> >, int, cuda::__4::always_true, cub::_V_300403_SM_890::detail::__return_constant<float>, float*>(int, int, bool, cuda::__4::always_true, cub::_V_300403_SM_890::detail::__return_constant<float>, float*)",
+     "mangled": "_ZN3cub16_V_300403_SM_8906detail9transform16transform_kernelINS2_26policy_selector_from_typesILb0ELb1EN4cuda3std3__45tupleIJEEEN6thrust16_V_300403_SM_89010device_ptrIfEEEEiNS5_3__411always_trueENS1_17__return_constantIfEEPfJEEEvT0_ibT1_T2_T3_DpNS2_10kernel_argIT4_EE",
+     "dot": "main.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 4,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_2.json",
+     "name": "void cub::_V_300403_SM_890::detail::transform::transform_kernel<cub::_V_300403_SM_890::detail::transform::policy_selector_from_types<false, true, cuda::std::__4::tuple<>, thrust::_V_300403_SM_890::device_ptr<float> >, int, cuda::__4::always_true, cub::_V_300403_SM_890::detail::__return_constant<float>, float*>(int, int, bool, cuda::__4::always_true, cub::_V_300403_SM_890::detail::__return_constant<float>, float*)",
+     "mangled": "_ZN3cub16_V_300403_SM_8906detail9transform16transform_kernelINS2_26policy_selector_from_typesILb0ELb1EN4cuda3std3__45tupleIJEEEN6thrust16_V_300403_SM_89010device_ptrIfEEEEiNS5_3__411always_trueENS1_17__return_constantIfEEPfJEEEvT0_ibT1_T2_T3_DpNS2_10kernel_argIT4_EE",
+     "dot": "main.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 4,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_3.json",
+     "name": "void ML::TSNE::BH::Reset_Normalization<int, float>(float*, float*, int*, int, float const*)",
+     "mangled": "_ZN2ML4TSNE2BH19Reset_NormalizationIifEEvPT0_S4_PT_S5_PKS3_",
+     "dot": "main.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 4,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_4.json",
+     "name": "void ML::TSNE::BH::BoundingBoxKernel<int, float>(int*, int*, float*, float*, float*, float*, float*, float*, float*, int, int, int, unsigned int*, float*)",
+     "mangled": "_ZN2ML4TSNE2BH17BoundingBoxKernelIifEEvPT_S4_PT0_S6_S6_S6_S6_S6_S6_S3_S3_S3_PjS6_",
+     "dot": "main.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 20,
+      "skipped": 35,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_5.json",
+     "name": "void ML::TSNE::BH::ClearKernel1<int>(int*, int, int)",
+     "mangled": "_ZN2ML4TSNE2BH12ClearKernel1IiEEvPT_S3_S3_",
+     "dot": "main.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 1,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_6.json",
+     "name": "void ML::TSNE::BH::TreeBuildingKernel<int, float>(int*, float const*, float const*, int, int, int*, int*, float const*)",
+     "mangled": "_ZN2ML4TSNE2BH18TreeBuildingKernelIifEEvPT_PKT0_S7_S3_S3_S4_S4_S7_",
+     "dot": "main.sm_89.dot",
+     "summary": {
+      "races": 22,
+      "sc": 0,
+      "ordered": 4,
+      "skipped": 31,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_7.json",
+     "name": "void ML::TSNE::BH::ClearKernel2<int, float>(int*, float*, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH12ClearKernel2IifEEvPT_PT0_S3_PKS3_",
+     "dot": "main.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 4,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_8.json",
+     "name": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "summary": {
+      "races": 39,
+      "sc": 34,
+      "ordered": 0,
+      "skipped": 186,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_9.json",
+     "name": "void ML::TSNE::BH::SortKernel<int>(int*, int const*, int volatile*, int*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH10SortKernelIiEEvPT_PKS3_PVS3_S4_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 8,
+      "ordered": 0,
+      "skipped": 27,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_10.json",
+     "name": "void ML::TSNE::BH::RepulsionKernel<int, float>(float, float, int const*, int const*, float const*, float const*, float const*, float*, float*, float*, float, int, int, int, float const*, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH15RepulsionKernelIifEEvffPKT_S5_PKT0_S8_S8_PS6_S9_S9_S6_S3_S3_S3_S8_S5_",
+     "dot": "main.sm_89.dot",
+     "summary": {
+      "races": 4,
+      "sc": 0,
+      "ordered": 9,
+      "skipped": 61,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_11.json",
+     "name": "void ML::TSNE::BH::Find_Normalization<int, float>(float*, int)",
+     "mangled": "_ZN2ML4TSNE2BH18Find_NormalizationIifEEvPT0_T_",
+     "dot": "main.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 2,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_12.json",
+     "name": "void ML::TSNE::BH::attractive_kernel_bh<int, float>(float const*, int const*, int const*, float const*, float const*, float*, float*, float*, int, float)",
+     "mangled": "_ZN2ML4TSNE2BH20attractive_kernel_bhIifEEvPKT0_PKT_S8_S5_S5_PS3_S9_S9_S6_S3_",
+     "dot": "main.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 16,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_13.json",
+     "name": "void cub::_V_300403_SM_890::detail::reduce::DeviceReduceKernel<cub::_V_300403_SM_890::detail::reduce::policy_selector_from_types<float, unsigned int, cuda::std::__4::plus<float> >, float*, unsigned int, cuda::std::__4::plus<float>, float, cuda::std::__4::identity>(float*, float*, unsigned int, cub::_V_300403_SM_890::GridEvenShare<unsigned int>, cuda::std::__4::plus<float>, cuda::std::__4::identity)",
+     "mangled": "_ZN3cub16_V_300403_SM_8906detail6reduce18DeviceReduceKernelINS2_26policy_selector_from_typesIfjN4cuda3std3__44plusIfEEEEPfjS9_fNS7_8identityEEEvT0_PT3_T1_NS0_13GridEvenShareISG_EET2_T4_",
+     "dot": "main.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 6,
+      "skipped": 13,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_14.json",
+     "name": "void cub::_V_300403_SM_890::detail::reduce::DeviceReduceSingleTileKernel<cub::_V_300403_SM_890::detail::reduce::policy_selector_from_types<float, unsigned int, cuda::std::__4::plus<float> >, float*, float*, int, cuda::std::__4::plus<float>, float, float, cuda::std::__4::identity>(float*, float*, int, cuda::std::__4::plus<float>, float, cuda::std::__4::identity)",
+     "mangled": "_ZN3cub16_V_300403_SM_8906detail6reduce28DeviceReduceSingleTileKernelINS2_26policy_selector_from_typesIfjN4cuda3std3__44plusIfEEEEPfSB_iS9_ffNS7_8identityEEEvT0_T1_T2_T3_T4_T6_",
+     "dot": "main.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 3,
+      "skipped": 3,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_15.json",
+     "name": "void raft::linalg::stub_scalar_mul_kernel<float>(float*, float const*, float, unsigned long)",
+     "mangled": "_ZN4raft6linalg22stub_scalar_mul_kernelIfEEvPT_PKS2_S2_m",
+     "dot": "main.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 2,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_16.json",
+     "name": "void cub::_V_300403_SM_890::detail::reduce::DeviceReduceKernel<cub::_V_300403_SM_890::detail::reduce::policy_selector_from_types<float, unsigned int, cuda::std::__4::plus<float> >, float*, unsigned int, cuda::std::__4::plus<float>, float, cuda::std::__4::identity>(float*, float*, unsigned int, cub::_V_300403_SM_890::GridEvenShare<unsigned int>, cuda::std::__4::plus<float>, cuda::std::__4::identity)",
+     "mangled": "_ZN3cub16_V_300403_SM_8906detail6reduce18DeviceReduceKernelINS2_26policy_selector_from_typesIfjN4cuda3std3__44plusIfEEEEPfjS9_fNS7_8identityEEEvT0_PT3_T1_NS0_13GridEvenShareISG_EET2_T4_",
+     "dot": "main.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 6,
+      "skipped": 13,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_17.json",
+     "name": "void cub::_V_300403_SM_890::detail::reduce::DeviceReduceSingleTileKernel<cub::_V_300403_SM_890::detail::reduce::policy_selector_from_types<float, unsigned int, cuda::std::__4::plus<float> >, float*, float*, int, cuda::std::__4::plus<float>, float, float, cuda::std::__4::identity>(float*, float*, int, cuda::std::__4::plus<float>, float, cuda::std::__4::identity)",
+     "mangled": "_ZN3cub16_V_300403_SM_8906detail6reduce28DeviceReduceSingleTileKernelINS2_26policy_selector_from_typesIfjN4cuda3std3__44plusIfEEEEPfSB_iS9_ffNS7_8identityEEEvT0_T1_T2_T3_T4_T6_",
+     "dot": "main.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 3,
+      "skipped": 3,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_18.json",
+     "name": "void raft::linalg::stub_scalar_mul_kernel<float>(float*, float const*, float, unsigned long)",
+     "mangled": "_ZN4raft6linalg22stub_scalar_mul_kernelIfEEvPT_PKS2_S2_m",
+     "dot": "main.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 2,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_19.json",
+     "name": "void compute_kl_div_k<unsigned long, float>(float const*, float const*, float*, unsigned long)",
+     "mangled": "_Z16compute_kl_div_kImfEvPKT0_S2_PS0_T_",
+     "dot": "main.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 3,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_20.json",
+     "name": "void cub::_V_300403_SM_890::detail::reduce::DeviceReduceKernel<cub::_V_300403_SM_890::detail::reduce::policy_selector_from_types<float, unsigned int, cuda::std::__4::plus<float> >, float*, unsigned int, cuda::std::__4::plus<float>, float, cuda::std::__4::identity>(float*, float*, unsigned int, cub::_V_300403_SM_890::GridEvenShare<unsigned int>, cuda::std::__4::plus<float>, cuda::std::__4::identity)",
+     "mangled": "_ZN3cub16_V_300403_SM_8906detail6reduce18DeviceReduceKernelINS2_26policy_selector_from_typesIfjN4cuda3std3__44plusIfEEEEPfjS9_fNS7_8identityEEEvT0_PT3_T1_NS0_13GridEvenShareISG_EET2_T4_",
+     "dot": "main.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 6,
+      "skipped": 13,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_21.json",
+     "name": "void cub::_V_300403_SM_890::detail::reduce::DeviceReduceSingleTileKernel<cub::_V_300403_SM_890::detail::reduce::policy_selector_from_types<float, unsigned int, cuda::std::__4::plus<float> >, float*, float*, int, cuda::std::__4::plus<float>, float, float, cuda::std::__4::identity>(float*, float*, int, cuda::std::__4::plus<float>, float, cuda::std::__4::identity)",
+     "mangled": "_ZN3cub16_V_300403_SM_8906detail6reduce28DeviceReduceSingleTileKernelINS2_26policy_selector_from_typesIfjN4cuda3std3__44plusIfEEEEPfSB_iS9_ffNS7_8identityEEEvT0_T1_T2_T3_T4_T6_",
+     "dot": "main.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 3,
+      "skipped": 3,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_22.json",
+     "name": "void ML::TSNE::BH::IntegrationKernel<int, float>(float, float, float, float*, float*, float const*, float const*, float const*, float const*, float*, float*, float*, float*, float const*, int)",
+     "mangled": "_ZN2ML4TSNE2BH17IntegrationKernelIifEEvfffPT0_S4_PKS3_S6_S6_S6_S4_S4_S4_S4_S6_T_",
+     "dot": "main.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 18,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 1,
+   "n_race": 67,
+   "n_sc": 28,
+   "reports": [
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SortKernel<int>(int*, int const*, int volatile*, int*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH10SortKernelIiEEvPT_PKS3_PVS3_S4_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 320,
+     "b_pc": 592,
+     "a_op": "LDG.E.STRONG.SYS",
+     "b_op": "STG.E.STRONG.SYS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 509
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 522
+      }
+     ],
+     "verdict": "SC",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": "sc",
+     "hb_chain": null,
+     "matrix_class": "sc",
+     "conflict_class": "SC",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_9.json",
+      "kernel_9.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SortKernel<int>(int*, int const*, int volatile*, int*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH10SortKernelIiEEvPT_PKS3_PVS3_S4_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 320,
+     "b_pc": 992,
+     "a_op": "LDG.E.STRONG.SYS",
+     "b_op": "STG.E.STRONG.SYS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 509
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 522
+      }
+     ],
+     "verdict": "SC",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": "sc",
+     "hb_chain": null,
+     "matrix_class": "sc",
+     "conflict_class": "SC",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_9.json",
+      "kernel_9.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SortKernel<int>(int*, int const*, int volatile*, int*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH10SortKernelIiEEvPT_PKS3_PVS3_S4_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 320,
+     "b_pc": 1424,
+     "a_op": "LDG.E.STRONG.SYS",
+     "b_op": "STG.E.STRONG.SYS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 509
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 522
+      }
+     ],
+     "verdict": "SC",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": "sc",
+     "hb_chain": null,
+     "matrix_class": "sc",
+     "conflict_class": "SC",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_9.json",
+      "kernel_9.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SortKernel<int>(int*, int const*, int volatile*, int*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH10SortKernelIiEEvPT_PKS3_PVS3_S4_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 320,
+     "b_pc": 1808,
+     "a_op": "LDG.E.STRONG.SYS",
+     "b_op": "STG.E.STRONG.SYS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 509
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 522
+      }
+     ],
+     "verdict": "SC",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": "sc",
+     "hb_chain": null,
+     "matrix_class": "sc",
+     "conflict_class": "SC",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_9.json",
+      "kernel_9.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::RepulsionKernel<int, float>(float, float, int const*, int const*, float const*, float const*, float const*, float*, float*, float*, float, int, int, int, float const*, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH15RepulsionKernelIifEEvffPKT_S5_PKT0_S8_S8_PS6_S9_S9_S6_S3_S3_S3_S8_S5_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3024,
+     "b_pc": 3072,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 596
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 596
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_10.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::RepulsionKernel<int, float>(float, float, int const*, int const*, float const*, float const*, float const*, float*, float*, float*, float, int, int, int, float const*, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH15RepulsionKernelIifEEvffPKT_S5_PKT0_S8_S8_PS6_S9_S9_S6_S3_S3_S3_S8_S5_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3072,
+     "b_pc": 4192,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 596
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 647
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_10.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::RepulsionKernel<int, float>(float, float, int const*, int const*, float const*, float const*, float const*, float*, float*, float*, float, int, int, int, float const*, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH15RepulsionKernelIifEEvffPKT_S5_PKT0_S8_S8_PS6_S9_S9_S6_S3_S3_S3_S8_S5_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3536,
+     "b_pc": 3600,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 625
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 631
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_10.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::RepulsionKernel<int, float>(float, float, int const*, int const*, float const*, float const*, float const*, float*, float*, float*, float, int, int, int, float const*, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH15RepulsionKernelIifEEvffPKT_S5_PKT0_S8_S8_PS6_S9_S9_S6_S3_S3_S3_S8_S5_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3552,
+     "b_pc": 3648,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 626
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 632
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_10.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::BoundingBoxKernel<int, float>(int*, int*, float*, float*, float*, float*, float*, float*, float*, int, int, int, unsigned int*, float*)",
+     "mangled": "_ZN2ML4TSNE2BH17BoundingBoxKernelIifEEvPT_S4_PT0_S6_S6_S6_S6_S6_S6_S3_S3_S3_PjS6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 608,
+     "b_pc": 848,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 122
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 130
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_4.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::BoundingBoxKernel<int, float>(int*, int*, float*, float*, float*, float*, float*, float*, float*, int, int, int, unsigned int*, float*)",
+     "mangled": "_ZN2ML4TSNE2BH17BoundingBoxKernelIifEEvPT_S4_PT0_S6_S6_S6_S6_S6_S6_S3_S3_S3_PjS6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 656,
+     "b_pc": 896,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 123
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 131
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_4.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::BoundingBoxKernel<int, float>(int*, int*, float*, float*, float*, float*, float*, float*, float*, int, int, int, unsigned int*, float*)",
+     "mangled": "_ZN2ML4TSNE2BH17BoundingBoxKernelIifEEvPT_S4_PT0_S6_S6_S6_S6_S6_S6_S3_S3_S3_PjS6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 672,
+     "b_pc": 944,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 124
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 132
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_4.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::BoundingBoxKernel<int, float>(int*, int*, float*, float*, float*, float*, float*, float*, float*, int, int, int, unsigned int*, float*)",
+     "mangled": "_ZN2ML4TSNE2BH17BoundingBoxKernelIifEEvPT_S4_PT0_S6_S6_S6_S6_S6_S6_S3_S3_S3_PjS6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 688,
+     "b_pc": 992,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 125
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 133
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_4.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::BoundingBoxKernel<int, float>(int*, int*, float*, float*, float*, float*, float*, float*, float*, int, int, int, unsigned int*, float*)",
+     "mangled": "_ZN2ML4TSNE2BH17BoundingBoxKernelIifEEvPT_S4_PT0_S6_S6_S6_S6_S6_S6_S3_S3_S3_PjS6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 848,
+     "b_pc": 880,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 130
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 130
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_4.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::BoundingBoxKernel<int, float>(int*, int*, float*, float*, float*, float*, float*, float*, float*, int, int, int, unsigned int*, float*)",
+     "mangled": "_ZN2ML4TSNE2BH17BoundingBoxKernelIifEEvPT_S4_PT0_S6_S6_S6_S6_S6_S6_S3_S3_S3_PjS6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 896,
+     "b_pc": 928,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 131
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 131
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_4.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::BoundingBoxKernel<int, float>(int*, int*, float*, float*, float*, float*, float*, float*, float*, int, int, int, unsigned int*, float*)",
+     "mangled": "_ZN2ML4TSNE2BH17BoundingBoxKernelIifEEvPT_S4_PT0_S6_S6_S6_S6_S6_S6_S3_S3_S3_PjS6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 944,
+     "b_pc": 976,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 132
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 132
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_4.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::BoundingBoxKernel<int, float>(int*, int*, float*, float*, float*, float*, float*, float*, float*, int, int, int, unsigned int*, float*)",
+     "mangled": "_ZN2ML4TSNE2BH17BoundingBoxKernelIifEEvPT_S4_PT0_S6_S6_S6_S6_S6_S6_S3_S3_S3_PjS6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 992,
+     "b_pc": 1024,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 133
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 133
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_4.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::TreeBuildingKernel<int, float>(int*, float const*, float const*, int, int, int*, int*, float const*)",
+     "mangled": "_ZN2ML4TSNE2BH18TreeBuildingKernelIifEEvPT_PKT0_S7_S3_S3_S4_S4_S7_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 720,
+     "b_pc": 1232,
+     "a_op": "LDG.E",
+     "b_op": "ATOMG.E.CAS.STRONG.GPU",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 239
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 202
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 268
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_6.json",
+      "kernel_6.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::TreeBuildingKernel<int, float>(int*, float const*, float const*, int, int, int*, int*, float const*)",
+     "mangled": "_ZN2ML4TSNE2BH18TreeBuildingKernelIifEEvPT_PKT0_S7_S3_S3_S4_S4_S7_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 720,
+     "b_pc": 2240,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 239
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 291
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_6.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::TreeBuildingKernel<int, float>(int*, float const*, float const*, int, int, int*, int*, float const*)",
+     "mangled": "_ZN2ML4TSNE2BH18TreeBuildingKernelIifEEvPT_PKT0_S7_S3_S3_S4_S4_S7_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 720,
+     "b_pc": 2544,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 239
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 303
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_6.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::TreeBuildingKernel<int, float>(int*, float const*, float const*, int, int, int*, int*, float const*)",
+     "mangled": "_ZN2ML4TSNE2BH18TreeBuildingKernelIifEEvPT_PKT0_S7_S3_S3_S4_S4_S7_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 720,
+     "b_pc": 2656,
+     "a_op": "LDG.E",
+     "b_op": "ATOMG.E.CAS.STRONG.GPU",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 239
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 202
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 259
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_6.json",
+      "kernel_6.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::TreeBuildingKernel<int, float>(int*, float const*, float const*, int, int, int*, int*, float const*)",
+     "mangled": "_ZN2ML4TSNE2BH18TreeBuildingKernelIifEEvPT_PKT0_S7_S3_S3_S4_S4_S7_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 720,
+     "b_pc": 2880,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 239
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 315
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_6.json",
+      "kernel_6.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::TreeBuildingKernel<int, float>(int*, float const*, float const*, int, int, int*, int*, float const*)",
+     "mangled": "_ZN2ML4TSNE2BH18TreeBuildingKernelIifEEvPT_PKT0_S7_S3_S3_S4_S4_S7_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 912,
+     "b_pc": 1232,
+     "a_op": "LDG.E",
+     "b_op": "ATOMG.E.CAS.STRONG.GPU",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 239
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 202
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 268
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_6.json",
+      "kernel_6.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::TreeBuildingKernel<int, float>(int*, float const*, float const*, int, int, int*, int*, float const*)",
+     "mangled": "_ZN2ML4TSNE2BH18TreeBuildingKernelIifEEvPT_PKT0_S7_S3_S3_S4_S4_S7_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 912,
+     "b_pc": 2096,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 239
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 283
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_6.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::TreeBuildingKernel<int, float>(int*, float const*, float const*, int, int, int*, int*, float const*)",
+     "mangled": "_ZN2ML4TSNE2BH18TreeBuildingKernelIifEEvPT_PKT0_S7_S3_S3_S4_S4_S7_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 912,
+     "b_pc": 2240,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 239
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 291
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_6.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::TreeBuildingKernel<int, float>(int*, float const*, float const*, int, int, int*, int*, float const*)",
+     "mangled": "_ZN2ML4TSNE2BH18TreeBuildingKernelIifEEvPT_PKT0_S7_S3_S3_S4_S4_S7_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 912,
+     "b_pc": 2544,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 239
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 303
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_6.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::TreeBuildingKernel<int, float>(int*, float const*, float const*, int, int, int*, int*, float const*)",
+     "mangled": "_ZN2ML4TSNE2BH18TreeBuildingKernelIifEEvPT_PKT0_S7_S3_S3_S4_S4_S7_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 912,
+     "b_pc": 2656,
+     "a_op": "LDG.E",
+     "b_op": "ATOMG.E.CAS.STRONG.GPU",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 239
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 202
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 259
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_6.json",
+      "kernel_6.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::TreeBuildingKernel<int, float>(int*, float const*, float const*, int, int, int*, int*, float const*)",
+     "mangled": "_ZN2ML4TSNE2BH18TreeBuildingKernelIifEEvPT_PKT0_S7_S3_S3_S4_S4_S7_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 912,
+     "b_pc": 2880,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 239
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 315
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_6.json",
+      "kernel_6.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::TreeBuildingKernel<int, float>(int*, float const*, float const*, int, int, int*, int*, float const*)",
+     "mangled": "_ZN2ML4TSNE2BH18TreeBuildingKernelIifEEvPT_PKT0_S7_S3_S3_S4_S4_S7_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 1232,
+     "b_pc": 2240,
+     "a_op": "ATOMG.E.CAS.STRONG.GPU",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 202
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 268
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 291
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_6.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::TreeBuildingKernel<int, float>(int*, float const*, float const*, int, int, int*, int*, float const*)",
+     "mangled": "_ZN2ML4TSNE2BH18TreeBuildingKernelIifEEvPT_PKT0_S7_S3_S3_S4_S4_S7_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 1232,
+     "b_pc": 2544,
+     "a_op": "ATOMG.E.CAS.STRONG.GPU",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 202
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 268
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 303
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_6.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::TreeBuildingKernel<int, float>(int*, float const*, float const*, int, int, int*, int*, float const*)",
+     "mangled": "_ZN2ML4TSNE2BH18TreeBuildingKernelIifEEvPT_PKT0_S7_S3_S3_S4_S4_S7_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 2240,
+     "b_pc": 2880,
+     "a_op": "STG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 291
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 315
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_6.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::TreeBuildingKernel<int, float>(int*, float const*, float const*, int, int, int*, int*, float const*)",
+     "mangled": "_ZN2ML4TSNE2BH18TreeBuildingKernelIifEEvPT_PKT0_S7_S3_S3_S4_S4_S7_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 2400,
+     "b_pc": 2880,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 299
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 315
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_6.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::TreeBuildingKernel<int, float>(int*, float const*, float const*, int, int, int*, int*, float const*)",
+     "mangled": "_ZN2ML4TSNE2BH18TreeBuildingKernelIifEEvPT_PKT0_S7_S3_S3_S4_S4_S7_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 2544,
+     "b_pc": 2880,
+     "a_op": "STG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 303
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 315
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_6.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 592,
+     "b_pc": 3040,
+     "a_op": "LDG.E.STRONG.SYS",
+     "b_op": "STG.E.STRONG.SYS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 383
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 411
+      }
+     ],
+     "verdict": "SC",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": "sc",
+     "hb_chain": null,
+     "matrix_class": "sc",
+     "conflict_class": "SC",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json",
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 592,
+     "b_pc": 7456,
+     "a_op": "LDG.E.STRONG.SYS",
+     "b_op": "STG.E.STRONG.SYS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 383
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 477
+      }
+     ],
+     "verdict": "SC",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": "sc",
+     "hb_chain": null,
+     "matrix_class": "sc",
+     "conflict_class": "SC",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 816,
+     "b_pc": 3040,
+     "a_op": "LDG.E.STRONG.SYS",
+     "b_op": "STG.E.STRONG.SYS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 383
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 411
+      }
+     ],
+     "verdict": "SC",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": "sc",
+     "hb_chain": null,
+     "matrix_class": "sc",
+     "conflict_class": "SC",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 816,
+     "b_pc": 7456,
+     "a_op": "LDG.E.STRONG.SYS",
+     "b_op": "STG.E.STRONG.SYS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 383
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 477
+      }
+     ],
+     "verdict": "SC",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": "sc",
+     "hb_chain": null,
+     "matrix_class": "sc",
+     "conflict_class": "SC",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json",
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 1040,
+     "b_pc": 3040,
+     "a_op": "LDG.E.STRONG.SYS",
+     "b_op": "STG.E.STRONG.SYS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 383
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 411
+      }
+     ],
+     "verdict": "SC",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": "sc",
+     "hb_chain": null,
+     "matrix_class": "sc",
+     "conflict_class": "SC",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 1040,
+     "b_pc": 7456,
+     "a_op": "LDG.E.STRONG.SYS",
+     "b_op": "STG.E.STRONG.SYS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 383
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 477
+      }
+     ],
+     "verdict": "SC",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": "sc",
+     "hb_chain": null,
+     "matrix_class": "sc",
+     "conflict_class": "SC",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json",
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 1280,
+     "b_pc": 3040,
+     "a_op": "LDG.E.STRONG.SYS",
+     "b_op": "STG.E.STRONG.SYS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 383
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 411
+      }
+     ],
+     "verdict": "SC",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": "sc",
+     "hb_chain": null,
+     "matrix_class": "sc",
+     "conflict_class": "SC",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 1280,
+     "b_pc": 7456,
+     "a_op": "LDG.E.STRONG.SYS",
+     "b_op": "STG.E.STRONG.SYS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 383
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 477
+      }
+     ],
+     "verdict": "SC",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": "sc",
+     "hb_chain": null,
+     "matrix_class": "sc",
+     "conflict_class": "SC",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 1568,
+     "b_pc": 2960,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 401
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 408
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 1616,
+     "b_pc": 2976,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 402
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 409
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 1632,
+     "b_pc": 2672,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 397
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 406
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 1856,
+     "b_pc": 2672,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 397
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 406
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 1856,
+     "b_pc": 6944,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 397
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 467
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 1888,
+     "b_pc": 2960,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 401
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 408
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 1888,
+     "b_pc": 7296,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 401
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 469
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 1920,
+     "b_pc": 2976,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 402
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 409
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 1920,
+     "b_pc": 7312,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 402
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 470
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 2128,
+     "b_pc": 2672,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 397
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 406
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 2160,
+     "b_pc": 2960,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 401
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 408
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 2192,
+     "b_pc": 2976,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 402
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 409
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 2464,
+     "b_pc": 2672,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 397
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 406
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 2512,
+     "b_pc": 2960,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 401
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 408
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 2528,
+     "b_pc": 2976,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 402
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 409
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 2672,
+     "b_pc": 5616,
+     "a_op": "STG.E",
+     "b_op": "LDG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 406
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 459
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 2672,
+     "b_pc": 5968,
+     "a_op": "STG.E",
+     "b_op": "LDG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 406
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 459
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 2672,
+     "b_pc": 6368,
+     "a_op": "STG.E",
+     "b_op": "LDG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 406
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 459
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 2672,
+     "b_pc": 6768,
+     "a_op": "STG.E",
+     "b_op": "LDG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 406
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 459
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 2960,
+     "b_pc": 5552,
+     "a_op": "STG.E",
+     "b_op": "LDG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 408
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 462
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 2960,
+     "b_pc": 5920,
+     "a_op": "STG.E",
+     "b_op": "LDG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 408
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 462
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 2960,
+     "b_pc": 6320,
+     "a_op": "STG.E",
+     "b_op": "LDG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 408
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 462
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 2960,
+     "b_pc": 6720,
+     "a_op": "STG.E",
+     "b_op": "LDG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 408
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 462
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 2976,
+     "b_pc": 5600,
+     "a_op": "STG.E",
+     "b_op": "LDG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 409
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 463
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 2976,
+     "b_pc": 6000,
+     "a_op": "STG.E",
+     "b_op": "LDG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 409
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 463
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 2976,
+     "b_pc": 6400,
+     "a_op": "STG.E",
+     "b_op": "LDG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 409
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 463
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 2976,
+     "b_pc": 6800,
+     "a_op": "STG.E",
+     "b_op": "LDG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 409
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 463
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 3040,
+     "b_pc": 3728,
+     "a_op": "STG.E.STRONG.SYS",
+     "b_op": "LDG.E.STRONG.SYS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 411
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 442
+      }
+     ],
+     "verdict": "SC",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": "sc",
+     "hb_chain": null,
+     "matrix_class": "sc",
+     "conflict_class": "SC",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 3040,
+     "b_pc": 3888,
+     "a_op": "STG.E.STRONG.SYS",
+     "b_op": "LDG.E.STRONG.SYS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 411
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 442
+      }
+     ],
+     "verdict": "SC",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": "sc",
+     "hb_chain": null,
+     "matrix_class": "sc",
+     "conflict_class": "SC",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 3040,
+     "b_pc": 4192,
+     "a_op": "STG.E.STRONG.SYS",
+     "b_op": "LDG.E.STRONG.SYS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 411
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 442
+      }
+     ],
+     "verdict": "SC",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": "sc",
+     "hb_chain": null,
+     "matrix_class": "sc",
+     "conflict_class": "SC",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 3040,
+     "b_pc": 4384,
+     "a_op": "STG.E.STRONG.SYS",
+     "b_op": "LDG.E.STRONG.SYS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 411
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 442
+      }
+     ],
+     "verdict": "SC",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": "sc",
+     "hb_chain": null,
+     "matrix_class": "sc",
+     "conflict_class": "SC",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 3040,
+     "b_pc": 4672,
+     "a_op": "STG.E.STRONG.SYS",
+     "b_op": "LDG.E.STRONG.SYS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 411
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 434
+      }
+     ],
+     "verdict": "SC",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": "sc",
+     "hb_chain": null,
+     "matrix_class": "sc",
+     "conflict_class": "SC",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 3040,
+     "b_pc": 4688,
+     "a_op": "STG.E.STRONG.SYS",
+     "b_op": "LDG.E.STRONG.SYS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 411
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 434
+      }
+     ],
+     "verdict": "SC",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": "sc",
+     "hb_chain": null,
+     "matrix_class": "sc",
+     "conflict_class": "SC",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 3040,
+     "b_pc": 4736,
+     "a_op": "STG.E.STRONG.SYS",
+     "b_op": "LDG.E.STRONG.SYS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 411
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 434
+      }
+     ],
+     "verdict": "SC",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": "sc",
+     "hb_chain": null,
+     "matrix_class": "sc",
+     "conflict_class": "SC",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 3040,
+     "b_pc": 4752,
+     "a_op": "STG.E.STRONG.SYS",
+     "b_op": "LDG.E.STRONG.SYS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 411
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 434
+      }
+     ],
+     "verdict": "SC",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": "sc",
+     "hb_chain": null,
+     "matrix_class": "sc",
+     "conflict_class": "SC",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 3728,
+     "b_pc": 7456,
+     "a_op": "LDG.E.STRONG.SYS",
+     "b_op": "STG.E.STRONG.SYS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 442
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 477
+      }
+     ],
+     "verdict": "SC",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": "sc",
+     "hb_chain": null,
+     "matrix_class": "sc",
+     "conflict_class": "SC",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json",
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 3888,
+     "b_pc": 7456,
+     "a_op": "LDG.E.STRONG.SYS",
+     "b_op": "STG.E.STRONG.SYS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 442
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 477
+      }
+     ],
+     "verdict": "SC",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": "sc",
+     "hb_chain": null,
+     "matrix_class": "sc",
+     "conflict_class": "SC",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json",
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 4192,
+     "b_pc": 7456,
+     "a_op": "LDG.E.STRONG.SYS",
+     "b_op": "STG.E.STRONG.SYS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 442
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 477
+      }
+     ],
+     "verdict": "SC",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": "sc",
+     "hb_chain": null,
+     "matrix_class": "sc",
+     "conflict_class": "SC",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json",
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 4384,
+     "b_pc": 7456,
+     "a_op": "LDG.E.STRONG.SYS",
+     "b_op": "STG.E.STRONG.SYS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 442
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 477
+      }
+     ],
+     "verdict": "SC",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": "sc",
+     "hb_chain": null,
+     "matrix_class": "sc",
+     "conflict_class": "SC",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json",
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 4672,
+     "b_pc": 7456,
+     "a_op": "LDG.E.STRONG.SYS",
+     "b_op": "STG.E.STRONG.SYS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 434
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 477
+      }
+     ],
+     "verdict": "SC",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": "sc",
+     "hb_chain": null,
+     "matrix_class": "sc",
+     "conflict_class": "SC",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json",
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 4688,
+     "b_pc": 7456,
+     "a_op": "LDG.E.STRONG.SYS",
+     "b_op": "STG.E.STRONG.SYS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 434
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 477
+      }
+     ],
+     "verdict": "SC",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": "sc",
+     "hb_chain": null,
+     "matrix_class": "sc",
+     "conflict_class": "SC",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 4736,
+     "b_pc": 7456,
+     "a_op": "LDG.E.STRONG.SYS",
+     "b_op": "STG.E.STRONG.SYS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 434
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 477
+      }
+     ],
+     "verdict": "SC",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": "sc",
+     "hb_chain": null,
+     "matrix_class": "sc",
+     "conflict_class": "SC",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json",
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 4752,
+     "b_pc": 7456,
+     "a_op": "LDG.E.STRONG.SYS",
+     "b_op": "STG.E.STRONG.SYS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 434
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 477
+      }
+     ],
+     "verdict": "SC",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": "sc",
+     "hb_chain": null,
+     "matrix_class": "sc",
+     "conflict_class": "SC",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json",
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 5552,
+     "b_pc": 7296,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 462
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 469
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 5600,
+     "b_pc": 7312,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 463
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 470
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 5616,
+     "b_pc": 6944,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 459
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 467
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 5920,
+     "b_pc": 7296,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 462
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 469
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 5968,
+     "b_pc": 6944,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 459
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 467
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 6000,
+     "b_pc": 7312,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 463
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 470
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 6320,
+     "b_pc": 7296,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 462
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 469
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 6368,
+     "b_pc": 6944,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 459
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 467
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 6400,
+     "b_pc": 7312,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 463
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 470
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 6720,
+     "b_pc": 7296,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 462
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 469
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 6768,
+     "b_pc": 6944,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 459
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 467
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void ML::TSNE::BH::SummarizationKernel<int, float>(int*, int const*, float volatile*, float*, float*, int, int, int const*)",
+     "mangled": "_ZN2ML4TSNE2BH19SummarizationKernelIifEEvPT_PKS3_PVT0_PS7_SA_S3_S3_S6_",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 6800,
+     "b_pc": 7312,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 463
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cuml-tsne-new-1/buggy/src/cpp/src/tsne/barnes_hut_kernels.cuh",
+       "line": 470
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json"
+     ]
+    }
+   ],
+   "site_verdicts": [],
+   "site_skipped": {}
+  }
+ },
+ "dots_checked": 1,
+ "dots_regenerated_equal": 1
+}

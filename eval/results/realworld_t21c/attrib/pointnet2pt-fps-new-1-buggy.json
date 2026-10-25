@@ -1,0 +1,78 @@
+{
+ "id": "pointnet2pt-fps-new-1-buggy",
+ "target": "pointnet2pt-fps-new-1",
+ "exe": "/mnt/beegfs/fzheng4/realworld_t21c/build/pointnet2pt-fps-new-1/buggy/driver",
+ "cuda_home": "/usr/local/cuda-13.3",
+ "n_cubins": 1,
+ "n_dots": 1,
+ "oracle_kernel_substr": "furthest_point_sampling_kernel",
+ "spec_found": false,
+ "modes": {
+  "scalar-clock": {
+   "n_kernel_jsons": 1,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "void furthest_point_sampling_kernel<512u>(int, int, int, float const*, float*, int*)",
+     "mangled": "_Z30furthest_point_sampling_kernelILj512EEviiiPKfPfPi",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 1,
+      "sc": 0,
+      "ordered": 37,
+      "skipped": 108,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 1,
+   "n_race": 1,
+   "n_sc": 0,
+   "reports": [
+    {
+     "mode": "scalar-clock",
+     "kernel": "void furthest_point_sampling_kernel<512u>(int, int, int, float const*, float*, int*)",
+     "mangled": "_Z30furthest_point_sampling_kernelILj512EEviiiPKfPfPi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3776,
+     "b_pc": 5824,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pointnet2pt-fps-new-1/buggy/src/pointnet2_ops_lib/pointnet2_ops/_ext-src/src/sampling_gpu.cu",
+       "line": 112
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pointnet2pt-fps-new-1/buggy/src/pointnet2_ops_lib/pointnet2_ops/_ext-src/src/sampling_gpu.cu",
+       "line": 170
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    }
+   ],
+   "site_verdicts": [],
+   "site_skipped": {}
+  }
+ },
+ "dots_checked": 1,
+ "dots_regenerated_equal": 1
+}

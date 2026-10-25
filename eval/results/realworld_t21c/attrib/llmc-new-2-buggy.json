@@ -1,0 +1,87 @@
+{
+ "id": "llmc-new-2-buggy",
+ "target": "llmc-new-2",
+ "exe": "/mnt/beegfs/fzheng4/realworld_t21c/build/llmc-new-2/buggy/driver",
+ "cuda_home": "/usr/local/cuda-13.3",
+ "n_cubins": 1,
+ "n_dots": 1,
+ "oracle_kernel_substr": "softmax_autoregressive_backward_inplace_kernel",
+ "spec_found": false,
+ "modes": {
+  "scalar-clock": {
+   "n_kernel_jsons": 1,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "softmax_autoregressive_backward_inplace_kernel(__nv_bfloat16*, __nv_bfloat16 const*, int, int, int, float)",
+     "mangled": "_Z46softmax_autoregressive_backward_inplace_kernelP13__nv_bfloat16PKS_iiif",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 2,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 8,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 1,
+   "n_race": 1,
+   "n_sc": 0,
+   "reports": [
+    {
+     "mode": "scalar-clock",
+     "kernel": "softmax_autoregressive_backward_inplace_kernel(__nv_bfloat16*, __nv_bfloat16 const*, int, int, int, float)",
+     "mangled": "_Z46softmax_autoregressive_backward_inplace_kernelP13__nv_bfloat16PKS_iiif",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2656,
+     "b_pc": 2704,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-2/buggy/src/llmc/cuda_utils.cuh",
+       "line": 175
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-2/buggy/src/llmc/attention.cuh",
+       "line": 176
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-2/buggy/src/llmc/cuda_utils.cuh",
+       "line": 177
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/llmc-new-2/buggy/src/llmc/attention.cuh",
+       "line": 176
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json",
+      "kernel_0.json"
+     ]
+    }
+   ],
+   "site_verdicts": [],
+   "site_skipped": {}
+  }
+ },
+ "dots_checked": 1,
+ "dots_regenerated_equal": 1
+}
