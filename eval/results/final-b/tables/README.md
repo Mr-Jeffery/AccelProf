@@ -144,5 +144,6 @@ changes. Two separate effects:
 
   Vector-clock peaks barely move, except in P7, where the set of finished programs changed.
 
-**Open:** the +1 P5 detection is lock_rtraw, whose one report is the `dummy` WAW pair inside the critical
-sections (FINAL_SWEEP_B.md §9). Its triage is open.
+**The +1 P5 detection** is lock_rtraw, whose one report is the `dummy` WAW pair inside the critical
+sections. The coordinator's triage (`../triage_rtraw.md`, FINAL_SWEEP_B.md §9) finds it a false report from
+A2-inverted recordings; how to count it is Jeffery's call.

@@ -484,7 +484,13 @@ column: P7-particlefilter vector-clock became TIMEOUT, not CLEAN (§4: the detec
     - **X1b's recording is RACE both ways**: WAW 0x170/0x2f0 RACE (`structural`). The closure fired in both modes (landing `0xb0`, `0x330`) but only moved the rtraw pair. In vector-clock it stays SC and its `hb_chain` `0x1b0 → 0x330` is withdrawn; in scalar-clock it goes ORDERED (chain `0x1b0 → 0x330`) → SC. An SC pair is not a race report.
   - **So the CLEAN → RACE follows the recording, not T23's `same_loc` closure.** The closure's effect here is the one `R3_CLOSURE.md` §0 found on X4's c58 recordings: the rtraw pair, ORDERED → SC.
   - The RACE rests on the `dummy` WAW pair. `FINAL_RTRAW.md` (§0, finding 3) describes it as "a pair the fenced lock orders in every schedule", reported when the lock hand-off cannot be certified.
-  - What leaves that pair unordered in X1b's recording is not separated here: one event fewer, a different host and driver, and the T22 cont. / T24 runtime that recorded it.
+  - **The coordinator's triage** (`eval/results/final-b/triage_rtraw.md`): every X1b recording is **A2-inverted**, `FINAL_RTRAW.md`'s schedule C.
+    - The lock word's recorded order: block 1's CAS wins; block 0's 4th CAS wins and is recorded *before* block 1's unlock, the write it read 0 from; then block 0's unlock. In X1, block 0's winning CAS (its 5th try) follows block 1's unlock. Block 0's one try fewer is X1b's one event fewer (14 against 15).
+    - The lock word's dependency edges show the same: X1 has the hand-off 0x1b0 → 0x230 and 0x230 → 0x330; X1b has 0x1b0 → 0x330 and no hand-off edge (`checks/rt_edges2.py`, read from both stores).
+    - With the hand-off lost, the two critical sections look unordered and the `dummy` WAW is reported. **X1b's RACE is a false report**: the fenced lock orders that pair in every schedule. In vector-clock mode both reports carry `a2_uncertain`.
+    - The labelled race, the rtraw pair, is an SC in both runs (both accesses `volatile`, strong at system scope), not a data race.
+    - All 6 X1b rows (3 per mode, all on c79) report this pair with 14 events. All 6 of X1's (c62) have 15. X4 saw schedule C only on c58, in 1 of 50 vector-clock and 2 of 50 scalar-clock recordings.
+    - At program level the RACE matches ScoR's label, so X1b's tables count it as one detection per mode (`tables/README.md`). How to count it is Jeffery's call.
 
 **Same verdict, different caps** (27 keys, listed in `old_vs_new.md`):
 - Most are the cap-policy changes: 84,600 s instead of 86,400 s, or 1,200 s instead of 5,400 s / 86,400 s where X1b's scalar-clock finished in the first pass.
@@ -514,7 +520,7 @@ scalar-clock has 1 against X1's 2.
 - **The 84,600 s rows are single reps** (Jeffery's choice for the long pass), with walls and native walls from one run.
 - **Cross-host walls**: 19 nodes, three CPUs, two RAM sizes, five drivers (§0). §4's X1-vs-X1b walls are not same-host comparisons.
 - **OOM** is inferred from SIGKILL and the peaks; the nodes' kernel logs were not read. The cases are P9-atomicCAS vector-clock ("Killed" at 189.6 GB on a 188 GB host) and P7-particlefilter scalar-clock (`partial(rc=1)` at 189.5–189.7 GB).
-- **P5 rtraw**: §9 shows the change follows the recording, but which difference of the recording leaves the `dummy` pair unordered is not separated.
+- **P5 rtraw**: the triage (§9) finds every X1b recording A2-inverted, which loses the lock hand-off and makes the `dummy` WAW a false report. Why c79 inverts in every recording is not separated: it differs from X1's c62 in CPU, driver (615.71.09, the only node with it) and runtime build. A few re-recordings on c79 and c62 with the f551ca0 runtime would tell node from runtime (two GPU nodes for a few minutes; not run). The store keeps one kernel JSON per mode, so the schedule of the other 4 X1b recordings is inferred from their rows.
 - **Not done for X1b**:
   - X1-follow's partial-run notes (§1 (j)).
   - `classify_endpoints.py`, `classify_fp_causes.py`, `make_tables.py` and the revision pin were run into X1b's own directory, `eval/results/final-b/tables/` (§7). The paper's tables are still X1's. Not separated there: why cuVein's slowdowns on the short-program suites are about 1.3× X1's on the same CPU type (`tables/README.md`).
