@@ -403,6 +403,9 @@ Copies: `eval/results/final-b/merged/other_tools.sha256.{before,after}`.
 The post job also checked X1's tracked results (`eval/results/baselines-cuvein.csv`, `final*/`): 0 changed entries.
 `classify_endpoints.py`, `classify_fp_causes.py`, `make_tables.py` and `cuvein_rev.sh` were **not run**: they
 write X1's `baselines-{disagreements,fp-causes}.csv`, tables and revision pin.
+**X1b's own tables** (Jeffery, 10-24): the four steps were then run on X1b's merged results with every output in
+`eval/results/final-b/tables/` (`setup/p_final_b_tables.sh`, job 320385; X1's files unchanged, checked). What changed
+against X1's tables, and two overhead checks, are in `eval/results/final-b/tables/README.md`.
 
 ## 8. Node-hours
 
@@ -514,7 +517,7 @@ scalar-clock has 1 against X1's 2.
 - **P5 rtraw**: §9 shows the change follows the recording, but which difference of the recording leaves the `dummy` pair unordered is not separated.
 - **Not done for X1b**:
   - X1-follow's partial-run notes (§1 (j)).
-  - `classify_endpoints.py`, `classify_fp_causes.py`, `make_tables.py` and the revision pin (§7). The paper's tables are still X1's.
+  - `classify_endpoints.py`, `classify_fp_causes.py`, `make_tables.py` and the revision pin were run into X1b's own directory, `eval/results/final-b/tables/` (§7). The paper's tables are still X1's. Not separated there: why cuVein's slowdowns on the short-program suites are about 1.3× X1's on the same CPU type (`tables/README.md`).
 - **Label questions**: P6-asyncmemcpy-…-fixed (labelled race-free) is RACE again at 84,600 s, and P9-knn (labelled racy) is CLEAN in both modes again. §11 has the coordinator's P9 triage. The labels are unchanged.
 
 ## 11. P9 triage (the coordinating session's findings, 2026-10-23/24)
