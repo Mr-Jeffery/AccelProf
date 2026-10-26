@@ -36,7 +36,7 @@ ginkgo-5 is a lost update on a packed word inside one block. Why iGUARD misses t
 investigated.
 
 **amrex-1, skipped.** All 6 reps (buggy and fixed) hit the derived 120 s cap (native 0.9–1.3 s).
-A rerun at cuVein's 1,200 s cap (job 321060) was cancelled at about 15 min on request. cuVein missed
+A rerun at cuVein's 1,200 s cap (job 321060) was cancelled after 11.5 min on request, before any rep finished. cuVein missed
 this target too (m4: vector-clock TIMEOUT, scalar-clock analysis timeout). For the record only, not
 scored: in the 120 s it had, the buggy log already held 40 reports, including the oracle's L86 store
 and stencil loads L207–L232 (AMReX_MLNodeLap_3D_K.H) and the extra pair's L77 store; the fixed log held
