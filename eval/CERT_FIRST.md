@@ -276,6 +276,19 @@ of the settled records between trivially settled pcs and dominance-settled pcs w
   column only. The product column = today's measured µs/record (tool wall ÷ events, CSV medians) ×
   records on open pcs (memory records) ÷ native wall; it does not use 0.075. It counts no collector
   cost on settled records, so it can lie below the floor (e.g. nbody 0, heartwall 71 vs floor 694†).
+- **Records vs events in the product (added after review).** `f` and the product's "records on open
+  pcs" are warp-level **memory** records (`nodes[].active_lane_count`), not lane accesses; the floor and
+  "today µs/rec" divide by the CSV's `events` (memory + barrier/exit/syncwarp records). The two differ
+  little for heartwall (8.070 G memory records / 8.071 G events), knn (10.57 G / 11.14 G), srad
+  (495 M / 590 M) and tridiagonal (4.93 G / 5.60 G), but **pathfinder has 24.8 M memory records against
+  7.06 G events** (99.6 % non-memory records), so its µs/event (2.95) is far below its µs per memory record
+  (20,855 s / 24.8 M = 840 µs) and its product (5.8×) would be 1,651× with the per-memory-record cost.
+  Which one the variant's clock cost scales with depends on whether it still processes every barrier
+  record; this dry run cannot tell. A product above the floor (srad 1,060 vs 139†, tridiagonal 5,000
+  vs 545†) is not an error: product / floor = (today µs/rec ÷ 0.075) × (open records ÷ events) =
+  16.5 × 0.462 = 7.6 (srad) and 22.0 × 0.418 = 9.2 (tridiagonal). Lane-access fractions, for
+  comparison (`lanes_open / lanes_all` in rows.csv): srad 0.206, tridiagonal 0.391, heartwall 0.013,
+  pathfinder 0.136, knn 0.055, nbody 0.
 ## Appendix A. Every program, every mode
 
 | program | mode | mem pcs | cand pairs | settled | open pairs | open pcs | records on open / all | frac | zero open | verdict | tool wall s | native s | note |
