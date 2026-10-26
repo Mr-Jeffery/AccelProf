@@ -1,0 +1,36 @@
+{
+  "tool": "pc_dependency_analysis",
+  "kernel": {
+    "kernel_id": 0,
+    "kernel_name": "kmain(unsigned int volatile*)",
+    "device_id": 0,
+    "kernel_pc": 0,
+    "kernel_pc_hex": "0x0",
+    "grid_dim": [1, 1, 1],
+    "grid_cta_count": 1,
+    "block_dim": [33, 1, 1],
+    "block_thread_count": 33
+  },
+  "shadow_memory_granularity_bytes": 1,
+  "sample_stride_bytes": 4,
+  "nodes": [
+    {"pc": 160, "pc_hex": "0xa0", "flags": "WRITE GLOBAL", "flags_hex": "0x92", "access_size": 4, "distinct_sector_count": {"1": 1, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0, "10": 0, "11": 0, "12": 0, "13": 0, "14": 0, "15": 0, "16": 0, "17": 0, "18": 0, "19": 0, "20": 0, "21": 0, "22": 0, "23": 0, "24": 0, "25": 0, "26": 0, "27": 0, "28": 0, "29": 0, "30": 0, "31": 0, "32": 0}, "active_lane_count": {"0": 0, "1": 1, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0, "10": 0, "11": 0, "12": 0, "13": 0, "14": 0, "15": 0, "16": 0, "17": 0, "18": 0, "19": 0, "20": 0, "21": 0, "22": 0, "23": 0, "24": 0, "25": 0, "26": 0, "27": 0, "28": 0, "29": 0, "30": 0, "31": 0, "32": 0}, "distinct_address_count": {"1": 1, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0, "10": 0, "11": 0, "12": 0, "13": 0, "14": 0, "15": 0, "16": 0, "17": 0, "18": 0, "19": 0, "20": 0, "21": 0, "22": 0, "23": 0, "24": 0, "25": 0, "26": 0, "27": 0, "28": 0, "29": 0, "30": 0, "31": 0, "32": 0}},
+    {"pc": 240, "pc_hex": "0xf0", "flags": "READWRITE GLOBALLOCAL", "flags_hex": "0x153", "access_size": 4, "distinct_sector_count": {"1": 1, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0, "10": 0, "11": 0, "12": 0, "13": 0, "14": 0, "15": 0, "16": 0, "17": 0, "18": 0, "19": 0, "20": 0, "21": 0, "22": 0, "23": 0, "24": 0, "25": 0, "26": 0, "27": 0, "28": 0, "29": 0, "30": 0, "31": 0, "32": 0}, "active_lane_count": {"0": 0, "1": 1, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0, "10": 0, "11": 0, "12": 0, "13": 0, "14": 0, "15": 0, "16": 0, "17": 0, "18": 0, "19": 0, "20": 0, "21": 0, "22": 0, "23": 0, "24": 0, "25": 0, "26": 0, "27": 0, "28": 0, "29": 0, "30": 0, "31": 0, "32": 0}, "distinct_address_count": {"1": 1, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0, "10": 0, "11": 0, "12": 0, "13": 0, "14": 0, "15": 0, "16": 0, "17": 0, "18": 0, "19": 0, "20": 0, "21": 0, "22": 0, "23": 0, "24": 0, "25": 0, "26": 0, "27": 0, "28": 0, "29": 0, "30": 0, "31": 0, "32": 0}}
+  ],
+  "edges": [
+    {"current_pc": 160, "current_pc_hex": "0xa0", "ancient_pc": 240, "ancient_pc_hex": "0xf0", "cold_miss": false, "current_flags": 146, "current_flags_hex": "0x92", "current_access_size": 4, "dist": {"intra_thread": 0, "intra_instance_launch": 0, "intra_warp": 0, "intra_block": 1, "intra_grid": 0}},
+    {"current_pc": 240, "current_pc_hex": "0xf0", "ancient_pc": null, "ancient_pc_hex": null, "cold_miss": true, "current_flags": 339, "current_flags_hex": "0x153", "current_access_size": 4, "dist": {"intra_thread": 1, "intra_instance_launch": 0, "intra_warp": 0, "intra_block": 0, "intra_grid": 0}}
+  ],
+  "hb_events": [
+    {"seq": 0, "block": 0, "warp": 0, "pc": 240, "type": "write", "space": "global", "size": 4, "active_mask": 1, "lanes": [{"lane": 0, "addr": 140033868693504}]},
+    {"seq": 1, "block": 0, "warp": 1, "pc": 160, "type": "write", "space": "global", "size": 4, "active_mask": 1, "lanes": [{"lane": 0, "addr": 140033868693504}]},
+    {"seq": 2, "block": 0, "warp": 1, "pc": 176, "type": "exit", "active_mask": 1},
+    {"seq": 3, "block": 0, "warp": 0, "pc": 256, "type": "exit", "active_mask": 1},
+    {"seq": 4, "block": 0, "warp": 0, "pc": 96, "type": "exit", "active_mask": 4294967294}
+  ],
+  "hb_events_count": 5, "hb_lanes_count": 2,
+  "hb_async": 1,
+  "hb_exits": 1,
+  "hb_sync_pass": [[160, 240, 1, 2, 240, 160]],
+  "hb_rmw_points": {"release": {"160": []}, "acquire": {"160": []}}
+}
