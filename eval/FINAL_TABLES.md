@@ -152,7 +152,9 @@ Missing for this section: the nodes' kernel logs (OOM is inferred from SIGKILL a
 `hb_stats` for any launch that did not finish (particlefilter's 4th, expdist's 1st vector-clock launch,
 stencil1d's last); the maximum readers per location of nbody (X1_FOLLOW §3: "not recorded").
 
-### Open decision — `P5-race_interblock_none-lock_rtraw`, counting rule pending (Jeffery)
+### Decided 2026-10-25 (Jeffery) — `P5-race_interblock_none-lock_rtraw`: count as recorded (RACE, one detection per mode)
+
+The two other ways are kept below for the record; the as-recorded row is the one in force.
 
 X1b: RACE in both modes (one report, the `dummy` WAW 0x170 / 0x2f0; vector-clock reports carry
 `a2_uncertain`). X1 and X2's recorded leg: CLEAN. Triage (`final-b/triage_rtraw.md`): the X1b recordings are
@@ -315,8 +317,8 @@ whole September file is in any case replaced by X1b as the primary input, §0).
 
 ## Open decisions (recorded, not settled)
 
-1. **lock_rtraw counting rule** (§(b)): as recorded (RACE, a detection per mode) or read CLEAN / by pair.
-   Both are shown; Jeffery decides. Whether the c79 inversion rate (29 of 120) is a node effect is not
+1. **lock_rtraw counting rule: DECIDED (Jeffery, 2026-10-25): as recorded (RACE, a detection per mode).** The other two ways stay in §(b) for the record.
+   Whether the c79 inversion rate (29 of 120) is a node effect is not
    established; the c62-type re-recording (320429) was still queued.
 2. **The 24 h pass for P7-particlefilter and P7-haversine vector-clock** was not run (Jeffery, 10-24). Both
    stay TIMEOUT at 5,400 s; particlefilter's 5,400 s task ran on a 125 GB host.
