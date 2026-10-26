@@ -152,7 +152,7 @@ Missing for this section: the nodes' kernel logs (OOM is inferred from SIGKILL a
 `hb_stats` for any launch that did not finish (particlefilter's 4th, expdist's 1st vector-clock launch,
 stencil1d's last); the maximum readers per location of nbody (X1_FOLLOW §3: "not recorded").
 
-### Decided 2026-10-25 (Jeffery) — `P5-race_interblock_none-lock_rtraw`: count as recorded (RACE, one detection per mode)
+### Decided 2026-10-25 (Jeffery) — `P5-race_interblock_none-lock_rtraw`: count as recorded in X1b (RACE, **a false report**), footnote [^rtraw]
 
 The two other ways are kept below for the record; the as-recorded row is the one in force.
 
@@ -166,7 +166,7 @@ triage, **missing**. X1b's 6 of 6 on c79 is unexplained. The row, both ways:
 
 | counting | P5 vector-clock RACE / CLEAN | P5 scalar-clock RACE / CLEAN | all labelled suites, TP/positives, vector-clock | scalar-clock |
 |---|---|---|---|---|
-| **as recorded** (X1b; matches the label, one detection per mode) | 5 / 28 | 3 / 30 | 1939 / 2108 | 1938 / 2108 |
+| **as recorded** (X1b; matches the label, one detection per mode; the RACE is a **false report**: the `dummy` WAW is RACE only because the lock hand-off was lost) [^rtraw] | 5 / 28 | 3 / 30 | 1939 / 2108 | 1938 / 2108 |
 | **read CLEAN** (the schedule-normal outcome: X1, c42; "by pair" it is a CLEAN, and the RACE is a false report) | 4 / 29 | 2 / 31 | 1938 / 2108 | 1937 / 2108 |
 | by pair, as recorded | the reported pair is a false positive, the labelled pair is not reported as a data race | same | -- | -- |
 
@@ -185,7 +185,7 @@ the manifest 0; 28,234 CSV rows (`coverage_verdicts.md`, recomputed here from th
 | P1 | 400 | 200 / 200 / 0 / 0 | 200 / 200 / 0 / 0 |
 | P3 | 60 | 16 / 44 / 0 / 0 | 16 / 44 / 0 / 0 |
 | P4 | 28 | 16 / 12 / 0 / 0 | 16 / 12 / 0 / 0 |
-| P5 | 33 | 5 / 28 / 0 / 0 | 3 / 30 / 0 / 0 |
+| P5 | 33 | 5 / 28 / 0 / 0 (one RACE is the lock_rtraw false report [^rtraw]) | 3 / 30 / 0 / 0 (one RACE is the lock_rtraw false report [^rtraw]) |
 | P6 | 50 | 8 / 26 / 0 / 16 | 8 / 26 / 0 / 16 |
 | P7 | 14 | 3 / 8 / 3 / 0 | 4 / 9 / 1 / 0 |
 | P9 | 10 | 2 / 6 / 2 / 0 | 3 / 6 / 1 / 0 |
@@ -317,7 +317,7 @@ whole September file is in any case replaced by X1b as the primary input, §0).
 
 ## Open decisions (recorded, not settled)
 
-1. **lock_rtraw counting rule: DECIDED (Jeffery, 2026-10-25): as recorded (RACE, a detection per mode).** The other two ways stay in §(b) for the record.
+1. **lock_rtraw counting rule: DECIDED (Jeffery, 2026-10-25): as recorded in X1b (RACE, counted as the detection of the label, but a false report; footnote [^rtraw]).** The other two ways stay in §(b) for the record.
    Whether the c79 inversion rate (29 of 120) is a node effect is not
    established; the c62-type re-recording (320429) was still queued.
 2. **The 24 h pass for P7-particlefilter and P7-haversine vector-clock** was not run (Jeffery, 10-24). Both
@@ -358,3 +358,13 @@ whole September file is in any case replaced by X1b as the primary input, §0).
 `coverage_nodehours.md`), `sept_cutoff.py`, `sept_table.py` (+ `sept_over_cutoff.csv`,
 `sept_over_cutoff_summary.md`, `sept_superseded.md`), `hb_stats_dump.py`, `hb_series.py`, `hwm_changes.py`,
 `probe_stores.py`, `q1.sh`-`q4.sh`, `run_*.sh`. Logs: `eval/x_logs/x3-*.log`.
+
+[^rtraw]: **`P5-race_interblock_none-lock_rtraw` is RACE in X1b as a false report.** Its one report, the `dummy`
+    WAW (pcs 0x170 / 0x2f0), is RACE only because the lock hand-off was lost in the recording; the fenced lock
+    orders that pair in every schedule, and the labelled rtraw pair is a strong conflict, not a data race.
+    X1b recorded the program on c79, where the hand-off was A2-inverted in 6 of 6 recordings (`FINAL_RTRAW.md`
+    schedule C). c79 re-recordings with the f551ca0 runtime and X1b's harness: 29 of 120 inverted (vector-clock
+    12 of 60, scalar-clock 17 of 60), and every inverted one is RACE. c42 re-recordings: 0 of 20 inverted, all
+    CLEAN. X1's recording (c62) is CLEAN. Source: `eval/results/final-b/triage_rtraw.md`. The mechanism on c79 is
+    not established. Counting rule: as recorded (Jeffery, 2026-10-26 relay of the 10-25 decision); the CLEAN
+    alternative stays in the table above for the record.
