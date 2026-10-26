@@ -831,16 +831,19 @@ def render(rows, csvd, out_md):
         today = c.get("tool_wall") / c["native_wall"] if c.get("tool_wall") and c.get("native_wall") else None
         ev = c.get("events")
         floor = FLOOR_US * 1e-6 * ev / c["native_wall"] if ev and c.get("native_wall") else None
-        prod = f * today if (f is not None and today is not None) else None
-        var = floor + f * (today - floor) if (f is not None and today is not None and floor is not None) else None
         uspr = c["tool_wall"] / ev * 1e6 if (c.get("tool_wall") and ev) else None
+        # today's measured µs/record x records on open pcs / native wall
+        prod = uspr * 1e-6 * r["rec_open"] / c["native_wall"] \
+            if (uspr is not None and c.get("native_wall") and not r.get("reason")) else None
+        var = None
         hr.append([r["id"], r["mode"], ",".join(c.get("verdicts", [])) or "missing",
                    fmt(c.get("tool_wall")), fmt(c.get("native_wall")), fmt(today),
                    fmt(ev), fmt(uspr), fmt(floor) + ("†" if floor is not None else ""),
                    "missing (%s)" % (r["reason"] or "no records") if f is None else f"{f:.4f}",
-                   fmt(prod), fmt(var) + ("†" if var is not None else "")])
+                   fmt(prod)])
     L.append(md(["program", "mode", "verdict", "tool wall s", "native s", "today ×", "events",
-                 "today µs/rec", "floor ×†", "open-rec frac f", "f·today ×", "floor+f·(today−floor) ×†"], hr))
+                 "today µs/rec", "floor ×†", "open-rec frac f",
+                 "product × = today µs/rec · open records / native"], hr))
     L.append("\n† rests on the 0.075 µs/record collector-only cost (X1-follow: measured on heartwall "
              "and knn only, default worker count); the rest is the CSV (median of the reps) and "
              "this analysis. × = wall / native wall. events = the CSV's `events=` "

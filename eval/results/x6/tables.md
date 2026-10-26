@@ -60,49 +60,49 @@ Open-record fraction, histogram of programs (primary recording):
 
 ## D. HeCBench (P7, P9), every program and mode
 
-| program | mode | verdict | tool wall s | native s | today × | events | today µs/rec | floor ×† | open-rec frac f | f·today × | floor+f·(today−floor) ×† |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| P7-backprop-cuda | scalar-clock | CLEAN | 6.75 | 0.374 | 18 | 1,232,901 | 5.47 | 0.247† | 0.4721 | 8.51 | 8.64† |
-| P7-backprop-cuda | vector-clock | CLEAN | 6.88 | 0.374 | 18.4 | 1,232,901 | 5.58 | 0.247† | 0.4721 | 8.69 | 8.82† |
-| P7-bezier-surface-cuda | scalar-clock | CLEAN | 309 | 24.5 | 12.6 | 106,955,008 | 2.89 | 0.327† | 0.0000 | 0 | 0.327† |
-| P7-bezier-surface-cuda | vector-clock | CLEAN | 645 | 24.5 | 26.3 | 106,955,008 | 6.03 | 0.327† | 0.0000 | 0 | 0.327† |
-| P7-bfs-cuda | scalar-clock | RACE | 12.1 | 1.37 | 8.81 | 7,436,165 | 1.63 | 0.407† | 0.2640 | 2.33 | 2.63† |
-| P7-bfs-cuda | vector-clock | RACE | 11,501 | 1.55 | 7,439 | 7,436,165 | 1,547 | 0.361† | 0.2640 | 1,964 | 1,964† |
-| P7-bitonic-sort-cuda | scalar-clock | CLEAN | 2,220 | 37.6 | 59 | 1,226,469,735 | 1.81 | 2.44† | 0.0000 | 0 | 2.44† |
-| P7-bitonic-sort-cuda | vector-clock | CLEAN | 4,473 | 37.2 | 120 | 1,226,469,735 | 3.65 | 2.47† | 0.0000 | 0 | 2.47† |
-| P7-haversine-cuda | scalar-clock | CLEAN | 4,131 | 3.59 | 1,150 | 629,145,600 | 6.57 | 13.1† | 0.0000 | 0 | 13.1† |
-| P7-heartwall-cuda | scalar-clock | RACE | 5,729 | 0.872 | 6,570 | 8,071,484,636 | 0.71 | 694† | 0.0109 | 71.4 | 758† |
-| P7-heartwall-cuda | vector-clock | RACE | 61,436 | 0.937 | 65,567 | 8,071,484,636 | 7.61 | 646† | 0.0109 | 713 | 1,352† |
-| P7-hotspot-cuda | scalar-clock | CLEAN | 72.3 | 0.671 | 108 | 37,410,000 | 1.93 | 4.18† | 0.1011 | 10.9 | 14.7† |
-| P7-hotspot-cuda | vector-clock | CLEAN | 246 | 0.671 | 367 | 37,410,000 | 6.58 | 4.18† | 0.1011 | 37.1 | 40.9† |
-| P7-lavaMD-cuda | scalar-clock | CLEAN | 214 | 0.418 | 512 | 398,843,648 | 0.536 | 71.6† | 0.0139 | 7.1 | 77.7† |
-| P7-lavaMD-cuda | vector-clock | CLEAN | 2,227 | 0.469 | 4,749 | 398,843,648 | 5.58 | 63.8† | 0.0139 | 65.8 | 129† |
-| P7-mandelbrot-cuda | scalar-clock | CLEAN | 2,122 | 3.68 | 577 | 327,687,360 | 6.48 | 6.69† | 0.0000 | 0 | 6.69† |
-| P7-mandelbrot-cuda | vector-clock | CLEAN | 4,860 | 3.73 | 1,304 | 327,687,360 | 14.8 | 6.6† | 0.0000 | 0 | 6.6† |
-| P7-nbody-cuda | scalar-clock | CLEAN | 391 | 14.1 | 27.6 | 320,355,120 | 1.22 | 1.7† | 0.0000 | 0 | 1.7† |
-| P7-nbody-cuda | vector-clock | CLEAN | 11,252 | 14.3 | 789 | 320,355,120 | 35.1 | 1.69† | 0.0000 | 0 | 1.69† |
-| P7-particlefilter-cuda | scalar-clock | RACE | 239 | 1.22 | 196 | 5,643,848 | 42.3 | 0.347† | 0.0939 | 18.4 | 18.7† |
-| P7-pathfinder-cuda | scalar-clock | RACE | 20,855 | 1.74 | 11,999 | 7,058,581,010 | 2.95 | 305† | 0.1376 | 1,651 | 1,914† |
-| P7-pathfinder-cuda | vector-clock | RACE | 35,025 | 1.57 | 22,280 | 7,058,581,010 | 4.96 | 337† | 0.1376 | 3,065 | 3,356† |
-| P7-srad-cuda | scalar-clock | CLEAN | 732 | 0.319 | 2,296 | 589,889,126 | 1.24 | 139† | 0.5500 | 1,263 | 1,325† |
-| P7-srad-cuda | vector-clock | CLEAN | 2,333 | 0.369 | 6,322 | 589,889,126 | 3.95 | 120† | 0.5500 | 3,477 | 3,531† |
-| P9-crs-cuda | scalar-clock | CLEAN | 50.5 | 2.42 | 20.8 | 9,864,919 | 5.12 | 0.305† | 0.0457 | 0.953 | 1.24† |
-| P9-crs-cuda | vector-clock | CLEAN | 130 | 2.42 | 53.7 | 9,864,919 | 13.2 | 0.305† | 0.0457 | 2.46 | 2.75† |
-| P9-dxtc2-cuda | scalar-clock | RACE | 683 | 0.37 | 1,847 | 634,278,100 | 1.08 | 129† | 0.4739 | 875 | 943† |
-| P9-dxtc2-cuda | vector-clock | RACE | 3,384 | 0.37 | 9,147 | 634,278,100 | 5.34 | 129† | 0.4739 | 4,335 | 4,402† |
-| P9-expdist-cuda | scalar-clock | RACE | 2,697 | 2.19 | 1,234 | 1,650,046,572 | 1.63 | 56.6† | 0.7141 | 881 | 898† |
-| P9-fpc-cuda | scalar-clock | CLEAN | 591 | 2.15 | 274 | 145,620,992 | 4.06 | 5.07† | 0.5263 | 144 | 147† |
-| P9-fpc-cuda | vector-clock | CLEAN | 1,776 | 2.07 | 857 | 145,620,992 | 12.2 | 5.27† | 0.5263 | 451 | 454† |
-| P9-gpp-cuda | scalar-clock | CLEAN | 25.1 | 0.271 | 92.6 | 10,368,000 | 2.42 | 2.87† | 0.0750 | 6.95 | 9.6† |
-| P9-gpp-cuda | vector-clock | CLEAN | 109 | 0.271 | 401 | 10,368,000 | 10.5 | 2.87† | 0.0750 | 30.1 | 32.7† |
-| P9-knn-cuda | scalar-clock | CLEAN | 9,680 | 12 | 807 | 11,144,912,500 | 0.869 | 69.6† | 0.0496 | 40 | 106† |
-| P9-knn-cuda | vector-clock | CLEAN | 58,674 | 13.8 | 4,254 | 11,144,912,500 | 5.26 | 60.6† | 0.0496 | 211 | 269† |
-| P9-mr-cuda | scalar-clock | CLEAN | 165 | 1.77 | 92.9 | 82,019,200 | 2.01 | 3.47† | 0.1948 | 18.1 | 20.9† |
-| P9-mr-cuda | vector-clock | CLEAN | 445 | 1.77 | 251 | 82,019,200 | 5.42 | 3.47† | 0.1948 | 48.9 | 51.7† |
-| P9-overlap-cuda | scalar-clock | CLEAN | 29.1 | 0.371 | 78.5 | 13,107,200 | 2.22 | 2.65† | 0.0000 | 0 | 2.65† |
-| P9-overlap-cuda | vector-clock | CLEAN | 65.8 | 0.371 | 177 | 13,107,200 | 5.02 | 2.65† | 0.0000 | 0 | 2.65† |
-| P9-tridiagonal-cuda | scalar-clock | RACE | 9,228 | 0.771 | 11,969 | 5,598,992,570 | 1.65 | 545† | 0.4743 | 5,676 | 5,963† |
-| P9-tridiagonal-cuda | vector-clock | RACE | 51,436 | 0.789 | 65,192 | 5,598,992,570 | 9.19 | 532† | 0.4743 | 30,918 | 31,198† |
+| program | mode | verdict | tool wall s | native s | today × | events | today µs/rec | floor ×† | open-rec frac f | product × = today µs/rec · open records / native |
+|---|---|---|---|---|---|---|---|---|---|---|
+| P7-backprop-cuda | scalar-clock | CLEAN | 6.75 | 0.374 | 18 | 1,232,901 | 5.47 | 0.247† | 0.4721 | 5.57 |
+| P7-backprop-cuda | vector-clock | CLEAN | 6.88 | 0.374 | 18.4 | 1,232,901 | 5.58 | 0.247† | 0.4721 | 5.69 |
+| P7-bezier-surface-cuda | scalar-clock | CLEAN | 309 | 24.5 | 12.6 | 106,955,008 | 2.89 | 0.327† | 0.0000 | 0 |
+| P7-bezier-surface-cuda | vector-clock | CLEAN | 645 | 24.5 | 26.3 | 106,955,008 | 6.03 | 0.327† | 0.0000 | 0 |
+| P7-bfs-cuda | scalar-clock | RACE | 12.1 | 1.37 | 8.81 | 7,436,165 | 1.63 | 0.407† | 0.2640 | 1.97 |
+| P7-bfs-cuda | vector-clock | RACE | 11,501 | 1.55 | 7,439 | 7,436,165 | 1,547 | 0.361† | 0.2640 | 1,664 |
+| P7-bitonic-sort-cuda | scalar-clock | CLEAN | 2,220 | 37.6 | 59 | 1,226,469,735 | 1.81 | 2.44† | 0.0000 | 0 |
+| P7-bitonic-sort-cuda | vector-clock | CLEAN | 4,473 | 37.2 | 120 | 1,226,469,735 | 3.65 | 2.47† | 0.0000 | 0 |
+| P7-haversine-cuda | scalar-clock | CLEAN | 4,131 | 3.59 | 1,150 | 629,145,600 | 6.57 | 13.1† | 0.0000 | 0 |
+| P7-heartwall-cuda | scalar-clock | RACE | 5,729 | 0.872 | 6,570 | 8,071,484,636 | 0.71 | 694† | 0.0109 | 71.4 |
+| P7-heartwall-cuda | vector-clock | RACE | 61,436 | 0.937 | 65,567 | 8,071,484,636 | 7.61 | 646† | 0.0109 | 713 |
+| P7-hotspot-cuda | scalar-clock | CLEAN | 72.3 | 0.671 | 108 | 37,410,000 | 1.93 | 4.18† | 0.1011 | 8.43 |
+| P7-hotspot-cuda | vector-clock | CLEAN | 246 | 0.671 | 367 | 37,410,000 | 6.58 | 4.18† | 0.1011 | 28.7 |
+| P7-lavaMD-cuda | scalar-clock | CLEAN | 214 | 0.418 | 512 | 398,843,648 | 0.536 | 71.6† | 0.0139 | 7 |
+| P7-lavaMD-cuda | vector-clock | CLEAN | 2,227 | 0.469 | 4,749 | 398,843,648 | 5.58 | 63.8† | 0.0139 | 64.9 |
+| P7-mandelbrot-cuda | scalar-clock | CLEAN | 2,122 | 3.68 | 577 | 327,687,360 | 6.48 | 6.69† | 0.0000 | 0 |
+| P7-mandelbrot-cuda | vector-clock | CLEAN | 4,860 | 3.73 | 1,304 | 327,687,360 | 14.8 | 6.6† | 0.0000 | 0 |
+| P7-nbody-cuda | scalar-clock | CLEAN | 391 | 14.1 | 27.6 | 320,355,120 | 1.22 | 1.7† | 0.0000 | 0 |
+| P7-nbody-cuda | vector-clock | CLEAN | 11,252 | 14.3 | 789 | 320,355,120 | 35.1 | 1.69† | 0.0000 | 0 |
+| P7-particlefilter-cuda | scalar-clock | RACE | 239 | 1.22 | 196 | 5,643,848 | 42.3 | 0.347† | 0.0939 | 17.7 |
+| P7-pathfinder-cuda | scalar-clock | RACE | 20,855 | 1.74 | 11,999 | 7,058,581,010 | 2.95 | 305† | 0.1376 | 5.8 |
+| P7-pathfinder-cuda | vector-clock | RACE | 35,025 | 1.57 | 22,280 | 7,058,581,010 | 4.96 | 337† | 0.1376 | 10.8 |
+| P7-srad-cuda | scalar-clock | CLEAN | 732 | 0.319 | 2,296 | 589,889,126 | 1.24 | 139† | 0.5500 | 1,060 |
+| P7-srad-cuda | vector-clock | CLEAN | 2,333 | 0.369 | 6,322 | 589,889,126 | 3.95 | 120† | 0.5500 | 2,918 |
+| P9-crs-cuda | scalar-clock | CLEAN | 50.5 | 2.42 | 20.8 | 9,864,919 | 5.12 | 0.305† | 0.0457 | 0.809 |
+| P9-crs-cuda | vector-clock | CLEAN | 130 | 2.42 | 53.7 | 9,864,919 | 13.2 | 0.305† | 0.0457 | 2.09 |
+| P9-dxtc2-cuda | scalar-clock | RACE | 683 | 0.37 | 1,847 | 634,278,100 | 1.08 | 129† | 0.4739 | 688 |
+| P9-dxtc2-cuda | vector-clock | RACE | 3,384 | 0.37 | 9,147 | 634,278,100 | 5.34 | 129† | 0.4739 | 3,405 |
+| P9-expdist-cuda | scalar-clock | RACE | 2,697 | 2.19 | 1,234 | 1,650,046,572 | 1.63 | 56.6† | 0.7141 | 875 |
+| P9-fpc-cuda | scalar-clock | CLEAN | 591 | 2.15 | 274 | 145,620,992 | 4.06 | 5.07† | 0.5263 | 62.3 |
+| P9-fpc-cuda | vector-clock | CLEAN | 1,776 | 2.07 | 857 | 145,620,992 | 12.2 | 5.27† | 0.5263 | 195 |
+| P9-gpp-cuda | scalar-clock | CLEAN | 25.1 | 0.271 | 92.6 | 10,368,000 | 2.42 | 2.87† | 0.0750 | 6.86 |
+| P9-gpp-cuda | vector-clock | CLEAN | 109 | 0.271 | 401 | 10,368,000 | 10.5 | 2.87† | 0.0750 | 29.7 |
+| P9-knn-cuda | scalar-clock | CLEAN | 9,680 | 12 | 807 | 11,144,912,500 | 0.869 | 69.6† | 0.0496 | 37.9 |
+| P9-knn-cuda | vector-clock | CLEAN | 58,674 | 13.8 | 4,254 | 11,144,912,500 | 5.26 | 60.6† | 0.0496 | 200 |
+| P9-mr-cuda | scalar-clock | CLEAN | 165 | 1.77 | 92.9 | 82,019,200 | 2.01 | 3.47† | 0.1948 | 17 |
+| P9-mr-cuda | vector-clock | CLEAN | 445 | 1.77 | 251 | 82,019,200 | 5.42 | 3.47† | 0.1948 | 45.9 |
+| P9-overlap-cuda | scalar-clock | CLEAN | 29.1 | 0.371 | 78.5 | 13,107,200 | 2.22 | 2.65† | 0.0000 | 0 |
+| P9-overlap-cuda | vector-clock | CLEAN | 65.8 | 0.371 | 177 | 13,107,200 | 5.02 | 2.65† | 0.0000 | 0 |
+| P9-tridiagonal-cuda | scalar-clock | RACE | 9,228 | 0.771 | 11,969 | 5,598,992,570 | 1.65 | 545† | 0.4743 | 5,000 |
+| P9-tridiagonal-cuda | vector-clock | RACE | 51,436 | 0.789 | 65,192 | 5,598,992,570 | 9.19 | 532† | 0.4743 | 27,236 |
 
 † rests on the 0.075 µs/record collector-only cost (X1-follow: measured on heartwall and knn only, default worker count); the rest is the CSV (median of the reps) and this analysis. × = wall / native wall. events = the CSV's `events=` (hb_events_count: memory + barrier/exit/syncwarp records, local excluded). f uses memory records only. Rows with a TIMEOUT/ERROR verdict in some rep have no valid events.
 
