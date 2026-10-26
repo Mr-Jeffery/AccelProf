@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
-#SBATCH --job-name=x1-final-24h
-#SBATCH --partition=max
-#SBATCH --exclude=c[0-26],c29,c[33-37],c[39-48],c[50-59],c[73-79]
+#SBATCH --job-name=x1b-final-24h
+#SBATCH --partition=rtx4060ti16g
+#SBATCH --exclude=c[0-3],c[23-24],c37,c46,c[39-44],c[54-56],c[73-79]
 #SBATCH --exclusive
 #SBATCH --nodes=1 --ntasks=1
-#SBATCH --time=2-00:00:00
-#SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/final-24h-%A_%a.log
+#SBATCH --time=1-00:00:00
+#SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/finalb-24h-%A_%a.log
+# X1b (Jeffery 2026-10-22): the 4060 partitions allow 1 day per job, so this pass runs on rtx4060ti16g with --time=24:00:00 and
+# a tool cap of 84,600 s (23.5 h; 30 min left for native run, extraction, analysis, copy); c60-c72 by default, any good host with
+# -x c2,c21,c23,c37,c46,c54 for small-memory keys. X1 used partition max and 86,400 s.
 # X1 third pass (eval/FINAL_SWEEP.md section 4b), added 2026-10-14 at Jeffery's request: the (id, mode)
 # keys still TIMEOUT at 5,400 s re-run with a 24 h cap, ONE rep (Jeffery's choice; native timing one
 # rep as well), one mode per array. Everything else is p_final.sh's configuration (BASELINE_HB_DUMP=0,
@@ -25,9 +28,9 @@
 #   MODE=vector-clock|scalar-clock ID_FILE=<ids> NSHARDS=<n> TAG=<tag> sbatch --array=0-<n-1> [-x ...] \
 #     eval/baselines/setup/p_final_24h.sh        (shard k = the k-th id of the file in manifest order)
 set -u
-W=${W:-/home/fzheng4/AccelProf/.claude/worktrees/wt-x1}
+W=${W:-/home/fzheng4/wt-x1b}
 MODE=${MODE:?set MODE=vector-clock or scalar-clock}
 if [ "$MODE" = scalar-clock ]; then SFX=sc; else SFX=vc; fi
-export W MODES=$MODE CAP=86400 REPS=1 TAG=${TAG:-final-24h-$SFX} RES=final-24h-$SFX STORE_TAG=final-2026-10-24h-$SFX
+export W MODES=$MODE CAP=${CAP:-84600} REPS=1 TAG=${TAG:-final-b-24h-$SFX} RES=final-b-24h-$SFX STORE_TAG=final-2026-11-24h-$SFX
 export ID_FILE=${ID_FILE:?} NSHARDS=${NSHARDS:?set NSHARDS = the number of lines of the id file}
 bash $W/eval/baselines/setup/p_final.sh

@@ -300,6 +300,9 @@ def collect_one(mrow, cuda, reps, floor=120, cap=1200):
     meta["pc_lines"] = {str(k): v for k, v in pcmap.items()}
     meta["scope_present"] = bool(scope)
     meta["hb_dump"] = blib.hb_dump()     # T4: 0 = recorded without hb_events (aggregates only)
+    # X1b: YOSEMITE_HB_SHARDS per mode (scalar-clock only; 0 = serial pass) and the node's CPU count
+    meta["hb_shards"] = {VC: 0, SC: blib.hb_shards()}
+    meta["nproc"] = os.cpu_count()
     os.makedirs(f"{idir}/dots", exist_ok=True)
     for dot in glob.glob(f"{cubindir}/*.dot"):
         shutil.copy(dot, f"{idir}/dots/")
