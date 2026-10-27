@@ -2,6 +2,8 @@
 # M1 (eval/MODE_PAIRS.md): one command reproduces every table.
 #   bash eval/baselines/setup/p_mode_pairs.sh            # submit collect (array) + tables (afterany)
 #   sbatch --array=K-K eval/baselines/setup/p_mode_pairs.sh   # (re)run one collect shard
+#   the programs that hit the 3,600 s cap, one long task (eval/results/mode-pairs/long_ids.txt):
+#   sbatch --array=0-12 --exclusive --time=1-00:00:00 --export=ALL,MODE=collect,NSHARDS=13,IDFILE=eval/results/mode-pairs/long_ids.txt,TMO=82800,MEMGB=110,FORCE=1 eval/baselines/setup/p_mode_pairs.sh
 # Submitted from a login node it only calls sbatch; run as an array task it is a collect shard
 # (CPU, partition normal; the stores are on BeeGFS); with MODE=tables it writes the tables.
 #SBATCH --job-name=m1-mode-pairs
@@ -26,5 +28,5 @@ if [ "${MODE:-collect}" = tables ]; then
     $PY eval/baselines/mode_pairs.py tables
 else
     $PY eval/baselines/mode_pairs.py collect --shard ${SLURM_ARRAY_TASK_ID:-0}/${NSHARDS:-48} \
-        --timeout ${TMO:-3600} --mem-gb ${MEMGB:-60} ${FORCE:+--force}
+        --timeout ${TMO:-3600} --mem-gb ${MEMGB:-60} ${FORCE:+--force} ${IDFILE:+--id-file $IDFILE}
 fi

@@ -263,7 +263,7 @@ def cmd_tables(a):
     progs, diffs = [], []
     status = defaultdict(Counter)
     for _id, j in sorted(det.items()):
-        pset = j.get("pset") or (src.get("selected", {}).get(_id, {}) or {}).get("pset") or "?"
+        pset = j.get("pset") or (src.get("selected", {}).get(_id, {}) or {}).get("pset") or _id.split("-")[0]
         status[pset][j["status"].split("=")[0].split(":")[0].split("(")[0]] += 1
         if j["status"] != "ok":
             progs.append({"suite": pset, "id": _id, "status": j["status"]})
