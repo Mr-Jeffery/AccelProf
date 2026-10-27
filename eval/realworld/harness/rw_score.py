@@ -63,6 +63,12 @@ def read_csv_rows(resdir, id_):
     if os.path.exists(p):
         for r in csv.DictReader(open(p, newline="")):
             out[r["mode"]] = r
+    # a completed re-analysis of the same recording (harness/t21c_rean*.sh, tag "rean-") supersedes an ERROR row
+    q = f"{resdir}/baselines-cuvein-shardrean-{id_}-all.csv"
+    if os.path.exists(q):
+        for r in csv.DictReader(open(q, newline="")):
+            if r.get("verdict") in ("RACE", "CLEAN") and out.get(r["mode"], {}).get("verdict") not in ("RACE", "CLEAN"):
+                out[r["mode"]] = r
     return out
 
 

@@ -140,7 +140,7 @@
        "_source": "sites[0] (write L364-365, statement spans two lines per open_questions) and sites[1] (read L502); thread_relation intra-warp, expected_class DR; lines checked with git show 6db3867:src/colmap/mvs/patch_match_cuda.cu"},
       {"name": "new bottom-row store L377-378 vs load L502", "role": "extra", "cls": "DR", "A": [["patch_match_cuda.cu", 377, 378]], "B": [["patch_match_cuda.cu", 502, 502]],
        "_source": "other_conflicting_accesses[0] ('a second write site of the same WAR against the L502 reads')"}],
-    "_source": "oracle colmap-new-1.json at 6db3867; no fixed build. NOT scored in T21c (run ERROR); entry written for the coordinator"},
+    "_source": "oracle colmap-new-1.json at 6db3867; no fixed build. Scored from the reanalysis (job 320685, analysis timeout 82,800 s) of the original recording"},
   "cuml-tsne-new-1": {"pairs": [
       {"name": "dq self-copy store L596 vs L596 (cross-warp, value-benign)", "role": "primary", "cls": "DR", "A": [["barnes_hut_kernels.cuh", 596, 596]], "B": [["barnes_hut_kernels.cuh", 596, 596]],
        "_source": "sites[0]/sites[1] (both L596) and buggy_expected 'Primary: cross-warp WAR/RAW on dq[0..31], L596 vs L596'; thread_relation cross-warp-same-block, expected_class DR; checked in r2/buggy/cpp/src/tsne/barnes_hut_kernels.cuh"},
