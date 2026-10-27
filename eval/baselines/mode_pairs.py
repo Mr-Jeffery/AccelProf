@@ -406,6 +406,13 @@ def cmd_tables(a):
     md += ["## Status of the vector-clock recordings", ""]
     allst = sorted({k for c in status.values() for k in c})
     md += [_md(["suite"] + allst, [[s] + [status[s].get(k, 0) for k in allst] for s in sorted(status)]), ""]
+    na = [r for r in progs if r["status"] != "ok"]
+    md += ["### Recordings not analysed (no vector-clock recording to read)", "",
+           _md(["suite", "id", "reason"], [[r["suite"], r["id"], r["status"]] for r in na])
+           if na else "none", ""]
+    md += ["The reason is the last store that lists the id. In the merged CSV the P7 and P9 ids have "
+           "only vector-clock TIMEOUT rows (no complete rep), the P6 ids have no vector-clock row, "
+           "and amrex-1 / ginkgo-1 are the final-m4 / partial real-world recordings.", ""]
     md += ["## Definitions", "",
            "- Source: the vector-clock no-dump recording of each program in the final stores "
            f"({a.stores}); later stores win, as in latent_census.py. A recording counts only if "
