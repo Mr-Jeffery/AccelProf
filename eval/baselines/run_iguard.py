@@ -60,7 +60,7 @@ def parse_reports(text):
     return reps, lines
 
 
-def run_one(mrow, cuda, reps, workroot):
+def run_one(mrow, cuda, reps, workroot, fixed_timeout=0):
     exe = mrow["exe"]
     common = dict(id=mrow["id"], pset=mrow["pset"], program=mrow["program"],
                   build=mrow["build"], input=mrow["input"], tool="iguard")
@@ -82,6 +82,8 @@ def run_one(mrow, cuda, reps, workroot):
                                    stderr_path=f"{logd}/native.txt")
     native = w if (not to and isinstance(w, (int, float))) else None
     timeout = min(max(int(10 * native), 120), 1200) if native else man_timeout
+    if fixed_timeout:
+        timeout = fixed_timeout   # --timeout: the cap cuVein was given for this row
     env = blib.base_env(cuda)
     env["LD_PRELOAD"] = IGUARD_SO
     env["TIMEOUT"] = "0"          # iGUARD's own kernel timeout off; ours governs
@@ -134,6 +136,7 @@ def main():
     ap.add_argument("--shard", default="", help="k/N")
     ap.add_argument("--reps", type=int, default=3)
     ap.add_argument("--out", default="")
+    ap.add_argument("--timeout", type=int, default=0, help="fixed per-rep cap (s)")
     a = ap.parse_args()
     if not os.path.exists(IGUARD_SO):
         sys.stderr.write(
@@ -161,7 +164,7 @@ def main():
         for i, m in enumerate(rows, 1):
             print(f"[{i}/{len(rows)}] {m['id']}", flush=True)
             try:
-                for r in run_one(m, cuda, a.reps, workroot):
+                for r in run_one(m, cuda, a.reps, workroot, a.timeout):
                     w.writerow(r)
             except Exception as e:
                 w.writerow(blib.row(id=m["id"], pset=m["pset"], program=m["program"],
