@@ -37,6 +37,7 @@ import socket
 import statistics
 import subprocess
 import sys
+import re
 import time
 from pathlib import Path
 
@@ -310,6 +311,21 @@ def collect_one(mrow, cuda, reps, floor=120, cap=1200):
     accel = ["accelprof", "-t", "pc_dependency_analysis", "-n", "1",
              f"./{base}", *args]
 
+    def _drained(mode):
+        """C1: the records the analyzer drained in a collector-only run, from the per-drain lines of
+        `accelprof -v` (the count X1-follow reports; hb_events_count does not exist without HbClock)."""
+        n, rec = 0, 0
+        try:
+            with open(f"{work}/{base}.accelprof.log", "rb") as f:
+                for ln in f:
+                    m = _DRAIN.search(ln)
+                    if m:
+                        n += 1
+                        rec += int(m.group(1))
+        except OSError:
+            return None, None
+        return n, rec
+
     def _clean_deps():
         for d in glob.glob(f"{work}/dependency_{base}_*"):
             shutil.rmtree(d, ignore_errors=True)
@@ -357,7 +373,10 @@ def collect_one(mrow, cuda, reps, floor=120, cap=1200):
         for rep in range(1, reps + 1):
             _clean_deps()
             errp = f"{logs}/{mode}_rep{rep}.txt"
-            wall, peak, rcode, to = blib.run_timed(accel, env, work, tool_timeout,
+            # C1: collector-only runs with -v, as X1-follow's collector-only runs did: the log carries
+            # the per-drain record counts (the only record count that mode has)
+            cmd = accel[:1] + ["-v"] + accel[1:] if mode == CO else accel
+            wall, peak, rcode, to = blib.run_timed(cmd, env, work, tool_timeout,
                                                    poll_mem=True, stdin_path=stdin,
                                                    stderr_path=errp)
             deps = sorted(glob.glob(f"{work}/dependency_{base}_*"),
@@ -381,6 +400,8 @@ def collect_one(mrow, cuda, reps, floor=120, cap=1200):
             rm = dict(wall=wall, peak_mb=round(peak / 1024.0, 1) if peak else "",
                       rc=rcode, timed_out=to, nkernels=len(kjs), dump_mb=round(dump_mb, 1),
                       complete=complete)
+            if mode == CO:
+                rm["drains"], rm["drained_records"] = _drained(mode)
             if to or not kjs or not complete:
                 rm["err"] = blib.tail_text(errp, 10, 500)
             reps_meta.append(rm)
@@ -399,9 +420,13 @@ def collect_one(mrow, cuda, reps, floor=120, cap=1200):
                     partial_dump = kept
             _clean_deps()               # free the (possibly multi-GB) dump at once
         ev, uncounted = _count_events(f"{idir}/{mode}") if saved else (0, [])
+        if mode == CO:      # no hb_events_count: the records the saved rep drained
+            ev = next((r.get("drained_records") for r in reps_meta if r.get("complete")), None) or 0
         meta["modes"][mode] = dict(reps=reps_meta, saved=saved, partial=partial,
                                    events=ev, events_uncounted=uncounted,
-                                   partial_dump=partial_dump)
+                                   partial_dump=partial_dump,
+                                   hb_trace=mode != CO,
+                                   yosemite_env=sorted(k for k in env if k.startswith("YOSEMITE_")))
         _write_meta()                   # per-mode checkpoint
     # trace size (for the P7 "largest-trace" selection): total hb_events in the
     # saved vector-clock dump. Rows report their OWN mode's count (meta.modes.<mode>.events).
@@ -415,6 +440,7 @@ def collect_one(mrow, cuda, reps, floor=120, cap=1200):
 # json.loads needs ~6-10x the text size in RAM: P7-bezier-surface's complete 138 GB
 # scalar-clock dump took the HARNESS (not the collector, not the analysis) to 183 GB RSS
 # while counting its events and the kernel OOM killer took the whole shard.
+_DRAIN = re.compile(rb"GPU data analysis called with size = (\d+)")
 COUNT_EVENTS_MAX_GB = float(os.environ.get("BASELINE_COUNT_EVENTS_MAX_GB", "12"))
 
 
