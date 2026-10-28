@@ -304,6 +304,7 @@ def collect_one(mrow, cuda, reps, floor=120, cap=1200):
     # X1b: YOSEMITE_HB_SHARDS per mode (scalar-clock only; 0 = serial pass) and the node's CPU count
     meta["hb_shards"] = {VC: 0, SC: blib.hb_shards(), CO: 0}
     meta["nproc"] = os.cpu_count()
+    meta["keep_reps"] = KEEP_REPS
     os.makedirs(f"{idir}/dots", exist_ok=True)
     for dot in glob.glob(f"{cubindir}/*.dot"):
         shutil.copy(dot, f"{idir}/dots/")
@@ -405,6 +406,17 @@ def collect_one(mrow, cuda, reps, floor=120, cap=1200):
             if to or not kjs or not complete:
                 rm["err"] = blib.tail_text(errp, 10, 500)
             reps_meta.append(rm)
+            if KEEP_REPS and kjs and not to:
+                # C1: the "Is one run enough?" parity set keeps every rep's kernel JSONs apart
+                # (hard links: the first complete rep is then moved to <id>/<mode> as usual)
+                rd = f"{idir}/{mode}-rep{rep}"
+                shutil.rmtree(rd, ignore_errors=True)
+                os.makedirs(rd, exist_ok=True)
+                for kj in kjs:
+                    try:
+                        os.link(kj, f"{rd}/{os.path.basename(kj)}")
+                    except OSError:
+                        shutil.copy2(kj, f"{rd}/{os.path.basename(kj)}")
             # a timed-out rep is killed mid-write: its kernel JSONs are truncated
             # (JSONDecodeError downstream), so only a non-timed-out rep's dump is saved:
             # the first COMPLETE one, else the first partial one (flagged; a race it
@@ -440,6 +452,7 @@ def collect_one(mrow, cuda, reps, floor=120, cap=1200):
 # json.loads needs ~6-10x the text size in RAM: P7-bezier-surface's complete 138 GB
 # scalar-clock dump took the HARNESS (not the collector, not the analysis) to 183 GB RSS
 # while counting its events and the kernel OOM killer took the whole shard.
+KEEP_REPS = os.environ.get("BASELINE_KEEP_REPS", "0") == "1"   # C1 parity set: <id>/<mode>-rep<k>/
 _DRAIN = re.compile(rb"GPU data analysis called with size = (\d+)")
 COUNT_EVENTS_MAX_GB = float(os.environ.get("BASELINE_COUNT_EVENTS_MAX_GB", "12"))
 

@@ -1,0 +1,72 @@
+host=c74 gpu=[NVIDIA GeForce RTX 4060 Ti, 8.9, 580.82.07] mem=125G cpu=[AMD EPYC 7302P 16-Core Processor]
+no HbClock, no sync pass (hb_shards n/a) nproc=16 analyzer: accelprof -n 1
+job=322912 array=322639_50 partition=rtx4060ti16g shard=50/64 select=[--pset PI] tag=co-pi cap=1200s reps=3 modes=collector-only store=/mnt/beegfs/fzheng4/cuvein_traces/final-2026-11-co 2026-10-28T18:49:42-04:00
+runtime /home/fzheng4/AccelProf HEAD=f551ca00947e libsanalyzer=5a20fd14ab6c6806 (/home/fzheng4/AccelProf/build/sanalyzer/lib/libsanalyzer.so) collector=b746b4dd23e90f46 fatbin=a2d7368bc1c61986 late=e96343121c74ca0a
+harness /home/fzheng4/wt-co HEAD=fd034431215b dirty=0 Build cuda_13.3.r13.3/compiler.38244171_0
+[run 1/64] PI-conditional_edge_neighbor_boundsBug_cond_guardBug_atomicBug-DAG_200n_400e
+[run 2/64] PI-conditional_edge_neighbor_boundsBug_last_guardBug-DAG_5n_5e
+[run 3/64] PI-conditional_edge_neighbor_last_atomicBug-counterDAG_200n_1000e
+[run 4/64] PI-conditional_edge_neighbor_persistent_boundsBug-counterDAG_5n_5e
+[run 5/64] PI-conditional_edge_neighbor_persistent_boundsBug_last_atomicBug-power_law_200n_1000e
+[run 6/64] PI-conditional_edge_neighbor_persistent_cond_guardBug-DAG_100n_100e
+[run 7/64] PI-conditional_edge_neighbor_persistent_last_guardBug-DAG_100n_200e
+[run 8/64] PI-conditional_edge_neighbors_boundsBug_cond-DAG_200n_400e
+[run 9/64] PI-conditional_edge_neighbors_boundsBug_guardBug_atomicBug-DAG_5n_5e
+[run 10/64] PI-conditional_edge_neighbors_boundsBug_reverse_cond_atomicBug_break-counterDAG_200n_1000e
+[run 11/64] PI-conditional_edge_neighbors_boundsBug_reverse_guardBug_break-counterDAG_5n_5e
+[run 12/64] PI-conditional_edge_neighbors_cond_guardBug_break-power_law_200n_1000e
+[run 13/64] PI-conditional_edge_neighbors_persistent_cond-DAG_100n_100e
+[run 14/64] PI-conditional_edge_neighbors_persistent_guardBug_atomicBug_break-DAG_100n_200e
+[run 15/64] PI-conditional_edge_neighbors_persistent_reverse_cond_break-DAG_200n_400e
+[run 16/64] PI-conditional_edge_neighbors_reverse-DAG_5n_5e
+[run 17/64] PI-conditional_edge_neighbors_reverse_cond_guardBug_atomicBug-counterDAG_200n_1000e
+[run 18/64] PI-conditional_edge_neighbors_block_cond-counterDAG_5n_5e
+[run 19/64] PI-conditional_edge_neighbors_block_guardBug_atomicBug-power_law_200n_1000e
+[run 20/64] PI-conditional_edge_neighbors_block_persistent_cond_syncBug_guardBug-DAG_100n_100e
+[run 21/64] PI-conditional_edge_neighbors_block_persistent_reverse_cond_syncBug-DAG_100n_200e
+[run 22/64] PI-conditional_edge_neighbors_block_persistent_reverse_syncBug_guardBug_atomicBug-DAG_200n_400e
+[run 23/64] PI-conditional_edge_neighbors_block_reverse_cond_guardBug-DAG_5n_5e
+[run 24/64] PI-conditional_edge_neighbors_block_reverse_syncBug_atomicBug-counterDAG_200n_1000e
+[run 25/64] PI-conditional_edge_neighbors_block_shfl_guardBug-counterDAG_5n_5e
+[run 26/64] PI-conditional_edge_neighbors_block_shfl_persistent_guardBug_atomicBug-power_law_200n_1000e
+[run 27/64] PI-conditional_edge_neighbors_block_shfl_reverse-DAG_100n_100e
+[run 28/64] PI-conditional_edge_neighbors_block_syncBug_guardBug-DAG_100n_200e
+[run 29/64] PI-conditional_edge_neighbors_warp_guardBug_atomicBug-DAG_200n_400e
+[run 30/64] PI-conditional_edge_neighbors_warp_persistent_reverse-DAG_5n_5e
+[run 31/64] PI-conditional_edge_neighbors_warp_reverse_atomicBug-counterDAG_200n_1000e
+[run 32/64] PI-conditional_vertex_neighbor_boundsBug-counterDAG_5n_5e
+[run 33/64] PI-conditional_vertex_neighbor_persistent_boundsBug_atomicBug-power_law_200n_1000e
+[run 34/64] PI-conditional_vertex_neighbors_boundsBug_atomicBug-DAG_100n_100e
+[run 35/64] PI-conditional_vertex_neighbors_persistent_atomicBug_break-DAG_100n_200e
+[run 36/64] PI-conditional_vertex_neighbors_reverse_break-DAG_200n_400e
+[run 37/64] PI-conditional_vertex_neighbors_warp-DAG_5n_5e
+[run 38/64] PI-path_compression_persistent-counterDAG_200n_1000e
+[run 39/64] PI-populate_worklist_neighbor_boundsBug_last-counterDAG_5n_5e
+[run 40/64] PI-populate_worklist_neighbor_persistent_boundsBug_last_atomicBug-power_law_200n_1000e
+[run 41/64] PI-populate_worklist_neighbors_boundsBug_break-DAG_100n_100e
+[run 42/64] PI-populate_worklist_neighbors_persistent_reverse-DAG_100n_200e
+[run 43/64] PI-populate_worklist_neighbors_block_atomicBug-DAG_200n_400e
+[run 44/64] PI-populate_worklist_neighbors_warp_persistent-DAG_5n_5e
+[run 45/64] PI-pull_node_neighbor_boundsBug_last-counterDAG_200n_1000e
+[run 46/64] PI-pull_node_neighbor_persistent_boundsBug_last_cond-counterDAG_5n_5e
+[run 47/64] PI-pull_node_neighbors_boundsBug_reverse-power_law_200n_1000e
+[run 48/64] PI-pull_node_neighbors_persistent_cond-DAG_100n_100e
+[run 49/64] PI-pull_node_neighbors_block-DAG_100n_200e
+[run 50/64] PI-pull_node_neighbors_block_persistent_reverse_syncBug-DAG_200n_400e
+[run 51/64] PI-pull_node_neighbors_block_shfl_persistent_cond-DAG_5n_5e
+[run 52/64] PI-pull_node_neighbors_warp_persistent_cond-counterDAG_200n_1000e
+[run 53/64] PI-push_node_neighbor_boundsBug_cond-counterDAG_5n_5e
+[run 54/64] PI-push_node_neighbor_last_atomicBug-power_law_200n_1000e
+[run 55/64] PI-push_node_neighbor_persistent_boundsBug_last-DAG_100n_100e
+[run 56/64] PI-push_node_neighbors-DAG_100n_200e
+[run 57/64] PI-push_node_neighbors_boundsBug_cond_atomicBug_break-DAG_200n_400e
+[run 58/64] PI-push_node_neighbors_boundsBug_reverse_cond_break-DAG_5n_5e
+[run 59/64] PI-push_node_neighbors_persistent_break-counterDAG_200n_1000e
+[run 60/64] PI-push_node_neighbors_persistent_reverse_cond-counterDAG_5n_5e
+[run 61/64] PI-push_node_neighbors_reverse_cond_atomicBug-power_law_200n_1000e
+[run 62/64] PI-push_node_neighbors_block_persistent_cond-DAG_100n_100e
+[run 63/64] PI-push_node_neighbors_warp-DAG_100n_200e
+[run 64/64] PI-push_node_neighbors_warp_persistent_reverse_atomicBug-DAG_200n_400e
+run: 64 programs -> /home/fzheng4/wt-co/eval/results/collector-only/baselines-cuvein-shardco-pi50_64.csv
+kept traces: 0.00 GB in /mnt/beegfs/fzheng4/cuvein_traces/final-2026-11-co
+== done rc=0 2026-10-28T18:57:19-04:00

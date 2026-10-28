@@ -1,0 +1,20 @@
+host=c63 gpu=[NVIDIA GeForce RTX 4060 Ti, 8.9, 580.82.07] mem=188G cpu=[AMD EPYC 8124P 16-Core Processor]
+no HbClock, no sync pass (hb_shards n/a) nproc=16 analyzer: accelprof -n 1
+job=322703 array=322638_20 partition=rtx4060ti16g shard=20/48 select=[--pset P1,P3,P4,P5,P6,P7,P9] tag=co cap=1200s reps=3 modes=collector-only store=/mnt/beegfs/fzheng4/cuvein_traces/final-2026-11-co 2026-10-28T14:03:05-04:00
+runtime /home/fzheng4/AccelProf HEAD=f551ca00947e libsanalyzer=5a20fd14ab6c6806 (/home/fzheng4/AccelProf/build/sanalyzer/lib/libsanalyzer.so) collector=b746b4dd23e90f46 fatbin=a2d7368bc1c61986 late=e96343121c74ca0a
+harness /home/fzheng4/wt-co HEAD=fd034431215b dirty=0 Build cuda_13.3.r13.3/compiler.38244171_0
+[run 1/12] P4-rule-110-norace-small
+[run 2/12] P6-bulkcpy-global_readwrite_race_g2s-fixed
+[run 3/12] P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-1296n
+[run 4/12] P1-BFS_CUDA_V_Data_Pull_Determ_IntType_Persist_RaceBug_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoOverflowBug_NoLivelockBug-default-1296n
+[run 5/12] P1-BFS_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Block_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug_NoOverflowBug-default-1296n
+[run 6/12] P1-CC_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoFieldBug_Init-default-1296n
+[run 7/12] P1-CC_CUDA_V_Data_Pull_Determ_IntType_Persist_RaceBug_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-default-1296n
+[run 8/12] P1-CC_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Block_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-default-1296n
+[run 9/12] P1-CC_CUDA_V_Topo_Pull_Determ_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-default-1296n
+[run 10/12] P1-CC_CUDA_V_Topo_Pull_NonDeterm_IntType_Persist_RaceBug_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-default-1296n
+[run 11/12] P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_Persist_RaceBug_Thread_NoNbrBoundsBug_NoBoundsBug_NoLivelockBug_NoFieldBug-default-1296n
+[run 12/12] P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_NonPersist_Atomic_Thread_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-100n
+run: 12 programs -> /home/fzheng4/wt-co/eval/results/collector-only/baselines-cuvein-shardco20_48.csv
+kept traces: 0.00 GB in /mnt/beegfs/fzheng4/cuvein_traces/final-2026-11-co
+== done rc=0 2026-10-28T14:05:44-04:00
