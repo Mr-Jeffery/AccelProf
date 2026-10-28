@@ -1,0 +1,6699 @@
+{
+ "id": "lit-exllamav3-1-buggy",
+ "target": "lit-exllamav3-1",
+ "exe": "/mnt/beegfs/fzheng4/realworld_t21b/build/lit-exllamav3-1/buggy/driver",
+ "cuda_home": "/usr/local/cuda-13.4",
+ "n_cubins": 1,
+ "n_dots": 1,
+ "oracle_kernel_substr": "routing_ds3_nogroup_topk_kernel",
+ "spec_found": true,
+ "modes": {
+  "collector-only": {
+   "n_kernel_jsons": 3,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 24,
+      "sc": 0,
+      "ordered": 12,
+      "skipped": 31,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_1.json",
+     "name": "routing_std_topk_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, __half const*, int, int, int)",
+     "mangled": "_Z23routing_std_topk_kernelPK6__halfPlPS_PK13__nv_bfloat16S1_iii",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 16,
+      "sc": 0,
+      "ordered": 9,
+      "skipped": 29,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_2.json",
+     "name": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 44,
+      "sc": 0,
+      "ordered": 5,
+      "skipped": 27,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 1,
+   "n_race": 84,
+   "n_sc": 0,
+   "reports": [
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 720,
+     "b_pc": 720,
+     "a_op": "STS.U16",
+     "b_op": "STS.U16",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 634
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 634
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 768,
+     "b_pc": 5760,
+     "a_op": "LDS.U16",
+     "b_op": "STS.U16",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 636
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 655
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2016,
+     "b_pc": 2256,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2256,
+     "b_pc": 2288,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2288,
+     "b_pc": 2528,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2528,
+     "b_pc": 2560,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2560,
+     "b_pc": 2800,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2800,
+     "b_pc": 2832,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2832,
+     "b_pc": 3072,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3072,
+     "b_pc": 3104,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3104,
+     "b_pc": 3344,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3344,
+     "b_pc": 3376,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3376,
+     "b_pc": 3616,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3616,
+     "b_pc": 3648,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3648,
+     "b_pc": 3888,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3888,
+     "b_pc": 3920,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3920,
+     "b_pc": 4160,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4160,
+     "b_pc": 4192,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4192,
+     "b_pc": 4432,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4432,
+     "b_pc": 4464,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4464,
+     "b_pc": 4768,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4768,
+     "b_pc": 4800,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 5168,
+     "b_pc": 5504,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 5504,
+     "b_pc": 5536,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 7440,
+     "b_pc": 7728,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 7728,
+     "b_pc": 7808,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 7808,
+     "b_pc": 8096,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 8096,
+     "b_pc": 8176,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 8176,
+     "b_pc": 8464,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 8464,
+     "b_pc": 8544,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 8544,
+     "b_pc": 8832,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 8832,
+     "b_pc": 8912,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 8912,
+     "b_pc": 9200,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 9200,
+     "b_pc": 9280,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 9280,
+     "b_pc": 9568,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 9568,
+     "b_pc": 9648,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 9648,
+     "b_pc": 9936,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 9936,
+     "b_pc": 10016,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 10016,
+     "b_pc": 10304,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 10304,
+     "b_pc": 10384,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 10384,
+     "b_pc": 10672,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 10672,
+     "b_pc": 10752,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 11120,
+     "b_pc": 11408,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 11408,
+     "b_pc": 11488,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_topk_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, __half const*, int, int, int)",
+     "mangled": "_Z23routing_std_topk_kernelPK6__halfPlPS_PK13__nv_bfloat16S1_iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3280,
+     "b_pc": 3824,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 531
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 544
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_topk_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, __half const*, int, int, int)",
+     "mangled": "_Z23routing_std_topk_kernelPK6__halfPlPS_PK13__nv_bfloat16S1_iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3280,
+     "b_pc": 4208,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 531
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 544
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_topk_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, __half const*, int, int, int)",
+     "mangled": "_Z23routing_std_topk_kernelPK6__halfPlPS_PK13__nv_bfloat16S1_iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3280,
+     "b_pc": 4608,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 531
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 544
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_topk_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, __half const*, int, int, int)",
+     "mangled": "_Z23routing_std_topk_kernelPK6__halfPlPS_PK13__nv_bfloat16S1_iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3280,
+     "b_pc": 4960,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 531
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 544
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_topk_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, __half const*, int, int, int)",
+     "mangled": "_Z23routing_std_topk_kernelPK6__halfPlPS_PK13__nv_bfloat16S1_iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3328,
+     "b_pc": 3840,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 533
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 545
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_topk_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, __half const*, int, int, int)",
+     "mangled": "_Z23routing_std_topk_kernelPK6__halfPlPS_PK13__nv_bfloat16S1_iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3328,
+     "b_pc": 4224,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 533
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 545
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_topk_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, __half const*, int, int, int)",
+     "mangled": "_Z23routing_std_topk_kernelPK6__halfPlPS_PK13__nv_bfloat16S1_iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3328,
+     "b_pc": 4624,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 533
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 545
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_topk_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, __half const*, int, int, int)",
+     "mangled": "_Z23routing_std_topk_kernelPK6__halfPlPS_PK13__nv_bfloat16S1_iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3328,
+     "b_pc": 4976,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 533
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 545
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_topk_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, __half const*, int, int, int)",
+     "mangled": "_Z23routing_std_topk_kernelPK6__halfPlPS_PK13__nv_bfloat16S1_iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3824,
+     "b_pc": 6544,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 544
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 558
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_topk_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, __half const*, int, int, int)",
+     "mangled": "_Z23routing_std_topk_kernelPK6__halfPlPS_PK13__nv_bfloat16S1_iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3840,
+     "b_pc": 6592,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 545
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 560
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_topk_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, __half const*, int, int, int)",
+     "mangled": "_Z23routing_std_topk_kernelPK6__halfPlPS_PK13__nv_bfloat16S1_iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4208,
+     "b_pc": 6544,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 544
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 558
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_topk_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, __half const*, int, int, int)",
+     "mangled": "_Z23routing_std_topk_kernelPK6__halfPlPS_PK13__nv_bfloat16S1_iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4224,
+     "b_pc": 6592,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 545
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 560
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_topk_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, __half const*, int, int, int)",
+     "mangled": "_Z23routing_std_topk_kernelPK6__halfPlPS_PK13__nv_bfloat16S1_iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4608,
+     "b_pc": 6544,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 544
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 558
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_topk_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, __half const*, int, int, int)",
+     "mangled": "_Z23routing_std_topk_kernelPK6__halfPlPS_PK13__nv_bfloat16S1_iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4624,
+     "b_pc": 6592,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 545
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 560
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_topk_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, __half const*, int, int, int)",
+     "mangled": "_Z23routing_std_topk_kernelPK6__halfPlPS_PK13__nv_bfloat16S1_iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4960,
+     "b_pc": 6544,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 544
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 558
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "routing_std_topk_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, __half const*, int, int, int)",
+     "mangled": "_Z23routing_std_topk_kernelPK6__halfPlPS_PK13__nv_bfloat16S1_iii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4976,
+     "b_pc": 6592,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 545
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 560
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3120,
+     "b_pc": 3632,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 277
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 290
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3120,
+     "b_pc": 3968,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 277
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 290
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3120,
+     "b_pc": 4320,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 277
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 290
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3120,
+     "b_pc": 4624,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 277
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 290
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3168,
+     "b_pc": 3648,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 278
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 291
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3168,
+     "b_pc": 3984,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 278
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 291
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3168,
+     "b_pc": 4336,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 278
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 291
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3168,
+     "b_pc": 4640,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 278
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 291
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3200,
+     "b_pc": 3664,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 279
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 292
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3200,
+     "b_pc": 4000,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 279
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 292
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3200,
+     "b_pc": 4352,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 279
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 292
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3200,
+     "b_pc": 4656,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 279
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 292
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3632,
+     "b_pc": 6096,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 290
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 305
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3648,
+     "b_pc": 6128,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 291
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 306
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3664,
+     "b_pc": 6160,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 292
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 307
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3968,
+     "b_pc": 6096,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 290
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 305
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3984,
+     "b_pc": 6128,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 291
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 306
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4000,
+     "b_pc": 6160,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 292
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 307
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4320,
+     "b_pc": 6096,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 290
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 305
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4336,
+     "b_pc": 6128,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 291
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 306
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4352,
+     "b_pc": 6160,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 292
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 307
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4624,
+     "b_pc": 6096,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 290
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 305
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4640,
+     "b_pc": 6128,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 291
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 306
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4656,
+     "b_pc": 6160,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 292
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 307
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    }
+   ],
+   "site_verdicts": [
+    {
+     "current_pc": 3632,
+     "current_pc_hex": "0xe30",
+     "ancient_pc": 3120,
+     "ancient_pc_hex": "0xc30",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 290
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 277
+      }
+     ]
+    },
+    {
+     "current_pc": 3648,
+     "current_pc_hex": "0xe40",
+     "ancient_pc": 3168,
+     "ancient_pc_hex": "0xc60",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 291
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 278
+      }
+     ]
+    },
+    {
+     "current_pc": 3664,
+     "current_pc_hex": "0xe50",
+     "ancient_pc": 3200,
+     "ancient_pc_hex": "0xc80",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 292
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 279
+      }
+     ]
+    },
+    {
+     "current_pc": 3968,
+     "current_pc_hex": "0xf80",
+     "ancient_pc": 3120,
+     "ancient_pc_hex": "0xc30",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 290
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 277
+      }
+     ]
+    },
+    {
+     "current_pc": 3984,
+     "current_pc_hex": "0xf90",
+     "ancient_pc": 3168,
+     "ancient_pc_hex": "0xc60",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 291
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 278
+      }
+     ]
+    },
+    {
+     "current_pc": 4000,
+     "current_pc_hex": "0xfa0",
+     "ancient_pc": 3200,
+     "ancient_pc_hex": "0xc80",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 292
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 279
+      }
+     ]
+    },
+    {
+     "current_pc": 4320,
+     "current_pc_hex": "0x10e0",
+     "ancient_pc": 3120,
+     "ancient_pc_hex": "0xc30",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 290
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 277
+      }
+     ]
+    },
+    {
+     "current_pc": 4336,
+     "current_pc_hex": "0x10f0",
+     "ancient_pc": 3168,
+     "ancient_pc_hex": "0xc60",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 291
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 278
+      }
+     ]
+    },
+    {
+     "current_pc": 4352,
+     "current_pc_hex": "0x1100",
+     "ancient_pc": 3200,
+     "ancient_pc_hex": "0xc80",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 292
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 279
+      }
+     ]
+    },
+    {
+     "current_pc": 4624,
+     "current_pc_hex": "0x1210",
+     "ancient_pc": 3120,
+     "ancient_pc_hex": "0xc30",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 290
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 277
+      }
+     ]
+    },
+    {
+     "current_pc": 4640,
+     "current_pc_hex": "0x1220",
+     "ancient_pc": 3168,
+     "ancient_pc_hex": "0xc60",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 291
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 278
+      }
+     ]
+    },
+    {
+     "current_pc": 4656,
+     "current_pc_hex": "0x1230",
+     "ancient_pc": 3200,
+     "ancient_pc_hex": "0xc80",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void routing_ds3_nogroup_topk_kernel<0>(__half const*, __half const*, long*, __half*, float, int, int, int)",
+     "mangled": "_Z31routing_ds3_nogroup_topk_kernelILi0EEvPK6__halfS2_PlPS0_fiii",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 292
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 279
+      }
+     ]
+    },
+    {
+     "current_pc": 3824,
+     "current_pc_hex": "0xef0",
+     "ancient_pc": 3280,
+     "ancient_pc_hex": "0xcd0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_topk_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, __half const*, int, int, int)",
+     "mangled": "_Z23routing_std_topk_kernelPK6__halfPlPS_PK13__nv_bfloat16S1_iii",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 544
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 531
+      }
+     ]
+    },
+    {
+     "current_pc": 3840,
+     "current_pc_hex": "0xf00",
+     "ancient_pc": 3328,
+     "ancient_pc_hex": "0xd00",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_topk_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, __half const*, int, int, int)",
+     "mangled": "_Z23routing_std_topk_kernelPK6__halfPlPS_PK13__nv_bfloat16S1_iii",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 545
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 533
+      }
+     ]
+    },
+    {
+     "current_pc": 4208,
+     "current_pc_hex": "0x1070",
+     "ancient_pc": 3280,
+     "ancient_pc_hex": "0xcd0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_topk_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, __half const*, int, int, int)",
+     "mangled": "_Z23routing_std_topk_kernelPK6__halfPlPS_PK13__nv_bfloat16S1_iii",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 544
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 531
+      }
+     ]
+    },
+    {
+     "current_pc": 4224,
+     "current_pc_hex": "0x1080",
+     "ancient_pc": 3328,
+     "ancient_pc_hex": "0xd00",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_topk_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, __half const*, int, int, int)",
+     "mangled": "_Z23routing_std_topk_kernelPK6__halfPlPS_PK13__nv_bfloat16S1_iii",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 545
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 533
+      }
+     ]
+    },
+    {
+     "current_pc": 4608,
+     "current_pc_hex": "0x1200",
+     "ancient_pc": 3280,
+     "ancient_pc_hex": "0xcd0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_topk_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, __half const*, int, int, int)",
+     "mangled": "_Z23routing_std_topk_kernelPK6__halfPlPS_PK13__nv_bfloat16S1_iii",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 544
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 531
+      }
+     ]
+    },
+    {
+     "current_pc": 4624,
+     "current_pc_hex": "0x1210",
+     "ancient_pc": 3328,
+     "ancient_pc_hex": "0xd00",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_topk_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, __half const*, int, int, int)",
+     "mangled": "_Z23routing_std_topk_kernelPK6__halfPlPS_PK13__nv_bfloat16S1_iii",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 545
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 533
+      }
+     ]
+    },
+    {
+     "current_pc": 4960,
+     "current_pc_hex": "0x1360",
+     "ancient_pc": 3280,
+     "ancient_pc_hex": "0xcd0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_topk_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, __half const*, int, int, int)",
+     "mangled": "_Z23routing_std_topk_kernelPK6__halfPlPS_PK13__nv_bfloat16S1_iii",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 544
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 531
+      }
+     ]
+    },
+    {
+     "current_pc": 4976,
+     "current_pc_hex": "0x1370",
+     "ancient_pc": 3328,
+     "ancient_pc_hex": "0xd00",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_topk_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, __half const*, int, int, int)",
+     "mangled": "_Z23routing_std_topk_kernelPK6__halfPlPS_PK13__nv_bfloat16S1_iii",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 545
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 533
+      }
+     ]
+    },
+    {
+     "current_pc": 720,
+     "current_pc_hex": "0x2d0",
+     "ancient_pc": 720,
+     "ancient_pc_hex": "0x2d0",
+     "opcodes": [
+      "STS.U16",
+      "STS.U16"
+     ],
+     "space": "shared",
+     "race_type": "WAW",
+     "observed_distance": "warp",
+     "contested_weight": 992,
+     "access_size": 2,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": true,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 634
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 634
+      }
+     ]
+    },
+    {
+     "current_pc": 768,
+     "current_pc_hex": "0x300",
+     "ancient_pc": 720,
+     "ancient_pc_hex": "0x2d0",
+     "opcodes": [
+      "LDS.U16",
+      "STS.U16"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 28,
+     "access_size": 2,
+     "strength": "block",
+     "ordering_syncs": [
+      752
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 636
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 634
+      }
+     ]
+    },
+    {
+     "current_pc": 2256,
+     "current_pc_hex": "0x8d0",
+     "ancient_pc": 2016,
+     "ancient_pc_hex": "0x7e0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 954,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ]
+    },
+    {
+     "current_pc": 2288,
+     "current_pc_hex": "0x8f0",
+     "ancient_pc": 2256,
+     "ancient_pc_hex": "0x8d0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 954,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ]
+    },
+    {
+     "current_pc": 2528,
+     "current_pc_hex": "0x9e0",
+     "ancient_pc": 2288,
+     "ancient_pc_hex": "0x8f0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 966,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ]
+    },
+    {
+     "current_pc": 2560,
+     "current_pc_hex": "0xa00",
+     "ancient_pc": 2528,
+     "ancient_pc_hex": "0x9e0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 966,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ]
+    },
+    {
+     "current_pc": 2800,
+     "current_pc_hex": "0xaf0",
+     "ancient_pc": 2560,
+     "ancient_pc_hex": "0xa00",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 955,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ]
+    },
+    {
+     "current_pc": 2832,
+     "current_pc_hex": "0xb10",
+     "ancient_pc": 2800,
+     "ancient_pc_hex": "0xaf0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 955,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ]
+    },
+    {
+     "current_pc": 3072,
+     "current_pc_hex": "0xc00",
+     "ancient_pc": 2832,
+     "ancient_pc_hex": "0xb10",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 958,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ]
+    },
+    {
+     "current_pc": 3104,
+     "current_pc_hex": "0xc20",
+     "ancient_pc": 3072,
+     "ancient_pc_hex": "0xc00",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 958,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ]
+    },
+    {
+     "current_pc": 3344,
+     "current_pc_hex": "0xd10",
+     "ancient_pc": 3104,
+     "ancient_pc_hex": "0xc20",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 953,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ]
+    },
+    {
+     "current_pc": 3376,
+     "current_pc_hex": "0xd30",
+     "ancient_pc": 3344,
+     "ancient_pc_hex": "0xd10",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 953,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ]
+    },
+    {
+     "current_pc": 3616,
+     "current_pc_hex": "0xe20",
+     "ancient_pc": 3376,
+     "ancient_pc_hex": "0xd30",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 946,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ]
+    },
+    {
+     "current_pc": 3648,
+     "current_pc_hex": "0xe40",
+     "ancient_pc": 3616,
+     "ancient_pc_hex": "0xe20",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 946,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ]
+    },
+    {
+     "current_pc": 3888,
+     "current_pc_hex": "0xf30",
+     "ancient_pc": 3648,
+     "ancient_pc_hex": "0xe40",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 954,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ]
+    },
+    {
+     "current_pc": 3920,
+     "current_pc_hex": "0xf50",
+     "ancient_pc": 3888,
+     "ancient_pc_hex": "0xf30",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 954,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ]
+    },
+    {
+     "current_pc": 4160,
+     "current_pc_hex": "0x1040",
+     "ancient_pc": 3920,
+     "ancient_pc_hex": "0xf50",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 948,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ]
+    },
+    {
+     "current_pc": 4192,
+     "current_pc_hex": "0x1060",
+     "ancient_pc": 4160,
+     "ancient_pc_hex": "0x1040",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 948,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ]
+    },
+    {
+     "current_pc": 4432,
+     "current_pc_hex": "0x1150",
+     "ancient_pc": 4192,
+     "ancient_pc_hex": "0x1060",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 984,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ]
+    },
+    {
+     "current_pc": 4464,
+     "current_pc_hex": "0x1170",
+     "ancient_pc": 4432,
+     "ancient_pc_hex": "0x1150",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 984,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ]
+    },
+    {
+     "current_pc": 4768,
+     "current_pc_hex": "0x12a0",
+     "ancient_pc": 4464,
+     "ancient_pc_hex": "0x1170",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 447,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ]
+    },
+    {
+     "current_pc": 4800,
+     "current_pc_hex": "0x12c0",
+     "ancient_pc": 4768,
+     "ancient_pc_hex": "0x12a0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 447,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ]
+    },
+    {
+     "current_pc": 5504,
+     "current_pc_hex": "0x1580",
+     "ancient_pc": 5168,
+     "ancient_pc_hex": "0x1430",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 1020,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ]
+    },
+    {
+     "current_pc": 5536,
+     "current_pc_hex": "0x15a0",
+     "ancient_pc": 5504,
+     "ancient_pc_hex": "0x1580",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 1020,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 648
+      }
+     ]
+    },
+    {
+     "current_pc": 5760,
+     "current_pc_hex": "0x1680",
+     "ancient_pc": 768,
+     "ancient_pc_hex": "0x300",
+     "opcodes": [
+      "STS.U16",
+      "LDS.U16"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 8,
+     "access_size": 2,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 655
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 636
+      }
+     ]
+    },
+    {
+     "current_pc": 7728,
+     "current_pc_hex": "0x1e30",
+     "ancient_pc": 7440,
+     "ancient_pc_hex": "0x1d10",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 129,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ]
+    },
+    {
+     "current_pc": 7808,
+     "current_pc_hex": "0x1e80",
+     "ancient_pc": 7728,
+     "ancient_pc_hex": "0x1e30",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 129,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ]
+    },
+    {
+     "current_pc": 8096,
+     "current_pc_hex": "0x1fa0",
+     "ancient_pc": 7808,
+     "ancient_pc_hex": "0x1e80",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 215,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ]
+    },
+    {
+     "current_pc": 8176,
+     "current_pc_hex": "0x1ff0",
+     "ancient_pc": 8096,
+     "ancient_pc_hex": "0x1fa0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 215,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ]
+    },
+    {
+     "current_pc": 8464,
+     "current_pc_hex": "0x2110",
+     "ancient_pc": 8176,
+     "ancient_pc_hex": "0x1ff0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 249,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ]
+    },
+    {
+     "current_pc": 8544,
+     "current_pc_hex": "0x2160",
+     "ancient_pc": 8464,
+     "ancient_pc_hex": "0x2110",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 249,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ]
+    },
+    {
+     "current_pc": 8832,
+     "current_pc_hex": "0x2280",
+     "ancient_pc": 8544,
+     "ancient_pc_hex": "0x2160",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 284,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ]
+    },
+    {
+     "current_pc": 8912,
+     "current_pc_hex": "0x22d0",
+     "ancient_pc": 8832,
+     "ancient_pc_hex": "0x2280",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 284,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ]
+    },
+    {
+     "current_pc": 9200,
+     "current_pc_hex": "0x23f0",
+     "ancient_pc": 8912,
+     "ancient_pc_hex": "0x22d0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 285,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ]
+    },
+    {
+     "current_pc": 9280,
+     "current_pc_hex": "0x2440",
+     "ancient_pc": 9200,
+     "ancient_pc_hex": "0x23f0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 285,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ]
+    },
+    {
+     "current_pc": 9568,
+     "current_pc_hex": "0x2560",
+     "ancient_pc": 9280,
+     "ancient_pc_hex": "0x2440",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 267,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ]
+    },
+    {
+     "current_pc": 9648,
+     "current_pc_hex": "0x25b0",
+     "ancient_pc": 9568,
+     "ancient_pc_hex": "0x2560",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 267,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ]
+    },
+    {
+     "current_pc": 9936,
+     "current_pc_hex": "0x26d0",
+     "ancient_pc": 9648,
+     "ancient_pc_hex": "0x25b0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 371,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ]
+    },
+    {
+     "current_pc": 10016,
+     "current_pc_hex": "0x2720",
+     "ancient_pc": 9936,
+     "ancient_pc_hex": "0x26d0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 371,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ]
+    },
+    {
+     "current_pc": 10304,
+     "current_pc_hex": "0x2840",
+     "ancient_pc": 10016,
+     "ancient_pc_hex": "0x2720",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 337,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ]
+    },
+    {
+     "current_pc": 10384,
+     "current_pc_hex": "0x2890",
+     "ancient_pc": 10304,
+     "ancient_pc_hex": "0x2840",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 337,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ]
+    },
+    {
+     "current_pc": 10672,
+     "current_pc_hex": "0x29b0",
+     "ancient_pc": 10384,
+     "ancient_pc_hex": "0x2890",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 240,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ]
+    },
+    {
+     "current_pc": 10752,
+     "current_pc_hex": "0x2a00",
+     "ancient_pc": 10672,
+     "ancient_pc_hex": "0x29b0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 240,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ]
+    },
+    {
+     "current_pc": 11408,
+     "current_pc_hex": "0x2c90",
+     "ancient_pc": 11120,
+     "ancient_pc_hex": "0x2b70",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 306,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ]
+    },
+    {
+     "current_pc": 11488,
+     "current_pc_hex": "0x2ce0",
+     "ancient_pc": 11408,
+     "ancient_pc_hex": "0x2c90",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 306,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "routing_std_kernel(__half const*, long*, __half*, __nv_bfloat16 const*, int, int, int)",
+     "mangled": "_Z18routing_std_kernelPK6__halfPlPS_PK13__nv_bfloat16iii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 103
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 101
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-exllamav3-1/buggy/src/exllamav3/exllamav3_ext/routing.cu",
+       "line": 675
+      }
+     ]
+    }
+   ],
+   "site_skipped": {
+    "read_read": 1,
+    "intra_thread_only": 18
+   }
+  }
+ },
+ "dots_checked": 1,
+ "dots_regenerated_equal": 1
+}

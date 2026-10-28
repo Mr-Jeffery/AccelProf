@@ -4,8 +4,9 @@
 kernel JSON of the same kernel (sync_dominance.analyze, installed rules, unchanged).  Facts only; a field that could not be obtained is empty.
   co_diff.py --set recall|cand --out <csv> [--ids a,b]
 Shapes (first match, the order of the brief's table), on the region graph of the kernel's CFG (HBGraph.G), u/v = the two pcs:
-  loop around the barrier  a qualifying block barrier lies on every path u->v (R1 would certify) but a wrap-around path of a loop skips it
-  warp barrier between     no block barrier lies between u and v on every path, a qualifying warp barrier (WARPSYNC) does
+  loop around the barrier  a qualifying block barrier lies on every path u->v but a wrap-around path of a loop skips it (R1 declines), or
+                           a block barrier lies on every cycle through the region of u or of v (HBGraph.loop_scope)
+  warp barrier between     no block barrier lies between u and v on every path, a qualifying warp barrier (WARPSYNC) does (or lies on every cycle)
   exit before the barrier  a block barrier is reachable from u or v, and u or v reaches EXIT on a path that crosses no block barrier
   barrier on one branch    a block barrier lies on some path u->v (or v->u) but not on every path
   other                    none of the above (no block barrier reachable between the pcs, or the dot is missing)"""
@@ -67,9 +68,14 @@ def shape(g, u, v):
     bb = between(B)
     if bb and wrap_path(bb):
         return "loop around the barrier", ",".join(hex(g.syncs[s][0]) for s in bb)
+    ls = [g.loop_scope(u), g.loop_scope(v)]
+    lb = [x for x in ls if x[0] in (sd.BLOCK, sd.GRID)]
+    if lb:
+        return "loop around the barrier", ",".join(hex(p) for p in sorted({p for x in lb for p in x[1]}))
+    lw = [x for x in ls if x[0] == sd.WARP]
     ww = between(Wp)
-    if not bb and ww:
-        return "warp barrier between", ",".join(hex(g.syncs[s][0]) for s in ww)
+    if not bb and (ww or lw):
+        return "warp barrier between", ",".join([hex(g.syncs[s][0]) for s in ww] + [hex(p) for x in lw for p in x[1]])
     reach = [s for s in B if nx.has_path(g.G, ru, s) or nx.has_path(g.G, rv, s)]
     if reach:
         sub = g.G.subgraph(n for n in g.G if n not in set(B))

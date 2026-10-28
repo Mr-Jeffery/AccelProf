@@ -1,0 +1,3088 @@
+{
+ "id": "kokkos-6-fixed",
+ "target": "kokkos-6",
+ "exe": "/mnt/beegfs/fzheng4/realworld_t21b/build/kokkos-6/fixed/driver",
+ "cuda_home": "/usr/local/cuda-13.4",
+ "n_cubins": 18,
+ "n_dots": 18,
+ "oracle_kernel_substr": "TestRepeatedTeamReduce",
+ "spec_found": true,
+ "modes": {
+  "collector-only": {
+   "n_kernel_jsons": 5,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "Kokkos::Impl::(anonymous namespace)::query_cuda_kernel_arch(int*)",
+     "mangled": "_ZN6Kokkos4Impl57_GLOBAL__N__0ea481ac_24_Kokkos_Cuda_Instance_cpp_f3693ba322query_cuda_kernel_archEPi",
+     "dot": "Kokkos_Cuda_Instance.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 1,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_1.json",
+     "name": "desul::(anonymous namespace)::init_lock_arrays_cuda_kernel()",
+     "mangled": "_ZN5desul52_GLOBAL__N__08d8c296_19_Lock_Array_CUDA_cpp_4d2bf3a028init_lock_arrays_cuda_kernelEv",
+     "dot": "Lock_Array_CUDA.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 6,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_2.json",
+     "name": "Kokkos::(anonymous namespace)::init_lock_array_kernel_atomic()",
+     "mangled": "_ZN6Kokkos54_GLOBAL__N__e04f5369_21_Kokkos_Cuda_Locks_cpp_915ea79329init_lock_array_kernel_atomicEv",
+     "dot": "Kokkos_Cuda_Locks.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 3,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_3.json",
+     "name": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda> >(Kokkos::Impl::ParallelFor<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_11ParallelForIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_10TeamPolicyIJS6_EEES6_EEEEvT_",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 4,
+      "sc": 0,
+      "ordered": 12,
+      "skipped": 25,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_4.json",
+     "name": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda> >(Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_14ParallelReduceIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_11RangePolicyIJS6_EEENS_11InvalidTypeES6_EEEEvT_",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 25,
+      "sc": 0,
+      "ordered": 5,
+      "skipped": 66,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 2,
+   "n_race": 26,
+   "n_sc": 0,
+   "reports": [
+    {
+     "mode": "collector-only",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda> >(Kokkos::Impl::ParallelFor<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_11ParallelForIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_10TeamPolicyIJS6_EEES6_EEEEvT_",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 6320,
+     "b_pc": 6672,
+     "a_op": "STS.64",
+     "b_op": "LDS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Kokkos_Parallel_Reduce.hpp",
+       "line": 85
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 412
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 110
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 127
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Team.hpp",
+       "line": 225
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Team.hpp",
+       "line": 552
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/build/proj/driver.cpp",
+       "line": 81
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Team.hpp",
+       "line": 503
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Team.hpp",
+       "line": 525
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 116
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 127
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Team.hpp",
+       "line": 225
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Team.hpp",
+       "line": 552
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/build/proj/driver.cpp",
+       "line": 81
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Team.hpp",
+       "line": 503
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Team.hpp",
+       "line": 525
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda> >(Kokkos::Impl::ParallelFor<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_11ParallelForIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_10TeamPolicyIJS6_EEES6_EEEEvT_",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 6320,
+     "b_pc": 6720,
+     "a_op": "STS.64",
+     "b_op": "LDS.128",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Kokkos_Parallel_Reduce.hpp",
+       "line": 85
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 412
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 110
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 127
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Team.hpp",
+       "line": 225
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Team.hpp",
+       "line": 552
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/build/proj/driver.cpp",
+       "line": 81
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Team.hpp",
+       "line": 503
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Team.hpp",
+       "line": 525
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Kokkos_Parallel_Reduce.hpp",
+       "line": 85
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 412
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 118
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 127
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Team.hpp",
+       "line": 225
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Team.hpp",
+       "line": 552
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/build/proj/driver.cpp",
+       "line": 81
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Team.hpp",
+       "line": 503
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Team.hpp",
+       "line": 525
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda> >(Kokkos::Impl::ParallelFor<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_11ParallelForIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_10TeamPolicyIJS6_EEES6_EEEEvT_",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 9712,
+     "b_pc": 10064,
+     "a_op": "STS.64",
+     "b_op": "LDS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Kokkos_Parallel_Reduce.hpp",
+       "line": 85
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 412
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 110
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 127
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Team.hpp",
+       "line": 225
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Team.hpp",
+       "line": 552
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/build/proj/driver.cpp",
+       "line": 82
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Team.hpp",
+       "line": 503
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Team.hpp",
+       "line": 525
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 116
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 127
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Team.hpp",
+       "line": 225
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Team.hpp",
+       "line": 552
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/build/proj/driver.cpp",
+       "line": 82
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Team.hpp",
+       "line": 503
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Team.hpp",
+       "line": 525
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda> >(Kokkos::Impl::ParallelFor<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_11ParallelForIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_10TeamPolicyIJS6_EEES6_EEEEvT_",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 9712,
+     "b_pc": 10096,
+     "a_op": "STS.64",
+     "b_op": "LDS.128",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Kokkos_Parallel_Reduce.hpp",
+       "line": 85
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 412
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 110
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 127
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Team.hpp",
+       "line": 225
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Team.hpp",
+       "line": 552
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/build/proj/driver.cpp",
+       "line": 82
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Team.hpp",
+       "line": 503
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Team.hpp",
+       "line": 525
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Kokkos_Parallel_Reduce.hpp",
+       "line": 85
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 412
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 118
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 127
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Team.hpp",
+       "line": 225
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Team.hpp",
+       "line": 552
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/build/proj/driver.cpp",
+       "line": 82
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Team.hpp",
+       "line": 503
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Team.hpp",
+       "line": 525
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda> >(Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_14ParallelReduceIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_11RangePolicyIJS6_EEENS_11InvalidTypeES6_EEEEvT_",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1456,
+     "b_pc": 1712,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 362
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 395
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 636
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 347
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 364
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 395
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_4.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda> >(Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_14ParallelReduceIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_11RangePolicyIJS6_EEENS_11InvalidTypeES6_EEEEvT_",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1712,
+     "b_pc": 1760,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 636
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 347
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 364
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 395
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 636
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 347
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 364
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 395
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_4.json",
+      "kernel_4.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda> >(Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_14ParallelReduceIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_11RangePolicyIJS6_EEENS_11InvalidTypeES6_EEEEvT_",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1712,
+     "b_pc": 1920,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 636
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 347
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 364
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 395
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 352
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 364
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 395
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_4.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda> >(Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_14ParallelReduceIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_11RangePolicyIJS6_EEENS_11InvalidTypeES6_EEEEvT_",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1760,
+     "b_pc": 1840,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 636
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 347
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 364
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 395
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 352
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 364
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 395
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_4.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda> >(Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_14ParallelReduceIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_11RangePolicyIJS6_EEENS_11InvalidTypeES6_EEEEvT_",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2848,
+     "b_pc": 2880,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 636
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 347
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 375
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 395
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 636
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 347
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 375
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 395
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_4.json",
+      "kernel_4.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda> >(Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_14ParallelReduceIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_11RangePolicyIJS6_EEENS_11InvalidTypeES6_EEEEvT_",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2848,
+     "b_pc": 3088,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 636
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 347
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 375
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 395
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 352
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 375
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 395
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_4.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda> >(Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_14ParallelReduceIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_11RangePolicyIJS6_EEENS_11InvalidTypeES6_EEEEvT_",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2880,
+     "b_pc": 3040,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 636
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 347
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 375
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 395
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 352
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 375
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 395
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_4.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda> >(Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_14ParallelReduceIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_11RangePolicyIJS6_EEENS_11InvalidTypeES6_EEEEvT_",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 3664,
+     "b_pc": 3664,
+     "a_op": "STG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 412
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 412
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_4.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda> >(Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_14ParallelReduceIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_11RangePolicyIJS6_EEENS_11InvalidTypeES6_EEEEvT_",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3936,
+     "b_pc": 4016,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 362
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 418
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 636
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 347
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 364
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 418
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_4.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda> >(Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_14ParallelReduceIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_11RangePolicyIJS6_EEENS_11InvalidTypeES6_EEEEvT_",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4016,
+     "b_pc": 4080,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 636
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 347
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 364
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 418
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 636
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 347
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 364
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 418
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_4.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda> >(Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_14ParallelReduceIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_11RangePolicyIJS6_EEENS_11InvalidTypeES6_EEEEvT_",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4080,
+     "b_pc": 4160,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 636
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 347
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 364
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 418
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 636
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 347
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 364
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 418
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_4.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda> >(Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_14ParallelReduceIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_11RangePolicyIJS6_EEENS_11InvalidTypeES6_EEEEvT_",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4160,
+     "b_pc": 4208,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 636
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 347
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 364
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 418
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 636
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 347
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 364
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 418
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_4.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda> >(Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_14ParallelReduceIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_11RangePolicyIJS6_EEENS_11InvalidTypeES6_EEEEvT_",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4208,
+     "b_pc": 4272,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 636
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 347
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 364
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 418
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 636
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 347
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 364
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 418
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_4.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda> >(Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_14ParallelReduceIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_11RangePolicyIJS6_EEENS_11InvalidTypeES6_EEEEvT_",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4272,
+     "b_pc": 4304,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 636
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 347
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 364
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 418
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 636
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 347
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 364
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 418
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_4.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda> >(Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_14ParallelReduceIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_11RangePolicyIJS6_EEENS_11InvalidTypeES6_EEEEvT_",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4304,
+     "b_pc": 4368,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 636
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 347
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 364
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 418
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 636
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 347
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 364
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 418
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_4.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda> >(Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_14ParallelReduceIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_11RangePolicyIJS6_EEENS_11InvalidTypeES6_EEEEvT_",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4368,
+     "b_pc": 4400,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 636
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 347
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 364
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 418
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 636
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 347
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 364
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 418
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_4.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda> >(Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_14ParallelReduceIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_11RangePolicyIJS6_EEENS_11InvalidTypeES6_EEEEvT_",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4400,
+     "b_pc": 4464,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 636
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 347
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 364
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 418
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 636
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 347
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 364
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 418
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_4.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda> >(Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_14ParallelReduceIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_11RangePolicyIJS6_EEENS_11InvalidTypeES6_EEEEvT_",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4464,
+     "b_pc": 4544,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 636
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 347
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 364
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 418
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 352
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 364
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 418
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_4.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda> >(Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_14ParallelReduceIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_11RangePolicyIJS6_EEENS_11InvalidTypeES6_EEEEvT_",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4496,
+     "b_pc": 4528,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 636
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 347
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 364
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 418
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 352
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 364
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 418
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_4.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda> >(Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_14ParallelReduceIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_11RangePolicyIJS6_EEENS_11InvalidTypeES6_EEEEvT_",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 5472,
+     "b_pc": 5504,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 636
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 347
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 375
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 395
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 636
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 347
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 375
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 395
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_4.json",
+      "kernel_4.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda> >(Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_14ParallelReduceIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_11RangePolicyIJS6_EEENS_11InvalidTypeES6_EEEEvT_",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 5472,
+     "b_pc": 5728,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 636
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 347
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 375
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 395
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 352
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 375
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 395
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_4.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda> >(Kokkos::Impl::ParallelReduce<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_14ParallelReduceIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_11RangePolicyIJS6_EEENS_11InvalidTypeES6_EEEEvT_",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 5504,
+     "b_pc": 5664,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 636
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 347
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 375
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 395
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 352
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 375
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 395
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 698
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Parallel_Range.hpp",
+       "line": 264
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_KernelLaunch.hpp",
+       "line": 121
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_4.json"
+     ]
+    }
+   ],
+   "site_verdicts": [
+    {
+     "current_pc": 5424,
+     "current_pc_hex": "0x1530",
+     "ancient_pc": 10064,
+     "ancient_pc_hex": "0x2750",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 106,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      5440,
+      6880,
+      8832
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda> >(Kokkos::Impl::ParallelFor<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_11ParallelForIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_10TeamPolicyIJS6_EEES6_EEEEvT_",
+     "kernel_json": "kernel_3.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 105
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 127
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Team.hpp",
+       "line": 225
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 116
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 127
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Team.hpp",
+       "line": 225
+      }
+     ]
+    },
+    {
+     "current_pc": 5424,
+     "current_pc_hex": "0x1530",
+     "ancient_pc": 10096,
+     "ancient_pc_hex": "0x2770",
+     "opcodes": [
+      "STS.64",
+      "LDS.128"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 232,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      5440,
+      6880,
+      8832
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda> >(Kokkos::Impl::ParallelFor<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_11ParallelForIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_10TeamPolicyIJS6_EEES6_EEEEvT_",
+     "kernel_json": "kernel_3.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 105
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 127
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Team.hpp",
+       "line": 225
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Kokkos_Parallel_Reduce.hpp",
+       "line": 85
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 412
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      }
+     ]
+    },
+    {
+     "current_pc": 5424,
+     "current_pc_hex": "0x1530",
+     "ancient_pc": 10224,
+     "ancient_pc_hex": "0x27f0",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 134,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      5440,
+      6880,
+      8832
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda> >(Kokkos::Impl::ParallelFor<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_11ParallelForIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_10TeamPolicyIJS6_EEES6_EEEEvT_",
+     "kernel_json": "kernel_3.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 105
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 127
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Team.hpp",
+       "line": 225
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Kokkos_Parallel_Reduce.hpp",
+       "line": 85
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 412
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      }
+     ]
+    },
+    {
+     "current_pc": 6720,
+     "current_pc_hex": "0x1a40",
+     "ancient_pc": 5424,
+     "ancient_pc_hex": "0x1530",
+     "opcodes": [
+      "LDS.128",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 130,
+     "access_size": 16,
+     "strength": "block",
+     "ordering_syncs": [
+      5440
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda> >(Kokkos::Impl::ParallelFor<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_11ParallelForIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_10TeamPolicyIJS6_EEES6_EEEEvT_",
+     "kernel_json": "kernel_3.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Kokkos_Parallel_Reduce.hpp",
+       "line": 85
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 412
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 105
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 127
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Team.hpp",
+       "line": 225
+      }
+     ]
+    },
+    {
+     "current_pc": 6848,
+     "current_pc_hex": "0x1ac0",
+     "ancient_pc": 5424,
+     "ancient_pc_hex": "0x1530",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 126,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      5440
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda> >(Kokkos::Impl::ParallelFor<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_11ParallelForIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_10TeamPolicyIJS6_EEES6_EEEEvT_",
+     "kernel_json": "kernel_3.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Kokkos_Parallel_Reduce.hpp",
+       "line": 85
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 412
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 105
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 127
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Team.hpp",
+       "line": 225
+      }
+     ]
+    },
+    {
+     "current_pc": 8816,
+     "current_pc_hex": "0x2270",
+     "ancient_pc": 6672,
+     "ancient_pc_hex": "0x1a10",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 122,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      6880
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda> >(Kokkos::Impl::ParallelFor<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_11ParallelForIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_10TeamPolicyIJS6_EEES6_EEEEvT_",
+     "kernel_json": "kernel_3.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 105
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 127
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Team.hpp",
+       "line": 225
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 116
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 127
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Team.hpp",
+       "line": 225
+      }
+     ]
+    },
+    {
+     "current_pc": 8816,
+     "current_pc_hex": "0x2270",
+     "ancient_pc": 6720,
+     "ancient_pc_hex": "0x1a40",
+     "opcodes": [
+      "STS.64",
+      "LDS.128"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 248,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      6880
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda> >(Kokkos::Impl::ParallelFor<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_11ParallelForIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_10TeamPolicyIJS6_EEES6_EEEEvT_",
+     "kernel_json": "kernel_3.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 105
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 127
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Team.hpp",
+       "line": 225
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Kokkos_Parallel_Reduce.hpp",
+       "line": 85
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 412
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      }
+     ]
+    },
+    {
+     "current_pc": 8816,
+     "current_pc_hex": "0x2270",
+     "ancient_pc": 6848,
+     "ancient_pc_hex": "0x1ac0",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 150,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      6880
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda> >(Kokkos::Impl::ParallelFor<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_11ParallelForIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_10TeamPolicyIJS6_EEES6_EEEEvT_",
+     "kernel_json": "kernel_3.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 105
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 127
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Team.hpp",
+       "line": 225
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Kokkos_Parallel_Reduce.hpp",
+       "line": 85
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 412
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      }
+     ]
+    },
+    {
+     "current_pc": 10096,
+     "current_pc_hex": "0x2770",
+     "ancient_pc": 8816,
+     "ancient_pc_hex": "0x2270",
+     "opcodes": [
+      "LDS.128",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 126,
+     "access_size": 16,
+     "strength": "block",
+     "ordering_syncs": [
+      8832
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda> >(Kokkos::Impl::ParallelFor<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_11ParallelForIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_10TeamPolicyIJS6_EEES6_EEEEvT_",
+     "kernel_json": "kernel_3.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Kokkos_Parallel_Reduce.hpp",
+       "line": 85
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 412
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 105
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 127
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Team.hpp",
+       "line": 225
+      }
+     ]
+    },
+    {
+     "current_pc": 10224,
+     "current_pc_hex": "0x27f0",
+     "ancient_pc": 8816,
+     "ancient_pc_hex": "0x2270",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 112,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      8832
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda> >(Kokkos::Impl::ParallelFor<Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>)",
+     "mangled": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_11ParallelForIN4Test39_GLOBAL__N__88db617d_10_driver_cpp_main22TestRepeatedTeamReduceINS_4CudaEEENS_10TeamPolicyIJS6_EEES6_EEEEvT_",
+     "kernel_json": "kernel_3.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Kokkos_Parallel_Reduce.hpp",
+       "line": 85
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 412
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/impl/Kokkos_FunctorAnalysis.hpp",
+       "line": 979
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 105
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+       "line": 127
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/kokkos-6/fixed/src/core/src/Cuda/Kokkos_Cuda_Team.hpp",
+       "line": 225
+      }
+     ]
+    }
+   ],
+   "site_skipped": {
+    "read_read": 6
+   }
+  }
+ },
+ "dots_checked": 1,
+ "dots_regenerated_equal": 1
+}

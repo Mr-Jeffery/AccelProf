@@ -1,0 +1,222 @@
+{
+ "id": "mmcv-fps-new-1-buggy",
+ "target": "mmcv-fps-new-1",
+ "exe": "/mnt/beegfs/fzheng4/realworld_t21c/build/mmcv-fps-new-1/buggy/driver",
+ "cuda_home": "/usr/local/cuda-13.4",
+ "n_cubins": 1,
+ "n_dots": 1,
+ "oracle_kernel_substr": "furthest_point_sampling",
+ "spec_found": true,
+ "modes": {
+  "collector-only": {
+   "n_kernel_jsons": 2,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "void furthest_point_sampling_forward_cuda_kernel<1024u>(int, int, int, float const*, float*, int*)",
+     "mangled": "_Z43furthest_point_sampling_forward_cuda_kernelILj1024EEviiiPKfPfPi",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 1,
+      "sc": 0,
+      "ordered": 41,
+      "skipped": 82,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_1.json",
+     "name": "void furthest_point_sampling_with_dist_forward_cuda_kernel<1024u>(int, int, int, float const*, float*, int*)",
+     "mangled": "_Z53furthest_point_sampling_with_dist_forward_cuda_kernelILj1024EEviiiPKfPfPi",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 1,
+      "sc": 0,
+      "ordered": 41,
+      "skipped": 54,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 2,
+   "n_race": 2,
+   "n_sc": 0,
+   "reports": [
+    {
+     "mode": "collector-only",
+     "kernel": "void furthest_point_sampling_forward_cuda_kernel<1024u>(int, int, int, float const*, float*, int*)",
+     "mangled": "_Z43furthest_point_sampling_forward_cuda_kernelILj1024EEviiiPKfPfPi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3024,
+     "b_pc": 5296,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/mmcv-fps-new-1/buggy/src/mmcv/ops/csrc/common/cuda/furthest_point_sample_cuda_kernel.cuh",
+       "line": 67
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/mmcv-fps-new-1/buggy/src/mmcv/ops/csrc/common/cuda/furthest_point_sample_cuda_kernel.cuh",
+       "line": 80
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void furthest_point_sampling_with_dist_forward_cuda_kernel<1024u>(int, int, int, float const*, float*, int*)",
+     "mangled": "_Z53furthest_point_sampling_with_dist_forward_cuda_kernelILj1024EEviiiPKfPfPi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2000,
+     "b_pc": 4272,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/mmcv-fps-new-1/buggy/src/mmcv/ops/csrc/common/cuda/furthest_point_sample_cuda_kernel.cuh",
+       "line": 134
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/mmcv-fps-new-1/buggy/src/mmcv/ops/csrc/common/cuda/furthest_point_sample_cuda_kernel.cuh",
+       "line": 147
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json"
+     ]
+    }
+   ],
+   "site_verdicts": [
+    {
+     "current_pc": 3024,
+     "current_pc_hex": "0xbd0",
+     "ancient_pc": 5296,
+     "ancient_pc_hex": "0x14b0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 417,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void furthest_point_sampling_forward_cuda_kernel<1024u>(int, int, int, float const*, float*, int*)",
+     "mangled": "_Z43furthest_point_sampling_forward_cuda_kernelILj1024EEviiiPKfPfPi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/mmcv-fps-new-1/buggy/src/mmcv/ops/csrc/common/cuda/furthest_point_sample_cuda_kernel.cuh",
+       "line": 67
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/mmcv-fps-new-1/buggy/src/mmcv/ops/csrc/common/cuda/furthest_point_sample_cuda_kernel.cuh",
+       "line": 80
+      }
+     ]
+    },
+    {
+     "current_pc": 2000,
+     "current_pc_hex": "0x7d0",
+     "ancient_pc": 4272,
+     "ancient_pc_hex": "0x10b0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 103,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void furthest_point_sampling_with_dist_forward_cuda_kernel<1024u>(int, int, int, float const*, float*, int*)",
+     "mangled": "_Z53furthest_point_sampling_with_dist_forward_cuda_kernelILj1024EEviiiPKfPfPi",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/mmcv-fps-new-1/buggy/src/mmcv/ops/csrc/common/cuda/furthest_point_sample_cuda_kernel.cuh",
+       "line": 134
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/mmcv-fps-new-1/buggy/src/mmcv/ops/csrc/common/cuda/furthest_point_sample_cuda_kernel.cuh",
+       "line": 147
+      }
+     ]
+    }
+   ],
+   "site_skipped": {
+    "read_read": 2
+   }
+  }
+ },
+ "dots_checked": 1,
+ "dots_regenerated_equal": 1
+}

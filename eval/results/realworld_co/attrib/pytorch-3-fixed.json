@@ -1,0 +1,92 @@
+{
+ "id": "pytorch-3-fixed",
+ "target": "pytorch-3",
+ "exe": "/mnt/beegfs/fzheng4/realworld_t21b/build/pytorch-3/fixed/driver",
+ "cuda_home": "/usr/local/cuda-13.4",
+ "n_cubins": 1,
+ "n_dots": 1,
+ "oracle_kernel_substr": "MultiMarginLoss_backward_kernel",
+ "spec_found": true,
+ "modes": {
+  "collector-only": {
+   "n_kernel_jsons": 1,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "void at::native::(anonymous namespace)::MultiMarginLoss_backward_kernel<1, float>(float*, float const*, float const*, long const*, float const*, int, int, bool, float, bool)",
+     "mangled": "_ZN2at6native41_GLOBAL__N__bd60af8e_9_driver_cu_b86932df31MultiMarginLoss_backward_kernelILi1EfEEvPT0_PKS3_S6_PKlS6_iibS3_b",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 9,
+      "skipped": 15,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 1,
+   "n_race": 0,
+   "n_sc": 0,
+   "reports": [],
+   "site_verdicts": [
+    {
+     "current_pc": 6864,
+     "current_pc_hex": "0x1ad0",
+     "ancient_pc": 6288,
+     "ancient_pc_hex": "0x1890",
+     "opcodes": [
+      "LDG.E",
+      "STG.E"
+     ],
+     "space": "global",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 1,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      6320
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void at::native::(anonymous namespace)::MultiMarginLoss_backward_kernel<1, float>(float*, float const*, float const*, long const*, float const*, int, int, bool, float, bool)",
+     "mangled": "_ZN2at6native41_GLOBAL__N__bd60af8e_9_driver_cu_b86932df31MultiMarginLoss_backward_kernelILi1EfEEvPT0_PKS3_S6_PKlS6_iibS3_b",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch-3/fixed/src/aten/src/ATen/native/cuda/MultiMarginLoss.cu",
+       "line": 126
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch-3/fixed/src/aten/src/ATen/native/cuda/MultiMarginLoss.cu",
+       "line": 121
+      }
+     ]
+    }
+   ],
+   "site_skipped": {
+    "read_read": 1,
+    "intra_thread_only": 1
+   }
+  }
+ },
+ "dots_checked": 0,
+ "dots_regenerated_equal": 0
+}

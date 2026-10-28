@@ -1,0 +1,2005 @@
+{
+ "id": "droidslam-new-1-buggy",
+ "target": "droidslam-new-1",
+ "exe": "/mnt/beegfs/fzheng4/realworld_t21c/build/droidslam-new-1/buggy/driver",
+ "cuda_home": "/usr/local/cuda-13.4",
+ "n_cubins": 1,
+ "n_dots": 1,
+ "oracle_kernel_substr": "frame_distance_kernel",
+ "spec_found": true,
+ "modes": {
+  "collector-only": {
+   "n_kernel_jsons": 1,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 21,
+      "sc": 0,
+      "ordered": 18,
+      "skipped": 151,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 1,
+   "n_race": 21,
+   "n_sc": 0,
+   "reports": [
+    {
+     "mode": "collector-only",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2000,
+     "b_pc": 2000,
+     "a_op": "STS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 107
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 591
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 107
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 591
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2064,
+     "b_pc": 2064,
+     "a_op": "STS.64",
+     "b_op": "STS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 109
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 591
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 109
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 591
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2128,
+     "b_pc": 2128,
+     "a_op": "STS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 110
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 591
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 110
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 591
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2160,
+     "b_pc": 2160,
+     "a_op": "STS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 113
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 591
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 113
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 591
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2176,
+     "b_pc": 2176,
+     "a_op": "STS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 114
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 591
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 114
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 591
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2192,
+     "b_pc": 2192,
+     "a_op": "STS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 115
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 591
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 115
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 591
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 6528,
+     "b_pc": 6560,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 47
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 657
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 47
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 657
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 6592,
+     "b_pc": 6624,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 48
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 657
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 48
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 657
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 6656,
+     "b_pc": 6688,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 49
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 657
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 49
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 657
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 6720,
+     "b_pc": 6752,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 50
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 657
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 50
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 657
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 6784,
+     "b_pc": 6816,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 51
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 657
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 51
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 657
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 7168,
+     "b_pc": 7200,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 47
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 658
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 47
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 658
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 7232,
+     "b_pc": 7264,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 48
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 658
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 48
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 658
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 7296,
+     "b_pc": 7328,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 49
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 658
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 49
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 658
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 7360,
+     "b_pc": 7392,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 50
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 658
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 50
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 658
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 7424,
+     "b_pc": 7456,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 51
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 658
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 51
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 658
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 7808,
+     "b_pc": 7840,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 47
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 659
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 47
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 659
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 7872,
+     "b_pc": 7904,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 48
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 659
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 48
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 659
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 7936,
+     "b_pc": 7968,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 49
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 659
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 49
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 659
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 8000,
+     "b_pc": 8032,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 50
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 659
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 50
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 659
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 8064,
+     "b_pc": 8096,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 51
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 659
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 51
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 659
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    }
+   ],
+   "site_verdicts": [
+    {
+     "current_pc": 6560,
+     "current_pc_hex": "0x19a0",
+     "ancient_pc": 6528,
+     "ancient_pc_hex": "0x1980",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 96,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 47
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 657
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 47
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 657
+      }
+     ]
+    },
+    {
+     "current_pc": 6624,
+     "current_pc_hex": "0x19e0",
+     "ancient_pc": 6592,
+     "ancient_pc_hex": "0x19c0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 144,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 48
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 657
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 48
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 657
+      }
+     ]
+    },
+    {
+     "current_pc": 6688,
+     "current_pc_hex": "0x1a20",
+     "ancient_pc": 6656,
+     "ancient_pc_hex": "0x1a00",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 168,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 49
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 657
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 49
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 657
+      }
+     ]
+    },
+    {
+     "current_pc": 6752,
+     "current_pc_hex": "0x1a60",
+     "ancient_pc": 6720,
+     "ancient_pc_hex": "0x1a40",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 180,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 50
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 657
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 50
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 657
+      }
+     ]
+    },
+    {
+     "current_pc": 6816,
+     "current_pc_hex": "0x1aa0",
+     "ancient_pc": 6784,
+     "ancient_pc_hex": "0x1a80",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 186,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 51
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 657
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 51
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 657
+      }
+     ]
+    },
+    {
+     "current_pc": 7200,
+     "current_pc_hex": "0x1c20",
+     "ancient_pc": 7168,
+     "ancient_pc_hex": "0x1c00",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 96,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 47
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 658
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 47
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 658
+      }
+     ]
+    },
+    {
+     "current_pc": 7264,
+     "current_pc_hex": "0x1c60",
+     "ancient_pc": 7232,
+     "ancient_pc_hex": "0x1c40",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 144,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 48
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 658
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 48
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 658
+      }
+     ]
+    },
+    {
+     "current_pc": 7328,
+     "current_pc_hex": "0x1ca0",
+     "ancient_pc": 7296,
+     "ancient_pc_hex": "0x1c80",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 168,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 49
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 658
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 49
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 658
+      }
+     ]
+    },
+    {
+     "current_pc": 7392,
+     "current_pc_hex": "0x1ce0",
+     "ancient_pc": 7360,
+     "ancient_pc_hex": "0x1cc0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 180,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 50
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 658
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 50
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 658
+      }
+     ]
+    },
+    {
+     "current_pc": 7456,
+     "current_pc_hex": "0x1d20",
+     "ancient_pc": 7424,
+     "ancient_pc_hex": "0x1d00",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 186,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 51
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 658
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 51
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 658
+      }
+     ]
+    },
+    {
+     "current_pc": 7840,
+     "current_pc_hex": "0x1ea0",
+     "ancient_pc": 7808,
+     "ancient_pc_hex": "0x1e80",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 96,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 47
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 659
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 47
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 659
+      }
+     ]
+    },
+    {
+     "current_pc": 7904,
+     "current_pc_hex": "0x1ee0",
+     "ancient_pc": 7872,
+     "ancient_pc_hex": "0x1ec0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 144,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 48
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 659
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 48
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 659
+      }
+     ]
+    },
+    {
+     "current_pc": 7968,
+     "current_pc_hex": "0x1f20",
+     "ancient_pc": 7936,
+     "ancient_pc_hex": "0x1f00",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 168,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 49
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 659
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 49
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 659
+      }
+     ]
+    },
+    {
+     "current_pc": 8032,
+     "current_pc_hex": "0x1f60",
+     "ancient_pc": 8000,
+     "ancient_pc_hex": "0x1f40",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 180,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 50
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 659
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 50
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 659
+      }
+     ]
+    },
+    {
+     "current_pc": 8096,
+     "current_pc_hex": "0x1fa0",
+     "ancient_pc": 8064,
+     "ancient_pc_hex": "0x1f80",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 186,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "frame_distance_kernel(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<2ul, int>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, long, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, long, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+     "mangled": "_Z21frame_distance_kernelN5torch10headeronly6detail27GenericPackedTensorAccessorINS1_14TensorAccessorIN3c108ArrayRefIlEEfLm1ENS0_17RestrictPtrTraitsEiEEN2at6detail16IndexBoundsCheckILm2EiEEfLm2ES7_iEENS2_INS3_IS6_fLm2ES7_iEENSB_ILm3EiEEfLm3ES7_iEENS2_INS3_IS6_fLm0ES7_iEENSB_ILm1EiEEfLm1ES7_iEENS2_INS3_IS6_lLm0ES7_iEESI_lLm1ES7_iEESL_SJ_f",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 51
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 659
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 51
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 62
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/droidslam-new-1/buggy/src/src/droid_kernels.cu",
+       "line": 659
+      }
+     ]
+    }
+   ],
+   "site_skipped": {
+    "intra_thread_only": 33,
+    "read_read": 30
+   }
+  }
+ },
+ "dots_checked": 1,
+ "dots_regenerated_equal": 1
+}
