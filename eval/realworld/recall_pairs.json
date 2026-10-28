@@ -1,0 +1,254 @@
+{
+  "_doc": "T21b scoring spec, derived by hand from eval/realworld/oracle/<id>.json at bc71082 (the oracle files are not edited). A pair = two sides A and B, each a list of alternative sites [file-pattern (fnmatch on the basename), line_start, line_end]; a report matches when the frames (inlined-at frames included) of its two pcs hit A and B in either order, within +-tol lines (default 2). role: primary = the oracle's pair; family = the same statements the oracle says conflict in the same way; extra = the oracle's extra_pairs/additional_pairs; both_builds = pairs the review says are present in both builds and unrelated to the fix. fixed.equiv = the buggy pair at the fixed build's line numbers (a report on it = STILL-REPORTED); fixed.residual = the oracle's residual pairs (a report = RESIDUAL-AS-EXPECTED). cls = the class the oracle pre-registers for the pair.",
+  "amrex-1": {"pairs": [
+      {"name": "adotx stencil load vs jacobi store", "role": "primary", "cls": "DR", "A": [["AMReX_MLNodeABecLap_3D_K.H", 86, 87]], "B": [["AMReX_MLNodeLap_3D_K.H", 227, 228]]},
+      {"name": "any of the 27-point stencil loads vs jacobi store", "role": "family", "cls": "DR", "A": [["AMReX_MLNodeABecLap_3D_K.H", 86, 87]], "B": [["AMReX_MLNodeLap_3D_K.H", 207, 232]]},
+      {"name": "masked-node store vs stencil loads", "role": "extra", "cls": "DR", "A": [["AMReX_MLNodeABecLap_3D_K.H", 77, 77]], "B": [["AMReX_MLNodeLap_3D_K.H", 207, 232]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "gauss-seidel store vs stencil loads", "cls": "DR", "A": [["AMReX_MLNodeABecLap_3D_K.H", 60, 60]], "B": [["AMReX_MLNodeABecLap_3D_K.H", 30, 58]]}]}},
+  "bitsandbytes-1": {"pairs": [
+      {"name": "clear store vs scatter store", "role": "primary", "cls": "DR", "A": [["kernels.cu", 655, 655]], "B": [["kernels.cu", 661, 661]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "clear store vs scatter store (scatter moves to L663)", "cls": "DR", "A": [["kernels.cu", 655, 655]], "B": [["kernels.cu", 663, 663]]}]}},
+  "cccl-1": {"pairs": [
+      {"name": "raking reads vs volatile warp-reduce store", "role": "primary", "cls": "DR", "A": [["block_reduce_raking.cuh", 222, 222], ["block_reduce_raking.cuh", 161, 161]], "B": [["thread_store.cuh", 284, 284], ["warp_reduce_smem.cuh", 160, 160]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "raking reads vs volatile warp-reduce store", "cls": "DR", "A": [["block_reduce_raking.cuh", 222, 222], ["block_reduce_raking.cuh", 161, 161]], "B": [["thread_store.cuh", 284, 284], ["warp_reduce_smem.cuh", 160, 160]]}]}},
+  "cccl-2": {"pairs": [
+      {"name": "warp_aggregates reads vs exchange store", "role": "primary", "cls": "DR", "A": [["agent_rle.cuh", 455, 455], ["agent_rle.cuh", 461, 469]], "B": [["warp_exchange_smem.cuh", 156, 156]]}],
+    "both_builds": [{"name": "discarded items all stored to items_shared[480] (intra-warp WAW)", "A": [["warp_exchange_smem.cuh", 156, 156]], "B": [["warp_exchange_smem.cuh", 156, 156]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "warp_aggregates reads vs exchange store", "cls": "DR", "A": [["agent_rle.cuh", 455, 455], ["agent_rle.cuh", 461, 469]], "B": [["warp_exchange_smem.cuh", 156, 156]]}]}},
+  "cccl-3": {"pairs": [
+      {"name": "merge atomicAdd vs volatile load (SC half)", "role": "primary", "cls": "SC", "A": [["agent_topk.cuh", 441, 448]], "B": [["agent_topk.cuh", 589, 589], ["block_load.cuh", 379, 379]]},
+      {"name": "merge atomicAdd vs init_histograms plain store (DR half)", "role": "primary", "cls": "DR", "A": [["agent_topk.cuh", 441, 448]], "B": [["agent_topk.cuh", 422, 427]]}],
+    "fixed": {"oracle": "residual", "equiv": [],
+      "residual": [{"name": "merge atomicAdd vs volatile load (SC)", "cls": "SC", "A": [["agent_topk.cuh", 441, 448]], "B": [["agent_topk.cuh", 589, 589], ["block_load.cuh", 379, 379]]},
+                   {"name": "merge atomicAdd vs init_histograms plain store (DR)", "cls": "DR", "A": [["agent_topk.cuh", 441, 448]], "B": [["agent_topk.cuh", 422, 427]]}]},
+    "open_decision": "REVIEW item 2 (fixed-build ground truth: residual under strict PTX vs absent under the fence+counter idiom)"},
+  "cccl-4": {"pairs": [
+      {"name": "tile_data read vs tile_data writes (tid 0)", "role": "primary", "cls": "DR", "A": [["driver_*.cu", 60, 60]], "B": [["driver_*.cu", 85, 85], ["driver_*.cu", 68, 68]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "tile_data read vs writes (fixed driver lines +2)", "cls": "DR", "A": [["driver_*.cu", 60, 62]], "B": [["driver_*.cu", 87, 87], ["driver_*.cu", 70, 70]]}]}},
+  "cmssw-1": {"pairs": [
+      {"name": "co[i] += ws[warpId-1] store vs psum load (last block)", "role": "primary", "cls": "DR", "A": [["prefixScan.h", 77, 77]], "B": [["prefixScan.h", 172, 172]]},
+      {"name": "partial-scan store L22 vs psum load", "role": "extra", "cls": "DR", "A": [["prefixScan.h", 22, 22]], "B": [["prefixScan.h", 172, 172]]},
+      {"name": "block store L77 vs last block RMW L179", "role": "extra", "cls": "DR", "A": [["prefixScan.h", 77, 77]], "B": [["prefixScan.h", 179, 179]]}],
+    "fixed": {"oracle": "residual", "equiv": [],
+      "residual": [{"name": "co[i] += ws store (volatile) vs psum load (volatile, fixed L175)", "cls": "SC?", "A": [["prefixScan.h", 77, 77]], "B": [["prefixScan.h", 175, 175]]},
+                   {"name": "store L77 vs last block RMW (fixed L182)", "cls": "SC?", "A": [["prefixScan.h", 77, 77]], "B": [["prefixScan.h", 182, 182]]}]},
+    "open_decision": "REVIEW item 2 (fixed-build ground truth: uncertain residual vs absent)"},
+  "ginkgo-1": {"pairs": [
+      {"name": "block_partial store vs warp-0 reads", "role": "primary", "cls": "DR", "A": [["kernel_launch_reduction.hpp", 309, 309]], "B": [["kernel_launch_reduction.hpp", 317, 317]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "block_partial store vs warp-0 reads", "cls": "DR", "A": [["kernel_launch_reduction.hpp", 309, 309]], "B": [["kernel_launch_reduction.hpp", 317, 317]]}]}},
+  "ginkgo-5": {"pairs": [
+      {"name": "packed-word RMW load vs store (lost update)", "role": "primary", "cls": "DR", "A": [["bit_packed_storage.hpp", 160, 160]], "B": [["bit_packed_storage.hpp", 154, 154]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "packed-word RMW load vs store", "cls": "DR", "A": [["bit_packed_storage.hpp", 160, 160]], "B": [["bit_packed_storage.hpp", 154, 154]]}]}},
+  "hecbench-dxtc2-1": {"pairs": [
+      {"name": "sums[idx] store vs sums[idx^8] load", "role": "primary", "cls": "DR", "A": [["main.cu", 70, 70]], "B": [["main.cu", 71, 71]]}],
+    "both_builds": [{"name": "colors[xrefs[idx]] scatter (buggy L176-178)", "A": [["main.cu", 176, 178]], "B": [["main.cu", 176, 178]]}],
+    "fixed": {"oracle": "residual", "equiv": [],
+      "residual": [{"name": "colors[xrefs[idx]] = colors[idx] scatter (fixed L448)", "cls": "DR", "A": [["main.cu", 448, 448]], "B": [["main.cu", 448, 448]]}]},
+    "open_decision": "REVIEW item 2 (residual label: absent or DR)"},
+  "hecbench-hungarian-1": {"pairs": [
+      {"name": "sdata[tid] store (volatile) vs sdata[tid+16] load (volatile)", "role": "primary", "cls": "SC", "A": [["main.cu", 144, 144]], "B": [["main.cu", 145, 145]]}],
+    "fixed": {"oracle": "residual", "equiv": [],
+      "residual": [{"name": "intra-step sdata[tid] store vs sdata[tid+16] load (fixed L146)", "cls": "DR", "A": [["main.cu", 146, 146]], "B": [["main.cu", 146, 146]]}]},
+    "open_decision": "REVIEW item 1 (D20, volatile shared has no .STRONG in SASS) and item 2 (residual label)"},
+  "hecbench-morphology-1": {"pairs": [
+      {"name": "opArray store vs opArray load (same statement, cross-warp)", "role": "primary", "cls": "DR", "A": [["morphology.cu", 94, 95]], "B": [["morphology.cu", 95, 95]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "read phase vs write phase (fixed L102-103 / L107-108)", "cls": "DR", "A": [["morphology.cu", 107, 108]], "B": [["morphology.cu", 102, 103]]}]}},
+  "hecbench-surfel-1": {"pairs": [
+      {"name": "sh[] staging store vs tile reads", "role": "primary", "cls": "DR", "A": [["main.cu", 87, 87]], "B": [["main.cu", 97, 105]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "sh[] staging store vs tile reads", "cls": "DR", "A": [["main.cu", 87, 87]], "B": [["main.cu", 97, 105]]}]}},
+  "kokkos-5": {"pairs": [
+      {"name": "broadcast *value = *(value-lane_id): lane 0 store vs lanes 1..31 load", "role": "primary", "cls": "DR", "A": [["Kokkos_Cuda_ReduceScan.hpp", 551, 551]], "B": [["Kokkos_Cuda_ReduceScan.hpp", 551, 551]]}],
+    "both_builds": [{"name": "tree-loop join step (volatile) L547", "A": [["Kokkos_Cuda_ReduceScan.hpp", 547, 547]], "B": [["Kokkos_Cuda_ReduceScan.hpp", 547, 547]]},
+                    {"name": "join store L547 vs broadcast load (second call)", "A": [["Kokkos_Cuda_ReduceScan.hpp", 547, 547]], "B": [["Kokkos_Cuda_ReduceScan.hpp", 551, 552]]}],
+    "fixed": {"oracle": "residual", "equiv": [{"name": "broadcast guarded by lane_id != 0 (fixed L552)", "cls": "DR", "A": [["Kokkos_Cuda_ReduceScan.hpp", 552, 552]], "B": [["Kokkos_Cuda_ReduceScan.hpp", 552, 552]]}],
+      "residual": [{"name": "result store L577 vs global[i]=shared[i] load (Parallel_Range.hpp L321)", "cls": "DR", "A": [["Kokkos_Cuda_ReduceScan.hpp", 577, 577]], "B": [["Kokkos_Cuda_Parallel_Range.hpp", 321, 321]]}]}},
+  "kokkos-6": {"pairs": [
+      {"name": "sh_result store vs inter-warp reads", "role": "primary", "cls": "DR", "A": [["Kokkos_Cuda_ReduceScan.hpp", 105, 105]], "B": [["Kokkos_Cuda_ReduceScan.hpp", 116, 118]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "sh_result store vs inter-warp reads", "cls": "DR", "A": [["Kokkos_Cuda_ReduceScan.hpp", 105, 105]], "B": [["Kokkos_Cuda_ReduceScan.hpp", 116, 118]]}]}},
+  "lit-arrayfire-1": {"pairs": [
+      {"name": "scan_first: s_ftmp read L145 vs write L157", "role": "primary", "cls": "DR", "A": [["scan_first_by_key_impl.hpp", 145, 145]], "B": [["scan_first_by_key_impl.hpp", 157, 157]]},
+      {"name": "scan_dim: s_ftmp read L164 vs write L176", "role": "extra", "cls": "DR", "A": [["scan_dim_by_key_impl.hpp", 164, 164]], "B": [["scan_dim_by_key_impl.hpp", 176, 176]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "scan_first read vs write (fixed L158)", "cls": "DR", "A": [["scan_first_by_key_impl.hpp", 145, 145]], "B": [["scan_first_by_key_impl.hpp", 158, 158]]},
+                                            {"name": "scan_dim read vs write (fixed L177)", "cls": "DR", "A": [["scan_dim_by_key_impl.hpp", 164, 164]], "B": [["scan_dim_by_key_impl.hpp", 177, 177]]}]}},
+  "lit-exllamav3-1": {"pairs": [
+      {"name": "topk stage: sh_* stores vs sh_* loads", "role": "primary", "cls": "DR", "A": [["routing.cu", 290, 292]], "B": [["routing.cu", 277, 279]]},
+      {"name": "routing_std_topk_kernel stores vs loads", "role": "extra", "cls": "DR", "A": [["routing.cu", 544, 545]], "B": [["routing.cu", 531, 533]]},
+      {"name": "routing_std_kernel sh_v store vs max_red load", "role": "extra", "cls": "DR", "A": [["routing.cu", 655, 655]], "B": [["routing.cu", 636, 636]]}],
+    "both_builds": [{"name": "warp_radixsort_posf16 L103 vs L101 (ballot/shuffle only)", "A": [["routing.cu", 103, 103]], "B": [["routing.cu", 101, 101]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "topk stage stores (fixed L294-296) vs loads (fixed L277-280)", "cls": "DR", "A": [["routing.cu", 294, 296]], "B": [["routing.cu", 277, 280]]},
+                                            {"name": "std_topk stores (fixed L550-551) vs loads (fixed L534-536)", "cls": "DR", "A": [["routing.cu", 550, 551]], "B": [["routing.cu", 534, 536]]},
+                                            {"name": "std_kernel sh_v store (fixed L664) vs load", "cls": "DR", "A": [["routing.cu", 664, 664]], "B": [["routing.cu", 636, 636]]}]}},
+  "lit-fbgemm-1": {"pairs": [
+      {"name": "warpLevelSums store vs load", "role": "primary", "cls": "DR", "A": [["fast_gemv.cu", 141, 141]], "B": [["fast_gemv.cu", 145, 145]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "warpLevelSums store vs load", "cls": "DR", "A": [["fast_gemv.cu", 141, 141]], "B": [["fast_gemv.cu", 145, 145]]}]}},
+  "lit-shoc-1": {"pairs": [
+      {"name": "s_seed loads vs s_seed update (DR half)", "role": "primary", "cls": "DR", "A": [["scan_kernel.h", 298, 301]], "B": [["scan_kernel.h", 309, 309]]},
+      {"name": "scanLocalMem volatile s_data read L198 vs next window's writes L147/L152 (SC half)", "role": "extra", "cls": "SC", "A": [["scan_kernel.h", 198, 198]], "B": [["scan_kernel.h", 152, 152], ["scan_kernel.h", 147, 147]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "s_seed loads vs update (fixed lines +3)", "cls": "DR", "A": [["scan_kernel.h", 298, 305]], "B": [["scan_kernel.h", 309, 313]]},
+                                            {"name": "scanLocalMem read L198 vs writes L147/L152", "cls": "SC", "A": [["scan_kernel.h", 198, 198]], "B": [["scan_kernel.h", 152, 152], ["scan_kernel.h", 147, 147]]}]},
+    "open_decision": "REVIEW item 1 (D20: the SC half is volatile shared, no .STRONG in SASS)"},
+  "llamacpp-2": {"pairs": [
+      {"name": "mm_ids_helper store vs load", "role": "primary", "cls": "DR", "A": [["mmid.cu", 96, 96]], "B": [["mmid.cu", 106, 106]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "mm_ids_helper store vs load (fixed: __syncwarp became a NOP, SASS unchanged)", "cls": "DR", "A": [["mmid.cu", 96, 96]], "B": [["mmid.cu", 106, 108]]}]},
+    "open_decision": "REVIEW item 3 (ptxas turned the added __syncwarp into a NOP; the fixed SASS equals the buggy SASS)"},
+  "llamacpp-4": {"pairs": [
+      {"name": "shared_vals read (reduction 1) vs write (reduction 2)", "role": "primary", "cls": "DR", "A": [["common.cuh", 643, 643]], "B": [["common.cuh", 638, 638]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "shared_vals read vs write", "cls": "DR", "tol": 6, "A": [["common.cuh", 643, 643]], "B": [["common.cuh", 638, 638]]}]}},
+  "llamacpp-5": {"pairs": [
+      {"name": "smemB/smemC store (iteration i+1) vs load (iteration i)", "role": "primary", "cls": "DR", "A": [["ssm-scan.cu", 87, 88]], "B": [["ssm-scan.cu", 103, 104]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "smemB/smemC store vs load (fixed lines +1)", "cls": "DR", "A": [["ssm-scan.cu", 88, 89]], "B": [["ssm-scan.cu", 104, 105]]}]}},
+  "opencv-2": {"pairs": [
+      {"name": "neighbour read L285 vs smem write L297", "role": "primary", "cls": "SC", "A": [["canny.cu", 285, 285]], "B": [["canny.cu", 297, 297]]},
+      {"name": "any neighbour read L284-293 vs smem write L297", "role": "family", "cls": "SC", "A": [["canny.cu", 284, 293]], "B": [["canny.cu", 297, 297]]},
+      {"name": "last-iteration write L297 vs post-loop reads L308-317", "role": "extra", "cls": "SC", "A": [["canny.cu", 297, 297]], "B": [["canny.cu", 308, 317]]}],
+    "both_builds": [{"name": "halo loads L252-268 vs neighbouring block's stores L302/L306", "A": [["canny.cu", 252, 268]], "B": [["canny.cu", 302, 302], ["canny.cu", 306, 306]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "neighbour reads vs smem write (fixed L299)", "cls": "SC", "A": [["canny.cu", 283, 295]], "B": [["canny.cu", 297, 301]]},
+                                            {"name": "write vs post-loop reads (fixed +4)", "cls": "SC", "A": [["canny.cu", 297, 301]], "B": [["canny.cu", 308, 321]]}]},
+    "open_decision": "REVIEW item 1 (D20: volatile shared, no .STRONG in SASS)"},
+  "pytorch-1": {"pairs": [
+      {"name": "indices_batch store vs load", "role": "primary", "cls": "DR", "A": [["Embedding.cu", 66, 66]], "B": [["Embedding.cu", 99, 99]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "indices_batch store (fixed L71) vs load (fixed L104)", "cls": "DR", "A": [["Embedding.cu", 71, 71]], "B": [["Embedding.cu", 104, 104]]}]}},
+  "pytorch-3": {"pairs": [
+      {"name": "gradInput_k[target_k] store (thread 0) vs gradInput_k[i] *= (all threads)", "role": "primary", "cls": "DR", "A": [["MultiMarginLoss.cu", 121, 121]], "B": [["MultiMarginLoss.cu", 125, 125]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "store vs RMW (fixed L126)", "cls": "DR", "A": [["MultiMarginLoss.cu", 121, 121]], "B": [["MultiMarginLoss.cu", 126, 126]]}]}},
+  "pytorch-4": {"pairs": [
+      {"name": "indices[0] = kValueIndex WAW (two threads)", "role": "primary", "cls": "DR", "A": [["Sorting.cu", 86, 86]], "B": [["Sorting.cu", 86, 86]]},
+      {"name": "kthValue[0] = kValue WAW (two threads)", "role": "extra", "cls": "DR", "A": [["Sorting.cu", 85, 85]], "B": [["Sorting.cu", 85, 85]]}],
+    "fixed": {"oracle": "residual", "equiv": [],
+      "residual": [{"name": "minIndexFound read (fixed L77) vs atomicMin (fixed L86)", "cls": "DR", "A": [["Sorting.cu", 77, 77]], "B": [["Sorting.cu", 86, 86]]}]}},
+  "pytorch_cluster-1": {"pairs": [
+      {"name": "best_dist store vs best_dist[thread_idx+i] load", "role": "primary", "cls": "DR", "A": [["nearest_cuda.cu", 54, 55]], "B": [["nearest_cuda.cu", 53, 55]]}],
+    "fixed": {"oracle": "absent", "equiv": [{"name": "tree reduction (fixed L52-L58)", "cls": "DR", "A": [["nearest_cuda.cu", 52, 58]], "B": [["nearest_cuda.cu", 52, 58]]}]}},
+  "raft-1": {"pairs": [
+      {"name": "histogram atomicAdd vs volatile load in scan (SC half)", "role": "primary", "cls": "SC", "A": [["select_radix.cuh", 322, 322]], "B": [["select_radix.cuh", 361, 361], ["select_radix.cuh", 349, 349], ["block_load.cuh", 312, 312]]},
+      {"name": "histogram atomicAdd vs plain loads in choose_bucket (DR half)", "role": "primary", "cls": "DR", "A": [["select_radix.cuh", 322, 322]], "B": [["select_radix.cuh", 382, 383]]},
+      {"name": "atomicAdd vs scan's volatile store L366", "role": "extra", "cls": "SC", "A": [["select_radix.cuh", 322, 322]], "B": [["select_radix.cuh", 366, 366]]},
+      {"name": "atomicAdd vs plain reset store L776", "role": "extra", "cls": "DR", "A": [["select_radix.cuh", 322, 322]], "B": [["select_radix.cuh", 776, 776]]}],
+    "fixed": {"oracle": "residual", "equiv": [],
+      "residual": [{"name": "atomicAdd vs volatile load (SC)", "cls": "SC", "A": [["select_radix.cuh", 322, 322]], "B": [["select_radix.cuh", 361, 361], ["select_radix.cuh", 349, 349], ["block_load.cuh", 312, 312]]},
+                   {"name": "atomicAdd vs plain loads (DR)", "cls": "DR", "A": [["select_radix.cuh", 322, 322]], "B": [["select_radix.cuh", 382, 383]]}]},
+    "open_decision": "REVIEW item 2 (fixed-build ground truth: residual under strict PTX vs absent under the fence+counter idiom)"},
+  "_t21c_doc": "T21c additions (same format as above). Derived by hand from the reviewed oracle files eval/realworld/oracle/<id>.json (sites, other_conflicting_accesses / additional_pairs, thread_relation, expected_class, buggy_expected, class_reason, review.notes) and checked line by line against the source that was compiled (R2: eval/realworld/targets/<id>/r2/buggy/<path>; R1: git show <pinned>:<path>). role here: primary = the oracle's registered `sites`; family = further instances the oracle's buggy_expected lists as expected reports (same statements, other kernel/copy/step); extra = pairs the oracle names only in other_conflicting_accesses or additional_pairs (they only keep a report out of the 'other reports' queue; for DR+SC targets every cls=SC pair counts for the SC component, so SC additional_pairs score as '(family)' by the scorer's labelling). No pair was added from a detector report. Candidates have no fixed build except llamacpp-open-2 (fixed 99db719bdf07, oracle review.changes: expected_fixed_build_if_moved_to_recall = absent for the pair).",
+  "autogptq-new-1": {"pairs": [
+      {"name": "tile store L30 vs tile load L58 (intra-warp RAW on block[4][16][18])", "role": "primary", "cls": "DR", "A": [["marlin_repack.cu", 30, 30]], "B": [["marlin_repack.cu", 58, 58]],
+       "_source": "sites[0] (write L30) and sites[1] (read L58); thread_relation intra-warp, expected_class DR; both lines checked in r2/buggy/autogptq_extension/marlin/marlin_repack.cu"},
+      {"name": "tile store L32 (rows 8..15) vs tile load L58", "role": "family", "cls": "DR", "A": [["marlin_repack.cu", 32, 32]], "B": [["marlin_repack.cu", 58, 58]],
+       "_source": "other_conflicting_accesses[0] and buggy_expected ('(L30 / L32 store by one lane) x (L58 load by another lane)')"}],
+    "_source": "oracle autogptq-new-1.json at 9f7d3707; no fixed build"},
+  "colmap-new-1": {"pairs": [
+      {"name": "window shift store L364-365 vs ref_color load L502 (intra-warp shared WAR)", "role": "primary", "cls": "DR", "A": [["patch_match_cuda.cu", 364, 365]], "B": [["patch_match_cuda.cu", 502, 502]],
+       "_source": "sites[0] (write L364-365, statement spans two lines per open_questions) and sites[1] (read L502); thread_relation intra-warp, expected_class DR; lines checked with git show 6db3867:src/colmap/mvs/patch_match_cuda.cu"},
+      {"name": "new bottom-row store L377-378 vs load L502", "role": "extra", "cls": "DR", "A": [["patch_match_cuda.cu", 377, 378]], "B": [["patch_match_cuda.cu", 502, 502]],
+       "_source": "other_conflicting_accesses[0] ('a second write site of the same WAR against the L502 reads')"}],
+    "_source": "oracle colmap-new-1.json at 6db3867; no fixed build. Scored from the reanalysis (job 320685, analysis timeout 82,800 s) of the original recording"},
+  "cuml-tsne-new-1": {"pairs": [
+      {"name": "dq self-copy store L596 vs L596 (cross-warp, value-benign)", "role": "primary", "cls": "DR", "A": [["barnes_hut_kernels.cuh", 596, 596]], "B": [["barnes_hut_kernels.cuh", 596, 596]],
+       "_source": "sites[0]/sites[1] (both L596) and buggy_expected 'Primary: cross-warp WAR/RAW on dq[0..31], L596 vs L596'; thread_relation cross-warp-same-block, expected_class DR; checked in r2/buggy/cpp/src/tsne/barnes_hut_kernels.cuh"},
+      {"name": "stack hand-off: pos/node stores L625-626, L655-656 vs reads L631-632 (intra-warp)", "role": "extra", "cls": "DR", "A": [["barnes_hut_kernels.cuh", 625, 626], ["barnes_hut_kernels.cuh", 655, 656]], "B": [["barnes_hut_kernels.cuh", 631, 632]],
+       "_source": "additional_pairs[0] (writes L625-626 and L655-656, reads L631-632)"},
+      {"name": "per-warp dq: store L596 vs dq[depth] read L647 (intra-warp)", "role": "extra", "cls": "DR", "A": [["barnes_hut_kernels.cuh", 596, 596]], "B": [["barnes_hut_kernels.cuh", 647, 647]],
+       "_source": "additional_pairs[1] (write L596, read L647)"}],
+    "_source": "oracle cuml-tsne-new-1.json at c7e7738; no fixed build"},
+  "droidslam-new-1": {"pairs": [
+      {"name": "warpReduce L46 volatile store vs L47 volatile load (intra-warp, SC)", "role": "primary", "cls": "SC", "A": [["droid_kernels.cu", 46, 46]], "B": [["droid_kernels.cu", 47, 47]],
+       "_source": "sites[0] (L46) and sites[1] (L47); thread_relation intra-warp, expected_class SC; checked in r2/buggy/src/droid_kernels.cu"},
+      {"name": "every adjacent warpReduce step pair L46/L47 .. L50/L51", "role": "family", "cls": "SC", "A": [["droid_kernels.cu", 46, 50]], "B": [["droid_kernels.cu", 47, 51]],
+       "_source": "buggy_expected ('for each adjacent step pair of warpReduce ... L46/L47, L47/L48, L48/L49, L49/L50, L50/L51') and other_conflicting_accesses[0]"},
+      {"name": "same-step WAR between lanes (e.g. lane 0 load of sdata[16] vs lane 16 store, L47)", "role": "extra", "cls": "SC", "A": [["droid_kernels.cu", 46, 51]], "B": [["droid_kernels.cu", 46, 51]],
+       "_source": "other_conflicting_accesses[0] ('steps also contain write-after-read pairs between lanes')"}],
+    "_source": "oracle droidslam-new-1.json at 2dfd39f; no fixed build"},
+  "lightgbm-new-1": {"pairs": [
+      {"name": "ShuffleReduceSum read L136 (call 1) vs write L131 (call 2) on shared_mem_buffer", "role": "primary", "cls": "DR", "A": [["cuda_algorithms.hpp", 131, 131]], "B": [["cuda_algorithms.hpp", 136, 136]],
+       "_source": "sites[0] (read L136) and sites[1] (write L131); thread_relation cross-warp-same-block, expected_class DR; lines checked with git show c8be357:include/LightGBM/cuda/cuda_algorithms.hpp"}],
+    "_source": "oracle lightgbm-new-1.json at c8be357; no fixed build. NOT scored in T21c (CLEAN with 0 cubins / 0 dots); entry written for the coordinator"},
+  "lightgbm-new-2": {"pairs": [
+      {"name": "ShuffleReduceSum read L136 (call 1) vs write L131 (call 2) on shared_mem_buffer", "role": "primary", "cls": "DR", "A": [["cuda_algorithms.hpp", 131, 131]], "B": [["cuda_algorithms.hpp", 136, 136]],
+       "_source": "sites[0] (read L136) and sites[1] (write L131); thread_relation cross-warp-same-block, expected_class DR; same helper as lightgbm-new-1, lines checked at c8be357"}],
+    "_source": "oracle lightgbm-new-2.json at c8be357; no fixed build. NOT scored in T21c (CLEAN with 0 cubins / 0 dots); entry written for the coordinator"},
+  "llamacpp-open-1": {"pairs": [
+      {"name": "yq32 store L365 vs yds store L370 (WAW on the aliased words, intra-warp)", "role": "primary", "cls": "DR", "A": [["fattn-common.cuh", 365, 365]], "B": [["fattn-common.cuh", 370, 370]],
+       "_source": "sites[0] (write L365) and sites[1] (write L370); thread_relation intra-warp, expected_class DR; lines checked with git show 1b70350c:ggml/src/ggml-cuda/fattn-common.cuh"}],
+    "_source": "oracle llamacpp-open-1.json at 1b70350c; no fixed build"},
+  "llamacpp-open-2": {"pairs": [
+      {"name": "KQ load L359 (iteration n) vs KQ store L303 (iteration n+1), loop-carried intra-warp WAR", "role": "primary", "cls": "DR", "A": [["fattn-vec.cuh", 303, 303]], "B": [["fattn-vec.cuh", 359, 359]],
+       "_source": "sites[0] (write L303) and sites[1] (read L359); buggy_expected; thread_relation intra-warp, expected_class DR; lines checked at 1b70350c and at the fix 99db719b. L330 (HIP-only branch, other_conflicting_accesses[0]) is not compiled for CUDA and is not listed"}],
+    "fixed": {"oracle": "absent", "equiv": [
+      {"name": "KQ load L359 vs KQ store L303 (unchanged line numbers in the fixed build)", "cls": "DR", "A": [["fattn-vec.cuh", 303, 303]], "B": [["fattn-vec.cuh", 359, 359]],
+       "_source": "oracle upstream_status.fixed_upstream.expected_fixed_build_if_moved_to_recall = absent for this pair (new __syncwarp at fixed L378); git diff 1b70350c..99db719b changes fattn-vec.cuh only at L320 (comment on the existing sync) and adds L377-378, so L303/L359 are the same lines in both builds"}]},
+    "miss_cause": {"llamacpp-open-2-buggy": "m1: the loop-carried WAR needs a second iteration of the k_VKQ_0 loop (fattn-vec.cuh L254) inside one CTA, and the driver's launch gives each CTA exactly one: the kernel JSONs show grid_cta_count 16 x 128 threads (4 heads x parallel_blocks 4), launch_fattn (fattn-common.cuh L1193-1218) sets parallel_blocks = min(max_blocks_per_sm, ntiles_KV) and then raises it up to ntiles_KV = 512/128 = 4 (nbatch_fa = D = 128, fattn-vec.cuh L541), so the loop stride gridDim.y*128 = 512 = kv. The only verdicts between the oracle's sites are the RAW L303 -> L359 (ORDERED, barrier-ordered by the __syncwarp at L320), which the oracle says must not be reported; there is no WAR verdict (neither ORDERED nor RACE). Driver fix needed (T21a): more KV tiles than parallel_blocks covers (a much longer kv, or more heads so that fewer parallel blocks are chosen), then rerun"},
+    "_source": "oracle llamacpp-open-2.json; buggy 1b70350c, fixed 99db719bdf07f7d537431ca556a0512bf3d995b6"},
+  "llmc-new-1": {"pairs": [
+      {"name": "partial stores L1194-1195 (block A) vs partial loads L1214-1215 (last block), cross-block RAW via global scratch", "role": "primary", "cls": "DR", "A": [["layernorm_backward.cu", 1194, 1195]], "B": [["layernorm_backward.cu", 1214, 1215]],
+       "_source": "sites[0] (write L1194-1195) and sites[1] (read L1214-1215) of dev/cuda/layernorm_backward.cu kernel10 (the file route R1 compiles; review.changes[0] moved these to the dev file); thread_relation cross-block, expected_class DR. sites_llmc_layernorm_cuh (llmc/layernorm.cuh L371-372 x L391-392) is the alternative build and was not compiled, so it is not listed. Lines checked with git show f1e2ace6:dev/cuda/layernorm_backward.cu"}],
+    "_source": "oracle llmc-new-1.json at f1e2ace6; no fixed build"},
+  "llmc-new-2": {"pairs": [
+      {"name": "shared_val read L177 (iteration to) vs write L175 (iteration to+1) in blockReduce (WAR, loop-carried)", "role": "primary", "cls": "DR", "A": [["cuda_utils.cuh", 175, 175]], "B": [["cuda_utils.cuh", 177, 177]],
+       "_source": "sites[0] (write L175) and sites[1] (read L177); buggy_expected; thread_relation cross-warp-same-block, expected_class DR (review.changes[0]: the intra-warp variant is the same pair, so it is the same ranges); lines checked in r2/buggy/llmc/cuda_utils.cuh"}],
+    "_source": "oracle llmc-new-2.json at f1e2ace6; no fixed build"},
+  "llmc-new-3": {"pairs": [
+      {"name": "kernel8: block_acc init L691 vs warp-sum store L706 (WAW, cross-warp)", "role": "primary", "cls": "DR", "A": [["attention_backward.cu", 691, 691]], "B": [["attention_backward.cu", 706, 706]],
+       "_source": "sites[0] (write L691) and sites[1] (write L706) of dev/cuda/attention_backward.cu softmax_autoregressive_backward_kernel8; buggy_expected, thread_pair_example; expected_class DR. Row llmc-new-3-k8-buggy (kernel 8)"},
+      {"name": "kernel7: block_acc init L651 vs warp-sum store L659 (WAW, same statements as kernel8)", "role": "family", "cls": "DR", "A": [["attention_backward.cu", 651, 651]], "B": [["attention_backward.cu", 659, 659]],
+       "_source": "other_conflicting_accesses[1] and buggy_expected ('the kernel7 / fp32-trainer instances'); row llmc-new-3-buggy runs kernel 7. The fp32-trainer instance (train_gpt2_fp32.cu L463/L478/L480) is not compiled by this target and is not listed"},
+      {"name": "kernel8: loop-carried WAR, read L708 (iteration to) vs store L706 (iteration to+1)", "role": "extra", "cls": "DR", "A": [["attention_backward.cu", 706, 706]], "B": [["attention_backward.cu", 708, 708]],
+       "_source": "other_conflicting_accesses[0] (b) and buggy_expected ('also the WAR (L708 read vs next-iteration L706 write)')"},
+      {"name": "kernel8: same-value WW L706 vs L706 (intra-warp, benign)", "role": "extra", "cls": "DR", "A": [["attention_backward.cu", 706, 706]], "B": [["attention_backward.cu", 706, 706]],
+       "_source": "other_conflicting_accesses[3] ('all 32 lanes of a warp store the same value ... at L706 (L659 in kernel7)')"},
+      {"name": "kernel7: same-value WW L659 vs L659 (intra-warp, benign)", "role": "extra", "cls": "DR", "A": [["attention_backward.cu", 659, 659]], "B": [["attention_backward.cu", 659, 659]],
+       "_source": "other_conflicting_accesses[3] (L659 in kernel7)"}],
+    "_source": "oracle llmc-new-3.json at f1e2ace6 (lines checked with git show f1e2ace6:dev/cuda/attention_backward.cu); no fixed build. Two manifest rows share this target: llmc-new-3-buggy (kernel 7) and llmc-new-3-k8-buggy (kernel 8); both are scored against all pairs above"},
+  "mmcv-fps-new-1": {"pairs": [
+      {"name": "dists_i[0] read L80 (iteration j) vs dists_i[tid] store L67 (iteration j+1), WAR", "role": "primary", "cls": "DR", "A": [["furthest_point_sample_cuda_kernel.cuh", 67, 67]], "B": [["furthest_point_sample_cuda_kernel.cuh", 80, 80]],
+       "_source": "sites[0] (write L67) and sites[1] (read L80); buggy_expected; thread_relation cross-warp-same-block, expected_class DR; checked in r2/buggy/mmcv/ops/csrc/common/cuda/furthest_point_sample_cuda_kernel.cuh"},
+      {"name": "with_dist kernel: store L134 vs read L147", "role": "extra", "cls": "DR", "A": [["furthest_point_sample_cuda_kernel.cuh", 134, 134]], "B": [["furthest_point_sample_cuda_kernel.cuh", 147, 147]],
+       "_source": "other_conflicting_accesses[0] (second kernel, same template file)"}],
+    "_source": "oracle mmcv-fps-new-1.json at d2111bd; no fixed build"},
+  "opencv_contrib-new-1": {"pairs": [
+      {"name": "step 1: plain hist store L191-192 vs volatile hist_[6] load L199 (intra-warp, plain vs strong)", "role": "primary", "cls": "DR", "A": [["hog.cu", 191, 192]], "B": [["hog.cu", 199, 199]],
+       "_source": "sites[0] (write L191-192) and sites[1] (read L199); buggy_expected 'DR for step 1'; thread_relation intra-warp, expected_class DR+SC; checked in r2/buggy/modules/cudaobjdetect/src/cuda/hog.cu"},
+      {"name": "step 2: volatile store L199 vs volatile load L201 (SC)", "role": "extra", "cls": "SC", "A": [["hog.cu", 199, 199]], "B": [["hog.cu", 200, 201]],
+       "_source": "additional_pairs[0] (write L199, read L200-201); buggy_expected 'SC for steps 2 and 3'"},
+      {"name": "step 3: volatile store L201 vs volatile loads L204 (SC)", "role": "extra", "cls": "SC", "A": [["hog.cu", 201, 201]], "B": [["hog.cu", 202, 204]],
+       "_source": "additional_pairs[1] (write L201, read L202-204)"}],
+    "_source": "oracle opencv_contrib-new-1.json at eca97a4; no fixed build"},
+  "openpcdet-fps-new-1": {"pairs": [
+      {"name": "batch kernel: dists_i[0] read L212 vs dists_i[tid] store L147 (WAR)", "role": "primary", "cls": "DR", "A": [["sampling_gpu.cu", 147, 147]], "B": [["sampling_gpu.cu", 212, 212]],
+       "_source": "sites[0] (write L147) and sites[1] (read L212) of pointnet2_batch/src/sampling_gpu.cu; thread_relation cross-warp-same-block, expected_class DR"},
+      {"name": "stack file, farthest_point_sampling_kernel: store L71 vs read L136", "role": "family", "cls": "DR", "A": [["sampling_gpu.cu", 71, 71]], "B": [["sampling_gpu.cu", 136, 136]],
+       "_source": "other_conflicting_accesses[0] and buggy_expected ('reported ... in the batch kernel and in both stack kernels'); pointnet2_stack/src/sampling_gpu.cu"},
+      {"name": "stack file, stack_farthest_point_sampling_kernel: store L250 vs read L315", "role": "family", "cls": "DR", "A": [["sampling_gpu.cu", 250, 250]], "B": [["sampling_gpu.cu", 315, 315]],
+       "_source": "other_conflicting_accesses[1] and buggy_expected; pointnet2_stack/src/sampling_gpu.cu. The batch and stack files share the basename sampling_gpu.cu; the line ranges (147/212, 71/136, 250/315) do not overlap within +-2"}],
+    "_source": "oracle openpcdet-fps-new-1.json at 233f849; all lines checked in r2/buggy/pcdet/ops/pointnet2/{pointnet2_batch,pointnet2_stack}/src/sampling_gpu.cu; no fixed build"},
+  "pcl-new-1": {"pairs": [
+      {"name": "cov accumulation L124 (plain RMW) vs Warp::reduce volatile load L152", "role": "primary", "cls": "DR", "A": [["normal_3d.cu", 124, 124]], "B": [["warp.hpp", 152, 152]],
+       "_source": "sites[0] (write normal_3d.cu L124) and sites[1] (read warp.hpp L152); thread_relation intra-warp, expected_class DR+SC; checked in r2/buggy/gpu/features/src/normal_3d.cu and gpu/utils/include/pcl/gpu/utils/device/warp.hpp"},
+      {"name": "cov accumulation L124-129 vs two-argument Warp::reduce L148/L152", "role": "family", "cls": "DR", "A": [["normal_3d.cu", 124, 129]], "B": [["warp.hpp", 148, 152]],
+       "_source": "buggy_expected ('plain cov_buffer accesses at L115, L124-L129 (vs warp.hpp L152)') and class_reason ('L124-L129 vs warp.hpp L148/L152')"},
+      {"name": "centroid reduce return buffer[0] L174 vs covariance zeroing L114-115", "role": "extra", "cls": "DR", "A": [["warp.hpp", 174, 174]], "B": [["normal_3d.cu", 114, 115]],
+       "_source": "additional_pairs[1] (read warp.hpp L174, write normal_3d.cu L114-115)"},
+      {"name": "cov[lane] plain read L141 vs last-step volatile store warp.hpp L156", "role": "extra", "cls": "DR", "A": [["normal_3d.cu", 141, 141]], "B": [["warp.hpp", 156, 156]],
+       "_source": "other_conflicting_accesses[0]"},
+      {"name": "lane-0 Eigen33 rows L150-155 (plain writes) vs L141 reads", "role": "extra", "cls": "DR", "A": [["normal_3d.cu", 150, 155]], "B": [["normal_3d.cu", 141, 141]],
+       "_source": "other_conflicting_accesses[1]"},
+      {"name": "three-argument Warp::reduce: store L164 vs load L168 (SC)", "role": "extra", "cls": "SC", "A": [["warp.hpp", 164, 164]], "B": [["warp.hpp", 168, 168]],
+       "_source": "additional_pairs[0]"},
+      {"name": "three-argument Warp::reduce step to step L168-171 vs L169-172 (SC)", "role": "extra", "cls": "SC", "A": [["warp.hpp", 168, 171]], "B": [["warp.hpp", 169, 172]],
+       "_source": "additional_pairs[0] thread_pair_example ('the same step-to-step pattern ... L168 store of step k vs L169 load ... L172') and buggy_expected"},
+      {"name": "two-argument Warp::reduce step to step L152-155 vs L153-156 (SC)", "role": "extra", "cls": "SC", "A": [["warp.hpp", 152, 155]], "B": [["warp.hpp", 153, 156]],
+       "_source": "additional_pairs[0] thread_pair_example ('in the two-argument reduce (L152 store vs L153 load, ..., L156)') and buggy_expected 'L152..L156 step to step'"}],
+    "_source": "oracle pcl-new-1.json at 66e1d0e; no fixed build. principal_curvatures.cu / fpfh.cu (other_conflicting_accesses[2]) are not compiled and not listed"},
+  "pointnet2pt-fps-new-1": {"pairs": [
+      {"name": "dists_i[0] read L170 (iteration j) vs dists_i[tid] store L112 (iteration j+1), WAR", "role": "primary", "cls": "DR", "A": [["sampling_gpu.cu", 112, 112]], "B": [["sampling_gpu.cu", 170, 170]],
+       "_source": "sites[0] (write L112) and sites[1] (read L170); buggy_expected; thread_relation cross-warp-same-block, expected_class DR; checked in r2/buggy/pointnet2_ops_lib/pointnet2_ops/_ext-src/src/sampling_gpu.cu"}],
+    "_source": "oracle pointnet2pt-fps-new-1.json at b5ceb6d; no fixed build"},
+  "pytorch_cluster-new-1": {"pairs": [
+      {"name": "best_dist[t+i] read L54 by thread t vs best_dist[t] store L55 by thread t+i (WAR, same barrier interval)", "role": "primary", "cls": "DR", "A": [["fps_cuda.cu", 55, 55]], "B": [["fps_cuda.cu", 54, 54]],
+       "_source": "sites[0] (write L55) and sites[1] (read L54); thread_relation cross-warp-same-block, expected_class DR; checked in r2/buggy/csrc/cuda/fps_cuda.cu"},
+      {"name": "best_dist L55 read / best_dist_idx L56 read vs L55-L56 stores (the analogous pair on best_dist_idx)", "role": "family", "cls": "DR", "A": [["fps_cuda.cu", 55, 56]], "B": [["fps_cuda.cu", 55, 56]],
+       "_source": "buggy_expected ('and the analogous pair on best_dist_idx (L56)') and other_conflicting_accesses[0] (reads L54, L55, L56 vs writes L55, L56)"}],
+    "_source": "oracle pytorch_cluster-new-1.json at e9a855c; no fixed build"},
+  "sglang-open-1": {"pairs": [
+      {"name": "prefix[tid] store L220 vs prefix[mid] read L233 (cross-warp RAW)", "role": "primary", "cls": "DR", "A": [["moe_align_kernel.cu", 220, 220]], "B": [["moe_align_kernel.cu", 233, 233]],
+       "_source": "sites[0] (write L220) and sites[1] (read L233) of python/sglang/kernels/aot/csrc/moe/moe_align_kernel.cu (the AOT copy that is compiled); thread_relation cross-warp-same-block, expected_class DR. The jit (L217/L230) and lora (L262/L274) copies of other_conflicting_accesses are not compiled and not listed"}],
+    "_source": "oracle sglang-open-1.json at 08550ac; no fixed build"}
+}

@@ -1,0 +1,11 @@
+{
+  "route": "R2",
+  "status": "built",
+  "toolkit": "13.4 (c22)",
+  "kernel": "softmax_autoregressive_backward_inplace_kernel",
+  "route_note": "Candidate (no fix commit): only r2/buggy exists; every file under r2/buggy is byte-identical to the pinned commit (r2/blob.check, RESULT PASS). Stubs/shims are in r2/common/. See target.sh header for flags and dependency headers. sm_89 SASS confirmed with cuobjdump; -arch=sm_89 -lineinfo, never -G.",
+  "input": "B*NH=1, T=64, C=64, grid (16,1) x 256 threads (as attention.cuh L266); att uniform causal rows, datt pseudo-random bf16",
+  "access_estimate": "~2.5e4 thread-level accesses (16 blocks x 4 iterations x ~390)",
+  "notes": "Extra verbatim headers: llmc/cuda_common.h, utils.h, cublas_common.h. Stubs in driver.cu: deviceProp, matmul_cublaslt, CUDA-13 cudaMemAdvise(int) overload (cuda_utils.cuh L220 host code does not compile against CUDA 13 otherwise). Flags from Makefile: --use_fast_math -std=c++17 -O3 -DENABLE_BF16. Not run on GPU.",
+  "phases_run": ["stage", "build"]
+}

@@ -1,0 +1,55 @@
+{
+  "id": "pytorch-3",
+  "tier": "core",
+  "wave": 1,
+  "route": "R2",
+  "kernel": "MultiMarginLoss_backward_kernel",
+  "space": "global",
+  "build_revision": {
+    "buggy": "13398dab7991e3c3ccbf6892eeca8e68335d0d71",
+    "fixed": "8573a2beda96b37bb7a2ac70b654da35b016f147"
+  },
+  "sites": [
+    {
+      "role": "write",
+      "file": "aten/src/ATen/native/cuda/MultiMarginLoss.cu",
+      "line_start": 121,
+      "line_end": 121,
+      "source": "gradInput_k[target_k] = static_cast<scalar_t>(gradInput_target_k);",
+      "operation": "STG.E [R6.64], R23 (st.global.f32, SASS 0x1890; executed only by threadIdx.x == 0 after the block reduction)",
+      "strength": "plain"
+    },
+    {
+      "role": "rmw",
+      "file": "aten/src/ATen/native/cuda/MultiMarginLoss.cu",
+      "line_start": 125,
+      "line_end": 125,
+      "source": "gradInput_k[i] *= * gradOutput_k;",
+      "operation": "LDG.E (gradInput_k[i], ld.global.f32) + LDG.E (*gradOutput_k) + STG.E (gradInput_k[i], st.global.f32); the loop is unrolled in the SASS (copies at 0x1ab0..0x1d30 in the buggy driver, load/store of gradInput_k[i] at e.g. 0x1ac0/0x1b30)",
+      "strength": "plain"
+    }
+  ],
+  "thread_relation": "cross-warp-same-block",
+  "thread_pair_example": "driver input: 1 frame, dim = 128, target = 64, launch <<<1, 128>>> (block 0): thread 0 (warp 0) stores gradInput_k[64] at L121; thread 64 (warp 2, threadIdx.x == target_k % 128; its single iteration i = 64 of the L124 loop, because i_start = 64, i_step = 128) loads gradInput_k[64], multiplies by *gradOutput_k and stores it at L125. The two touch the same global word with no barrier between them. (Benign only if target_k % 128 == 0: then thread 0 owns the slot itself.)",
+  "expected_class": "DR",
+  "class_reason": "Both accesses are plain (non-volatile, non-atomic) global float accesses to one word, issued by threads of different warps of the same block with no happens-before edge: the last __syncthreads in the buggy kernel is at L113, before the reduction that produces the L121 store, and nothing orders thread 0's L121 store with the other threads' L125 loop. No strong/atomic access is involved, so DR (not SC) under D20. Note: the tool-level report may be raced as WAW (L121 store vs L125 store) and RAW/WAR (L121 store vs L125 load); all are the same pair of source lines and the same word.",
+  "buggy_expected": "the pair L121 STG (thread 0) x L125 LDG/STG (thread target_k % 128) on global gradInput_k[target_k] is reported as DR (global-memory race, cross-warp same block)",
+  "fixed": {
+    "expected": "absent",
+    "residual_sites": null,
+    "reason": "the fix inserts one __syncthreads() at fixed L124, between the thread-0-only block (L116-L122) and the scaling loop (now fixed L125-L127, RMW at fixed L126): the barrier orders thread 0's L121 store before every thread's RMW. verify.expected_report_fixed: nothing for that pair. The other gradInput_k[i] writes (L107, L109) are by the owning thread i and are ordered before the L121 / RMW accesses by the existing barrier at L113 (and each element has a single writer)."
+  },
+  "sass_notes": "cuobjdump/nvdisasm -g (via /home/fzheng4/sassline.sh) of sm_89 MultiMarginLoss_backward_kernel<1,float> (buggy driver): MultiMarginLoss.cu:113 BAR.SYNC.DEFER_BLOCKING (0x1350), :119 LDS.128 x4 / LDS (thread-0 sum), :121 STG.E [R6.64],R23 (0x1890), then directly the L125 loop LDG.E R6,[R26.64] (*gradOutput_k, 0x1ab0), LDG.E R5,[R8.64] (gradInput_k[i], 0x1ac0), STG.E [R8.64],R5 (0x1b30) and the unrolled copies up to 0x1d30. Fixed driver: :121 STG.E (0x1890), :124 BAR.SYNC.DEFER_BLOCKING (0x18b0, the new barrier), :126 LDG.E/LDG.E/STG.E (0x1ac0/0x1ad0/0x1b40 ...). No .STRONG token on any of these sites (plain LDG.E / STG.E). Kernel instantiation launched: MultiMarginLoss_backward_kernel<1, float> (p = 1, scalar_t = float), launched by the driver exactly as the 1-D-input branch of multi_margin_loss_cuda_backward_out does (blocks = 1, threads = 128, sizeAverage = true, reduce = true). Lineinfo: line attribution above is from the -lineinfo build; R2 lineinfo check cited from targets/lit-arrayfire-1/lineinfo.check: RESULT SAME, -lineinfo does not change the SASS.",
+  "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against aten/src/ATen/native/cuda/MultiMarginLoss.cu@13398da (buggy) and @8573a2b (fixed) on 2026-10-20",
+  "open_questions": [
+    "Global-memory target: compute-sanitizer racecheck covers shared memory only (T_RACECHECK=na). The race manifested in the sm_75 smoke run of the buggy variant (gradInput[64] left unscaled, mismatches=1/128) and not in the fixed variant, but timing dependent manifestation is not part of the oracle."
+  ],
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "confirmed",
+    "changes": [],
+    "notes": "R2 harness: every copied kernel file under r2/buggy and r2/fixed is byte-identical (cmp) to git show <buggy_commit>:<path> / <fix_commit>:<path>; git diff buggy..fix of those files is exactly the fix hunk described in fixed.reason. Pair confirmed at 13398da: thread 0 stores gradInput_k[target_k] at L121 after the barrier L113; thread target_k % 128 (= 64, warp 2) skips the target in the first loop (L96-97) and then read-modify-writes gradInput_k[64] at L125 with no barrier in between: 32-bit float plain/plain global accesses, cross-warp in block 0 -> DR. Driver: <<<1, 128>>>, dim 128, target 64, p = 1, no weights (driver.cu:42-45). Fixed (8573a2b): one __syncthreads() at L124, unconditional, between the thread-0 block (L116-122) and the scaling loop (RMW now L126). 'absent' confirmed. Not independently verified: the SASS opcodes, register operands and offsets quoted in sites/sass_notes (the one permitted srun on -p normal could not start: partition fully allocated, estimated start 2026-10-21 14:37, so the job was cancelled); access widths were checked from the source types instead. Native-run and smoke-run statements in open_questions are builder results and were not reviewed.",
+    "depends_on_D20": false
+  }
+}

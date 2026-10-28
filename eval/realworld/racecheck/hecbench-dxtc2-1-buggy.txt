@@ -1,0 +1,407 @@
+# compute-sanitizer Version 2026.3.0.0 (build 38855100) (public-release) host c3 cuda /usr/local/cuda-13.4 2026-10-20
+# cmd: /mnt/beegfs/fzheng4/realworld/build/hecbench-dxtc2-1/buggy/main /mnt/beegfs/fzheng4/realworld/build/hecbench-dxtc2-1/buggy/lena32.ppm /mnt/beegfs/fzheng4/realworld/build/hecbench-dxtc2-1/buggy/lena32_ref.dds 1
+========= COMPUTE-SANITIZER
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x660 in block (0,0,0) :
+=========     Write Thread (8,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (0,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 228
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x661 in block (0,0,0) :
+=========     Write Thread (8,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (0,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 226
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x662 in block (0,0,0) :
+=========     Write Thread (8,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (0,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 98
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x663 in block (0,0,0) :
+=========     Write Thread (8,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (0,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 63
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x660 in block (28,0,0) :
+=========     Write Thread (8,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (0,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 227
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x660 in block (26,0,0) :
+=========     Write Thread (8,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (0,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 227
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x661 in block (26,0,0) :
+=========     Write Thread (8,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (0,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 225
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x660 in block (14,0,0) :
+=========     Write Thread (8,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (0,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 223
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x661 in block (14,0,0) :
+=========     Write Thread (8,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (0,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 221
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x662 in block (14,0,0) :
+=========     Write Thread (8,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (0,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 93
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x660 in block (6,0,0) :
+=========     Write Thread (8,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (0,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 220
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x661 in block (6,0,0) :
+=========     Write Thread (8,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (0,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 218
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x662 in block (6,0,0) :
+=========     Write Thread (8,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (0,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 90
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x663 in block (6,0,0) :
+=========     Write Thread (8,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (0,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 63
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x66c in block (6,0,0) :
+=========     Write Thread (9,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (1,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 223
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x66d in block (6,0,0) :
+=========     Write Thread (9,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (1,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 221
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x660 in block (18,0,0) :
+=========     Write Thread (8,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (0,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 228
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x661 in block (18,0,0) :
+=========     Write Thread (8,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (0,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 226
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x662 in block (18,0,0) :
+=========     Write Thread (8,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (0,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 98
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x663 in block (18,0,0) :
+=========     Write Thread (8,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (0,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 63
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x66c in block (18,0,0) :
+=========     Write Thread (9,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (1,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 227
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x66d in block (18,0,0) :
+=========     Write Thread (9,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (1,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 225
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x66e in block (18,0,0) :
+=========     Write Thread (9,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (1,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 97
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x66f in block (18,0,0) :
+=========     Write Thread (9,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (1,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 63
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x678 in block (18,0,0) :
+=========     Write Thread (10,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (2,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 228
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x679 in block (18,0,0) :
+=========     Write Thread (10,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (2,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 226
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x67a in block (18,0,0) :
+=========     Write Thread (10,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (2,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 98
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x67b in block (18,0,0) :
+=========     Write Thread (10,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (2,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 63
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x684 in block (18,0,0) :
+=========     Write Thread (11,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (3,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 230
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x685 in block (18,0,0) :
+=========     Write Thread (11,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (3,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 228
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x686 in block (18,0,0) :
+=========     Write Thread (11,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (3,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 100
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x687 in block (18,0,0) :
+=========     Write Thread (11,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (3,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 63
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x690 in block (18,0,0) :
+=========     Write Thread (12,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (4,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 227
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x691 in block (18,0,0) :
+=========     Write Thread (12,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (4,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 225
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x692 in block (18,0,0) :
+=========     Write Thread (12,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (4,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 97
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x693 in block (18,0,0) :
+=========     Write Thread (12,0,0) at colorSums(const float3 *, float3 *)+0x260 in main.cu:70
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Read Thread (4,0,0) at colorSums(const float3 *, float3 *)+0x2a0 in main.cu:71
+=========         Device Frame: loadColorBlock(const unsigned int *, float3 *, float3 *, int *, int)+0xc0 in main.cu:166
+=========         Device Frame: compress(const unsigned int *, const unsigned int *, uint2 *, int)+0x40 in main.cu:479
+=========     Current Value : 63
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x645c] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x69c in block (18,0,0) :
+# TRUNCATED: full output (23421 lines, 2063736 bytes, sha256 f915abc7794e838caa38e416951768ff0cfbacf582c3e33244a7ec6e020f9b1a) kept at /mnt/beegfs/fzheng4/realworld/racecheck_full/hecbench-dxtc2-1-buggy.txt
+Checking accuracy...
+RMS(reference, result) = 0.000000
+
+PASS
+========= RACECHECK SUMMARY: 2000 hazards displayed (0 errors, 139502 warnings)
+# exit 0

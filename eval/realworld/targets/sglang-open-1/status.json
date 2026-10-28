@@ -1,0 +1,11 @@
+{
+  "route": "R2",
+  "status": "built",
+  "toolkit": "13.4 (c22)",
+  "kernel": "moe_align_block_size_kernel",
+  "route_note": "Candidate (no fix commit): only r2/buggy exists; every file under r2/buggy is byte-identical to the pinned commit (r2/blob.check, RESULT PASS). Stubs/shims are in r2/common/. See target.sh header for flags and dependency headers. sm_89 SASS confirmed with cuobjdump; -arch=sm_89 -lineinfo, never -G.",
+  "input": "AOT copy, CUDA path: moe_align_block_size_kernel<int32_t><<<2,1024,3204 B>>> then count_and_sort_expert_tokens_kernel<<<128,256>>>; 4,096 tokens x top-8 = 32,768 ids, num_experts=256 (ids in [0,254]), block_size 16",
+  "access_estimate": "~3e5",
+  "notes": "JIT copy not built (needs tvm-ffi/dlpack). Shims: THC/THCAtomics.cuh (empty), c10/cuda/impl/cuda_cmake_macros.h, ATen/cuda/CUDAConfig.h. Link uses --unresolved-symbols=ignore-all for the never-called torch dispatcher. Not run on GPU.",
+  "phases_run": ["stage", "build"]
+}

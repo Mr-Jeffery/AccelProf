@@ -1,0 +1,13 @@
+{
+  "route": "R1",
+  "route_note": "the repo's own dev/cuda program attention_backward.cu at f1e2ace651495b74ae22d45d1723443fd00ecd3a, Makefile flags: nvcc -O3 --use_fast_math -arch=sm_89 (SASS + PTX) -lineinfo -lcublas -lcublasLt -std=c++17, no -G. Host-side edits only (sed on a copy, diff in host-edits.txt, line numbers unchanged): main() `int B = 4;` -> `int B = 1;`, `int T = 1024;` -> `int T = 64;` (C=768, NH=12 unchanged; correctness pass block_size 256), and the benchmark sweep `for (int j = 0; j < sizeof(block_sizes) / sizeof(int); j++)` -> `j < 0` (skipped, as the record suggests).",
+  "status": "built",
+  "toolkit": "13.4 (c45)",
+  "artifacts": ["/mnt/beegfs/fzheng4/realworld/build/llmc-new-3/buggy/attention_backward", "/mnt/beegfs/fzheng4/realworld/build/llmc-new-3/buggy/host-edits.txt"],
+  "kernel_present_sm89": "yes: softmax_autoregressive_backward_kernel7<32..1024> and kernel8<32..1024> (12 instances, _Z39softmax_autoregressive_backward_kernel{7,8}ILi{N}EEvPfPKfS2_iiif), also kernels 1-6; block 256 is the one launched",
+  "driver": "attention_backward 7 && attention_backward 8   (B=1, T=64, C=768, NH=12, block 256)",
+  "input": "random host data, CPU reference. Access estimate (analytic): each run executes the forward pass (cuBLAS batched sgemm, permute and softmax kernels) and the backward pass (cuBLAS sgemm plus the softmax kernel: kernel7 grid (64,12) x 256 threads, kernel8 grid (16,12)); the softmax kernel is about 2e6 accesses, cuBLAS tiles dominate: about 1e7 per run (range 5e6 to 3e7), 2e7 for the two runs, under the 1e8 hard limit. Not measured.",
+  "lineinfo_check": "SAME for all softmax_autoregressive_backward_kernel* instances (eval/realworld/targets/llmc-new-3/lineinfo.check): -lineinfo does not change the SASS",
+  "notes": "Shared-memory target (racecheck applies). Oracle sites kernel7 L651/L659 and kernel8 L691/L706/L708 are unchanged by the sed. The train_gpt2_fp32.cu copy of the kernel (named in the record) is not built.",
+  "commands": ["harness/rw.sh llmc-new-3 export", "hrun.sh <job> llmc-new-3 stage; hrun.sh <job> llmc-new-3 build; hrun.sh <job> llmc-new-3 lineinfo"]
+}

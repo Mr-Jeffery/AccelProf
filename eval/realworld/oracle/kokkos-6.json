@@ -1,0 +1,56 @@
+{
+  "id": "kokkos-6",
+  "tier": "core",
+  "wave": 2,
+  "route": "R1",
+  "kernel": "Kokkos::Impl::cuda_inter_warp_reduction<double, Sum reducer> (team parallel_reduce over TeamThreadRange), inlined into cuda_parallel_launch_local_memory<ParallelFor<TestRepeatedTeamReduce<Cuda>, TeamPolicy<Cuda>, Cuda>>",
+  "space": "shared",
+  "build_revision": {
+    "buggy": "af652331843b265a8d2409c4c60b871165ee5449",
+    "fixed": "71761882dc47dfce73482b1e269c95adebc7a8b3"
+  },
+  "sites": [
+    {
+      "role": "write",
+      "file": "core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+      "line_start": 105,
+      "line_end": 105,
+      "source": "result[id] = value;   (inside 'if (id < STEP_WIDTH)'; result aliases the function-scope __shared__ double sh_result[4])",
+      "operation": "st.shared.u64 (SASS @!P0 STS.64 [R11.X8+0x8], R8)",
+      "strength": "plain"
+    },
+    {
+      "role": "read",
+      "file": "core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp",
+      "line_start": 116,
+      "line_end": 118,
+      "source": "value = result[0]; for (int i = 1; (i * step < max_active_thread) && i < STEP_WIDTH; i++) reducer.join(&value, &result[i]);",
+      "operation": "ld.shared.f64 of result[0] (L116, SASS LDS.64 R32,[0x8]) and of result[1..3] (L118; SASS LDS.128 R8,[0x10] and @!P0 LDS.64 R8,[0x20], whose line-table entry is the inlined join, Kokkos_Parallel_Reduce.hpp:85 'dest += src')",
+      "strength": "plain"
+    }
+  ],
+  "thread_relation": "cross-warp-same-block",
+  "thread_pair_example": "block 0: thread 7 (warp 0) reads result[1] at L118 at the end of the 1st team reduction of an iteration, while thread 32 (lane 0 of warp 1, id = 1 because step = 32/blockDim.x = 32) is already in the 2nd team reduction and executes result[1] = value at L105; the sh_result array is the same function-scope __shared__ array for both reductions (both are double Sum), and nothing orders warp 1's store after warp 0's reads. Only threads 0, 32, 64, 96 write (id < STEP_WIDTH = 4); all threads read.",
+  "expected_class": "DR",
+  "class_reason": "Plain shared accesses (PTX ld.shared.f64 / st.shared.u64, SASS LDS/STS with no .STRONG token, no volatile or atomic): a store by one warp and loads by other warps of the same block to the same shared address (the shared WAR across two consecutive team reductions) with no barrier between the loads of reduction 1 and the store of reduction 2 -> data race of plain accesses (DR); no strong access, so no SC component. All barriers inside cuda_inter_warp_reduction (L107, L112) are before the reads; the missing one is the trailing __syncthreads.",
+  "buggy_expected": "The pair is reported as DR (shared WAR, cross-warp): write at L105 (reduction n+1) against reads at L116/L118 (reduction n); the report may name the join line Kokkos_Parallel_Reduce.hpp:85 for the L118 loads because of inlining.",
+  "fixed": {
+    "expected": "absent",
+    "residual_sites": null,
+    "reason": "The fix appends __syncthreads() at the end of cuda_inter_warp_reduction (L119 of the fixed file; SASS BAR.SYNC.DEFER_BLOCKING after the last read in both inlined instances, 0x1ae0 and 0x2810), so all threads have finished reading sh_result before any thread of the next reduction can reach the store at L105. The record expects nothing for this pair; no other hazard of the fixed program is known (not checked with a detector in this phase)."
+  },
+  "sass_notes": "sm_89 SASS of the driver kernel (two reductions g1,g2 per iteration, 10 iterations, unrolled/inlined). Buggy: store 'STS.64 [R11.X8+0x8],R8' (predicated @!P0 = id<4) at 0x1530 (reduction 1) and 0x2260 (reduction 2); BAR.SYNC at L107 (0x1540, 0x2270) and L112 (seven barriers each, 0x16a0..0x1a00 and 0x2420..0x2730); then the reads LDS.64 R32,[0x8] at 0x1a10 (L116), LDS.128 R8,[0x10] at 0x1a40 and @!P0 LDS.64 R8,[0x20] at 0x1ac0 (L118, attributed to Kokkos_Parallel_Reduce.hpp:85); the next store (reduction 2) at 0x2260 has no BAR.SYNC between it and those loads. A WARPSYNC 0xffffffff is emitted at L107 (0x1520) before the first BAR. Fixed: identical code plus BAR.SYNC.DEFER_BLOCKING at L119 (0x1ae0 after the first instance's reads, 0x2810 after the second). No .STRONG token on any of these accesses. The shared base address of sh_result is 0x8 in this kernel. SASS arch sm_89 (+compute_89 PTX), -O3 -lineinfo, Kokkos CMake build with Kokkos_ARCH_AMPERE86 rewritten to sm_89 (this revision has no ADA89).",
+  "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp@af65233 and @7176188, the PTX (cuobjdump -ptx, .loc) and the sm_89 SASS (/home/fzheng4/sassline.sh) of the built drivers, on 2026-10-20",
+  "open_questions": [
+    "The exact thread pair (thread 7 / thread 32) of the record assumes blockDim.y > 96, i.e. team size recommended-1 on sm_89 is not known until the sm_89 run (the sm_75 smoke run printed team_size=127, recommended 128, and no inconsistent column). Any team size > 32 gives writers in more than one warp and the same unordered pair.",
+    "The fixed variant was not run through a detector or racecheck here, so 'absent' is the record's expectation (the trailing barrier), plus the SASS check that the BAR.SYNC follows the reads."
+  ],
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "confirmed",
+    "changes": [],
+    "notes": "Checked at af65233, core/src/Cuda/Kokkos_Cuda_ReduceScan.hpp: function-scope __shared__ double sh_result at :97-:99, result[id] = value at :105 (id = threadIdx.y/32 for threadIdx.y % 32 == 0; step = 32/blockDim.x = 32 with vector length 1), barriers :107 and :112, reads value = result[0] at :116 and join(&value, &result[i]) at :117-:118. Kokkos::Sum::join is a plain 'dest += src' (core/src/Kokkos_Parallel_Reduce.hpp:85). team_reduce calls cuda_intra_block_reduction (core/src/Cuda/Kokkos_Cuda_Team.hpp:229), and that calls cuda_intra_warp_reduction (shuffles only, ReduceScan.hpp:72-:87) and then cuda_inter_warp_reduction unconditionally (:125-:126). Between two consecutive TeamThreadRange reductions nothing orders warp 0's :116/:118 loads of reduction n before warp w's :105 store of reduction n+1. The :110 join writes of reduction n+1 come after the :107 barrier of n+1, so they are ordered. Plain/plain, so DR, cross-warp-same-block. Fix 7176188 appends __syncthreads() at :119, after the reads: the fix removes the race, fixed = absent for this pair. Scoring note: the driver's check reduce (parallel_reduce over RangePolicy with int 'bad', in the fix's TestRepeatedTeamReduce::test(), core/unit_test/TestTeam.hpp) launches a separate ParallelReduce kernel. That kernel contains the kokkos-5-family warp reduction (ReduceScan.hpp:346 tree-loop join, :350 the lane_id != 0 filter, :376 *result store, at af65233). A report in that kernel is not this target's pair. SASS opcodes, tokens and offsets quoted in sites/sass_notes were not re-checked: the one allowed srun (-p normal -t 10) could not start (partition full, estimated start 2026-10-21 14:37) and was cancelled. Everything above is from the upstream sources at the two commits.",
+    "depends_on_D20": false
+  }
+}

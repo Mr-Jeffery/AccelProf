@@ -1,0 +1,407 @@
+# compute-sanitizer Version 2026.3.0.0 (build 38855100) (public-release) host c3 cuda /usr/local/cuda-13.4 2026-10-20
+# cmd: /mnt/beegfs/fzheng4/realworld/build/hecbench-hungarian-1/buggy/main output.txt
+========= COMPUTE-SANITIZER
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x40 in block (0,0,0) :
+=========     Write Thread (16,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (0,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 39
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x41 in block (0,0,0) :
+=========     Write Thread (16,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (0,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x42 in block (0,0,0) :
+=========     Write Thread (16,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (0,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x43 in block (0,0,0) :
+=========     Write Thread (16,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (0,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x44 in block (0,0,0) :
+=========     Write Thread (17,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (1,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 10
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x45 in block (0,0,0) :
+=========     Write Thread (17,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (1,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x46 in block (0,0,0) :
+=========     Write Thread (17,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (1,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x47 in block (0,0,0) :
+=========     Write Thread (17,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (1,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x48 in block (0,0,0) :
+=========     Write Thread (18,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (2,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 40
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x49 in block (0,0,0) :
+=========     Write Thread (18,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (2,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x4a in block (0,0,0) :
+=========     Write Thread (18,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (2,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x4b in block (0,0,0) :
+=========     Write Thread (18,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (2,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x4c in block (0,0,0) :
+=========     Write Thread (19,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (3,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 29
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x4d in block (0,0,0) :
+=========     Write Thread (19,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (3,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x4e in block (0,0,0) :
+=========     Write Thread (19,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (3,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x40 in block (19,0,0) :
+=========     Write Thread (16,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (0,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 13
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x41 in block (19,0,0) :
+=========     Write Thread (16,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (0,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x42 in block (19,0,0) :
+=========     Write Thread (16,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (0,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x43 in block (19,0,0) :
+=========     Write Thread (16,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (0,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x44 in block (19,0,0) :
+=========     Write Thread (17,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (1,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 10
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x45 in block (19,0,0) :
+=========     Write Thread (17,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (1,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x46 in block (19,0,0) :
+=========     Write Thread (17,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (1,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x47 in block (19,0,0) :
+=========     Write Thread (17,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (1,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x48 in block (19,0,0) :
+=========     Write Thread (18,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (2,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 42
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x49 in block (19,0,0) :
+=========     Write Thread (18,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (2,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x4a in block (19,0,0) :
+=========     Write Thread (18,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (2,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x4b in block (19,0,0) :
+=========     Write Thread (18,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (2,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x4c in block (19,0,0) :
+=========     Write Thread (19,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (3,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 33
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x40 in block (14,0,0) :
+=========     Write Thread (16,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (0,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 19
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x41 in block (14,0,0) :
+=========     Write Thread (16,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (0,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x42 in block (14,0,0) :
+=========     Write Thread (16,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (0,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x43 in block (14,0,0) :
+=========     Write Thread (16,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (0,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x44 in block (14,0,0) :
+=========     Write Thread (17,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (1,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 11
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x45 in block (14,0,0) :
+=========     Write Thread (17,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (1,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x46 in block (14,0,0) :
+=========     Write Thread (17,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (1,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x47 in block (14,0,0) :
+=========     Write Thread (17,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (1,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x48 in block (14,0,0) :
+=========     Write Thread (18,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (2,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 44
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x49 in block (14,0,0) :
+=========     Write Thread (18,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (2,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x4a in block (14,0,0) :
+=========     Write Thread (18,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (2,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+========= Warning: (Warp Level Programming) Potential RAW hazard detected at __shared__ 0x4b in block (14,0,0) :
+=========     Write Thread (18,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1c0 in main.cu:144
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Read Thread (2,0,0) at min_in_rows_warp_reduce(volatile int *, int)+0x1d0 in main.cu:145
+=========         Device Frame: calc_min_in_rows()+0x190 in main.cu:177
+=========     Current Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+# TRUNCATED: full output (20006 lines, 1422832 bytes, sha256 fa8f44ae0c7ed503ab4dc03636224eca0aeebf3743a472ae25567de287610e19) kept at /mnt/beegfs/fzheng4/realworld/racecheck_full/hecbench-hungarian-1-buggy.txt
+=========         Host Frame: Hungarian_Algorithm() [0x711f] in main
+=========         Host Frame: main [0x41e9] in main
+========= 
+Total kernel time for all test cases 690.004471 (s)
+========= RACECHECK SUMMARY: 2000 hazards displayed (0 errors, 10002296 warnings)
+# exit 0

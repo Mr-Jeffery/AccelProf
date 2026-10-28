@@ -1,0 +1,19 @@
+{
+ "route": "R2",
+ "route_note": "CMSSW is not built (SCRAM, treeless clone). The record's files HeterogeneousCore/CUDAUtilities/interface/prefixScan.h and cudaCompat.h plus the unchanged headers cuda_assert.h and cudaCheck.h are copied byte-for-byte from 37a05c6b (buggy) and d1ce91e5 (fixed) with harness/r2_extract.sh (fixdiff.py RESULT PASS: blob sha1 of the 4 files equals the commit blob, diff -r buggy fixed == the fix commit's diff of those files). The ONLY stub is r2/common/FWCore/Utilities/interface/Likely.h (LIKELY/UNLIKELY macros, included by the verbatim cudaCheck.h). The host main is r2/common/driver.cu (identical for both variants). cudaCompat.h is inert under nvcc (guarded by #ifndef __CUDACC__) and is included by prefixScan.h as in CMSSW.",
+ "status": "built",
+ "toolkit": "13.4 (c38)",
+ "driver": "r2/common/driver.cu: for num_items = 2000 then 20000 (optional argv = other sizes, e.g. 200000 for the third size of the commit's test): init kernel fills uint32 input with 1, block counter memset to 0, then cms::cuda::multiBlockPrefixScan<uint32_t><<<nblocks, 1024, 4*nblocks>>>(d_in, d_out, num_items, d_pc) exactly as the commit's own test HeterogeneousCore/CUDAUtilities/test/prefixScan_t.cu does for its multi-block part (2 and 20 blocks); the result is checked on the host (out[i] == i+1) and a checksum is printed. The test's warp-/block-level kernels are not run (its block-level loop launches 65536 kernels).",
+ "input": "2000 items: 2 blocks x 1024 threads; 20000 items: 20 blocks x 1024 threads. Thread-level access estimate: ~3.5e5 expected (per thread of the first phase ~10 global+shared accesses x 20480 threads, plus the last block's loop of 19 trips x 3 accesses x 1024 threads); upper bound 1.6e6 = static count of memory instructions in the SASS (36) x (threads + last-block loop trips). Well below 1e7.",
+ "racecheck": "n/a (global memory)",
+ "notes": "Smoke on c38 (sm_75 rebuild, not a deliverable): rc=0 for both variants; printed 'multiBlockPrefixScan num_items 2000 blocks 2 x 1024 threads: mismatches vs i+1: 0, checksum 0417711974282928', 'num_items 20000 blocks 20 x 1024 threads: mismatches 0, checksum 23b8425c90064b90', 'cmssw-1 driver done, total mismatches 0' (same in buggy and fixed; the missing fence essentially never misorders on hardware). nsys on the smoke binary: multiBlockPrefixScan<unsigned int> 2 instances + init 2 instances. Build flags: nvcc -std=c++17 -O3 --expt-relaxed-constexpr -arch=sm_89 -lineinfo; --expt-relaxed-constexpr is REQUIRED (std::min at prefixScan.h:150 is a constexpr host function called from the kernel; nvcc 13.4 error without it) and is part of CMSSW's CUDA flags; the exact CMSSW flag string (scram-tools cuda.xml) is not in the cmssw repo and was not verified, the -O3 / -std=c++17 here are the usual CMSSW values from memory. Asserts: prefixScan.h includes cuda_assert.h which defines NDEBUG for device code unless GPU_DEBUG is set, so device asserts are compiled out (verbatim behaviour). Lineinfo check: cited from the R2 check of lit-arrayfire-1 (targets/lit-arrayfire-1/lineinfo.check: SAME). SASS (nvdisasm -g): buggy co accesses are plain LDG.E/STG.E, counter ATOMG.E.ADD.STRONG.GPU, no fence; fixed co accesses are LDG.E.STRONG.SYS/STG.E.STRONG.SYS and MEMBAR.SC.GPU precedes the atomic.",
+ "commands": [
+  "cd /home/fzheng4/wt-t21a/eval/realworld",
+  "harness/r2_extract.sh cmssw-1 HeterogeneousCore/CUDAUtilities/interface/{prefixScan.h,cudaCompat.h,cuda_assert.h,cudaCheck.h}   # (already done; login node)",
+  "python3 harness/fixdiff.py cmssw-1 --write   # RESULT PASS",
+  "NJOBS=8 harness/hrun.sh <jobid> cmssw-1 stage",
+  "NJOBS=8 harness/hrun.sh <jobid> cmssw-1 build   # artifacts -> /mnt/beegfs/fzheng4/realworld/build/cmssw-1/{buggy,fixed}/driver",
+  "NJOBS=8 harness/hrun.sh <jobid> cmssw-1 smoke   # debugging only (sm_75)",
+  "run: /mnt/beegfs/fzheng4/realworld/build/cmssw-1/<variant>/driver"
+ ]
+}

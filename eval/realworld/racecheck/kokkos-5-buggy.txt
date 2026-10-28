@@ -1,0 +1,407 @@
+# compute-sanitizer Version 2026.3.0.0 (build 38855100) (public-release) host c3 cuda /usr/local/cuda-13.4 2026-10-20
+# cmd: /mnt/beegfs/fzheng4/realworld/build/kokkos-5/buggy/driver
+========= COMPUTE-SANITIZER
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x608 in block (0,0,0) :
+=========     Read Thread (0,192,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x4e0 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Write Thread (0,193,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x510 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xb7347] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::execute() [0xbb5f] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduceAdaptor<Kokkos::RangePolicy<Kokkos::Cuda>, RwSumFunctor, double>::execute_impl(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, Kokkos::RangePolicy<Kokkos::Cuda> const&, RwSumFunctor const&, double&) [0xbfa6] in driver
+=========         Host Frame: main [0x9777] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x609 in block (0,0,0) :
+=========     Read Thread (0,192,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x4e0 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Write Thread (0,193,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x510 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xb7347] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::execute() [0xbb5f] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduceAdaptor<Kokkos::RangePolicy<Kokkos::Cuda>, RwSumFunctor, double>::execute_impl(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, Kokkos::RangePolicy<Kokkos::Cuda> const&, RwSumFunctor const&, double&) [0xbfa6] in driver
+=========         Host Frame: main [0x9777] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x60a in block (0,0,0) :
+=========     Read Thread (0,192,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x4e0 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Write Thread (0,193,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x510 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xb7347] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::execute() [0xbb5f] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduceAdaptor<Kokkos::RangePolicy<Kokkos::Cuda>, RwSumFunctor, double>::execute_impl(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, Kokkos::RangePolicy<Kokkos::Cuda> const&, RwSumFunctor const&, double&) [0xbfa6] in driver
+=========         Host Frame: main [0x9777] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x60b in block (0,0,0) :
+=========     Read Thread (0,192,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x4e0 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Write Thread (0,193,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x510 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xb7347] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::execute() [0xbb5f] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduceAdaptor<Kokkos::RangePolicy<Kokkos::Cuda>, RwSumFunctor, double>::execute_impl(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, Kokkos::RangePolicy<Kokkos::Cuda> const&, RwSumFunctor const&, double&) [0xbfa6] in driver
+=========         Host Frame: main [0x9777] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x60c in block (0,0,0) :
+=========     Read Thread (0,192,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x4e0 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Write Thread (0,193,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x510 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xb7347] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::execute() [0xbb5f] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduceAdaptor<Kokkos::RangePolicy<Kokkos::Cuda>, RwSumFunctor, double>::execute_impl(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, Kokkos::RangePolicy<Kokkos::Cuda> const&, RwSumFunctor const&, double&) [0xbfa6] in driver
+=========         Host Frame: main [0x9777] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x60d in block (0,0,0) :
+=========     Read Thread (0,192,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x4e0 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Write Thread (0,193,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x510 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Current Value : 32, Incoming Value : 48
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xb7347] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::execute() [0xbb5f] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduceAdaptor<Kokkos::RangePolicy<Kokkos::Cuda>, RwSumFunctor, double>::execute_impl(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, Kokkos::RangePolicy<Kokkos::Cuda> const&, RwSumFunctor const&, double&) [0xbfa6] in driver
+=========         Host Frame: main [0x9777] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x60e in block (0,0,0) :
+=========     Read Thread (0,192,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x4e0 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Write Thread (0,193,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x510 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Current Value : 104, Incoming Value : 120
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xb7347] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::execute() [0xbb5f] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduceAdaptor<Kokkos::RangePolicy<Kokkos::Cuda>, RwSumFunctor, double>::execute_impl(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, Kokkos::RangePolicy<Kokkos::Cuda> const&, RwSumFunctor const&, double&) [0xbfa6] in driver
+=========         Host Frame: main [0x9777] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x60f in block (0,0,0) :
+=========     Read Thread (0,192,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x4e0 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Write Thread (0,193,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x510 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Current Value : 64, Incoming Value : 64
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xb7347] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::execute() [0xbb5f] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduceAdaptor<Kokkos::RangePolicy<Kokkos::Cuda>, RwSumFunctor, double>::execute_impl(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, Kokkos::RangePolicy<Kokkos::Cuda> const&, RwSumFunctor const&, double&) [0xbfa6] in driver
+=========         Host Frame: main [0x9777] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x610 in block (0,0,0) :
+=========     Read Thread (0,193,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x4e0 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Write Thread (0,194,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x510 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xb7347] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::execute() [0xbb5f] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduceAdaptor<Kokkos::RangePolicy<Kokkos::Cuda>, RwSumFunctor, double>::execute_impl(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, Kokkos::RangePolicy<Kokkos::Cuda> const&, RwSumFunctor const&, double&) [0xbfa6] in driver
+=========         Host Frame: main [0x9777] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x611 in block (0,0,0) :
+=========     Read Thread (0,193,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x4e0 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Write Thread (0,194,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x510 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xb7347] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::execute() [0xbb5f] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduceAdaptor<Kokkos::RangePolicy<Kokkos::Cuda>, RwSumFunctor, double>::execute_impl(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, Kokkos::RangePolicy<Kokkos::Cuda> const&, RwSumFunctor const&, double&) [0xbfa6] in driver
+=========         Host Frame: main [0x9777] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x612 in block (0,0,0) :
+=========     Read Thread (0,193,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x4e0 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Write Thread (0,194,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x510 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xb7347] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::execute() [0xbb5f] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduceAdaptor<Kokkos::RangePolicy<Kokkos::Cuda>, RwSumFunctor, double>::execute_impl(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, Kokkos::RangePolicy<Kokkos::Cuda> const&, RwSumFunctor const&, double&) [0xbfa6] in driver
+=========         Host Frame: main [0x9777] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x613 in block (0,0,0) :
+=========     Read Thread (0,193,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x4e0 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Write Thread (0,194,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x510 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xb7347] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::execute() [0xbb5f] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduceAdaptor<Kokkos::RangePolicy<Kokkos::Cuda>, RwSumFunctor, double>::execute_impl(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, Kokkos::RangePolicy<Kokkos::Cuda> const&, RwSumFunctor const&, double&) [0xbfa6] in driver
+=========         Host Frame: main [0x9777] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x614 in block (0,0,0) :
+=========     Read Thread (0,193,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x4e0 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Write Thread (0,194,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x510 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xb7347] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::execute() [0xbb5f] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduceAdaptor<Kokkos::RangePolicy<Kokkos::Cuda>, RwSumFunctor, double>::execute_impl(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, Kokkos::RangePolicy<Kokkos::Cuda> const&, RwSumFunctor const&, double&) [0xbfa6] in driver
+=========         Host Frame: main [0x9777] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x615 in block (0,0,0) :
+=========     Read Thread (0,193,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x4e0 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Write Thread (0,194,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x510 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Current Value : 64, Incoming Value : 80
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xb7347] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::execute() [0xbb5f] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduceAdaptor<Kokkos::RangePolicy<Kokkos::Cuda>, RwSumFunctor, double>::execute_impl(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, Kokkos::RangePolicy<Kokkos::Cuda> const&, RwSumFunctor const&, double&) [0xbfa6] in driver
+=========         Host Frame: main [0x9777] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x616 in block (0,0,0) :
+=========     Read Thread (0,193,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x4e0 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Write Thread (0,194,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x510 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Current Value : 104, Incoming Value : 120
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xb7347] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::execute() [0xbb5f] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduceAdaptor<Kokkos::RangePolicy<Kokkos::Cuda>, RwSumFunctor, double>::execute_impl(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, Kokkos::RangePolicy<Kokkos::Cuda> const&, RwSumFunctor const&, double&) [0xbfa6] in driver
+=========         Host Frame: main [0x9777] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x617 in block (0,0,0) :
+=========     Read Thread (0,193,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x4e0 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Write Thread (0,194,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x510 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Current Value : 64, Incoming Value : 64
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xb7347] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::execute() [0xbb5f] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduceAdaptor<Kokkos::RangePolicy<Kokkos::Cuda>, RwSumFunctor, double>::execute_impl(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, Kokkos::RangePolicy<Kokkos::Cuda> const&, RwSumFunctor const&, double&) [0xbfa6] in driver
+=========         Host Frame: main [0x9777] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x618 in block (0,0,0) :
+=========     Read Thread (0,194,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x4e0 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Write Thread (0,195,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x510 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xb7347] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::execute() [0xbb5f] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduceAdaptor<Kokkos::RangePolicy<Kokkos::Cuda>, RwSumFunctor, double>::execute_impl(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, Kokkos::RangePolicy<Kokkos::Cuda> const&, RwSumFunctor const&, double&) [0xbfa6] in driver
+=========         Host Frame: main [0x9777] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x619 in block (0,0,0) :
+=========     Read Thread (0,194,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x4e0 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Write Thread (0,195,0) at Kokkos::Impl::FunctorValueJoin<RwSumFunctor, void, double &, void>::join(const RwSumFunctor &, volatile void *, const volatile void *)+0x510 in Kokkos_FunctorAdapter.hpp:1571
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_warp_reduction(const RwSumFunctor &, double *, bool, int)+0x4d0 in Kokkos_Cuda_ReduceScan.hpp:547
+=========         Device Frame: Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_intra_block_reduction(const RwSumFunctor &, double, bool, double *, int, double *)+0x3b0 in Kokkos_Cuda_ReduceScan.hpp:562
+=========         Device Frame: bool Kokkos::Impl::CudaReductionsFunctor<RwSumFunctor, void, (bool)0, (bool)0>::scalar_inter_block_reduction<unsigned int>(const RwSumFunctor &, unsigned int, unsigned int, T1 *, T1 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:593
+=========         Device Frame: bool Kokkos::Impl::cuda_single_inter_block_reduce_scan<(bool)0, RwSumFunctor, void, unsigned int>(const T2 &, unsigned int, unsigned int, T4 *, T4 *, unsigned int *)+0x3a0 in Kokkos_Cuda_ReduceScan.hpp:886
+=========         Device Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::operator ()() const+0x3a0 in Kokkos_Cuda_Parallel_Range.hpp:294
+=========         Device Frame: void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>>(T1)+0x10 in Kokkos_Cuda_KernelLaunch.hpp:121
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xb7347] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>::execute() [0xbb5f] in driver
+=========         Host Frame: Kokkos::Impl::ParallelReduceAdaptor<Kokkos::RangePolicy<Kokkos::Cuda>, RwSumFunctor, double>::execute_impl(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, Kokkos::RangePolicy<Kokkos::Cuda> const&, RwSumFunctor const&, double&) [0xbfa6] in driver
+=========         Host Frame: main [0x9777] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x61a in block (0,0,0) :
+# TRUNCATED: full output (44006 lines, 8274075 bytes, sha256 5832838c79b2929c7ed02f20b77c261947fe9c359c122c1653f39c7b5cf55105) kept at /mnt/beegfs/fzheng4/realworld/racecheck_full/kokkos-5-buggy.txt
+=========         Host Frame: Kokkos::Impl::ParallelReduceAdaptor<Kokkos::RangePolicy<Kokkos::Cuda>, RwSumFunctor, double>::execute_impl(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, Kokkos::RangePolicy<Kokkos::Cuda> const&, RwSumFunctor const&, double&) [0xbfa6] in driver
+=========         Host Frame: main [0x9777] in driver
+========= 
+kokkos-5 driver: n=1000 sum=499500.0 expected=499500.0 OK
+========= RACECHECK SUMMARY: 2000 hazards displayed (0 errors, 35671 warnings)
+# exit 0

@@ -1,0 +1,407 @@
+# compute-sanitizer Version 2026.3.0.0 (build 38855100) (public-release) host c3 cuda /usr/local/cuda-13.4 2026-10-20
+# cmd: /mnt/beegfs/fzheng4/realworld/build/llamacpp-5/buggy/test-backend-ops test -b CUDA0 -o SSM_SCAN -p 'd_state=16,head_dim=1,'
+========= COMPUTE-SANITIZER
+ggml_cuda_init: found 1 CUDA devices (Total VRAM: 16030 MiB):
+  Device 0: NVIDIA GeForce RTX 4060 Ti, compute capability 8.9, VMM: yes, VRAM: 16030 MiB
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x84 in block (3,3,0) :
+=========     Read Thread (0,0,0) at void cub::_V_300403_SM_890::detail::uninitialized_copy_single<float, float &, (int)0>(T1 *, T2 &&)+0x740 in uninitialized_copy.cuh:37
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16], cuda::std::__4::integral_constant<bool, (bool)0>)+0x730 in block_exchange.cuh:537
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16])+0x410 in block_exchange.cuh:999
+=========         Device Frame: void cub::_V_300403_SM_890::BlockLoad<float, (int)128, (int)16, (cub::_V_300403_SM_890::BlockLoadAlgorithm)4, (int)1, (int)1>::Load<const float *>(T1, float (&)[16])+0x410 in block_load.cuh:1001
+=========         Device Frame: void ssm_scan_f32<(unsigned long)128, (unsigned long)16, (unsigned long)0>(const float *, const float *, const float *, const float *, const float *, const float *, const int *, float *, int, int, int, int, int, int, int, int, int, int, int, long, long, long)+0xb0 in ssm-scan.cu:69
+=========     Write Thread (1,0,0) at void cub::_V_300403_SM_890::detail::uninitialized_copy_single<float, const float &, (int)0>(T1 *, T2 &&)+0x850 in uninitialized_copy.cuh:37
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16], cuda::std::__4::integral_constant<bool, (bool)0>)+0x850 in block_exchange.cuh:524
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16])+0x850 in block_exchange.cuh:999
+=========         Device Frame: void cub::_V_300403_SM_890::BlockLoad<float, (int)128, (int)16, (cub::_V_300403_SM_890::BlockLoadAlgorithm)4, (int)1, (int)1>::Load<const float *>(T1, float (&)[16])+0x850 in block_load.cuh:1001
+=========         Device Frame: void ssm_scan_f32<(unsigned long)128, (unsigned long)16, (unsigned long)0>(const float *, const float *, const float *, const float *, const float *, const float *, const int *, float *, int, int, int, int, int, int, int, int, int, int, int, long, long, long)+0x2e0 in ssm-scan.cu:70
+=========     Current Value : 84, Incoming Value : 152
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: void ssm_scan_f32<128ul, 16ul, 0ul>(float const*, float const*, float const*, float const*, float const*, float const*, int const*, float*, int, int, int, int, int, int, int, int, int, int, int, long, long, long) [0x37e7b9] in test-backend-ops
+=========         Host Frame: ssm_scan_f32_cuda(float const*, float const*, float const*, float const*, float const*, float const*, int const*, float*, int, int, int, int, int, int, int, int, int, int, int, long, long, long, long, long, long, long, CUstream_st*) [0x38363b] in test-backend-ops
+=========         Host Frame: ggml_cuda_op_ssm_scan(ggml_backend_cuda_context&, ggml_tensor*) [0x3845c2] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x1f9f7f] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xe47108] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xebc33] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xb2896] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xb58c9] in test-backend-ops
+=========         Host Frame: main [0x2ada2] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x85 in block (3,3,0) :
+=========     Read Thread (0,0,0) at void cub::_V_300403_SM_890::detail::uninitialized_copy_single<float, float &, (int)0>(T1 *, T2 &&)+0x740 in uninitialized_copy.cuh:37
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16], cuda::std::__4::integral_constant<bool, (bool)0>)+0x730 in block_exchange.cuh:537
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16])+0x410 in block_exchange.cuh:999
+=========         Device Frame: void cub::_V_300403_SM_890::BlockLoad<float, (int)128, (int)16, (cub::_V_300403_SM_890::BlockLoadAlgorithm)4, (int)1, (int)1>::Load<const float *>(T1, float (&)[16])+0x410 in block_load.cuh:1001
+=========         Device Frame: void ssm_scan_f32<(unsigned long)128, (unsigned long)16, (unsigned long)0>(const float *, const float *, const float *, const float *, const float *, const float *, const int *, float *, int, int, int, int, int, int, int, int, int, int, int, long, long, long)+0xb0 in ssm-scan.cu:69
+=========     Write Thread (1,0,0) at void cub::_V_300403_SM_890::detail::uninitialized_copy_single<float, const float &, (int)0>(T1 *, T2 &&)+0x850 in uninitialized_copy.cuh:37
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16], cuda::std::__4::integral_constant<bool, (bool)0>)+0x850 in block_exchange.cuh:524
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16])+0x850 in block_exchange.cuh:999
+=========         Device Frame: void cub::_V_300403_SM_890::BlockLoad<float, (int)128, (int)16, (cub::_V_300403_SM_890::BlockLoadAlgorithm)4, (int)1, (int)1>::Load<const float *>(T1, float (&)[16])+0x850 in block_load.cuh:1001
+=========         Device Frame: void ssm_scan_f32<(unsigned long)128, (unsigned long)16, (unsigned long)0>(const float *, const float *, const float *, const float *, const float *, const float *, const int *, float *, int, int, int, int, int, int, int, int, int, int, int, long, long, long)+0x2e0 in ssm-scan.cu:70
+=========     Current Value : 9, Incoming Value : 156
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: void ssm_scan_f32<128ul, 16ul, 0ul>(float const*, float const*, float const*, float const*, float const*, float const*, int const*, float*, int, int, int, int, int, int, int, int, int, int, int, long, long, long) [0x37e7b9] in test-backend-ops
+=========         Host Frame: ssm_scan_f32_cuda(float const*, float const*, float const*, float const*, float const*, float const*, int const*, float*, int, int, int, int, int, int, int, int, int, int, int, long, long, long, long, long, long, long, CUstream_st*) [0x38363b] in test-backend-ops
+=========         Host Frame: ggml_cuda_op_ssm_scan(ggml_backend_cuda_context&, ggml_tensor*) [0x3845c2] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x1f9f7f] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xe47108] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xebc33] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xb2896] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xb58c9] in test-backend-ops
+=========         Host Frame: main [0x2ada2] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x86 in block (3,3,0) :
+=========     Read Thread (0,0,0) at void cub::_V_300403_SM_890::detail::uninitialized_copy_single<float, float &, (int)0>(T1 *, T2 &&)+0x740 in uninitialized_copy.cuh:37
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16], cuda::std::__4::integral_constant<bool, (bool)0>)+0x730 in block_exchange.cuh:537
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16])+0x410 in block_exchange.cuh:999
+=========         Device Frame: void cub::_V_300403_SM_890::BlockLoad<float, (int)128, (int)16, (cub::_V_300403_SM_890::BlockLoadAlgorithm)4, (int)1, (int)1>::Load<const float *>(T1, float (&)[16])+0x410 in block_load.cuh:1001
+=========         Device Frame: void ssm_scan_f32<(unsigned long)128, (unsigned long)16, (unsigned long)0>(const float *, const float *, const float *, const float *, const float *, const float *, const int *, float *, int, int, int, int, int, int, int, int, int, int, int, long, long, long)+0xb0 in ssm-scan.cu:69
+=========     Write Thread (1,0,0) at void cub::_V_300403_SM_890::detail::uninitialized_copy_single<float, const float &, (int)0>(T1 *, T2 &&)+0x850 in uninitialized_copy.cuh:37
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16], cuda::std::__4::integral_constant<bool, (bool)0>)+0x850 in block_exchange.cuh:524
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16])+0x850 in block_exchange.cuh:999
+=========         Device Frame: void cub::_V_300403_SM_890::BlockLoad<float, (int)128, (int)16, (cub::_V_300403_SM_890::BlockLoadAlgorithm)4, (int)1, (int)1>::Load<const float *>(T1, float (&)[16])+0x850 in block_load.cuh:1001
+=========         Device Frame: void ssm_scan_f32<(unsigned long)128, (unsigned long)16, (unsigned long)0>(const float *, const float *, const float *, const float *, const float *, const float *, const int *, float *, int, int, int, int, int, int, int, int, int, int, int, long, long, long)+0x2e0 in ssm-scan.cu:70
+=========     Current Value : 218, Incoming Value : 32
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: void ssm_scan_f32<128ul, 16ul, 0ul>(float const*, float const*, float const*, float const*, float const*, float const*, int const*, float*, int, int, int, int, int, int, int, int, int, int, int, long, long, long) [0x37e7b9] in test-backend-ops
+=========         Host Frame: ssm_scan_f32_cuda(float const*, float const*, float const*, float const*, float const*, float const*, int const*, float*, int, int, int, int, int, int, int, int, int, int, int, long, long, long, long, long, long, long, CUstream_st*) [0x38363b] in test-backend-ops
+=========         Host Frame: ggml_cuda_op_ssm_scan(ggml_backend_cuda_context&, ggml_tensor*) [0x3845c2] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x1f9f7f] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xe47108] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xebc33] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xb2896] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xb58c9] in test-backend-ops
+=========         Host Frame: main [0x2ada2] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x87 in block (3,3,0) :
+=========     Read Thread (0,0,0) at void cub::_V_300403_SM_890::detail::uninitialized_copy_single<float, float &, (int)0>(T1 *, T2 &&)+0x740 in uninitialized_copy.cuh:37
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16], cuda::std::__4::integral_constant<bool, (bool)0>)+0x730 in block_exchange.cuh:537
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16])+0x410 in block_exchange.cuh:999
+=========         Device Frame: void cub::_V_300403_SM_890::BlockLoad<float, (int)128, (int)16, (cub::_V_300403_SM_890::BlockLoadAlgorithm)4, (int)1, (int)1>::Load<const float *>(T1, float (&)[16])+0x410 in block_load.cuh:1001
+=========         Device Frame: void ssm_scan_f32<(unsigned long)128, (unsigned long)16, (unsigned long)0>(const float *, const float *, const float *, const float *, const float *, const float *, const int *, float *, int, int, int, int, int, int, int, int, int, int, int, long, long, long)+0xb0 in ssm-scan.cu:69
+=========     Write Thread (1,0,0) at void cub::_V_300403_SM_890::detail::uninitialized_copy_single<float, const float &, (int)0>(T1 *, T2 &&)+0x850 in uninitialized_copy.cuh:37
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16], cuda::std::__4::integral_constant<bool, (bool)0>)+0x850 in block_exchange.cuh:524
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16])+0x850 in block_exchange.cuh:999
+=========         Device Frame: void cub::_V_300403_SM_890::BlockLoad<float, (int)128, (int)16, (cub::_V_300403_SM_890::BlockLoadAlgorithm)4, (int)1, (int)1>::Load<const float *>(T1, float (&)[16])+0x850 in block_load.cuh:1001
+=========         Device Frame: void ssm_scan_f32<(unsigned long)128, (unsigned long)16, (unsigned long)0>(const float *, const float *, const float *, const float *, const float *, const float *, const int *, float *, int, int, int, int, int, int, int, int, int, int, int, long, long, long)+0x2e0 in ssm-scan.cu:70
+=========     Current Value : 62, Incoming Value : 191
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: void ssm_scan_f32<128ul, 16ul, 0ul>(float const*, float const*, float const*, float const*, float const*, float const*, int const*, float*, int, int, int, int, int, int, int, int, int, int, int, long, long, long) [0x37e7b9] in test-backend-ops
+=========         Host Frame: ssm_scan_f32_cuda(float const*, float const*, float const*, float const*, float const*, float const*, int const*, float*, int, int, int, int, int, int, int, int, int, int, int, long, long, long, long, long, long, long, CUstream_st*) [0x38363b] in test-backend-ops
+=========         Host Frame: ggml_cuda_op_ssm_scan(ggml_backend_cuda_context&, ggml_tensor*) [0x3845c2] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x1f9f7f] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xe47108] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xebc33] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xb2896] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xb58c9] in test-backend-ops
+=========         Host Frame: main [0x2ada2] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x88 in block (3,3,0) :
+=========     Read Thread (0,0,0) at void cub::_V_300403_SM_890::detail::uninitialized_copy_single<float, float &, (int)0>(T1 *, T2 &&)+0x750 in uninitialized_copy.cuh:37
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16], cuda::std::__4::integral_constant<bool, (bool)0>)+0x730 in block_exchange.cuh:537
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16])+0x410 in block_exchange.cuh:999
+=========         Device Frame: void cub::_V_300403_SM_890::BlockLoad<float, (int)128, (int)16, (cub::_V_300403_SM_890::BlockLoadAlgorithm)4, (int)1, (int)1>::Load<const float *>(T1, float (&)[16])+0x410 in block_load.cuh:1001
+=========         Device Frame: void ssm_scan_f32<(unsigned long)128, (unsigned long)16, (unsigned long)0>(const float *, const float *, const float *, const float *, const float *, const float *, const int *, float *, int, int, int, int, int, int, int, int, int, int, int, long, long, long)+0xb0 in ssm-scan.cu:69
+=========     Write Thread (2,0,0) at void cub::_V_300403_SM_890::detail::uninitialized_copy_single<float, const float &, (int)0>(T1 *, T2 &&)+0x850 in uninitialized_copy.cuh:37
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16], cuda::std::__4::integral_constant<bool, (bool)0>)+0x850 in block_exchange.cuh:524
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16])+0x850 in block_exchange.cuh:999
+=========         Device Frame: void cub::_V_300403_SM_890::BlockLoad<float, (int)128, (int)16, (cub::_V_300403_SM_890::BlockLoadAlgorithm)4, (int)1, (int)1>::Load<const float *>(T1, float (&)[16])+0x850 in block_load.cuh:1001
+=========         Device Frame: void ssm_scan_f32<(unsigned long)128, (unsigned long)16, (unsigned long)0>(const float *, const float *, const float *, const float *, const float *, const float *, const int *, float *, int, int, int, int, int, int, int, int, int, int, int, long, long, long)+0x2e0 in ssm-scan.cu:70
+=========     Current Value : 16, Incoming Value : 49
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: void ssm_scan_f32<128ul, 16ul, 0ul>(float const*, float const*, float const*, float const*, float const*, float const*, int const*, float*, int, int, int, int, int, int, int, int, int, int, int, long, long, long) [0x37e7b9] in test-backend-ops
+=========         Host Frame: ssm_scan_f32_cuda(float const*, float const*, float const*, float const*, float const*, float const*, int const*, float*, int, int, int, int, int, int, int, int, int, int, int, long, long, long, long, long, long, long, CUstream_st*) [0x38363b] in test-backend-ops
+=========         Host Frame: ggml_cuda_op_ssm_scan(ggml_backend_cuda_context&, ggml_tensor*) [0x3845c2] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x1f9f7f] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xe47108] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xebc33] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xb2896] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xb58c9] in test-backend-ops
+=========         Host Frame: main [0x2ada2] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x89 in block (3,3,0) :
+=========     Read Thread (0,0,0) at void cub::_V_300403_SM_890::detail::uninitialized_copy_single<float, float &, (int)0>(T1 *, T2 &&)+0x750 in uninitialized_copy.cuh:37
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16], cuda::std::__4::integral_constant<bool, (bool)0>)+0x730 in block_exchange.cuh:537
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16])+0x410 in block_exchange.cuh:999
+=========         Device Frame: void cub::_V_300403_SM_890::BlockLoad<float, (int)128, (int)16, (cub::_V_300403_SM_890::BlockLoadAlgorithm)4, (int)1, (int)1>::Load<const float *>(T1, float (&)[16])+0x410 in block_load.cuh:1001
+=========         Device Frame: void ssm_scan_f32<(unsigned long)128, (unsigned long)16, (unsigned long)0>(const float *, const float *, const float *, const float *, const float *, const float *, const int *, float *, int, int, int, int, int, int, int, int, int, int, int, long, long, long)+0xb0 in ssm-scan.cu:69
+=========     Write Thread (2,0,0) at void cub::_V_300403_SM_890::detail::uninitialized_copy_single<float, const float &, (int)0>(T1 *, T2 &&)+0x850 in uninitialized_copy.cuh:37
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16], cuda::std::__4::integral_constant<bool, (bool)0>)+0x850 in block_exchange.cuh:524
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16])+0x850 in block_exchange.cuh:999
+=========         Device Frame: void cub::_V_300403_SM_890::BlockLoad<float, (int)128, (int)16, (cub::_V_300403_SM_890::BlockLoadAlgorithm)4, (int)1, (int)1>::Load<const float *>(T1, float (&)[16])+0x850 in block_load.cuh:1001
+=========         Device Frame: void ssm_scan_f32<(unsigned long)128, (unsigned long)16, (unsigned long)0>(const float *, const float *, const float *, const float *, const float *, const float *, const int *, float *, int, int, int, int, int, int, int, int, int, int, int, long, long, long)+0x2e0 in ssm-scan.cu:70
+=========     Current Value : 190, Incoming Value : 160
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: void ssm_scan_f32<128ul, 16ul, 0ul>(float const*, float const*, float const*, float const*, float const*, float const*, int const*, float*, int, int, int, int, int, int, int, int, int, int, int, long, long, long) [0x37e7b9] in test-backend-ops
+=========         Host Frame: ssm_scan_f32_cuda(float const*, float const*, float const*, float const*, float const*, float const*, int const*, float*, int, int, int, int, int, int, int, int, int, int, int, long, long, long, long, long, long, long, CUstream_st*) [0x38363b] in test-backend-ops
+=========         Host Frame: ggml_cuda_op_ssm_scan(ggml_backend_cuda_context&, ggml_tensor*) [0x3845c2] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x1f9f7f] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xe47108] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xebc33] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xb2896] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xb58c9] in test-backend-ops
+=========         Host Frame: main [0x2ada2] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x8a in block (3,3,0) :
+=========     Read Thread (0,0,0) at void cub::_V_300403_SM_890::detail::uninitialized_copy_single<float, float &, (int)0>(T1 *, T2 &&)+0x750 in uninitialized_copy.cuh:37
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16], cuda::std::__4::integral_constant<bool, (bool)0>)+0x730 in block_exchange.cuh:537
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16])+0x410 in block_exchange.cuh:999
+=========         Device Frame: void cub::_V_300403_SM_890::BlockLoad<float, (int)128, (int)16, (cub::_V_300403_SM_890::BlockLoadAlgorithm)4, (int)1, (int)1>::Load<const float *>(T1, float (&)[16])+0x410 in block_load.cuh:1001
+=========         Device Frame: void ssm_scan_f32<(unsigned long)128, (unsigned long)16, (unsigned long)0>(const float *, const float *, const float *, const float *, const float *, const float *, const int *, float *, int, int, int, int, int, int, int, int, int, int, int, long, long, long)+0xb0 in ssm-scan.cu:69
+=========     Write Thread (2,0,0) at void cub::_V_300403_SM_890::detail::uninitialized_copy_single<float, const float &, (int)0>(T1 *, T2 &&)+0x850 in uninitialized_copy.cuh:37
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16], cuda::std::__4::integral_constant<bool, (bool)0>)+0x850 in block_exchange.cuh:524
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16])+0x850 in block_exchange.cuh:999
+=========         Device Frame: void cub::_V_300403_SM_890::BlockLoad<float, (int)128, (int)16, (cub::_V_300403_SM_890::BlockLoadAlgorithm)4, (int)1, (int)1>::Load<const float *>(T1, float (&)[16])+0x850 in block_load.cuh:1001
+=========         Device Frame: void ssm_scan_f32<(unsigned long)128, (unsigned long)16, (unsigned long)0>(const float *, const float *, const float *, const float *, const float *, const float *, const int *, float *, int, int, int, int, int, int, int, int, int, int, int, long, long, long)+0x2e0 in ssm-scan.cu:70
+=========     Current Value : 50, Incoming Value : 8
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: void ssm_scan_f32<128ul, 16ul, 0ul>(float const*, float const*, float const*, float const*, float const*, float const*, int const*, float*, int, int, int, int, int, int, int, int, int, int, int, long, long, long) [0x37e7b9] in test-backend-ops
+=========         Host Frame: ssm_scan_f32_cuda(float const*, float const*, float const*, float const*, float const*, float const*, int const*, float*, int, int, int, int, int, int, int, int, int, int, int, long, long, long, long, long, long, long, CUstream_st*) [0x38363b] in test-backend-ops
+=========         Host Frame: ggml_cuda_op_ssm_scan(ggml_backend_cuda_context&, ggml_tensor*) [0x3845c2] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x1f9f7f] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xe47108] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xebc33] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xb2896] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xb58c9] in test-backend-ops
+=========         Host Frame: main [0x2ada2] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x8b in block (3,3,0) :
+=========     Read Thread (0,0,0) at void cub::_V_300403_SM_890::detail::uninitialized_copy_single<float, float &, (int)0>(T1 *, T2 &&)+0x750 in uninitialized_copy.cuh:37
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16], cuda::std::__4::integral_constant<bool, (bool)0>)+0x730 in block_exchange.cuh:537
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16])+0x410 in block_exchange.cuh:999
+=========         Device Frame: void cub::_V_300403_SM_890::BlockLoad<float, (int)128, (int)16, (cub::_V_300403_SM_890::BlockLoadAlgorithm)4, (int)1, (int)1>::Load<const float *>(T1, float (&)[16])+0x410 in block_load.cuh:1001
+=========         Device Frame: void ssm_scan_f32<(unsigned long)128, (unsigned long)16, (unsigned long)0>(const float *, const float *, const float *, const float *, const float *, const float *, const int *, float *, int, int, int, int, int, int, int, int, int, int, int, long, long, long)+0xb0 in ssm-scan.cu:69
+=========     Write Thread (2,0,0) at void cub::_V_300403_SM_890::detail::uninitialized_copy_single<float, const float &, (int)0>(T1 *, T2 &&)+0x850 in uninitialized_copy.cuh:37
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16], cuda::std::__4::integral_constant<bool, (bool)0>)+0x850 in block_exchange.cuh:524
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16])+0x850 in block_exchange.cuh:999
+=========         Device Frame: void cub::_V_300403_SM_890::BlockLoad<float, (int)128, (int)16, (cub::_V_300403_SM_890::BlockLoadAlgorithm)4, (int)1, (int)1>::Load<const float *>(T1, float (&)[16])+0x850 in block_load.cuh:1001
+=========         Device Frame: void ssm_scan_f32<(unsigned long)128, (unsigned long)16, (unsigned long)0>(const float *, const float *, const float *, const float *, const float *, const float *, const int *, float *, int, int, int, int, int, int, int, int, int, int, int, long, long, long)+0x2e0 in ssm-scan.cu:70
+=========     Current Value : 191, Incoming Value : 191
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: void ssm_scan_f32<128ul, 16ul, 0ul>(float const*, float const*, float const*, float const*, float const*, float const*, int const*, float*, int, int, int, int, int, int, int, int, int, int, int, long, long, long) [0x37e7b9] in test-backend-ops
+=========         Host Frame: ssm_scan_f32_cuda(float const*, float const*, float const*, float const*, float const*, float const*, int const*, float*, int, int, int, int, int, int, int, int, int, int, int, long, long, long, long, long, long, long, CUstream_st*) [0x38363b] in test-backend-ops
+=========         Host Frame: ggml_cuda_op_ssm_scan(ggml_backend_cuda_context&, ggml_tensor*) [0x3845c2] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x1f9f7f] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xe47108] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xebc33] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xb2896] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xb58c9] in test-backend-ops
+=========         Host Frame: main [0x2ada2] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x8c in block (3,3,0) :
+=========     Read Thread (0,0,0) at void cub::_V_300403_SM_890::detail::uninitialized_copy_single<float, float &, (int)0>(T1 *, T2 &&)+0x760 in uninitialized_copy.cuh:37
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16], cuda::std::__4::integral_constant<bool, (bool)0>)+0x730 in block_exchange.cuh:537
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16])+0x410 in block_exchange.cuh:999
+=========         Device Frame: void cub::_V_300403_SM_890::BlockLoad<float, (int)128, (int)16, (cub::_V_300403_SM_890::BlockLoadAlgorithm)4, (int)1, (int)1>::Load<const float *>(T1, float (&)[16])+0x410 in block_load.cuh:1001
+=========         Device Frame: void ssm_scan_f32<(unsigned long)128, (unsigned long)16, (unsigned long)0>(const float *, const float *, const float *, const float *, const float *, const float *, const int *, float *, int, int, int, int, int, int, int, int, int, int, int, long, long, long)+0xb0 in ssm-scan.cu:69
+=========     Write Thread (3,0,0) at void cub::_V_300403_SM_890::detail::uninitialized_copy_single<float, const float &, (int)0>(T1 *, T2 &&)+0x850 in uninitialized_copy.cuh:37
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16], cuda::std::__4::integral_constant<bool, (bool)0>)+0x850 in block_exchange.cuh:524
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16])+0x850 in block_exchange.cuh:999
+=========         Device Frame: void cub::_V_300403_SM_890::BlockLoad<float, (int)128, (int)16, (cub::_V_300403_SM_890::BlockLoadAlgorithm)4, (int)1, (int)1>::Load<const float *>(T1, float (&)[16])+0x850 in block_load.cuh:1001
+=========         Device Frame: void ssm_scan_f32<(unsigned long)128, (unsigned long)16, (unsigned long)0>(const float *, const float *, const float *, const float *, const float *, const float *, const int *, float *, int, int, int, int, int, int, int, int, int, int, int, long, long, long)+0x2e0 in ssm-scan.cu:70
+=========     Current Value : 104, Incoming Value : 112
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: void ssm_scan_f32<128ul, 16ul, 0ul>(float const*, float const*, float const*, float const*, float const*, float const*, int const*, float*, int, int, int, int, int, int, int, int, int, int, int, long, long, long) [0x37e7b9] in test-backend-ops
+=========         Host Frame: ssm_scan_f32_cuda(float const*, float const*, float const*, float const*, float const*, float const*, int const*, float*, int, int, int, int, int, int, int, int, int, int, int, long, long, long, long, long, long, long, CUstream_st*) [0x38363b] in test-backend-ops
+=========         Host Frame: ggml_cuda_op_ssm_scan(ggml_backend_cuda_context&, ggml_tensor*) [0x3845c2] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x1f9f7f] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xe47108] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xebc33] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xb2896] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xb58c9] in test-backend-ops
+=========         Host Frame: main [0x2ada2] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x1944 in block (0,6,0) :
+=========     Read Thread (96,0,0) at void cub::_V_300403_SM_890::detail::uninitialized_copy_single<float, float &, (int)0>(T1 *, T2 &&)+0x740 in uninitialized_copy.cuh:37
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16], cuda::std::__4::integral_constant<bool, (bool)0>)+0x730 in block_exchange.cuh:537
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16])+0x410 in block_exchange.cuh:999
+=========         Device Frame: void cub::_V_300403_SM_890::BlockLoad<float, (int)128, (int)16, (cub::_V_300403_SM_890::BlockLoadAlgorithm)4, (int)1, (int)1>::Load<const float *>(T1, float (&)[16])+0x410 in block_load.cuh:1001
+=========         Device Frame: void ssm_scan_f32<(unsigned long)128, (unsigned long)16, (unsigned long)0>(const float *, const float *, const float *, const float *, const float *, const float *, const int *, float *, int, int, int, int, int, int, int, int, int, int, int, long, long, long)+0xb0 in ssm-scan.cu:69
+=========     Write Thread (97,0,0) at void cub::_V_300403_SM_890::detail::uninitialized_copy_single<float, const float &, (int)0>(T1 *, T2 &&)+0x850 in uninitialized_copy.cuh:37
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16], cuda::std::__4::integral_constant<bool, (bool)0>)+0x850 in block_exchange.cuh:524
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16])+0x850 in block_exchange.cuh:999
+=========         Device Frame: void cub::_V_300403_SM_890::BlockLoad<float, (int)128, (int)16, (cub::_V_300403_SM_890::BlockLoadAlgorithm)4, (int)1, (int)1>::Load<const float *>(T1, float (&)[16])+0x850 in block_load.cuh:1001
+=========         Device Frame: void ssm_scan_f32<(unsigned long)128, (unsigned long)16, (unsigned long)0>(const float *, const float *, const float *, const float *, const float *, const float *, const int *, float *, int, int, int, int, int, int, int, int, int, int, int, long, long, long)+0x2e0 in ssm-scan.cu:70
+=========     Current Value : 248, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: void ssm_scan_f32<128ul, 16ul, 0ul>(float const*, float const*, float const*, float const*, float const*, float const*, int const*, float*, int, int, int, int, int, int, int, int, int, int, int, long, long, long) [0x37e7b9] in test-backend-ops
+=========         Host Frame: ssm_scan_f32_cuda(float const*, float const*, float const*, float const*, float const*, float const*, int const*, float*, int, int, int, int, int, int, int, int, int, int, int, long, long, long, long, long, long, long, CUstream_st*) [0x38363b] in test-backend-ops
+=========         Host Frame: ggml_cuda_op_ssm_scan(ggml_backend_cuda_context&, ggml_tensor*) [0x3845c2] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x1f9f7f] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xe47108] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xebc33] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xb2896] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xb58c9] in test-backend-ops
+=========         Host Frame: main [0x2ada2] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x1945 in block (0,6,0) :
+=========     Read Thread (96,0,0) at void cub::_V_300403_SM_890::detail::uninitialized_copy_single<float, float &, (int)0>(T1 *, T2 &&)+0x740 in uninitialized_copy.cuh:37
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16], cuda::std::__4::integral_constant<bool, (bool)0>)+0x730 in block_exchange.cuh:537
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16])+0x410 in block_exchange.cuh:999
+=========         Device Frame: void cub::_V_300403_SM_890::BlockLoad<float, (int)128, (int)16, (cub::_V_300403_SM_890::BlockLoadAlgorithm)4, (int)1, (int)1>::Load<const float *>(T1, float (&)[16])+0x410 in block_load.cuh:1001
+=========         Device Frame: void ssm_scan_f32<(unsigned long)128, (unsigned long)16, (unsigned long)0>(const float *, const float *, const float *, const float *, const float *, const float *, const int *, float *, int, int, int, int, int, int, int, int, int, int, int, long, long, long)+0xb0 in ssm-scan.cu:69
+=========     Write Thread (97,0,0) at void cub::_V_300403_SM_890::detail::uninitialized_copy_single<float, const float &, (int)0>(T1 *, T2 &&)+0x850 in uninitialized_copy.cuh:37
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16], cuda::std::__4::integral_constant<bool, (bool)0>)+0x850 in block_exchange.cuh:524
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16])+0x850 in block_exchange.cuh:999
+=========         Device Frame: void cub::_V_300403_SM_890::BlockLoad<float, (int)128, (int)16, (cub::_V_300403_SM_890::BlockLoadAlgorithm)4, (int)1, (int)1>::Load<const float *>(T1, float (&)[16])+0x850 in block_load.cuh:1001
+=========         Device Frame: void ssm_scan_f32<(unsigned long)128, (unsigned long)16, (unsigned long)0>(const float *, const float *, const float *, const float *, const float *, const float *, const int *, float *, int, int, int, int, int, int, int, int, int, int, int, long, long, long)+0x2e0 in ssm-scan.cu:70
+=========     Current Value : 113, Incoming Value : 2
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: void ssm_scan_f32<128ul, 16ul, 0ul>(float const*, float const*, float const*, float const*, float const*, float const*, int const*, float*, int, int, int, int, int, int, int, int, int, int, int, long, long, long) [0x37e7b9] in test-backend-ops
+=========         Host Frame: ssm_scan_f32_cuda(float const*, float const*, float const*, float const*, float const*, float const*, int const*, float*, int, int, int, int, int, int, int, int, int, int, int, long, long, long, long, long, long, long, CUstream_st*) [0x38363b] in test-backend-ops
+=========         Host Frame: ggml_cuda_op_ssm_scan(ggml_backend_cuda_context&, ggml_tensor*) [0x3845c2] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x1f9f7f] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xe47108] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xebc33] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xb2896] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xb58c9] in test-backend-ops
+=========         Host Frame: main [0x2ada2] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x1946 in block (0,6,0) :
+=========     Read Thread (96,0,0) at void cub::_V_300403_SM_890::detail::uninitialized_copy_single<float, float &, (int)0>(T1 *, T2 &&)+0x740 in uninitialized_copy.cuh:37
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16], cuda::std::__4::integral_constant<bool, (bool)0>)+0x730 in block_exchange.cuh:537
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16])+0x410 in block_exchange.cuh:999
+=========         Device Frame: void cub::_V_300403_SM_890::BlockLoad<float, (int)128, (int)16, (cub::_V_300403_SM_890::BlockLoadAlgorithm)4, (int)1, (int)1>::Load<const float *>(T1, float (&)[16])+0x410 in block_load.cuh:1001
+=========         Device Frame: void ssm_scan_f32<(unsigned long)128, (unsigned long)16, (unsigned long)0>(const float *, const float *, const float *, const float *, const float *, const float *, const int *, float *, int, int, int, int, int, int, int, int, int, int, int, long, long, long)+0xb0 in ssm-scan.cu:69
+=========     Write Thread (97,0,0) at void cub::_V_300403_SM_890::detail::uninitialized_copy_single<float, const float &, (int)0>(T1 *, T2 &&)+0x850 in uninitialized_copy.cuh:37
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16], cuda::std::__4::integral_constant<bool, (bool)0>)+0x850 in block_exchange.cuh:524
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16])+0x850 in block_exchange.cuh:999
+=========         Device Frame: void cub::_V_300403_SM_890::BlockLoad<float, (int)128, (int)16, (cub::_V_300403_SM_890::BlockLoadAlgorithm)4, (int)1, (int)1>::Load<const float *>(T1, float (&)[16])+0x850 in block_load.cuh:1001
+=========         Device Frame: void ssm_scan_f32<(unsigned long)128, (unsigned long)16, (unsigned long)0>(const float *, const float *, const float *, const float *, const float *, const float *, const int *, float *, int, int, int, int, int, int, int, int, int, int, int, long, long, long)+0x2e0 in ssm-scan.cu:70
+=========     Current Value : 75, Incoming Value : 149
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: void ssm_scan_f32<128ul, 16ul, 0ul>(float const*, float const*, float const*, float const*, float const*, float const*, int const*, float*, int, int, int, int, int, int, int, int, int, int, int, long, long, long) [0x37e7b9] in test-backend-ops
+=========         Host Frame: ssm_scan_f32_cuda(float const*, float const*, float const*, float const*, float const*, float const*, int const*, float*, int, int, int, int, int, int, int, int, int, int, int, long, long, long, long, long, long, long, CUstream_st*) [0x38363b] in test-backend-ops
+=========         Host Frame: ggml_cuda_op_ssm_scan(ggml_backend_cuda_context&, ggml_tensor*) [0x3845c2] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x1f9f7f] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xe47108] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xebc33] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xb2896] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xb58c9] in test-backend-ops
+=========         Host Frame: main [0x2ada2] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x1947 in block (0,6,0) :
+=========     Read Thread (96,0,0) at void cub::_V_300403_SM_890::detail::uninitialized_copy_single<float, float &, (int)0>(T1 *, T2 &&)+0x740 in uninitialized_copy.cuh:37
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16], cuda::std::__4::integral_constant<bool, (bool)0>)+0x730 in block_exchange.cuh:537
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16])+0x410 in block_exchange.cuh:999
+=========         Device Frame: void cub::_V_300403_SM_890::BlockLoad<float, (int)128, (int)16, (cub::_V_300403_SM_890::BlockLoadAlgorithm)4, (int)1, (int)1>::Load<const float *>(T1, float (&)[16])+0x410 in block_load.cuh:1001
+=========         Device Frame: void ssm_scan_f32<(unsigned long)128, (unsigned long)16, (unsigned long)0>(const float *, const float *, const float *, const float *, const float *, const float *, const int *, float *, int, int, int, int, int, int, int, int, int, int, int, long, long, long)+0xb0 in ssm-scan.cu:69
+=========     Write Thread (97,0,0) at void cub::_V_300403_SM_890::detail::uninitialized_copy_single<float, const float &, (int)0>(T1 *, T2 &&)+0x850 in uninitialized_copy.cuh:37
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16], cuda::std::__4::integral_constant<bool, (bool)0>)+0x850 in block_exchange.cuh:524
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16])+0x850 in block_exchange.cuh:999
+=========         Device Frame: void cub::_V_300403_SM_890::BlockLoad<float, (int)128, (int)16, (cub::_V_300403_SM_890::BlockLoadAlgorithm)4, (int)1, (int)1>::Load<const float *>(T1, float (&)[16])+0x850 in block_load.cuh:1001
+=========         Device Frame: void ssm_scan_f32<(unsigned long)128, (unsigned long)16, (unsigned long)0>(const float *, const float *, const float *, const float *, const float *, const float *, const int *, float *, int, int, int, int, int, int, int, int, int, int, int, long, long, long)+0x2e0 in ssm-scan.cu:70
+=========     Current Value : 62, Incoming Value : 59
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: void ssm_scan_f32<128ul, 16ul, 0ul>(float const*, float const*, float const*, float const*, float const*, float const*, int const*, float*, int, int, int, int, int, int, int, int, int, int, int, long, long, long) [0x37e7b9] in test-backend-ops
+=========         Host Frame: ssm_scan_f32_cuda(float const*, float const*, float const*, float const*, float const*, float const*, int const*, float*, int, int, int, int, int, int, int, int, int, int, int, long, long, long, long, long, long, long, CUstream_st*) [0x38363b] in test-backend-ops
+=========         Host Frame: ggml_cuda_op_ssm_scan(ggml_backend_cuda_context&, ggml_tensor*) [0x3845c2] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x1f9f7f] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xe47108] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xebc33] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xb2896] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xb58c9] in test-backend-ops
+=========         Host Frame: main [0x2ada2] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x1948 in block (0,6,0) :
+=========     Read Thread (96,0,0) at void cub::_V_300403_SM_890::detail::uninitialized_copy_single<float, float &, (int)0>(T1 *, T2 &&)+0x750 in uninitialized_copy.cuh:37
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16], cuda::std::__4::integral_constant<bool, (bool)0>)+0x730 in block_exchange.cuh:537
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16])+0x410 in block_exchange.cuh:999
+=========         Device Frame: void cub::_V_300403_SM_890::BlockLoad<float, (int)128, (int)16, (cub::_V_300403_SM_890::BlockLoadAlgorithm)4, (int)1, (int)1>::Load<const float *>(T1, float (&)[16])+0x410 in block_load.cuh:1001
+=========         Device Frame: void ssm_scan_f32<(unsigned long)128, (unsigned long)16, (unsigned long)0>(const float *, const float *, const float *, const float *, const float *, const float *, const int *, float *, int, int, int, int, int, int, int, int, int, int, int, long, long, long)+0xb0 in ssm-scan.cu:69
+=========     Write Thread (98,0,0) at void cub::_V_300403_SM_890::detail::uninitialized_copy_single<float, const float &, (int)0>(T1 *, T2 &&)+0x850 in uninitialized_copy.cuh:37
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16], cuda::std::__4::integral_constant<bool, (bool)0>)+0x850 in block_exchange.cuh:524
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16])+0x850 in block_exchange.cuh:999
+=========         Device Frame: void cub::_V_300403_SM_890::BlockLoad<float, (int)128, (int)16, (cub::_V_300403_SM_890::BlockLoadAlgorithm)4, (int)1, (int)1>::Load<const float *>(T1, float (&)[16])+0x850 in block_load.cuh:1001
+=========         Device Frame: void ssm_scan_f32<(unsigned long)128, (unsigned long)16, (unsigned long)0>(const float *, const float *, const float *, const float *, const float *, const float *, const int *, float *, int, int, int, int, int, int, int, int, int, int, int, long, long, long)+0x2e0 in ssm-scan.cu:70
+=========     Current Value : 181, Incoming Value : 252
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: void ssm_scan_f32<128ul, 16ul, 0ul>(float const*, float const*, float const*, float const*, float const*, float const*, int const*, float*, int, int, int, int, int, int, int, int, int, int, int, long, long, long) [0x37e7b9] in test-backend-ops
+=========         Host Frame: ssm_scan_f32_cuda(float const*, float const*, float const*, float const*, float const*, float const*, int const*, float*, int, int, int, int, int, int, int, int, int, int, int, long, long, long, long, long, long, long, CUstream_st*) [0x38363b] in test-backend-ops
+=========         Host Frame: ggml_cuda_op_ssm_scan(ggml_backend_cuda_context&, ggml_tensor*) [0x3845c2] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x1f9f7f] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xe47108] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xebc33] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xb2896] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xb58c9] in test-backend-ops
+=========         Host Frame: main [0x2ada2] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x1949 in block (0,6,0) :
+=========     Read Thread (96,0,0) at void cub::_V_300403_SM_890::detail::uninitialized_copy_single<float, float &, (int)0>(T1 *, T2 &&)+0x750 in uninitialized_copy.cuh:37
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16], cuda::std::__4::integral_constant<bool, (bool)0>)+0x730 in block_exchange.cuh:537
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16])+0x410 in block_exchange.cuh:999
+=========         Device Frame: void cub::_V_300403_SM_890::BlockLoad<float, (int)128, (int)16, (cub::_V_300403_SM_890::BlockLoadAlgorithm)4, (int)1, (int)1>::Load<const float *>(T1, float (&)[16])+0x410 in block_load.cuh:1001
+=========         Device Frame: void ssm_scan_f32<(unsigned long)128, (unsigned long)16, (unsigned long)0>(const float *, const float *, const float *, const float *, const float *, const float *, const int *, float *, int, int, int, int, int, int, int, int, int, int, int, long, long, long)+0xb0 in ssm-scan.cu:69
+=========     Write Thread (98,0,0) at void cub::_V_300403_SM_890::detail::uninitialized_copy_single<float, const float &, (int)0>(T1 *, T2 &&)+0x850 in uninitialized_copy.cuh:37
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16], cuda::std::__4::integral_constant<bool, (bool)0>)+0x850 in block_exchange.cuh:524
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16])+0x850 in block_exchange.cuh:999
+=========         Device Frame: void cub::_V_300403_SM_890::BlockLoad<float, (int)128, (int)16, (cub::_V_300403_SM_890::BlockLoadAlgorithm)4, (int)1, (int)1>::Load<const float *>(T1, float (&)[16])+0x850 in block_load.cuh:1001
+=========         Device Frame: void ssm_scan_f32<(unsigned long)128, (unsigned long)16, (unsigned long)0>(const float *, const float *, const float *, const float *, const float *, const float *, const int *, float *, int, int, int, int, int, int, int, int, int, int, int, long, long, long)+0x2e0 in ssm-scan.cu:70
+=========     Current Value : 63, Incoming Value : 70
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cuLaunchKernel [0x3f268a] in libcuda.so.1
+=========         Host Frame:  [0x1516c] in libcudart.so.13
+=========         Host Frame: cudaLaunchKernel [0x85857] in libcudart.so.13
+=========         Host Frame: void ssm_scan_f32<128ul, 16ul, 0ul>(float const*, float const*, float const*, float const*, float const*, float const*, int const*, float*, int, int, int, int, int, int, int, int, int, int, int, long, long, long) [0x37e7b9] in test-backend-ops
+=========         Host Frame: ssm_scan_f32_cuda(float const*, float const*, float const*, float const*, float const*, float const*, int const*, float*, int, int, int, int, int, int, int, int, int, int, int, long, long, long, long, long, long, long, CUstream_st*) [0x38363b] in test-backend-ops
+=========         Host Frame: ggml_cuda_op_ssm_scan(ggml_backend_cuda_context&, ggml_tensor*) [0x3845c2] in test-backend-ops
+=========         Host Frame: ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) [0x1f9f7f] in test-backend-ops
+=========         Host Frame: ggml_backend_compare_graph_backend [0xe47108] in test-backend-ops
+=========         Host Frame: test_case::eval(ggml_backend*, ggml_backend*, char const*, printer*) [0xebc33] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int)::{lambda(ggml_backend*, ggml_backend*)#3}::operator()(ggml_backend*, ggml_backend*) const [0xb2896] in test-backend-ops
+=========         Host Frame: test_backend(ggml_backend*, ggml_backend_device*, test_mode, char const*, char const*, printer*, char const*, int) [0xb58c9] in test-backend-ops
+=========         Host Frame: main [0x2ada2] in test-backend-ops
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x194a in block (0,6,0) :
+=========     Read Thread (96,0,0) at void cub::_V_300403_SM_890::detail::uninitialized_copy_single<float, float &, (int)0>(T1 *, T2 &&)+0x750 in uninitialized_copy.cuh:37
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16], cuda::std::__4::integral_constant<bool, (bool)0>)+0x730 in block_exchange.cuh:537
+=========         Device Frame: void cub::_V_300403_SM_890::BlockExchange<float, (int)128, (int)16, (bool)0, (int)1, (int)1>::WarpStripedToBlocked<float>(const float (&)[16], T1 (&)[16])+0x410 in block_exchange.cuh:999
+=========         Device Frame: void cub::_V_300403_SM_890::BlockLoad<float, (int)128, (int)16, (cub::_V_300403_SM_890::BlockLoadAlgorithm)4, (int)1, (int)1>::Load<const float *>(T1, float (&)[16])+0x410 in block_load.cuh:1001
+# TRUNCATED: full output (52024 lines, 8852702 bytes, sha256 a0613f0d784b0c1e8004b7e72bf1c6c91208a40dab624f476003d6752a58b745) kept at /mnt/beegfs/fzheng4/realworld/racecheck_full/llamacpp-5-buggy.txt
+  Skipping
+1/2 backends passed
+[1;31mFAIL[0m
+========= Target application returned an error
+========= RACECHECK SUMMARY: 2000 hazards displayed (131170 errors, 259648 warnings)
+# exit 1

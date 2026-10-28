@@ -1,0 +1,14 @@
+{
+  "route": "R1",
+  "route_note": "llama.cpp's own CMake build of test-backend-ops at the exact commit(s), flags identical to llamacpp-4: cmake -DCMAKE_BUILD_TYPE=Release -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=89 (SASS + PTX sm_89) -DCMAKE_CUDA_FLAGS=-lineinfo -DLLAMA_BUILD_TESTS=ON -DLLAMA_CURL=OFF -DLLAMA_OPENSSL=OFF -DLLAMA_BUILD_SERVER=OFF -DBUILD_SHARED_LIBS=OFF -DGGML_NATIVE=OFF -DLLAMA_SUBPROCESS=OFF -DCMAKE_BUILD_RPATH='$ORIGIN', --target test-backend-ops, no -G; gcc-12.4 runtime libs copied next to the binary. -DLLAMA_SUBPROCESS=OFF kept for uniformity with llamacpp-4 (not needed for a build failure at these newer commits). Same pinned commit and flags as llamacpp-open-2 buggy, built separately by this target (not copied).",
+  "status": "built (buggy only; record fix_commit is null)",
+  "toolkit": "13.4 (c45)",
+  "artifacts": ["/mnt/beegfs/fzheng4/realworld/build/llamacpp-open-1/buggy/test-backend-ops", "libstdc++.so.6 libgcc_s.so.1 libgomp.so.1 next to it"],
+  "kernel_present_sm89": "yes: _Z18flash_attn_ext_vecILi64ELi1EL9ggml_type8ELS0_8ELb0EEv... (D=64, ncols=1, K=V=q8_0), which inlines quantize_q8_1_to_shared (an inlined device function, so T_KERNEL is the enclosing flash_attn_ext_vec); in fattn-vec-instance-q8_0-q8_0.sm_89.cubin (12 instances)",
+  "driver": "test-backend-ops test -b CUDA0 -o FLASH_ATTN_EXT -p 'hsk=64,hsv=64,nh=4,nr23=\\[1,1\\],kv=512,nb=1,.*type_K=q8_0'",
+  "input": "random tensors from the test, CPU backend as reference. Access estimate (analytic): 8 matching cases (mask/sinks/max_bias variants + 2 permuted; hsk!=128 so no softcap, F32 prec only), each one flash_attn_ext_vec<64,1,q8_0,q8_0,false> launch of about 6e4 thread-level accesses, so about 5e5 in total.",
+  "sass_facts_note2": "see llamacpp-open-2/status.json: D=64 q8_0 instance has WARPSYNC 0xffffffff before the first BAR.SYNC (after both quantize stores) and WARPSYNC R8 in the shuffle helper; no difference to the fixed build besides a NOP position.",
+  "lineinfo_check": "route R1 lineinfo check cited from llamacpp-open-2/lineinfo.check (same commit, same flags)",
+  "notes": "No fix commit: only the buggy variant. Dispatch condition (kv multiple of 256, nb=1 -> vec kernel on Ada) is by the record and unverified until the reach phase.",
+  "commands": ["harness/rw.sh llamacpp-open-1 export", "hrun.sh <job> llamacpp-open-1 stage; NJOBS=6 hrun.sh <job> llamacpp-open-1 build"]
+}

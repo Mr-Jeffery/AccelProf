@@ -1,0 +1,407 @@
+# compute-sanitizer Version 2026.3.0.0 (build 38855100) (public-release) host c3 cuda /usr/local/cuda-13.4 2026-10-20
+# cmd: /mnt/beegfs/fzheng4/realworld/build/bitsandbytes-1/buggy/driver
+========= COMPUTE-SANITIZER
+========= Warning: (Warp Level Programming) Potential WAW hazard detected at __shared__ 0x20 in block (2,0,0) :
+=========     Write Thread (8,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (0,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAW hazard detected at __shared__ 0x21 in block (2,0,0) :
+=========     Write Thread (8,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (0,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAW hazard detected at __shared__ 0x22 in block (2,0,0) :
+=========     Write Thread (8,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (0,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAW hazard detected at __shared__ 0x23 in block (2,0,0) :
+=========     Write Thread (8,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (0,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAW hazard detected at __shared__ 0x60 in block (2,0,0) :
+=========     Write Thread (24,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (1,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAW hazard detected at __shared__ 0x61 in block (2,0,0) :
+=========     Write Thread (24,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (1,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAW hazard detected at __shared__ 0x62 in block (2,0,0) :
+=========     Write Thread (24,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (1,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAW hazard detected at __shared__ 0x20 in block (3,0,0) :
+=========     Write Thread (8,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (0,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Error: Potential WAW hazard detected at __shared__ 0x391c in block (0,0,0) :
+=========     Write Thread (71,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (228,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 228
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAW hazard detected at __shared__ 0x63 in block (2,0,0) :
+=========     Write Thread (24,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (1,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAW hazard detected at __shared__ 0x21 in block (3,0,0) :
+=========     Write Thread (8,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (0,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAW hazard detected at __shared__ 0x22 in block (3,0,0) :
+=========     Write Thread (8,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (0,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Error: Potential WAW hazard detected at __shared__ 0xa0 in block (2,0,0) :
+=========     Write Thread (40,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (2,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 2
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Error: Potential WAW hazard detected at __shared__ 0xa1 in block (2,0,0) :
+=========     Write Thread (40,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (2,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAW hazard detected at __shared__ 0x23 in block (3,0,0) :
+=========     Write Thread (8,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (0,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAW hazard detected at __shared__ 0x60 in block (3,0,0) :
+=========     Write Thread (24,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (1,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 1
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Error: Potential WAW hazard detected at __shared__ 0xa2 in block (2,0,0) :
+=========     Write Thread (40,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (2,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Error: Potential WAW hazard detected at __shared__ 0xa3 in block (2,0,0) :
+=========     Write Thread (40,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (2,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAW hazard detected at __shared__ 0x61 in block (3,0,0) :
+=========     Write Thread (24,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (1,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAW hazard detected at __shared__ 0x62 in block (3,0,0) :
+=========     Write Thread (24,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (1,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Error: Potential WAW hazard detected at __shared__ 0xe0 in block (2,0,0) :
+=========     Write Thread (56,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (3,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 3
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Error: Potential WAW hazard detected at __shared__ 0xe1 in block (2,0,0) :
+=========     Write Thread (56,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (3,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAW hazard detected at __shared__ 0x63 in block (3,0,0) :
+=========     Write Thread (24,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (1,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Error: Potential WAW hazard detected at __shared__ 0xa0 in block (3,0,0) :
+=========     Write Thread (40,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (2,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 2
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Error: Potential WAW hazard detected at __shared__ 0xe2 in block (2,0,0) :
+=========     Write Thread (56,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (3,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Error: Potential WAW hazard detected at __shared__ 0xe3 in block (2,0,0) :
+=========     Write Thread (56,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (3,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Error: Potential WAW hazard detected at __shared__ 0xa1 in block (3,0,0) :
+=========     Write Thread (40,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (2,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Error: Potential WAW hazard detected at __shared__ 0xa2 in block (3,0,0) :
+=========     Write Thread (40,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (2,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Error: Potential WAW hazard detected at __shared__ 0x120 in block (2,0,0) :
+=========     Write Thread (72,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (4,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 4
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Error: Potential WAW hazard detected at __shared__ 0x121 in block (2,0,0) :
+=========     Write Thread (72,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (4,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Error: Potential WAW hazard detected at __shared__ 0xa3 in block (3,0,0) :
+=========     Write Thread (40,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (2,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Error: Potential WAW hazard detected at __shared__ 0xe0 in block (3,0,0) :
+=========     Write Thread (56,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (3,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 3
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Error: Potential WAW hazard detected at __shared__ 0x122 in block (2,0,0) :
+=========     Write Thread (72,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (4,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Error: Potential WAW hazard detected at __shared__ 0x123 in block (2,0,0) :
+=========     Write Thread (72,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (4,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Error: Potential WAW hazard detected at __shared__ 0xe1 in block (3,0,0) :
+=========     Write Thread (56,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (3,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Error: Potential WAW hazard detected at __shared__ 0xe2 in block (3,0,0) :
+=========     Write Thread (56,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (3,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Error: Potential WAW hazard detected at __shared__ 0xe3 in block (3,0,0) :
+=========     Write Thread (56,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (3,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Error: Potential WAW hazard detected at __shared__ 0x120 in block (3,0,0) :
+=========     Write Thread (72,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (4,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 4
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Error: Potential WAW hazard detected at __shared__ 0x160 in block (2,0,0) :
+=========     Write Thread (88,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (5,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 5
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Error: Potential WAW hazard detected at __shared__ 0x161 in block (2,0,0) :
+=========     Write Thread (88,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (5,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Error: Potential WAW hazard detected at __shared__ 0x121 in block (3,0,0) :
+=========     Write Thread (72,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (4,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Error: Potential WAW hazard detected at __shared__ 0x122 in block (3,0,0) :
+=========     Write Thread (72,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (4,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Error: Potential WAW hazard detected at __shared__ 0x162 in block (2,0,0) :
+=========     Write Thread (88,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (5,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Error: Potential WAW hazard detected at __shared__ 0x163 in block (2,0,0) :
+=========     Write Thread (88,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (5,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Error: Potential WAW hazard detected at __shared__ 0x123 in block (3,0,0) :
+=========     Write Thread (72,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (4,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Error: Potential WAW hazard detected at __shared__ 0x160 in block (3,0,0) :
+=========     Write Thread (88,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (5,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 5
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Error: Potential WAW hazard detected at __shared__ 0x1a0 in block (2,0,0) :
+=========     Write Thread (104,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (6,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 6
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Error: Potential WAW hazard detected at __shared__ 0x1a1 in block (2,0,0) :
+=========     Write Thread (104,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (6,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Error: Potential WAW hazard detected at __shared__ 0x161 in block (3,0,0) :
+=========     Write Thread (88,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (5,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: void kEstimateQuantiles<float>(float*, float*, float, float, int) [0x2daf7] in driver
+=========         Host Frame: main [0x4a58] in driver
+========= 
+========= Error: Potential WAW hazard detected at __shared__ 0x162 in block (3,0,0) :
+=========     Write Thread (88,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2280 in kernels.cu:655
+=========     Write Thread (5,0,0) at void kEstimateQuantiles<float>(T1 *, float *, float, T1, int)+0x2390 in kernels.cu:661
+=========     Current Value : 255, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+# TRUNCATED: full output (16007 lines, 1319223 bytes, sha256 1f9467d2b5aa0d1139e0d5e8b0cf2ca376c57cd95708682e99f705ae598ad2e3) kept at /mnt/beegfs/fzheng4/realworld/racecheck_full/bitsandbytes-1-buggy.txt
+=========         Host Frame: main [0x4a58] in driver
+========= 
+kEstimateQuantiles<float> n 16384 blocks 4 x 512 threads: quantiles differing from host reference (|d| > 1e-4): 132 of 256, zero entries 4, checksum(1e-4) dad6bfcc8c4a1321
+bitsandbytes-1 driver done
+========= RACECHECK SUMMARY: 2000 hazards displayed (3813 errors, 256 warnings)
+# exit 0

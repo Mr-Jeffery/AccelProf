@@ -1,0 +1,79 @@
+{
+  "id": "llmc-new-2",
+  "tier": "candidate",
+  "wave": null,
+  "route": "n/a (not compiled in T21a; build_notes: `make train_gpt2cu` + GPT-2 starter pack, or extract the kernel + blockReduce/warpReduceSum)",
+  "kernel": "softmax_autoregressive_backward_inplace_kernel (llmc/attention.cuh L152-190, launched <<<dim3(T / 4, B * NH), 256>>> at L266) calling blockReduce<warpReduceSum> (llmc/cuda_utils.cuh L165-184)",
+  "space": "shared",
+  "build_revision": {
+    "buggy": "f1e2ace651495b74ae22d45d1723443fd00ecd3a",
+    "fixed": null
+  },
+  "sites": [
+    {
+      "role": "write",
+      "file": "llmc/cuda_utils.cuh",
+      "line_start": 175,
+      "line_end": 175,
+      "source": "if (lane_id == 0) { shared_val[warp_id] = warp_val; }",
+      "operation": "st.shared.f32 into `__shared__ float shared_val[WARP_SIZE]` (L169, statically allocated per blockReduce instantiation), by lane 0 of every warp (warp_id = threadIdx.x / 32), once per call; the call is at llmc/attention.cuh L176 inside the `for(int to = 0; to < T_per_block; ++to)` loop (L164, T_per_block = 4), so the write of iteration to+1 is the racing one; expected STS, not compiled in T21a so the lowering is unverified",
+      "strength": "plain",
+      "line_basis": "source-derived: git show f1e2ace65149:llmc/cuda_utils.cuh (not built, no SASS)"
+    },
+    {
+      "role": "read",
+      "file": "llmc/cuda_utils.cuh",
+      "line_start": 177,
+      "line_end": 177,
+      "source": "warp_val = (lane_id < num_warps) ? shared_val[lane_id] : out_of_bounds;",
+      "operation": "ld.shared.f32 of shared_val[lane_id] by every thread whose lane_id < num_warps (blockDim.x / 32 = 8 for the 256-thread launch), after the __syncthreads at L176, in iteration `to`; expected LDS, unverified",
+      "strength": "plain",
+      "line_basis": "source-derived: git show f1e2ace65149:llmc/cuda_utils.cuh (not built, no SASS)"
+    }
+  ],
+  "thread_relation": "cross-warp-same-block",
+  "thread_pair_example": "block (0,0), blockDim = 256 (8 warps): thread 1 (warp 0, lane 1) reads shared_val[1] at L177 in iteration to = 0 of the loop at attention.cuh L164; thread 32 (warp 1, lane 0) writes shared_val[1] at L175 in iteration to = 1. The __syncthreads at L176 orders the write of iteration `to` before the reads of iteration `to`, but with the default final_sync = false (the call at attention.cuh L176 passes no argument) there is no barrier after the L177 read; only the t3 loop of global loads/stores (attention.cuh L178-188) lies between the read and the next iteration's write. Generally any warp w' lane 0 (write) vs lane w' of every other warp (read).",
+  "expected_class": "DR",
+  "class_reason": "Both accesses are plain (non-volatile, non-atomic) accesses to the shared float array shared_val (verify.strong_accesses: none) from different warps; the barrier at L176 orders write->read within an iteration but nothing orders the L177 read of iteration `to` before the L175 write of iteration to+1 (loop-carried WAR). Plain vs plain unordered = DR under D20. Window is tiny in practice (global-memory loops between read and next write), formal under happens-before.",
+  "buggy_expected": "the pair (L177 read in iteration to) x (L175 write in iteration to+1) on shared_val[0..7] is reported as DR (WAR, shared, cross-warp). The intra-warp variant (warp w lane w reads shared_val[w] at L177 in iteration to; warp w lane 0 writes shared_val[w] at L175 in iteration to+1) is separated only by the __shfl_xor_sync of warpReduceSum (cuda_utils.cuh L149), which is not memory ordering under PTX (CLAUDE.md T21 item 2): it is the same unordered plain pair (DR) and, if the frozen detector reports it, it is this race, not a false positive",
+  "fixed": {
+    "expected": "n/a (unfixed candidate)",
+    "residual_sites": null,
+    "reason": "pinned HEAD is the buggy build"
+  },
+  "sass_notes": "not compiled in T21a; SASS attribution to be added when T21c/T21b builds it",
+  "built": false,
+  "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against llmc/attention.cuh and llmc/cuda_utils.cuh@f1e2ace on 2026-10-20",
+  "open_questions": [
+    "No discrepancy with the record: loop L164, blockReduce call L176 with default final_sync (declaration `bool final_sync=false` at cuda_utils.cuh L166), write L175, read L177 and the documenting comment at cuda_utils.cuh L160-163 ('if called inside a loop, ... set final_sync to 1') are as stated at f1e2ace; the other caller global_sum_single_block_kernel passes true (L196).",
+    "warpReduceSum (cuda_utils.cuh L147-152) uses __shfl_xor_sync only; the block barrier is only the __syncthreads at L176 (and L181 when final_sync). The early `if(t < 0) return;` at attention.cuh L166 can make a whole block's later iterations skip the call uniformly (t depends only on blockIdx and `to`), so the barrier stays block-uniform.",
+    "floatX is a compile-time typedef; shared_val is float regardless."
+  ],
+  "upstream_status": {
+    "still_unfixed_at": "f1e2ace651495b74ae22d45d1723443fd00ecd3a (origin/master == pinned)",
+    "already_reported_check": "search_issues in karpathy/llm.c for layernorm/threadfence returned only unrelated issues (#190,#428,#794,#176,#178); no query yet specific to 'blockReduce final_sync'. Not verified exhaustively; the code comment shows the authors knew the hazard.",
+    "dispute_points": "(1) Very small window: the iteration body between the L177 read and the next L175 write contains global-memory loops, so a skeptic will say no failure was ever observed; but under happens-before it is a race. (2) The result of a lost read would be a wrong local_sum used in the gradient, i.e. real (if rare) numeric corruption. (3) A detector should treat the CTA-wide __syncthreads inside blockReduce as ordering the write->read only, not read->next-write.",
+    "proposed_fix_per_record": null,
+    "links": [
+      "https://github.com/karpathy/llm.c/blob/f1e2ace651495b74ae22d45d1723443fd00ecd3a/llmc/attention.cuh#L152-L190",
+      "https://github.com/karpathy/llm.c/blob/f1e2ace651495b74ae22d45d1723443fd00ecd3a/llmc/cuda_utils.cuh#L160-L184"
+    ],
+    "merged_into_default": null
+  },
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "corrected",
+    "changes": [
+      {
+        "field": "buggy_expected",
+        "old": "the pair (L177 read in iteration to) x (L175 write in iteration to+1) on shared_val[0..7] is reported as DR (WAR, shared, cross-warp); the intra-warp case (warp w lane w vs lane 0) is ordered by the shuffles in warp_reduction and must not be the reported pair",
+        "new": "the pair (L177 read in iteration to) x (L175 write in iteration to+1) on shared_val[0..7] is reported as DR (WAR, shared, cross-warp). The intra-warp variant (warp w lane w reads shared_val[w] at L177 in iteration to; warp w lane 0 writes shared_val[w] at L175 in iteration to+1) is separated only by the __shfl_xor_sync of warpReduceSum (cuda_utils.cuh L149), which is not memory ordering under PTX (CLAUDE.md T21 item 2): it is the same unordered plain pair (DR) and, if the frozen detector reports it, it is this race, not a false positive",
+        "reason": "The oracle said the intra-warp case is ordered by the shuffles and must not be the reported pair. Shuffles are not memory ordering under PTX (T21 corpus item 2; the detector orders only BAR.SYNC/BAR.RED/WARPSYNC), so the intra-warp WAR is also a race.",
+        "evidence": "llmc/cuda_utils.cuh L147-152 (warpReduceSum: __shfl_xor_sync only), L174-178 at f1e2ace; llmc/attention.cuh L164-189"
+      }
+    ],
+    "notes": "Checked at f1e2ace: blockReduce cuda_utils.cuh L165-184 (write L175, barrier L176, read L177, optional final barrier L180-182 with final_sync default false L166; the contract comment L160-163), caller attention.cuh L176 inside the to-loop L164 (T_per_block 4, L155), launch L266 <<<dim3(T/4, B*NH), 256>>>; `if(t < 0) return;` (L166) is block-uniform. Thread 1 (warp 0) reads shared_val[1] at L177 in iteration to; thread 32 (warp 1 lane 0) writes it at L175 in iteration to+1 with no barrier in between: DR. Minor: thread_pair_example says only the t3 loop lies between the read and the next write; the next iteration's t2 loop (L172-174) and warpReduceSum (L174) also do (no barrier in either). Upstream: HEAD = pinned. class_reason attributes the plain/strong class rule to D20; the rule itself is item 1 of CLAUDE.md 'T21 corpus' (strong accesses decide the class); D20 only decides how SC pairs count.",
+    "depends_on_D20": false
+  }
+}

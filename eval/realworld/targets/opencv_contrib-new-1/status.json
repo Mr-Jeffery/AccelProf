@@ -1,0 +1,11 @@
+{
+  "route": "R2",
+  "status": "built",
+  "toolkit": "13.4 (c22)",
+  "kernel": "compute_hists_kernel_many_blocks",
+  "route_note": "Candidate (no fix commit): only r2/buggy exists; every file under r2/buggy is byte-identical to the pinned commit (r2/blob.check, RESULT PASS). Stubs/shims are in r2/common/. See target.sh header for flags and dependency headers. sm_89 SASS confirmed with cuobjdump; -arch=sm_89 -lineinfo, never -G.",
+  "input": "64x128 image, default HOG (cell 8x8, block 16x16, stride 8x8, 9 bins): compute_hists_kernel_many_blocks<4><<<(2,15),(32,2,4)>>>; grad/qangle host-filled (compute_gradients_8UC1 not launched)",
+  "access_estimate": "~3e6 (about 105 active blocks x 192 active threads x ~150); estimate, not measured",
+  "notes": "hog.cu #included whole. OpenCV core headers from opencv/opencv 03160275da (2026-10-10) and cudev from the pinned contrib commit, in ~/incoming/realworld/deps/opencv-0316027 (not in worktree). Stub: cv::error(). Not run on GPU.",
+  "phases_run": ["stage", "build"]
+}

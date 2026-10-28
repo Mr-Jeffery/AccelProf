@@ -1,0 +1,407 @@
+# compute-sanitizer Version 2026.3.0.0 (build 38855100) (public-release) host c3 cuda /usr/local/cuda-13.4 2026-10-20
+# cmd: /mnt/beegfs/fzheng4/realworld/build/kokkos-6/buggy/driver
+========= COMPUTE-SANITIZER
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x20 in block (6,0,0) :
+=========     Read Thread (0,127,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1ac0
+=========     Write Thread (0,96,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 78, Incoming Value : 76
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x21 in block (6,0,0) :
+=========     Read Thread (0,127,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1ac0
+=========     Write Thread (0,96,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 70, Incoming Value : 170
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x20 in block (7,0,0) :
+=========     Read Thread (0,127,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1ac0
+=========     Write Thread (0,96,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 78, Incoming Value : 76
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x18 in block (5,0,0) :
+=========     Read Thread (0,31,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1a40
+=========     Write Thread (0,64,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 0, Incoming Value : 133
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x19 in block (5,0,0) :
+=========     Read Thread (0,31,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1a40
+=========     Write Thread (0,64,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 56, Incoming Value : 103
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1a in block (5,0,0) :
+=========     Read Thread (0,31,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1a40
+=========     Write Thread (0,64,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 248, Incoming Value : 242
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x20 in block (0,0,0) :
+=========     Read Thread (0,95,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1ac0
+=========     Write Thread (0,96,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 78, Incoming Value : 76
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x21 in block (0,0,0) :
+=========     Read Thread (0,95,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1ac0
+=========     Write Thread (0,96,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 70, Incoming Value : 170
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x22 in block (6,0,0) :
+=========     Read Thread (0,127,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1ac0
+=========     Write Thread (0,96,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 254, Incoming Value : 136
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x23 in block (6,0,0) :
+=========     Read Thread (0,127,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1ac0
+=========     Write Thread (0,96,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 110, Incoming Value : 44
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x24 in block (6,0,0) :
+=========     Read Thread (0,127,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1ac0
+=========     Write Thread (0,96,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 18, Incoming Value : 54
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x25 in block (6,0,0) :
+=========     Read Thread (0,127,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1ac0
+=========     Write Thread (0,96,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 104, Incoming Value : 203
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x26 in block (6,0,0) :
+=========     Read Thread (0,127,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1ac0
+=========     Write Thread (0,96,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 60, Incoming Value : 41
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x27 in block (6,0,0) :
+=========     Read Thread (0,127,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1ac0
+=========     Write Thread (0,96,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 192, Incoming Value : 64
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x22 in block (0,0,0) :
+=========     Read Thread (0,95,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1ac0
+=========     Write Thread (0,96,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 254, Incoming Value : 136
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x21 in block (7,0,0) :
+=========     Read Thread (0,127,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1ac0
+=========     Write Thread (0,96,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 70, Incoming Value : 170
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x22 in block (7,0,0) :
+=========     Read Thread (0,127,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1ac0
+=========     Write Thread (0,96,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 254, Incoming Value : 136
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x23 in block (7,0,0) :
+=========     Read Thread (0,127,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1ac0
+=========     Write Thread (0,96,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 110, Incoming Value : 44
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1b in block (5,0,0) :
+=========     Read Thread (0,31,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1a40
+=========     Write Thread (0,64,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 62, Incoming Value : 203
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1c in block (5,0,0) :
+=========     Read Thread (0,31,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1a40
+=========     Write Thread (0,64,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 6, Incoming Value : 124
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x18 in block (6,0,0) :
+=========     Read Thread (0,127,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1a40
+=========     Write Thread (0,64,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 0, Incoming Value : 133
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x19 in block (6,0,0) :
+=========     Read Thread (0,127,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1a40
+=========     Write Thread (0,64,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 56, Incoming Value : 103
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1a in block (6,0,0) :
+=========     Read Thread (0,127,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1a40
+=========     Write Thread (0,64,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 248, Incoming Value : 242
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1b in block (6,0,0) :
+=========     Read Thread (0,127,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1a40
+=========     Write Thread (0,64,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 62, Incoming Value : 203
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x24 in block (7,0,0) :
+=========     Read Thread (0,127,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1ac0
+=========     Write Thread (0,96,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 18, Incoming Value : 54
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x25 in block (7,0,0) :
+=========     Read Thread (0,127,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1ac0
+=========     Write Thread (0,96,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 104, Incoming Value : 203
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1d in block (5,0,0) :
+=========     Read Thread (0,31,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1a40
+=========     Write Thread (0,64,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 74, Incoming Value : 35
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x23 in block (0,0,0) :
+=========     Read Thread (0,95,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1ac0
+=========     Write Thread (0,96,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 110, Incoming Value : 44
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x24 in block (0,0,0) :
+=========     Read Thread (0,95,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1ac0
+=========     Write Thread (0,96,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 18, Incoming Value : 54
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x25 in block (0,0,0) :
+=========     Read Thread (0,95,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1ac0
+=========     Write Thread (0,96,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 104, Incoming Value : 203
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1c in block (6,0,0) :
+=========     Read Thread (0,127,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1a40
+=========     Write Thread (0,64,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 6, Incoming Value : 124
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1d in block (6,0,0) :
+=========     Read Thread (0,127,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1a40
+=========     Write Thread (0,64,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 74, Incoming Value : 35
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Warning: (Warp Level Programming) Potential WAR hazard detected at __shared__ 0x26 in block (7,0,0) :
+=========     Read Thread (0,127,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1ac0
+=========     Write Thread (0,96,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 60, Incoming Value : 41
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1e in block (5,0,0) :
+=========     Read Thread (0,31,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1a40
+=========     Write Thread (0,64,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 38, Incoming Value : 61
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x20 in block (2,0,0) :
+=========     Read Thread (0,95,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1ac0
+=========     Write Thread (0,96,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 78, Incoming Value : 76
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x21 in block (2,0,0) :
+=========     Read Thread (0,95,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1ac0
+=========     Write Thread (0,96,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 70, Incoming Value : 170
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x26 in block (0,0,0) :
+=========     Read Thread (0,95,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1ac0
+=========     Write Thread (0,96,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 60, Incoming Value : 41
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x27 in block (0,0,0) :
+=========     Read Thread (0,95,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1ac0
+=========     Write Thread (0,96,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 192, Incoming Value : 64
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1e in block (6,0,0) :
+=========     Read Thread (0,127,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1a40
+=========     Write Thread (0,64,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 38, Incoming Value : 61
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::TestRepeatedTeamReduce() [0xff07] in driver
+=========         Host Frame: main [0x98ab] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x1f in block (6,0,0) :
+=========     Read Thread (0,127,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x1a40
+=========     Write Thread (0,64,0) at void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelFor<Test::<unnamed>::TestRepeatedTeamReduce<Kokkos::Cuda>, Kokkos::TeamPolicy<Kokkos::Cuda>, Kokkos::Cuda>>(T1)+0x2260
+=========     Current Value : 192, Incoming Value : 64
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0xbfb67] in driver
+=========         Host Frame: Test::(anonymous namespace)::TestRepeatedTeamReduce<Kokkos::Cuda>::test() [0xf404] in driver
+# TRUNCATED: full output (20015 lines, 2153961 bytes, sha256 629d408f87f989d4e2c52e2150267f3050259e2dc3d0f73f9dad90eaab44d1fe) kept at /mnt/beegfs/fzheng4/realworld/racecheck_full/kokkos-6-buggy.txt
+Failing at 6!
+Failing at 7!
+kokkos-6 driver: Failing in iteration 0, bad=7
+kokkos-6 driver: done, columns inconsistent: 7 (nonzero is the symptom of the race, not a harness failure)
+========= RACECHECK SUMMARY: 2000 hazards displayed (6690 errors, 7767 warnings)
+# exit 0

@@ -1,0 +1,76 @@
+{
+  "id": "hecbench-hungarian-1",
+  "tier": "core",
+  "wave": 1,
+  "route": "R1",
+  "kernel": "min_in_rows_warp_reduce (inlined into calc_min_in_rows); same pattern in min_in_cols_warp_reduce (calc_min_in_cols) and min_warp_reduce<blockSize> (min_reduce_kernel1, min_reduce_kernel2)",
+  "space": "shared",
+  "build_revision": {
+    "buggy": "5be7a451e091caac6eb9ca0271c529d64d757fce",
+    "fixed": "44ed88e1ae1bb57411c4e83dc281d90fe7a0f553"
+  },
+  "sites": [
+    {
+      "role": "write",
+      "file": "src/hungarian-cuda/main.cu",
+      "line_start": 144,
+      "line_end": 144,
+      "source": "if (n_threads_reduction >= 64 && n_rows_per_block < 64) sdata[tid] = min(sdata[tid], sdata[tid + 32]);   // sdata is volatile data*; the store sdata[tid] = ...",
+      "operation": "st.volatile.shared.s32 (lowered to a plain STS)",
+      "strength": "volatile(strong)"
+    },
+    {
+      "role": "read",
+      "file": "src/hungarian-cuda/main.cu",
+      "line_start": 145,
+      "line_end": 145,
+      "source": "if (n_threads_reduction >= 32 && n_rows_per_block < 32) sdata[tid] = min(sdata[tid], sdata[tid + 16]);   // the load sdata[tid + 16]",
+      "operation": "ld.volatile.shared.s32 (lowered to a plain LDS)",
+      "strength": "volatile(strong)"
+    }
+  ],
+  "thread_relation": "intra-warp",
+  "thread_pair_example": "driver -D_n_=64 -D_range_=64 (n=64): calc_min_in_rows<<<64,64>>>, block 0, only tid < 32 run min_in_rows_warp_reduce (warp 0), six steps (+32,+16,+8,+4,+2,+1) with no __syncwarp: lane 16 writes sdata[16] at L144 (step +32) while lane 0 reads sdata[16] as sdata[0 + 16] at L145 (step +16). The following steps give the same shape for L145->L146, L146->L147, L147->L148, L148->L149 (rows), L185-L190 (cols, calc_min_in_cols) and L456-L461 (min_warp_reduce<64> in min_reduce_kernel1, min_warp_reduce<32> in min_reduce_kernel2: L457-L461).",
+  "expected_class": "SC",
+  "class_reason": "every access to sdata goes through a volatile data* pointer (ld.volatile.shared / st.volatile.shared in PTX): strong, relaxed-like accesses; two conflicting strong accesses that are not ordered by a barrier or by a happens-before edge are an unordered strong conflict (SC), not a data race of plain accesses (DR) (D20).",
+  "buggy_expected": "write L144 -> read L145, L145 -> L146, L146 -> L147 (and 147->148, 148->149) in calc_min_in_rows, the same in calc_min_in_cols (L185-L190) and min_warp_reduce (L456-L461) are reported as SC (intra-warp RAW, volatile shared). Class SC only if the detector takes the strength from PTX volatile; see sass_notes.",
+  "fixed": {
+    "expected": "residual",
+    "residual_sites": [
+      {
+        "role": "read",
+        "file": "src/hungarian-cuda/main.cu",
+        "line_start": 146,
+        "line_end": 146,
+        "source": "if (n_threads_reduction >= 32 && n_rows_per_block < 32) sdata[tid] = min(sdata[tid], sdata[tid + 16]);   // fixed file; the load sdata[tid + 16]",
+        "operation": "ld.shared.s32",
+        "strength": "plain"
+      },
+      {
+        "role": "write",
+        "file": "src/hungarian-cuda/main.cu",
+        "line_start": 146,
+        "line_end": 146,
+        "source": "same statement; the store sdata[tid] = ... of lane tid + 16",
+        "operation": "st.shared.s32",
+        "strength": "plain"
+      }
+    ],
+    "reason": "the fix removes volatile and puts 5 __syncwarp() between the six steps of each of the three functions (15 in total, L145,147,149,151,153 for rows), so the SC pairs between steps are gone (accesses are plain, ordered by __syncwarp). The intra-step pair remains: in each step with offset k <= 16 all lanes execute sdata[tid] = min(sdata[tid], sdata[tid + k]), so lane t reads sdata[t + k] while lane t + k writes it in the same step with no barrier between the read phase and the write phase (fixed L146, L148, L150, L152, L154 and the same lines of the other two functions); a strict PTX happens-before detector may therefore report a plain DR here. Hardware racecheck is reported quiet (verify.expected_report_fixed), so this is an open risk for the fixed ground truth."
+  },
+  "sass_notes": "sm_89 SASS of the shipped build (sassline.sh): in calc_min_in_rows (buggy) each step is LDS Ra,[R7.X4+off]; LDS Rb,[R7.X4]; IMNMX; STS [R7.X4],Rr (L144: LDS 0x0190/0x01a0, STS 0x01c0; L145: LDS 0x01d0/0x01e0, STS 0x0200; L146 0x0210-0x0240; L147 0x0250-0x0280; L148 0x0290-0x02c0; L149 0x02d0-0x0300): ALL PLAIN LDS/STS, NO .STRONG token on any shared access (the volatile qualifier survives only as the repeated reload of sdata[tid] each step), no WARPSYNC and no BAR between the steps. Same in calc_min_in_cols (L185-L190, 0x01a0-0x0310), min_reduce_kernel1 (L456-L461, 0x0370-0x04e0) and min_reduce_kernel2 (L457-L461, 0x0120-0x0250). So a SASS-level detector sees plain LDS/STS and cannot tell this SC target from a DR one; the SC class must come from PTX ld.volatile/st.volatile or be expected as DR at SASS level. (For contrast the volatile GLOBAL loads in min_reduce_kernel2 do carry a token: LDG.E.STRONG.SYS at main.cu:504 in the buggy build, STG.E.STRONG.SYS at :511.) Fixed build: each __syncwarp() is lowered to BRA.CONV ~URZ,<next> + MOV R2,<next> + CALL.REL.NOINC to one shared stub holding WARPSYNC R4 (attributed to main.cu:184 rows, :234 cols, :549/:553 min_reduce), not an inline WARPSYNC; accesses are plain LDS/STS.",
+  "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against src/hungarian-cuda/main.cu@5be7a45 (buggy) and @44ed88e (fixed) and the sm_89 SASS of the build on 2026-10-20",
+  "open_questions": [
+    "Strength of the buggy accesses at SASS level: plain LDS/STS (no .STRONG) although the source is volatile; expected class SC presumes the detector reads the volatile from PTX.",
+    "Residual intra-step plain pair in the fixed build (see fixed.reason): whether the ground truth for 'fixed' is absent (hardware racecheck quiet) or DR (PTX happens-before) is a labelling decision.",
+    "The driver (n=64, n_tests=100) executes 4.4e7 thread-level memory instructions in total (ncu, sm_75 build; about 2.9e7 of them shared LDS/STS upper bound): above the 1e7 aim, below the 1e8 hard limit; n_tests=100 is fixed by the _n_ branch."
+  ],
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "confirmed",
+    "changes": [],
+    "notes": "Checked at 5be7a45: with -D_n_=64, n_threads_reduction = n_blocks_reduction = kmin(64,256) = 64 (main.cu:43-44), so n_rows_per_block = n_cols_per_block = 1 (:141, :182) and all six steps of min_in_rows_warp_reduce (:143-150) and min_in_cols_warp_reduce (:184-191) run; min_warp_reduce<blockSize> (:455-462) is called from min_reduce1 (:494) and min_reduce2 (:510). The shared arrays are plain (:154, :195, extern sdata :118) but every access inside the three warp reductions goes through a volatile data* parameter, so all racing accesses are ld/st.volatile.shared, and there is no __syncwarp between steps: the store of step +32 (:144) and the load sdata[tid+16] of step +16 (:145) by lanes 16 and 0 of warp 0 conflict, and the same shape repeats for every later step and inside each step. Both accesses strong -> SC under the PTX model, the case D20 names for this target. Fixed 44ed88e: volatile removed and five __syncwarp() between the six steps of each function (fix diff); the intra-step pair (lane t loads sdata[t+k] while lane t+k stores sdata[t+k], k <= 16; fixed :146, :148, :150, :152, :154 and the same lines of the other two functions) has no ordering, so the residual plain DR stands by source (benign for min, still a formal DR). Strength at SASS level: the builder reports plain LDS/STS for the volatile shared accesses (sass_notes, open_questions); if the detector takes strength from SASS, the buggy pairs come out as DR, which D20 must settle. sass_notes are the builder's: the reviewer read sources and diffs only and did not re-dump SASS (the one srun queued with an estimated start the next day and was withdrawn).",
+    "depends_on_D20": true
+  }
+}

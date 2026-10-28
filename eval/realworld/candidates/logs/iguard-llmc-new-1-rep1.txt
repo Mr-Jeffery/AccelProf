@@ -1,0 +1,226 @@
+------------- NVBit (NVidia Binary Instrumentation Tool v1.8) Loaded --------------
+NVBit core environment variables (mostly for nvbit-devs):
+ACK_CTX_INIT_LIMITATION = 0 - if set, no warning will be printed for nvbit_at_ctx_init()
+            NVDISASM = nvdisasm - override default nvdisasm found in PATH
+            NOBANNER = 0 - if set, does not print this banner
+       NO_EAGER_LOAD = 1 - lazy module loading is now turned on by default. If you see deadlocks in your tool, set NO_EAGER_LOAD to 0
+---------------------------------------------------------------------------------
+         INSTR_BEGIN = 0 - Beginning of the instruction interval where to apply instrumentation
+           INSTR_END = 4294967295 - End of the instruction interval where to apply instrumentation
+        TOOL_VERBOSE = 0 - Enable verbosity inside the tool (def = 0)
+            TOOL_OFF = 0 - Do not instrument/detect (def = 0)
+           BYTE_GRAN = 4 - Granularity of detection in bytes (def = 4)
+         CHECK_LOCKS = 1 - Whether to do lockset detection (def = 1)
+           CHECK_ITS = 1 - Whether to consider ITS when checking (def = 1)
+            CONT_OPT = 1 - Whether to perform backoff and coalescing optimizations for contention (def = 1)
+                EXIT = 0 - Quit on encountering error (def = 0)
+            MD_SCALE = 1 - Factor by which to scale down metadata (def = 1)
+             TIMEOUT = 0 - Time in seconds after which to quit detection (0 = never; def = 0)
+             MANAGED = 1 - Force detector to use cudaMallocManaged for metadata (def = 1)
+               DEBUG = 0 - Output debug info (def = 0)
+WARNING: Do not call CUDA memory allocation in nvbit_at_ctx_init(). It will cause deadlocks. Do them in nvbit_tool_init(). If you encounter deadlocks, remove CUDA API calls to debug.
+----------------------------------------------------------------------------------------------------
+Freed 0, total mem 100
+Allocated 1024 bytes of memory at 7f3e3de00000, total mem 1124
+Allocated 131072 bytes of memory at 7f3e3de00400, total mem 132196
+Allocated 8388608 bytes of memory at 7f3e4b200000, total mem 8520804
+Allocated 33554432 bytes of memory at 7f3e46000000, total mem 42075236
+Using kernel 10
+Allocated 204800 bytes of memory at 7f3e3de20400, total mem 42280036
+Allocated 3200 bytes of memory at 7f3e3de52400, total mem 42283236
+Allocated 3200 bytes of memory at 7f3e3de53200, total mem 42286436
+Allocated 204800 bytes of memory at 7f3e3de54000, total mem 42491236
+Allocated 204800 bytes of memory at 7f3e3de86000, total mem 42696036
+Allocated 3200 bytes of memory at 7f3e3deb8000, total mem 42699236
+Allocated 128 bytes of memory at 7f3e3deb8e00, total mem 42699364
+Allocated 128 bytes of memory at 7f3e3deb9000, total mem 42699492
+Allocated 13930752 bytes of memory at 7f3e48000000, total mem 56630244
+Kernel layernorm_backward_kernel10(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, float*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, int, int, int) - grid size 1088,1,1 - block size 32,1,1 - nregs 307 - shmem 14336 - cuda stream id 0
+
+Race: Missing gpufence
+LDG.E.128 R12, [R12.64+0x80] ; - Kernel layernorm_backward_kernel10(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, float*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, int, int, int): Sass offset 20064 - (TID 34400, 7f3e48000080)
+Write: M(1), BShr(0), GShr(0), Atom(0), Scope(0), Str(1), TID(0), GF(0), BF(0), Bar(30), WBar(0), Locks(0)
+Read: Tag(130), Str(0), TID(0), GF(0), BF(0), Bar(30), WBar(0), Locks(0)
+OGF(0), OBF(0), OBar(4), Heldlock(0)
+
+Race: Missing gpufence
+LDG.E.128 R28, [R28.64+0x80] ; - Kernel layernorm_backward_kernel10(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, float*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, int, int, int): Sass offset 20144 - (TID 34400, 7f3e48001980)
+Write: M(1), BShr(0), GShr(0), Atom(0), Scope(0), Str(1), TID(0), GF(0), BF(0), Bar(30), WBar(0), Locks(0)
+Read: Tag(130), Str(0), TID(0), GF(0), BF(0), Bar(30), WBar(0), Locks(0)
+OGF(0), OBF(0), OBar(4), Heldlock(0)
+
+Race: Missing gpufence
+LDG.E.128 R16, [R16.64+0x80] ; - Kernel layernorm_backward_kernel10(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, float*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, int, int, int): Sass offset 20176 - (TID 34400, 7f3e48003280)
+Write: M(1), BShr(0), GShr(0), Atom(0), Scope(0), Str(1), TID(32), GF(0), BF(0), Bar(30), WBar(0), Locks(0)
+Read: Tag(130), Str(0), TID(32), GF(0), BF(0), Bar(30), WBar(0), Locks(0)
+OGF(0), OBF(0), OBar(4), Heldlock(0)
+
+Race: Missing gpufence
+LDG.E.128 R20, [R20.64+-0x80] ; - Kernel layernorm_backward_kernel10(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, float*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, int, int, int): Sass offset 20224 - (TID 34400, 7f3e48006480)
+Write: M(1), BShr(0), GShr(0), Atom(0), Scope(0), Str(1), TID(64), GF(0), BF(0), Bar(30), WBar(0), Locks(0)
+Read: Tag(130), Str(0), TID(64), GF(0), BF(0), Bar(30), WBar(0), Locks(0)
+OGF(0), OBF(0), OBar(4), Heldlock(0)
+
+Race: Missing gpufence
+LDG.E.128 R32, [R32.64+0x80] ; - Kernel layernorm_backward_kernel10(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, float*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, int, int, int): Sass offset 20256 - (TID 34400, 7f3e48004b80)
+Write: M(1), BShr(0), GShr(0), Atom(0), Scope(0), Str(1), TID(32), GF(0), BF(0), Bar(30), WBar(0), Locks(0)
+Read: Tag(130), Str(0), TID(32), GF(0), BF(0), Bar(30), WBar(0), Locks(0)
+OGF(0), OBF(0), OBar(4), Heldlock(0)
+
+Race: Missing gpufence
+LDG.E.128 R24, [R24.64] ; - Kernel layernorm_backward_kernel10(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, float*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, int, int, int): Sass offset 20288 - (TID 34400, 7f3e48009680)
+Write: M(1), BShr(0), GShr(0), Atom(0), Scope(0), Str(1), TID(96), GF(0), BF(0), Bar(30), WBar(0), Locks(0)
+Read: Tag(130), Str(0), TID(96), GF(0), BF(0), Bar(30), WBar(0), Locks(0)
+OGF(0), OBF(0), OBar(4), Heldlock(0)
+
+Race: Missing gpufence
+LDG.E.128 R36, [R36.64+-0x80] ; - Kernel layernorm_backward_kernel10(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, float*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, int, int, int): Sass offset 20304 - (TID 34400, 7f3e48007d80)
+Write: M(1), BShr(0), GShr(0), Atom(0), Scope(0), Str(1), TID(64), GF(0), BF(0), Bar(30), WBar(0), Locks(0)
+Read: Tag(130), Str(0), TID(64), GF(0), BF(0), Bar(30), WBar(0), Locks(0)
+OGF(0), OBF(0), OBar(4), Heldlock(0)
+
+Race: Missing gpufence
+LDG.E.128 R40, [R40.64] ; - Kernel layernorm_backward_kernel10(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, float*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, int, int, int): Sass offset 20320 - (TID 34400, 7f3e4800af80)
+Write: M(1), BShr(0), GShr(0), Atom(0), Scope(0), Str(1), TID(96), GF(0), BF(0), Bar(30), WBar(0), Locks(0)
+Read: Tag(130), Str(0), TID(96), GF(0), BF(0), Bar(30), WBar(0), Locks(0)
+OGF(0), OBF(0), OBar(4), Heldlock(0)
+Checking correctness...
+dinp:
+0.888272 0.886719
+-0.333064 -0.332031
+0.138524 0.138672
+-1.365245 -1.359375
+0.180800 0.180664
+dweight:
+3.838727 3.843750
+1.543643 1.578125
+-0.155832 -0.152344
+-1.275617 -1.273438
+-2.416265 -2.406250
+dbias:
+-0.886796 -0.890625
+0.736015 0.734375
+4.403635 4.406250
+1.148206 1.148438
+-4.579502 -4.593750
+All results match for block_size=32.
+
+Kernel layernorm_backward_kernel10(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, float*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, int, int, int) - grid size 544,1,1 - block size 64,1,1 - nregs 307 - shmem 15360 - cuda stream id 0
+Checking correctness...
+dinp:
+0.888272 0.886719
+-0.333064 -0.332031
+0.138524 0.138672
+-1.365245 -1.359375
+0.180800 0.180664
+dweight:
+3.838727 3.843750
+1.543643 1.578125
+-0.155832 -0.152344
+-1.275617 -1.273438
+-2.416265 -2.406250
+dbias:
+-0.886796 -0.890625
+0.736015 0.734375
+4.403635 4.406250
+1.148206 1.148438
+-4.579502 -4.593750
+All results match for block_size=64.
+
+Kernel layernorm_backward_kernel10(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, float*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, int, int, int) - grid size 272,1,1 - block size 128,1,1 - nregs 307 - shmem 17408 - cuda stream id 0
+Checking correctness...
+dinp:
+0.888272 0.886719
+-0.333064 -0.332031
+0.138524 0.138672
+-1.365245 -1.359375
+0.180800 0.180664
+dweight:
+3.838727 3.843750
+1.543643 1.578125
+-0.155832 -0.152344
+-1.275617 -1.273438
+-2.416265 -2.406250
+dbias:
+-0.886796 -0.890625
+0.736015 0.734375
+4.403635 4.406250
+1.148206 1.148438
+-4.579502 -4.593750
+All results match for block_size=128.
+
+Kernel layernorm_backward_kernel10(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, float*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, int, int, int) - grid size 136,1,1 - block size 256,1,1 - nregs 307 - shmem 21504 - cuda stream id 0
+Checking correctness...
+dinp:
+0.888272 0.886719
+-0.333064 -0.332031
+0.138524 0.138672
+-1.365245 -1.359375
+0.180800 0.180664
+dweight:
+3.838727 3.843750
+1.543643 1.578125
+-0.155832 -0.152344
+-1.275617 -1.273438
+-2.416265 -2.406250
+dbias:
+-0.886796 -0.890625
+0.736015 0.734375
+4.403635 4.406250
+1.148206 1.148438
+-4.579502 -4.593750
+All results match for block_size=256.
+
+Kernel layernorm_backward_kernel10(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, float*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, int, int, int) - grid size 68,1,1 - block size 512,1,1 - nregs 307 - shmem 29696 - cuda stream id 0
+Checking correctness...
+dinp:
+0.888272 0.886719
+-0.333064 -0.332031
+0.138524 0.138672
+-1.365245 -1.359375
+0.180800 0.180664
+dweight:
+3.838727 3.843750
+1.543643 1.578125
+-0.155832 -0.152344
+-1.275617 -1.273438
+-2.416265 -2.406250
+dbias:
+-0.886796 -0.890625
+0.736015 0.734375
+4.403635 4.406250
+1.148206 1.148438
+-4.579502 -4.593750
+All results match for block_size=512.
+
+Kernel layernorm_backward_kernel10(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, float*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16 const*, int, int, int) - grid size 68,1,1 - block size 512,1,1 - nregs 307 - shmem 29696 - cuda stream id 0
+Checking correctness...
+dinp:
+0.888272 0.886719
+-0.333064 -0.332031
+0.138524 0.138672
+-1.365245 -1.359375
+0.180800 0.180664
+dweight:
+3.838727 3.843750
+1.543643 1.578125
+-0.155832 -0.152344
+-1.275617 -1.273438
+-2.416265 -2.406250
+dbias:
+-0.886796 -0.890625
+0.736015 0.734375
+4.403635 4.406250
+1.148206 1.148438
+-4.579502 -4.593750
+All results match for block_size=1024.
+
+Freed 7f3e3de20400, total mem 56425444
+Freed 7f3e3de52400, total mem 56422244
+Freed 7f3e3de53200, total mem 56419044
+Freed 7f3e3de54000, total mem 56214244
+Freed 7f3e3de86000, total mem 56009444
+Freed 7f3e3deb8000, total mem 56006244
+Freed 7f3e3deb8e00, total mem 56006116
+Freed 7f3e3deb9000, total mem 56005988
+Freed 7f3e48000000, total mem 42075236

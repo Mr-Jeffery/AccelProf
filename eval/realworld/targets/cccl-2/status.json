@@ -1,0 +1,6 @@
+{"route": "R1h", "route_note": "header-only CUB at the two commits, our driver compiled against them (-I before the toolkit's CCCL); include proof PASS in h_proof.txt.",
+ "status": "built", "toolkit": "13.4 (c38; code is sm_89 SASS)",
+ "driver": "DeviceRunLengthEncode::NonTrivialRuns on int keys key=i/2, n=1440 = exactly one tile (96 threads x 15 items), 720 runs of length 2",
+ "input": "n=1440 ints; about 1e4 thread-level accesses (1,440 loads, 1,440 exchange stores/loads, scan storage)",
+ "notes": "Smoke on c38 sm_75: rc 0, 720 runs, 0 mismatches. Warp 0's 480 items start 240 non-trivial runs (>= 97 needed). The time-sliced scatter path is the one compiled for sm_89 (Policy860).",
+ "commands": ["harness/rw.sh cccl-2 export (login)", "harness/rw.sh cccl-2 stage; harness/rw.sh cccl-2 build (compute)", "harness/rw.sh cccl-2 native|reach|racecheck (sm_89)", "run: /mnt/beegfs/fzheng4/realworld/build/cccl-2/{buggy,fixed}/driver 1440"]}

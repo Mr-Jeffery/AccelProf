@@ -1,0 +1,55 @@
+{
+  "id": "pytorch-1",
+  "tier": "core",
+  "wave": 1,
+  "route": "R2",
+  "kernel": "embedding_backward_feature_kernel",
+  "space": "shared",
+  "build_revision": {
+    "buggy": "5b6caa6ba49f971ad3e0bf4edcc9b968999c2541",
+    "fixed": "e511672fed44af222df64e7db227a2c20e036dc9"
+  },
+  "sites": [
+    {
+      "role": "write",
+      "file": "aten/src/ATen/native/cuda/Embedding.cu",
+      "line_start": 66,
+      "line_end": 66,
+      "source": "indices_batch[tid] = (int)indices[batch_start + tid];",
+      "operation": "STS [R4.X4+UR4], R13 (st.shared.u32; predicated @!P0 on batch_start + tid < n; SASS 0x0190, preceded by LDG.E at 0x0150 of the same line)",
+      "strength": "plain"
+    },
+    {
+      "role": "read",
+      "file": "aten/src/ATen/native/cuda/Embedding.cu",
+      "line_start": 99,
+      "line_end": 99,
+      "source": "match_found_this_thread = (dst_row == indices_batch[chunk_start - batch_start + threadIdx.x]);",
+      "operation": "LDS R15, [R14.X4+UR4] (ld.shared.u32; predicated @!P0 on threadIdx.x < n_this_chunk; SASS 0x03c0)",
+      "strength": "plain"
+    }
+  ],
+  "thread_relation": "cross-warp-same-block",
+  "thread_pair_example": "block 0, driver input N=2048 (batches 0 = indices 0..1023 and 1 = 1024..2047, block (32,32)): in the LAST chunk of batch 0 (chunk_start = 992, after the second __syncthreads of that chunk at L88) any warp y in 0..30 lane x loads indices_batch[992+x] at L99; warp y=31 (tid = x + 32*31 = 992+x) that has finished its own chunk work proceeds to batch 1 and stores indices_batch[992+x] at L66 (batch_start = 1024) with no barrier in between. E.g. thread (x=0,y=0) (warp 0) reads indices_batch[992] while thread (x=0,y=31) (warp 31, tid 992) writes it. All 32 lanes x=0..31 of warp 31 conflict with the same lane x of every other warp that reads in chunk 992.",
+  "expected_class": "DR",
+  "class_reason": "Both accesses are ordinary (non-volatile, non-atomic) accesses to the int shared array indices_batch (plain STS / LDS, no .STRONG or atomic token in the SASS) from different warps with no happens-before edge: the barrier at L88 orders the chunk's earlier reads (L82, L86) before any next-batch store, but the match-mask load at L99 comes AFTER that barrier and the next barrier is only reached in batch 1's first chunk (L76), after the L66 store. A plain-vs-plain unordered pair is a data race (DR) under D20; no strong access is involved, so no SC.",
+  "buggy_expected": "the pair (L66 store, batch k+1) x (L99 load, last chunk of batch k) on shared indices_batch is reported as DR (WAR: the load is the earlier access in the intended order, the store from a fast warp overwrites it)",
+  "fixed": {
+    "expected": "absent",
+    "residual_sites": null,
+    "reason": "the fix adds one __syncthreads() at the top of the batch loop (fixed L66, before the store which moves to fixed L71; the L99 load moves to fixed L104): every warp must arrive there after finishing the previous batch's last chunk (including the L104 load), so all loads of batch k are ordered before any store of batch k+1. verify.expected_report_fixed: nothing for that pair. No other shared pair of the kernel races: the other indices_batch reads (L82) and the my_s/smem accesses are separated by the barriers at L76/L88 of each chunk."
+  },
+  "sass_notes": "cuobjdump/nvdisasm -g (via /home/fzheng4/sassline.sh) of the sm_89 kernel embedding_backward_feature_kernel<float,float,long> in the buggy driver: Embedding.cu:66 LDG.E R13,[R12.64] (0x0150) then @!P0 STS [R4.X4+UR4],R13 (0x0190); Embedding.cu:76 WARPSYNC + BAR.SYNC.DEFER_BLOCKING 0x0 (0x01e0/0x01f0); :82 LDS R12,[R12.X4+UR4] (dst_row); :86 LDG.E.CONSTANT + STS [R0.X4] (my_s); :88 BAR.SYNC (0x0320); :99 @!P0 LDS R15,[R14.X4+UR4] (0x03c0); :118 LDS/LDS/STS (leader accumulate); :122 LDS, LDG.E, STG.E (grad_weight). No .STRONG token on either racing site (plain STS/LDS). Fixed driver: Embedding.cu:66 WARPSYNC + BAR.SYNC (new barrier, 0x0120/0x0130), :71 LDG.E + @!P0 STS (0x0170/0x01b0), :104 @!P0 LDS (0x03e0). Kernel template instantiation used by the driver: scalar float, accscalar float, index int64 (the other dtype/index instantiations are also in the fatbin, from the host dispatcher in the same file, but are never launched). Lineinfo: line attribution above comes from the -lineinfo build (R2 lineinfo check cited from targets/lit-arrayfire-1/lineinfo.check: RESULT SAME, -lineinfo does not change the SASS).",
+  "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against aten/src/ATen/native/cuda/Embedding.cu@5b6caa6 (buggy) and @e511672 (fixed) on 2026-10-20",
+  "open_questions": [
+    "The race needs a warp of batch k to still be before L99 while warp 31 passes the batch-1 store; whether it manifests at run time is timing dependent (the smoke run on sm_75 shows 0 mismatches). Detection is by happens-before, so a detector must report it regardless."
+  ],
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "confirmed",
+    "changes": [],
+    "notes": "R2 harness: every copied kernel file under r2/buggy and r2/fixed is byte-identical (cmp) to git show <buggy_commit>:<path> / <fix_commit>:<path>; git diff buggy..fix of those files is exactly the fix hunk described in fixed.reason. Pair confirmed at 5b6caa6: indices_batch is a plain int region of the dynamic shared buffer (Embedding.cu:55); in the last chunk of batch 0 (chunk_start = 992) every warp y loads indices_batch[992 + x] at L99 after the barrier L88; warp 31 (tid = 992 + x) proceeds to batch 1 and stores indices_batch[tid] at L66 before the next barrier (L76 of batch 1's first chunk). 32-bit plain/plain, warp y (0..30) vs warp 31 -> DR (WAR). Needs n > 2016 + x so that batch 1 stores those slots: driver N = 2048, D = 32 -> one block (32,32), padding_idx = -1 (driver.cu). Fixed (e511672): the only change is __syncthreads() at the top of the batch loop (L66), unconditional, so every L104 load of batch k precedes every L71 store of batch k+1. 'absent' confirmed; no other shared pair (L82/L86/L118 are separated by L76/L88 of each chunk). Not independently verified: the SASS opcodes, register operands and offsets quoted in sites/sass_notes (the one permitted srun on -p normal could not start: partition fully allocated, estimated start 2026-10-21 14:37, so the job was cancelled); access widths were checked from the source types instead. Native-run and smoke-run statements in open_questions are builder results and were not reviewed.",
+    "depends_on_D20": false
+  }
+}

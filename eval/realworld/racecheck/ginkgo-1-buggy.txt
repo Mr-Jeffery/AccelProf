@@ -1,0 +1,407 @@
+# compute-sanitizer Version 2026.3.0.0 (build 38855100) (public-release) host c3 cuda /usr/local/cuda-13.4 2026-10-20
+# cmd: /mnt/beegfs/fzheng4/realworld/build/ginkgo-1/buggy/driver
+========= COMPUTE-SANITIZER
+========= Error: Potential WAR hazard detected at __shared__ 0x100 in block (0,0,0) :
+=========     Read Thread (0,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (32,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x101 in block (0,0,0) :
+=========     Read Thread (0,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (32,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x102 in block (0,0,0) :
+=========     Read Thread (0,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (32,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x103 in block (0,0,0) :
+=========     Read Thread (0,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (32,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x104 in block (0,0,0) :
+=========     Read Thread (0,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (32,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x105 in block (0,0,0) :
+=========     Read Thread (0,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (32,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 128
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x106 in block (0,0,0) :
+=========     Read Thread (0,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (32,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 240, Incoming Value : 64
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x107 in block (0,0,0) :
+=========     Read Thread (0,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (32,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 63, Incoming Value : 64
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x108 in block (0,0,0) :
+=========     Read Thread (1,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (33,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x109 in block (0,0,0) :
+=========     Read Thread (1,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (33,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x10a in block (0,0,0) :
+=========     Read Thread (1,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (33,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x10b in block (0,0,0) :
+=========     Read Thread (1,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (33,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x10c in block (0,0,0) :
+=========     Read Thread (1,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (33,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x10d in block (0,0,0) :
+=========     Read Thread (1,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (33,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x10e in block (0,0,0) :
+=========     Read Thread (1,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (33,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 65
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x10f in block (0,0,0) :
+=========     Read Thread (1,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (33,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 64, Incoming Value : 64
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x110 in block (0,0,0) :
+=========     Read Thread (2,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (34,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x111 in block (0,0,0) :
+=========     Read Thread (2,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (34,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x112 in block (0,0,0) :
+=========     Read Thread (2,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (34,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x113 in block (0,0,0) :
+=========     Read Thread (2,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (34,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x114 in block (0,0,0) :
+=========     Read Thread (2,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (34,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x115 in block (0,0,0) :
+=========     Read Thread (2,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (34,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 128
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x116 in block (0,0,0) :
+=========     Read Thread (2,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (34,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 8, Incoming Value : 65
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x117 in block (0,0,0) :
+=========     Read Thread (2,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (34,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 64, Incoming Value : 64
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x118 in block (0,0,0) :
+=========     Read Thread (3,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (35,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x119 in block (0,0,0) :
+=========     Read Thread (3,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (35,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x11a in block (0,0,0) :
+=========     Read Thread (3,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (35,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x11b in block (0,0,0) :
+=========     Read Thread (3,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (35,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x11c in block (0,0,0) :
+=========     Read Thread (3,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (35,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x11d in block (0,0,0) :
+=========     Read Thread (3,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (35,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x11e in block (0,0,0) :
+=========     Read Thread (3,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (35,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 16, Incoming Value : 66
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x11f in block (0,0,0) :
+=========     Read Thread (3,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (35,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 64, Incoming Value : 64
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x120 in block (0,0,0) :
+=========     Read Thread (4,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (36,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x121 in block (0,0,0) :
+=========     Read Thread (4,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (36,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x122 in block (0,0,0) :
+=========     Read Thread (4,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (36,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x123 in block (0,0,0) :
+=========     Read Thread (4,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (36,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x124 in block (0,0,0) :
+=========     Read Thread (4,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (36,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x125 in block (0,0,0) :
+=========     Read Thread (4,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (36,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 128
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x126 in block (0,0,0) :
+=========     Read Thread (4,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (36,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 20, Incoming Value : 66
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x127 in block (0,0,0) :
+=========     Read Thread (4,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (36,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 64, Incoming Value : 64
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x128 in block (0,0,0) :
+=========     Read Thread (5,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (37,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x129 in block (0,0,0) :
+=========     Read Thread (5,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (37,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x12a in block (0,0,0) :
+=========     Read Thread (5,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (37,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x12b in block (0,0,0) :
+=========     Read Thread (5,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (37,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x12c in block (0,0,0) :
+=========     Read Thread (5,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (37,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x12d in block (0,0,0) :
+=========     Read Thread (5,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (37,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x12e in block (0,0,0) :
+=========     Read Thread (5,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (37,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 24, Incoming Value : 67
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x12f in block (0,0,0) :
+=========     Read Thread (5,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (37,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 64, Incoming Value : 64
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x130 in block (0,0,0) :
+=========     Read Thread (6,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (38,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x82d17] in driver
+=========         Host Frame: main [0x4066] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x131 in block (0,0,0) :
+=========     Read Thread (6,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x930 in kernel_launch_reduction.hpp:317
+=========     Write Thread (38,0,0) at void gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, <unnamed>::rw_fn, <unnamed>::rw_op, <unnamed>::rw_fin, >(long, long, T2, T3, T4, T1, T1 *, T5...)+0x8d0 in kernel_launch_reduction.hpp:309
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+# TRUNCATED: full output (16008 lines, 1673168 bytes, sha256 a0d92c3fb1fc5e1e42e7faae784b991e6b882684d1b7e25764ba1f7dc439c7cb) kept at /mnt/beegfs/fzheng4/realworld/racecheck_full/ginkgo-1-buggy.txt
+========= 
+ginkgo-1 driver: default_block_size=512 warp_size=32 rows=8 cols=64 grid=(1,1)
+ginkgo-1 driver: 32 of 64 columns differ from the reference MISMATCH
+========= Target application returned an error
+========= RACECHECK SUMMARY: 2000 hazards displayed (3841 errors, 0 warnings)
+# exit 1

@@ -1,0 +1,56 @@
+{
+  "id": "lit-fbgemm-1",
+  "tier": "core",
+  "wave": 1,
+  "route": "R2",
+  "kernel": "gemv_bf16",
+  "space": "shared",
+  "build_revision": {
+    "buggy": "8b87d01bfe07ff05fc31030e00de174a03f77990",
+    "fixed": "2c32f22baf47890a8ee5d25f1a09fec6fe534473"
+  },
+  "sites": [
+    {
+      "role": "write",
+      "file": "fbgemm_gpu/experimental/gen_ai/src/quantize/fast_gemv/include/fast_gemv.cu",
+      "line_start": 141,
+      "line_end": 141,
+      "source": "warpLevelSums[threadIdx.y][warpId] = sum[col];",
+      "operation": "@!P0 STS [R11], R? (st.shared.f32, lane 0 of each warp only, guarded by `if (laneId == 0)` at L140); the col loop is unrolled into three code copies, STS at 0x27b0 (first copy, col 0), 0x2b00 (second copy, col 1), 0x2f50 (third copy)",
+      "strength": "plain"
+    },
+    {
+      "role": "read",
+      "file": "fbgemm_gpu/experimental/gen_ai/src/quantize/fast_gemv/include/fast_gemv.cu",
+      "line_start": 145,
+      "line_end": 145,
+      "source": "? warpLevelSums[threadIdx.y][laneId]",
+      "operation": "@!P1 LDS R?, [R12] (ld.shared.f32, only threads with threadIdx.x < blockDim.x / WARP_SIZE, i.e. lanes 0..7 of warp 0 for blockDim.x = 256; the ternary of L144-L146); LDS at 0x27d0 (first copy, col 0), 0x2b80 (second copy, col 1), 0x2f80 (third copy)",
+      "strength": "plain"
+    }
+  ],
+  "thread_relation": "cross-warp-same-block",
+  "thread_pair_example": "driver input: gemv_bf16<<<(1,64), (256,1)>>> with m = 2, n = 64, k = 2048 (8 warps per block, same race in every block): thread 1 (warp 0, lane 1, threadIdx.x < 8) loads warpLevelSums[0][1] at L145 in iteration col = 0, after the barrier at L142; lane 0 of warp 1 (thread 32), having no work after the barrier but the (non-barrier) rest of iteration 0, can already be in iteration col = 1 and store warpLevelSums[0][1] at L141 while thread 1 is still before / at its load. The only barrier in an iteration is L142 (between the write and the read of the same iteration); nothing separates the read of iteration col from the write of iteration col + 1. Needs m >= 2 and blockDim.x > 32.",
+  "expected_class": "DR",
+  "class_reason": "Both accesses are plain (non-volatile, non-atomic) accesses to the static __shared__ float array warpLevelSums (plain STS / LDS, no .STRONG token) by threads of different warps with no happens-before edge between the read of iteration col (L145) and the write of iteration col + 1 (L141): plain-vs-plain unordered conflict, hence data race (DR) under D20; no strong access, so not SC.",
+  "buggy_expected": "DR, cross-warp shared WAR on warpLevelSums: L145 load (warp 0, iteration col) vs L141 store (lane 0 of warps 1..7, iteration col + 1); reported only for m >= 2 and blockDim.x > 32",
+  "fixed": {
+    "expected": "absent",
+    "residual_sites": null,
+    "reason": "the fix adds `if (col + 1 < m) { __syncthreads(); }` at the end of the col loop (fixed L153-L155; SASS: predicated BAR.SYNC attributed to L154), so every warp finishes reading warpLevelSums (L145) of iteration col before any lane 0 writes it again in iteration col + 1. m is uniform across the block (kernel argument) so the conditional barrier is reached by all threads; blockDim.x <= 32 returns before the loop. verify.expected_report_fixed: nothing for that pair. (The identical loop in gemv_quantized_bf16_fp8 is fixed the same way; that kernel is not launched by the driver.)"
+  },
+  "sass_notes": "cuobjdump/nvdisasm -g (via /home/fzheng4/sassline.sh) of sm_89 gemv_bf16 in the buggy driver: three unrolled copies of the col loop body; per copy `@!P0 STS [R11],Rx` (fast_gemv.cu:141) then `BAR.SYNC.DEFER_BLOCKING 0x0` (fast_gemv.cu:142) then `@!P1 LDS Ry,[R12]` (fast_gemv.cu:145): 0x27b0/0x27c0/0x27d0, 0x2b00/0x2b60/0x2b80, 0x2f50/0x2f60/0x2f80. No other shared-memory instruction and no barrier between a copy's LDS and the next copy's STS in the buggy build. Fixed driver: same STS/BAR/LDS triples (0x27c0/0x27d0/0x27e0, 0x2ba0/0x2bb0/0x2bc0, 0x2fc0/0x2fd0/0x2ff0) plus new predicated barriers `@!P6 BAR.SYNC.DEFER_BLOCKING 0x0` (0x2b80), `@!P0 BAR.SYNC...` (0x2ee0) and an unpredicated BAR.SYNC at 0x32b0 (the loop tail), all attributed to fast_gemv.cu:154. No .STRONG token on the STS/LDS (plain). The shuffles of warpReduceSum and the global LDG/STG of the kernel are not part of the pair. The fatbin also holds gemv_quantized_int4 and gemv_quantized_bf16_fp8 (non-template __global__ functions of the same file; the latter has the same racy loop but is never launched). Lineinfo: line attribution above is from the -lineinfo build; R2 lineinfo check cited from targets/lit-arrayfire-1/lineinfo.check: RESULT SAME, -lineinfo does not change the SASS.",
+  "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against fbgemm_gpu/experimental/gen_ai/src/quantize/fast_gemv/include/fast_gemv.cu@8b87d01 (buggy) and @2c32f22 (fixed) on 2026-10-20",
+  "open_questions": [
+    "The three unrolled copies of the col loop in the SASS: which copy executes for col = 0 / 1 with m = 2 is not established from the SASS alone (copies 1 and 2 presumably; the third handles larger m). The pair is the same source pair in all copies.",
+    "The race needs lane 0 of a non-zero warp to run ahead of warp 0's L145 load; manifestation is timing dependent (the sm_75 smoke shows 0 mismatches); detection is by happens-before."
+  ],
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "confirmed",
+    "changes": [],
+    "notes": "R2 harness: every copied kernel file under r2/buggy and r2/fixed is byte-identical (cmp) to git show <buggy_commit>:<path> / <fix_commit>:<path>; git diff buggy..fix of those files is exactly the fix hunk described in fixed.reason. (the fix also patches gemv_quantized_bf16_fp8 the same way; that kernel is not launched). Pair confirmed at 8b87d01: warpLevelSums is a static __shared__ float[SHARED_MEM_MAX_ROWS][32] (fast_gemv.cu:135); in iteration col + 1 lane 0 of warp w stores warpLevelSums[0][w] (L140-141) while in iteration col thread w (warp 0, w < blockDim.x/32 = 8) loads warpLevelSums[0][w] (L144-146); the only barrier per iteration is L142, between the store and the load of the same iteration, so the load of col and the store of col + 1 are unordered: 32-bit plain/plain, warp 0 vs warp w -> DR (WAR). Needs m >= 2 (driver default m = 2, driver.cu:16) and blockDim.x > 32 (256; otherwise the early return at L125-132). Fixed (2c32f22): 'if (col + 1 < m) { __syncthreads(); }' at L153-155; m is a kernel argument, so the barrier is block-uniform. 'absent' confirmed. Not independently verified: the SASS opcodes, register operands and offsets quoted in sites/sass_notes (the one permitted srun on -p normal could not start: partition fully allocated, estimated start 2026-10-21 14:37, so the job was cancelled); access widths were checked from the source types instead. Native-run and smoke-run statements in open_questions are builder results and were not reviewed.",
+    "depends_on_D20": false
+  }
+}

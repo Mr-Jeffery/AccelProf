@@ -1,0 +1,7 @@
+# lit-shoc-1 R1 attempt (SHOC own autotools build, CUDA 13.4.92, c38, 2026-10-20): ./configure --with-cuda --without-opencl --without-mpi CUDA_CPPFLAGS="-arch=sm_89 -lineinfo"; make -C src/common; make -C src/cuda/level1/scan Scan
+# configure and src/common built; the Scan target fails in the project own host main (src/common/main.cpp), identical in both commits:
+src/cuda/level1/scan/../../common/main.cpp:104:61: error: 'struct cudaDeviceProp' has no member named 'clockRate'
+make: *** [Makefile:391: main.o] Error 1
+# fixed:
+src/cuda/level1/scan/../../common/main.cpp:104:61: error: 'struct cudaDeviceProp' has no member named 'clockRate'
+make: *** [Makefile:391: main.o] Error 1

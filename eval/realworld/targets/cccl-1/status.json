@@ -1,0 +1,6 @@
+{"route": "R1h", "route_note": "header-only CUB at the two commits (cub/cub, thrust/thrust, libcudacxx/include exported by git archive), our driver compiled against them with -I before the toolkit's CCCL; nvcc -Xcompiler -H include proof PASS (see h_proof.txt in the build artifacts: 462 distinct headers, 333 from the checkout, 0 from the toolkit's CCCL).",
+ "status": "built", "toolkit": "13.4 (c38, driver 580.82 / sm_75 node; code is sm_89 SASS)",
+ "driver": "block_reduce_kernel<<<1,65>>>: cub::BlockReduce<uint8_t,65,BLOCK_REDUCE_RAKING>::Sum, shape of cub/test/catch2_test_block_reduce.cu",
+ "input": "65 threads, one block; a few hundred shared-memory accesses (65 threads x ~10 shared accesses)",
+ "notes": "lineinfo check (R1h route): SAME (targets/cccl-1/lineinfo.check). Smoke on c38 sm_75: rc 0, sum correct. Build and SASS identical flags for both variants: nvcc -std=c++17 -arch=sm_89 -lineinfo.",
+ "commands": ["harness/rw.sh cccl-1 export (login)", "harness/rw.sh cccl-1 stage; harness/rw.sh cccl-1 build; harness/rw.sh cccl-1 lineinfo (compute)", "harness/rw.sh cccl-1 native|reach|racecheck (sm_89)", "run: /mnt/beegfs/fzheng4/realworld/build/cccl-1/{buggy,fixed}/driver"]}

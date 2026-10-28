@@ -1,0 +1,7 @@
+{"route": "R1h", "route_note": "header-only CUB (CCCL 3.6 era headers of 2026-08) at the two commits, our driver compiled against them with -I before the toolkit's CCCL; the env-based DeviceTopK API requires cuda::execution::require(determinism::not_guaranteed, output_ordering::unsorted). Include proof PASS in h_proof.txt.",
+ "status": "built", "toolkit": "13.4 (c38; code is sm_89 SASS)",
+ "driver": "cub::DeviceTopK::MaxKeys on 100,000 unsigned keys, k=16, env = require(not_guaranteed, unsorted); kernels DeviceTopKKernel / DeviceTopKHistogramKernel / DeviceTopKLastFilterKernel are compiled",
+ "input": "n=100000, k=16; about 1e6 thread-level accesses (several passes over 1e5 keys); well under 1e7",
+ "racecheck": "n/a (global memory)",
+ "notes": "Smoke on c38 sm_75: rc 0, result equals the host reference. Which of the three kernels run at n=1e5 is established by the nsys reach check in the GPU phase.",
+ "commands": ["harness/rw.sh cccl-3 export (login)", "harness/rw.sh cccl-3 stage; harness/rw.sh cccl-3 build (compute)", "harness/rw.sh cccl-3 native|reach (sm_89); racecheck n/a", "run: /mnt/beegfs/fzheng4/realworld/build/cccl-3/{buggy,fixed}/driver 100000 16"]}

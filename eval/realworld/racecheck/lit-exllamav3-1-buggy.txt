@@ -1,0 +1,407 @@
+# compute-sanitizer Version 2026.3.0.0 (build 38855100) (public-release) host c3 cuda /usr/local/cuda-13.4 2026-10-20
+# cmd: /mnt/beegfs/fzheng4/realworld/build/lit-exllamav3-1/buggy/driver
+========= COMPUTE-SANITIZER
+========= Error: Potential WAR hazard detected at __shared__ 0x20 in block (0,0,0) :
+=========     Read Thread (8,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc30 in routing.cu:277
+=========     Write Thread (32,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xe30 in routing.cu:290
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x21 in block (0,0,0) :
+=========     Read Thread (8,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc30 in routing.cu:277
+=========     Write Thread (32,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xe30 in routing.cu:290
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x22 in block (0,0,0) :
+=========     Read Thread (8,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc30 in routing.cu:277
+=========     Write Thread (32,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xe30 in routing.cu:290
+=========     Current Value : 236, Incoming Value : 252
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x23 in block (0,0,0) :
+=========     Read Thread (8,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc30 in routing.cu:277
+=========     Write Thread (32,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xe30 in routing.cu:290
+=========     Current Value : 64, Incoming Value : 64
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x120 in block (0,0,0) :
+=========     Read Thread (8,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc60 in routing.cu:278
+=========     Write Thread (32,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xe40 in routing.cu:291
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x121 in block (0,0,0) :
+=========     Read Thread (8,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc60 in routing.cu:278
+=========     Write Thread (32,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xe40 in routing.cu:291
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x122 in block (0,0,0) :
+=========     Read Thread (8,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc60 in routing.cu:278
+=========     Write Thread (32,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xe40 in routing.cu:291
+=========     Current Value : 236, Incoming Value : 252
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x123 in block (0,0,0) :
+=========     Read Thread (8,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc60 in routing.cu:278
+=========     Write Thread (32,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xe40 in routing.cu:291
+=========     Current Value : 64, Incoming Value : 64
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x20 in block (2,0,0) :
+=========     Read Thread (8,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc30 in routing.cu:277
+=========     Write Thread (32,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xe30 in routing.cu:290
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x21 in block (2,0,0) :
+=========     Read Thread (8,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc30 in routing.cu:277
+=========     Write Thread (32,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xe30 in routing.cu:290
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x220 in block (0,0,0) :
+=========     Read Thread (8,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc80 in routing.cu:279
+=========     Write Thread (32,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xe50 in routing.cu:292
+=========     Current Value : 62, Incoming Value : 166
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x221 in block (0,0,0) :
+=========     Read Thread (8,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc80 in routing.cu:279
+=========     Write Thread (32,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xe50 in routing.cu:292
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x222 in block (0,0,0) :
+=========     Read Thread (8,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc80 in routing.cu:279
+=========     Write Thread (32,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xe50 in routing.cu:292
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x223 in block (0,0,0) :
+=========     Read Thread (8,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc80 in routing.cu:279
+=========     Write Thread (32,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xe50 in routing.cu:292
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x24 in block (0,0,0) :
+=========     Read Thread (9,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc30 in routing.cu:277
+=========     Write Thread (33,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xf80 in routing.cu:290
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x25 in block (0,0,0) :
+=========     Read Thread (9,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc30 in routing.cu:277
+=========     Write Thread (33,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xf80 in routing.cu:290
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x26 in block (0,0,0) :
+=========     Read Thread (9,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc30 in routing.cu:277
+=========     Write Thread (33,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xf80 in routing.cu:290
+=========     Current Value : 230, Incoming Value : 250
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x27 in block (0,0,0) :
+=========     Read Thread (9,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc30 in routing.cu:277
+=========     Write Thread (33,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xf80 in routing.cu:290
+=========     Current Value : 64, Incoming Value : 64
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x124 in block (0,0,0) :
+=========     Read Thread (9,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc60 in routing.cu:278
+=========     Write Thread (33,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xf90 in routing.cu:291
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x125 in block (0,0,0) :
+=========     Read Thread (9,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc60 in routing.cu:278
+=========     Write Thread (33,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xf90 in routing.cu:291
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x126 in block (0,0,0) :
+=========     Read Thread (9,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc60 in routing.cu:278
+=========     Write Thread (33,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xf90 in routing.cu:291
+=========     Current Value : 230, Incoming Value : 250
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x20 in block (3,0,0) :
+=========     Read Thread (8,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc30 in routing.cu:277
+=========     Write Thread (32,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xe30 in routing.cu:290
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x22 in block (2,0,0) :
+=========     Read Thread (8,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc30 in routing.cu:277
+=========     Write Thread (32,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xe30 in routing.cu:290
+=========     Current Value : 206, Incoming Value : 252
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x127 in block (0,0,0) :
+=========     Read Thread (9,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc60 in routing.cu:278
+=========     Write Thread (33,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xf90 in routing.cu:291
+=========     Current Value : 64, Incoming Value : 64
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x224 in block (0,0,0) :
+=========     Read Thread (9,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc80 in routing.cu:279
+=========     Write Thread (33,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xfa0 in routing.cu:292
+=========     Current Value : 55, Incoming Value : 249
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x225 in block (0,0,0) :
+=========     Read Thread (9,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc80 in routing.cu:279
+=========     Write Thread (33,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xfa0 in routing.cu:292
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x226 in block (0,0,0) :
+=========     Read Thread (9,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc80 in routing.cu:279
+=========     Write Thread (33,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xfa0 in routing.cu:292
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x227 in block (0,0,0) :
+=========     Read Thread (9,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc80 in routing.cu:279
+=========     Write Thread (33,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xfa0 in routing.cu:292
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x21 in block (3,0,0) :
+=========     Read Thread (8,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc30 in routing.cu:277
+=========     Write Thread (32,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xe30 in routing.cu:290
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x22 in block (3,0,0) :
+=========     Read Thread (8,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc30 in routing.cu:277
+=========     Write Thread (32,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xe30 in routing.cu:290
+=========     Current Value : 228, Incoming Value : 250
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x28 in block (0,0,0) :
+=========     Read Thread (10,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc30 in routing.cu:277
+=========     Write Thread (34,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0x10e0 in routing.cu:290
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x29 in block (0,0,0) :
+=========     Read Thread (10,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc30 in routing.cu:277
+=========     Write Thread (34,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0x10e0 in routing.cu:290
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x2a in block (0,0,0) :
+=========     Read Thread (10,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc30 in routing.cu:277
+=========     Write Thread (34,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0x10e0 in routing.cu:290
+=========     Current Value : 224, Incoming Value : 246
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x2b in block (0,0,0) :
+=========     Read Thread (10,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc30 in routing.cu:277
+=========     Write Thread (34,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0x10e0 in routing.cu:290
+=========     Current Value : 64, Incoming Value : 64
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x23 in block (3,0,0) :
+=========     Read Thread (8,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc30 in routing.cu:277
+=========     Write Thread (32,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xe30 in routing.cu:290
+=========     Current Value : 64, Incoming Value : 64
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x120 in block (3,0,0) :
+=========     Read Thread (8,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc60 in routing.cu:278
+=========     Write Thread (32,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xe40 in routing.cu:291
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x128 in block (0,0,0) :
+=========     Read Thread (10,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc60 in routing.cu:278
+=========     Write Thread (34,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0x10f0 in routing.cu:291
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x129 in block (0,0,0) :
+=========     Read Thread (10,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc60 in routing.cu:278
+=========     Write Thread (34,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0x10f0 in routing.cu:291
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x121 in block (3,0,0) :
+=========     Read Thread (8,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc60 in routing.cu:278
+=========     Write Thread (32,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xe40 in routing.cu:291
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x122 in block (3,0,0) :
+=========     Read Thread (8,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc60 in routing.cu:278
+=========     Write Thread (32,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xe40 in routing.cu:291
+=========     Current Value : 228, Incoming Value : 250
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x12a in block (0,0,0) :
+=========     Read Thread (10,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc60 in routing.cu:278
+=========     Write Thread (34,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0x10f0 in routing.cu:291
+=========     Current Value : 224, Incoming Value : 246
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x12b in block (0,0,0) :
+=========     Read Thread (10,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc60 in routing.cu:278
+=========     Write Thread (34,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0x10f0 in routing.cu:291
+=========     Current Value : 64, Incoming Value : 64
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x123 in block (3,0,0) :
+=========     Read Thread (8,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc60 in routing.cu:278
+=========     Write Thread (32,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xe40 in routing.cu:291
+=========     Current Value : 64, Incoming Value : 64
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x220 in block (3,0,0) :
+=========     Read Thread (8,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc80 in routing.cu:279
+=========     Write Thread (32,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xe50 in routing.cu:292
+=========     Current Value : 61, Incoming Value : 172
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x228 in block (0,0,0) :
+=========     Read Thread (10,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc80 in routing.cu:279
+=========     Write Thread (34,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0x1100 in routing.cu:292
+=========     Current Value : 48, Incoming Value : 159
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x229 in block (0,0,0) :
+=========     Read Thread (10,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc80 in routing.cu:279
+=========     Write Thread (34,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0x1100 in routing.cu:292
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x22a in block (0,0,0) :
+=========     Read Thread (10,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc80 in routing.cu:279
+=========     Write Thread (34,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0x1100 in routing.cu:292
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x22b in block (0,0,0) :
+=========     Read Thread (10,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc80 in routing.cu:279
+=========     Write Thread (34,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0x1100 in routing.cu:292
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x221 in block (3,0,0) :
+=========     Read Thread (8,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc80 in routing.cu:279
+=========     Write Thread (32,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xe50 in routing.cu:292
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: cudaLaunchKernel [0x7f0a7] in driver
+=========         Host Frame: main [0x563a] in driver
+========= 
+========= Error: Potential WAR hazard detected at __shared__ 0x222 in block (3,0,0) :
+=========     Read Thread (8,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xc80 in routing.cu:279
+=========     Write Thread (32,0,0) at void routing_ds3_nogroup_topk_kernel<(int)0>(const __half *, const __half *, long *, __half *, float, int, int, int)+0xe50 in routing.cu:292
+=========     Current Value : 0, Incoming Value : 0
+=========     Saved host backtrace up to driver entry point at kernel launch time
+# TRUNCATED: full output (17097 lines, 1558436 bytes, sha256 c7589015fe7c79723fbfa6a152c551d05e2ab846671e4229caef1cf01da8a6d4) kept at /mnt/beegfs/fzheng4/realworld/racecheck_full/lit-exllamav3-1-buggy.txt
+========= 
+routing_ds3_nogroup_topk_kernel<SIGMOID> E=256 K=8 bsz=4 grid=4 block=256 row0 top8=[83,166,249,76,159,242,69,152] rows_with_wrong_set=0 rows_with_other_order=0/4
+routing_std_topk_kernel E=256 K=8 bsz=4 grid=4 block=256 row0 top8=[83,166,249,76,159,242,69,152] rows_with_wrong_set=0 rows_with_other_order=0/4
+routing_std_kernel E=256 K=8 bsz=4 grid=4 block=256 row0 top8=[83,166,249,76,159,242,69,152] rows_with_wrong_set=0 rows_with_other_order=0/4
+========= RACECHECK SUMMARY: 2000 hazards displayed (710 errors, 38521 warnings)
+# exit 0

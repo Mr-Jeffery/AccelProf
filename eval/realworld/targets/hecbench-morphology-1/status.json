@@ -1,0 +1,14 @@
+{
+  "route": "R1",
+  "route_note": "The app's own Makefile (src/morphology-cuda, ORNL/HeCBench at the two commits), nvcc -O3 -std=c++17 -arch=sm_89 -lineinfo (Makefile flags unchanged), identical for both variants. Link only: -Xlinker -rpath=$ORIGIN, and the gcc-12.4 runtime libs (libstdc++.so.6, libgcc_s.so.1, libgomp.so.1) copied next to the binary (system libstdc++ is gcc 8, no libstdc++.a), so the artifact runs from BeeGFS without LD_LIBRARY_PATH.",
+  "status": "built",
+  "toolkit": "13.4 (c38)",
+  "driver": "./main 64 64 192 192 1: kernel 64x64, image 192x192, 1 repeat. Launches vhgw_horiz<ERODE/DILATE><<<(3,192),(64,1)>>> and vhgw_vert<ERODE/DILATE><<<(192,3),(1,64)>>> once each (4 launches); selSize 64 > 32 makes the race cross-warp (2 warps per block).",
+  "input": "built-in image (one white pixel in a black image); no input file. Access estimate (ncu on the sm_75 smoke build, buggy): 5,838,336 thread-level memory instructions in total (all address spaces); shared LDS/STS warp-level 116,736 + 67,584. The reporter's 512x512 would be 4.25e7; 128x128 would be 2.5e6 but prints FAIL in both variants (the app's own check depends on the border), 130..256 PASS.",
+  "notes": "Smoke (sm_75, debugging only): buggy rc=0 'Average kernel execution time (dilate): 0.000192 (s) / (erode): 0.000040 (s) / PASS'; fixed rc=0 PASS. All four kernel instances launched (ncu: vhgw_horiz<0>, <1>, vhgw_vert<0>, <1>, 1 launch each). T_KERNEL=vhgw matches all four. The accesses are single bytes (STS.U8/LDS.U8). P7/P9 overlap: none. Route-R1 lineinfo check: cited from hecbench-dxtc2-1 (SAME).",
+  "commands": [
+    "harness/rw.sh hecbench-morphology-1 export   # login node",
+    "NJOBS=8 harness/hrun.sh <job> hecbench-morphology-1 stage; NJOBS=8 harness/hrun.sh <job> hecbench-morphology-1 build",
+    "run: $ART/main 64 64 192 192 1"
+  ]
+}
