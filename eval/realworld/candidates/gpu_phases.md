@@ -39,3 +39,11 @@ Notes
 - **cuml-tsne-new-1, lightgbm-new-1/2:** stdout differs between runs. Not yet checked whether that is timing output or results.
 - **lightgbm-new-1/2:** the displayed hazards come from the shared `ShuffleReduceSum` helper. Which kernel each comes from (the oracle's kernel or a metric kernel) is for the triage (step 3).
 - **cuml-tsne-new-1:** the displayed hazards are not at the oracle's lines. `--print-limit 2000` may hide them; a rerun with a filter on the kernel would decide.
+
+## cuVein scalar-clock: lightgbm-new-1/2 left unscored (Jeffery, 2026-10-27)
+
+- The first recordings (job 320480) were CLEAN, but their cubin extraction failed (over-long device-link ELF names), so they had no CFG and no atomic-scope sidecar.
+- Re-recorded with the extraction fix fd26dd9 (job 320772, c26): 696 and 715 kernels, 215 MB of CFG dots. Both rows were ERROR at `--analysis-timeout 3600`.
+- Re-analysed at `--analysis-timeout 82800` (jobs 321213, 321214, CPU, 24 h limit): ERROR again, and attribution did not start.
+- Jeffery's decision: leave both unscored (`rw_score.py --exclude lightgbm-new-1,lightgbm-new-2`). The cause of the slow analysis was not established.
+- colmap-new-1, the other analysis-timeout row, was re-analysed at 82,800 s and scored DETECTED (scalar-clock, 504 reports; commit 896107c).
