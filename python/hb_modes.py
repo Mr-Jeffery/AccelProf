@@ -30,10 +30,17 @@ import sys
 VECTOR_CLOCK = "vector-clock"
 SCALAR_CLOCK = "scalar-clock"
 MODES = (VECTOR_CLOCK, SCALAR_CLOCK)          # collection order used by the harness
+# C1: collector-only is the original cuVein configuration: YOSEMITE_HB_TRACE unset, so no HbClock, no
+# hb_* key in kernel_N.json, verdicts from the static certificates alone. It is NOT in MODES (the default
+# of every sweep stays two modes) and is selected explicitly ($BASELINE_MODES / --mode). It is also not
+# YOSEMITE_HB_NO_ENGINE=1, which is scalar-clock mode.
+COLLECTOR_ONLY = "collector-only"
+ALL_MODES = MODES + (COLLECTOR_ONLY,)
 LEGACY = {"engine": VECTOR_CLOCK, "trace-only": SCALAR_CLOCK, "no-engine": SCALAR_CLOCK}
 LEGACY_OF = {VECTOR_CLOCK: "engine", SCALAR_CLOCK: "trace-only"}
-LABEL = {VECTOR_CLOCK: "cuVein (vector-clock)", SCALAR_CLOCK: "cuVein (scalar-clock)"}
-SHORT = {VECTOR_CLOCK: "cuVein-VC", SCALAR_CLOCK: "cuVein-SC"}
+LABEL = {VECTOR_CLOCK: "cuVein (vector-clock)", SCALAR_CLOCK: "cuVein (scalar-clock)",
+         COLLECTOR_ONLY: "cuVein (collector-only)"}
+SHORT = {VECTOR_CLOCK: "cuVein-VC", SCALAR_CLOCK: "cuVein-SC", COLLECTOR_ONLY: "cuVein-CO"}
 ENV = "YOSEMITE_HB_MODE"                      # read by the collector
 LEGACY_ENV = "YOSEMITE_HB_NO_ENGINE"          # pre-T8, retired by T17; the collector honours it (warns)
 
@@ -87,8 +94,8 @@ def canon(mode, source=""):
 def check(mode):
     """Validate a mode given on a command line / in $BASELINE_MODES (legacy accepted)."""
     m = canon(mode, "command line / $BASELINE_MODES")
-    if m not in MODES:
-        raise ValueError(f"unknown cuVein mode {mode!r}: expected one of {MODES}")
+    if m not in ALL_MODES:
+        raise ValueError(f"unknown cuVein mode {mode!r}: expected one of {ALL_MODES}")
     return m
 
 
@@ -98,8 +105,9 @@ def parse_modes(spec):
 
 
 def collector_env(mode):
-    """The collector's environment for one mode (YOSEMITE_HB_TRACE is set by the caller)."""
-    return {ENV: check(mode)}
+    """The collector's environment for one mode (YOSEMITE_HB_TRACE is set by the caller).
+    collector-only sets nothing: the collector sees no HB knob at all."""
+    return {} if check(mode) == COLLECTOR_ONLY else {ENV: check(mode)}
 
 
 _supported = {}

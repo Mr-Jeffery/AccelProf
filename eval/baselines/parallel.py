@@ -52,7 +52,7 @@ import run_cuvein as rc       # reuse _analyze_reports  # noqa: E402
 # $BASELINE_MODES=scalar-clock restricts a run to one mode (e.g. a static-leg revision);
 # the default collects vector-clock first, then scalar-clock (hb_modes.MODES).
 MODES = blib.hb_modes.parse_modes(os.environ.get("BASELINE_MODES", ",".join(blib.hb_modes.MODES)))
-VC, SC = blib.hb_modes.VECTOR_CLOCK, blib.hb_modes.SCALAR_CLOCK
+VC, SC, CO = blib.hb_modes.VECTOR_CLOCK, blib.hb_modes.SCALAR_CLOCK, blib.hb_modes.COLLECTOR_ONLY
 
 
 BEEGFS_ROOT = f"/mnt/beegfs/{os.environ.get('USER', 'nobody')}"
@@ -301,7 +301,7 @@ def collect_one(mrow, cuda, reps, floor=120, cap=1200):
     meta["scope_present"] = bool(scope)
     meta["hb_dump"] = blib.hb_dump()     # T4: 0 = recorded without hb_events (aggregates only)
     # X1b: YOSEMITE_HB_SHARDS per mode (scalar-clock only; 0 = serial pass) and the node's CPU count
-    meta["hb_shards"] = {VC: 0, SC: blib.hb_shards()}
+    meta["hb_shards"] = {VC: 0, SC: blib.hb_shards(), CO: 0}
     meta["nproc"] = os.cpu_count()
     os.makedirs(f"{idir}/dots", exist_ok=True)
     for dot in glob.glob(f"{cubindir}/*.dot"):
