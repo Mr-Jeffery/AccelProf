@@ -1,0 +1,9 @@
+host=c56 gpu=[NVIDIA GeForce RTX 4060 Ti, 8.9, 580.105.08] mem=125G cpu=[AMD EPYC 9115 16-Core Processor]
+no HbClock, no sync pass (hb_shards n/a) nproc=16 analyzer: accelprof -n 1
+job=323036 array=323036_0 partition=rtx4060ti16g shard=0/1 select=[--id-file /home/fzheng4/wt-co/eval/baselines/setup/co_24h_ids.txt] tag=co-24h cap=84600s reps=1 modes=collector-only store=/mnt/beegfs/fzheng4/cuvein_traces/final-2026-11-co-24h 2026-10-29T01:42:01-04:00
+runtime /home/fzheng4/AccelProf HEAD=f551ca00947e libsanalyzer=5a20fd14ab6c6806 (/home/fzheng4/AccelProf/build/sanalyzer/lib/libsanalyzer.so) collector=b746b4dd23e90f46 fatbin=a2d7368bc1c61986 late=e96343121c74ca0a
+harness /home/fzheng4/wt-co HEAD=aa15012f851f dirty=0 Build cuda_13.3.r13.3/compiler.38244171_0
+[run 1/1] P7-stencil1d-cuda
+run: 1 programs -> /home/fzheng4/wt-co/eval/results/collector-only-24h/baselines-cuvein-shardco-24h0_1.csv
+kept traces: 0.06 GB in /mnt/beegfs/fzheng4/cuvein_traces/final-2026-11-co-24h
+== done rc=0 2026-10-29T11:48:59-04:00
