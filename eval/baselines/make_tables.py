@@ -875,7 +875,7 @@ def revision_delta_section(runs, meta, man):
     # native in the superseded rows (e.g. a first failed attempt) cannot skew the old side
     r_new = _ratios(runs, meta)
     native = {i: runs[(i, "cuvein", m)]["native"] for (i, t, m) in runs
-              if t == "cuvein" and runs[(i, t, m)]["native"]}
+              if t == "cuvein" and m != CO and runs[(i, t, m)]["native"]}    # C3: not the collector-only run's own
     r_olds = {tag: {(i, t, m): r["wall"] / native[i] for (i, t, m), r in o_runs.items()
                     if t == "cuvein" and r["wall"] and native.get(i)}
               for tag, o_runs, _, _ in olds}
