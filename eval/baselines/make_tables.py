@@ -354,13 +354,19 @@ def _ratios(runs, meta):
     """(id,tool,mode) -> wall/native. Our tools share the id-level native wall (min over
     the runners that measured our build). SuperCollider is measured against ITS OWN
     uninstrumented build run the same way (same container), never against ours."""
-    native = {}
+    native, native_co = {}, {}
     for (i, t, m), r in runs.items():
         if r["native"] and t != "supercollider":
-            native[i] = min(native.get(i, r["native"]), r["native"])
+            d = native_co if (t == "cuvein" and m == CO) else native
+            d[i] = min(d.get(i, r["native"]), r["native"])
     out = {}
     for (i, t, m), r in runs.items():
-        n = r["native"] if t == "supercollider" else native.get(i)
+        # C3: the collector-only runs' own native walls never enter the other modes' denominator
+        # (adding the mode leaves their ratios unchanged); a collector-only ratio divides by the
+        # smaller of the two, the same "min over the runners that measured the build" convention.
+        n = (r["native"] if t == "supercollider" else
+             min([x for x in (native.get(i), native_co.get(i)) if x], default=None) if (t == "cuvein" and m == CO)
+             else native.get(i))
         if r["wall"] and n:
             out[(i, t, m)] = r["wall"] / n
     return out
