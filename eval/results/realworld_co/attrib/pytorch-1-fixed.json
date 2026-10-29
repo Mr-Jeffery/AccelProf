@@ -1,0 +1,198 @@
+{
+ "id": "pytorch-1-fixed",
+ "target": "pytorch-1",
+ "exe": "/mnt/beegfs/fzheng4/realworld_t21b/build/pytorch-1/fixed/driver",
+ "cuda_home": "/usr/local/cuda-13.4",
+ "n_cubins": 1,
+ "n_dots": 1,
+ "oracle_kernel_substr": "embedding_backward_feature_kernel",
+ "spec_found": true,
+ "modes": {
+  "collector-only": {
+   "n_kernel_jsons": 1,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "void at::native::(anonymous namespace)::embedding_backward_feature_kernel<float, float, long>(long const*, float const*, float*, int, long, int)",
+     "mangled": "_ZN2at6native41_GLOBAL__N__be0b55b4_9_driver_cu_9c8c8d3a33embedding_backward_feature_kernelIfflEEvPKT1_PKT_PS6_ili",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 3,
+      "sc": 0,
+      "ordered": 2,
+      "skipped": 15,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 1,
+   "n_race": 3,
+   "n_sc": 0,
+   "reports": [
+    {
+     "mode": "collector-only",
+     "kernel": "void at::native::(anonymous namespace)::embedding_backward_feature_kernel<float, float, long>(long const*, float const*, float*, int, long, int)",
+     "mangled": "_ZN2at6native41_GLOBAL__N__be0b55b4_9_driver_cu_9c8c8d3a33embedding_backward_feature_kernelIfflEEvPKT1_PKT_PS6_ili",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 432,
+     "b_pc": 624,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch-1/fixed/src/aten/src/ATen/native/cuda/Embedding.cu",
+       "line": 71
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch-1/fixed/src/aten/src/ATen/native/cuda/Embedding.cu",
+       "line": 87
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void at::native::(anonymous namespace)::embedding_backward_feature_kernel<float, float, long>(long const*, float const*, float*, int, long, int)",
+     "mangled": "_ZN2at6native41_GLOBAL__N__be0b55b4_9_driver_cu_9c8c8d3a33embedding_backward_feature_kernelIfflEEvPKT1_PKT_PS6_ili",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 432,
+     "b_pc": 992,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch-1/fixed/src/aten/src/ATen/native/cuda/Embedding.cu",
+       "line": 71
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch-1/fixed/src/aten/src/ATen/native/cuda/Embedding.cu",
+       "line": 104
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void at::native::(anonymous namespace)::embedding_backward_feature_kernel<float, float, long>(long const*, float const*, float*, int, long, int)",
+     "mangled": "_ZN2at6native41_GLOBAL__N__be0b55b4_9_driver_cu_9c8c8d3a33embedding_backward_feature_kernelIfflEEvPKT1_PKT_PS6_ili",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 1552,
+     "b_pc": 1584,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch-1/fixed/src/aten/src/ATen/native/cuda/Embedding.cu",
+       "line": 127
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch-1/fixed/src/aten/src/ATen/native/cuda/Embedding.cu",
+       "line": 127
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    }
+   ],
+   "site_verdicts": [
+    {
+     "current_pc": 432,
+     "current_pc_hex": "0x1b0",
+     "ancient_pc": 992,
+     "ancient_pc_hex": "0x3e0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 960,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void at::native::(anonymous namespace)::embedding_backward_feature_kernel<float, float, long>(long const*, float const*, float*, int, long, int)",
+     "mangled": "_ZN2at6native41_GLOBAL__N__be0b55b4_9_driver_cu_9c8c8d3a33embedding_backward_feature_kernelIfflEEvPKT1_PKT_PS6_ili",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch-1/fixed/src/aten/src/ATen/native/cuda/Embedding.cu",
+       "line": 71
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch-1/fixed/src/aten/src/ATen/native/cuda/Embedding.cu",
+       "line": 104
+      }
+     ]
+    }
+   ],
+   "site_skipped": {
+    "read_read": 1
+   }
+  }
+ },
+ "dots_checked": 1,
+ "dots_regenerated_equal": 1
+}

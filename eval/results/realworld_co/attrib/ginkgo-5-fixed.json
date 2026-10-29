@@ -1,0 +1,148 @@
+{
+ "id": "ginkgo-5-fixed",
+ "target": "ginkgo-5",
+ "exe": "/mnt/beegfs/fzheng4/realworld_t21b/build/ginkgo-5/fixed/driver",
+ "cuda_home": "/usr/local/cuda-13.4",
+ "n_cubins": 3,
+ "n_dots": 3,
+ "oracle_kernel_substr": "compute_lookup_",
+ "spec_found": true,
+ "modes": {
+  "collector-only": {
+   "n_kernel_jsons": 8,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "void gko::kernels::cuda::generic_kernel_1d<gko::kernels::cuda::range_minimum_query::compute_lookup_small<int>(std::shared_ptr<gko::CudaExecutor const>, int const*, int, gko::bit_packed_span<int, unsigned int>&, int*, unsigned short*)::{lambda(auto:1, auto:2, auto:3, auto:4, auto:5, auto:6, auto:7)#1}, int const*, gko::bit_packed_span<int, unsigned int>, int*, unsigned short*, gko::block_range_minimum_query_lookup_table<8> const*, int>(long, gko::kernels::cuda::range_minimum_query::compute_lookup_small<int>(std::shared_ptr<gko::CudaExecutor const>, int const*, int, gko::bit_packed_span<int, unsigned int>&, int*, unsigned short*)::{lambda(auto:1, auto:2, auto:3, auto:4, auto:5, auto:6, auto:7)#1}, int const*, gko::bit_packed_span<int, unsigned int>, int*, unsigned short*, gko::block_range_minimum_query_lookup_table<8> const*, int)",
+     "mangled": "_ZN3gko7kernels4cuda17generic_kernel_1dIZNS1_19range_minimum_query20compute_lookup_smallIiEEvSt10shared_ptrIKNS_12CudaExecutorEEPKT_S9_RNS_15bit_packed_spanIS9_jEEPS9_PtEUlT_T0_T1_T2_T3_T4_T5_E_JPKiNSC_IijEEPiSG_PKNS_38block_range_minimum_query_lookup_tableILi8EEEiEEEvlS9_DpT0_",
+     "dot": "range_minimum_query_kernels.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 27,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_1.json",
+     "name": "void gko::kernels::cuda::generic_kernel_1d<gko::kernels::cuda::range_minimum_query::compute_lookup_large<int>(std::shared_ptr<gko::CudaExecutor const>, int const*, int, gko::range_minimum_query_superblocks<int>&)::{lambda(auto:1, auto:2, auto:3, auto:4)#1}, int const*, gko::range_minimum_query_superblocks<int>, int>(long, gko::kernels::cuda::range_minimum_query::compute_lookup_large<int>(std::shared_ptr<gko::CudaExecutor const>, int const*, int, gko::range_minimum_query_superblocks<int>&)::{lambda(auto:1, auto:2, auto:3, auto:4)#1}, int const*, gko::range_minimum_query_superblocks<int>, int)",
+     "mangled": "_ZN3gko7kernels4cuda17generic_kernel_1dIZNS1_19range_minimum_query20compute_lookup_largeIiEEvSt10shared_ptrIKNS_12CudaExecutorEEPKT_S9_RNS_31range_minimum_query_superblocksIS9_EEEUlT_T0_T1_T2_E_JPKiNSC_IiEEiEEEvlS9_DpT0_",
+     "dot": "range_minimum_query_kernels.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 23,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_2.json",
+     "name": "void gko::kernels::cuda::generic_kernel_1d<gko::kernels::cuda::range_minimum_query::compute_lookup_large<int>(std::shared_ptr<gko::CudaExecutor const>, int const*, int, gko::range_minimum_query_superblocks<int>&)::{lambda(auto:1, auto:2, auto:3, auto:4, auto:5, auto:6)#1}, int, int const*, gko::range_minimum_query_superblocks<int>, int, unsigned long>(long, gko::kernels::cuda::range_minimum_query::compute_lookup_large<int>(std::shared_ptr<gko::CudaExecutor const>, int const*, int, gko::range_minimum_query_superblocks<int>&)::{lambda(auto:1, auto:2, auto:3, auto:4, auto:5, auto:6)#1}, int, int const*, gko::range_minimum_query_superblocks<int>, int, unsigned long)",
+     "mangled": "_ZN3gko7kernels4cuda17generic_kernel_1dIZNS1_19range_minimum_query20compute_lookup_largeIiEEvSt10shared_ptrIKNS_12CudaExecutorEEPKT_S9_RNS_31range_minimum_query_superblocksIS9_EEEUlT_T0_T1_T2_T3_T4_E_JiPKiNSC_IiEEimEEEvlS9_DpT0_",
+     "dot": "range_minimum_query_kernels.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 37,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_3.json",
+     "name": "void gko::kernels::cuda::generic_kernel_1d<gko::kernels::cuda::range_minimum_query::compute_lookup_large<int>(std::shared_ptr<gko::CudaExecutor const>, int const*, int, gko::range_minimum_query_superblocks<int>&)::{lambda(auto:1, auto:2, auto:3, auto:4, auto:5, auto:6)#1}, int, int const*, gko::range_minimum_query_superblocks<int>, int, unsigned long>(long, gko::kernels::cuda::range_minimum_query::compute_lookup_large<int>(std::shared_ptr<gko::CudaExecutor const>, int const*, int, gko::range_minimum_query_superblocks<int>&)::{lambda(auto:1, auto:2, auto:3, auto:4, auto:5, auto:6)#1}, int, int const*, gko::range_minimum_query_superblocks<int>, int, unsigned long)",
+     "mangled": "_ZN3gko7kernels4cuda17generic_kernel_1dIZNS1_19range_minimum_query20compute_lookup_largeIiEEvSt10shared_ptrIKNS_12CudaExecutorEEPKT_S9_RNS_31range_minimum_query_superblocksIS9_EEEUlT_T0_T1_T2_T3_T4_E_JiPKiNSC_IiEEimEEEvlS9_DpT0_",
+     "dot": "range_minimum_query_kernels.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 37,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_4.json",
+     "name": "void gko::kernels::cuda::generic_kernel_1d<gko::kernels::cuda::range_minimum_query::compute_lookup_large<int>(std::shared_ptr<gko::CudaExecutor const>, int const*, int, gko::range_minimum_query_superblocks<int>&)::{lambda(auto:1, auto:2, auto:3, auto:4, auto:5, auto:6)#1}, int, int const*, gko::range_minimum_query_superblocks<int>, int, unsigned long>(long, gko::kernels::cuda::range_minimum_query::compute_lookup_large<int>(std::shared_ptr<gko::CudaExecutor const>, int const*, int, gko::range_minimum_query_superblocks<int>&)::{lambda(auto:1, auto:2, auto:3, auto:4, auto:5, auto:6)#1}, int, int const*, gko::range_minimum_query_superblocks<int>, int, unsigned long)",
+     "mangled": "_ZN3gko7kernels4cuda17generic_kernel_1dIZNS1_19range_minimum_query20compute_lookup_largeIiEEvSt10shared_ptrIKNS_12CudaExecutorEEPKT_S9_RNS_31range_minimum_query_superblocksIS9_EEEUlT_T0_T1_T2_T3_T4_E_JiPKiNSC_IiEEimEEEvlS9_DpT0_",
+     "dot": "range_minimum_query_kernels.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 31,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_5.json",
+     "name": "void gko::kernels::cuda::generic_kernel_1d<gko::kernels::cuda::range_minimum_query::compute_lookup_large<int>(std::shared_ptr<gko::CudaExecutor const>, int const*, int, gko::range_minimum_query_superblocks<int>&)::{lambda(auto:1, auto:2, auto:3, auto:4, auto:5, auto:6)#1}, int, int const*, gko::range_minimum_query_superblocks<int>, int, unsigned long>(long, gko::kernels::cuda::range_minimum_query::compute_lookup_large<int>(std::shared_ptr<gko::CudaExecutor const>, int const*, int, gko::range_minimum_query_superblocks<int>&)::{lambda(auto:1, auto:2, auto:3, auto:4, auto:5, auto:6)#1}, int, int const*, gko::range_minimum_query_superblocks<int>, int, unsigned long)",
+     "mangled": "_ZN3gko7kernels4cuda17generic_kernel_1dIZNS1_19range_minimum_query20compute_lookup_largeIiEEvSt10shared_ptrIKNS_12CudaExecutorEEPKT_S9_RNS_31range_minimum_query_superblocksIS9_EEEUlT_T0_T1_T2_T3_T4_E_JiPKiNSC_IiEEimEEEvlS9_DpT0_",
+     "dot": "range_minimum_query_kernels.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 36,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_6.json",
+     "name": "void gko::kernels::cuda::generic_kernel_1d<gko::kernels::cuda::range_minimum_query::compute_lookup_large<int>(std::shared_ptr<gko::CudaExecutor const>, int const*, int, gko::range_minimum_query_superblocks<int>&)::{lambda(auto:1, auto:2, auto:3, auto:4, auto:5, auto:6)#1}, int, int const*, gko::range_minimum_query_superblocks<int>, int, unsigned long>(long, gko::kernels::cuda::range_minimum_query::compute_lookup_large<int>(std::shared_ptr<gko::CudaExecutor const>, int const*, int, gko::range_minimum_query_superblocks<int>&)::{lambda(auto:1, auto:2, auto:3, auto:4, auto:5, auto:6)#1}, int, int const*, gko::range_minimum_query_superblocks<int>, int, unsigned long)",
+     "mangled": "_ZN3gko7kernels4cuda17generic_kernel_1dIZNS1_19range_minimum_query20compute_lookup_largeIiEEvSt10shared_ptrIKNS_12CudaExecutorEEPKT_S9_RNS_31range_minimum_query_superblocksIS9_EEEUlT_T0_T1_T2_T3_T4_E_JiPKiNSC_IiEEimEEEvlS9_DpT0_",
+     "dot": "range_minimum_query_kernels.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 32,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_7.json",
+     "name": "void gko::kernels::cuda::generic_kernel_1d<gko::kernels::cuda::range_minimum_query::compute_lookup_large<int>(std::shared_ptr<gko::CudaExecutor const>, int const*, int, gko::range_minimum_query_superblocks<int>&)::{lambda(auto:1, auto:2, auto:3, auto:4, auto:5, auto:6)#1}, int, int const*, gko::range_minimum_query_superblocks<int>, int, unsigned long>(long, gko::kernels::cuda::range_minimum_query::compute_lookup_large<int>(std::shared_ptr<gko::CudaExecutor const>, int const*, int, gko::range_minimum_query_superblocks<int>&)::{lambda(auto:1, auto:2, auto:3, auto:4, auto:5, auto:6)#1}, int, int const*, gko::range_minimum_query_superblocks<int>, int, unsigned long)",
+     "mangled": "_ZN3gko7kernels4cuda17generic_kernel_1dIZNS1_19range_minimum_query20compute_lookup_largeIiEEvSt10shared_ptrIKNS_12CudaExecutorEEPKT_S9_RNS_31range_minimum_query_superblocksIS9_EEEUlT_T0_T1_T2_T3_T4_E_JiPKiNSC_IiEEimEEEvlS9_DpT0_",
+     "dot": "range_minimum_query_kernels.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 31,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 8,
+   "n_race": 0,
+   "n_sc": 0,
+   "reports": [],
+   "site_verdicts": [],
+   "site_skipped": {
+    "intra_thread_only": 41
+   }
+  }
+ },
+ "dots_checked": 0,
+ "dots_regenerated_equal": 0
+}

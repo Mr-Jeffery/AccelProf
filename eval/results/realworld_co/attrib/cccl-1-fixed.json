@@ -1,0 +1,1520 @@
+{
+ "id": "cccl-1-fixed",
+ "target": "cccl-1",
+ "exe": "/mnt/beegfs/fzheng4/realworld_t21b/build/cccl-1/fixed/driver",
+ "cuda_home": "/usr/local/cuda-13.4",
+ "n_cubins": 1,
+ "n_dots": 1,
+ "oracle_kernel_substr": "block_reduce_kernel",
+ "spec_found": true,
+ "modes": {
+  "collector-only": {
+   "n_kernel_jsons": 1,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "block_reduce_kernel(unsigned char const*, unsigned char*)",
+     "mangled": "_Z19block_reduce_kernelPKhPh",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 12,
+      "sc": 0,
+      "ordered": 3,
+      "skipped": 7,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 1,
+   "n_race": 12,
+   "n_sc": 0,
+   "reports": [
+    {
+     "mode": "collector-only",
+     "kernel": "block_reduce_kernel(unsigned char const*, unsigned char*)",
+     "mangled": "_Z19block_reduce_kernelPKhPh",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 240,
+     "b_pc": 544,
+     "a_op": "LDS.U8",
+     "b_op": "STS.U8",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 222
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/block_reduce.cuh",
+       "line": 517
+      },
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-1/driver.cu",
+       "line": 14
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 284
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 318
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 353
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 160
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 388
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 233
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/block_reduce.cuh",
+       "line": 517
+      },
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-1/driver.cu",
+       "line": 14
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "block_reduce_kernel(unsigned char const*, unsigned char*)",
+     "mangled": "_Z19block_reduce_kernelPKhPh",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 304,
+     "b_pc": 544,
+     "a_op": "LDS.U8",
+     "b_op": "STS.U8",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 161
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 224
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/block_reduce.cuh",
+       "line": 517
+      },
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-1/driver.cu",
+       "line": 14
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 284
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 318
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 353
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 160
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 388
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 233
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/block_reduce.cuh",
+       "line": 517
+      },
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-1/driver.cu",
+       "line": 14
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "block_reduce_kernel(unsigned char const*, unsigned char*)",
+     "mangled": "_Z19block_reduce_kernelPKhPh",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 320,
+     "b_pc": 544,
+     "a_op": "LDS.U8",
+     "b_op": "STS.U8",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 161
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 224
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/block_reduce.cuh",
+       "line": 517
+      },
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-1/driver.cu",
+       "line": 14
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 284
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 318
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 353
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 160
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 388
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 233
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/block_reduce.cuh",
+       "line": 517
+      },
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-1/driver.cu",
+       "line": 14
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "block_reduce_kernel(unsigned char const*, unsigned char*)",
+     "mangled": "_Z19block_reduce_kernelPKhPh",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 544,
+     "b_pc": 672,
+     "a_op": "STS.U8",
+     "b_op": "LDS.U8",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 284
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 318
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 353
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 160
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 388
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 233
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/block_reduce.cuh",
+       "line": 517
+      },
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-1/driver.cu",
+       "line": 14
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_load.cuh",
+       "line": 331
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_load.cuh",
+       "line": 358
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_load.cuh",
+       "line": 378
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 167
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 388
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 233
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/block_reduce.cuh",
+       "line": 517
+      },
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-1/driver.cu",
+       "line": 14
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "block_reduce_kernel(unsigned char const*, unsigned char*)",
+     "mangled": "_Z19block_reduce_kernelPKhPh",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 672,
+     "b_pc": 784,
+     "a_op": "LDS.U8",
+     "b_op": "STS.U8",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_load.cuh",
+       "line": 331
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_load.cuh",
+       "line": 358
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_load.cuh",
+       "line": 378
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 167
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 388
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 233
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/block_reduce.cuh",
+       "line": 517
+      },
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-1/driver.cu",
+       "line": 14
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 284
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 318
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 353
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 160
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 388
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 233
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/block_reduce.cuh",
+       "line": 517
+      },
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-1/driver.cu",
+       "line": 14
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "block_reduce_kernel(unsigned char const*, unsigned char*)",
+     "mangled": "_Z19block_reduce_kernelPKhPh",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 784,
+     "b_pc": 928,
+     "a_op": "STS.U8",
+     "b_op": "LDS.U8",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 284
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 318
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 353
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 160
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 388
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 233
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/block_reduce.cuh",
+       "line": 517
+      },
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-1/driver.cu",
+       "line": 14
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_load.cuh",
+       "line": 331
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_load.cuh",
+       "line": 358
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_load.cuh",
+       "line": 378
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 167
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 388
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 233
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/block_reduce.cuh",
+       "line": 517
+      },
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-1/driver.cu",
+       "line": 14
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "block_reduce_kernel(unsigned char const*, unsigned char*)",
+     "mangled": "_Z19block_reduce_kernelPKhPh",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 928,
+     "b_pc": 1040,
+     "a_op": "LDS.U8",
+     "b_op": "STS.U8",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_load.cuh",
+       "line": 331
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_load.cuh",
+       "line": 358
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_load.cuh",
+       "line": 378
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 167
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 388
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 233
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/block_reduce.cuh",
+       "line": 517
+      },
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-1/driver.cu",
+       "line": 14
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 284
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 318
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 353
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 160
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 388
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 233
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/block_reduce.cuh",
+       "line": 517
+      },
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-1/driver.cu",
+       "line": 14
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "block_reduce_kernel(unsigned char const*, unsigned char*)",
+     "mangled": "_Z19block_reduce_kernelPKhPh",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1040,
+     "b_pc": 1184,
+     "a_op": "STS.U8",
+     "b_op": "LDS.U8",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 284
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 318
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 353
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 160
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 388
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 233
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/block_reduce.cuh",
+       "line": 517
+      },
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-1/driver.cu",
+       "line": 14
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_load.cuh",
+       "line": 331
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_load.cuh",
+       "line": 358
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_load.cuh",
+       "line": 378
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 167
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 388
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 233
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/block_reduce.cuh",
+       "line": 517
+      },
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-1/driver.cu",
+       "line": 14
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "block_reduce_kernel(unsigned char const*, unsigned char*)",
+     "mangled": "_Z19block_reduce_kernelPKhPh",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1184,
+     "b_pc": 1296,
+     "a_op": "LDS.U8",
+     "b_op": "STS.U8",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_load.cuh",
+       "line": 331
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_load.cuh",
+       "line": 358
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_load.cuh",
+       "line": 378
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 167
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 388
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 233
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/block_reduce.cuh",
+       "line": 517
+      },
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-1/driver.cu",
+       "line": 14
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 284
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 318
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 353
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 160
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 388
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 233
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/block_reduce.cuh",
+       "line": 517
+      },
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-1/driver.cu",
+       "line": 14
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "block_reduce_kernel(unsigned char const*, unsigned char*)",
+     "mangled": "_Z19block_reduce_kernelPKhPh",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1296,
+     "b_pc": 1440,
+     "a_op": "STS.U8",
+     "b_op": "LDS.U8",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 284
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 318
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 353
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 160
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 388
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 233
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/block_reduce.cuh",
+       "line": 517
+      },
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-1/driver.cu",
+       "line": 14
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_load.cuh",
+       "line": 331
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_load.cuh",
+       "line": 358
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_load.cuh",
+       "line": 378
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 167
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 388
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 233
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/block_reduce.cuh",
+       "line": 517
+      },
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-1/driver.cu",
+       "line": 14
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "block_reduce_kernel(unsigned char const*, unsigned char*)",
+     "mangled": "_Z19block_reduce_kernelPKhPh",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1440,
+     "b_pc": 1552,
+     "a_op": "LDS.U8",
+     "b_op": "STS.U8",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_load.cuh",
+       "line": 331
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_load.cuh",
+       "line": 358
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_load.cuh",
+       "line": 378
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 167
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 388
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 233
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/block_reduce.cuh",
+       "line": 517
+      },
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-1/driver.cu",
+       "line": 14
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 284
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 318
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 353
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 160
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 388
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 233
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/block_reduce.cuh",
+       "line": 517
+      },
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-1/driver.cu",
+       "line": 14
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "block_reduce_kernel(unsigned char const*, unsigned char*)",
+     "mangled": "_Z19block_reduce_kernelPKhPh",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1552,
+     "b_pc": 1696,
+     "a_op": "STS.U8",
+     "b_op": "LDS.U8",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 284
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 318
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 353
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 160
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 388
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 233
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/block_reduce.cuh",
+       "line": 517
+      },
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-1/driver.cu",
+       "line": 14
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_load.cuh",
+       "line": 331
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_load.cuh",
+       "line": 358
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_load.cuh",
+       "line": 378
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 167
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 173
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/warp/specializations/warp_reduce_smem.cuh",
+       "line": 388
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 233
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/block_reduce.cuh",
+       "line": 517
+      },
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-1/driver.cu",
+       "line": 14
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    }
+   ],
+   "site_verdicts": [
+    {
+     "current_pc": 544,
+     "current_pc_hex": "0x220",
+     "ancient_pc": 240,
+     "ancient_pc_hex": "0xf0",
+     "opcodes": [
+      "STS.U8",
+      "LDS.U8"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 7,
+     "access_size": 1,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "block_reduce_kernel(unsigned char const*, unsigned char*)",
+     "mangled": "_Z19block_reduce_kernelPKhPh",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 284
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 318
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 353
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 222
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/block_reduce.cuh",
+       "line": 517
+      }
+     ]
+    },
+    {
+     "current_pc": 544,
+     "current_pc_hex": "0x220",
+     "ancient_pc": 304,
+     "ancient_pc_hex": "0x130",
+     "opcodes": [
+      "STS.U8",
+      "LDS.U8"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 7,
+     "access_size": 1,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "block_reduce_kernel(unsigned char const*, unsigned char*)",
+     "mangled": "_Z19block_reduce_kernelPKhPh",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 284
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 318
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 353
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 161
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 224
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 257
+      }
+     ]
+    },
+    {
+     "current_pc": 544,
+     "current_pc_hex": "0x220",
+     "ancient_pc": 320,
+     "ancient_pc_hex": "0x140",
+     "opcodes": [
+      "STS.U8",
+      "LDS.U8"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 7,
+     "access_size": 1,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "block_reduce_kernel(unsigned char const*, unsigned char*)",
+     "mangled": "_Z19block_reduce_kernelPKhPh",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 284
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 318
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/thread/thread_store.cuh",
+       "line": 353
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 161
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 224
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-1/fixed/src/cub/cub/block/specializations/block_reduce_raking.cuh",
+       "line": 257
+      }
+     ]
+    }
+   ],
+   "site_skipped": {
+    "intra_thread_only": 4
+   }
+  }
+ },
+ "dots_checked": 1,
+ "dots_regenerated_equal": 1
+}
