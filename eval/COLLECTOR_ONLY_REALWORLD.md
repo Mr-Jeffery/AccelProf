@@ -55,8 +55,8 @@ Outcome per target and component, collector-only (CO) next to scalar-clock (SC) 
 | ginkgo-5 | fixed | - | CLEAN | CLEAN | CLEAN | 0/0 | CLEAN |
 | hecbench-dxtc2-1 | buggy | DR | DETECTED | DETECTED | DETECTED | 92/0 | RACE |
 | hecbench-dxtc2-1 | fixed | - | RESIDUAL | RESIDUAL | RESIDUAL | 3/0 | RACE |
-| hecbench-hungarian-1 | buggy | SC | NOT-SCORED | DET-as-DR | DET-as-DR | / | ERROR |
-| hecbench-hungarian-1 | fixed | - | NOT-SCORED | RESIDUAL | RESIDUAL | / | ERROR |
+| hecbench-hungarian-1 | buggy | SC | DET-as-DR | DET-as-DR | DET-as-DR | 235/239 | RACE |
+| hecbench-hungarian-1 | fixed | - | RESIDUAL | RESIDUAL | RESIDUAL | 235/250 | RACE |
 | hecbench-morphology-1 | buggy | DR | DETECTED | DETECTED | DETECTED | 8/0 | RACE |
 | hecbench-morphology-1 | fixed | - | CLEAN | CLEAN | CLEAN | 8/0 | RACE |
 | hecbench-surfel-1 | buggy | DR | DETECTED | DETECTED | DETECTED | 14/0 | RACE |
@@ -90,11 +90,11 @@ Outcome per target and component, collector-only (CO) next to scalar-clock (SC) 
 | pytorch-4 | fixed | - | RESIDUAL | RESIDUAL | RESIDUAL | 1/0 | RACE |
 | pytorch_cluster-1 | buggy | DR | DETECTED | DETECTED | DETECTED | 12/0 | RACE |
 | pytorch_cluster-1 | fixed | - | CLEAN | CLEAN | CLEAN | 0/0 | CLEAN |
-| raft-1 | buggy | DR | NOT-SCORED | DETECTED | DETECTED | / | ERROR |
-| raft-1 | buggy | SC | NOT-SCORED | DETECTED | DETECTED | / | ERROR |
-| raft-1 | fixed | - | NOT-SCORED | RESIDUAL | NOT-SCORED | / | ERROR |
+| raft-1 | buggy | DR | MISSED | DETECTED | DETECTED | 24/1 | RACE |
+| raft-1 | buggy | SC | DETECTED | DETECTED | DETECTED | 24/1 | RACE |
+| raft-1 | fixed | - | RESIDUAL | RESIDUAL | NOT-SCORED | 22/1 | RACE |
 
-- collector-only: buggy DETECTED (22); buggy DETECTED-AS-DR (2); buggy MISSED (3); buggy NOT-SCORED (4); fixed CLEAN-FOR-PAIR (17); fixed NOT-SCORED (3); fixed RESIDUAL-AS-EXPECTED (5); fixed STILL-REPORTED (3)
+- collector-only: buggy DETECTED (23); buggy DETECTED-AS-DR (3); buggy MISSED (4); buggy NOT-SCORED (1); fixed CLEAN-FOR-PAIR (17); fixed NOT-SCORED (1); fixed RESIDUAL-AS-EXPECTED (7); fixed STILL-REPORTED (3)
 - scalar-clock: buggy DETECTED (27); buggy DETECTED-AS-DR (3); buggy MISSED (1); fixed CLEAN-FOR-PAIR (20); fixed RESIDUAL-AS-EXPECTED (6); fixed STILL-REPORTED (1)
 - vector-clock: buggy DETECTED (27); buggy DETECTED-AS-DR (3); buggy MISSED (1); fixed CLEAN-FOR-PAIR (20); fixed NOT-SCORED (1); fixed RESIDUAL-AS-EXPECTED (5); fixed STILL-REPORTED (1)
 
@@ -103,7 +103,7 @@ Outcome per target and component, collector-only (CO) next to scalar-clock (SC) 
 | id | comp | expected | CO | CO class reported | SC (T21c) | CO n_race/n_sc |
 |---|---|---|---|---|---|---|
 | autogptq-new-1-buggy | DR | DR | DETECTED | 128 RACE / 0 SC | DETECTED | 128/0 |
-| colmap-new-1-buggy | DR | DR | NOT-SCORED |  RACE /  SC | DETECTED | / |
+| colmap-new-1-buggy | DR | DR | DETECTED | 272 RACE / 0 SC | DETECTED | 272/0 |
 | cuml-tsne-new-1-buggy | DR | DR | DETECTED | 56 RACE / 24 SC | DETECTED | 56/24 |
 | droidslam-new-1-buggy | SC | SC | DET-as-DR | 21 RACE / 0 SC | DET-as-DR | 21/0 |
 | llamacpp-open-1-buggy | DR | DR | DETECTED | 17 RACE / 0 SC | DETECTED | 17/0 |
@@ -136,11 +136,12 @@ Other reports = reports no oracle pair, registered residual or both-builds pair 
 | cccl-3 | 36 | 25 |
 | cccl-4 | 4 | 9 |
 | cmssw-1 | 1 | 2 |
+| colmap-new-1 | 116 | 0 |
 | cuml-tsne-new-1 | 79 | 91 |
 | droidslam-new-1 | 6 | 7 |
 | ginkgo-5 | 3 | 3 |
 | hecbench-dxtc2-1 | 40 | 49 |
-| hecbench-hungarian-1 | 0 | 525 |
+| hecbench-hungarian-1 | 470 | 525 |
 | hecbench-morphology-1 | 4 | 4 |
 | kokkos-5 | 4 | 2 |
 | kokkos-6 | 26 | 12 |
@@ -154,8 +155,8 @@ Other reports = reports no oracle pair, registered residual or both-builds pair 
 | opencv_contrib-new-1 | 9 | 9 |
 | pcl-new-1 | 43 | 381 |
 | pytorch-1 | 2 | 0 |
-| raft-1 | 0 | 19 |
-| **total** | **1768** | **1439** |
+| raft-1 | 24 | 19 |
+| **total** | **2378** | **1439** |
 
 ### Reports collector-only makes and scalar-clock does not (same target, buggy build)
 
@@ -173,7 +174,7 @@ Key = (kernel, unordered pc pair, space), over all reports of both modes (RACE a
 | ginkgo-1-buggy | 15 | 15 | 15 | 0 | 0 |  |
 | ginkgo-5-buggy | 3 | 6 | 3 | 0 | 3 |  |
 | hecbench-dxtc2-1-buggy | 92 | 111 | 89 | 3 | 22 |  |
-| hecbench-hungarian-1-buggy |  |  |  |  |  | no collector-only attribution |
+| hecbench-hungarian-1-buggy | 474 | 539 | 454 | 20 | 85 |  |
 | hecbench-morphology-1-buggy | 8 | 8 | 8 | 0 | 0 |  |
 | hecbench-surfel-1-buggy | 14 | 8 | 8 | 6 | 0 |  |
 | kokkos-5-buggy | 19 | 16 | 11 | 8 | 5 |  |
@@ -190,7 +191,7 @@ Key = (kernel, unordered pc pair, space), over all reports of both modes (RACE a
 | pytorch-3-buggy | 1 | 2 | 1 | 0 | 1 |  |
 | pytorch-4-buggy | 2 | 2 | 2 | 0 | 0 |  |
 | pytorch_cluster-1-buggy | 12 | 12 | 12 | 0 | 0 |  |
-| raft-1-buggy |  |  |  |  |  | no collector-only attribution |
+| raft-1-buggy | 25 | 24 | 14 | 11 | 10 |  |
 | autogptq-new-1-buggy | 128 | 112 | 112 | 16 | 0 |  |
 | colmap-new-1-buggy |  |  |  |  |  | no collector-only attribution |
 | cuml-tsne-new-1-buggy | 80 | 95 | 78 | 2 | 17 |  |
@@ -211,7 +212,7 @@ Key = (kernel, unordered pc pair, space), over all reports of both modes (RACE a
 | pytorch_cluster-new-1-buggy | 14 | 14 | 14 | 0 | 0 |  |
 | sglang-open-1-buggy | 1 | 1 | 1 | 0 | 0 |  |
 
-CO-only reports: 1342.
+CO-only reports: 1373.
 
 Shape between the two pcs (definitions in `harness/co_diff.py`) against the scalar-clock verdict for the same pair (read from the scalar-clock kernel JSONs of the same kernel):
 
@@ -219,10 +220,10 @@ Shape between the two pcs (definitions in `harness/co_diff.py`) against the scal
 |---|---|---|---|---|---|
 | loop around the barrier | 98 | 98 | 0 | 0 | 0 |
 | warp barrier between | 0 | 0 | 0 | 0 | 0 |
-| exit before the barrier | 530 | 530 | 0 | 0 | 0 |
-| barrier on one branch | 37 | 37 | 0 | 0 | 0 |
+| exit before the barrier | 532 | 532 | 0 | 0 | 0 |
+| barrier on one branch | 66 | 55 | 1 | 0 | 10 |
 | other | 677 | 669 | 8 | 0 | 0 |
-| **total** | **1342** | 1334 | 8 | 0 | 0 |
+| **total** | **1373** | 1354 | 9 | 0 | 10 |
 
 Per target:
 
@@ -234,6 +235,7 @@ Per target:
 | cccl-3-buggy | 24 | 0 | 0 | 1 | 17 | 6 | 18 |
 | cuml-tsne-new-1-buggy | 2 | 0 | 0 | 0 | 0 | 2 | 0 |
 | hecbench-dxtc2-1-buggy | 3 | 0 | 0 | 0 | 0 | 3 | 3 |
+| hecbench-hungarian-1-buggy | 20 | 0 | 0 | 0 | 20 | 0 | 10 |
 | hecbench-surfel-1-buggy | 6 | 6 | 0 | 0 | 0 | 0 | 6 |
 | kokkos-5-buggy | 8 | 0 | 0 | 0 | 0 | 8 | 8 |
 | kokkos-6-buggy | 14 | 4 | 0 | 0 | 0 | 10 | 14 |
@@ -245,6 +247,7 @@ Per target:
 | llamacpp-open-1-buggy | 16 | 0 | 0 | 0 | 0 | 16 | 16 |
 | llmc-new-3-k8-buggy | 1 | 0 | 0 | 1 | 0 | 0 | 1 |
 | pytorch-1-buggy | 2 | 2 | 0 | 0 | 0 | 0 | 2 |
+| raft-1-buggy | 11 | 0 | 0 | 2 | 9 | 0 | 10 |
 
 ## 4. Slowdown and peak RSS (one rep per id; slowdown = tool wall / native wall)
 
@@ -329,6 +332,8 @@ Median slowdown over the 65 CO runs that ended RACE/CLEAN: 5.1x (min 1.1x, max 2
 ## 5. Open and missing numbers
 
 - NOT-SCORED rows (analysis timeout at 3,600 s, long re-analysis still running): amrex-1 buggy and fixed. Their report counts, other-report counts, CO-only reports and shapes are absent from sections 1-3.
+- colmap-new-1 buggy is scored (section 2: DETECTED, 272 RACE reports), but its collector-only vs scalar-clock diff (CO-only reports, shapes) was still being computed (job 323081, candidate half) when this was written; the "no collector-only attribution" row for it in section 3 is that gap.
+- 10 CO-only pairs of hecbench-hungarian-1 buggy have "no verdict" for the scalar-clock side: the lookup scans at most 40 scalar-clock kernel JSONs of the kernel (the recording has 7,066) and found none that judges the pair.
 - Slowdown/peak RSS rows of the 5 re-analysed ids show the verdict of the first (ERROR) row; the tool wall and RSS are those of the recording, which the re-analysis does not change.
 - Not run: lightgbm-new-1, lightgbm-new-2, llamacpp-open-2 (buggy, fixed).
 - Peak RSS is `blib.run_timed(poll_mem=True)` (the summed VmRSS poll X1b used); the T21b/T21c columns are the same measurement from their runs. Slowdown = tool wall / native wall of the same id, one rep each,
