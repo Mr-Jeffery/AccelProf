@@ -1,8 +1,9 @@
 # C2: collector-only mode on the real-world recall and candidate sets
 
 Branch `eval/collector-only-realworld` (from `eval/collector-only` fd03443, C1 step 1). Measurement only: no change in `nv-compute/`, `sanalyzer/`,
-`python/hb_oracle.py` or any rule in `python/sync_dominance.py`. Written 2026-10-28. **Status: 7 of the 56+16 runs are unscored (analysis timeout), their long
-re-analyses (jobs 322934-322940) were still running when this was written; those rows are marked NOT-SCORED and are the only open numbers (section 5).**
+`python/hb_oracle.py` or any rule in `python/sync_dominance.py`. Written 2026-10-28. **Status: 2 of the 56+16 runs are unscored (amrex-1 buggy and fixed, analysis timeout); their long
+re-analyses (jobs 322934, 322935) were still running (17 h 40 min) when this was written; those rows are marked NOT-SCORED and are the only open numbers (section 5). The other 5 analysis-timeout runs
+(hecbench-hungarian-1 x2, raft-1 x2, colmap-new-1) finished their long re-analysis and are scored.**
 
 ## 0. Setup (facts)
 
@@ -20,7 +21,8 @@ re-analyses (jobs 322934-322940) were still running when this was written; those
 - Tool timeouts: 0 of the 72 runs (the 5,400 s pass for timeouts therefore had nothing to run).
 - Analysis errors: 7 runs ended `ERROR analysis-timeout=3600s` (amrex-1 buggy/fixed: 1,246/1,452 kernel JSONs; hecbench-hungarian-1 buggy/fixed: 7,066/6,964; raft-1 buggy/fixed: 4 kernel JSONs each;
   colmap-new-1 buggy: 7 kernel JSONs), the same ids whose scalar-clock analysis needed the long runs in T21b/T21c. They are re-analysed from the stored recordings with a 82,800 s analysis timeout
-  (`co_rean.sh`, CPU jobs 322934-322940, T21c's procedure for colmap-new-1). Until those finish the rows are NOT-SCORED, not MISSED. The scorer's own label for them is MISSED with cause m4.
+  (`co_rean.sh`, CPU jobs 322934-322940, T21c's procedure for colmap-new-1). Five finished (rows `baselines-cuvein-shardrean-*`, scored below; the scoring uses the re-analysis row where the first row is ERROR);
+  amrex-1 buggy/fixed are still running and stay NOT-SCORED, not MISSED (the scorer's own label for them is MISSED with cause m4).
 - Not run, per the brief: lightgbm-new-1, lightgbm-new-2 (scalar-clock analysis did not finish in 23 h), llamacpp-open-2 buggy and fixed (deprioritised).
 - Comparison runs are the existing T21b (`eval/results/realworld`, scalar-clock and vector-clock) and T21c (`eval/results/realworld_t21c`, scalar-clock) results, not re-run.
 - Files: `eval/COLLECTOR_ONLY_REALWORLD.csv` (the recall table's source format, `recall.csv` columns, both sets), `eval/results/realworld_co/` and `eval/results/realworld_co_t21c/` (per-id CSVs, `attrib/`, `recall.csv`,
@@ -326,8 +328,8 @@ Median slowdown over the 65 CO runs that ended RACE/CLEAN: 5.1x (min 1.1x, max 2
 
 ## 5. Open and missing numbers
 
-- NOT-SCORED rows (analysis timeout at 3,600 s, long re-analysis pending): amrex-1 buggy and fixed, hecbench-hungarian-1 buggy and fixed, raft-1 buggy and fixed, colmap-new-1 buggy.
-  Their report counts, other-report counts, CO-only reports and shapes are absent from sections 1-3 for the same reason.
+- NOT-SCORED rows (analysis timeout at 3,600 s, long re-analysis still running): amrex-1 buggy and fixed. Their report counts, other-report counts, CO-only reports and shapes are absent from sections 1-3.
+- Slowdown/peak RSS rows of the 5 re-analysed ids show the verdict of the first (ERROR) row; the tool wall and RSS are those of the recording, which the re-analysis does not change.
 - Not run: lightgbm-new-1, lightgbm-new-2, llamacpp-open-2 (buggy, fixed).
 - Peak RSS is `blib.run_timed(poll_mem=True)` (the summed VmRSS poll X1b used); the T21b/T21c columns are the same measurement from their runs. Slowdown = tool wall / native wall of the same id, one rep each,
   so the 1-3 s runs are start-up dominated.
