@@ -1,0 +1,30 @@
+host=c42 gpu=[NVIDIA GeForce RTX 4060 Ti, 8.9, 580.82.07] mem=125G cpu=[AMD EPYC 7302P 16-Core Processor]
+no HbClock, no sync pass (hb_shards n/a) nproc=16 analyzer: accelprof -n 1
+job=322949 array=322947_1 partition=rtx4060ti16g shard=1/3 select=[--id-file /home/fzheng4/wt-co/eval/baselines/setup/t5b_parity_ids.txt] tag=co-parity-a cap=1200s reps=3 modes=collector-only store=/mnt/beegfs/fzheng4/cuvein_traces/final-2026-11-co-parity-a 2026-10-28T19:09:24-04:00
+runtime /home/fzheng4/AccelProf HEAD=f551ca00947e libsanalyzer=5a20fd14ab6c6806 (/home/fzheng4/AccelProf/build/sanalyzer/lib/libsanalyzer.so) collector=b746b4dd23e90f46 fatbin=a2d7368bc1c61986 late=e96343121c74ca0a
+harness /home/fzheng4/wt-co HEAD=aa15012f851f dirty=0 Build cuda_13.3.r13.3/compiler.38244171_0
+[run 1/22] P4-1dconv-racy-small
+[run 2/22] P4-matrix-multiplication-norace-small
+[run 3/22] P4-reduction-racy-large
+[run 4/22] P5-norace_interblock_atom
+[run 5/22] P5-norace_interwarp_blkfence_raw
+[run 6/22] P5-race_interwarp_dev-blklock-no-stf_waw
+[run 7/22] P5-canary
+[run 8/22] P6-false_positives-shared_bytewise_readwrite-fixed
+[run 9/22] P6-interkernel-global_readwrite_race-racy
+[run 10/22] P6-memcpy-global_readwrite_race-fixed
+[run 11/22] P1-BFS_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Block_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug_NoOverflowBug-slower_atomic-1296n
+[run 12/22] P1-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_RaceBug_NoBoundsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n
+[run 13/22] P1-BFS_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Thread_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoOverflowBug_NoLivelockBug-default-1296n
+[run 14/22] PI-conditional_edge_neighbor_boundsBug_cond-DAG_5n_5e
+[run 15/22] PI-conditional_edge_neighbors_block_shfl_cond_guardBug-DAG_5n_5e
+[run 16/22] PI-populate_worklist_neighbors_persistent_atomicBug-counterDAG_200n_1000e
+[run 17/22] PI-push_node_neighbors_reverse_cond_atomicBug_break-counterDAG_200n_1000e
+[run 18/22] P3-CC_CUDA_E_Topo_NonDeterm_IntType_ReadModifyWrite_NonPersist_Atomic_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n
+[run 19/22] P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n
+[run 20/22] P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_Block_Dup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n
+[run 21/22] P7-particlefilter-cuda
+[run 22/22] P9-crs-cuda
+run: 22 programs -> /home/fzheng4/wt-co/eval/results/collector-only-parity-a/baselines-cuvein-shardco-parity-a1_3.csv
+kept traces: 0.00 GB in /mnt/beegfs/fzheng4/cuvein_traces/final-2026-11-co-parity-a
+== done rc=0 2026-10-28T20:15:23-04:00
