@@ -1,9 +1,7 @@
 # C2: collector-only mode on the real-world recall and candidate sets
 
 Branch `eval/collector-only-realworld` (from `eval/collector-only` fd03443, C1 step 1). Measurement only: no change in `nv-compute/`, `sanalyzer/`,
-`python/hb_oracle.py` or any rule in `python/sync_dominance.py`. Written 2026-10-28. **Status: 2 of the 56+16 runs are unscored (amrex-1 buggy and fixed, analysis timeout); their long
-re-analyses (jobs 322934, 322935) were still running (17 h 40 min) when this was written; those rows are marked NOT-SCORED and are the only open numbers (section 5). The other 5 analysis-timeout runs
-(hecbench-hungarian-1 x2, raft-1 x2, colmap-new-1) finished their long re-analysis and are scored.**
+`python/hb_oracle.py` or any rule in `python/sync_dominance.py`. Written 2026-10-28. **Status: 2 of the 72 runs are unscored: amrex-1 buggy and fixed. Their long re-analyses (jobs 322934, 322935, analysis timeout 82,800 s) ended `ERROR analysis-timeout=82800s` (1,246 / 1,452 kernel JSONs) and the jobs then reached the 24 h limit before attribution; no report counts exist for them. The other 70 runs are scored (the 5 other analysis-timeout ids via their long re-analyses).**
 
 ## 0. Setup (facts)
 
@@ -21,8 +19,8 @@ re-analyses (jobs 322934, 322935) were still running (17 h 40 min) when this was
 - Tool timeouts: 0 of the 72 runs (the 5,400 s pass for timeouts therefore had nothing to run).
 - Analysis errors: 7 runs ended `ERROR analysis-timeout=3600s` (amrex-1 buggy/fixed: 1,246/1,452 kernel JSONs; hecbench-hungarian-1 buggy/fixed: 7,066/6,964; raft-1 buggy/fixed: 4 kernel JSONs each;
   colmap-new-1 buggy: 7 kernel JSONs), the same ids whose scalar-clock analysis needed the long runs in T21b/T21c. They are re-analysed from the stored recordings with a 82,800 s analysis timeout
-  (`co_rean.sh`, CPU jobs 322934-322940, T21c's procedure for colmap-new-1). Five finished (rows `baselines-cuvein-shardrean-*`, scored below; the scoring uses the re-analysis row where the first row is ERROR);
-  amrex-1 buggy/fixed are still running and stay NOT-SCORED, not MISSED (the scorer's own label for them is MISSED with cause m4).
+  (`co_rean.sh`, CPU jobs 322934-322940, T21c's procedure for colmap-new-1). Five finished and amrex-1 x2 did not (rows `baselines-cuvein-shardrean-*`, scored below; the scoring uses the re-analysis row where the first row is ERROR);
+  amrex-1 buggy/fixed ended ERROR at 82,800 s and stay NOT-SCORED, not MISSED (the scorer's own label for them is MISSED with cause m4).
 - Not run, per the brief: lightgbm-new-1, lightgbm-new-2 (scalar-clock analysis did not finish in 23 h), llamacpp-open-2 buggy and fixed (deprioritised).
 - Comparison runs are the existing T21b (`eval/results/realworld`, scalar-clock and vector-clock) and T21c (`eval/results/realworld_t21c`, scalar-clock) results, not re-run.
 - Files: `eval/COLLECTOR_ONLY_REALWORLD.csv` (the recall table's source format, `recall.csv` columns, both sets), `eval/results/realworld_co/` and `eval/results/realworld_co_t21c/` (per-id CSVs, `attrib/`, `recall.csv`,
@@ -34,8 +32,8 @@ Outcome per target and component, collector-only (CO) next to scalar-clock (SC) 
 
 | target | variant | comp | CO | SC | VC | CO n_race/n_sc | CO run |
 |---|---|---|---|---|---|---|---|
-| amrex-1 | buggy | DR | pending (re-analysis running) | MISSED | MISSED | / | ERROR |
-| amrex-1 | fixed | - | pending (re-analysis running) | - | - | / | ERROR |
+| amrex-1 | buggy | DR | NOT-SCORED (analysis timeout at 82,800 s) | MISSED | MISSED | / | ERROR |
+| amrex-1 | fixed | - | NOT-SCORED (analysis timeout at 82,800 s) | - | - | / | ERROR |
 | bitsandbytes-1 | buggy | DR | DETECTED | DETECTED | DETECTED | 65/0 | RACE |
 | bitsandbytes-1 | fixed | - | CLEAN | CLEAN | CLEAN | 64/0 | RACE |
 | cccl-1 | buggy | DR | DETECTED | DETECTED | DETECTED | 12/0 | RACE |
@@ -94,7 +92,7 @@ Outcome per target and component, collector-only (CO) next to scalar-clock (SC) 
 | raft-1 | buggy | SC | DETECTED | DETECTED | DETECTED | 24/1 | RACE |
 | raft-1 | fixed | - | RESIDUAL | RESIDUAL | NOT-SCORED | 22/1 | RACE |
 
-- collector-only: buggy DETECTED (23); buggy DETECTED-AS-DR (3); buggy MISSED (4); buggy NOT-SCORED (1); fixed CLEAN-FOR-PAIR (17); fixed NOT-SCORED (1); fixed RESIDUAL-AS-EXPECTED (7); fixed STILL-REPORTED (3)
+- collector-only: buggy DETECTED (23); buggy DETECTED-AS-DR (3); buggy MISSED (4); buggy NOT-SCORED (analysis timeout at 82,800 s) (1); fixed CLEAN-FOR-PAIR (17); fixed RESIDUAL-AS-EXPECTED (7); fixed STILL-REPORTED (3); fixed NOT-SCORED (analysis timeout at 82,800 s) (1)
 - scalar-clock: buggy DETECTED (27); buggy DETECTED-AS-DR (3); buggy MISSED (1); fixed CLEAN-FOR-PAIR (20); fixed RESIDUAL-AS-EXPECTED (6); fixed STILL-REPORTED (1)
 - vector-clock: buggy DETECTED (27); buggy DETECTED-AS-DR (3); buggy MISSED (1); fixed CLEAN-FOR-PAIR (20); fixed NOT-SCORED (1); fixed RESIDUAL-AS-EXPECTED (5); fixed STILL-REPORTED (1)
 
@@ -193,7 +191,7 @@ Key = (kernel, unordered pc pair, space), over all reports of both modes (RACE a
 | pytorch_cluster-1-buggy | 12 | 12 | 12 | 0 | 0 |  |
 | raft-1-buggy | 25 | 24 | 14 | 11 | 10 |  |
 | autogptq-new-1-buggy | 128 | 112 | 112 | 16 | 0 |  |
-| colmap-new-1-buggy |  |  |  |  |  | no collector-only attribution |
+| colmap-new-1-buggy | 272 | 504 | 156 | 116 | 348 |  |
 | cuml-tsne-new-1-buggy | 80 | 95 | 78 | 2 | 17 |  |
 | droidslam-new-1-buggy | 21 | 67 | 21 | 0 | 46 |  |
 | lightgbm-new-1-buggy |  |  |  |  |  | not run (excluded by the brief) |
@@ -212,18 +210,18 @@ Key = (kernel, unordered pc pair, space), over all reports of both modes (RACE a
 | pytorch_cluster-new-1-buggy | 14 | 14 | 14 | 0 | 0 |  |
 | sglang-open-1-buggy | 1 | 1 | 1 | 0 | 0 |  |
 
-CO-only reports: 1373.
+CO-only reports: 1489.
 
 Shape between the two pcs (definitions in `harness/co_diff.py`) against the scalar-clock verdict for the same pair (read from the scalar-clock kernel JSONs of the same kernel):
 
 | shape | CO-only reports | SC: ORDERED (barrier-ordered) | SC: ORDERED (other) | SC: RACE/SC | SC: no verdict for the pair |
 |---|---|---|---|---|---|
-| loop around the barrier | 98 | 98 | 0 | 0 | 0 |
+| loop around the barrier | 214 | 214 | 0 | 0 | 0 |
 | warp barrier between | 0 | 0 | 0 | 0 | 0 |
 | exit before the barrier | 532 | 532 | 0 | 0 | 0 |
 | barrier on one branch | 66 | 55 | 1 | 0 | 10 |
 | other | 677 | 669 | 8 | 0 | 0 |
-| **total** | **1373** | 1354 | 9 | 0 | 10 |
+| **total** | **1489** | 1470 | 9 | 0 | 10 |
 
 Per target:
 
@@ -233,6 +231,7 @@ Per target:
 | bitsandbytes-1-buggy | 64 | 64 | 0 | 0 | 0 | 0 | 64 |
 | cccl-2-buggy | 365 | 0 | 0 | 5 | 0 | 360 | 365 |
 | cccl-3-buggy | 24 | 0 | 0 | 1 | 17 | 6 | 18 |
+| colmap-new-1-buggy | 116 | 116 | 0 | 0 | 0 | 0 | 116 |
 | cuml-tsne-new-1-buggy | 2 | 0 | 0 | 0 | 0 | 2 | 0 |
 | hecbench-dxtc2-1-buggy | 3 | 0 | 0 | 0 | 0 | 3 | 3 |
 | hecbench-hungarian-1-buggy | 20 | 0 | 0 | 0 | 20 | 0 | 10 |
@@ -331,8 +330,7 @@ Median slowdown over the 65 CO runs that ended RACE/CLEAN: 5.1x (min 1.1x, max 2
 
 ## 5. Open and missing numbers
 
-- NOT-SCORED rows (analysis timeout at 3,600 s, long re-analysis still running): amrex-1 buggy and fixed. Their report counts, other-report counts, CO-only reports and shapes are absent from sections 1-3.
-- colmap-new-1 buggy is scored (section 2: DETECTED, 272 RACE reports), but its collector-only vs scalar-clock diff (CO-only reports, shapes) was still being computed (job 323081, candidate half) when this was written; the "no collector-only attribution" row for it in section 3 is that gap.
+- NOT-SCORED rows: amrex-1 buggy and fixed (analysis timeout at 3,600 s; long re-analysis with a 82,800 s analysis timeout also ended ERROR, jobs 322934/322935, then 24 h job limit). Their report counts, other-report counts, CO-only reports and shapes are absent from sections 1-3.
 - 10 CO-only pairs of hecbench-hungarian-1 buggy have "no verdict" for the scalar-clock side: the lookup scans at most 40 scalar-clock kernel JSONs of the kernel (the recording has 7,066) and found none that judges the pair.
 - Slowdown/peak RSS rows of the 5 re-analysed ids show the verdict of the first (ERROR) row; the tool wall and RSS are those of the recording, which the re-analysis does not change.
 - Not run: lightgbm-new-1, lightgbm-new-2, llamacpp-open-2 (buggy, fixed).

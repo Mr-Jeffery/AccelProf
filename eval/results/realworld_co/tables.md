@@ -4,8 +4,8 @@ Outcome per target and component, collector-only (CO) next to scalar-clock (SC) 
 
 | target | variant | comp | CO | SC | VC | CO n_race/n_sc | CO run |
 |---|---|---|---|---|---|---|---|
-| amrex-1 | buggy | DR | pending (re-analysis running) | MISSED | MISSED | / | ERROR |
-| amrex-1 | fixed | - | pending (re-analysis running) | - | - | / | ERROR |
+| amrex-1 | buggy | DR | NOT-SCORED (analysis timeout at 82,800 s) | MISSED | MISSED | / | ERROR |
+| amrex-1 | fixed | - | NOT-SCORED (analysis timeout at 82,800 s) | - | - | / | ERROR |
 | bitsandbytes-1 | buggy | DR | DETECTED | DETECTED | DETECTED | 65/0 | RACE |
 | bitsandbytes-1 | fixed | - | CLEAN | CLEAN | CLEAN | 64/0 | RACE |
 | cccl-1 | buggy | DR | DETECTED | DETECTED | DETECTED | 12/0 | RACE |
@@ -64,7 +64,7 @@ Outcome per target and component, collector-only (CO) next to scalar-clock (SC) 
 | raft-1 | buggy | SC | DETECTED | DETECTED | DETECTED | 24/1 | RACE |
 | raft-1 | fixed | - | RESIDUAL | RESIDUAL | NOT-SCORED | 22/1 | RACE |
 
-- collector-only: buggy DETECTED (23); buggy DETECTED-AS-DR (3); buggy MISSED (4); buggy NOT-SCORED (1); fixed CLEAN-FOR-PAIR (17); fixed NOT-SCORED (1); fixed RESIDUAL-AS-EXPECTED (7); fixed STILL-REPORTED (3)
+- collector-only: buggy DETECTED (23); buggy DETECTED-AS-DR (3); buggy MISSED (4); buggy NOT-SCORED (analysis timeout at 82,800 s) (1); fixed CLEAN-FOR-PAIR (17); fixed RESIDUAL-AS-EXPECTED (7); fixed STILL-REPORTED (3); fixed NOT-SCORED (analysis timeout at 82,800 s) (1)
 - scalar-clock: buggy DETECTED (27); buggy DETECTED-AS-DR (3); buggy MISSED (1); fixed CLEAN-FOR-PAIR (20); fixed RESIDUAL-AS-EXPECTED (6); fixed STILL-REPORTED (1)
 - vector-clock: buggy DETECTED (27); buggy DETECTED-AS-DR (3); buggy MISSED (1); fixed CLEAN-FOR-PAIR (20); fixed NOT-SCORED (1); fixed RESIDUAL-AS-EXPECTED (5); fixed STILL-REPORTED (1)
 
@@ -163,7 +163,7 @@ Key = (kernel, unordered pc pair, space), over all reports of both modes (RACE a
 | pytorch_cluster-1-buggy | 12 | 12 | 12 | 0 | 0 |  |
 | raft-1-buggy | 25 | 24 | 14 | 11 | 10 |  |
 | autogptq-new-1-buggy | 128 | 112 | 112 | 16 | 0 |  |
-| colmap-new-1-buggy |  |  |  |  |  | no collector-only attribution |
+| colmap-new-1-buggy | 272 | 504 | 156 | 116 | 348 |  |
 | cuml-tsne-new-1-buggy | 80 | 95 | 78 | 2 | 17 |  |
 | droidslam-new-1-buggy | 21 | 67 | 21 | 0 | 46 |  |
 | lightgbm-new-1-buggy |  |  |  |  |  | not run (excluded by the brief) |
@@ -182,18 +182,18 @@ Key = (kernel, unordered pc pair, space), over all reports of both modes (RACE a
 | pytorch_cluster-new-1-buggy | 14 | 14 | 14 | 0 | 0 |  |
 | sglang-open-1-buggy | 1 | 1 | 1 | 0 | 0 |  |
 
-CO-only reports: 1373.
+CO-only reports: 1489.
 
 Shape between the two pcs (definitions in `harness/co_diff.py`) against the scalar-clock verdict for the same pair (read from the scalar-clock kernel JSONs of the same kernel):
 
 | shape | CO-only reports | SC: ORDERED (barrier-ordered) | SC: ORDERED (other) | SC: RACE/SC | SC: no verdict for the pair |
 |---|---|---|---|---|---|
-| loop around the barrier | 98 | 98 | 0 | 0 | 0 |
+| loop around the barrier | 214 | 214 | 0 | 0 | 0 |
 | warp barrier between | 0 | 0 | 0 | 0 | 0 |
 | exit before the barrier | 532 | 532 | 0 | 0 | 0 |
 | barrier on one branch | 66 | 55 | 1 | 0 | 10 |
 | other | 677 | 669 | 8 | 0 | 0 |
-| **total** | **1373** | 1354 | 9 | 0 | 10 |
+| **total** | **1489** | 1470 | 9 | 0 | 10 |
 
 Per target:
 
@@ -203,6 +203,7 @@ Per target:
 | bitsandbytes-1-buggy | 64 | 64 | 0 | 0 | 0 | 0 | 64 |
 | cccl-2-buggy | 365 | 0 | 0 | 5 | 0 | 360 | 365 |
 | cccl-3-buggy | 24 | 0 | 0 | 1 | 17 | 6 | 18 |
+| colmap-new-1-buggy | 116 | 116 | 0 | 0 | 0 | 0 | 116 |
 | cuml-tsne-new-1-buggy | 2 | 0 | 0 | 0 | 0 | 2 | 0 |
 | hecbench-dxtc2-1-buggy | 3 | 0 | 0 | 0 | 0 | 3 | 3 |
 | hecbench-hungarian-1-buggy | 20 | 0 | 0 | 0 | 20 | 0 | 10 |

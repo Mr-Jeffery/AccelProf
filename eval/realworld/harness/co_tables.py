@@ -35,14 +35,14 @@ for k in keys:
     c = next(v for kk, v in co_i.items() if kk[:3] == k)
     s = next((v for kk, v in sc_i.items() if kk[:3] == k), {})
     v = next((v for kk, v in vc_i.items() if kk[:3] == k), {})
-    oc = c["outcome"] if c["run_verdict"] in ("RACE", "CLEAN") else ("pending (re-analysis running)" if c["target"] == "amrex-1" else "NOT-SCORED")
+    oc = c["outcome"] if c["run_verdict"] in ("RACE", "CLEAN") else ("NOT-SCORED (analysis timeout at 82,800 s)" if c["target"] == "amrex-1" else "NOT-SCORED")
     tot[(c["variant"], oc)] += 1
     P(f"| {k[0]} | {k[1]} | {k[2] or '-'} | {short(oc)} | {short(s.get('outcome', '-'))} | {short(v.get('outcome', '-'))} | {c['n_race']}/{c['n_sc']} | {c['run_verdict']} |")
 P("")
 for mode, idm, label in (("CO", co_i, "collector-only"), ("SC", sc_i, "scalar-clock"), ("VC", vc_i, "vector-clock")):
     cnt = collections.Counter()
     for kk, r in idm.items():
-        oc = r["outcome"] if (mode != "CO" or r["run_verdict"] in ("RACE", "CLEAN")) else ("pending (re-analysis running)" if r["target"] == "amrex-1" else "NOT-SCORED")
+        oc = r["outcome"] if (mode != "CO" or r["run_verdict"] in ("RACE", "CLEAN")) else ("NOT-SCORED (analysis timeout at 82,800 s)" if r["target"] == "amrex-1" else "NOT-SCORED")
         cnt[(r["variant"], oc)] += 1
     P(f"- {label}: " + "; ".join(f"{v} {o} ({n})" for (v, o), n in sorted(cnt.items())))
 P("")
@@ -170,7 +170,7 @@ P(f"\nMedian slowdown over the {len(okc)} CO runs that ended RACE/CLEAN: {st.med
 rows = co_r + co_c
 for r in rows:
     if r["target"] == "amrex-1" and r["run_verdict"] not in ("RACE", "CLEAN"):
-        r["outcome"] = "pending (re-analysis running)"
+        r["outcome"] = "NOT-SCORED (analysis timeout at 82,800 s)"
         r["miss_cause"] = "analysis timeout at 3,600 s; long re-analysis (jobs 322934/322935) running"
 cols = ["id"] + [c for c in co_r[0].keys() if c != "id"]
 with open(f"{W}/eval/COLLECTOR_ONLY_REALWORLD.csv", "w", newline="") as f:
