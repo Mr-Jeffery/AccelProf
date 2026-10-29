@@ -34,8 +34,8 @@ Outcome per target and component, collector-only (CO) next to scalar-clock (SC) 
 
 | target | variant | comp | CO | SC | VC | CO n_race/n_sc | CO run |
 |---|---|---|---|---|---|---|---|
-| amrex-1 | buggy | DR | NOT-SCORED | MISSED | MISSED | / | ERROR |
-| amrex-1 | fixed | - | NOT-SCORED | - | - | / | ERROR |
+| amrex-1 | buggy | DR | pending (re-analysis running) | MISSED | MISSED | / | ERROR |
+| amrex-1 | fixed | - | pending (re-analysis running) | - | - | / | ERROR |
 | bitsandbytes-1 | buggy | DR | DETECTED | DETECTED | DETECTED | 65/0 | RACE |
 | bitsandbytes-1 | fixed | - | CLEAN | CLEAN | CLEAN | 64/0 | RACE |
 | cccl-1 | buggy | DR | DETECTED | DETECTED | DETECTED | 12/0 | RACE |
