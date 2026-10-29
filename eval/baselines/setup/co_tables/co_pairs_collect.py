@@ -17,12 +17,16 @@ def store_of(base, pid, mode):
         d = f"{B}/{base}{sfx}/{pid}/{mode}"
         if os.path.isdir(d) and any(n.startswith("kernel_") for n in os.listdir(d)): return f"{base}{sfx}"
     return None
+import re
 k, n = (int(x) for x in sys.argv[1].split("/"))
-OUT = f"eval/results/collector-only-tables/pairs/shard{k}.jsonl"
+ONLY = os.environ.get("PAIRS_ONLY")            # regex: re-run only these ids (long-cap pass)
+CAP = int(os.environ.get("PAIRS_CAP", "900"))
+OUT = f"eval/results/collector-only-tables/pairs/shard{k}.jsonl" if not ONLY else f"eval/results/collector-only-tables/pairs/shardlong{k}_" + re.sub("[^A-Za-z0-9]", "", ONLY) + ".jsonl"
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
 ids = sorted(r["id"] for r in csv.DictReader(open("eval/baselines/manifest.csv")))
 jobs = []
 for pid in ids:
+    if ONLY and not re.search(ONLY, pid): continue
     for mode, base in RECS:
         st = store_of(base, pid, mode)
         if st:
@@ -49,7 +53,7 @@ for kb, pid, mode, st, d in mine:
         with xc.Capture(fn):
             rc._analyze_reports(d, f"{B}/{st}/{pid}/dots")
         return sorted([sp, lo, hi, sorted(e["cls"]), e["unres"]] for (sp, lo, hi), e in pairs.items())
-    pay, reason = xc.run_capped(work, 900, 40)
+    pay, reason = xc.run_capped(work, CAP, 100 if ONLY else 40)
     rec = {"id": pid, "mode": mode, "store": st, "kbytes": kb, "reason": reason, "elapsed": round(time.time() - t0, 1), "pairs": pay}
     with open(OUT, "a") as f: f.write(json.dumps(rec) + "\n")
     print(pid[:70], mode, reason or "ok", rec["elapsed"], flush=True)

@@ -73,6 +73,31 @@ def edges(store, pid, mode):
     return edge_cache[key]
 def has(store, pid, mode, p):
     s = edges(store, pid, mode); return None if s is None else ((p[2], p[3]) in s)
+def dist_sig(store, pid, mode, p):
+    """the non-zero `dist` buckets summed over the pair's edges in a recording, e.g. 'intra_block'"""
+    d = f"{B}/{store}/{pid}/{mode}"; tot = collections.Counter()
+    for f in glob.glob(f"{d}/kernel_*.json"):
+        try: j = json.load(open(f))
+        except Exception: continue
+        for e in j.get("edges", []):
+            if e.get("cold_miss") or e.get("ancient_pc") is None: continue
+            if {e["ancient_pc"], e["current_pc"]} == {p[2], p[3]}:
+                for kk, v in e["dist"].items(): tot[kk] += v
+    return "+".join(sorted(kk for kk, v in tot.items() if v)) or "none"
+# the CO-only pairs outside S1: what scalar-clock's record is, and whether the pair's edge is in X1b's recording
+oth_rows = []
+for i in ok_ids:
+    A, Bm = rec[(i, "scalar-clock")], rec[(i, "collector-only")]
+    rs, rc_ = reported(A), reported(Bm); cm = clsmap(A)
+    for p in sorted(rc_ - rs):
+        e = cm.get(p)
+        if e is not None and all(c == "ORDERED:barrier-ordered" for c in e[3]): continue
+        pp = (i, *p)
+        oth_rows.append(dict(suite=suite[i], id=i, space=p[0], pc_lo=hex(p[1]), pc_hi=hex(p[2]), sc_record="/".join(sorted(e[3])) if e else "no record",
+                             in_x5=pp in X5, edge_in_x1b_sc=has(A["store"], i, "scalar-clock", pp), edge_in_c1=has(Bm["store"], i, "collector-only", pp),
+                             dist_x1b_sc=dist_sig(A["store"], i, "scalar-clock", pp) if e else "", dist_c1=dist_sig(Bm["store"], i, "collector-only", pp)))
+with open(f"{OUT}/item9_CO_only_outside_S1.csv", "w", newline="") as f:
+    w = csv.DictWriter(f, fieldnames=list(oth_rows[0]) if oth_rows else ["suite"]); w.writeheader(); w.writerows(oth_rows)
 rows = []
 def addrow(kind, k, reason, detail):
     rows.append(dict(kind=kind, suite=suite[k[0]], id=k[0], space=k[1], pc_lo=hex(k[2]), pc_hi=hex(k[3]), x5_bin=X5.get(k, {}).get("bin", ""), reason=reason, detail=detail))
@@ -99,7 +124,11 @@ for k in sorted(X5):                                    # in X5's set, not in th
     elif ca is None and e_x1b is False: addrow("in X5, not in S1", k, "schedule-dependent edge", det + " -- X1b's scalar-clock recording has no edge")
     elif ca and any(c.startswith(("RACE:", "SC:")) for c in ca[3]) and cb and any(c.startswith(("RACE:", "SC:")) for c in cb[3]):
         addrow("in X5, not in S1", k, "scalar-clock reports it too", det + " -- barrier-ordered in one launch, reported in another (same kernel recording)")
-    else: addrow("in X5, not in S1", k, "other", det)
+    else:
+        sig = {t: dist_sig(st, pid, md, p) for t, st, md in (("X1", X5[k]["store"], "scalar-clock"), ("X1b-SC", A["store"], "scalar-clock"), ("C1-CO", Bm["store"], "collector-only"))}
+        if len(set(sig.values())) > 1:
+            addrow("in X5, not in S1", k, "schedule-dependent edge", det + f" -- the edge exists in all three recordings but its observed distance differs: {sig}")
+        else: addrow("in X5, not in S1", k, "other", det + f" -- observed distance {sig}")
 with open(f"{OUT}/item9_pair_differences.csv", "w", newline="") as f:
     w = csv.DictWriter(f, fieldnames=["kind", "suite", "id", "space", "pc_lo", "pc_hi", "x5_bin", "reason", "detail"]); w.writeheader(); w.writerows(rows)
 # shape tables
@@ -150,6 +179,9 @@ for (s, kd, rs_), n in sorted(cnt2.items()): P(f"| {s} | {kd} | {rs_} | {n} |")
 oth = [r for r in rows if r["reason"] == "other"]
 P(f"\nPairs that fit none of the three reasons (schedule-dependent edge, candidate mechanism off, scalar-clock reports it too): **{len(oth)}**" + (" (each is a finding):" if oth else "."))
 for r in oth[:80]: P(f"  - {r['suite']} `{r['id']}` {r['space']} {r['pc_lo']}-{r['pc_hi']} [{r['kind']}, X5 bin {r['x5_bin'] or '-'}]: {r['detail']}")
+P(f"\n**Collector-only reports outside S1** ({len(oth_rows)} pairs: scalar-clock does not report them, and does not order them by the barrier clock either; `item9_CO_only_outside_S1.csv`):\n")
+P("| suite | scalar-clock's record of the pair | edge in X1b's scalar-clock recording | pairs |"); P("|---|---|---|---|")
+for (s, rcd, ed), n in sorted(collections.Counter((r["suite"], r["sc_record"], r["edge_in_x1b_sc"]) for r in oth_rows).items()): P(f"| {s} | {rcd} | {ed} | {n} |")
 open(f"{OUT}/item9.md", "w").write("\n".join(md) + "\n")
 print("\n".join(md))
 

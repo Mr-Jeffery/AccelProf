@@ -1,22 +1,25 @@
-## Item 9: pairs collector-only mode reports that scalar-clock mode does not (orders), by control-flow shape, next to X5's derived 1,021
+## Item 9: pairs collector-only mode reports that scalar-clock mode orders, by control-flow shape, next to X5's derived 1,021
 
-Programs with a verdict in both runs: 4707. Pairs collector-only reports that scalar-clock does not: **1074** in 926 programs; reported by both: 10263. (Pairs scalar-clock reports that collector-only does not: 7875, by suite {'P1': 205, 'P4': 13, 'P5': 2, 'P6': 72, 'P7': 1, 'P9': 14, 'PI': 7568}; not part of the brief's comparison, listed in `item9_sc_only_by_suite`.)
+Programs analysed in both recordings: 4707 of 4725; not analysed: {'no recording: SC': 18}. Reported by both modes: 10531 pairs. Reported by scalar-clock only: 7950 pairs (by suite {'P1': 212, 'P3': 4, 'P4': 76, 'P5': 3, 'P6': 72, 'P7': 1, 'P9': 14, 'PI': 7568}; not part of the comparison).
 
-**Collector-only pairs the scalar-clock run does not report** (shapes of the existing table, same order; last column = pairs that are not among X5's 1,021, so no shape is recorded for them):
+Collector-only reports, scalar-clock does not, and scalar-clock's record of the pair is: 
+ORDERED by the barrier clock (1016 pairs, S1); SC has no record of the pair: 96; SC orders it by a certificate (hb_class none): 26. Total CO-only reports: 1138.
 
-| Suite | Programs with a pair | Pairs | Loop around the barrier | Warp barrier between | Exit before the barrier | Barrier on one branch | Other | not among the 1,021 |
+**S1: collector-only reports that scalar-clock orders (barrier-only clock, no certificate)**; the last column = pairs in S1 that are not among X5's pairs (no shape recorded):
+
+| Suite | Programs with a pair | Pairs | Loop around the barrier | Warp barrier between | Exit before the barrier | Barrier on one branch | Other | not among X5's |
 |---|---|---|---|---|---|---|---|---|
-| Indigo3 | 32 | 59 | 4 | 0 | 0 | 0 | 48 | 7 |
-| Indigo 1.3 | 867 | 927 | 560 | 140 | 140 | 0 | 0 | 87 |
-| ECL graph codes | 12 | 20 | 4 | 0 | 0 | 0 | 16 | 0 |
-| ScoR applications | 11 | 48 | 23 | 24 | 0 | 0 | 0 | 1 |
+| Indigo3 | 28 | 52 | 4 | 0 | 0 | 0 | 48 | 0 |
+| Indigo 1.3 | 840 | 840 | 560 | 140 | 140 | 0 | 0 | 0 |
+| ECL graph codes | 12 | 22 | 6 | 0 | 0 | 0 | 16 | 0 |
+| ScoR applications | 10 | 83 | 23 | 60 | 0 | 0 | 0 | 0 |
 | ScoR litmus kernels | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| cuHadron | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 |
+| cuHadron | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
 | HeCBench, other applications | 1 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
 | HeCBench, SuperCollider's 10 | 2 | 17 | 0 | 0 | 0 | 17 | 0 | 0 |
-| **All** | 926 | 1074 | 593 | 164 | 140 | 17 | 64 | 96 |
+| **All** | 893 | 1016 | 595 | 200 | 140 | 17 | 64 | 0 |
 
-**X5's derived 1,021 pairs** (barrier clock orders them, no certificate covers them; separate X1 recordings, the same in both modes):
+**S2: X5's derived 1,021 pairs** (tab:eval-shapes; separate X1 recordings, same pairs in both modes):
 
 | Suite | Programs with a pair | Pairs | Loop around the barrier | Warp barrier between | Exit before the barrier | Barrier on one branch | Other |
 |---|---|---|---|---|---|---|---|
@@ -30,67 +33,31 @@ Programs with a verdict in both runs: 4707. Pairs collector-only reports that sc
 | HeCBench, SuperCollider's 10 | 2 | 17 | 0 | 0 | 0 | 17 | 0 |
 | **All** | 898 | 1021 | 599 | 200 | 140 | 17 | 65 |
 
-**Pairs in one set and not the other**, by reason (every pair: `item9_pair_differences.csv`):
+S1 and S2 share 1016 pairs; 0 pairs are in S1 only and 5 in S2 only.
+
+**Pairs in one set and not the other**, by reason (every pair, with its evidence: `item9_pair_differences.csv`):
 
 | set | reason | pairs |
 |---|---|---|
-| CO reports, not among the 1,021 | other | 2 |
-| CO reports, not among the 1,021 | schedule-dependent edge | 94 |
-| among the 1,021, not reported by CO | other | 39 |
-| among the 1,021, reported by both | reported by scalar-clock too (X5 | 4 |
+| in X5, not in S1 | scalar-clock reports it too | 4 |
+| in X5, not in S1 | schedule-dependent edge | 1 |
 
 By suite:
 
 | suite | set | reason | pairs |
 |---|---|---|---|
-| P1 | CO reports, not among the 1,021 | schedule-dependent edge: the scalar-clock recording has no edge between the two pcs | 7 |
-| P1 | among the 1,021, reported by both | reported by scalar-clock too (X5: barrier-ordered in one launch, another class in another launch) | 4 |
-| P3 | among the 1,021, not reported by CO | other: C1's recording has the edge and collector-only does not report the pair | 2 |
-| P4 | CO reports, not among the 1,021 | other: both recordings have the edge; scalar-clock does not report the pair and X5 does not list it as barrier-ordered | 1 |
-| P4 | among the 1,021, not reported by CO | other: C1's recording has the edge and collector-only does not report the pair | 36 |
-| P6 | CO reports, not among the 1,021 | other: both recordings have the edge; scalar-clock does not report the pair and X5 does not list it as barrier-ordered | 1 |
-| P6 | among the 1,021, not reported by CO | other: C1's recording has the edge and collector-only does not report the pair | 1 |
-| PI | CO reports, not among the 1,021 | schedule-dependent edge: the scalar-clock recording has no edge between the two pcs | 87 |
+| P1 | in X5, not in S1 | scalar-clock reports it too | 4 |
+| P6 | in X5, not in S1 | schedule-dependent edge | 1 |
 
-Pairs that fit none of the three reasons: **41** (each is a finding):
-  - P4 `P4-graph-coloring-racy-small` shared 0x500-0x650 [CO reports, not among the 1,021]: other: both recordings have the edge; scalar-clock does not report the pair and X5 does not list it as barrier-ordered
-  - P6 `P6-memcpy-global_readwrite_race-racy` shared 0xf0-0x190 [CO reports, not among the 1,021]: other: both recordings have the edge; scalar-clock does not report the pair and X5 does not list it as barrier-ordered
-  - P3 `P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n` global 0xf0-0x11f0 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P3 `P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n` global 0xf0-0xb40 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-norace-large` global 0x260-0xf20 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-norace-large` global 0x400-0xf20 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-norace-large` global 0x5a0-0xf20 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-norace-large` global 0x730-0xf20 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-norace-large` global 0x7d0-0xf20 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-norace-large` global 0x840-0xf20 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-norace-large` global 0x8b0-0xf20 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-norace-large` global 0x910-0xf20 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-norace-large` global 0x960-0xf20 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-norace-small` global 0x260-0xf20 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-norace-small` global 0x400-0xf20 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-norace-small` global 0x5a0-0xf20 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-norace-small` global 0x730-0xf20 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-norace-small` global 0x7d0-0xf20 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-norace-small` global 0x840-0xf20 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-norace-small` global 0x8b0-0xf20 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-norace-small` global 0x910-0xf20 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-norace-small` global 0x960-0xf20 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-racy-large` global 0x260-0xef0 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-racy-large` global 0x400-0xef0 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-racy-large` global 0x5a0-0xef0 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-racy-large` global 0x720-0xef0 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-racy-large` global 0x7c0-0xef0 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-racy-large` global 0x830-0xef0 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-racy-large` global 0x8a0-0xef0 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-racy-large` global 0x900-0xef0 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-racy-large` global 0x950-0xef0 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-racy-small` global 0x260-0xef0 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-racy-small` global 0x400-0xef0 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-racy-small` global 0x5a0-0xef0 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-racy-small` global 0x720-0xef0 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-racy-small` global 0x7c0-0xef0 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-racy-small` global 0x830-0xef0 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-racy-small` global 0x8a0-0xef0 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-racy-small` global 0x900-0xef0 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P4 `P4-reduction-racy-small` global 0x950-0xef0 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
-  - P6 `P6-memcpy-shared_writewrite_race-racy` shared 0x70-0xb0 [among the 1,021, not reported by CO]: other: C1's recording has the edge and collector-only does not report the pair
+Pairs that fit none of the three reasons (schedule-dependent edge, candidate mechanism off, scalar-clock reports it too): **0**.
+
+**Collector-only reports outside S1** (122 pairs: scalar-clock does not report them, and does not order them by the barrier clock either; `item9_CO_only_outside_S1.csv`):
+
+| suite | scalar-clock's record of the pair | edge in X1b's scalar-clock recording | pairs |
+|---|---|---|---|
+| P1 | no record | False | 7 |
+| P3 | ORDERED:None | True | 16 |
+| P4 | ORDERED:None | True | 10 |
+| P4 | no record | True | 1 |
+| P6 | no record | True | 1 |
+| PI | no record | False | 87 |
