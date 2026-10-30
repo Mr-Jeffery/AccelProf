@@ -52,7 +52,7 @@ import run_cuvein as rc       # reuse _analyze_reports  # noqa: E402
 # $BASELINE_MODES=scalar-clock restricts a run to one mode (e.g. a static-leg revision);
 # the default collects vector-clock first, then scalar-clock (hb_modes.MODES).
 MODES = blib.hb_modes.parse_modes(os.environ.get("BASELINE_MODES", ",".join(blib.hb_modes.MODES)))
-VC, SC = blib.hb_modes.VECTOR_CLOCK, blib.hb_modes.SCALAR_CLOCK
+VC, SC, CO = blib.hb_modes.VECTOR_CLOCK, blib.hb_modes.SCALAR_CLOCK, blib.hb_modes.COLLECTOR_ONLY
 
 
 BEEGFS_ROOT = f"/mnt/beegfs/{os.environ.get('USER', 'nobody')}"
