@@ -10,3 +10,11 @@
 323812 cuRace-vector-clock P7-particlefilter-cuda row
 323813 iguard P6-interkernel-global_writewrite_race-racy row (afterany all 9 above)
 323814 iguard P6-interkernel-global_writewrite_race-fixed row (afterany all 9 above)
+
+# 2026-10-30 decisions (Jeffery: a row "highly unlikely to finish" may be called TO without running)
+# 323812 cuRace vector-clock P7-particlefilter-cuda: CANCELLED before start, not run at 84,600 s.
+#   Reason: cannot fit in memory on any target host (c60-c72, <=202 GB). X1 on c64 (202 GB):
+#   3 reps killed at 185.3 GB after 5,313-5,331 s; X1b on a 135 GB host at 124-125 GB at the 5,400 s cap;
+#   only kernels 0-2 of the first frame (4 launches/frame, ~10 frames) ever complete; memory still growing.
+#   B3: record as TIMEOUT with note "not run at cap=84600; memory (>=185.3 GB at ~5,320 s on a 202 GB host)".
+# 323811 cuRace vector-clock P7-haversine-cuda: released from hold; estimate ~9,000 s on c24-class host.
