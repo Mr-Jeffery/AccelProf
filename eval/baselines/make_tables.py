@@ -29,9 +29,14 @@ VC, SC = hb_modes.VECTOR_CLOCK, hb_modes.SCALAR_CLOCK
 # python/hb_modes.py is not touched: the mode name passes through hb_modes.canon() unchanged.
 CO = "collector-only"
 WITH_CO = "--collector-only" in sys.argv
-MODES3 = (VC, SC) + ((CO,) if WITH_CO else ())
-SHORT_M = {**hb_modes.SHORT, CO: "cuVein-CO"}
-LABEL_M = {**hb_modes.LABEL, CO: "cuVein (collector-only)"}
+# C4: a fourth cuVein column, "collector-only, re-scored" (CO-R): the verdict layer on the SCALAR-CLOCK kernel JSONs with the
+# barrier-ordered rule off (CUVEIN_BARRIER_ORDER=0). Only under `--co-offline`; its rows carry the scalar-clock recording's walls
+# and peaks, so the overhead and memory sections leave the column out (C1's collector-only run keeps those figures).
+CORS = "collector-only-rescored"
+WITH_CORS = "--co-offline" in sys.argv
+MODES3 = (VC, SC) + ((CO,) if WITH_CO else ()) + ((CORS,) if WITH_CORS else ())
+SHORT_M = {**hb_modes.SHORT, CO: "cuVein-CO", CORS: "cuVein-CO-R"}
+LABEL_M = {**hb_modes.LABEL, CO: "cuVein (collector-only)", CORS: "cuVein (collector-only, re-scored)"}
 
 
 def _mode_rank(mode):
@@ -373,7 +378,7 @@ def _ratios(runs, meta):
 
 
 def overhead_table(runs, meta):
-    cols = [c for c in TOOLCOLS if any(k[1:] == c for k in runs)]
+    cols = [c for c in TOOLCOLS if any(k[1:] == c for k in runs) and c != ("cuvein", CORS)]
     scopes = (("P1+P7", ("P1", "P7")), ("PI Indigo original", ("PI",)),
               ("P6+PI@sc+P9 (SuperCollider-matched)", SC_SETS),
               ("P9 HeCBench-10 only (seconds-long apps)", ("P9",)), ("all", ALL_PSETS))
@@ -1434,6 +1439,8 @@ def memory_footprint_section(runs, meta, man):
            "|---|---|---|---|---|---|"]
     for ps in ALL_PSETS:
         for m in MODES3:
+            if m == CORS:
+                continue
             xs, us = fin.get((ps, m), []), unf.get((ps, m), [])
             if not xs and not us:
                 continue
