@@ -385,8 +385,94 @@ def _label_lines(label):
     return [re.sub(r"<[^<>]*>", "", ln) for ln in lines]
 
 
+# X7 (eval/VERDICT_PARALLEL.md): the static-graph cache of one analysis. Off (None) unless a
+# caller opens it with `with graph_cache():` (run_cuvein._analyze_reports does, per program);
+# outside it every call parses and builds as before. Inside it:
+#   "dot"    abspath -> parse_dot's result (or its AlignmentError): each .dot parsed once;
+#   "select" (abspath, trace kernel name) -> select_kernel's result (or its AlignmentError):
+#            a .dot without the kernel is tried once per kernel name, not once per launch;
+#   "static" (abspath, mangled) -> the never-attached HBGraph whose static part (region graph,
+#            pc tables, dominator / post-dominator sets, sync table, instruction graph) every
+#            launch's fresh HBGraph shares (HBGraph.from_static).
+# Only graph construction is cached: the trace, the pc alignment check and every verdict are
+# computed per kernel JSON exactly as before.
+_GRAPH_CACHE = None
+
+
+class graph_cache:
+    """Context manager that turns the static-graph cache on for its duration (nested use keeps
+    the outer cache). The cache holds only data derived from the .dot files, which an analysis
+    does not write; a fresh `with` starts empty, so a .dot rewritten between analyses is
+    re-read."""
+
+    def __enter__(self):
+        global _GRAPH_CACHE
+        self._prev = _GRAPH_CACHE
+        if _GRAPH_CACHE is None:
+            _GRAPH_CACHE = {"dot": {}, "select": {}, "static": {}}
+        return self
+
+    def __exit__(self, *exc):
+        global _GRAPH_CACHE
+        _GRAPH_CACHE = self._prev
+        return False
+
+
+def _dot_key(path):
+    return os.path.abspath(str(path))
+
+
 def parse_dot(path):
-    """-> {mangled: (blocks, edges, entry)}; blocks: {name: [(pc, opcode)]}."""
+    """-> {mangled: (blocks, edges, entry)}; blocks: {name: [(pc, opcode)]}.
+    X7: inside graph_cache() each path is parsed once and the result (or its AlignmentError)
+    is shared; callers only read it."""
+    cache = _GRAPH_CACHE
+    if cache is None:
+        return _parse_dot(path)
+    key = _dot_key(path)
+    got = cache["dot"].get(key)
+    if got is None:
+        try:
+            got = (_parse_dot(path), None)
+        except AlignmentError as exc:
+            got = (None, exc)
+        cache["dot"][key] = got
+    if got[1] is not None:
+        raise AlignmentError(*got[1].args)      # a fresh copy: same type and message
+    return got[0]
+
+
+def kernel_graph(dot_path, trace_name):
+    """-> (mangled, HBGraph) of the trace's kernel in one .dot: parse_dot + select_kernel +
+    HBGraph(*kernels[mangled]), as analyze did inline before X7. Inside graph_cache() the
+    kernel selection (or its AlignmentError) is cached per (dot, kernel name) and the static
+    part per (dot, mangled); the HBGraph returned is always a fresh object (from_static) with
+    no trace attached, so nothing per-trace carries from one kernel JSON to the next."""
+    cache = _GRAPH_CACHE
+    if cache is None:
+        kernels = parse_dot(dot_path)
+        mangled = select_kernel(kernels, trace_name)
+        return mangled, HBGraph(*kernels[mangled])
+    dk = _dot_key(dot_path)
+    sk = (dk, trace_name)
+    sel = cache["select"].get(sk)
+    if sel is None:
+        try:
+            sel = (select_kernel(parse_dot(dot_path), trace_name), None)
+        except AlignmentError as exc:
+            sel = (None, exc)
+        cache["select"][sk] = sel
+    if sel[1] is not None:
+        raise AlignmentError(*sel[1].args)
+    mangled = sel[0]
+    proto = cache["static"].get((dk, mangled))
+    if proto is None:
+        proto = cache["static"][(dk, mangled)] = HBGraph(*parse_dot(dot_path)[mangled])
+    return mangled, HBGraph.from_static(proto)
+
+
+def _parse_dot(path):
+    """parse_dot without the X7 cache (the pre-X7 body)."""
     (graph,) = pydot.graph_from_dot_file(str(path))
     kernels = {}
     for sub in graph.get_subgraphs():
@@ -427,16 +513,40 @@ class HBGraph:
       R1 dominance()                 — static barriers/warpsync (no same-pc form, T12),
       R2 coherence()                 — same-address atomics,
       R3 chain()                     — release -> observed sync -> acquire.
-    ordered() runs R1 then R3 and reports R2's scope alongside (class, not order)."""
+    ordered() runs R1 then R3 and reports R2's scope alongside (class, not order).
 
-    def __init__(self, blocks, edges, entry):
-        self.G = nx.DiGraph()
-        self.G.add_node(VEXIT)
+    X7: the object is split by copying, not by class. The static part (_STATIC: built from the
+    .dot alone in __init__, read-only afterwards) can be shared; from_static(proto) makes a
+    fresh object that references a prototype's static part and starts every per-trace field
+    (_init_trace_state, then attach_trace) anew."""
+
+    # the fields __init__ derives from (blocks, edges, entry) alone; nothing writes them later
+    _STATIC = ("G", "pc_opcode", "pc_node", "syncs", "unknown_syncs", "ins_succ",
+               "ins_pred_pcs", "ins_preds", "qualifying", "dom", "postdom")
+
+    def _init_trace_state(self):
+        """The per-trace fields at their unattached values (as __init__ always set them)."""
         self.atom = {}        # pc -> atomic RMW scope (after attach_trace); R3's atomics
         self.coh = {}         # pc -> coherent-access scope (atom + .STRONG ld/st); R2 only
         self.sync_edges = []  # (anc, cur, d) observed atomic sync hops
         self.release_points = None  # T12: u -> PO-next RMW pcs from the trace
         self.acquire_points = None  # T12: v -> PO-previous RMW pcs from the trace
+        self._reach = {}      # fenced()'s memo: per object, so it never outlives one trace
+
+    @classmethod
+    def from_static(cls, proto):
+        """X7: a fresh HBGraph sharing proto's static part (by reference) with fresh
+        per-trace state; proto itself is never attached to a trace."""
+        g = cls.__new__(cls)
+        g._init_trace_state()
+        for f in cls._STATIC:
+            setattr(g, f, getattr(proto, f))
+        return g
+
+    def __init__(self, blocks, edges, entry):
+        self.G = nx.DiGraph()
+        self.G.add_node(VEXIT)
+        self._init_trace_state()
         self.pc_opcode = {}   # every parsed pc -> opcode (alignment check)
         self.pc_node = {}     # pc -> its region node
         self.syncs = {}       # sync node id -> (pc, opcode, scope, qualifying)
@@ -446,7 +556,6 @@ class HBGraph:
         # instruction of the block; a block's last instruction -> the first of each successor
         # block; an unguarded EXIT/RET -> none) and the guarded pcs.
         self.ins_succ, self.ins_pred_pcs = {}, set()
-        self._reach = {}
         self._build_ins_graph(blocks, edges)
         for bname, instrs in blocks.items():
             cur, n = f"{bname}#0", 0
@@ -1307,9 +1416,8 @@ def _observed(dist):
 def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
             barrier_pass=True, event_candidates=True):
     trace = json.loads(Path(trace_path).read_text())
-    kernels = parse_dot(dot_path)
-    mangled = select_kernel(kernels, trace["kernel"]["kernel_name"])
-    eng = HBGraph(*kernels[mangled])
+    # X7: parse_dot + select_kernel + HBGraph(...), cached inside graph_cache()
+    mangled, eng = kernel_graph(dot_path, trace["kernel"]["kernel_name"])
     asy = dump_async_pcs(eng, trace)   # T1a: the copies (cp.async), if the dump models them
 
     # space/access come from the trace, keyed by pc

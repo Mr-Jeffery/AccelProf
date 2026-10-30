@@ -21,6 +21,7 @@ Must run on a GPU node (srun). Example:
     .env/bin/python eval/baselines/run_cuvein.py --pset P6 --confirm
 """
 import argparse
+import contextlib
 import glob
 import json
 import os
@@ -39,7 +40,114 @@ import aggregate as agg      # noqa: E402
 import host_hb               # noqa: E402  (T2: host copies / cross-stream kernels)
 
 
-def _analyze_reports(depdir, cubindir):
+def analysis_workers(n=None):
+    """X7: the verdict step's pool size: n if given (>= 1), else $CUVEIN_ANALYSIS_WORKERS, else
+    the cores this process may run on (os.sched_getaffinity: the node's cores in a whole-node
+    job). 1 = the serial loop."""
+    if n is None:
+        n = os.environ.get("CUVEIN_ANALYSIS_WORKERS") or None
+    if n is None:
+        try:
+            n = len(os.sched_getaffinity(0))
+        except (AttributeError, OSError):
+            n = os.cpu_count() or 1
+    return max(int(n), 1)
+
+
+def graph_cache_enabled(cache=None):
+    """X7: the static-graph cache (sync_dominance.graph_cache) for one analysis: on unless
+    cache=False or $CUVEIN_GRAPH_CACHE=0 (the pre-X7 path: every launch parses and builds)."""
+    if cache is None:
+        cache = os.environ.get("CUVEIN_GRAPH_CACHE", "1") != "0"
+    return bool(cache)
+
+
+def _kernel_report(kj, dots):
+    """One kernel JSON's report, as the serial loop computes it: the first .dot (in sorted
+    order) that aligns with it, or None if none does. Only the two keys the merge reads are
+    kept (rep["gate_policy"], rep["verdicts"])."""
+    for dot in dots:
+        try:
+            rep = sd.analyze(dot, kj)
+        except sd.AlignmentError:
+            continue
+        return {"gate_policy": rep.get("gate_policy"), "verdicts": rep["verdicts"]}
+    return None
+
+
+def _pool_task(kj, dots):
+    """_kernel_report in a pool worker. An exception comes back as data (its type, args and
+    attributes without a JSONDecodeError's whole document), so the parent re-raises an
+    exception of the same type and message at this kernel's place in the order."""
+    try:
+        return ("OK", _kernel_report(kj, dots))
+    except Exception as e:   # noqa: BLE001 -- re-raised by the parent, in order
+        attrs = {k: v for k, v in getattr(e, "__dict__", {}).items() if k != "doc"}
+        return ("EXC", (type(e), e.args, attrs))
+
+
+def _reraise(payload):
+    cls, args, attrs = payload
+    e = cls.__new__(cls)
+    e.args = args
+    for k, v in attrs.items():
+        try:
+            setattr(e, k, v)
+        except AttributeError:
+            pass
+    raise e
+
+
+class AnalysisWorkerDied(RuntimeError):
+    """X7: a pool worker of the verdict step vanished (killed: OOM, signal)."""
+
+
+def _kernel_reports(kjs, dots, workers, cached):
+    """Yield _kernel_report(kj) for each kernel JSON in the order given, inside the
+    static-graph cache when `cached`: inline when one worker (or one kernel JSON), else from a
+    fork pool of `workers` processes whose results are consumed in input order
+    (ProcessPoolExecutor.map), so the caller's merge sees the reports exactly as the serial
+    loop produces them. With a pool and the cache, every .dot is parsed here once before the
+    fork and the workers inherit the parsed graphs (each worker builds the static HBGraph of a
+    (dot, kernel) it meets once). The pool's processes are children of this one (a capped
+    analysis counts them, parallel._analyze_capped); on an exception they are killed at once,
+    as the serial loop would stop there."""
+    with (sd.graph_cache() if cached else contextlib.nullcontext()):
+        if workers <= 1 or len(kjs) <= 1:
+            for kj in kjs:
+                yield _kernel_report(kj, dots)
+            return
+        if cached:
+            for dot in dots:          # parsed once here, inherited by the forked workers
+                try:
+                    sd.parse_dot(dot)
+                except Exception:     # noqa: BLE001 -- not cached: the worker that needs
+                    pass              # this .dot raises it where the serial loop would
+        import multiprocessing
+        from concurrent.futures import ProcessPoolExecutor
+        from concurrent.futures.process import BrokenProcessPool
+        ex = ProcessPoolExecutor(max_workers=min(workers, len(kjs)),
+                                 mp_context=multiprocessing.get_context("fork"))
+        done = False
+        try:
+            for tag, payload in ex.map(_pool_task, kjs, [dots] * len(kjs)):
+                if tag == "EXC":
+                    _reraise(payload)
+                yield payload
+            done = True
+        except BrokenProcessPool as e:
+            raise AnalysisWorkerDied(f"analysis pool worker died: {e}") from None
+        finally:
+            if not done:              # stop now: kill the workers still judging
+                for p in list((getattr(ex, "_processes", None) or {}).values()):
+                    try:
+                        p.kill()
+                    except Exception:  # noqa: BLE001
+                        pass
+            ex.shutdown(wait=True, cancel_futures=True)
+
+
+def _analyze_reports(depdir, cubindir, workers=None, cache=None):
     """Run sync_dominance.analyze over the dump and dedup RACE verdicts on
     (unordered pc pair, space). Used for BOTH modes: analyze derives the verdict
     from the trace edges, and when the dump carries HbClock's hb_races
@@ -58,20 +166,23 @@ def _analyze_reports(depdir, cubindir):
     classes_note() counts them. This branch's analyze(dot, trace) takes no
     assume_warp_lockstep kwarg (that lives only on the eval branch). Only
     AlignmentError is swallowed (wrong dot -> next); other exceptions propagate so
-    a real failure is an ERROR row, not a silent CLEAN."""
+    a real failure is an ERROR row, not a silent CLEAN.
+
+    X7 (eval/VERDICT_PARALLEL.md): workers = the pool that judges the kernel JSONs
+    (analysis_workers(): None = the node's cores, 1 = the serial loop); the merge below reads
+    their reports in the serial loop's order (sorted kernel_*.json names), so the result is
+    the serial one. cache = the static-graph cache (graph_cache_enabled(): on unless
+    $CUVEIN_GRAPH_CACHE=0); with a pool, the parent parses every .dot once before forking
+    and the workers inherit the parsed graphs."""
     dots = sorted(glob.glob(f"{cubindir}/*.dot"))
+    kjs = sorted(glob.glob(f"{depdir}/kernel_*.json"))
+    workers = analysis_workers(workers)
+    cached = graph_cache_enabled(cache)
     ded, cls, ded_sc = {}, {}, {}
     mbug = set()   # keys with a model_bug annotation (R1 contradicted by hb_races; DR or SC)
     policies = set()   # T16: the chain-edge policy the dumps' hb_races were computed under
     a2s = {}   # T14: key -> [race of this run, some unflagged, latent, flagged without R3, flag seen]
-    for kj in sorted(glob.glob(f"{depdir}/kernel_*.json")):
-        rep = None
-        for dot in dots:
-            try:
-                rep = sd.analyze(dot, kj)
-                break
-            except sd.AlignmentError:
-                continue
+    for rep in _kernel_reports(kjs, dots, workers, cached):   # streamed, in kjs order
         if rep is None:
             continue
         if rep.get("gate_policy"):

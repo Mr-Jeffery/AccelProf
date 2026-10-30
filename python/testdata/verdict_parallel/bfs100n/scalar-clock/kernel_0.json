@@ -1,0 +1,29 @@
+{
+  "tool": "pc_dependency_analysis",
+  "kernel": {
+    "kernel_id": 0,
+    "kernel_name": "init(int, int*, int)",
+    "device_id": 0,
+    "kernel_pc": 0,
+    "kernel_pc_hex": "0x0",
+    "grid_dim": [1, 1, 1],
+    "grid_cta_count": 1,
+    "block_dim": [512, 1, 1],
+    "block_thread_count": 512
+  },
+  "shadow_memory_granularity_bytes": 1,
+  "sample_stride_bytes": 4,
+  "nodes": [
+    {"pc": 176, "pc_hex": "0xb0", "flags": "WRITE GLOBAL", "flags_hex": "0x12", "access_size": 4, "distinct_sector_count": {"1": 1, "2": 0, "3": 0, "4": 3, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0, "10": 0, "11": 0, "12": 0, "13": 0, "14": 0, "15": 0, "16": 0, "17": 0, "18": 0, "19": 0, "20": 0, "21": 0, "22": 0, "23": 0, "24": 0, "25": 0, "26": 0, "27": 0, "28": 0, "29": 0, "30": 0, "31": 0, "32": 0}, "active_lane_count": {"0": 0, "1": 0, "2": 0, "3": 0, "4": 1, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0, "10": 0, "11": 0, "12": 0, "13": 0, "14": 0, "15": 0, "16": 0, "17": 0, "18": 0, "19": 0, "20": 0, "21": 0, "22": 0, "23": 0, "24": 0, "25": 0, "26": 0, "27": 0, "28": 0, "29": 0, "30": 0, "31": 0, "32": 3}, "distinct_address_count": {"1": 0, "2": 0, "3": 0, "4": 1, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0, "10": 0, "11": 0, "12": 0, "13": 0, "14": 0, "15": 0, "16": 0, "17": 0, "18": 0, "19": 0, "20": 0, "21": 0, "22": 0, "23": 0, "24": 0, "25": 0, "26": 0, "27": 0, "28": 0, "29": 0, "30": 0, "31": 0, "32": 3}}
+  ],
+  "edges": [
+    {"current_pc": 176, "current_pc_hex": "0xb0", "ancient_pc": null, "ancient_pc_hex": null, "cold_miss": true, "current_flags": 18, "current_flags_hex": "0x12", "current_access_size": 4, "dist": {"intra_thread": 100, "intra_instance_launch": 0, "intra_warp": 0, "intra_block": 0, "intra_grid": 0}}
+  ],
+  "hb_aggregates": 1,
+  "hb_events_count": 21, "hb_lanes_count": 100,
+  "hb_async": 1,
+  "hb_exits": 1,
+  "hb_sync_pass": [],
+  "hb_rmw_points": {"release": {"176": []}, "acquire": {"176": []}},
+  "hb_stats": {"hb_events": {"count": 21, "json_bytes": 0, "ram_bytes_est": 0}, "hb_clock": {"vc": {"threads": 0, "entries": 0, "bases": 0, "base_entries": 0, "max_base": 0, "delta_entries": 0, "max_delta": 0, "bytes_est": 0}, "released": {"records": 0, "entries": 0, "own_bases": 0, "delta_entries": 0, "bytes_est": 0}, "merge_memo": 0, "buckets": {"locations": 100, "segments": 4, "groups": 100, "entries": 100, "bytes": 924416, "bytes_est": 22400}, "pending_barriers": {"instances": 0, "arrivals": 0, "bytes_est": 0}, "vs": {"threads": 32, "unique_bases": 0, "base_entries": 0, "bytes_est": 1581088}, "races": {"records": 0, "bytes_est": 0}, "sync_pairs": 0, "coherence_addrs": 0, "a2": {"pd_threads": 0, "pd_entries": 0, "pd_bases": 0, "released_pd_entries": 0, "windows": 0, "held": 0, "clusters": 0, "multi": 0, "cluster_clock_entries": 0}, "gate_policy": "recorded", "chain": {"edges": 0, "uncertain": 0, "unsafe": 0, "refused": 0, "open": 0, "xwarp": 0}, "sharded": {"shards": 16, "drain_s": 0.000844144, "route_s": 1.1572e-05, "wait_s": 0, "bcast": 17, "rmw_bits": 5, "busy_s": [1.036e-05, 0.000129085, 4.498e-06, 1.603e-06, 0.000117744, 1.924e-06, 1.663e-06, 0.00012613, 1.834e-06, 0.000101643, 1.483e-06, 0.000179371, 1.473e-06, 1.372e-06, 7.9532e-05, 1.463e-06], "stall_s": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "lanes": [0, 32, 0, 0, 32, 0, 0, 4, 0, 0, 0, 32, 0, 0, 0, 0], "tv_records": [0, 0, 21, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "rmw_lanes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 64, 0, 0, 32, 0]}}, "rss_kb": 868360, "hwm_kb": 868360}
+}

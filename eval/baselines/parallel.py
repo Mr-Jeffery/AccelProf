@@ -293,10 +293,14 @@ def collect_one(mrow, cuda, reps, floor=120, cap=1200):
     meta["tool_timeout_cap"] = cap
 
     cubindir = f"{work}/cubins"
+    t_cfg = time.time()
     scope, cubs = blib.extract(os.path.realpath(exe), cubindir, nenv)
     pcmap = {}
     for c in cubs:
         pcmap.update(blib.pc_line_map(c, nenv))
+    # X7 (A1): wall of the .dot/CFG extraction (cuobjdump + nvdisasm -bbcfg + the scope
+    # sidecar) and of the pc->line map (nvdisasm --print-line-info), outside every rep's wall
+    meta["cfg_s"] = round(time.time() - t_cfg, 3)
     meta["pc_lines"] = {str(k): v for k, v in pcmap.items()}
     meta["scope_present"] = bool(scope)
     meta["hb_dump"] = blib.hb_dump()     # T4: 0 = recorded without hb_events (aggregates only)
@@ -471,7 +475,36 @@ def _analysis_mem_cap_gb(mem_gb):
     return mem_gb or 0
 
 
-def _analyze_capped(mode_dir, dots_dir, cap_s, mem_gb=-1):
+def _group_rss_bytes(pgid):
+    """X7: summed RSS of the live processes in process group pgid (the capped analysis and
+    its pool workers), from /proc/<pid>/stat; shared copy-on-write pages count once per
+    process, so the sum errs high."""
+    total, page = 0, os.sysconf("SC_PAGE_SIZE")
+    for d in os.listdir("/proc"):
+        if not d.isdigit():
+            continue
+        try:
+            with open(f"/proc/{d}/stat") as fh:
+                rest = fh.read().rsplit(")", 1)[1].split()
+        except (OSError, IndexError):
+            continue
+        # rest[0] = state (field 3), rest[2] = pgrp (field 5), rest[21] = rss pages (field 24)
+        if len(rest) > 21 and int(rest[2]) == pgid and rest[0] != "Z":
+            total += int(rest[21]) * page
+    return total
+
+
+def _kill_group(proc):
+    """X7: kill the capped child and every pool worker of it (its own process group)."""
+    import signal
+    try:
+        os.killpg(proc.pid, signal.SIGKILL)
+    except OSError:
+        pass
+    proc.kill()
+
+
+def _analyze_capped(mode_dir, dots_dir, cap_s, mem_gb=-1, workers=None):
     """rc._analyze_reports in a forked child with a wall-clock cap (cap_s, 0 = run
     inline, uncapped) and an address-space cap (mem_gb: -1 = 80 % of the node's RAM,
     0 = none). -> (result, reason): reason '' = analyzed; 'analysis-timeout' (child
@@ -480,9 +513,16 @@ def _analyze_capped(mode_dir, dots_dir, cap_s, mem_gb=-1):
     shard, P7-bezier-surface at 183 GB RSS on a 188 GB node, and the shard left NO row);
     'analysis-died(rc=N)' (the child vanished without a result). A ValueError in the
     child (truncated kernel JSON of a partial dump) is re-raised here so analyze_one's
-    handling of it is unchanged; any other exception becomes a RuntimeError -> ERROR row."""
+    handling of it is unchanged; any other exception becomes a RuntimeError -> ERROR row.
+    X7: workers = rc._analyze_reports' pool (rc.analysis_workers(): None = the node's cores,
+    1 = serial). Both caps hold for the whole program: the child leads its own process group,
+    its pool workers belong to it (each inherits the address-space limit), and the parent
+    polls the group's summed RSS every second -- above mem_gb the group is killed and the
+    result is analysis-oom, as for a MemoryError; past cap_s the whole group is killed. A
+    worker that dies (signal) kills the child the same way, so the row reads
+    analysis-died(rc=-9) as when the serial child is OOM-killed."""
     if not cap_s:
-        return rc._analyze_reports(mode_dir, dots_dir), ""
+        return rc._analyze_reports(mode_dir, dots_dir, workers), ""
     import multiprocessing, queue
     mem_gb = _analysis_mem_cap_gb(mem_gb)
     ctx = multiprocessing.get_context("fork")
@@ -490,14 +530,18 @@ def _analyze_capped(mode_dir, dots_dir, cap_s, mem_gb=-1):
 
     def _child():
         try:
+            os.setpgid(0, 0)    # X7: the group the parent caps (child + pool workers)
             if mem_gb:
                 import resource
                 lim = int(mem_gb * 1e9)
                 resource.setrlimit(resource.RLIMIT_AS, (lim, lim))
-            q.put(("OK", rc._analyze_reports(mode_dir, dots_dir)))
+            q.put(("OK", rc._analyze_reports(mode_dir, dots_dir, workers)))
         except MemoryError:
             os._exit(3)     # nothing can be allocated any more (not even the queue's
                             # feeder thread): exit code 3 is the OOM marker for the parent
+        except rc.AnalysisWorkerDied:
+            import signal   # a pool worker was killed: die as the serial child would have
+            os.kill(os.getpid(), signal.SIGKILL)
         except Exception as e:  # noqa: BLE001 -- reported, not swallowed
             q.put(("EXC", (type(e).__name__, str(e)[:300])))
 
@@ -507,7 +551,7 @@ def _analyze_capped(mode_dir, dots_dir, cap_s, mem_gb=-1):
     tag = payload = None
     while tag is None:
         try:
-            tag, payload = q.get(timeout=5)
+            tag, payload = q.get(timeout=1)
             break
         except queue.Empty:
             pass
@@ -517,11 +561,16 @@ def _analyze_capped(mode_dir, dots_dir, cap_s, mem_gb=-1):
                 break
             except queue.Empty:
                 proc.join()
+                _kill_group(proc)      # X7: no pool worker outlives the child
                 if proc.exitcode == 3:
                     return ([], set(), []), f"analysis-oom(cap={mem_gb:.0f}GB)"
                 return ([], set(), []), f"analysis-died(rc={proc.exitcode})"
+        if mem_gb and _group_rss_bytes(proc.pid) > mem_gb * 1e9:
+            _kill_group(proc)          # X7: the whole program's memory cap
+            proc.join()
+            return ([], set(), []), f"analysis-oom(cap={mem_gb:.0f}GB)"
         if time.time() > deadline:
-            proc.kill()
+            _kill_group(proc)
             proc.join()
             return ([], set(), []), "analysis-timeout"
     proc.join()
@@ -533,7 +582,13 @@ def _analyze_capped(mode_dir, dots_dir, cap_s, mem_gb=-1):
     raise RuntimeError(f"{name}:{msg}")
 
 
-def analyze_one(idir, writer, confirm_dir, analysis_cap=0, analysis_mem=-1):
+def analyze_one(idir, writer, confirm_dir, analysis_cap=0, analysis_mem=-1,
+                analysis_workers=None):
+    # X7 (A1): each (id, mode) row whose saved dump was analysed carries, at the end of its
+    # notes, `;analysis_s=<wall of the verdict step>;analysis_workers=<pool size asked for>;
+    # analysis_kjsons=<kernel JSONs in the mode's dump>` (one analysis per mode, shared by
+    # its reps). A5-style parity compares rows modulo these three tokens.
+    workers = rc.analysis_workers(analysis_workers)
     # a store the T8 converter did not reach carries engine/trace-only keys: accepted
     # for one release with a deprecation line (CUVEIN_NO_LEGACY_NAMES=1 -> error)
     meta = blib.hb_modes.canon_meta(json.loads(Path(f"{idir}/meta.json").read_text()),
@@ -576,16 +631,21 @@ def analyze_one(idir, writer, confirm_dir, analysis_cap=0, analysis_mem=-1):
         analyzed, reason = False, ""
         partial = bool(mm.get("partial"))
         mode_dir = blib.hb_modes.resolve_dir(idir, mode)   # pre-T8 store: <id>/engine|trace-only
+        tnote = ""                  # X7 (A1): the verdict step's timer, when it ran
         if mm.get("saved") and os.path.isdir(mode_dir):
+            t_an = time.time()
             try:
                 (ids_, pcs, raw), reason = _analyze_capped(mode_dir, dots_dir,
-                                                           analysis_cap, analysis_mem)
+                                                           analysis_cap, analysis_mem, workers)
                 analyzed = not reason
                 cnote = rc.classes_note(raw)             # T9 (D2): report classes
                 raw, raw_sc = rc.split_raw(raw)
             except ValueError:
                 if not partial:     # a killed run's last kernel JSON may be truncated
                     raise
+            finally:
+                tnote = (f";analysis_s={time.time() - t_an:.3f};analysis_workers={workers};"
+                         f"analysis_kjsons={len(glob.glob(f'{mode_dir}/kernel_*.json'))}")
         mode_events = mm.get("events", meta.get("events", 0) if mode == VC else "")
         if mm.get("events_uncounted"):
             mode_events = f"{mode_events}(+{len(mm['events_uncounted'])} dumps >{COUNT_EVENTS_MAX_GB:.0f}GB uncounted)"
@@ -631,6 +691,7 @@ def analyze_one(idir, writer, confirm_dir, analysis_cap=0, analysis_mem=-1):
             verdicts[mode] = verdict if mode not in verdicts or verdict == "RACE" else verdicts[mode]
             if meta.get("tool_timeout_cap") is not None:   # absent in metas before X0
                 notes = f"cap={meta['tool_timeout_cap']};{notes}"
+            notes += tnote                                 # X7 (A1)
             writer.writerow(blib.row(
                 **common, mode=mode, rep=rep, verdict=verdict, reports_dedup=nd,
                 report_ids=ri, report_lines=rl, wall_s=rm.get("wall"),
@@ -792,7 +853,7 @@ def cmd_analyze(a):
             print(f"[analyze {n}] {m['id']}", flush=True)
             try:
                 analyze_one(idir, w, confirm_dir, getattr(a, "analysis_timeout", 0),
-                            getattr(a, "analysis_mem", -1))
+                            getattr(a, "analysis_mem", -1), getattr(a, "analysis_workers", None))
             except Exception as e:
                 w.writerow(blib.row(id=m["id"], pset=m["pset"], program=m["program"],
                                     build=m["build"], input=m["input"], tool="cuvein",
@@ -843,7 +904,8 @@ def cmd_run(a):
                 collect_one(m, cuda, a.reps, floor=getattr(a, "timeout_floor", 120),
                             cap=getattr(a, "timeout_cap", 1200))
                 verdicts = analyze_one(idir, w, confirm_dir, getattr(a, "analysis_timeout", 0),
-                            getattr(a, "analysis_mem", -1)) or {}
+                            getattr(a, "analysis_mem", -1),
+                            getattr(a, "analysis_workers", None)) or {}
                 if keep_dir:
                     reason = _keep_decision(verdicts, m.get("label", ""))
                     if reason:
@@ -960,6 +1022,11 @@ def main():
                             "analysis; -1 = 80%% of the node's RAM (default), 0 = none. A "
                             "MemoryError becomes an ERROR analysis-oom row instead of the "
                             "kernel OOM killer taking the whole shard (no row at all)")
+        p.add_argument("--analysis-workers", dest="analysis_workers", type=int, default=None,
+                       help="X7: processes that judge one program's kernel JSONs (default: "
+                            "$CUVEIN_ANALYSIS_WORKERS, else the node's cores; 1 = the serial "
+                            "loop). Output is identical for every N; with --analysis-timeout "
+                            "both caps hold for the program, pool workers included")
         p.add_argument("--results-dir", dest="results_dir", default="",
                        help="write the shard csv here instead of eval/results (a detector "
                             "revision's re-run, kept apart from the merged baseline)")
