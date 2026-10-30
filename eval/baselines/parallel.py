@@ -787,8 +787,7 @@ def cmd_analyze(a):
     both_w = csv.DictWriter(both_fh, fieldnames=blib.COLUMNS) if both else None
     both_t = open(f"{results_dir}/analysis-time-shard{tag}.csv", "w") if both else None
     if both:
-        both_w.writeheader(); both_t.write("id,t_barrier_order_on_s,t_barrier_order_off_s
-")
+        both_w.writeheader(); both_t.write("id,t_barrier_order_on_s,t_barrier_order_off_s\n")
     with open(path, "w", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=blib.COLUMNS)
         w.writeheader()
@@ -817,8 +816,7 @@ def cmd_analyze(a):
                                     getattr(a, "analysis_mem", -1))
                     finally:
                         os.environ.pop("CUVEIN_BARRIER_ORDER", None)
-                    both_t.write(f"{m['id']},{t1 - t0:.2f},{time.time() - t1:.2f}
-"); both_t.flush()
+                    both_t.write(f"{m['id']},{t1 - t0:.2f},{time.time() - t1:.2f}\n"); both_t.flush()
             except Exception as e:
                 w.writerow(blib.row(id=m["id"], pset=m["pset"], program=m["program"],
                                     build=m["build"], input=m["input"], tool="cuvein",
