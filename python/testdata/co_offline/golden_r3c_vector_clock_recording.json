@@ -1,0 +1,183 @@
+{
+ "diagnostics": {
+  "event_candidates": {
+   "judged": 1,
+   "no_event_evidence": 0,
+   "pairs": 1
+  },
+  "tv_violation": null,
+  "unknown_sync_count": 0,
+  "unknown_sync_opcodes": []
+ },
+ "gate_policy": "recorded",
+ "inputs": {
+  "cfg_dot": "race_interblock_none-lock_rtraw.sm_89.dot",
+  "trace_json": "vector_clock_c58_run3.json"
+ },
+ "kernel": {
+  "mangled": "_Z5kmainPVj",
+  "name": "kmain(unsigned int volatile*)"
+ },
+ "skipped_edges": [
+  {
+   "ancient_pc": null,
+   "current_pc": 176,
+   "reason": "cold_miss"
+  },
+  {
+   "ancient_pc": null,
+   "current_pc": 320,
+   "reason": "cold_miss"
+  },
+  {
+   "ancient_pc": null,
+   "current_pc": 368,
+   "reason": "cold_miss"
+  },
+  {
+   "ancient_pc": 560,
+   "current_pc": 432,
+   "reason": "rmw_pair_morally_strong"
+  },
+  {
+   "ancient_pc": 176,
+   "current_pc": 560,
+   "reason": "rmw_pair_morally_strong"
+  },
+  {
+   "ancient_pc": 560,
+   "current_pc": 560,
+   "reason": "intra_thread_only"
+  },
+  {
+   "ancient_pc": 320,
+   "current_pc": 704,
+   "reason": "read_read"
+  },
+  {
+   "ancient_pc": 432,
+   "current_pc": 816,
+   "reason": "rmw_pair_morally_strong"
+  },
+  {
+   "ancient_pc": 704,
+   "current_pc": 832,
+   "reason": "intra_thread_only"
+  }
+ ],
+ "summary": {
+  "hb_classes": {
+   "barrier-ordered": 0,
+   "benign": 0,
+   "latent": 0,
+   "latent-sc": 0,
+   "sc": 1,
+   "structural": 1,
+   "warp-po-ordered": 0
+  },
+  "model_bug": 0,
+  "ordered": 0,
+  "races": 1,
+  "sc": 1,
+  "skipped": 9
+ },
+ "syncs": [
+  {
+   "opcode": "MEMBAR.SC.GPU",
+   "pc": 272,
+   "pc_hex": "0x110",
+   "qualifying": false,
+   "scope": "grid"
+  },
+  {
+   "opcode": "MEMBAR.SC.GPU",
+   "pc": 384,
+   "pc_hex": "0x180",
+   "qualifying": false,
+   "scope": "grid"
+  },
+  {
+   "opcode": "MEMBAR.SC.GPU",
+   "pc": 656,
+   "pc_hex": "0x290",
+   "qualifying": false,
+   "scope": "grid"
+  },
+  {
+   "opcode": "MEMBAR.SC.GPU",
+   "pc": 768,
+   "pc_hex": "0x300",
+   "qualifying": false,
+   "scope": "grid"
+  }
+ ],
+ "verdicts": [
+  {
+   "a2_uncertain": true,
+   "access_size": 4,
+   "ancient_pc": 368,
+   "ancient_pc_hex": "0x170",
+   "assumption": null,
+   "atomic_coherence": "none",
+   "benign": null,
+   "conflict_class": "DR",
+   "contested_weight": 1,
+   "current_pc": 752,
+   "current_pc_hex": "0x2f0",
+   "edge_rescued": false,
+   "event_candidate": false,
+   "hb_chain": null,
+   "hb_class": "structural",
+   "matrix_class": "structural",
+   "model_bug": false,
+   "observed_distance": "grid",
+   "opcodes": [
+    "STG.E",
+    "STG.E"
+   ],
+   "ordering_syncs": [],
+   "race_type": "WAW",
+   "space": "global",
+   "strength": "none",
+   "verdict": "RACE",
+   "warp_same_inst": false
+  },
+  {
+   "a2_uncertain": true,
+   "access_size": null,
+   "ancient_pc": 320,
+   "ancient_pc_hex": "0x140",
+   "assumption": null,
+   "atomic_coherence": "grid",
+   "benign": null,
+   "conflict_class": "SC",
+   "contested_weight": 1,
+   "current_pc": 832,
+   "current_pc_hex": "0x340",
+   "edge_rescued": false,
+   "event_candidate": true,
+   "hb_chain": null,
+   "hb_class": "sc",
+   "matrix_class": "sc",
+   "model_bug": false,
+   "observed_distance": "grid",
+   "opcodes": [
+    "STG.E.STRONG.SYS",
+    "LDG.E.STRONG.SYS"
+   ],
+   "ordering_syncs": [],
+   "r3_loc_closure": [
+    [
+     "landing",
+     "0xb0",
+     "0x330"
+    ]
+   ],
+   "race_type": "WAR",
+   "space": "global",
+   "strength": "none",
+   "verdict": "SC",
+   "warp_same_inst": false
+  }
+ ]
+}

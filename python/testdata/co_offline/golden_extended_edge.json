@@ -1,0 +1,129 @@
+{
+ "diagnostics": {
+  "event_candidates": {
+   "judged": 1,
+   "no_event_evidence": 0,
+   "pairs": 1
+  },
+  "tv_violation": null,
+  "unknown_sync_count": 0,
+  "unknown_sync_opcodes": []
+ },
+ "gate_policy": null,
+ "inputs": {
+  "cfg_dot": "BFS_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_RaceBug_NoBoundsBug_NoLivelockBug_NoFieldBug_NoOverflowBug.sm_89.dot",
+  "trace_json": "kernel_0.json"
+ },
+ "kernel": {
+  "mangled": "_Z3bfs8ECLgraphPKiPiS2_",
+  "name": "bfs(ECLgraph, int const*, int*, int*)"
+ },
+ "skipped_edges": [
+  {
+   "ancient_pc": null,
+   "current_pc": 144,
+   "reason": "cold_miss"
+  },
+  {
+   "ancient_pc": null,
+   "current_pc": 176,
+   "reason": "cold_miss"
+  },
+  {
+   "ancient_pc": 176,
+   "current_pc": 176,
+   "reason": "read_read"
+  },
+  {
+   "ancient_pc": null,
+   "current_pc": 352,
+   "reason": "cold_miss"
+  },
+  {
+   "ancient_pc": 176,
+   "current_pc": 384,
+   "reason": "read_read"
+  },
+  {
+   "ancient_pc": 384,
+   "current_pc": 480,
+   "reason": "intra_thread_only"
+  },
+  {
+   "ancient_pc": null,
+   "current_pc": 496,
+   "reason": "cold_miss"
+  }
+ ],
+ "summary": {
+  "hb_classes": null,
+  "model_bug": 0,
+  "ordered": 0,
+  "races": 2,
+  "sc": 0,
+  "skipped": 7
+ },
+ "syncs": [],
+ "verdicts": [
+  {
+   "a2_uncertain": null,
+   "access_size": 4,
+   "ancient_pc": 496,
+   "ancient_pc_hex": "0x1f0",
+   "assumption": null,
+   "atomic_coherence": "none",
+   "benign": null,
+   "conflict_class": "DR",
+   "contested_weight": 7,
+   "current_pc": 496,
+   "current_pc_hex": "0x1f0",
+   "edge_rescued": false,
+   "event_candidate": false,
+   "hb_chain": null,
+   "hb_class": null,
+   "matrix_class": null,
+   "model_bug": null,
+   "observed_distance": "warp",
+   "opcodes": [
+    "STG.E",
+    "STG.E"
+   ],
+   "ordering_syncs": [],
+   "race_type": "WAW",
+   "space": "global",
+   "strength": "none",
+   "verdict": "RACE",
+   "warp_same_inst": true
+  },
+  {
+   "a2_uncertain": null,
+   "access_size": null,
+   "ancient_pc": 176,
+   "ancient_pc_hex": "0xb0",
+   "assumption": null,
+   "atomic_coherence": "none",
+   "benign": null,
+   "conflict_class": "DR",
+   "contested_weight": 64,
+   "current_pc": 480,
+   "current_pc_hex": "0x1e0",
+   "edge_rescued": false,
+   "event_candidate": true,
+   "hb_chain": null,
+   "hb_class": null,
+   "matrix_class": null,
+   "model_bug": null,
+   "observed_distance": "grid",
+   "opcodes": [
+    "STG.E",
+    "LDG.E"
+   ],
+   "ordering_syncs": [],
+   "race_type": "WAR",
+   "space": "global",
+   "strength": "none",
+   "verdict": "RACE",
+   "warp_same_inst": false
+  }
+ ]
+}

@@ -190,7 +190,7 @@ see T0 for why the previous "keep every trace" attempt lost data and for the pol
   rm -rf ScoR/microbenchmarks/artifacts/*
   .env/bin/python -m pytest python/test_sync_dominance.py python/test_barrier_soundness.py \
       python/test_coherent_ldst.py python/test_atomic_memory_model.py \
-      python/test_barrier_exit.py python/test_hb_substitutions.py python/test_cp_async.py
+      python/test_barrier_exit.py python/test_hb_substitutions.py python/test_cp_async.py \n      python/test_co_offline.py
   ```
   Expected (since T18 + T4, installed runtime d67ed41): 305 passed, 2 skipped (the
   ScoR-parametrised gate tests, run afterwards: 55/55), plus `test_no_dump.py` 27/27; no

@@ -1305,7 +1305,12 @@ def _observed(dist):
 
 
 def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
-            barrier_pass=True, event_candidates=True):
+            barrier_pass=True, event_candidates=True, barrier_order=True):
+    # C4: barrier_order=False (or $CUVEIN_BARRIER_ORDER=0) skips the static leg's "barrier-ordered"
+    # branch only: a pair no certificate orders is then RACE / SC even where the sync pass shows
+    # barriers ordering every observed conflict. Nothing else reads the switch.
+    if os.environ.get("CUVEIN_BARRIER_ORDER", "1") == "0":
+        barrier_order = False
     trace = json.loads(Path(trace_path).read_text())
     kernels = parse_dot(dot_path)
     mangled = select_kernel(kernels, trace["kernel"]["kernel_name"])
@@ -1529,7 +1534,7 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
             # rest is a race of unknown kind (RACE), or `sc` if its class is SC.
             if r1_ordered or chain_ordered:
                 hb_class, verdict = None, "ORDERED"
-            elif sync_pcsets is not None and frozenset((cur, anc)) not in sync_pcsets:
+            elif barrier_order and sync_pcsets is not None and frozenset((cur, anc)) not in sync_pcsets:
                 hb_class, verdict = "barrier-ordered", "ORDERED"
             elif strong:
                 hb_class, verdict = "sc", "SC"
