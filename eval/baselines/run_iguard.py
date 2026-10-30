@@ -19,6 +19,7 @@ GPU node.
 """
 import argparse
 import os
+import socket
 import re
 import sys
 import time
@@ -60,7 +61,7 @@ def parse_reports(text):
     return reps, lines
 
 
-def run_one(mrow, cuda, reps, workroot):
+def run_one(mrow, cuda, reps, workroot, fixed_timeout=0):
     exe = mrow["exe"]
     common = dict(id=mrow["id"], pset=mrow["pset"], program=mrow["program"],
                   build=mrow["build"], input=mrow["input"], tool="iguard")
@@ -82,6 +83,10 @@ def run_one(mrow, cuda, reps, workroot):
                                    stderr_path=f"{logd}/native.txt")
     native = w if (not to and isinstance(w, (int, float))) else None
     timeout = min(max(int(10 * native), 120), 1200) if native else man_timeout
+    if fixed_timeout:
+        timeout = fixed_timeout   # --timeout: the cap cuVein was given for this row
+    # --timeout rows carry their cap and node in the notes (X7b); the default path is unchanged
+    cn = f";cap={fixed_timeout};node={socket.gethostname()}" if fixed_timeout else ""
     env = blib.base_env(cuda)
     env["LD_PRELOAD"] = IGUARD_SO
     env["TIMEOUT"] = "0"          # iGUARD's own kernel timeout off; ours governs
@@ -95,7 +100,7 @@ def run_one(mrow, cuda, reps, workroot):
             rows.append(blib.row(**common, rep=rep, verdict="TIMEOUT", rc=124, wall_s=wall,
                                  native_wall_s=native if native is not None else "",
                                  peak_mb=round(peak / 1024.0, 1) if peak else "",
-                                 notes=f"timeout={timeout}s"))
+                                 notes=f"timeout={timeout}s{cn}"))
             continue
         try:
             text = open(out_path, "r", errors="replace").read()
@@ -112,7 +117,7 @@ def run_one(mrow, cuda, reps, workroot):
             tail = blib.tail_text(out_path, 4, 200).replace(",", ";").replace("\n", " | ")
             rows.append(blib.row(**common, rep=rep, verdict="ERROR", rc=rc, wall_s=wall,
                                  native_wall_s=native if native is not None else "",
-                                 notes=f"iguard-not-started;rc={rc};native_rc={nrc};{tail}"))
+                                 notes=f"iguard-not-started;rc={rc};native_rc={nrc};{tail}{cn}"))
             continue
         verdict = "RACE" if reps_ else "CLEAN"
         kinds = sorted({r.split("@")[0] for r in reps_})
@@ -121,8 +126,8 @@ def run_one(mrow, cuda, reps, workroot):
                              report_lines=" ".join(sorted(lines)), wall_s=wall,
                              native_wall_s=native if native is not None else "",
                              peak_mb=round(peak / 1024.0, 1) if peak else "", rc=rc,
-                             notes=("kinds=" + "|".join(kinds) if kinds else "") +
-                                   (f";rc={rc}" if rc else "")))
+                             notes=(("kinds=" + "|".join(kinds) if kinds else "") +
+                                    (f";rc={rc}" if rc else "")) + (cn if (kinds or rc) else cn[1:])))
     return rows
 
 
@@ -134,6 +139,7 @@ def main():
     ap.add_argument("--shard", default="", help="k/N")
     ap.add_argument("--reps", type=int, default=3)
     ap.add_argument("--out", default="")
+    ap.add_argument("--timeout", type=int, default=0, help="fixed per-rep cap (s)")
     a = ap.parse_args()
     if not os.path.exists(IGUARD_SO):
         sys.stderr.write(
@@ -161,7 +167,7 @@ def main():
         for i, m in enumerate(rows, 1):
             print(f"[{i}/{len(rows)}] {m['id']}", flush=True)
             try:
-                for r in run_one(m, cuda, a.reps, workroot):
+                for r in run_one(m, cuda, a.reps, workroot, a.timeout):
                     w.writerow(r)
             except Exception as e:
                 w.writerow(blib.row(id=m["id"], pset=m["pset"], program=m["program"],

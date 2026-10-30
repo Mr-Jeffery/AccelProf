@@ -22,6 +22,7 @@ Deterministic -> 1 rep. Must run on a GPU node.
 import argparse
 import os
 import re
+import socket
 import subprocess
 import sys
 import time
@@ -47,7 +48,7 @@ def _shard(items, shard):
     return [it for i, it in enumerate(items) if i % n == k]
 
 
-def run_one(mrow, tool, cs, cuda, reps):
+def run_one(mrow, tool, cs, cuda, reps, fixed_timeout=0):
     exe = mrow["exe"]
     common = dict(id=mrow["id"], pset=mrow["pset"], program=mrow["program"],
                   build=mrow["build"], input=mrow["input"], tool=tool)
@@ -64,6 +65,15 @@ def run_one(mrow, tool, cs, cuda, reps):
     stdin = mrow["stdin"] or None
     env = blib.base_env(cuda)
     timeout = int(mrow["timeout"] or 300)
+    native, cn = None, ""
+    if fixed_timeout:
+        # --timeout (X7b): fixed per-rep tool cap; native wall measured in the same job;
+        # cap and node go to the notes. Without --timeout nothing below runs.
+        timeout = fixed_timeout
+        cn = f";cap={fixed_timeout};node={socket.gethostname()}"
+        w, _, _, nto = blib.run_timed([os.path.abspath(exe), *args], env, exe_dir, timeout,
+                                      stdin_path=stdin)
+        native = w if (not nto and isinstance(w, (int, float))) else None
     cmd = [cs, "--tool", tool]
     if tool == "racecheck":
         cmd += ["--racecheck-report", "analysis"]
@@ -78,7 +88,8 @@ def run_one(mrow, tool, cs, cuda, reps):
                                timeout=timeout)
         except subprocess.TimeoutExpired:
             return blib.row(**common, verdict="TIMEOUT", rc=124,
-                            wall_s=round(time.perf_counter() - t0, 3), notes=f"timeout={timeout}s")
+                            wall_s=round(time.perf_counter() - t0, 3), native_wall_s=native if native is not None else "",
+                            notes=f"timeout={timeout}s{cn}")
         finally:
             if stdin and not fin.closed:
                 fin.close()
@@ -96,13 +107,15 @@ def run_one(mrow, tool, cs, cuda, reps):
     if count is None:
         tail = " ".join((p.stderr or p.stdout).strip().splitlines()[-2:])[:160].replace(",", ";")
         return blib.row(**common, verdict="ERROR", wall_s=best, rc=rc,
-                        notes=f"no-summary;rc={rc};{tail}")
+                        native_wall_s=native if native is not None else "",
+                        notes=f"no-summary;rc={rc};{tail}{cn}")
     verdict = "RACE" if count > 0 else "CLEAN"
     unit = "hazards" if tool == "racecheck" else "errors"
     notes = f"{unit}={count}" + (";kinds=" + "|".join(kinds).replace(",", ";") if kinds else "")
     return blib.row(**common, verdict=verdict, reports_dedup=len(lines),
                     report_ids=" ".join(lines), report_lines=" ".join(lines),
-                    wall_s=best, rc=rc, notes=notes)
+                    wall_s=best, rc=rc, native_wall_s=native if native is not None else "",
+                    notes=notes + cn)
 
 
 def main():
@@ -114,6 +127,8 @@ def main():
     ap.add_argument("--shard", default="", help="k/N over (row, tool) pairs")
     ap.add_argument("--reps", type=int, default=1, help="deterministic; 1 rep")
     ap.add_argument("--out", default="", help="override output csv path")
+    ap.add_argument("--timeout", type=int, default=0,
+                    help="fixed per-run tool cap (s); also records native wall and cap/node notes")
     a = ap.parse_args()
     cuda = blib.resolve_cuda_home()
     cs = f"{cuda}/compute-sanitizer/compute-sanitizer"
@@ -144,7 +159,7 @@ def main():
         for i, (mrow, t) in enumerate(work, 1):
             print(f"[{i}/{len(work)}] {t} {mrow['id']}", flush=True)
             try:
-                w.writerow(run_one(mrow, t, cs, cuda, a.reps))
+                w.writerow(run_one(mrow, t, cs, cuda, a.reps, a.timeout))
             except Exception as e:  # never lose the row
                 w.writerow(blib.row(id=mrow["id"], pset=mrow["pset"], program=mrow["program"],
                                     build=mrow["build"], input=mrow["input"], tool=t,
