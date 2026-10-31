@@ -177,6 +177,28 @@ def test_capped_pool_identical(tmp_path):
     assert reason == "" and _canon(res) == serial
 
 
+def test_exception_same_type_message_and_place(tmp_path):
+    """A truncated kernel JSON (a partial dump's last file) fails the pool exactly as the serial
+    loop: same exception type and message, inline and through _analyze_capped."""
+    d = tmp_path / "vector-clock"
+    shutil.copytree(_FIX / "vector-clock", d)
+    k = d / "kernel_5.json"
+    k.write_text(k.read_text()[:777])
+    dots = str(_FIX / "dots")
+    got = {}
+    for k_, kw in _RUNS.items():
+        with pytest.raises(ValueError) as ei:
+            rc._analyze_reports(str(d), dots, **kw)
+        got[k_] = (type(ei.value), str(ei.value))
+        with pytest.raises(Exception) as ci:
+            parallel._analyze_capped(str(d), dots, 600, -1, kw["workers"])
+        got[k_ + "-capped"] = (type(ci.value), str(ci.value))
+    assert got["serial-1"][0] is json.JSONDecodeError
+    for k_ in _RUNS:
+        assert got[k_] == got["serial-1"], k_
+        assert got[k_ + "-capped"] == got["serial-1-capped"], k_
+
+
 def test_capped_pool_timeout_kills_the_group(monkeypatch):
     """Past the cap the child and all its pool workers are killed (no worker outlives it)."""
     import time

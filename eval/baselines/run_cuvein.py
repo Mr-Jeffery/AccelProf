@@ -76,26 +76,26 @@ def _kernel_report(kj, dots):
 
 
 def _pool_task(kj, dots):
-    """_kernel_report in a pool worker. An exception comes back as data (its type, args and
-    attributes without a JSONDecodeError's whole document), so the parent re-raises an
-    exception of the same type and message at this kernel's place in the order."""
+    """_kernel_report in a pool worker. An exception comes back as data, so the parent
+    re-raises one of the same type and message at this kernel's place in the order: pickled
+    as itself (its own __reduce__: OSError keeps errno and filename), except a
+    JSONDecodeError, whose pickle would carry the whole document -- it travels as its
+    message and positions (its str() is its message)."""
     try:
         return ("OK", _kernel_report(kj, dots))
+    except json.JSONDecodeError as e:
+        return ("JDE", (e.args, e.msg, e.pos, e.lineno, e.colno))
     except Exception as e:   # noqa: BLE001 -- re-raised by the parent, in order
-        attrs = {k: v for k, v in getattr(e, "__dict__", {}).items() if k != "doc"}
-        return ("EXC", (type(e), e.args, attrs))
+        return ("EXC", e)
 
 
-def _reraise(payload):
-    cls, args, attrs = payload
-    e = cls.__new__(cls)
-    e.args = args
-    for k, v in attrs.items():
-        try:
-            setattr(e, k, v)
-        except AttributeError:
-            pass
-    raise e
+def _reraise(tag, payload):
+    if tag == "JDE":
+        args, msg, pos, lineno, colno = payload
+        e = json.JSONDecodeError.__new__(json.JSONDecodeError)
+        e.args, e.msg, e.doc, e.pos, e.lineno, e.colno = args, msg, "", pos, lineno, colno
+        raise e
+    raise payload
 
 
 class AnalysisWorkerDied(RuntimeError):
@@ -131,8 +131,8 @@ def _kernel_reports(kjs, dots, workers, cached):
         done = False
         try:
             for tag, payload in ex.map(_pool_task, kjs, [dots] * len(kjs)):
-                if tag == "EXC":
-                    _reraise(payload)
+                if tag != "OK":
+                    _reraise(tag, payload)
                 yield payload
             done = True
         except BrokenProcessPool as e:
