@@ -209,7 +209,7 @@ Table 4 (`tab:eval-accuracy`) cells are `recall / false-positive rate`, as `TP/(
 |---|---|---|---|
 | Table 4, row "Indigo 1.3, SC's 99", SuperCollider | 39/45 / 0/44 | 262/315 / 0/308 | the row taken as 99 codes × 7 inputs (693 program-inputs; the paper row counts 99). Unchanged if the row stays the artifact-protocol 99: 39/45 / 0/44 |
 | Table 4, row "Indigo 1.3" (all 590 codes), SuperCollider | — | — | the artifact ships binaries for 99 of the 590 codes only; the 693 rows are a subset of that row's 4,130 |
-| Table 4, row "All pre-registered", SuperCollider | 48/58 / 0/65 | 271/328 / 0/329; 16 TO/ERR | cuHadron SC cell (9/13 / 0/21; 16 ERR) plus the Indigo cell above; if the Indigo row stays at 99: 48/58 / 0/65 |
+| Table 4, row "All pre-registered", SuperCollider | 48/58 / 0/65 | 271/328 / 0/329 | cuHadron SC cell (9/13 / 0/21; 16 ERR; ERR rows are outside the rates, as in the paper cell) plus the Indigo cell above; if the Indigo row stays at 99: 48/58 / 0/65 |
 | Table 4, rows cuHadron, HeCBench SC's 10, SuperCollider | unchanged | unchanged | not touched by this task |
 | Union table (`tab:eval-accuracy-union`), SuperCollider column | Indigo 1.3: —; cuHadron 9/13, 0/21; HeCBench 5/5, 0/5 | unchanged | Indigo 1.3 has no strong conflicts, so the union counting gives the same cell as Table 4 for these rows; the union table has no SC's-99 row to change |
 

@@ -5,8 +5,8 @@ import csv, glob, os, collections
 H = os.path.dirname(os.path.abspath(__file__)); L = f"{H}/../../x_logs"
 F = ["id", "code", "graph", "label", "oracle", "pairs", "example", "notes"]
 rows = {}
-for pat in ("sc99", "all590"):
-    for p in sorted(glob.glob(f"{L}/oracle-x8-{pat}-*.csv")):
+for pat in ("sc99", "all590*"):
+    for p in sorted(glob.glob(f"{L}/oracle-x8-{pat}.csv" if "*" in pat else f"{L}/oracle-x8-{pat}-*.csv")):
         for r in csv.DictReader(open(p)):
             rows[r["id"]] = r
 with open(f"{H}/../../results/baselines-pi-oracle-x8.csv", "w", newline="") as fh:

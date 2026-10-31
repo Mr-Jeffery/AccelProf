@@ -300,7 +300,7 @@ w(f"| Table 4, row \"Indigo 1.3, SC's 99\", SuperCollider | 39/45 / 0/44 | {tpfp
 w(f"| Table 4, row \"Indigo 1.3\" (all 590 codes), SuperCollider | — | — | the artifact ships binaries for 99 of the 590 codes only; "
   f"the {len(ids7)} rows are a subset of that row's 4,130 |")
 w(f"| Table 4, row \"All pre-registered\", SuperCollider | {agg_old} | {agg_tp}/{agg_tpn} / {agg_fp}/{agg_fpn}"
-  f"{'; ' + str(agg_err) + ' TO/ERR' if agg_err else ''} | cuHadron SC cell ({tpfp(cP6)}) plus the Indigo cell above; "
+  f" | cuHadron SC cell ({tpfp(cP6)}; ERR rows are outside the rates, as in the paper cell) plus the Indigo cell above; "
   f"if the Indigo row stays at 99: 48/58 / 0/65 |")
 w("| Table 4, rows cuHadron, HeCBench SC's 10, SuperCollider | unchanged | unchanged | not touched by this task |")
 w("| Union table (`tab:eval-accuracy-union`), SuperCollider column | Indigo 1.3: —; cuHadron 9/13, 0/21; HeCBench 5/5, 0/5 | unchanged | "
