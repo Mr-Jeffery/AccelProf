@@ -1,0 +1,4691 @@
+{
+ "id": "raft-1-fixed",
+ "target": "raft-1",
+ "exe": "/mnt/beegfs/fzheng4/realworld_t21b/build/raft-1/fixed/driver",
+ "cuda_home": "/usr/local/cuda-13.4",
+ "n_cubins": 2,
+ "n_dots": 2,
+ "oracle_kernel_substr": "radix_kernel",
+ "spec_found": true,
+ "modes": {
+  "scalar-clock": {
+   "n_kernel_jsons": 4,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 15,
+      "sc": 2,
+      "ordered": 61,
+      "skipped": 81,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_1.json",
+     "name": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 21,
+      "sc": 2,
+      "ordered": 38,
+      "skipped": 89,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_2.json",
+     "name": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 7,
+      "sc": 0,
+      "ordered": 35,
+      "skipped": 90,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_3.json",
+     "name": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, true, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb1ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 2,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 14,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 4,
+   "n_race": 32,
+   "n_sc": 2,
+   "reports": [
+    {
+     "mode": "scalar-clock",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": false,
+     "space": "global",
+     "a_pc": 192,
+     "b_pc": 24384,
+     "a_op": "LDG.E.128",
+     "b_op": "STG.E.128",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 672
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 388
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 779
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json",
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": false,
+     "space": "global",
+     "a_pc": 192,
+     "b_pc": 24928,
+     "a_op": "LDG.E.128",
+     "b_op": "STG.E.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 672
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 772
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": false,
+     "space": "global",
+     "a_pc": 208,
+     "b_pc": 24864,
+     "a_op": "LDG.E.64",
+     "b_op": "STG.E.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 674
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 791
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json",
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": false,
+     "space": "global",
+     "a_pc": 208,
+     "b_pc": 24912,
+     "a_op": "LDG.E.64",
+     "b_op": "STG.E.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 674
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 771
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": false,
+     "space": "global",
+     "a_pc": 2368,
+     "b_pc": 24352,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 265
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 391
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 779
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "block",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json",
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": false,
+     "space": "global",
+     "a_pc": 5680,
+     "b_pc": 24784,
+     "a_op": "ATOMG.E.ADD.64.STRONG.GPU",
+     "b_op": "STG.E.64",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 291
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 311
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 793
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAW",
+     "strength": "block",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": false,
+     "space": "shared",
+     "a_pc": 6016,
+     "b_pc": 10128,
+     "a_op": "LDS.64",
+     "b_op": "ATOMS.CAST.SPIN.64",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 291
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 311
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 291
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 311
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": false,
+     "space": "shared",
+     "a_pc": 6064,
+     "b_pc": 10080,
+     "a_op": "ATOMS.CAST.SPIN.64",
+     "b_op": "LDS.64",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 291
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 311
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 291
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 311
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": false,
+     "space": "shared",
+     "a_pc": 6064,
+     "b_pc": 20528,
+     "a_op": "ATOMS.CAST.SPIN.64",
+     "b_op": "LDS.64",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 291
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 311
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 322
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": "benign",
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json",
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": false,
+     "space": "global",
+     "a_pc": 7712,
+     "b_pc": 24784,
+     "a_op": "ATOMG.E.ADD.64.STRONG.GPU",
+     "b_op": "STG.E.64",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 291
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 311
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 793
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAW",
+     "strength": "block",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": false,
+     "space": "shared",
+     "a_pc": 8048,
+     "b_pc": 12144,
+     "a_op": "LDS.64",
+     "b_op": "ATOMS.CAST.SPIN.64",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 291
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 311
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 291
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 311
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": false,
+     "space": "shared",
+     "a_pc": 8096,
+     "b_pc": 12096,
+     "a_op": "ATOMS.CAST.SPIN.64",
+     "b_op": "LDS.64",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 291
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 311
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 291
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 311
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": false,
+     "space": "shared",
+     "a_pc": 8096,
+     "b_pc": 20528,
+     "a_op": "ATOMS.CAST.SPIN.64",
+     "b_op": "LDS.64",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 291
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 311
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 322
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": "benign",
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": false,
+     "space": "global",
+     "a_pc": 9744,
+     "b_pc": 24784,
+     "a_op": "ATOMG.E.ADD.64.STRONG.GPU",
+     "b_op": "STG.E.64",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 291
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 311
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 793
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAW",
+     "strength": "block",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": false,
+     "space": "shared",
+     "a_pc": 10080,
+     "b_pc": 10128,
+     "a_op": "LDS.64",
+     "b_op": "ATOMS.CAST.SPIN.64",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 291
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 311
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 291
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 311
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json",
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": false,
+     "space": "shared",
+     "a_pc": 10080,
+     "b_pc": 12144,
+     "a_op": "LDS.64",
+     "b_op": "ATOMS.CAST.SPIN.64",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 291
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 311
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 291
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 311
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": false,
+     "space": "shared",
+     "a_pc": 10128,
+     "b_pc": 12096,
+     "a_op": "ATOMS.CAST.SPIN.64",
+     "b_op": "LDS.64",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 291
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 311
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 291
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 311
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": false,
+     "space": "shared",
+     "a_pc": 10128,
+     "b_pc": 20528,
+     "a_op": "ATOMS.CAST.SPIN.64",
+     "b_op": "LDS.64",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 291
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 311
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 322
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": "benign",
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json",
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": false,
+     "space": "shared",
+     "a_pc": 12144,
+     "b_pc": 20528,
+     "a_op": "ATOMS.CAST.SPIN.64",
+     "b_op": "LDS.64",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 291
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 311
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 322
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": "benign",
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": false,
+     "space": "shared",
+     "a_pc": 18560,
+     "b_pc": 18608,
+     "a_op": "LDS.64",
+     "b_op": "ATOMS.CAST.SPIN.64",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 255
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 255
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json",
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": false,
+     "space": "shared",
+     "a_pc": 18560,
+     "b_pc": 18848,
+     "a_op": "LDS.64",
+     "b_op": "ATOMS.CAST.SPIN.64",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 255
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 255
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json",
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": false,
+     "space": "shared",
+     "a_pc": 18560,
+     "b_pc": 19088,
+     "a_op": "LDS.64",
+     "b_op": "ATOMS.CAST.SPIN.64",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 255
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 255
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json",
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": false,
+     "space": "shared",
+     "a_pc": 18560,
+     "b_pc": 19328,
+     "a_op": "LDS.64",
+     "b_op": "ATOMS.CAST.SPIN.64",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 255
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 255
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json",
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": false,
+     "space": "shared",
+     "a_pc": 18608,
+     "b_pc": 20528,
+     "a_op": "ATOMS.CAST.SPIN.64",
+     "b_op": "LDS.64",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 255
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 322
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": "benign",
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": false,
+     "space": "shared",
+     "a_pc": 18848,
+     "b_pc": 20528,
+     "a_op": "ATOMS.CAST.SPIN.64",
+     "b_op": "LDS.64",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 255
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 322
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": "benign",
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": false,
+     "space": "shared",
+     "a_pc": 19088,
+     "b_pc": 20528,
+     "a_op": "ATOMS.CAST.SPIN.64",
+     "b_op": "LDS.64",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 255
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 322
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": "benign",
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": false,
+     "space": "shared",
+     "a_pc": 19328,
+     "b_pc": 20528,
+     "a_op": "ATOMS.CAST.SPIN.64",
+     "b_op": "LDS.64",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 255
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 257
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 322
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": "benign",
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": false,
+     "space": "global",
+     "a_pc": 20688,
+     "b_pc": 21376,
+     "a_op": "ATOMG.E.ADD.64.STRONG.GPU",
+     "b_op": "LDG.E.64.STRONG.SYS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 322
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 361
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 777
+      }
+     ],
+     "verdict": "SC",
+     "race_type": "RAW",
+     "strength": "block",
+     "hb_class": "sc",
+     "hb_chain": null,
+     "matrix_class": "sc",
+     "conflict_class": "SC",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json",
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": false,
+     "space": "global",
+     "a_pc": 20688,
+     "b_pc": 23936,
+     "a_op": "ATOMG.E.ADD.64.STRONG.GPU",
+     "b_op": "STG.E.64.STRONG.SYS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 322
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 366
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 777
+      }
+     ],
+     "verdict": "SC",
+     "race_type": "WAW",
+     "strength": "block",
+     "hb_class": "sc",
+     "hb_chain": null,
+     "matrix_class": "sc",
+     "conflict_class": "SC",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json",
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": false,
+     "space": "global",
+     "a_pc": 20688,
+     "b_pc": 24096,
+     "a_op": "ATOMG.E.ADD.64.STRONG.GPU",
+     "b_op": "LDG.E.64",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 322
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 383
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 779
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "block",
+     "hb_class": "benign",
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json",
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": false,
+     "space": "global",
+     "a_pc": 20688,
+     "b_pc": 24112,
+     "a_op": "ATOMG.E.ADD.64.STRONG.GPU",
+     "b_op": "LDG.E.64",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 322
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 382
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 779
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "block",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json",
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": false,
+     "space": "global",
+     "a_pc": 20688,
+     "b_pc": 24704,
+     "a_op": "ATOMG.E.ADD.64.STRONG.GPU",
+     "b_op": "STG.E.64",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 498
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 322
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 738
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 786
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAW",
+     "strength": "block",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json",
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, true, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb1ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": false,
+     "space": "global",
+     "a_pc": 208,
+     "b_pc": 29312,
+     "a_op": "LDG.E.128",
+     "b_op": "STG.E.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 672
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 772
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, true, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb1ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": false,
+     "space": "global",
+     "a_pc": 224,
+     "b_pc": 29296,
+     "a_op": "LDG.E.64",
+     "b_op": "STG.E.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 674
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 771
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_3.json"
+     ]
+    }
+   ],
+   "site_verdicts": [
+    {
+     "current_pc": 21376,
+     "current_pc_hex": "0x5380",
+     "ancient_pc": 20688,
+     "ancient_pc_hex": "0x50d0",
+     "opcodes": [
+      "LDG.E.64.STRONG.SYS",
+      "ATOMG.E.ADD.64.STRONG.GPU"
+     ],
+     "space": "global",
+     "race_type": "RAW",
+     "observed_distance": "grid",
+     "contested_weight": 514,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      20880,
+      20912,
+      21168
+     ],
+     "atomic_coherence": "grid",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": "sc",
+     "matrix_class": "sc",
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "SC",
+     "benign": null,
+     "assumption": null,
+     "verdict": "SC",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 361
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 777
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      }
+     ]
+    },
+    {
+     "current_pc": 21504,
+     "current_pc_hex": "0x5400",
+     "ancient_pc": 21424,
+     "ancient_pc_hex": "0x53b0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 120,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      21456
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 165
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 187
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 594
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1686
+      }
+     ]
+    },
+    {
+     "current_pc": 21520,
+     "current_pc_hex": "0x5410",
+     "ancient_pc": 21424,
+     "ancient_pc_hex": "0x53b0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 120,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      21456
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 165
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 187
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 594
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1686
+      }
+     ]
+    },
+    {
+     "current_pc": 21536,
+     "current_pc_hex": "0x5420",
+     "ancient_pc": 21424,
+     "ancient_pc_hex": "0x53b0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 120,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      21456
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 165
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 187
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 594
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1686
+      }
+     ]
+    },
+    {
+     "current_pc": 21552,
+     "current_pc_hex": "0x5430",
+     "ancient_pc": 21424,
+     "ancient_pc_hex": "0x53b0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 120,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      21456
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 165
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 187
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 594
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1686
+      }
+     ]
+    },
+    {
+     "current_pc": 21568,
+     "current_pc_hex": "0x5440",
+     "ancient_pc": 21424,
+     "ancient_pc_hex": "0x53b0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 120,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      21456
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 165
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 187
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 594
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1686
+      }
+     ]
+    },
+    {
+     "current_pc": 21584,
+     "current_pc_hex": "0x5450",
+     "ancient_pc": 21424,
+     "ancient_pc_hex": "0x53b0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 120,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      21456
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 165
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 187
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 594
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1686
+      }
+     ]
+    },
+    {
+     "current_pc": 21600,
+     "current_pc_hex": "0x5460",
+     "ancient_pc": 21424,
+     "ancient_pc_hex": "0x53b0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 120,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      21456
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 165
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 187
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 594
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1686
+      }
+     ]
+    },
+    {
+     "current_pc": 21616,
+     "current_pc_hex": "0x5470",
+     "ancient_pc": 21424,
+     "ancient_pc_hex": "0x53b0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 120,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      21456
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 165
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 187
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 594
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1686
+      }
+     ]
+    },
+    {
+     "current_pc": 21632,
+     "current_pc_hex": "0x5480",
+     "ancient_pc": 21424,
+     "ancient_pc_hex": "0x53b0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 120,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      21456
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 165
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 187
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 594
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1686
+      }
+     ]
+    },
+    {
+     "current_pc": 21648,
+     "current_pc_hex": "0x5490",
+     "ancient_pc": 21424,
+     "ancient_pc_hex": "0x53b0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 120,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      21456
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 165
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 187
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 594
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1686
+      }
+     ]
+    },
+    {
+     "current_pc": 21664,
+     "current_pc_hex": "0x54a0",
+     "ancient_pc": 21424,
+     "ancient_pc_hex": "0x53b0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 120,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      21456
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 165
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 187
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 594
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1686
+      }
+     ]
+    },
+    {
+     "current_pc": 21680,
+     "current_pc_hex": "0x54b0",
+     "ancient_pc": 21424,
+     "ancient_pc_hex": "0x53b0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 120,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      21456
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 165
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 187
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 594
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1686
+      }
+     ]
+    },
+    {
+     "current_pc": 21696,
+     "current_pc_hex": "0x54c0",
+     "ancient_pc": 21424,
+     "ancient_pc_hex": "0x53b0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 120,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      21456
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 165
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 187
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 594
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1686
+      }
+     ]
+    },
+    {
+     "current_pc": 21728,
+     "current_pc_hex": "0x54e0",
+     "ancient_pc": 21424,
+     "ancient_pc_hex": "0x53b0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 120,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      21456
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 165
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 594
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1686
+      }
+     ]
+    },
+    {
+     "current_pc": 21760,
+     "current_pc_hex": "0x5500",
+     "ancient_pc": 21424,
+     "ancient_pc_hex": "0x53b0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 120,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      21456
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 165
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 594
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1686
+      }
+     ]
+    },
+    {
+     "current_pc": 21792,
+     "current_pc_hex": "0x5520",
+     "ancient_pc": 21424,
+     "ancient_pc_hex": "0x53b0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 120,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      21456
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 165
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 594
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1686
+      }
+     ]
+    },
+    {
+     "current_pc": 23840,
+     "current_pc_hex": "0x5d20",
+     "ancient_pc": 23072,
+     "ancient_pc_hex": "0x5a20",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 120,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      23760,
+      23792
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 615
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1686
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1281
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 165
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 227
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 609
+      }
+     ]
+    },
+    {
+     "current_pc": 23840,
+     "current_pc_hex": "0x5d20",
+     "ancient_pc": 23168,
+     "ancient_pc_hex": "0x5a80",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 120,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      23760,
+      23792
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 615
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1686
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1281
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 165
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 227
+      }
+     ]
+    },
+    {
+     "current_pc": 23840,
+     "current_pc_hex": "0x5d20",
+     "ancient_pc": 23264,
+     "ancient_pc_hex": "0x5ae0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 120,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      23760,
+      23792
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 615
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1686
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1281
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 165
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      }
+     ]
+    },
+    {
+     "current_pc": 23840,
+     "current_pc_hex": "0x5d20",
+     "ancient_pc": 23312,
+     "ancient_pc_hex": "0x5b10",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 120,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      23760,
+      23792
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 615
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1686
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1281
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 165
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 227
+      }
+     ]
+    },
+    {
+     "current_pc": 23840,
+     "current_pc_hex": "0x5d20",
+     "ancient_pc": 23360,
+     "ancient_pc_hex": "0x5b40",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 120,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      23760,
+      23792
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 615
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1686
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1281
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 165
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 227
+      }
+     ]
+    },
+    {
+     "current_pc": 23840,
+     "current_pc_hex": "0x5d20",
+     "ancient_pc": 23408,
+     "ancient_pc_hex": "0x5b70",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 120,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      23760,
+      23792
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 615
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1686
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1281
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 165
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      }
+     ]
+    },
+    {
+     "current_pc": 23840,
+     "current_pc_hex": "0x5d20",
+     "ancient_pc": 23456,
+     "ancient_pc_hex": "0x5ba0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 120,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      23760,
+      23792
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 615
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1686
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1281
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 165
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      }
+     ]
+    },
+    {
+     "current_pc": 23840,
+     "current_pc_hex": "0x5d20",
+     "ancient_pc": 23504,
+     "ancient_pc_hex": "0x5bd0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 120,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      23760,
+      23792
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 615
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1686
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1281
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 165
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      }
+     ]
+    },
+    {
+     "current_pc": 23840,
+     "current_pc_hex": "0x5d20",
+     "ancient_pc": 23552,
+     "ancient_pc_hex": "0x5c00",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 120,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      23760,
+      23792
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 615
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1686
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1281
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 165
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      }
+     ]
+    },
+    {
+     "current_pc": 23840,
+     "current_pc_hex": "0x5d20",
+     "ancient_pc": 23600,
+     "ancient_pc_hex": "0x5c30",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 120,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      23760,
+      23792
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 615
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1686
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1281
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 165
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      }
+     ]
+    },
+    {
+     "current_pc": 23840,
+     "current_pc_hex": "0x5d20",
+     "ancient_pc": 23632,
+     "ancient_pc_hex": "0x5c50",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 120,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      23760,
+      23792
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 615
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1686
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1281
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 165
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      }
+     ]
+    },
+    {
+     "current_pc": 23840,
+     "current_pc_hex": "0x5d20",
+     "ancient_pc": 23648,
+     "ancient_pc_hex": "0x5c60",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 120,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      23760,
+      23792
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 615
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1686
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1281
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 165
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      }
+     ]
+    },
+    {
+     "current_pc": 23840,
+     "current_pc_hex": "0x5d20",
+     "ancient_pc": 23664,
+     "ancient_pc_hex": "0x5c70",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 120,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      23760,
+      23792
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 615
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1686
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1281
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 165
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      }
+     ]
+    },
+    {
+     "current_pc": 23840,
+     "current_pc_hex": "0x5d20",
+     "ancient_pc": 23680,
+     "ancient_pc_hex": "0x5c80",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 120,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      23760,
+      23792
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 615
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1686
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1281
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 165
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      }
+     ]
+    },
+    {
+     "current_pc": 23840,
+     "current_pc_hex": "0x5d20",
+     "ancient_pc": 23696,
+     "ancient_pc_hex": "0x5c90",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 120,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      23760,
+      23792
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 615
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1686
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1281
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 165
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      }
+     ]
+    },
+    {
+     "current_pc": 23840,
+     "current_pc_hex": "0x5d20",
+     "ancient_pc": 23712,
+     "ancient_pc_hex": "0x5ca0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 120,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      23760,
+      23792
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 615
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1686
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_scan.cuh",
+       "line": 1281
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 165
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/specializations/block_scan_raking.cuh",
+       "line": 166
+      }
+     ]
+    },
+    {
+     "current_pc": 23936,
+     "current_pc_hex": "0x5d80",
+     "ancient_pc": 20688,
+     "ancient_pc_hex": "0x50d0",
+     "opcodes": [
+      "STG.E.64.STRONG.SYS",
+      "ATOMG.E.ADD.64.STRONG.GPU"
+     ],
+     "space": "global",
+     "race_type": "WAW",
+     "observed_distance": "grid",
+     "contested_weight": 12263,
+     "access_size": null,
+     "strength": "block",
+     "ordering_syncs": [
+      20880,
+      20912,
+      21168
+     ],
+     "atomic_coherence": "grid",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": true,
+     "hb_class": "sc",
+     "matrix_class": "sc",
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "SC",
+     "benign": null,
+     "assumption": null,
+     "verdict": "SC",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 366
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 777
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      }
+     ]
+    },
+    {
+     "current_pc": 24096,
+     "current_pc_hex": "0x5e20",
+     "ancient_pc": 20688,
+     "ancient_pc_hex": "0x50d0",
+     "opcodes": [
+      "LDG.E.64",
+      "ATOMG.E.ADD.64.STRONG.GPU"
+     ],
+     "space": "global",
+     "race_type": "RAW",
+     "observed_distance": "grid",
+     "contested_weight": 12263,
+     "access_size": null,
+     "strength": "block",
+     "ordering_syncs": [
+      20880,
+      20912,
+      21168
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": true,
+     "hb_class": "benign",
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": "atomic-maintained-read",
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 383
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 779
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      }
+     ]
+    },
+    {
+     "current_pc": 24112,
+     "current_pc_hex": "0x5e30",
+     "ancient_pc": 20688,
+     "ancient_pc_hex": "0x50d0",
+     "opcodes": [
+      "LDG.E.64",
+      "ATOMG.E.ADD.64.STRONG.GPU"
+     ],
+     "space": "global",
+     "race_type": "RAW",
+     "observed_distance": "grid",
+     "contested_weight": 12217,
+     "access_size": null,
+     "strength": "block",
+     "ordering_syncs": [
+      20880,
+      20912,
+      21168
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": true,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+     "mangled": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 382
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/matrix/detail/select_radix.cuh",
+       "line": 779
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 226
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 250
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/raft-1/fixed/src/raft/cpp/include/raft/util/device_atomics.cuh",
+       "line": 463
+      }
+     ]
+    }
+   ],
+   "site_skipped": {
+    "rmw_pair_morally_strong": 2,
+    "intra_thread_only": 103,
+    "read_read": 3
+   }
+  }
+ },
+ "dots_checked": 1,
+ "dots_regenerated_equal": 0
+}

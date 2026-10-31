@@ -1,0 +1,135 @@
+{
+ "id": "pytorch-4-fixed",
+ "target": "pytorch-4",
+ "exe": "/mnt/beegfs/fzheng4/realworld_t21b/build/pytorch-4/fixed/driver",
+ "cuda_home": "/usr/local/cuda-13.4",
+ "n_cubins": 1,
+ "n_dots": 1,
+ "oracle_kernel_substr": "gatherKthValue",
+ "spec_found": true,
+ "modes": {
+  "scalar-clock": {
+   "n_kernel_jsons": 1,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "void at::native::(anonymous namespace)::gatherKthValue<float, int, 1>(at::cuda::detail::TensorInfo<float const, int>, int, int, int, int, at::cuda::detail::TensorInfo<float, int>, at::cuda::detail::TensorInfo<long, int>)",
+     "mangled": "_ZN2at6native41_GLOBAL__N__b9695cdd_9_driver_cu_8150cb8f14gatherKthValueIfiLi1EEEvNS_4cuda6detail10TensorInfoIKT_T0_EES8_S8_S8_S8_NS5_IS6_S8_EENS5_IlS8_EE",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 1,
+      "sc": 0,
+      "ordered": 11,
+      "skipped": 14,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 1,
+   "n_race": 1,
+   "n_sc": 0,
+   "reports": [
+    {
+     "mode": "scalar-clock",
+     "kernel": "void at::native::(anonymous namespace)::gatherKthValue<float, int, 1>(at::cuda::detail::TensorInfo<float const, int>, int, int, int, int, at::cuda::detail::TensorInfo<float, int>, at::cuda::detail::TensorInfo<long, int>)",
+     "mangled": "_ZN2at6native41_GLOBAL__N__b9695cdd_9_driver_cu_8150cb8f14gatherKthValueIfiLi1EEEvNS_4cuda6detail10TensorInfoIKT_T0_EES8_S8_S8_S8_NS5_IS6_S8_EENS5_IlS8_EE",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 7840,
+     "b_pc": 8384,
+     "a_op": "LDS",
+     "b_op": "ATOMS.MIN.S32",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch-4/fixed/src/aten/src/ATen/native/cuda/Sorting.cu",
+       "line": 77
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 142
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch-4/fixed/src/aten/src/ATen/native/cuda/Sorting.cu",
+       "line": 86
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    }
+   ],
+   "site_verdicts": [
+    {
+     "current_pc": 8384,
+     "current_pc_hex": "0x20c0",
+     "ancient_pc": 7840,
+     "ancient_pc_hex": "0x1ea0",
+     "opcodes": [
+      "ATOMS.MIN.S32",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 1,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void at::native::(anonymous namespace)::gatherKthValue<float, int, 1>(at::cuda::detail::TensorInfo<float const, int>, int, int, int, int, at::cuda::detail::TensorInfo<float, int>, at::cuda::detail::TensorInfo<long, int>)",
+     "mangled": "_ZN2at6native41_GLOBAL__N__b9695cdd_9_driver_cu_8150cb8f14gatherKthValueIfiLi1EEEvNS_4cuda6detail10TensorInfoIKT_T0_EES8_S8_S8_S8_NS5_IS6_S8_EENS5_IlS8_EE",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/usr/local/cuda/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp",
+       "line": 142
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch-4/fixed/src/aten/src/ATen/native/cuda/Sorting.cu",
+       "line": 86
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch-4/fixed/src/aten/src/ATen/native/cuda/Sorting.cu",
+       "line": 77
+      }
+     ]
+    }
+   ],
+   "site_skipped": {
+    "read_read": 1,
+    "rmw_pair_morally_strong": 1
+   }
+  }
+ },
+ "dots_checked": 1,
+ "dots_regenerated_equal": 1
+}

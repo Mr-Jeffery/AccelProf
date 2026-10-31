@@ -1,0 +1,268 @@
+{
+ "id": "llamacpp-4-buggy",
+ "target": "llamacpp-4",
+ "exe": "/mnt/beegfs/fzheng4/realworld/build/llamacpp-4/buggy/test-backend-ops",
+ "cuda_home": "/usr/local/cuda-13.4",
+ "n_cubins": 141,
+ "n_dots": 141,
+ "oracle_kernel_substr": "soft_max_f32",
+ "spec_found": true,
+ "modes": {
+  "scalar-clock": {
+   "n_kernel_jsons": 2,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "void soft_max_f32<true, 1024, 1024, float>(float const*, float const*, float const*, float*, soft_max_params)",
+     "mangled": "_Z12soft_max_f32ILb1ELi1024ELi1024EfEvPKfPKT2_S1_Pf15soft_max_params",
+     "dot": "softmax.sm_89.dot",
+     "summary": {
+      "races": 1,
+      "sc": 0,
+      "ordered": 2,
+      "skipped": 9,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_1.json",
+     "name": "void soft_max_f32<true, 1024, 1024, float>(float const*, float const*, float const*, float*, soft_max_params)",
+     "mangled": "_Z12soft_max_f32ILb1ELi1024ELi1024EfEvPKfPKT2_S1_Pf15soft_max_params",
+     "dot": "softmax.sm_89.dot",
+     "summary": {
+      "races": 1,
+      "sc": 0,
+      "ordered": 2,
+      "skipped": 9,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 2,
+   "n_race": 1,
+   "n_sc": 0,
+   "reports": [
+    {
+     "mode": "scalar-clock",
+     "kernel": "void soft_max_f32<true, 1024, 1024, float>(float const*, float const*, float const*, float*, soft_max_params)",
+     "mangled": "_Z12soft_max_f32ILb1ELi1024ELi1024EfEvPKfPKT2_S1_Pf15soft_max_params",
+     "dot": "softmax.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2160,
+     "b_pc": 2592,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-4/buggy/src/ggml/src/ggml-cuda/common.cuh",
+       "line": 643
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-4/buggy/src/ggml/src/ggml-cuda/softmax.cu",
+       "line": 102
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-4/buggy/src/ggml/src/ggml-cuda/common.cuh",
+       "line": 638
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-4/buggy/src/ggml/src/ggml-cuda/softmax.cu",
+       "line": 120
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json",
+      "kernel_1.json"
+     ]
+    }
+   ],
+   "site_verdicts": [
+    {
+     "current_pc": 2160,
+     "current_pc_hex": "0x870",
+     "ancient_pc": 2128,
+     "ancient_pc_hex": "0x850",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 496,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2144
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void soft_max_f32<true, 1024, 1024, float>(float const*, float const*, float const*, float*, soft_max_params)",
+     "mangled": "_Z12soft_max_f32ILb1ELi1024ELi1024EfEvPKfPKT2_S1_Pf15soft_max_params",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-4/buggy/src/ggml/src/ggml-cuda/common.cuh",
+       "line": 643
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-4/buggy/src/ggml/src/ggml-cuda/softmax.cu",
+       "line": 102
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-4/buggy/src/ggml/src/ggml-cuda/common.cuh",
+       "line": 638
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-4/buggy/src/ggml/src/ggml-cuda/softmax.cu",
+       "line": 102
+      }
+     ]
+    },
+    {
+     "current_pc": 2592,
+     "current_pc_hex": "0xa20",
+     "ancient_pc": 2160,
+     "ancient_pc_hex": "0x870",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 496,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void soft_max_f32<true, 1024, 1024, float>(float const*, float const*, float const*, float*, soft_max_params)",
+     "mangled": "_Z12soft_max_f32ILb1ELi1024ELi1024EfEvPKfPKT2_S1_Pf15soft_max_params",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-4/buggy/src/ggml/src/ggml-cuda/common.cuh",
+       "line": 638
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-4/buggy/src/ggml/src/ggml-cuda/softmax.cu",
+       "line": 120
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-4/buggy/src/ggml/src/ggml-cuda/common.cuh",
+       "line": 643
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-4/buggy/src/ggml/src/ggml-cuda/softmax.cu",
+       "line": 102
+      }
+     ]
+    },
+    {
+     "current_pc": 2656,
+     "current_pc_hex": "0xa60",
+     "ancient_pc": 2592,
+     "ancient_pc_hex": "0xa20",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 496,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2608
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void soft_max_f32<true, 1024, 1024, float>(float const*, float const*, float const*, float*, soft_max_params)",
+     "mangled": "_Z12soft_max_f32ILb1ELi1024ELi1024EfEvPKfPKT2_S1_Pf15soft_max_params",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-4/buggy/src/ggml/src/ggml-cuda/common.cuh",
+       "line": 643
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-4/buggy/src/ggml/src/ggml-cuda/softmax.cu",
+       "line": 120
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-4/buggy/src/ggml/src/ggml-cuda/common.cuh",
+       "line": 638
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-4/buggy/src/ggml/src/ggml-cuda/softmax.cu",
+       "line": 120
+      }
+     ]
+    }
+   ],
+   "site_skipped": {
+    "read_read": 4
+   }
+  }
+ },
+ "dots_checked": 1,
+ "dots_regenerated_equal": 1
+}

@@ -35,7 +35,8 @@ CAP = int(os.environ.get("PAIRS_CAP", "3600"))
 MEM = int(os.environ.get("PAIRS_MEM", "40"))
 OUTD = "/home/fzheng4/wt-c4/eval/results/co-offline/pairs"
 os.makedirs(OUTD, exist_ok=True)
-OUT = f"{OUTD}/shard{k}.jsonl"
+IDS = [x for x in os.environ.get("PAIRS_IDS", "").split(",") if x]       # a re-run of named recordings with a longer cap
+OUT = f"{OUTD}/shard_long_{os.environ.get('PAIRS_TAG', 'x')}.jsonl" if IDS else f"{OUTD}/shard{k}.jsonl"
 ids = sorted(r["id"] for r in csv.DictReader(open("/home/fzheng4/wt-c4/eval/baselines/manifest.csv")))
 jobs = []
 for pid in ids:
@@ -45,7 +46,7 @@ for pid in ids:
         kb = sum(e.stat().st_size for e in os.scandir(d) if e.name.startswith("kernel_"))
         jobs.append((kb, pid, st, d))
 jobs.sort(reverse=True)
-mine = [j for i, j in enumerate(jobs) if i % n == k]
+mine = [j for j in jobs if j[1] in IDS] if IDS else [j for i, j in enumerate(jobs) if i % n == k]
 done = set()
 if os.path.exists(OUT):
     for ln in open(OUT):

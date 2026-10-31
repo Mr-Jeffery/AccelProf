@@ -1,0 +1,875 @@
+{
+ "id": "hecbench-morphology-1-buggy",
+ "target": "hecbench-morphology-1",
+ "exe": "/mnt/beegfs/fzheng4/realworld_t21b/build/hecbench-morphology-1/buggy/main",
+ "cuda_home": "/usr/local/cuda-13.4",
+ "n_cubins": 3,
+ "n_dots": 3,
+ "oracle_kernel_substr": "vhgw",
+ "spec_found": true,
+ "modes": {
+  "scalar-clock": {
+   "n_kernel_jsons": 4,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "void vhgw_horiz<(MorphOpType)1>(unsigned char*, unsigned char const*, int, int, int)",
+     "mangled": "_Z10vhgw_horizIL11MorphOpType1EEvPhPKhiii",
+     "dot": "morphology.sm_89.dot",
+     "summary": {
+      "races": 4,
+      "sc": 0,
+      "ordered": 2,
+      "skipped": 28,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_1.json",
+     "name": "void vhgw_vert<(MorphOpType)1>(unsigned char*, unsigned char const*, int, int, int)",
+     "mangled": "_Z9vhgw_vertIL11MorphOpType1EEvPhPKhiii",
+     "dot": "morphology.sm_89.dot",
+     "summary": {
+      "races": 4,
+      "sc": 0,
+      "ordered": 2,
+      "skipped": 29,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_2.json",
+     "name": "void vhgw_horiz<(MorphOpType)0>(unsigned char*, unsigned char const*, int, int, int)",
+     "mangled": "_Z10vhgw_horizIL11MorphOpType0EEvPhPKhiii",
+     "dot": "morphology.sm_89.dot",
+     "summary": {
+      "races": 4,
+      "sc": 0,
+      "ordered": 2,
+      "skipped": 28,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_3.json",
+     "name": "void vhgw_vert<(MorphOpType)0>(unsigned char*, unsigned char const*, int, int, int)",
+     "mangled": "_Z9vhgw_vertIL11MorphOpType0EEvPhPKhiii",
+     "dot": "morphology.sm_89.dot",
+     "summary": {
+      "races": 4,
+      "sc": 0,
+      "ordered": 2,
+      "skipped": 29,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 4,
+   "n_race": 8,
+   "n_sc": 0,
+   "reports": [
+    {
+     "mode": "scalar-clock",
+     "kernel": "void vhgw_horiz<(MorphOpType)0>(unsigned char*, unsigned char const*, int, int, int)",
+     "mangled": "_Z10vhgw_horizIL11MorphOpType0EEvPhPKhiii",
+     "dot": "morphology.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 624,
+     "b_pc": 688,
+     "a_op": "LDS.U8",
+     "b_op": "STS.U8",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 95
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 128
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 94
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 128
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json",
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void vhgw_horiz<(MorphOpType)0>(unsigned char*, unsigned char const*, int, int, int)",
+     "mangled": "_Z10vhgw_horizIL11MorphOpType0EEvPhPKhiii",
+     "dot": "morphology.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 720,
+     "b_pc": 800,
+     "a_op": "LDS.U8",
+     "b_op": "STS.U8",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 98
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 128
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 98
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 128
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_2.json",
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void vhgw_horiz<(MorphOpType)1>(unsigned char*, unsigned char const*, int, int, int)",
+     "mangled": "_Z10vhgw_horizIL11MorphOpType1EEvPhPKhiii",
+     "dot": "morphology.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 624,
+     "b_pc": 688,
+     "a_op": "LDS.U8",
+     "b_op": "STS.U8",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 95
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 128
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 94
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 128
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json",
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void vhgw_horiz<(MorphOpType)1>(unsigned char*, unsigned char const*, int, int, int)",
+     "mangled": "_Z10vhgw_horizIL11MorphOpType1EEvPhPKhiii",
+     "dot": "morphology.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 720,
+     "b_pc": 800,
+     "a_op": "LDS.U8",
+     "b_op": "STS.U8",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 98
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 128
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 98
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 128
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json",
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void vhgw_vert<(MorphOpType)0>(unsigned char*, unsigned char const*, int, int, int)",
+     "mangled": "_Z9vhgw_vertIL11MorphOpType0EEvPhPKhiii",
+     "dot": "morphology.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 656,
+     "b_pc": 720,
+     "a_op": "LDS.U8",
+     "b_op": "STS.U8",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 95
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 160
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 94
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 160
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_3.json",
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void vhgw_vert<(MorphOpType)0>(unsigned char*, unsigned char const*, int, int, int)",
+     "mangled": "_Z9vhgw_vertIL11MorphOpType0EEvPhPKhiii",
+     "dot": "morphology.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 752,
+     "b_pc": 832,
+     "a_op": "LDS.U8",
+     "b_op": "STS.U8",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 98
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 160
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 98
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 160
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_3.json",
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void vhgw_vert<(MorphOpType)1>(unsigned char*, unsigned char const*, int, int, int)",
+     "mangled": "_Z9vhgw_vertIL11MorphOpType1EEvPhPKhiii",
+     "dot": "morphology.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 656,
+     "b_pc": 720,
+     "a_op": "LDS.U8",
+     "b_op": "STS.U8",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 95
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 160
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 94
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 160
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json",
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void vhgw_vert<(MorphOpType)1>(unsigned char*, unsigned char const*, int, int, int)",
+     "mangled": "_Z9vhgw_vertIL11MorphOpType1EEvPhPKhiii",
+     "dot": "morphology.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 752,
+     "b_pc": 832,
+     "a_op": "LDS.U8",
+     "b_op": "STS.U8",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 98
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 160
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 98
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 160
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json",
+      "kernel_1.json"
+     ]
+    }
+   ],
+   "site_verdicts": [
+    {
+     "current_pc": 624,
+     "current_pc_hex": "0x270",
+     "ancient_pc": 688,
+     "ancient_pc_hex": "0x2b0",
+     "opcodes": [
+      "LDS.U8",
+      "STS.U8"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 9216,
+     "access_size": 1,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void vhgw_horiz<(MorphOpType)1>(unsigned char*, unsigned char const*, int, int, int)",
+     "mangled": "_Z10vhgw_horizIL11MorphOpType1EEvPhPKhiii",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 95
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 128
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 94
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 128
+      }
+     ]
+    },
+    {
+     "current_pc": 688,
+     "current_pc_hex": "0x2b0",
+     "ancient_pc": 624,
+     "ancient_pc_hex": "0x270",
+     "opcodes": [
+      "STS.U8",
+      "LDS.U8"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 17856,
+     "access_size": 1,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void vhgw_horiz<(MorphOpType)1>(unsigned char*, unsigned char const*, int, int, int)",
+     "mangled": "_Z10vhgw_horizIL11MorphOpType1EEvPhPKhiii",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 94
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 128
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 95
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 128
+      }
+     ]
+    },
+    {
+     "current_pc": 656,
+     "current_pc_hex": "0x290",
+     "ancient_pc": 720,
+     "ancient_pc_hex": "0x2d0",
+     "opcodes": [
+      "LDS.U8",
+      "STS.U8"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 9216,
+     "access_size": 1,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void vhgw_vert<(MorphOpType)1>(unsigned char*, unsigned char const*, int, int, int)",
+     "mangled": "_Z9vhgw_vertIL11MorphOpType1EEvPhPKhiii",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 95
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 160
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 94
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 160
+      }
+     ]
+    },
+    {
+     "current_pc": 720,
+     "current_pc_hex": "0x2d0",
+     "ancient_pc": 656,
+     "ancient_pc_hex": "0x290",
+     "opcodes": [
+      "STS.U8",
+      "LDS.U8"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 17856,
+     "access_size": 1,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void vhgw_vert<(MorphOpType)1>(unsigned char*, unsigned char const*, int, int, int)",
+     "mangled": "_Z9vhgw_vertIL11MorphOpType1EEvPhPKhiii",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 94
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 160
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 95
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 160
+      }
+     ]
+    },
+    {
+     "current_pc": 624,
+     "current_pc_hex": "0x270",
+     "ancient_pc": 688,
+     "ancient_pc_hex": "0x2b0",
+     "opcodes": [
+      "LDS.U8",
+      "STS.U8"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 9216,
+     "access_size": 1,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void vhgw_horiz<(MorphOpType)0>(unsigned char*, unsigned char const*, int, int, int)",
+     "mangled": "_Z10vhgw_horizIL11MorphOpType0EEvPhPKhiii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 95
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 128
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 94
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 128
+      }
+     ]
+    },
+    {
+     "current_pc": 688,
+     "current_pc_hex": "0x2b0",
+     "ancient_pc": 624,
+     "ancient_pc_hex": "0x270",
+     "opcodes": [
+      "STS.U8",
+      "LDS.U8"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 17856,
+     "access_size": 1,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void vhgw_horiz<(MorphOpType)0>(unsigned char*, unsigned char const*, int, int, int)",
+     "mangled": "_Z10vhgw_horizIL11MorphOpType0EEvPhPKhiii",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 94
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 128
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 95
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 128
+      }
+     ]
+    },
+    {
+     "current_pc": 656,
+     "current_pc_hex": "0x290",
+     "ancient_pc": 720,
+     "ancient_pc_hex": "0x2d0",
+     "opcodes": [
+      "LDS.U8",
+      "STS.U8"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 9216,
+     "access_size": 1,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void vhgw_vert<(MorphOpType)0>(unsigned char*, unsigned char const*, int, int, int)",
+     "mangled": "_Z9vhgw_vertIL11MorphOpType0EEvPhPKhiii",
+     "kernel_json": "kernel_3.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 95
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 160
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 94
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 160
+      }
+     ]
+    },
+    {
+     "current_pc": 720,
+     "current_pc_hex": "0x2d0",
+     "ancient_pc": 656,
+     "ancient_pc_hex": "0x290",
+     "opcodes": [
+      "STS.U8",
+      "LDS.U8"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 17856,
+     "access_size": 1,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void vhgw_vert<(MorphOpType)0>(unsigned char*, unsigned char const*, int, int, int)",
+     "mangled": "_Z9vhgw_vertIL11MorphOpType0EEvPhPKhiii",
+     "kernel_json": "kernel_3.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 94
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 160
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 95
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-morphology-1/buggy/src/src/morphology-cuda/morphology.cu",
+       "line": 160
+      }
+     ]
+    }
+   ],
+   "site_skipped": {
+    "intra_thread_only": 8,
+    "read_read": 8
+   }
+  }
+ },
+ "dots_checked": 1,
+ "dots_regenerated_equal": 1
+}

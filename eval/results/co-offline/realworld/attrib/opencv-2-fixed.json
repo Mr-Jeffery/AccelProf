@@ -1,0 +1,4423 @@
+{
+ "id": "opencv-2-fixed",
+ "target": "opencv-2",
+ "exe": "/mnt/beegfs/fzheng4/realworld_t21b/build/opencv-2/fixed/driver",
+ "cuda_home": "/usr/local/cuda-13.4",
+ "n_cubins": 1,
+ "n_dots": 1,
+ "oracle_kernel_substr": "edgesHysteresisLocalKernel",
+ "spec_found": true,
+ "modes": {
+  "scalar-clock": {
+   "n_kernel_jsons": 1,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 79,
+      "skipped": 750,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 1,
+   "n_race": 8,
+   "n_sc": 0,
+   "reports": [
+    {
+     "mode": "scalar-clock",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 656,
+     "b_pc": 13744,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 254
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 306
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "block",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 1040,
+     "b_pc": 13744,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 256
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 306
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "block",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 1280,
+     "b_pc": 13744,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 258
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 306
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "block",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 1584,
+     "b_pc": 13744,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 260
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 306
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "block",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 1824,
+     "b_pc": 13744,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 262
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 306
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "block",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 2064,
+     "b_pc": 13744,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 264
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 306
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "block",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 2336,
+     "b_pc": 13744,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 266
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 306
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "block",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 2592,
+     "b_pc": 13744,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 268
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 306
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "block",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    }
+   ],
+   "site_verdicts": [
+    {
+     "current_pc": 2784,
+     "current_pc_hex": "0xae0",
+     "ancient_pc": 688,
+     "ancient_pc_hex": "0x2b0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 24,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2656
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 284
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 254
+      }
+     ]
+    },
+    {
+     "current_pc": 2784,
+     "current_pc_hex": "0xae0",
+     "ancient_pc": 1312,
+     "ancient_pc_hex": "0x520",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 16,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2656
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 284
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 258
+      }
+     ]
+    },
+    {
+     "current_pc": 2816,
+     "current_pc_hex": "0xb00",
+     "ancient_pc": 688,
+     "ancient_pc_hex": "0x2b0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 24,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2656
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 286
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 254
+      }
+     ]
+    },
+    {
+     "current_pc": 2816,
+     "current_pc_hex": "0xb00",
+     "ancient_pc": 1616,
+     "ancient_pc_hex": "0x650",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 16,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2656
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 286
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 260
+      }
+     ]
+    },
+    {
+     "current_pc": 2864,
+     "current_pc_hex": "0xb30",
+     "ancient_pc": 1072,
+     "ancient_pc_hex": "0x430",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 24,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2656
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 291
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 256
+      }
+     ]
+    },
+    {
+     "current_pc": 2864,
+     "current_pc_hex": "0xb30",
+     "ancient_pc": 1312,
+     "ancient_pc_hex": "0x520",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 16,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2656
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 291
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 258
+      }
+     ]
+    },
+    {
+     "current_pc": 2976,
+     "current_pc_hex": "0xba0",
+     "ancient_pc": 1072,
+     "ancient_pc_hex": "0x430",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 24,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2656
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 293
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 256
+      }
+     ]
+    },
+    {
+     "current_pc": 2976,
+     "current_pc_hex": "0xba0",
+     "ancient_pc": 1616,
+     "ancient_pc_hex": "0x650",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 16,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2656
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 293
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 260
+      }
+     ]
+    },
+    {
+     "current_pc": 3376,
+     "current_pc_hex": "0xd30",
+     "ancient_pc": 2800,
+     "ancient_pc_hex": "0xaf0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      3312
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 285
+      }
+     ]
+    },
+    {
+     "current_pc": 3376,
+     "current_pc_hex": "0xd30",
+     "ancient_pc": 2832,
+     "ancient_pc_hex": "0xb10",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 16,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      3312
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 288
+      }
+     ]
+    },
+    {
+     "current_pc": 3376,
+     "current_pc_hex": "0xd30",
+     "ancient_pc": 2848,
+     "ancient_pc_hex": "0xb20",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 12,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      3312
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 289
+      }
+     ]
+    },
+    {
+     "current_pc": 3376,
+     "current_pc_hex": "0xd30",
+     "ancient_pc": 2880,
+     "ancient_pc_hex": "0xb40",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      3312
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 292
+      }
+     ]
+    },
+    {
+     "current_pc": 4064,
+     "current_pc_hex": "0xfe0",
+     "ancient_pc": 3488,
+     "ancient_pc_hex": "0xda0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 6,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      4000
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 285
+      }
+     ]
+    },
+    {
+     "current_pc": 4064,
+     "current_pc_hex": "0xfe0",
+     "ancient_pc": 3520,
+     "ancient_pc_hex": "0xdc0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 16,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      4000
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 288
+      }
+     ]
+    },
+    {
+     "current_pc": 4064,
+     "current_pc_hex": "0xfe0",
+     "ancient_pc": 3536,
+     "ancient_pc_hex": "0xdd0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 12,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      4000
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 289
+      }
+     ]
+    },
+    {
+     "current_pc": 4064,
+     "current_pc_hex": "0xfe0",
+     "ancient_pc": 3568,
+     "ancient_pc_hex": "0xdf0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 6,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      4000
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 292
+      }
+     ]
+    },
+    {
+     "current_pc": 4752,
+     "current_pc_hex": "0x1290",
+     "ancient_pc": 4176,
+     "ancient_pc_hex": "0x1050",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 6,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      4688
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 285
+      }
+     ]
+    },
+    {
+     "current_pc": 4752,
+     "current_pc_hex": "0x1290",
+     "ancient_pc": 4192,
+     "ancient_pc_hex": "0x1060",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      4688
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 286
+      }
+     ]
+    },
+    {
+     "current_pc": 4752,
+     "current_pc_hex": "0x1290",
+     "ancient_pc": 4208,
+     "ancient_pc_hex": "0x1070",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 16,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      4688
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 288
+      }
+     ]
+    },
+    {
+     "current_pc": 4752,
+     "current_pc_hex": "0x1290",
+     "ancient_pc": 4224,
+     "ancient_pc_hex": "0x1080",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 12,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      4688
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 289
+      }
+     ]
+    },
+    {
+     "current_pc": 4752,
+     "current_pc_hex": "0x1290",
+     "ancient_pc": 4256,
+     "ancient_pc_hex": "0x10a0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 6,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      4688
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 292
+      }
+     ]
+    },
+    {
+     "current_pc": 4752,
+     "current_pc_hex": "0x1290",
+     "ancient_pc": 4352,
+     "ancient_pc_hex": "0x1100",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      4688
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 293
+      }
+     ]
+    },
+    {
+     "current_pc": 5440,
+     "current_pc_hex": "0x1540",
+     "ancient_pc": 4880,
+     "ancient_pc_hex": "0x1310",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 6,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      5376
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 286
+      }
+     ]
+    },
+    {
+     "current_pc": 5440,
+     "current_pc_hex": "0x1540",
+     "ancient_pc": 4896,
+     "ancient_pc_hex": "0x1320",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      5376
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 288
+      }
+     ]
+    },
+    {
+     "current_pc": 5440,
+     "current_pc_hex": "0x1540",
+     "ancient_pc": 4912,
+     "ancient_pc_hex": "0x1330",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 28,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      5376
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 289
+      }
+     ]
+    },
+    {
+     "current_pc": 5440,
+     "current_pc_hex": "0x1540",
+     "ancient_pc": 4928,
+     "ancient_pc_hex": "0x1340",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      5376
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 291
+      }
+     ]
+    },
+    {
+     "current_pc": 5440,
+     "current_pc_hex": "0x1540",
+     "ancient_pc": 4944,
+     "ancient_pc_hex": "0x1350",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      5376
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 292
+      }
+     ]
+    },
+    {
+     "current_pc": 5440,
+     "current_pc_hex": "0x1540",
+     "ancient_pc": 5040,
+     "ancient_pc_hex": "0x13b0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 6,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      5376
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 293
+      }
+     ]
+    },
+    {
+     "current_pc": 6128,
+     "current_pc_hex": "0x17f0",
+     "ancient_pc": 5552,
+     "ancient_pc_hex": "0x15b0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      6064
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 285
+      }
+     ]
+    },
+    {
+     "current_pc": 6128,
+     "current_pc_hex": "0x17f0",
+     "ancient_pc": 5584,
+     "ancient_pc_hex": "0x15d0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 16,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      6064
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 288
+      }
+     ]
+    },
+    {
+     "current_pc": 6128,
+     "current_pc_hex": "0x17f0",
+     "ancient_pc": 5600,
+     "ancient_pc_hex": "0x15e0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 26,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      6064
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 289
+      }
+     ]
+    },
+    {
+     "current_pc": 6128,
+     "current_pc_hex": "0x17f0",
+     "ancient_pc": 5616,
+     "ancient_pc_hex": "0x15f0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 6,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      6064
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 291
+      }
+     ]
+    },
+    {
+     "current_pc": 6128,
+     "current_pc_hex": "0x17f0",
+     "ancient_pc": 5632,
+     "ancient_pc_hex": "0x1600",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 16,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      6064
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 292
+      }
+     ]
+    },
+    {
+     "current_pc": 6128,
+     "current_pc_hex": "0x17f0",
+     "ancient_pc": 5728,
+     "ancient_pc_hex": "0x1660",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      6064
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 293
+      }
+     ]
+    },
+    {
+     "current_pc": 6816,
+     "current_pc_hex": "0x1aa0",
+     "ancient_pc": 6240,
+     "ancient_pc_hex": "0x1860",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 6,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      6752
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 285
+      }
+     ]
+    },
+    {
+     "current_pc": 6816,
+     "current_pc_hex": "0x1aa0",
+     "ancient_pc": 6272,
+     "ancient_pc_hex": "0x1880",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 20,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      6752
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 288
+      }
+     ]
+    },
+    {
+     "current_pc": 6816,
+     "current_pc_hex": "0x1aa0",
+     "ancient_pc": 6288,
+     "ancient_pc_hex": "0x1890",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      6752
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 289
+      }
+     ]
+    },
+    {
+     "current_pc": 6816,
+     "current_pc_hex": "0x1aa0",
+     "ancient_pc": 6320,
+     "ancient_pc_hex": "0x18b0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 22,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      6752
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 292
+      }
+     ]
+    },
+    {
+     "current_pc": 6816,
+     "current_pc_hex": "0x1aa0",
+     "ancient_pc": 6416,
+     "ancient_pc_hex": "0x1910",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      6752
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 293
+      }
+     ]
+    },
+    {
+     "current_pc": 7504,
+     "current_pc_hex": "0x1d50",
+     "ancient_pc": 6928,
+     "ancient_pc_hex": "0x1b10",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 16,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      7440
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 285
+      }
+     ]
+    },
+    {
+     "current_pc": 7504,
+     "current_pc_hex": "0x1d50",
+     "ancient_pc": 6960,
+     "ancient_pc_hex": "0x1b30",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 18,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      7440
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 288
+      }
+     ]
+    },
+    {
+     "current_pc": 7504,
+     "current_pc_hex": "0x1d50",
+     "ancient_pc": 6976,
+     "ancient_pc_hex": "0x1b40",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 12,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      7440
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 289
+      }
+     ]
+    },
+    {
+     "current_pc": 7504,
+     "current_pc_hex": "0x1d50",
+     "ancient_pc": 7008,
+     "ancient_pc_hex": "0x1b60",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 16,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      7440
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 292
+      }
+     ]
+    },
+    {
+     "current_pc": 7504,
+     "current_pc_hex": "0x1d50",
+     "ancient_pc": 7104,
+     "ancient_pc_hex": "0x1bc0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 2,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      7440
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 293
+      }
+     ]
+    },
+    {
+     "current_pc": 8192,
+     "current_pc_hex": "0x2000",
+     "ancient_pc": 7616,
+     "ancient_pc_hex": "0x1dc0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      8128
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 285
+      }
+     ]
+    },
+    {
+     "current_pc": 8192,
+     "current_pc_hex": "0x2000",
+     "ancient_pc": 7648,
+     "ancient_pc_hex": "0x1de0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 4,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      8128
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 288
+      }
+     ]
+    },
+    {
+     "current_pc": 8192,
+     "current_pc_hex": "0x2000",
+     "ancient_pc": 7664,
+     "ancient_pc_hex": "0x1df0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 6,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      8128
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 289
+      }
+     ]
+    },
+    {
+     "current_pc": 8192,
+     "current_pc_hex": "0x2000",
+     "ancient_pc": 7696,
+     "ancient_pc_hex": "0x1e10",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 2,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      8128
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 292
+      }
+     ]
+    },
+    {
+     "current_pc": 8192,
+     "current_pc_hex": "0x2000",
+     "ancient_pc": 7792,
+     "ancient_pc_hex": "0x1e70",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 2,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      8128
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 293
+      }
+     ]
+    },
+    {
+     "current_pc": 8880,
+     "current_pc_hex": "0x22b0",
+     "ancient_pc": 8304,
+     "ancient_pc_hex": "0x2070",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 10,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      8816
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 285
+      }
+     ]
+    },
+    {
+     "current_pc": 8880,
+     "current_pc_hex": "0x22b0",
+     "ancient_pc": 8352,
+     "ancient_pc_hex": "0x20a0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 2,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      8816
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 289
+      }
+     ]
+    },
+    {
+     "current_pc": 8880,
+     "current_pc_hex": "0x22b0",
+     "ancient_pc": 8368,
+     "ancient_pc_hex": "0x20b0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 2,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      8816
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 291
+      }
+     ]
+    },
+    {
+     "current_pc": 8880,
+     "current_pc_hex": "0x22b0",
+     "ancient_pc": 8384,
+     "ancient_pc_hex": "0x20c0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 2,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      8816
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 292
+      }
+     ]
+    },
+    {
+     "current_pc": 9568,
+     "current_pc_hex": "0x2560",
+     "ancient_pc": 8992,
+     "ancient_pc_hex": "0x2320",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      9520
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 285
+      }
+     ]
+    },
+    {
+     "current_pc": 9568,
+     "current_pc_hex": "0x2560",
+     "ancient_pc": 9008,
+     "ancient_pc_hex": "0x2330",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      9520
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 286
+      }
+     ]
+    },
+    {
+     "current_pc": 9568,
+     "current_pc_hex": "0x2560",
+     "ancient_pc": 9040,
+     "ancient_pc_hex": "0x2350",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 2,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      9520
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 289
+      }
+     ]
+    },
+    {
+     "current_pc": 9568,
+     "current_pc_hex": "0x2560",
+     "ancient_pc": 9072,
+     "ancient_pc_hex": "0x2370",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 2,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      9520
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 292
+      }
+     ]
+    },
+    {
+     "current_pc": 10256,
+     "current_pc_hex": "0x2810",
+     "ancient_pc": 9696,
+     "ancient_pc_hex": "0x25e0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      10208
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 286
+      }
+     ]
+    },
+    {
+     "current_pc": 10256,
+     "current_pc_hex": "0x2810",
+     "ancient_pc": 9712,
+     "ancient_pc_hex": "0x25f0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 2,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      10208
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 288
+      }
+     ]
+    },
+    {
+     "current_pc": 10256,
+     "current_pc_hex": "0x2810",
+     "ancient_pc": 9728,
+     "ancient_pc_hex": "0x2600",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 26,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      10208
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 289
+      }
+     ]
+    },
+    {
+     "current_pc": 10256,
+     "current_pc_hex": "0x2810",
+     "ancient_pc": 9760,
+     "ancient_pc_hex": "0x2620",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 2,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      10208
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 292
+      }
+     ]
+    },
+    {
+     "current_pc": 10944,
+     "current_pc_hex": "0x2ac0",
+     "ancient_pc": 10368,
+     "ancient_pc_hex": "0x2880",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      10896
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 285
+      }
+     ]
+    },
+    {
+     "current_pc": 10944,
+     "current_pc_hex": "0x2ac0",
+     "ancient_pc": 10400,
+     "ancient_pc_hex": "0x28a0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 10,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      10896
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 288
+      }
+     ]
+    },
+    {
+     "current_pc": 10944,
+     "current_pc_hex": "0x2ac0",
+     "ancient_pc": 10416,
+     "ancient_pc_hex": "0x28b0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 34,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      10896
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 289
+      }
+     ]
+    },
+    {
+     "current_pc": 10944,
+     "current_pc_hex": "0x2ac0",
+     "ancient_pc": 10448,
+     "ancient_pc_hex": "0x28d0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 2,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      10896
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 292
+      }
+     ]
+    },
+    {
+     "current_pc": 11632,
+     "current_pc_hex": "0x2d70",
+     "ancient_pc": 11056,
+     "ancient_pc_hex": "0x2b30",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      11584
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 285
+      }
+     ]
+    },
+    {
+     "current_pc": 11632,
+     "current_pc_hex": "0x2d70",
+     "ancient_pc": 11088,
+     "ancient_pc_hex": "0x2b50",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 10,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      11584
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 288
+      }
+     ]
+    },
+    {
+     "current_pc": 11632,
+     "current_pc_hex": "0x2d70",
+     "ancient_pc": 11104,
+     "ancient_pc_hex": "0x2b60",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      11584
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 289
+      }
+     ]
+    },
+    {
+     "current_pc": 12320,
+     "current_pc_hex": "0x3020",
+     "ancient_pc": 11744,
+     "ancient_pc_hex": "0x2de0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      12272
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 285
+      }
+     ]
+    },
+    {
+     "current_pc": 12320,
+     "current_pc_hex": "0x3020",
+     "ancient_pc": 11776,
+     "ancient_pc_hex": "0x2e00",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 10,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      12272
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 288
+      }
+     ]
+    },
+    {
+     "current_pc": 12320,
+     "current_pc_hex": "0x3020",
+     "ancient_pc": 11792,
+     "ancient_pc_hex": "0x2e10",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      12272
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 289
+      }
+     ]
+    },
+    {
+     "current_pc": 13008,
+     "current_pc_hex": "0x32d0",
+     "ancient_pc": 12432,
+     "ancient_pc_hex": "0x3090",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      12960
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 285
+      }
+     ]
+    },
+    {
+     "current_pc": 13008,
+     "current_pc_hex": "0x32d0",
+     "ancient_pc": 12464,
+     "ancient_pc_hex": "0x30b0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      12960
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 299
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 288
+      }
+     ]
+    },
+    {
+     "current_pc": 13744,
+     "current_pc_hex": "0x35b0",
+     "ancient_pc": 656,
+     "ancient_pc_hex": "0x290",
+     "opcodes": [
+      "STG.E",
+      "LDG.E"
+     ],
+     "space": "global",
+     "race_type": "WAR",
+     "observed_distance": "grid",
+     "contested_weight": 174,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2656
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 306
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 254
+      }
+     ]
+    },
+    {
+     "current_pc": 13744,
+     "current_pc_hex": "0x35b0",
+     "ancient_pc": 1040,
+     "ancient_pc_hex": "0x410",
+     "opcodes": [
+      "STG.E",
+      "LDG.E"
+     ],
+     "space": "global",
+     "race_type": "WAR",
+     "observed_distance": "grid",
+     "contested_weight": 174,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2656
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 306
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 256
+      }
+     ]
+    },
+    {
+     "current_pc": 13744,
+     "current_pc_hex": "0x35b0",
+     "ancient_pc": 1280,
+     "ancient_pc_hex": "0x500",
+     "opcodes": [
+      "STG.E",
+      "LDG.E"
+     ],
+     "space": "global",
+     "race_type": "WAR",
+     "observed_distance": "grid",
+     "contested_weight": 174,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2656
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 306
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 258
+      }
+     ]
+    },
+    {
+     "current_pc": 13744,
+     "current_pc_hex": "0x35b0",
+     "ancient_pc": 1584,
+     "ancient_pc_hex": "0x630",
+     "opcodes": [
+      "STG.E",
+      "LDG.E"
+     ],
+     "space": "global",
+     "race_type": "WAR",
+     "observed_distance": "grid",
+     "contested_weight": 174,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2656
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 306
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 260
+      }
+     ]
+    },
+    {
+     "current_pc": 13744,
+     "current_pc_hex": "0x35b0",
+     "ancient_pc": 1824,
+     "ancient_pc_hex": "0x720",
+     "opcodes": [
+      "STG.E",
+      "LDG.E"
+     ],
+     "space": "global",
+     "race_type": "WAR",
+     "observed_distance": "grid",
+     "contested_weight": 9,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2656
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 306
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 262
+      }
+     ]
+    },
+    {
+     "current_pc": 13744,
+     "current_pc_hex": "0x35b0",
+     "ancient_pc": 2064,
+     "ancient_pc_hex": "0x810",
+     "opcodes": [
+      "STG.E",
+      "LDG.E"
+     ],
+     "space": "global",
+     "race_type": "WAR",
+     "observed_distance": "grid",
+     "contested_weight": 9,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2656
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 306
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 264
+      }
+     ]
+    },
+    {
+     "current_pc": 13744,
+     "current_pc_hex": "0x35b0",
+     "ancient_pc": 2336,
+     "ancient_pc_hex": "0x920",
+     "opcodes": [
+      "STG.E",
+      "LDG.E"
+     ],
+     "space": "global",
+     "race_type": "WAR",
+     "observed_distance": "grid",
+     "contested_weight": 9,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2656
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 306
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 266
+      }
+     ]
+    },
+    {
+     "current_pc": 13744,
+     "current_pc_hex": "0x35b0",
+     "ancient_pc": 2592,
+     "ancient_pc_hex": "0xa20",
+     "opcodes": [
+      "STG.E",
+      "LDG.E"
+     ],
+     "space": "global",
+     "race_type": "WAR",
+     "observed_distance": "grid",
+     "contested_weight": 9,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2656
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 306
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 268
+      }
+     ]
+    },
+    {
+     "current_pc": 13776,
+     "current_pc_hex": "0x35d0",
+     "ancient_pc": 688,
+     "ancient_pc_hex": "0x2b0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2656
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 312
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 254
+      }
+     ]
+    },
+    {
+     "current_pc": 13776,
+     "current_pc_hex": "0x35d0",
+     "ancient_pc": 1312,
+     "ancient_pc_hex": "0x520",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 16,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2656
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 312
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 258
+      }
+     ]
+    },
+    {
+     "current_pc": 13808,
+     "current_pc_hex": "0x35f0",
+     "ancient_pc": 688,
+     "ancient_pc_hex": "0x2b0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2656
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 314
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 254
+      }
+     ]
+    },
+    {
+     "current_pc": 13856,
+     "current_pc_hex": "0x3620",
+     "ancient_pc": 1072,
+     "ancient_pc_hex": "0x430",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2656
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 319
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 256
+      }
+     ]
+    },
+    {
+     "current_pc": 13856,
+     "current_pc_hex": "0x3620",
+     "ancient_pc": 1312,
+     "ancient_pc_hex": "0x520",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 16,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2656
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 319
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 258
+      }
+     ]
+    },
+    {
+     "current_pc": 13968,
+     "current_pc_hex": "0x3690",
+     "ancient_pc": 1072,
+     "ancient_pc_hex": "0x430",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 8,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2656
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "canny::edgesHysteresisLocalKernel(cv::gpu::PtrStepSz<int>, short2*)",
+     "mangled": "_ZN5canny26edgesHysteresisLocalKernelEN2cv3gpu9PtrStepSzIiEEP6short2",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 321
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/opencv-2/fixed/src/modules/gpu/src/cuda/canny.cu",
+       "line": 256
+      }
+     ]
+    }
+   ],
+   "site_skipped": {
+    "read_read": 526,
+    "intra_thread_only": 201
+   }
+  }
+ },
+ "dots_checked": 1,
+ "dots_regenerated_equal": 1
+}

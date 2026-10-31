@@ -57,5 +57,5 @@ rw1() {   # <set> <id> <analyze|attrib|both>  |  pairs <K> <N>
   fi
 }
 export -f rw1; export OUT
-xargs -P $P -L 1 bash -c 'rw1 "$@"' _ < $W/eval/baselines/setup/co_offline/rw_cmds.txt
+xargs -P $P -L 1 bash -c 'rw1 "$@"' _ < ${RW_CMDS:-$W/eval/baselines/setup/co_offline/rw_cmds.txt}
 echo "== all done $(date -Is)"

@@ -1,0 +1,2374 @@
+{
+ "id": "llamacpp-open-2-fixed",
+ "target": "llamacpp-open-2",
+ "exe": "/mnt/beegfs/fzheng4/realworld/build/llamacpp-open-2/fixed/test-backend-ops",
+ "cuda_home": "/usr/local/cuda-13.4",
+ "n_cubins": 145,
+ "n_dots": 145,
+ "oracle_kernel_substr": "flash_attn_ext_vec",
+ "spec_found": true,
+ "modes": {
+  "scalar-clock": {
+   "n_kernel_jsons": 56,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, false>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb0EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 84,
+      "skipped": 79,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_1.json",
+     "name": "void flash_attn_combine_results<128>(float const*, float2 const*, float*, int)",
+     "mangled": "_Z26flash_attn_combine_resultsILi128EEvPKfPK6float2Pfi",
+     "dot": "fattn-mma-f16-instance-ncols1_1-ncols2_16.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 4,
+      "skipped": 14,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_2.json",
+     "name": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, false>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb0EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 86,
+      "skipped": 77,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_3.json",
+     "name": "void flash_attn_combine_results<128>(float const*, float2 const*, float*, int)",
+     "mangled": "_Z26flash_attn_combine_resultsILi128EEvPKfPK6float2Pfi",
+     "dot": "fattn-mma-f16-instance-ncols1_1-ncols2_16.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 4,
+      "skipped": 14,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_4.json",
+     "name": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, false>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb0EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 86,
+      "skipped": 77,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_5.json",
+     "name": "void flash_attn_combine_results<128>(float const*, float2 const*, float*, int)",
+     "mangled": "_Z26flash_attn_combine_resultsILi128EEvPKfPK6float2Pfi",
+     "dot": "fattn-mma-f16-instance-ncols1_1-ncols2_16.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 4,
+      "skipped": 14,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_6.json",
+     "name": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, false>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb0EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 86,
+      "skipped": 77,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_7.json",
+     "name": "void flash_attn_combine_results<128>(float const*, float2 const*, float*, int)",
+     "mangled": "_Z26flash_attn_combine_resultsILi128EEvPKfPK6float2Pfi",
+     "dot": "fattn-mma-f16-instance-ncols1_1-ncols2_16.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 4,
+      "skipped": 14,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_8.json",
+     "name": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, true>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb1EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 84,
+      "skipped": 79,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_9.json",
+     "name": "void flash_attn_combine_results<128>(float const*, float2 const*, float*, int)",
+     "mangled": "_Z26flash_attn_combine_resultsILi128EEvPKfPK6float2Pfi",
+     "dot": "fattn-mma-f16-instance-ncols1_1-ncols2_16.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 4,
+      "skipped": 14,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_10.json",
+     "name": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, true>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb1EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 86,
+      "skipped": 77,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_11.json",
+     "name": "void flash_attn_combine_results<128>(float const*, float2 const*, float*, int)",
+     "mangled": "_Z26flash_attn_combine_resultsILi128EEvPKfPK6float2Pfi",
+     "dot": "fattn-mma-f16-instance-ncols1_1-ncols2_16.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 4,
+      "skipped": 14,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_12.json",
+     "name": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, false>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb0EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 86,
+      "skipped": 77,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_13.json",
+     "name": "void flash_attn_combine_results<128>(float const*, float2 const*, float*, int)",
+     "mangled": "_Z26flash_attn_combine_resultsILi128EEvPKfPK6float2Pfi",
+     "dot": "fattn-mma-f16-instance-ncols1_1-ncols2_16.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 4,
+      "skipped": 14,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_14.json",
+     "name": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, false>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb0EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 86,
+      "skipped": 77,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_15.json",
+     "name": "void flash_attn_combine_results<128>(float const*, float2 const*, float*, int)",
+     "mangled": "_Z26flash_attn_combine_resultsILi128EEvPKfPK6float2Pfi",
+     "dot": "fattn-mma-f16-instance-ncols1_1-ncols2_16.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 4,
+      "skipped": 14,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_16.json",
+     "name": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, true>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb1EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 84,
+      "skipped": 79,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_17.json",
+     "name": "void flash_attn_combine_results<128>(float const*, float2 const*, float*, int)",
+     "mangled": "_Z26flash_attn_combine_resultsILi128EEvPKfPK6float2Pfi",
+     "dot": "fattn-mma-f16-instance-ncols1_1-ncols2_16.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 4,
+      "skipped": 14,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_18.json",
+     "name": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, true>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb1EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 86,
+      "skipped": 77,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_19.json",
+     "name": "void flash_attn_combine_results<128>(float const*, float2 const*, float*, int)",
+     "mangled": "_Z26flash_attn_combine_resultsILi128EEvPKfPK6float2Pfi",
+     "dot": "fattn-mma-f16-instance-ncols1_1-ncols2_16.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 4,
+      "skipped": 14,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_20.json",
+     "name": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, false>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb0EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 86,
+      "skipped": 75,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_21.json",
+     "name": "void flash_attn_combine_results<128>(float const*, float2 const*, float*, int)",
+     "mangled": "_Z26flash_attn_combine_resultsILi128EEvPKfPK6float2Pfi",
+     "dot": "fattn-mma-f16-instance-ncols1_1-ncols2_16.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 4,
+      "skipped": 14,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_22.json",
+     "name": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, false>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb0EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 86,
+      "skipped": 75,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_23.json",
+     "name": "void flash_attn_combine_results<128>(float const*, float2 const*, float*, int)",
+     "mangled": "_Z26flash_attn_combine_resultsILi128EEvPKfPK6float2Pfi",
+     "dot": "fattn-mma-f16-instance-ncols1_1-ncols2_16.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 4,
+      "skipped": 14,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_24.json",
+     "name": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, false>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb0EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 84,
+      "skipped": 77,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_25.json",
+     "name": "void flash_attn_combine_results<128>(float const*, float2 const*, float*, int)",
+     "mangled": "_Z26flash_attn_combine_resultsILi128EEvPKfPK6float2Pfi",
+     "dot": "fattn-mma-f16-instance-ncols1_1-ncols2_16.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 4,
+      "skipped": 14,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_26.json",
+     "name": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, false>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb0EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 86,
+      "skipped": 75,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_27.json",
+     "name": "void flash_attn_combine_results<128>(float const*, float2 const*, float*, int)",
+     "mangled": "_Z26flash_attn_combine_resultsILi128EEvPKfPK6float2Pfi",
+     "dot": "fattn-mma-f16-instance-ncols1_1-ncols2_16.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 4,
+      "skipped": 14,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_28.json",
+     "name": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, true>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb1EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 86,
+      "skipped": 75,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_29.json",
+     "name": "void flash_attn_combine_results<128>(float const*, float2 const*, float*, int)",
+     "mangled": "_Z26flash_attn_combine_resultsILi128EEvPKfPK6float2Pfi",
+     "dot": "fattn-mma-f16-instance-ncols1_1-ncols2_16.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 4,
+      "skipped": 14,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_30.json",
+     "name": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, true>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb1EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 86,
+      "skipped": 75,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_31.json",
+     "name": "void flash_attn_combine_results<128>(float const*, float2 const*, float*, int)",
+     "mangled": "_Z26flash_attn_combine_resultsILi128EEvPKfPK6float2Pfi",
+     "dot": "fattn-mma-f16-instance-ncols1_1-ncols2_16.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 4,
+      "skipped": 14,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_32.json",
+     "name": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, false>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb0EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 84,
+      "skipped": 77,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_33.json",
+     "name": "void flash_attn_combine_results<128>(float const*, float2 const*, float*, int)",
+     "mangled": "_Z26flash_attn_combine_resultsILi128EEvPKfPK6float2Pfi",
+     "dot": "fattn-mma-f16-instance-ncols1_1-ncols2_16.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 4,
+      "skipped": 14,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_34.json",
+     "name": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, false>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb0EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 86,
+      "skipped": 75,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_35.json",
+     "name": "void flash_attn_combine_results<128>(float const*, float2 const*, float*, int)",
+     "mangled": "_Z26flash_attn_combine_resultsILi128EEvPKfPK6float2Pfi",
+     "dot": "fattn-mma-f16-instance-ncols1_1-ncols2_16.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 4,
+      "skipped": 14,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_36.json",
+     "name": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, true>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb1EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 86,
+      "skipped": 75,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_37.json",
+     "name": "void flash_attn_combine_results<128>(float const*, float2 const*, float*, int)",
+     "mangled": "_Z26flash_attn_combine_resultsILi128EEvPKfPK6float2Pfi",
+     "dot": "fattn-mma-f16-instance-ncols1_1-ncols2_16.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 4,
+      "skipped": 14,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_38.json",
+     "name": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, true>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb1EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 86,
+      "skipped": 75,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_39.json",
+     "name": "void flash_attn_combine_results<128>(float const*, float2 const*, float*, int)",
+     "mangled": "_Z26flash_attn_combine_resultsILi128EEvPKfPK6float2Pfi",
+     "dot": "fattn-mma-f16-instance-ncols1_1-ncols2_16.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 4,
+      "skipped": 14,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_40.json",
+     "name": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, false>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb0EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 84,
+      "skipped": 63,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_41.json",
+     "name": "void flash_attn_combine_results<128>(float const*, float2 const*, float*, int)",
+     "mangled": "_Z26flash_attn_combine_resultsILi128EEvPKfPK6float2Pfi",
+     "dot": "fattn-mma-f16-instance-ncols1_1-ncols2_16.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 4,
+      "skipped": 14,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_42.json",
+     "name": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, false>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb0EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 86,
+      "skipped": 61,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_43.json",
+     "name": "void flash_attn_combine_results<128>(float const*, float2 const*, float*, int)",
+     "mangled": "_Z26flash_attn_combine_resultsILi128EEvPKfPK6float2Pfi",
+     "dot": "fattn-mma-f16-instance-ncols1_1-ncols2_16.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 4,
+      "skipped": 14,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_44.json",
+     "name": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, true>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb1EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 86,
+      "skipped": 61,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_45.json",
+     "name": "void flash_attn_combine_results<128>(float const*, float2 const*, float*, int)",
+     "mangled": "_Z26flash_attn_combine_resultsILi128EEvPKfPK6float2Pfi",
+     "dot": "fattn-mma-f16-instance-ncols1_1-ncols2_16.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 4,
+      "skipped": 14,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_46.json",
+     "name": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, true>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb1EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 86,
+      "skipped": 61,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_47.json",
+     "name": "void flash_attn_combine_results<128>(float const*, float2 const*, float*, int)",
+     "mangled": "_Z26flash_attn_combine_resultsILi128EEvPKfPK6float2Pfi",
+     "dot": "fattn-mma-f16-instance-ncols1_1-ncols2_16.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 4,
+      "skipped": 14,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_48.json",
+     "name": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, false>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb0EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 84,
+      "skipped": 61,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_49.json",
+     "name": "void flash_attn_combine_results<128>(float const*, float2 const*, float*, int)",
+     "mangled": "_Z26flash_attn_combine_resultsILi128EEvPKfPK6float2Pfi",
+     "dot": "fattn-mma-f16-instance-ncols1_1-ncols2_16.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 4,
+      "skipped": 14,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_50.json",
+     "name": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, false>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb0EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 86,
+      "skipped": 59,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_51.json",
+     "name": "void flash_attn_combine_results<128>(float const*, float2 const*, float*, int)",
+     "mangled": "_Z26flash_attn_combine_resultsILi128EEvPKfPK6float2Pfi",
+     "dot": "fattn-mma-f16-instance-ncols1_1-ncols2_16.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 4,
+      "skipped": 14,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_52.json",
+     "name": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, true>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb1EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 86,
+      "skipped": 59,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_53.json",
+     "name": "void flash_attn_combine_results<128>(float const*, float2 const*, float*, int)",
+     "mangled": "_Z26flash_attn_combine_resultsILi128EEvPKfPK6float2Pfi",
+     "dot": "fattn-mma-f16-instance-ncols1_1-ncols2_16.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 4,
+      "skipped": 14,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_54.json",
+     "name": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, true>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb1EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "summary": {
+      "races": 8,
+      "sc": 0,
+      "ordered": 86,
+      "skipped": 59,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_55.json",
+     "name": "void flash_attn_combine_results<128>(float const*, float2 const*, float*, int)",
+     "mangled": "_Z26flash_attn_combine_resultsILi128EEvPKfPK6float2Pfi",
+     "dot": "fattn-mma-f16-instance-ncols1_1-ncols2_16.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 4,
+      "skipped": 14,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 28,
+   "n_race": 16,
+   "n_sc": 0,
+   "reports": [
+    {
+     "mode": "scalar-clock",
+     "kernel": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, false>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb0EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 16672,
+     "b_pc": 16704,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 303
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 359
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json",
+      "kernel_2.json",
+      "kernel_4.json",
+      "kernel_6.json",
+      "kernel_12.json",
+      "kernel_14.json",
+      "kernel_20.json",
+      "kernel_22.json",
+      "kernel_24.json",
+      "kernel_26.json",
+      "kernel_32.json",
+      "kernel_34.json",
+      "kernel_40.json",
+      "kernel_42.json",
+      "kernel_48.json",
+      "kernel_50.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, false>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb0EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 16672,
+     "b_pc": 16912,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 303
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 359
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json",
+      "kernel_2.json",
+      "kernel_4.json",
+      "kernel_6.json",
+      "kernel_12.json",
+      "kernel_14.json",
+      "kernel_20.json",
+      "kernel_22.json",
+      "kernel_24.json",
+      "kernel_26.json",
+      "kernel_32.json",
+      "kernel_34.json",
+      "kernel_40.json",
+      "kernel_42.json",
+      "kernel_48.json",
+      "kernel_50.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, false>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb0EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 16672,
+     "b_pc": 17264,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 303
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 359
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json",
+      "kernel_2.json",
+      "kernel_4.json",
+      "kernel_6.json",
+      "kernel_12.json",
+      "kernel_14.json",
+      "kernel_20.json",
+      "kernel_22.json",
+      "kernel_24.json",
+      "kernel_26.json",
+      "kernel_32.json",
+      "kernel_34.json",
+      "kernel_40.json",
+      "kernel_42.json",
+      "kernel_48.json",
+      "kernel_50.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, false>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb0EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 16672,
+     "b_pc": 17712,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 303
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 359
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json",
+      "kernel_2.json",
+      "kernel_4.json",
+      "kernel_6.json",
+      "kernel_12.json",
+      "kernel_14.json",
+      "kernel_20.json",
+      "kernel_22.json",
+      "kernel_24.json",
+      "kernel_26.json",
+      "kernel_32.json",
+      "kernel_34.json",
+      "kernel_40.json",
+      "kernel_42.json",
+      "kernel_48.json",
+      "kernel_50.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, false>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb0EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 16672,
+     "b_pc": 18704,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 303
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 359
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json",
+      "kernel_2.json",
+      "kernel_4.json",
+      "kernel_6.json",
+      "kernel_12.json",
+      "kernel_14.json",
+      "kernel_20.json",
+      "kernel_22.json",
+      "kernel_24.json",
+      "kernel_26.json",
+      "kernel_32.json",
+      "kernel_34.json",
+      "kernel_40.json",
+      "kernel_42.json",
+      "kernel_48.json",
+      "kernel_50.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, false>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb0EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 16672,
+     "b_pc": 18768,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 303
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 359
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json",
+      "kernel_2.json",
+      "kernel_4.json",
+      "kernel_6.json",
+      "kernel_12.json",
+      "kernel_14.json",
+      "kernel_20.json",
+      "kernel_22.json",
+      "kernel_24.json",
+      "kernel_26.json",
+      "kernel_32.json",
+      "kernel_34.json",
+      "kernel_40.json",
+      "kernel_42.json",
+      "kernel_48.json",
+      "kernel_50.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, false>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb0EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 16672,
+     "b_pc": 19760,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 303
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 359
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json",
+      "kernel_2.json",
+      "kernel_4.json",
+      "kernel_6.json",
+      "kernel_12.json",
+      "kernel_14.json",
+      "kernel_20.json",
+      "kernel_22.json",
+      "kernel_24.json",
+      "kernel_26.json",
+      "kernel_32.json",
+      "kernel_34.json",
+      "kernel_40.json",
+      "kernel_42.json",
+      "kernel_48.json",
+      "kernel_50.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, false>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb0EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 16672,
+     "b_pc": 19824,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 303
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 359
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json",
+      "kernel_2.json",
+      "kernel_4.json",
+      "kernel_6.json",
+      "kernel_12.json",
+      "kernel_14.json",
+      "kernel_20.json",
+      "kernel_22.json",
+      "kernel_24.json",
+      "kernel_26.json",
+      "kernel_32.json",
+      "kernel_34.json",
+      "kernel_40.json",
+      "kernel_42.json",
+      "kernel_48.json",
+      "kernel_50.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, true>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb1EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 17184,
+     "b_pc": 17216,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 303
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 359
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json",
+      "kernel_10.json",
+      "kernel_16.json",
+      "kernel_18.json",
+      "kernel_28.json",
+      "kernel_30.json",
+      "kernel_36.json",
+      "kernel_38.json",
+      "kernel_44.json",
+      "kernel_46.json",
+      "kernel_52.json",
+      "kernel_54.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, true>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb1EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 17184,
+     "b_pc": 17424,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 303
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 359
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json",
+      "kernel_10.json",
+      "kernel_16.json",
+      "kernel_18.json",
+      "kernel_28.json",
+      "kernel_30.json",
+      "kernel_36.json",
+      "kernel_38.json",
+      "kernel_44.json",
+      "kernel_46.json",
+      "kernel_52.json",
+      "kernel_54.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, true>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb1EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 17184,
+     "b_pc": 17776,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 303
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 359
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json",
+      "kernel_10.json",
+      "kernel_16.json",
+      "kernel_18.json",
+      "kernel_28.json",
+      "kernel_30.json",
+      "kernel_36.json",
+      "kernel_38.json",
+      "kernel_44.json",
+      "kernel_46.json",
+      "kernel_52.json",
+      "kernel_54.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, true>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb1EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 17184,
+     "b_pc": 18224,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 303
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 359
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json",
+      "kernel_10.json",
+      "kernel_16.json",
+      "kernel_18.json",
+      "kernel_28.json",
+      "kernel_30.json",
+      "kernel_36.json",
+      "kernel_38.json",
+      "kernel_44.json",
+      "kernel_46.json",
+      "kernel_52.json",
+      "kernel_54.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, true>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb1EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 17184,
+     "b_pc": 19216,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 303
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 359
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json",
+      "kernel_10.json",
+      "kernel_16.json",
+      "kernel_18.json",
+      "kernel_28.json",
+      "kernel_30.json",
+      "kernel_36.json",
+      "kernel_38.json",
+      "kernel_44.json",
+      "kernel_46.json",
+      "kernel_52.json",
+      "kernel_54.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, true>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb1EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 17184,
+     "b_pc": 19280,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 303
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 359
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json",
+      "kernel_10.json",
+      "kernel_16.json",
+      "kernel_18.json",
+      "kernel_28.json",
+      "kernel_30.json",
+      "kernel_36.json",
+      "kernel_38.json",
+      "kernel_44.json",
+      "kernel_46.json",
+      "kernel_52.json",
+      "kernel_54.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, true>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb1EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 17184,
+     "b_pc": 20272,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 303
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 359
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json",
+      "kernel_10.json",
+      "kernel_16.json",
+      "kernel_18.json",
+      "kernel_28.json",
+      "kernel_30.json",
+      "kernel_36.json",
+      "kernel_38.json",
+      "kernel_44.json",
+      "kernel_46.json",
+      "kernel_52.json",
+      "kernel_54.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, true>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb1EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "dot": "fattn-vec-instance-f16-f16.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 17184,
+     "b_pc": 20336,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 303
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 359
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_8.json",
+      "kernel_10.json",
+      "kernel_16.json",
+      "kernel_18.json",
+      "kernel_28.json",
+      "kernel_30.json",
+      "kernel_36.json",
+      "kernel_38.json",
+      "kernel_44.json",
+      "kernel_46.json",
+      "kernel_52.json",
+      "kernel_54.json"
+     ]
+    }
+   ],
+   "site_verdicts": [
+    {
+     "current_pc": 16704,
+     "current_pc_hex": "0x4140",
+     "ancient_pc": 16672,
+     "ancient_pc_hex": "0x4120",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 192,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, false>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb0EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 359
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 303
+      }
+     ]
+    },
+    {
+     "current_pc": 16912,
+     "current_pc_hex": "0x4210",
+     "ancient_pc": 16672,
+     "ancient_pc_hex": "0x4120",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 256,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, false>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb0EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 359
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 303
+      }
+     ]
+    },
+    {
+     "current_pc": 17264,
+     "current_pc_hex": "0x4370",
+     "ancient_pc": 16672,
+     "ancient_pc_hex": "0x4120",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 256,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, false>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb0EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 359
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 303
+      }
+     ]
+    },
+    {
+     "current_pc": 17712,
+     "current_pc_hex": "0x4530",
+     "ancient_pc": 16672,
+     "ancient_pc_hex": "0x4120",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 256,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, false>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb0EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 359
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 303
+      }
+     ]
+    },
+    {
+     "current_pc": 18704,
+     "current_pc_hex": "0x4910",
+     "ancient_pc": 16672,
+     "ancient_pc_hex": "0x4120",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 256,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, false>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb0EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 359
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 303
+      }
+     ]
+    },
+    {
+     "current_pc": 18768,
+     "current_pc_hex": "0x4950",
+     "ancient_pc": 16672,
+     "ancient_pc_hex": "0x4120",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 256,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, false>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb0EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 359
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 303
+      }
+     ]
+    },
+    {
+     "current_pc": 19760,
+     "current_pc_hex": "0x4d30",
+     "ancient_pc": 16672,
+     "ancient_pc_hex": "0x4120",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 256,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, false>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb0EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 359
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 303
+      }
+     ]
+    },
+    {
+     "current_pc": 19824,
+     "current_pc_hex": "0x4d70",
+     "ancient_pc": 16672,
+     "ancient_pc_hex": "0x4120",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 256,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, false>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb0EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 359
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 303
+      }
+     ]
+    },
+    {
+     "current_pc": 17216,
+     "current_pc_hex": "0x4340",
+     "ancient_pc": 17184,
+     "ancient_pc_hex": "0x4320",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 192,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, true>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb1EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "kernel_json": "kernel_8.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 359
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 303
+      }
+     ]
+    },
+    {
+     "current_pc": 17424,
+     "current_pc_hex": "0x4410",
+     "ancient_pc": 17184,
+     "ancient_pc_hex": "0x4320",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 256,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, true>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb1EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "kernel_json": "kernel_8.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 359
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 303
+      }
+     ]
+    },
+    {
+     "current_pc": 17776,
+     "current_pc_hex": "0x4570",
+     "ancient_pc": 17184,
+     "ancient_pc_hex": "0x4320",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 256,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, true>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb1EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "kernel_json": "kernel_8.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 359
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 303
+      }
+     ]
+    },
+    {
+     "current_pc": 18224,
+     "current_pc_hex": "0x4730",
+     "ancient_pc": 17184,
+     "ancient_pc_hex": "0x4320",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 256,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, true>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb1EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "kernel_json": "kernel_8.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 359
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 303
+      }
+     ]
+    },
+    {
+     "current_pc": 19216,
+     "current_pc_hex": "0x4b10",
+     "ancient_pc": 17184,
+     "ancient_pc_hex": "0x4320",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 256,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, true>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb1EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "kernel_json": "kernel_8.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 359
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 303
+      }
+     ]
+    },
+    {
+     "current_pc": 19280,
+     "current_pc_hex": "0x4b50",
+     "ancient_pc": 17184,
+     "ancient_pc_hex": "0x4320",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 256,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, true>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb1EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "kernel_json": "kernel_8.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 359
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 303
+      }
+     ]
+    },
+    {
+     "current_pc": 20272,
+     "current_pc_hex": "0x4f30",
+     "ancient_pc": 17184,
+     "ancient_pc_hex": "0x4320",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 256,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, true>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb1EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "kernel_json": "kernel_8.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 359
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 303
+      }
+     ]
+    },
+    {
+     "current_pc": 20336,
+     "current_pc_hex": "0x4f70",
+     "ancient_pc": 17184,
+     "ancient_pc_hex": "0x4320",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "warp",
+     "contested_weight": 256,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void flash_attn_ext_vec<128, 1, (ggml_type)1, (ggml_type)1, true>(char const*, char const*, char const*, char const*, char const*, int const*, float*, float2*, float, float, float, float, unsigned int, float, int, uint3, int, int, int, int, int, int, int, int, int, int, int, long, int, int, long, int, int, int, int, int, long)",
+     "mangled": "_Z18flash_attn_ext_vecILi128ELi1EL9ggml_type1ELS0_1ELb1EEvPKcS2_S2_S2_S2_PKiPfP6float2ffffjfi5uint3iiiiiiiiiiiliiliiiiil",
+     "kernel_json": "kernel_8.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 359
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/llamacpp-open-2/fixed/src/ggml/src/ggml-cuda/template-instances/../fattn-vec.cuh",
+       "line": 303
+      }
+     ]
+    }
+   ],
+   "site_skipped": {
+    "read_read": 224
+   }
+  }
+ },
+ "dots_checked": 1,
+ "dots_regenerated_equal": 1
+}

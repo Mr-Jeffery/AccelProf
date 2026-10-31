@@ -52,6 +52,13 @@ for d in DIRS:
                 diffs.append((d, k, "row only in " + ("co-offline" if a is None else "X1b"), "", ""))
                 continue
             nrows += 1
+            if k[1] == "":      # a runner-level row (missing-exe / no-trace-collected): the verdict only
+                if a["verdict"] != b["verdict"]:
+                    diffs.append((d, k, "verdict", a["verdict"], b["verdict"]))
+                tot["modeless_rows"] += 1
+                if a["notes"] != b["notes"]:
+                    tot["modeless_notes_differ"] += 1
+                continue
             for f in FIELDS:
                 if a[f] != b[f]:
                     diffs.append((d, k, f, a[f][:200], b[f][:200]))
@@ -73,5 +80,6 @@ for m in missing_files:
 print(f"\nDifferences (verdict, reports_dedup, report_ids, report_lines, classes note; notes on analysed rows): **{len(diffs)}**\n")
 for d, k, f, a, b in diffs[:200]:
     print(f"- {d} {k} {f}: X1b `{a}` vs re-analysis `{b}`")
-print(f"\nRows whose full `notes` string differs at all (incl. mode-less runner rows): {tot['notes_other_diff']}")
+print(f"\nRows whose full `notes` string differs at all (scalar-clock rows): {tot['notes_other_diff']}")
+print(f"Runner-level rows without a mode: {tot['modeless_rows']} compared on verdict only; notes text differs in {tot['modeless_notes_differ']} (X1b `missing-exe`, re-analysis `no-trace-collected`)")
 sys.exit(1 if diffs or missing_files else 0)

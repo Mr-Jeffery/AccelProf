@@ -1,0 +1,184 @@
+{
+ "id": "lit-fbgemm-1-fixed",
+ "target": "lit-fbgemm-1",
+ "exe": "/mnt/beegfs/fzheng4/realworld_t21b/build/lit-fbgemm-1/fixed/driver",
+ "cuda_home": "/usr/local/cuda-13.4",
+ "n_cubins": 1,
+ "n_dots": 1,
+ "oracle_kernel_substr": "gemv_bf16",
+ "spec_found": true,
+ "modes": {
+  "scalar-clock": {
+   "n_kernel_jsons": 1,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "gemv_bf16(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, unsigned int, unsigned int, unsigned int, unsigned int)",
+     "mangled": "_Z9gemv_bf16P13__nv_bfloat16S0_S0_jjjj",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 3,
+      "skipped": 8,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 1,
+   "n_race": 0,
+   "n_sc": 0,
+   "reports": [],
+   "site_verdicts": [
+    {
+     "current_pc": 10208,
+     "current_pc_hex": "0x27e0",
+     "ancient_pc": 10176,
+     "ancient_pc_hex": "0x27c0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 448,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      10192
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "gemv_bf16(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, unsigned int, unsigned int, unsigned int, unsigned int)",
+     "mangled": "_Z9gemv_bf16P13__nv_bfloat16S0_S0_jjjj",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-fbgemm-1/fixed/src/fbgemm_gpu/experimental/gen_ai/src/quantize/fast_gemv/include/fast_gemv.cu",
+       "line": 145
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-fbgemm-1/fixed/src/fbgemm_gpu/experimental/gen_ai/src/quantize/fast_gemv/include/fast_gemv.cu",
+       "line": 141
+      }
+     ]
+    },
+    {
+     "current_pc": 11168,
+     "current_pc_hex": "0x2ba0",
+     "ancient_pc": 10208,
+     "ancient_pc_hex": "0x27e0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 448,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      10976,
+      11136
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "gemv_bf16(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, unsigned int, unsigned int, unsigned int, unsigned int)",
+     "mangled": "_Z9gemv_bf16P13__nv_bfloat16S0_S0_jjjj",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-fbgemm-1/fixed/src/fbgemm_gpu/experimental/gen_ai/src/quantize/fast_gemv/include/fast_gemv.cu",
+       "line": 141
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-fbgemm-1/fixed/src/fbgemm_gpu/experimental/gen_ai/src/quantize/fast_gemv/include/fast_gemv.cu",
+       "line": 145
+      }
+     ]
+    },
+    {
+     "current_pc": 11200,
+     "current_pc_hex": "0x2bc0",
+     "ancient_pc": 11168,
+     "ancient_pc_hex": "0x2ba0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 448,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      11184
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "gemv_bf16(__nv_bfloat16*, __nv_bfloat16*, __nv_bfloat16*, unsigned int, unsigned int, unsigned int, unsigned int)",
+     "mangled": "_Z9gemv_bf16P13__nv_bfloat16S0_S0_jjjj",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-fbgemm-1/fixed/src/fbgemm_gpu/experimental/gen_ai/src/quantize/fast_gemv/include/fast_gemv.cu",
+       "line": 145
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-fbgemm-1/fixed/src/fbgemm_gpu/experimental/gen_ai/src/quantize/fast_gemv/include/fast_gemv.cu",
+       "line": 141
+      }
+     ]
+    }
+   ],
+   "site_skipped": {}
+  }
+ },
+ "dots_checked": 0,
+ "dots_regenerated_equal": 0
+}
