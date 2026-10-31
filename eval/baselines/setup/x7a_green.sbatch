@@ -10,7 +10,7 @@
 # As T23's p_t23_test.sh: the worktree's private copy of ScoR keeps its stored artifacts (they
 # are not wiped: nothing can regenerate them without a GPU) and nvcc is a stub that fails as on
 # a node without a GPU, so every on-demand GPU build skips alike on every node.
-W=/home/fzheng4/wt-x7a
+W=${W:-/home/fzheng4/wt-x7a}
 cd $W || exit 1
 for v in $(env | grep -o '^\(CUVEIN\|YOSEMITE\)_[A-Z0-9_]*'); do unset $v; done
 export ACCEL_PROF_HOME=$W CUVEIN_HOME=$W
@@ -29,5 +29,5 @@ run "A4 green set" python/test_sync_dominance.py python/test_barrier_soundness.p
 run "gate (ScoR-parametrised)" python/test_instance_gate.py
 run "test_no_dump.py" python/test_no_dump.py
 run "test_collector_only.py" python/test_collector_only.py
-run "test_verdict_parallel.py (X7)" python/test_verdict_parallel.py
+[ -f python/test_verdict_parallel.py ] && run "test_verdict_parallel.py (X7)" python/test_verdict_parallel.py
 echo "end $(date -Is)"
