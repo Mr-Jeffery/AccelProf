@@ -35,7 +35,10 @@ an ERROR and stays dropped, as in X1b), sc 8 keys with 8 kept.
   verdict. New: CLEAN, reports_dedup 0, `classes=sc:4`, `analysis_s=6.547`, 60,003 kernel JSONs. The new code
   analysed the same recording at N=1 and N=16 to the same output sha256 (`x7a_mem`). Jeffery accepted these 3 rows as
   they stand. An uncapped run of the original code on the same recording was started as supplementary evidence
-  (job 324004, `eval/results/verdict-timing/old-atomicCAS/`); see the follow-up commit if it landed.
+  (job 324004, `eval/results/verdict-timing/old-atomicCAS/`). It finished on c36 with the cap at 86,400 s: all 3
+  reps CLEAN, reports_dedup 0, `classes=sc:4`, nkernels 60,003, the same verdict and classes note as the new code.
+  The original code needed 25,380 s for the 3 reps serially (about 8,460 s per rep, job start to end) against
+  6.5 s per rep for the new code.
 - Excluded from A5: `final-2026-11-24h-vc/P7-haversine-cuda`. It is Part B's new 84,600 s vector-clock run
   (`p_final_24h.sh` writes into that store), not part of X1b's A5 set.
 
