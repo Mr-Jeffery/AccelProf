@@ -1,0 +1,31 @@
+host=c79 NVIDIA GeForce RTX 4060 Ti, 8.9 cuda=/usr/local/cuda-13.4 2026-10-30T21:21:06-04:00
+============================= test session starts ==============================
+platform linux -- Python 3.14.4, pytest-9.1.1, pluggy-1.6.0 -- /home/fzheng4/AccelProf/.env/bin/python
+cachedir: .pytest_cache
+rootdir: /home/fzheng4/wt-c4/python
+collecting ... collected 21 items
+
+python/test_co_offline.py::test_switch_on_is_byte_identical_to_the_verdict_layer_before_the_switch[barrier_ordered] PASSED [  4%]
+python/test_co_offline.py::test_switch_on_is_byte_identical_to_the_verdict_layer_before_the_switch[extended_edge] PASSED [  9%]
+python/test_co_offline.py::test_switch_on_is_byte_identical_to_the_verdict_layer_before_the_switch[r3c_scalar_clock_recording] PASSED [ 14%]
+python/test_co_offline.py::test_switch_on_is_byte_identical_to_the_verdict_layer_before_the_switch[r3c_vector_clock_recording] PASSED [ 19%]
+python/test_co_offline.py::test_switch_on_is_byte_identical_to_the_verdict_layer_before_the_switch[rescued_edge] PASSED [ 23%]
+python/test_co_offline.py::test_switch_off_makes_barrier_ordered_pairs_races PASSED [ 28%]
+python/test_co_offline.py::test_env_var_is_the_same_switch PASSED        [ 33%]
+python/test_co_offline.py::test_extended_edge_race_stays_a_race_switch_off PASSED [ 38%]
+python/test_co_offline.py::test_rescued_edge_race_stays_a_race_switch_off PASSED [ 42%]
+python/test_co_offline.py::test_the_r3_closure_pair_is_reported_switch_off[r3c_scalar_clock_recording] PASSED [ 47%]
+python/test_co_offline.py::test_the_r3_closure_pair_is_reported_switch_off[r3c_vector_clock_recording] PASSED [ 52%]
+python/test_co_offline.py::test_serial_runs_are_deterministic_switch_off PASSED [ 57%]
+python/test_co_offline.py::test_recorded_loop_carried_pair_is_a_race_switch_off PASSED [ 61%]
+python/test_co_offline.py::test_recorded_dominance_fixtures_stay_ordered_switch_off[co_straight] PASSED [ 66%]
+python/test_co_offline.py::test_recorded_dominance_fixtures_stay_ordered_switch_off[co_loop_tile] PASSED [ 71%]
+python/test_co_offline.py::test_recorded_missing_barrier_stays_a_race_switch_off PASSED [ 76%]
+python/test_collector_only.py::test_collector_only_json_has_the_graph_and_no_hb_keys PASSED [ 80%]
+python/test_collector_only.py::test_barrier_dominance_orders_in_collector_only PASSED [ 85%]
+python/test_collector_only.py::test_two_barrier_tile_loop_is_ordered_by_dominance PASSED [ 90%]
+python/test_collector_only.py::test_loop_carried_pair_races_in_collector_only_and_scalar_clock_orders_it PASSED [ 95%]
+python/test_collector_only.py::test_missing_barrier_races_in_both_modes PASSED [100%]
+
+============================= 21 passed in 27.67s ==============================
+== done 2026-10-30T21:21:34-04:00
