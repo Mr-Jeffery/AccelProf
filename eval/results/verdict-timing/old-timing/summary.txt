@@ -1,0 +1,21 @@
+status not ok: [(('P9-mr-cuda', 'scalar-clock'), 'limit900'), (('P9-mr-cuda', 'vector-clock'), 'limit900')]
+sha256 mismatches old vs new-nocache: [('P9-mr-cuda', 'scalar-clock'), ('P9-mr-cuda', 'vector-clock')]  old vs new-cache: []
+| suite | n | old N=1 median / max (s) | new N=1 cache off | new N=1 cache on | new N=16 (A5) |
+| HeCBench P7 | 6 | 5.27 / 66.94 | 7.17 / 90.69 | 1.32 / 7.33 | 1.25 / 6.58 |
+| HeCBench P7+P9 | 14 | 9.50 / 7058.59 | 7.17 / 113.62 | 2.03 / 12.86 | 1.85 / 6.84 |
+| HeCBench P9 | 8 | 47.09 / 7058.59 | 9.82 / 113.62 | 2.76 / 12.86 | 2.43 / 6.84 |
+| P1 | 8 | 5.73 / 10.04 | 8.10 / 14.58 | 0.96 / 1.52 | 0.89 / 2.27 |
+| P3 | 4 | 4.52 / 13.04 | 6.02 / 18.32 | 0.85 / 1.72 | 0.87 / 1.74 |
+| P4 | 8 | 24.75 / 142.81 | 35.52 / 194.98 | 3.70 / 53.69 | 2.80 / 61.60 |
+| P5 | 4 | 0.31 / 0.40 | 0.41 / 0.47 | 0.42 / 0.46 | 0.45 / 0.57 |
+| P6 | 4 | 0.29 / 0.31 | 0.36 / 0.39 | 0.39 / 0.42 | 0.42 / 0.83 |
+| PI | 12 | 0.34 / 0.44 | 0.43 / 0.56 | 0.43 / 0.60 | 0.49 / 1.53 |
+slowest old:
+('P9-mr-cuda', 'vector-clock') 1600 old 7058.594 new-nocache  new-cache 12.859 A5 N16 6.84
+('P9-mr-cuda', 'scalar-clock') 1600 old 6916.038 new-nocache  new-cache 8.578 A5 N16 6.221
+('P4-rule-110-racy-large', 'vector-clock') 64 old 142.811 new-nocache 194.976 new-cache 6.42 A5 N16 2.987
+('P9-crs-cuda', 'vector-clock') 50 old 81.127 new-nocache 113.622 new-cache 2.783 A5 N16 2.506
+('P9-crs-cuda', 'scalar-clock') 50 old 80.49 new-nocache 112.028 new-cache 2.74 A5 N16 2.405
+('P7-hotspot-cuda', 'scalar-clock') 100 old 66.936 new-nocache 90.694 new-cache 1.313 A5 N16 1.209
+('P7-hotspot-cuda', 'vector-clock') 100 old 65.2 new-nocache 90.346 new-cache 1.325 A5 N16 1.298
+('P4-matrix-multiplication-racy-large', 'vector-clock') 1 old 46.251 new-nocache 56.157 new-cache 53.692 A5 N16 61.597
