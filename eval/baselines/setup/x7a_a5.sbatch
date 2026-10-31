@@ -34,7 +34,8 @@ run() {
   BASELINE_TRACE_DIR=$B/$store BASELINE_MODES=$modes $PY eval/baselines/parallel.py analyze       --manifest eval/baselines/manifest.csv "$@" --tag "$tag" --results-dir $t       --analysis-timeout 14400 --analysis-workers 16 > $d/shard$tag.log 2>&1
   local rc=$?
   tail -1 $d/shard$tag.log
-  if [ $rc -eq 0 ] && [ -s $t/baselines-cuvein-shard$tag.csv ]; then mv $t/baselines-cuvein-shard$tag.csv $f; rm -rf $t
+  local g=$(ls $t/baselines-cuvein-shard*.csv 2>/dev/null | head -1)
+  if [ $rc -eq 0 ] && [ -n "$g" ] && [ -s "$g" ]; then mv "$g" $f; rm -rf $t
   else echo "FAILED rc=$rc $res $tag"; fi
 }
 shards() { # store modes res tag-prefix N selector...
