@@ -27,7 +27,9 @@ m["x9"] = dict(
     flavor=a.flavor, node=socket.gethostname(), nproc=a.nproc, slurm_job=a.job, worktree_head=a.head,
     runtime=dict(libsanalyzer=a.libsanalyzer, collector=a.collector, fatbin=a.fatbin, fatbin_late=a.fatbin_late,
                  checkout="/home/fzheng4/AccelProf", install_commit="f551ca0", runtime_built_from="e0e6431"),
-    hb_shards=a.shards, hb_shards_source="SHARDED_SYNC.md II.10 (N = 16)", hb_shards_applies_to="scalar-clock",
+    hb_shards=(m.get("hb_shards") or {}).get("scalar-clock"), hb_shards_requested=a.shards,
+    hb_shards_note="hb_shards = what parallel.py collect applied (BASELINE_HB_SHARDS -> YOSEMITE_HB_SHARDS, scalar-clock only)",
+    hb_shards_source="SHARDED_SYNC.md II.10 (N = 16)", hb_shards_applies_to="scalar-clock",
     hb_stats=int(os.environ.get("YOSEMITE_HB_STATS", "0")), hb_dump=int(os.environ.get("BASELINE_HB_DUMP", "1")),
     atomic_scope_sidecar="accelprof -n 1 + sidecar (parallel.py collect)",
     tool_timeout_s=a.timeout, cuda_home=a.cuda_home, gpu=a.gpu,
@@ -36,4 +38,4 @@ m["x9"] = dict(
 tmp = a.meta + ".x9.tmp"
 json.dump(m, open(tmp, "w"))
 os.replace(tmp, a.meta)
-print(f"postmeta: {a.meta} hb_shards={a.shards} libsanalyzer={a.libsanalyzer} scope_present={m.get('scope_present')}")
+print(f"postmeta: {a.meta} hb_shards={m['x9']['hb_shards']} (requested {a.shards}) libsanalyzer={a.libsanalyzer} scope_present={m.get('scope_present')}")

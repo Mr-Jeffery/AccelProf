@@ -11,7 +11,7 @@ have = {r["id"] for r in rows}
 a = sys.argv[1:]
 for fam, b, flt in zip(a[0::3], a[1::3], a[2::3]):
     prog = os.path.basename(b).replace("cutlass_test_unit_", "")
-    rid = "cutlass-" + prog + "-" + re.sub(r"[^A-Za-z0-9]+", "_", flt).strip("_")
+    rid = "cutlass-" + prog + "-" + ("all" if flt == "*" else re.sub(r"[^A-Za-z0-9]+", "_", flt).strip("_"))
     if rid in have:
         continue
     r = {c: "" for c in COLS}

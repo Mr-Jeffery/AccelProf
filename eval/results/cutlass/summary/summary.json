@@ -1,0 +1,2350 @@
+{
+ "files": 108,
+ "unreadable": 0,
+ "on_only": [],
+ "families": {
+  "tensorop-sm80-variants": {
+   "files": 51,
+   "CONFIRMED": 2588
+  },
+  "simt-2stage": {
+   "files": 1,
+   "CONFIRMED": 64
+  },
+  "simt": {
+   "files": 35
+  },
+  "tensorop-sm80-multistage": {
+   "files": 20,
+   "CONFIRMED": 388
+  },
+  "tensorop-multistage-cpasync": {
+   "files": 1,
+   "CONFIRMED": 386
+  }
+ },
+ "groups": [
+  {
+   "family": "simt-2stage",
+   "space": "global",
+   "a": "include/cutlass/block_striped.h:194",
+   "b": "include/cutlass/functional.h:134",
+   "status": {
+    "CONFIRMED": 64
+   },
+   "pairs": 64,
+   "kernels": 1,
+   "classes": [
+    "GemmUniversalStreamk"
+   ],
+   "race_types": [
+    "RAW"
+   ],
+   "verdicts": [
+    "RACE"
+   ],
+   "sass": [
+    [
+     "STG.E [R68.64+0x1000], R12",
+     "LDG.E R115, [R68.64+0x1000]"
+    ],
+    [
+     "STG.E [R68.64+0x100], R5",
+     "LDG.E R148, [R68.64+0x100]"
+    ],
+    [
+     "STG.E [R68.64+0x1100], R13",
+     "LDG.E R120, [R68.64+0x1100]"
+    ],
+    [
+     "STG.E [R68.64+0x1200], R14",
+     "LDG.E R113, [R68.64+0x1200]"
+    ],
+    [
+     "STG.E [R68.64+0x1300], R15",
+     "LDG.E R118, [R68.64+0x1300]"
+    ],
+    [
+     "STG.E [R68.64+0x1400], R44",
+     "LDG.E R111, [R68.64+0x1400]"
+    ]
+   ],
+   "parents": [
+    "main:cutlass-gemm_device_simt-SM50_device_sgemm_nt_L0_64x64x8_64x32x1_8x8_8x4_1x2"
+   ],
+   "rep": {
+    "sid": "cutlass-gemm_device_simt-SM50_device_sgemm_nt_L0_64x64x8_64x32x1_8x8_8x4_1x2",
+    "a_pc": 27696,
+    "b_pc": 29136,
+    "frames_a": [
+     "include/cutlass/block_striped.h:194",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:772",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:968",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "frames_b": [
+     "include/cutlass/functional.h:134",
+     "include/cutlass/block_striped.h:181",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:813",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:976",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "on": {
+     "verdicts": [
+      "RACE"
+     ],
+     "hb": [
+      "None"
+     ],
+     "conflict": [
+      "DR"
+     ],
+     "rt": [
+      "RAW"
+     ],
+     "syncs": [],
+     "n": 4
+    },
+    "off": {
+     "verdicts": [
+      "RACE"
+     ],
+     "hb": [
+      "None"
+     ],
+     "conflict": [
+      "DR"
+     ],
+     "rt": [
+      "RAW"
+     ],
+     "syncs": [],
+     "n": 4
+    }
+   }
+  },
+  {
+   "family": "tensorop-multistage-cpasync",
+   "space": "global",
+   "a": "include/cutlass/block_striped.h:194",
+   "b": "include/cutlass/functional.h:943",
+   "status": {
+    "CONFIRMED": 128
+   },
+   "pairs": 128,
+   "kernels": 1,
+   "classes": [
+    "GemmUniversalStreamk"
+   ],
+   "race_types": [
+    "WAW"
+   ],
+   "verdicts": [
+    "RACE"
+   ],
+   "sass": [
+    [
+     "RED.E.ADD.F32.FTZ.RN.STRONG.GPU [R134.64+0x10000], R68",
+     "STG.E [R134.64+0x10000], R68"
+    ],
+    [
+     "RED.E.ADD.F32.FTZ.RN.STRONG.GPU [R134.64+0x1000], R8",
+     "STG.E [R134.64+0x1000], R8"
+    ],
+    [
+     "RED.E.ADD.F32.FTZ.RN.STRONG.GPU [R134.64+0x10400], R69",
+     "STG.E [R134.64+0x10400], R69"
+    ],
+    [
+     "RED.E.ADD.F32.FTZ.RN.STRONG.GPU [R134.64+0x10800], R70",
+     "STG.E [R134.64+0x10800], R70"
+    ],
+    [
+     "RED.E.ADD.F32.FTZ.RN.STRONG.GPU [R134.64+0x10c00], R71",
+     "STG.E [R134.64+0x10c00], R71"
+    ],
+    [
+     "RED.E.ADD.F32.FTZ.RN.STRONG.GPU [R134.64+0x11000], R72",
+     "STG.E [R134.64+0x11000], R72"
+    ]
+   ],
+   "parents": [
+    "main:cutlass-gemm_device_tensorop_f32_sm80-SM80_Device_Gemm_f16t_f16n_f32t_tensor_op_f32_128x256x32_64x64x32"
+   ],
+   "rep": {
+    "sid": "cutlass-gemm_device_tensorop_f32_sm80-SM80_Device_Gemm_f16t_f16n_f32t_tensor_op_f32_128x256x32_64x64x32",
+    "a_pc": 22848,
+    "b_pc": 24912,
+    "frames_a": [
+     "/usr/local/cuda-13.3/include/sm_20_atomic_functions.hpp:84",
+     "include/cutlass/functional.h:943",
+     "include/cutlass/block_striped.h:229",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:790",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:968",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "frames_b": [
+     "include/cutlass/block_striped.h:194",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:772",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:968",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "on": {
+     "verdicts": [
+      "RACE"
+     ],
+     "hb": [
+      "None"
+     ],
+     "conflict": [
+      "DR"
+     ],
+     "rt": [
+      "WAW"
+     ],
+     "syncs": [],
+     "n": 4
+    },
+    "off": {
+     "verdicts": [
+      "RACE"
+     ],
+     "hb": [
+      "None"
+     ],
+     "conflict": [
+      "DR"
+     ],
+     "rt": [
+      "WAW"
+     ],
+     "syncs": [],
+     "n": 4
+    }
+   }
+  },
+  {
+   "family": "tensorop-multistage-cpasync",
+   "space": "global",
+   "a": "include/cutlass/functional.h:134",
+   "b": "include/cutlass/functional.h:943",
+   "status": {
+    "CONFIRMED": 128
+   },
+   "pairs": 128,
+   "kernels": 1,
+   "classes": [
+    "GemmUniversalStreamk"
+   ],
+   "race_types": [
+    "RAW"
+   ],
+   "verdicts": [
+    "RACE"
+   ],
+   "sass": [
+    [
+     "RED.E.ADD.F32.FTZ.RN.STRONG.GPU [R134.64+0x10000], R68",
+     "LDG.E R195, [R134.64+0x10000]"
+    ],
+    [
+     "RED.E.ADD.F32.FTZ.RN.STRONG.GPU [R134.64+0x1000], R8",
+     "LDG.E R147, [R134.64+0x1000]"
+    ],
+    [
+     "RED.E.ADD.F32.FTZ.RN.STRONG.GPU [R134.64+0x10400], R69",
+     "LDG.E R190, [R134.64+0x10400]"
+    ],
+    [
+     "RED.E.ADD.F32.FTZ.RN.STRONG.GPU [R134.64+0x10800], R70",
+     "LDG.E R193, [R134.64+0x10800]"
+    ],
+    [
+     "RED.E.ADD.F32.FTZ.RN.STRONG.GPU [R134.64+0x10c00], R71",
+     "LDG.E R188, [R134.64+0x10c00]"
+    ],
+    [
+     "RED.E.ADD.F32.FTZ.RN.STRONG.GPU [R134.64+0x11000], R72",
+     "LDG.E R191, [R134.64+0x11000]"
+    ]
+   ],
+   "parents": [
+    "main:cutlass-gemm_device_tensorop_f32_sm80-SM80_Device_Gemm_f16t_f16n_f32t_tensor_op_f32_128x256x32_64x64x32"
+   ],
+   "rep": {
+    "sid": "cutlass-gemm_device_tensorop_f32_sm80-SM80_Device_Gemm_f16t_f16n_f32t_tensor_op_f32_128x256x32_64x64x32",
+    "a_pc": 22848,
+    "b_pc": 27440,
+    "frames_a": [
+     "/usr/local/cuda-13.3/include/sm_20_atomic_functions.hpp:84",
+     "include/cutlass/functional.h:943",
+     "include/cutlass/block_striped.h:229",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:790",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:968",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "frames_b": [
+     "include/cutlass/functional.h:134",
+     "include/cutlass/block_striped.h:181",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:813",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:976",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "on": {
+     "verdicts": [
+      "RACE"
+     ],
+     "hb": [
+      "None"
+     ],
+     "conflict": [
+      "DR"
+     ],
+     "rt": [
+      "RAW"
+     ],
+     "syncs": [],
+     "n": 4
+    },
+    "off": {
+     "verdicts": [
+      "RACE"
+     ],
+     "hb": [
+      "None"
+     ],
+     "conflict": [
+      "DR"
+     ],
+     "rt": [
+      "RAW"
+     ],
+     "syncs": [],
+     "n": 4
+    }
+   }
+  },
+  {
+   "family": "tensorop-multistage-cpasync",
+   "space": "global",
+   "a": "include/cutlass/block_striped.h:194",
+   "b": "include/cutlass/functional.h:134",
+   "status": {
+    "CONFIRMED": 128
+   },
+   "pairs": 128,
+   "kernels": 1,
+   "classes": [
+    "GemmUniversalStreamk"
+   ],
+   "race_types": [
+    "RAW"
+   ],
+   "verdicts": [
+    "RACE"
+   ],
+   "sass": [
+    [
+     "STG.E [R134.64+0x10000], R68",
+     "LDG.E R195, [R134.64+0x10000]"
+    ],
+    [
+     "STG.E [R134.64+0x1000], R8",
+     "LDG.E R147, [R134.64+0x1000]"
+    ],
+    [
+     "STG.E [R134.64+0x10400], R69",
+     "LDG.E R190, [R134.64+0x10400]"
+    ],
+    [
+     "STG.E [R134.64+0x10800], R70",
+     "LDG.E R193, [R134.64+0x10800]"
+    ],
+    [
+     "STG.E [R134.64+0x10c00], R71",
+     "LDG.E R188, [R134.64+0x10c00]"
+    ],
+    [
+     "STG.E [R134.64+0x11000], R72",
+     "LDG.E R191, [R134.64+0x11000]"
+    ]
+   ],
+   "parents": [
+    "main:cutlass-gemm_device_tensorop_f32_sm80-SM80_Device_Gemm_f16t_f16n_f32t_tensor_op_f32_128x256x32_64x64x32"
+   ],
+   "rep": {
+    "sid": "cutlass-gemm_device_tensorop_f32_sm80-SM80_Device_Gemm_f16t_f16n_f32t_tensor_op_f32_128x256x32_64x64x32",
+    "a_pc": 24912,
+    "b_pc": 27440,
+    "frames_a": [
+     "include/cutlass/block_striped.h:194",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:772",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:968",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "frames_b": [
+     "include/cutlass/functional.h:134",
+     "include/cutlass/block_striped.h:181",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:813",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:976",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "on": {
+     "verdicts": [
+      "RACE"
+     ],
+     "hb": [
+      "None"
+     ],
+     "conflict": [
+      "DR"
+     ],
+     "rt": [
+      "RAW"
+     ],
+     "syncs": [],
+     "n": 8
+    },
+    "off": {
+     "verdicts": [
+      "RACE"
+     ],
+     "hb": [
+      "None"
+     ],
+     "conflict": [
+      "DR"
+     ],
+     "rt": [
+      "RAW"
+     ],
+     "syncs": [],
+     "n": 8
+    }
+   }
+  },
+  {
+   "family": "tensorop-multistage-cpasync",
+   "space": "global",
+   "a": "include/cutlass/barrier.h:104",
+   "b": "include/cutlass/barrier.h:124",
+   "status": {
+    "CONFIRMED": 1
+   },
+   "pairs": 1,
+   "kernels": 1,
+   "classes": [
+    "GemmUniversalStreamk"
+   ],
+   "race_types": [
+    "RAW",
+    "WAR"
+   ],
+   "verdicts": [
+    "SC"
+   ],
+   "sass": [
+    [
+     "LDG.E.STRONG.GPU R133, [R138.64]",
+     "RED.E.ADD.S32.STRONG.GPU [R4.64], R0"
+    ]
+   ],
+   "parents": [
+    "main:cutlass-gemm_device_tensorop_f32_sm80-SM80_Device_Gemm_f16t_f16n_f32t_tensor_op_f32_128x256x32_64x64x32"
+   ],
+   "rep": {
+    "sid": "cutlass-gemm_device_tensorop_f32_sm80-SM80_Device_Gemm_f16t_f16n_f32t_tensor_op_f32_128x256x32_64x64x32",
+    "a_pc": 22736,
+    "b_pc": 27168,
+    "frames_a": [
+     "include/cutlass/barrier.h:104",
+     "include/cutlass/barrier.h:161",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:786",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:968",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "frames_b": [
+     "include/cutlass/barrier.h:124",
+     "include/cutlass/barrier.h:191",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:794",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:968",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "on": {
+     "verdicts": [
+      "SC"
+     ],
+     "hb": [
+      "sc"
+     ],
+     "conflict": [
+      "SC"
+     ],
+     "rt": [
+      "RAW",
+      "WAR"
+     ],
+     "syncs": [
+      "26960"
+     ],
+     "n": 7
+    },
+    "off": {
+     "verdicts": [
+      "SC"
+     ],
+     "hb": [
+      "sc"
+     ],
+     "conflict": [
+      "SC"
+     ],
+     "rt": [
+      "RAW",
+      "WAR"
+     ],
+     "syncs": [
+      "26960"
+     ],
+     "n": 7
+    }
+   }
+  },
+  {
+   "family": "tensorop-multistage-cpasync",
+   "space": "global",
+   "a": "include/cutlass/barrier.h:104",
+   "b": "include/cutlass/barrier.h:175",
+   "status": {
+    "CONFIRMED": 1
+   },
+   "pairs": 1,
+   "kernels": 1,
+   "classes": [
+    "GemmUniversalStreamk"
+   ],
+   "race_types": [
+    "RAW",
+    "WAR"
+   ],
+   "verdicts": [
+    "SC"
+   ],
+   "sass": [
+    [
+     "LDG.E.STRONG.GPU R133, [R138.64]",
+     "ATOMG.E.CAS.STRONG.GPU PT, R133, [R136], R132, R133"
+    ]
+   ],
+   "parents": [
+    "main:cutlass-gemm_device_tensorop_f32_sm80-SM80_Device_Gemm_f16t_f16n_f32t_tensor_op_f32_128x256x32_64x64x32"
+   ],
+   "rep": {
+    "sid": "cutlass-gemm_device_tensorop_f32_sm80-SM80_Device_Gemm_f16t_f16n_f32t_tensor_op_f32_128x256x32_64x64x32",
+    "a_pc": 22736,
+    "b_pc": 27344,
+    "frames_a": [
+     "include/cutlass/barrier.h:104",
+     "include/cutlass/barrier.h:161",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:786",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:968",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "frames_b": [
+     "/usr/local/cuda-13.3/include/device_atomic_functions.hpp:202",
+     "include/cutlass/barrier.h:175",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:809",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:976",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "on": {
+     "verdicts": [
+      "SC"
+     ],
+     "hb": [
+      "sc"
+     ],
+     "conflict": [
+      "SC"
+     ],
+     "rt": [
+      "RAW",
+      "WAR"
+     ],
+     "syncs": [],
+     "n": 8
+    },
+    "off": {
+     "verdicts": [
+      "SC"
+     ],
+     "hb": [
+      "sc"
+     ],
+     "conflict": [
+      "SC"
+     ],
+     "rt": [
+      "RAW",
+      "WAR"
+     ],
+     "syncs": [],
+     "n": 8
+    }
+   }
+  },
+  {
+   "family": "tensorop-sm80-multistage",
+   "space": "global",
+   "a": "include/cutlass/block_striped.h:194",
+   "b": "include/cutlass/functional.h:992",
+   "status": {
+    "CONFIRMED": 128
+   },
+   "pairs": 128,
+   "kernels": 2,
+   "classes": [
+    "GemmUniversalStreamk"
+   ],
+   "race_types": [
+    "WAW"
+   ],
+   "verdicts": [
+    "RACE"
+   ],
+   "sass": [
+    [
+     "RED.E.ADD.F16x2.RN.STRONG.GPU [R68.64+0x1000], R50",
+     "STG.E [R68.64+0x1000], R50"
+    ],
+    [
+     "RED.E.ADD.F16x2.RN.STRONG.GPU [R68.64+0x1200], R51",
+     "STG.E [R68.64+0x1200], R51"
+    ],
+    [
+     "RED.E.ADD.F16x2.RN.STRONG.GPU [R68.64+0x1400], R52",
+     "STG.E [R68.64+0x1400], R52"
+    ],
+    [
+     "RED.E.ADD.F16x2.RN.STRONG.GPU [R68.64+0x1600], R53",
+     "STG.E [R68.64+0x1600], R53"
+    ],
+    [
+     "RED.E.ADD.F16x2.RN.STRONG.GPU [R68.64+0x1800], R54",
+     "STG.E [R68.64+0x1800], R54"
+    ],
+    [
+     "RED.E.ADD.F16x2.RN.STRONG.GPU [R68.64+0x1a00], R55",
+     "STG.E [R68.64+0x1a00], R55"
+    ]
+   ],
+   "parents": [
+    "main:cutlass-gemm_device_tensorop_f16_sm80-all"
+   ],
+   "rep": {
+    "sid": "cutlass-gemm_device_tensorop_f16_sm80-all__k002",
+    "a_pc": 22640,
+    "b_pc": 23680,
+    "frames_a": [
+     "include/cutlass/functional.h:992",
+     "include/cutlass/block_striped.h:260",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:790",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:968",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "frames_b": [
+     "/usr/local/cuda-13.3/include/cuda_fp16.hpp:254",
+     "include/cutlass/block_striped.h:194",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:772",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:968",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "on": {
+     "verdicts": [
+      "RACE"
+     ],
+     "hb": [
+      "None"
+     ],
+     "conflict": [
+      "DR"
+     ],
+     "rt": [
+      "WAW"
+     ],
+     "syncs": [],
+     "n": 4
+    },
+    "off": {
+     "verdicts": [
+      "RACE"
+     ],
+     "hb": [
+      "None"
+     ],
+     "conflict": [
+      "DR"
+     ],
+     "rt": [
+      "WAW"
+     ],
+     "syncs": [],
+     "n": 4
+    }
+   }
+  },
+  {
+   "family": "tensorop-sm80-multistage",
+   "space": "global",
+   "a": "include/cutlass/functional.h:177",
+   "b": "include/cutlass/functional.h:992",
+   "status": {
+    "CONFIRMED": 128
+   },
+   "pairs": 128,
+   "kernels": 2,
+   "classes": [
+    "GemmUniversalStreamk"
+   ],
+   "race_types": [
+    "RAW"
+   ],
+   "verdicts": [
+    "RACE"
+   ],
+   "sass": [
+    [
+     "RED.E.ADD.F16x2.RN.STRONG.GPU [R68.64+0x1000], R50",
+     "LDG.E R121, [R68.64+0x1000]"
+    ],
+    [
+     "RED.E.ADD.F16x2.RN.STRONG.GPU [R68.64+0x1200], R51",
+     "LDG.E R120, [R68.64+0x1200]"
+    ],
+    [
+     "RED.E.ADD.F16x2.RN.STRONG.GPU [R68.64+0x1400], R52",
+     "LDG.E R119, [R68.64+0x1400]"
+    ],
+    [
+     "RED.E.ADD.F16x2.RN.STRONG.GPU [R68.64+0x1600], R53",
+     "LDG.E R118, [R68.64+0x1600]"
+    ],
+    [
+     "RED.E.ADD.F16x2.RN.STRONG.GPU [R68.64+0x1800], R54",
+     "LDG.E R117, [R68.64+0x1800]"
+    ],
+    [
+     "RED.E.ADD.F16x2.RN.STRONG.GPU [R68.64+0x1a00], R55",
+     "LDG.E R116, [R68.64+0x1a00]"
+    ]
+   ],
+   "parents": [
+    "main:cutlass-gemm_device_tensorop_f16_sm80-all"
+   ],
+   "rep": {
+    "sid": "cutlass-gemm_device_tensorop_f16_sm80-all__k002",
+    "a_pc": 22640,
+    "b_pc": 25184,
+    "frames_a": [
+     "include/cutlass/functional.h:992",
+     "include/cutlass/block_striped.h:260",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:790",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:968",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "frames_b": [
+     "/usr/local/cuda-13.3/include/cuda_fp16.h:5189",
+     "include/cutlass/functional.h:177",
+     "include/cutlass/block_striped.h:181",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:813",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:976",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "on": {
+     "verdicts": [
+      "RACE"
+     ],
+     "hb": [
+      "None"
+     ],
+     "conflict": [
+      "DR"
+     ],
+     "rt": [
+      "RAW"
+     ],
+     "syncs": [],
+     "n": 4
+    },
+    "off": {
+     "verdicts": [
+      "RACE"
+     ],
+     "hb": [
+      "None"
+     ],
+     "conflict": [
+      "DR"
+     ],
+     "rt": [
+      "RAW"
+     ],
+     "syncs": [],
+     "n": 4
+    }
+   }
+  },
+  {
+   "family": "tensorop-sm80-multistage",
+   "space": "global",
+   "a": "include/cutlass/block_striped.h:194",
+   "b": "include/cutlass/functional.h:177",
+   "status": {
+    "CONFIRMED": 128
+   },
+   "pairs": 128,
+   "kernels": 2,
+   "classes": [
+    "GemmUniversalStreamk"
+   ],
+   "race_types": [
+    "RAW"
+   ],
+   "verdicts": [
+    "RACE"
+   ],
+   "sass": [
+    [
+     "STG.E [R68.64+0x1000], R50",
+     "LDG.E R121, [R68.64+0x1000]"
+    ],
+    [
+     "STG.E [R68.64+0x1200], R51",
+     "LDG.E R120, [R68.64+0x1200]"
+    ],
+    [
+     "STG.E [R68.64+0x1400], R52",
+     "LDG.E R119, [R68.64+0x1400]"
+    ],
+    [
+     "STG.E [R68.64+0x1600], R53",
+     "LDG.E R118, [R68.64+0x1600]"
+    ],
+    [
+     "STG.E [R68.64+0x1800], R54",
+     "LDG.E R117, [R68.64+0x1800]"
+    ],
+    [
+     "STG.E [R68.64+0x1a00], R55",
+     "LDG.E R116, [R68.64+0x1a00]"
+    ]
+   ],
+   "parents": [
+    "main:cutlass-gemm_device_tensorop_f16_sm80-all"
+   ],
+   "rep": {
+    "sid": "cutlass-gemm_device_tensorop_f16_sm80-all__k002",
+    "a_pc": 23680,
+    "b_pc": 25184,
+    "frames_a": [
+     "/usr/local/cuda-13.3/include/cuda_fp16.hpp:254",
+     "include/cutlass/block_striped.h:194",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:772",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:968",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "frames_b": [
+     "/usr/local/cuda-13.3/include/cuda_fp16.h:5189",
+     "include/cutlass/functional.h:177",
+     "include/cutlass/block_striped.h:181",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:813",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:976",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "on": {
+     "verdicts": [
+      "RACE"
+     ],
+     "hb": [
+      "None"
+     ],
+     "conflict": [
+      "DR"
+     ],
+     "rt": [
+      "RAW"
+     ],
+     "syncs": [],
+     "n": 8
+    },
+    "off": {
+     "verdicts": [
+      "RACE"
+     ],
+     "hb": [
+      "None"
+     ],
+     "conflict": [
+      "DR"
+     ],
+     "rt": [
+      "RAW"
+     ],
+     "syncs": [],
+     "n": 8
+    }
+   }
+  },
+  {
+   "family": "tensorop-sm80-multistage",
+   "space": "global",
+   "a": "include/cutlass/barrier.h:104",
+   "b": "include/cutlass/barrier.h:124",
+   "status": {
+    "CONFIRMED": 2
+   },
+   "pairs": 2,
+   "kernels": 2,
+   "classes": [
+    "GemmUniversalStreamk"
+   ],
+   "race_types": [
+    "RAW",
+    "WAR"
+   ],
+   "verdicts": [
+    "SC"
+   ],
+   "sass": [
+    [
+     "LDG.E.STRONG.GPU R67, [R72.64]",
+     "RED.E.ADD.S32.STRONG.GPU [R2.64], R0"
+    ]
+   ],
+   "parents": [
+    "main:cutlass-gemm_device_tensorop_f16_sm80-all"
+   ],
+   "rep": {
+    "sid": "cutlass-gemm_device_tensorop_f16_sm80-all__k002",
+    "a_pc": 22528,
+    "b_pc": 24912,
+    "frames_a": [
+     "include/cutlass/barrier.h:104",
+     "include/cutlass/barrier.h:161",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:786",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:968",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "frames_b": [
+     "include/cutlass/barrier.h:124",
+     "include/cutlass/barrier.h:191",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:794",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:968",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "on": {
+     "verdicts": [
+      "SC"
+     ],
+     "hb": [
+      "sc"
+     ],
+     "conflict": [
+      "SC"
+     ],
+     "rt": [
+      "RAW",
+      "WAR"
+     ],
+     "syncs": [
+      "24704"
+     ],
+     "n": 7
+    },
+    "off": {
+     "verdicts": [
+      "SC"
+     ],
+     "hb": [
+      "sc"
+     ],
+     "conflict": [
+      "SC"
+     ],
+     "rt": [
+      "RAW",
+      "WAR"
+     ],
+     "syncs": [
+      "24704"
+     ],
+     "n": 7
+    }
+   }
+  },
+  {
+   "family": "tensorop-sm80-multistage",
+   "space": "global",
+   "a": "include/cutlass/barrier.h:104",
+   "b": "include/cutlass/barrier.h:175",
+   "status": {
+    "CONFIRMED": 2
+   },
+   "pairs": 2,
+   "kernels": 2,
+   "classes": [
+    "GemmUniversalStreamk"
+   ],
+   "race_types": [
+    "RAW",
+    "WAR"
+   ],
+   "verdicts": [
+    "SC"
+   ],
+   "sass": [
+    [
+     "LDG.E.STRONG.GPU R67, [R72.64]",
+     "ATOMG.E.CAS.STRONG.GPU PT, R67, [R70], R66, R67"
+    ]
+   ],
+   "parents": [
+    "main:cutlass-gemm_device_tensorop_f16_sm80-all"
+   ],
+   "rep": {
+    "sid": "cutlass-gemm_device_tensorop_f16_sm80-all__k002",
+    "a_pc": 22528,
+    "b_pc": 25088,
+    "frames_a": [
+     "include/cutlass/barrier.h:104",
+     "include/cutlass/barrier.h:161",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:786",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:968",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "frames_b": [
+     "/usr/local/cuda-13.3/include/device_atomic_functions.hpp:202",
+     "include/cutlass/barrier.h:175",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:809",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:976",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "on": {
+     "verdicts": [
+      "SC"
+     ],
+     "hb": [
+      "sc"
+     ],
+     "conflict": [
+      "SC"
+     ],
+     "rt": [
+      "RAW",
+      "WAR"
+     ],
+     "syncs": [],
+     "n": 7
+    },
+    "off": {
+     "verdicts": [
+      "SC"
+     ],
+     "hb": [
+      "sc"
+     ],
+     "conflict": [
+      "SC"
+     ],
+     "rt": [
+      "RAW",
+      "WAR"
+     ],
+     "syncs": [],
+     "n": 7
+    }
+   }
+  },
+  {
+   "family": "tensorop-sm80-variants",
+   "space": "global",
+   "a": "include/cutlass/block_striped.h:194",
+   "b": "include/cutlass/functional.h:943",
+   "status": {
+    "CONFIRMED": 512
+   },
+   "pairs": 512,
+   "kernels": 4,
+   "classes": [
+    "GemmUniversalStreamk"
+   ],
+   "race_types": [
+    "WAW"
+   ],
+   "verdicts": [
+    "RACE"
+   ],
+   "sass": [
+    [
+     "RED.E.ADD.F32.FTZ.RN.STRONG.GPU [R2.64+0x10000], R68",
+     "STG.E [R2.64+0x10000], R68"
+    ],
+    [
+     "RED.E.ADD.F32.FTZ.RN.STRONG.GPU [R2.64+0x1000], R168",
+     "STG.E [R2.64+0x1000], R168"
+    ],
+    [
+     "RED.E.ADD.F32.FTZ.RN.STRONG.GPU [R2.64+0x10400], R69",
+     "STG.E [R2.64+0x10400], R69"
+    ],
+    [
+     "RED.E.ADD.F32.FTZ.RN.STRONG.GPU [R2.64+0x10800], R136",
+     "STG.E [R2.64+0x10800], R136"
+    ],
+    [
+     "RED.E.ADD.F32.FTZ.RN.STRONG.GPU [R2.64+0x10c00], R137",
+     "STG.E [R2.64+0x10c00], R137"
+    ],
+    [
+     "RED.E.ADD.F32.FTZ.RN.STRONG.GPU [R2.64+0x11000], R144",
+     "STG.E [R2.64+0x11000], R144"
+    ]
+   ],
+   "parents": [
+    "main:cutlass-gemm_device_tensorop_sm89-all"
+   ],
+   "rep": {
+    "sid": "cutlass-gemm_device_tensorop_sm89-all__k033",
+    "a_pc": 32816,
+    "b_pc": 35072,
+    "frames_a": [
+     "/usr/local/cuda-13.3/include/sm_20_atomic_functions.hpp:84",
+     "include/cutlass/functional.h:943",
+     "include/cutlass/block_striped.h:229",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:790",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:968",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "frames_b": [
+     "include/cutlass/block_striped.h:194",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:772",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:968",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "on": {
+     "verdicts": [
+      "RACE"
+     ],
+     "hb": [
+      "None"
+     ],
+     "conflict": [
+      "DR"
+     ],
+     "rt": [
+      "WAW"
+     ],
+     "syncs": [],
+     "n": 4
+    },
+    "off": {
+     "verdicts": [
+      "RACE"
+     ],
+     "hb": [
+      "None"
+     ],
+     "conflict": [
+      "DR"
+     ],
+     "rt": [
+      "WAW"
+     ],
+     "syncs": [],
+     "n": 4
+    }
+   }
+  },
+  {
+   "family": "tensorop-sm80-variants",
+   "space": "global",
+   "a": "include/cutlass/functional.h:134",
+   "b": "include/cutlass/functional.h:943",
+   "status": {
+    "CONFIRMED": 512
+   },
+   "pairs": 512,
+   "kernels": 4,
+   "classes": [
+    "GemmUniversalStreamk"
+   ],
+   "race_types": [
+    "RAW"
+   ],
+   "verdicts": [
+    "RACE"
+   ],
+   "sass": [
+    [
+     "RED.E.ADD.F32.FTZ.RN.STRONG.GPU [R2.64+0x10000], R68",
+     "LDG.E R65, [R2.64+0x10000]"
+    ],
+    [
+     "RED.E.ADD.F32.FTZ.RN.STRONG.GPU [R2.64+0x1000], R168",
+     "LDG.E R8, [R2.64+0x1000]"
+    ],
+    [
+     "RED.E.ADD.F32.FTZ.RN.STRONG.GPU [R2.64+0x10400], R69",
+     "LDG.E R64, [R2.64+0x10400]"
+    ],
+    [
+     "RED.E.ADD.F32.FTZ.RN.STRONG.GPU [R2.64+0x10800], R136",
+     "LDG.E R63, [R2.64+0x10800]"
+    ],
+    [
+     "RED.E.ADD.F32.FTZ.RN.STRONG.GPU [R2.64+0x10c00], R137",
+     "LDG.E R62, [R2.64+0x10c00]"
+    ],
+    [
+     "RED.E.ADD.F32.FTZ.RN.STRONG.GPU [R2.64+0x11000], R144",
+     "LDG.E R61, [R2.64+0x11000]"
+    ]
+   ],
+   "parents": [
+    "main:cutlass-gemm_device_tensorop_sm89-all"
+   ],
+   "rep": {
+    "sid": "cutlass-gemm_device_tensorop_sm89-all__k033",
+    "a_pc": 32816,
+    "b_pc": 37680,
+    "frames_a": [
+     "/usr/local/cuda-13.3/include/sm_20_atomic_functions.hpp:84",
+     "include/cutlass/functional.h:943",
+     "include/cutlass/block_striped.h:229",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:790",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:968",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "frames_b": [
+     "include/cutlass/functional.h:134",
+     "include/cutlass/block_striped.h:181",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:813",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:976",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "on": {
+     "verdicts": [
+      "RACE"
+     ],
+     "hb": [
+      "None"
+     ],
+     "conflict": [
+      "DR"
+     ],
+     "rt": [
+      "RAW"
+     ],
+     "syncs": [],
+     "n": 4
+    },
+    "off": {
+     "verdicts": [
+      "RACE"
+     ],
+     "hb": [
+      "None"
+     ],
+     "conflict": [
+      "DR"
+     ],
+     "rt": [
+      "RAW"
+     ],
+     "syncs": [],
+     "n": 4
+    }
+   }
+  },
+  {
+   "family": "tensorop-sm80-variants",
+   "space": "global",
+   "a": "include/cutlass/block_striped.h:194",
+   "b": "include/cutlass/functional.h:134",
+   "status": {
+    "CONFIRMED": 512
+   },
+   "pairs": 512,
+   "kernels": 4,
+   "classes": [
+    "GemmUniversalStreamk"
+   ],
+   "race_types": [
+    "RAW"
+   ],
+   "verdicts": [
+    "RACE"
+   ],
+   "sass": [
+    [
+     "STG.E [R2.64+0x10000], R68",
+     "LDG.E R65, [R2.64+0x10000]"
+    ],
+    [
+     "STG.E [R2.64+0x1000], R168",
+     "LDG.E R8, [R2.64+0x1000]"
+    ],
+    [
+     "STG.E [R2.64+0x10400], R69",
+     "LDG.E R64, [R2.64+0x10400]"
+    ],
+    [
+     "STG.E [R2.64+0x10800], R136",
+     "LDG.E R63, [R2.64+0x10800]"
+    ],
+    [
+     "STG.E [R2.64+0x10c00], R137",
+     "LDG.E R62, [R2.64+0x10c00]"
+    ],
+    [
+     "STG.E [R2.64+0x11000], R144",
+     "LDG.E R61, [R2.64+0x11000]"
+    ]
+   ],
+   "parents": [
+    "main:cutlass-gemm_device_tensorop_sm89-all"
+   ],
+   "rep": {
+    "sid": "cutlass-gemm_device_tensorop_sm89-all__k033",
+    "a_pc": 35072,
+    "b_pc": 37680,
+    "frames_a": [
+     "include/cutlass/block_striped.h:194",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:772",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:968",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "frames_b": [
+     "include/cutlass/functional.h:134",
+     "include/cutlass/block_striped.h:181",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:813",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:976",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "on": {
+     "verdicts": [
+      "RACE"
+     ],
+     "hb": [
+      "None"
+     ],
+     "conflict": [
+      "DR"
+     ],
+     "rt": [
+      "RAW"
+     ],
+     "syncs": [],
+     "n": 8
+    },
+    "off": {
+     "verdicts": [
+      "RACE"
+     ],
+     "hb": [
+      "None"
+     ],
+     "conflict": [
+      "DR"
+     ],
+     "rt": [
+      "RAW"
+     ],
+     "syncs": [],
+     "n": 8
+    }
+   }
+  },
+  {
+   "family": "tensorop-sm80-variants",
+   "space": "global",
+   "a": "include/cutlass/block_striped.h:194",
+   "b": "include/cutlass/functional.h:992",
+   "status": {
+    "CONFIRMED": 256
+   },
+   "pairs": 256,
+   "kernels": 4,
+   "classes": [
+    "GemmUniversalStreamk"
+   ],
+   "race_types": [
+    "WAW"
+   ],
+   "verdicts": [
+    "RACE"
+   ],
+   "sass": [
+    [
+     "RED.E.ADD.F16x2.RN.STRONG.GPU [R44.64+0x1000], R80",
+     "STG.E [R44.64+0x1000], R80"
+    ],
+    [
+     "RED.E.ADD.F16x2.RN.STRONG.GPU [R44.64+0x1400], R84",
+     "STG.E [R44.64+0x1400], R84"
+    ],
+    [
+     "RED.E.ADD.F16x2.RN.STRONG.GPU [R44.64+0x1800], R8",
+     "STG.E [R44.64+0x1800], R8"
+    ],
+    [
+     "RED.E.ADD.F16x2.RN.STRONG.GPU [R44.64+0x1c00], R88",
+     "STG.E [R44.64+0x1c00], R88"
+    ],
+    [
+     "RED.E.ADD.F16x2.RN.STRONG.GPU [R44.64+0x2000], R69",
+     "STG.E [R44.64+0x2000], R69"
+    ],
+    [
+     "RED.E.ADD.F16x2.RN.STRONG.GPU [R44.64+0x2400], R73",
+     "STG.E [R44.64+0x2400], R73"
+    ]
+   ],
+   "parents": [
+    "main:cutlass-gemm_device_tensorop_sm89-all"
+   ],
+   "rep": {
+    "sid": "cutlass-gemm_device_tensorop_sm89-all__k032",
+    "a_pc": 23216,
+    "b_pc": 24256,
+    "frames_a": [
+     "include/cutlass/functional.h:992",
+     "include/cutlass/block_striped.h:260",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:790",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:968",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "frames_b": [
+     "/usr/local/cuda-13.3/include/cuda_fp16.hpp:254",
+     "include/cutlass/block_striped.h:194",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:772",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:968",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "on": {
+     "verdicts": [
+      "RACE"
+     ],
+     "hb": [
+      "None"
+     ],
+     "conflict": [
+      "DR"
+     ],
+     "rt": [
+      "WAW"
+     ],
+     "syncs": [],
+     "n": 4
+    },
+    "off": {
+     "verdicts": [
+      "RACE"
+     ],
+     "hb": [
+      "None"
+     ],
+     "conflict": [
+      "DR"
+     ],
+     "rt": [
+      "WAW"
+     ],
+     "syncs": [],
+     "n": 4
+    }
+   }
+  },
+  {
+   "family": "tensorop-sm80-variants",
+   "space": "global",
+   "a": "include/cutlass/functional.h:177",
+   "b": "include/cutlass/functional.h:992",
+   "status": {
+    "CONFIRMED": 256
+   },
+   "pairs": 256,
+   "kernels": 4,
+   "classes": [
+    "GemmUniversalStreamk"
+   ],
+   "race_types": [
+    "RAW"
+   ],
+   "verdicts": [
+    "RACE"
+   ],
+   "sass": [
+    [
+     "RED.E.ADD.F16x2.RN.STRONG.GPU [R44.64+0x1000], R80",
+     "LDG.E R125, [R44.64+0x1000]"
+    ],
+    [
+     "RED.E.ADD.F16x2.RN.STRONG.GPU [R44.64+0x1400], R84",
+     "LDG.E R123, [R44.64+0x1400]"
+    ],
+    [
+     "RED.E.ADD.F16x2.RN.STRONG.GPU [R44.64+0x1800], R8",
+     "LDG.E R121, [R44.64+0x1800]"
+    ],
+    [
+     "RED.E.ADD.F16x2.RN.STRONG.GPU [R44.64+0x1c00], R88",
+     "LDG.E R119, [R44.64+0x1c00]"
+    ],
+    [
+     "RED.E.ADD.F16x2.RN.STRONG.GPU [R44.64+0x2000], R69",
+     "LDG.E R126, [R44.64+0x2000]"
+    ],
+    [
+     "RED.E.ADD.F16x2.RN.STRONG.GPU [R44.64+0x2400], R73",
+     "LDG.E R124, [R44.64+0x2400]"
+    ]
+   ],
+   "parents": [
+    "main:cutlass-gemm_device_tensorop_sm89-all"
+   ],
+   "rep": {
+    "sid": "cutlass-gemm_device_tensorop_sm89-all__k032",
+    "a_pc": 23216,
+    "b_pc": 25760,
+    "frames_a": [
+     "include/cutlass/functional.h:992",
+     "include/cutlass/block_striped.h:260",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:790",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:968",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "frames_b": [
+     "/usr/local/cuda-13.3/include/cuda_fp16.h:5189",
+     "include/cutlass/functional.h:177",
+     "include/cutlass/block_striped.h:181",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:813",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:976",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "on": {
+     "verdicts": [
+      "RACE"
+     ],
+     "hb": [
+      "None"
+     ],
+     "conflict": [
+      "DR"
+     ],
+     "rt": [
+      "RAW"
+     ],
+     "syncs": [],
+     "n": 4
+    },
+    "off": {
+     "verdicts": [
+      "RACE"
+     ],
+     "hb": [
+      "None"
+     ],
+     "conflict": [
+      "DR"
+     ],
+     "rt": [
+      "RAW"
+     ],
+     "syncs": [],
+     "n": 4
+    }
+   }
+  },
+  {
+   "family": "tensorop-sm80-variants",
+   "space": "global",
+   "a": "include/cutlass/block_striped.h:194",
+   "b": "include/cutlass/functional.h:177",
+   "status": {
+    "CONFIRMED": 256
+   },
+   "pairs": 256,
+   "kernels": 4,
+   "classes": [
+    "GemmUniversalStreamk"
+   ],
+   "race_types": [
+    "RAW"
+   ],
+   "verdicts": [
+    "RACE"
+   ],
+   "sass": [
+    [
+     "STG.E [R44.64+0x1000], R80",
+     "LDG.E R125, [R44.64+0x1000]"
+    ],
+    [
+     "STG.E [R44.64+0x1400], R84",
+     "LDG.E R123, [R44.64+0x1400]"
+    ],
+    [
+     "STG.E [R44.64+0x1800], R8",
+     "LDG.E R121, [R44.64+0x1800]"
+    ],
+    [
+     "STG.E [R44.64+0x1c00], R88",
+     "LDG.E R119, [R44.64+0x1c00]"
+    ],
+    [
+     "STG.E [R44.64+0x2000], R69",
+     "LDG.E R126, [R44.64+0x2000]"
+    ],
+    [
+     "STG.E [R44.64+0x2400], R73",
+     "LDG.E R124, [R44.64+0x2400]"
+    ]
+   ],
+   "parents": [
+    "main:cutlass-gemm_device_tensorop_sm89-all"
+   ],
+   "rep": {
+    "sid": "cutlass-gemm_device_tensorop_sm89-all__k032",
+    "a_pc": 24256,
+    "b_pc": 25760,
+    "frames_a": [
+     "/usr/local/cuda-13.3/include/cuda_fp16.hpp:254",
+     "include/cutlass/block_striped.h:194",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:772",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:968",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "frames_b": [
+     "/usr/local/cuda-13.3/include/cuda_fp16.h:5189",
+     "include/cutlass/functional.h:177",
+     "include/cutlass/block_striped.h:181",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:813",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:976",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "on": {
+     "verdicts": [
+      "RACE"
+     ],
+     "hb": [
+      "None"
+     ],
+     "conflict": [
+      "DR"
+     ],
+     "rt": [
+      "RAW"
+     ],
+     "syncs": [],
+     "n": 8
+    },
+    "off": {
+     "verdicts": [
+      "RACE"
+     ],
+     "hb": [
+      "None"
+     ],
+     "conflict": [
+      "DR"
+     ],
+     "rt": [
+      "RAW"
+     ],
+     "syncs": [],
+     "n": 8
+    }
+   }
+  },
+  {
+   "family": "tensorop-sm80-variants",
+   "space": "global",
+   "a": "include/cutlass/arch/memory.h:153",
+   "b": "include/cutlass/arch/memory.h:415",
+   "status": {
+    "CONFIRMED": 128
+   },
+   "pairs": 128,
+   "kernels": 4,
+   "classes": [
+    "GemmSparseUniversal"
+   ],
+   "race_types": [
+    "RAW",
+    "WAR"
+   ],
+   "verdicts": [
+    "RACE"
+   ],
+   "sass": [
+    [
+     "@P1 LDG.E.LTC128B.128 R136, [R16.64]",
+     "@P5 STG.E.128 [R28.64], R4"
+    ],
+    [
+     "@P1 LDG.E.LTC128B.128 R8, [R6.64]",
+     "STG.E.128 [R2.64], R20"
+    ],
+    [
+     "@P2 LDG.E.LTC128B.128 R140, [R168.64+0x100]",
+     "@P5 STG.E.128 [R20.64+0x100], R148"
+    ],
+    [
+     "@P2 LDG.E.LTC128B.128 R140, [R4.64]",
+     "@P5 STG.E.128 [R36.64], R20"
+    ],
+    [
+     "@P2 LDG.E.LTC128B.128 R140, [R6.64]",
+     "@P5 STG.E.128 [R34.64], R20"
+    ],
+    [
+     "@P2 LDG.E.LTC128B.128 R140, [R6.64]",
+     "@P5 STG.E.128 [R36.64], R20"
+    ]
+   ],
+   "parents": [
+    "main:cutlass-gemm_device_tensorop_sm89-all"
+   ],
+   "rep": {
+    "sid": "cutlass-gemm_device_tensorop_sm89-all__k028",
+    "a_pc": 18368,
+    "b_pc": 19184,
+    "frames_a": [
+     "include/cutlass/arch/memory.h:153",
+     "include/cutlass/epilogue/threadblock/predicated_tile_iterator.h:356",
+     "include/cutlass/epilogue/threadblock/predicated_tile_iterator.h:385",
+     "include/cutlass/epilogue/threadblock/epilogue.h:273",
+     "include/cutlass/epilogue/threadblock/epilogue.h:491",
+     "include/cutlass/epilogue/threadblock/epilogue.h:405",
+     "include/cutlass/gemm/kernel/gemm_sparse_universal.h:770",
+     "include/cutlass/gemm/kernel/gemm_sparse_universal.h:559",
+     "include/cutlass/gemm/kernel/gemm_sparse_universal.h:551",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "frames_b": [
+     "include/cutlass/arch/memory.h:415",
+     "include/cutlass/epilogue/threadblock/predicated_tile_iterator.h:447",
+     "include/cutlass/epilogue/threadblock/predicated_tile_iterator.h:481",
+     "include/cutlass/epilogue/threadblock/epilogue.h:534",
+     "include/cutlass/epilogue/threadblock/epilogue.h:405",
+     "include/cutlass/gemm/kernel/gemm_sparse_universal.h:770",
+     "include/cutlass/gemm/kernel/gemm_sparse_universal.h:559",
+     "include/cutlass/gemm/kernel/gemm_sparse_universal.h:551",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "on": {
+     "verdicts": [
+      "RACE"
+     ],
+     "hb": [
+      "None"
+     ],
+     "conflict": [
+      "DR"
+     ],
+     "rt": [
+      "RAW",
+      "WAR"
+     ],
+     "syncs": [
+      "18640",
+      "18816"
+     ],
+     "n": 8
+    },
+    "off": {
+     "verdicts": [
+      "RACE"
+     ],
+     "hb": [
+      "None"
+     ],
+     "conflict": [
+      "DR"
+     ],
+     "rt": [
+      "RAW",
+      "WAR"
+     ],
+     "syncs": [
+      "18640",
+      "18816"
+     ],
+     "n": 8
+    }
+   }
+  },
+  {
+   "family": "tensorop-sm80-variants",
+   "space": "global",
+   "a": "include/cutlass/arch/memory.h:415",
+   "b": "include/cutlass/arch/memory.h:415",
+   "status": {
+    "CONFIRMED": 128
+   },
+   "pairs": 128,
+   "kernels": 4,
+   "classes": [
+    "GemmSparseUniversal"
+   ],
+   "race_types": [
+    "WAW"
+   ],
+   "verdicts": [
+    "RACE"
+   ],
+   "sass": [
+    [
+     "@P1 STG.E.128 [R30.64], R12",
+     "@P1 STG.E.128 [R30.64], R12"
+    ],
+    [
+     "@P2 STG.E.128 [R16.64], R12",
+     "@P2 STG.E.128 [R16.64], R12"
+    ],
+    [
+     "@P2 STG.E.128 [R166.64], R152",
+     "@P2 STG.E.128 [R166.64], R152"
+    ],
+    [
+     "@P2 STG.E.128 [R20.64], R12",
+     "@P2 STG.E.128 [R20.64], R12"
+    ],
+    [
+     "@P2 STG.E.128 [R24.64], R16",
+     "@P2 STG.E.128 [R24.64], R16"
+    ],
+    [
+     "@P2 STG.E.128 [R24.64], R4",
+     "@P2 STG.E.128 [R24.64], R4"
+    ]
+   ],
+   "parents": [
+    "main:cutlass-gemm_device_tensorop_sm89-all"
+   ],
+   "rep": {
+    "sid": "cutlass-gemm_device_tensorop_sm89-all__k028",
+    "a_pc": 19184,
+    "b_pc": 19184,
+    "frames_a": [
+     "include/cutlass/arch/memory.h:415",
+     "include/cutlass/epilogue/threadblock/predicated_tile_iterator.h:447",
+     "include/cutlass/epilogue/threadblock/predicated_tile_iterator.h:481",
+     "include/cutlass/epilogue/threadblock/epilogue.h:534",
+     "include/cutlass/epilogue/threadblock/epilogue.h:405",
+     "include/cutlass/gemm/kernel/gemm_sparse_universal.h:770",
+     "include/cutlass/gemm/kernel/gemm_sparse_universal.h:559",
+     "include/cutlass/gemm/kernel/gemm_sparse_universal.h:551",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "frames_b": [
+     "include/cutlass/arch/memory.h:415",
+     "include/cutlass/epilogue/threadblock/predicated_tile_iterator.h:447",
+     "include/cutlass/epilogue/threadblock/predicated_tile_iterator.h:481",
+     "include/cutlass/epilogue/threadblock/epilogue.h:534",
+     "include/cutlass/epilogue/threadblock/epilogue.h:405",
+     "include/cutlass/gemm/kernel/gemm_sparse_universal.h:770",
+     "include/cutlass/gemm/kernel/gemm_sparse_universal.h:559",
+     "include/cutlass/gemm/kernel/gemm_sparse_universal.h:551",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "on": {
+     "verdicts": [
+      "RACE"
+     ],
+     "hb": [
+      "None"
+     ],
+     "conflict": [
+      "DR"
+     ],
+     "rt": [
+      "WAW"
+     ],
+     "syncs": [],
+     "n": 4
+    },
+    "off": {
+     "verdicts": [
+      "RACE"
+     ],
+     "hb": [
+      "None"
+     ],
+     "conflict": [
+      "DR"
+     ],
+     "rt": [
+      "WAW"
+     ],
+     "syncs": [],
+     "n": 4
+    }
+   }
+  },
+  {
+   "family": "tensorop-sm80-variants",
+   "space": "global",
+   "a": "include/cutlass/semaphore.h:106",
+   "b": "include/cutlass/semaphore.h:76",
+   "status": {
+    "CONFIRMED": 8
+   },
+   "pairs": 8,
+   "kernels": 4,
+   "classes": [
+    "GemmSparseUniversal"
+   ],
+   "race_types": [
+    "RAW",
+    "WAR"
+   ],
+   "verdicts": [
+    "SC"
+   ],
+   "sass": [
+    [
+     "LDG.E.STRONG.GPU R136, [R136.64]",
+     "STG.E.STRONG.GPU [R2.64], R207"
+    ]
+   ],
+   "parents": [
+    "main:cutlass-gemm_device_tensorop_sm89-all"
+   ],
+   "rep": {
+    "sid": "cutlass-gemm_device_tensorop_sm89-all__k028",
+    "a_pc": 15888,
+    "b_pc": 35104,
+    "frames_a": [
+     "include/cutlass/semaphore.h:76",
+     "include/cutlass/gemm/kernel/gemm_sparse_universal.h:715",
+     "include/cutlass/gemm/kernel/gemm_sparse_universal.h:559",
+     "include/cutlass/gemm/kernel/gemm_sparse_universal.h:551",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "frames_b": [
+     "include/cutlass/semaphore.h:106",
+     "include/cutlass/gemm/kernel/gemm_sparse_universal.h:793",
+     "include/cutlass/gemm/kernel/gemm_sparse_universal.h:559",
+     "include/cutlass/gemm/kernel/gemm_sparse_universal.h:551",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "on": {
+     "verdicts": [
+      "SC"
+     ],
+     "hb": [
+      "sc"
+     ],
+     "conflict": [
+      "SC"
+     ],
+     "rt": [
+      "WAR"
+     ],
+     "syncs": [],
+     "n": 4
+    },
+    "off": {
+     "verdicts": [
+      "SC"
+     ],
+     "hb": [
+      "sc"
+     ],
+     "conflict": [
+      "SC"
+     ],
+     "rt": [
+      "WAR"
+     ],
+     "syncs": [],
+     "n": 4
+    }
+   }
+  },
+  {
+   "family": "tensorop-sm80-variants",
+   "space": "global",
+   "a": "include/cutlass/barrier.h:104",
+   "b": "include/cutlass/barrier.h:124",
+   "status": {
+    "CONFIRMED": 8
+   },
+   "pairs": 8,
+   "kernels": 8,
+   "classes": [
+    "GemmUniversalStreamk"
+   ],
+   "race_types": [
+    "RAW",
+    "WAR"
+   ],
+   "verdicts": [
+    "SC"
+   ],
+   "sass": [
+    [
+     "LDG.E.STRONG.GPU R0, [R4.64]",
+     "RED.E.ADD.S32.STRONG.GPU [R2.64], R0"
+    ],
+    [
+     "LDG.E.STRONG.GPU R3, [R48.64]",
+     "RED.E.ADD.S32.STRONG.GPU [R2.64], R0"
+    ]
+   ],
+   "parents": [
+    "main:cutlass-gemm_device_tensorop_sm89-all"
+   ],
+   "rep": {
+    "sid": "cutlass-gemm_device_tensorop_sm89-all__k032",
+    "a_pc": 23104,
+    "b_pc": 25488,
+    "frames_a": [
+     "include/cutlass/barrier.h:104",
+     "include/cutlass/barrier.h:161",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:786",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:968",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "frames_b": [
+     "include/cutlass/barrier.h:124",
+     "include/cutlass/barrier.h:191",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:794",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:968",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "on": {
+     "verdicts": [
+      "SC"
+     ],
+     "hb": [
+      "sc"
+     ],
+     "conflict": [
+      "SC"
+     ],
+     "rt": [
+      "RAW",
+      "WAR"
+     ],
+     "syncs": [
+      "25280"
+     ],
+     "n": 8
+    },
+    "off": {
+     "verdicts": [
+      "SC"
+     ],
+     "hb": [
+      "sc"
+     ],
+     "conflict": [
+      "SC"
+     ],
+     "rt": [
+      "RAW",
+      "WAR"
+     ],
+     "syncs": [
+      "25280"
+     ],
+     "n": 8
+    }
+   }
+  },
+  {
+   "family": "tensorop-sm80-variants",
+   "space": "global",
+   "a": "include/cutlass/barrier.h:104",
+   "b": "include/cutlass/barrier.h:175",
+   "status": {
+    "CONFIRMED": 8
+   },
+   "pairs": 8,
+   "kernels": 8,
+   "classes": [
+    "GemmUniversalStreamk"
+   ],
+   "race_types": [
+    "RAW",
+    "WAR"
+   ],
+   "verdicts": [
+    "SC"
+   ],
+   "sass": [
+    [
+     "LDG.E.STRONG.GPU R0, [R4.64]",
+     "ATOMG.E.CAS.STRONG.GPU PT, R0, [R4], R6, R7"
+    ],
+    [
+     "LDG.E.STRONG.GPU R3, [R48.64]",
+     "ATOMG.E.CAS.STRONG.GPU PT, R3, [R46], R2, R3"
+    ]
+   ],
+   "parents": [
+    "main:cutlass-gemm_device_tensorop_sm89-all"
+   ],
+   "rep": {
+    "sid": "cutlass-gemm_device_tensorop_sm89-all__k032",
+    "a_pc": 23104,
+    "b_pc": 25664,
+    "frames_a": [
+     "include/cutlass/barrier.h:104",
+     "include/cutlass/barrier.h:161",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:786",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:968",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "frames_b": [
+     "/usr/local/cuda-13.3/include/device_atomic_functions.hpp:202",
+     "include/cutlass/barrier.h:175",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:809",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:976",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1081",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1155",
+     "include/cutlass/gemm/kernel/gemm_universal_streamk.h:1127",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "on": {
+     "verdicts": [
+      "SC"
+     ],
+     "hb": [
+      "sc"
+     ],
+     "conflict": [
+      "SC"
+     ],
+     "rt": [
+      "RAW",
+      "WAR"
+     ],
+     "syncs": [],
+     "n": 8
+    },
+    "off": {
+     "verdicts": [
+      "SC"
+     ],
+     "hb": [
+      "sc"
+     ],
+     "conflict": [
+      "SC"
+     ],
+     "rt": [
+      "RAW",
+      "WAR"
+     ],
+     "syncs": [],
+     "n": 8
+    }
+   }
+  },
+  {
+   "family": "tensorop-sm80-variants",
+   "space": "global",
+   "a": "include/cutlass/semaphore.h:106",
+   "b": "include/cutlass/semaphore.h:106",
+   "status": {
+    "CONFIRMED": 4
+   },
+   "pairs": 4,
+   "kernels": 4,
+   "classes": [
+    "GemmSparseUniversal"
+   ],
+   "race_types": [
+    "WAW"
+   ],
+   "verdicts": [
+    "SC"
+   ],
+   "sass": [
+    [
+     "STG.E.STRONG.GPU [R2.64], R207",
+     "STG.E.STRONG.GPU [R2.64], R207"
+    ]
+   ],
+   "parents": [
+    "main:cutlass-gemm_device_tensorop_sm89-all"
+   ],
+   "rep": {
+    "sid": "cutlass-gemm_device_tensorop_sm89-all__k028",
+    "a_pc": 35104,
+    "b_pc": 35104,
+    "frames_a": [
+     "include/cutlass/semaphore.h:106",
+     "include/cutlass/gemm/kernel/gemm_sparse_universal.h:793",
+     "include/cutlass/gemm/kernel/gemm_sparse_universal.h:559",
+     "include/cutlass/gemm/kernel/gemm_sparse_universal.h:551",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "frames_b": [
+     "include/cutlass/semaphore.h:106",
+     "include/cutlass/gemm/kernel/gemm_sparse_universal.h:793",
+     "include/cutlass/gemm/kernel/gemm_sparse_universal.h:559",
+     "include/cutlass/gemm/kernel/gemm_sparse_universal.h:551",
+     "include/cutlass/device_kernel.h:99"
+    ],
+    "on": {
+     "verdicts": [
+      "SC"
+     ],
+     "hb": [
+      "sc"
+     ],
+     "conflict": [
+      "SC"
+     ],
+     "rt": [
+      "WAW"
+     ],
+     "syncs": [],
+     "n": 4
+    },
+    "off": {
+     "verdicts": [
+      "SC"
+     ],
+     "hb": [
+      "sc"
+     ],
+     "conflict": [
+      "SC"
+     ],
+     "rt": [
+      "WAW"
+     ],
+     "syncs": [],
+     "n": 4
+    }
+   }
+  }
+ ]
+}
