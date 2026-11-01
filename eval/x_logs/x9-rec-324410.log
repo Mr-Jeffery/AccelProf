@@ -1,0 +1,9 @@
+X9 env: host=c75 job=324410 2026-11-01T00:52:10-04:00 runtime=f551ca0 branch_head=763bc5c libsanalyzer=5a20fd14ab6c6806 (/home/fzheng4/AccelProf/build/sanalyzer/lib/libsanalyzer.so) collector=b746b4dd23e90f46 fatbin=a2d7368bc1c61986 late=e96343121c74ca0a
+X9 rec: flavor=main gpu=[NVIDIA GeForce RTX 4060 Ti, 8.9, 580.82.07;] idx=0 nproc=16 shards=16 cpu=[AMD EPYC 7302P 16-Core Processor] mem=125G
+=== 2026-11-01T00:52:10-04:00 collect cutlass-gemm_device_tensorop_f32_sm80-SM80_Device_Gemm_f16t_f16n_f32t_tensor_op_f32_128x256x32_64x64x32 flavor=main
+  collect rc=0 wall=552s maxrss_kb=1157288 (collect: 1 programs -> /mnt/beegfs/fzheng4/cutlass/traces/main)
+postmeta: /mnt/beegfs/fzheng4/cutlass/traces/main/cutlass-gemm_device_tensorop_f32_sm80-SM80_Device_Gemm_f16t_f16n_f32t_tensor_op_f32_128x256x32_64x64x32/meta.json hb_shards=16 libsanalyzer=5a20fd14ab6c6806 scope_present=True
+  kernel JSONs: 24
+=== 2026-11-01T01:01:23-04:00 racecheck cutlass-gemm_device_tensorop_f32_sm80-SM80_Device_Gemm_f16t_f16n_f32t_tensor_op_f32_128x256x32_64x64x32: /mnt/beegfs/fzheng4/cutlass/build/test/unit/gemm/device/cutlass_test_unit_gemm_device_tensorop_f32_sm80 --gtest_filter=SM80_Device_Gemm_f16t_f16n_f32t_tensor_op_f32.128x256x32_64x64x32
+  racecheck # exit 0 wall=3s ========= RACECHECK SUMMARY: 0 hazards displayed (0 errors, 0 warnings)
+=== 2026-11-01T01:01:26-04:00 done
