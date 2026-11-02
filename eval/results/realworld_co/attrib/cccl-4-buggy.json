@@ -1,0 +1,429 @@
+{
+ "id": "cccl-4-buggy",
+ "target": "cccl-4",
+ "exe": "/mnt/beegfs/fzheng4/realworld_t21b/build/cccl-4/buggy/driver",
+ "cuda_home": "/usr/local/cuda-13.4",
+ "n_cubins": 1,
+ "n_dots": 1,
+ "oracle_kernel_substr": "decoupled_look_back_kernel",
+ "spec_found": true,
+ "modes": {
+  "collector-only": {
+   "n_kernel_jsons": 2,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "void init_kernel<cub::CUB_300100_SM_890::ScanTileState<unsigned int, true> >(cub::CUB_300100_SM_890::ScanTileState<unsigned int, true>, int)",
+     "mangled": "_Z11init_kernelIN3cub17CUB_300100_SM_89013ScanTileStateIjLb1EEEEvT_i",
+     "dot": "driver_buggy.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 2,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_1.json",
+     "name": "void decoupled_look_back_kernel<unsigned int>(cub::CUB_300100_SM_890::ScanTileState<unsigned int, cub::CUB_300100_SM_890::detail::is_primitive<unsigned int>::value>, unsigned int*)",
+     "mangled": "_Z26decoupled_look_back_kernelIjEvN3cub17CUB_300100_SM_89013ScanTileStateIT_Xsr3cub17CUB_300100_SM_8906detail12is_primitiveIS3_EE5valueEEEPS3_",
+     "dot": "driver_buggy.sm_89.dot",
+     "summary": {
+      "races": 1,
+      "sc": 7,
+      "ordered": 3,
+      "skipped": 19,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 1,
+   "n_race": 1,
+   "n_sc": 4,
+   "reports": [
+    {
+     "mode": "collector-only",
+     "kernel": "void decoupled_look_back_kernel<unsigned int>(cub::CUB_300100_SM_890::ScanTileState<unsigned int, cub::CUB_300100_SM_890::detail::is_primitive<unsigned int>::value>, unsigned int*)",
+     "mangled": "_Z26decoupled_look_back_kernelIjEvN3cub17CUB_300100_SM_89013ScanTileStateIT_Xsr3cub17CUB_300100_SM_8906detail12is_primitiveIS3_EE5valueEEEPS3_",
+     "dot": "driver_buggy.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 80,
+     "b_pc": 2400,
+     "a_op": "LDG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-4/driver_buggy.cu",
+       "line": 60
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-4/driver_buggy.cu",
+       "line": 85
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void decoupled_look_back_kernel<unsigned int>(cub::CUB_300100_SM_890::ScanTileState<unsigned int, cub::CUB_300100_SM_890::detail::is_primitive<unsigned int>::value>, unsigned int*)",
+     "mangled": "_Z26decoupled_look_back_kernelIjEvN3cub17CUB_300100_SM_89013ScanTileStateIT_Xsr3cub17CUB_300100_SM_8906detail12is_primitiveIS3_EE5valueEEEPS3_",
+     "dot": "driver_buggy.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 320,
+     "b_pc": 496,
+     "a_op": "ST.E.64.STRONG.GPU",
+     "b_op": "LD.E.64.STRONG.GPU",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-4/buggy/src/cub/cub/detail/strong_store.cuh",
+       "line": 90
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-4/buggy/src/cub/cub/agent/single_pass_scan_operators.cuh",
+       "line": 708
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-4/buggy/src/cub/cub/agent/single_pass_scan_operators.cuh",
+       "line": 769
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-4/buggy/src/cub/cub/agent/single_pass_scan_operators.cuh",
+       "line": 1283
+      },
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-4/driver_buggy.cu",
+       "line": 80
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-4/buggy/src/cub/cub/detail/strong_load.cuh",
+       "line": 100
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-4/buggy/src/cub/cub/agent/single_pass_scan_operators.cuh",
+       "line": 722
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-4/buggy/src/cub/cub/agent/single_pass_scan_operators.cuh",
+       "line": 782
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-4/buggy/src/cub/cub/agent/single_pass_scan_operators.cuh",
+       "line": 1265
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-4/buggy/src/cub/cub/agent/single_pass_scan_operators.cuh",
+       "line": 1292
+      },
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-4/driver_buggy.cu",
+       "line": 80
+      }
+     ],
+     "verdict": "SC",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": "sc",
+     "hb_chain": null,
+     "matrix_class": "sc",
+     "conflict_class": "SC",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json",
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void decoupled_look_back_kernel<unsigned int>(cub::CUB_300100_SM_890::ScanTileState<unsigned int, cub::CUB_300100_SM_890::detail::is_primitive<unsigned int>::value>, unsigned int*)",
+     "mangled": "_Z26decoupled_look_back_kernelIjEvN3cub17CUB_300100_SM_89013ScanTileStateIT_Xsr3cub17CUB_300100_SM_8906detail12is_primitiveIS3_EE5valueEEEPS3_",
+     "dot": "driver_buggy.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 496,
+     "b_pc": 2352,
+     "a_op": "LD.E.64.STRONG.GPU",
+     "b_op": "ST.E.64.STRONG.GPU",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-4/buggy/src/cub/cub/detail/strong_load.cuh",
+       "line": 100
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-4/buggy/src/cub/cub/agent/single_pass_scan_operators.cuh",
+       "line": 722
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-4/buggy/src/cub/cub/agent/single_pass_scan_operators.cuh",
+       "line": 782
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-4/buggy/src/cub/cub/agent/single_pass_scan_operators.cuh",
+       "line": 1265
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-4/buggy/src/cub/cub/agent/single_pass_scan_operators.cuh",
+       "line": 1292
+      },
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-4/driver_buggy.cu",
+       "line": 80
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-4/buggy/src/cub/cub/detail/strong_store.cuh",
+       "line": 90
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-4/buggy/src/cub/cub/agent/single_pass_scan_operators.cuh",
+       "line": 708
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-4/buggy/src/cub/cub/agent/single_pass_scan_operators.cuh",
+       "line": 756
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-4/buggy/src/cub/cub/agent/single_pass_scan_operators.cuh",
+       "line": 1311
+      },
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-4/driver_buggy.cu",
+       "line": 80
+      }
+     ],
+     "verdict": "SC",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": "sc",
+     "hb_chain": null,
+     "matrix_class": "sc",
+     "conflict_class": "SC",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void decoupled_look_back_kernel<unsigned int>(cub::CUB_300100_SM_890::ScanTileState<unsigned int, cub::CUB_300100_SM_890::detail::is_primitive<unsigned int>::value>, unsigned int*)",
+     "mangled": "_Z26decoupled_look_back_kernelIjEvN3cub17CUB_300100_SM_89013ScanTileStateIT_Xsr3cub17CUB_300100_SM_8906detail12is_primitiveIS3_EE5valueEEEPS3_",
+     "dot": "driver_buggy.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 496,
+     "b_pc": 3296,
+     "a_op": "LD.E.64.STRONG.GPU",
+     "b_op": "ST.E.64.STRONG.GPU",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-4/buggy/src/cub/cub/detail/strong_load.cuh",
+       "line": 100
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-4/buggy/src/cub/cub/agent/single_pass_scan_operators.cuh",
+       "line": 722
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-4/buggy/src/cub/cub/agent/single_pass_scan_operators.cuh",
+       "line": 782
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-4/buggy/src/cub/cub/agent/single_pass_scan_operators.cuh",
+       "line": 1265
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-4/buggy/src/cub/cub/agent/single_pass_scan_operators.cuh",
+       "line": 1292
+      },
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-4/driver_buggy.cu",
+       "line": 80
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-4/buggy/src/cub/cub/detail/strong_store.cuh",
+       "line": 90
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-4/buggy/src/cub/cub/agent/single_pass_scan_operators.cuh",
+       "line": 708
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-4/buggy/src/cub/cub/agent/single_pass_scan_operators.cuh",
+       "line": 756
+      },
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-4/driver_buggy.cu",
+       "line": 67
+      }
+     ],
+     "verdict": "SC",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": "sc",
+     "hb_chain": null,
+     "matrix_class": "sc",
+     "conflict_class": "SC",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json",
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void decoupled_look_back_kernel<unsigned int>(cub::CUB_300100_SM_890::ScanTileState<unsigned int, cub::CUB_300100_SM_890::detail::is_primitive<unsigned int>::value>, unsigned int*)",
+     "mangled": "_Z26decoupled_look_back_kernelIjEvN3cub17CUB_300100_SM_89013ScanTileStateIT_Xsr3cub17CUB_300100_SM_8906detail12is_primitiveIS3_EE5valueEEEPS3_",
+     "dot": "driver_buggy.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 1520,
+     "b_pc": 2352,
+     "a_op": "LD.E.64.STRONG.GPU",
+     "b_op": "ST.E.64.STRONG.GPU",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-4/buggy/src/cub/cub/detail/strong_load.cuh",
+       "line": 100
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-4/buggy/src/cub/cub/agent/single_pass_scan_operators.cuh",
+       "line": 722
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-4/buggy/src/cub/cub/agent/single_pass_scan_operators.cuh",
+       "line": 782
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-4/buggy/src/cub/cub/agent/single_pass_scan_operators.cuh",
+       "line": 1265
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-4/buggy/src/cub/cub/agent/single_pass_scan_operators.cuh",
+       "line": 1303
+      },
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-4/driver_buggy.cu",
+       "line": 80
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-4/buggy/src/cub/cub/detail/strong_store.cuh",
+       "line": 90
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-4/buggy/src/cub/cub/agent/single_pass_scan_operators.cuh",
+       "line": 708
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-4/buggy/src/cub/cub/agent/single_pass_scan_operators.cuh",
+       "line": 756
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/cccl-4/buggy/src/cub/cub/agent/single_pass_scan_operators.cuh",
+       "line": 1311
+      },
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-4/driver_buggy.cu",
+       "line": 80
+      }
+     ],
+     "verdict": "SC",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": "sc",
+     "hb_chain": null,
+     "matrix_class": "sc",
+     "conflict_class": "SC",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_1.json",
+      "kernel_1.json"
+     ]
+    }
+   ],
+   "site_verdicts": [
+    {
+     "current_pc": 2400,
+     "current_pc_hex": "0x960",
+     "ancient_pc": 80,
+     "ancient_pc_hex": "0x50",
+     "opcodes": [
+      "STG.E",
+      "LDG.E"
+     ],
+     "space": "global",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 51,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void decoupled_look_back_kernel<unsigned int>(cub::CUB_300100_SM_890::ScanTileState<unsigned int, cub::CUB_300100_SM_890::detail::is_primitive<unsigned int>::value>, unsigned int*)",
+     "mangled": "_Z26decoupled_look_back_kernelIjEvN3cub17CUB_300100_SM_89013ScanTileStateIT_Xsr3cub17CUB_300100_SM_8906detail12is_primitiveIS3_EE5valueEEEPS3_",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-4/driver_buggy.cu",
+       "line": 85
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/home/fzheng4/wt-t21b/eval/realworld/targets/cccl-4/driver_buggy.cu",
+       "line": 60
+      }
+     ]
+    }
+   ],
+   "site_skipped": {
+    "read_read": 1,
+    "intra_thread_only": 1
+   }
+  }
+ },
+ "dots_checked": 1,
+ "dots_regenerated_equal": 1
+}

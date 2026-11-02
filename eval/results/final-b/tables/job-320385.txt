@@ -1,0 +1,141 @@
+host=c22 W=/home/fzheng4/wt-x1b HEAD=c0d110fae562 dirty=0 2026-10-24T22:27:15-04:00
+== X1b: sandbox /home/fzheng4/x1b/tables_sandbox_b
+== X1b trace view for classify_fp_causes (/mnt/beegfs/fzheng4/cuvein_traces/final-2026-11-view; long ids: that mode from its long store), X1's code
+view: 4725 ids; from the 5,400 s stores: vector-clock 9, scalar-clock 2; from the 24 h stores: vector-clock 10, scalar-clock 8
+== X1b classify_endpoints
+47128 disagreement report-rows -> /home/fzheng4/x1b/tables_sandbox_b/eval/results/baselines-disagreements.csv
+classify_endpoints rc=0
+== X1b classify_fp_causes
+
+=== vector-clock: reports per cause
+  P3  RC4-samepc-waw        16 reports in  16 programs
+  P4  other                  2 reports in   2 programs
+  P5  other                  3 reports in   1 programs
+  P6  RC4-samepc-waw         8 reports in   1 programs
+  P6  other                 36 reports in   1 programs
+=== vector-clock: FP programs by the set of causes they contain
+  P3   16 programs : RC4-samepc-waw
+  P4    2 programs : other
+  P5    1 programs : other
+  P6    1 programs : RC4-samepc-waw + other
+
+=== scalar-clock: reports per cause
+  P3  RC4-samepc-waw        16 reports in  16 programs
+  P4  RC2-latent             2 reports in   2 programs
+  P6  RC2-latent            36 reports in   1 programs
+  P6  RC4-samepc-waw         8 reports in   1 programs
+=== scalar-clock: FP programs by the set of causes they contain
+  P3   16 programs : RC4-samepc-waw
+  P4    2 programs : RC2-latent
+  P6    1 programs : RC2-latent + RC4-samepc-waw
+
+127 reports -> /home/fzheng4/x1b/tables_sandbox_b/eval/results/baselines-fp-causes.csv
+classify_fp_causes rc=0
+== X1b revision pin (label final-2026-11) -> /home/fzheng4/wt-x1b/eval/results/final-b/tables
+label: final-2026-11
+recorded: 2026-10-24T22:28:34-04:00
+HEAD: f551ca00947ea1dbd31f31dc59a0a66c3477c59b (cuVein)
+working-tree diff (python/ sanalyzer/ bin/): 0 lines, sha256[:16]=e3b0c44298fc1c14 -> /home/fzheng4/wt-x1b/eval/results/final-b/tables/cuvein_rev/final-2026-11.diff
+modified detector files:
+analyzer libs:
+  2026-10-22 01:57:48  sha256[:16]=5a20fd14ab6c6806  build/sanalyzer/lib/libsanalyzer.so
+  2026-10-22 01:57:49  sha256[:16]=b746b4dd23e90f46  lib/libcompute_sanitizer.so
+knobs: CUVEIN_STRONG_LDST=<unset: generic> CUVEIN_BARRIER_PASS=<unset: on> BASELINE_MODES=<unset: vector-clock,scalar-clock>
+OK: analyzer lib newer than every sanalyzer/ source
+cuvein_rev rc=0
+== X1b make_tables
+wrote /home/fzheng4/x1b/tables_sandbox_b/eval/BASELINES_SUMMARY.md
+wrote /home/fzheng4/x1b/tables_sandbox_b/eval/BASELINES.md (43112 run-keys, tools=['cuvein', 'hirace', 'iguard', 'initcheck', 'memcheck', 'racecheck', 'sanitizer', 'supercollider', 'synccheck'])
+make_tables rc=0
+/home/fzheng4/wt-x1b/eval/results/final-b/tables:
+total 10032
+drwxr-xr-x 3 fzheng4 ncsu     191 Oct 24 22:28 .
+drwxr-xr-x 6 fzheng4 ncsu    8192 Oct 24 22:28 ..
+-rw-r--r-- 1 fzheng4 ncsu 1339595 Oct 24 22:28 BASELINES.md
+-rw-r--r-- 1 fzheng4 ncsu   28259 Oct 24 22:28 BASELINES_SUMMARY.md
+-rw-r--r-- 1 fzheng4 ncsu 8861471 Oct 24 22:28 baselines-disagreements.csv
+-rw-r--r-- 1 fzheng4 ncsu   18991 Oct 24 22:28 baselines-fp-causes.csv
+drwxr-xr-x 2 fzheng4 ncsu      40 Oct 24 22:28 cuvein_rev
+-rw-r--r-- 1 fzheng4 ncsu     665 Oct 24 22:28 cuvein_rev.status
+
+/home/fzheng4/wt-x1b/eval/results/final-b/tables/cuvein_rev:
+total 0
+drwxr-xr-x 2 fzheng4 ncsu  40 Oct 24 22:28 .
+drwxr-xr-x 3 fzheng4 ncsu 191 Oct 24 22:28 ..
+-rw-r--r-- 1 fzheng4 ncsu   0 Oct 24 22:28 final-2026-11.diff
+== X1 method check: sandbox /home/fzheng4/x1b/tables_sandbox_x1 with X1's own inputs
+X1 classify_endpoints rc=0
+X1 classify_fp_causes rc=0
+X1 make_tables rc=0
+X1 results/baselines-disagreements.csv: DIFFERS from the committed file
+1a2,3643
+> 1dconv,cuvein/vector-clock,CLEAN,iguard,RACE,unresolved,none,unresolved,cuvein/vector-clock (label=CLEAN),(no confirmation report captured)
+> 1dconv,cuvein/scalar-clock,CLEAN,iguard,RACE,unresolved,none,unresolved,cuvein/scalar-clock (label=CLEAN),(no confirmation report captured)
+> 1dconv,iguard,RACE,racecheck,CLEAN,unresolved,none,unresolved,racecheck (label=CLEAN),(no confirmation report captured)
+> race_interblock_lock-no-tf_waw,cuvein/vector-clock,CLEAN,iguard,RACE,unresolved,none,unresolved,iguard (label=RACE),(no confirmation report captured)
+> race_interblock_lock-no-tf_waw,cuvein/scalar-clock,CLEAN,iguard,RACE,unresolved,none,unresolved,iguard (label=RACE),(no confirmation report captured)
+> race_interblock_lock-no-tf_waw,iguard,RACE,racecheck,CLEAN,unresolved,none,unresolved,iguard (label=RACE),(no confirmation report captured)
+> BFS_CUDA_E_Data_IntType_ReadModifyWrite_Persist_Atomic_NoBoundsBug_NoLivelockBug_Determ_NoUninitializedBug_NoFieldBug_NoOverflowBug,cuvein/vector-clock,CLEAN,iguard,RACE,unresolved,none,unresolved,cuvein/vector-clock (label=CLEAN),(no confirmation report captured)
+> BFS_CUDA_E_Data_IntType_ReadModifyWrite_Persist_Atomic_NoBoundsBug_NoLivelockBug_Determ_NoUninitializedBug_NoFieldBug_NoOverflowBug,cuvein/scalar-clock,CLEAN,iguard,RACE,unresolved,none,unresolved,cuvein/scalar-clock (label=CLEAN),(no confirmation report captured)
+> BFS_CUDA_E_Data_IntType_ReadModifyWrite_Persist_Atomic_NoBoundsBug_NoLivelockBug_Determ_NoUninitializedBug_NoFieldBug_NoOverflowBug,iguard,RACE,racecheck,CLEAN,unresolved,none,unresolved,racecheck (label=CLEAN),(no confirmation report captured)
+> BFS_CUDA_E_Data_IntType_ReadWrite_Persist_Atomic_NoBoundsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug,cuvein/vector-clock,CLEAN,iguard,RACE,unresolved,none,unresolved,cuvein/vector-clock (label=CLEAN),(no confirmation report captured)
+> BFS_CUDA_E_Data_IntType_ReadWrite_Persist_Atomic_NoBoundsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug,cuvein/scalar-clock,CLEAN,iguard,RACE,unresolved,none,unresolved,cuvein/scalar-clock (label=CLEAN),(no confirmation report captured)
+> BFS_CUDA_E_Data_IntType_ReadWrite_Persist_Atomic_NoBoundsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug,iguard,RACE,racecheck,CLEAN,unresolved,none,unresolved,racecheck (label=CLEAN),(no confirmation report captured)
+> BFS_CUDA_E_Topo_NonDeterm_IntType_ReadModifyWrite_NonPersist_Atomic_NoExcessThreadsBug_NoLivelockBug_NoFieldBug_NoOverflowBug,cuvein/vector-clock,CLEAN,iguard,RACE,unresolved,none,unresolved,cuvein/vector-clock (label=CLEAN),(no confirmation report captured)
+> BFS_CUDA_E_Topo_NonDeterm_IntType_ReadModifyWrite_NonPersist_Atomic_NoExcessThreadsBug_NoLivelockBug_NoFieldBug_NoOverflowBug,cuvein/scalar-clock,CLEAN,iguard,RACE,unresolved,none,unresolved,cuvein/scalar-clock (label=CLEAN),(no confirmation report captured)
+> BFS_CUDA_E_Topo_NonDeterm_IntType_ReadModifyWrite_NonPersist_Atomic_NoExcessThreadsBug_NoLivelockBug_NoFieldBug_NoOverflowBug,iguard,RACE,racecheck,CLEAN,unresolved,none,unresolved,racecheck (label=CLEAN),(no confirmation report captured)
+> BFS_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_Atomic_NoBoundsBug_NoLivelockBug_NoFieldBug_NoOverflowBug,cuvein/vector-clock,CLEAN,iguard,RACE,unresolved,none,unresolved,cuvein/vector-clock (label=CLEAN),(no confirmation report captured)
+> BFS_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_Atomic_NoBoundsBug_NoLivelockBug_NoFieldBug_NoOverflowBug,cuvein/scalar-clock,CLEAN,iguard,RACE,unresolved,none,unresolved,cuvein/scalar-clock (label=CLEAN),(no confirmation report captured)
+> BFS_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_Atomic_NoBoundsBug_NoLivelockBug_NoFieldBug_NoOverflowBug,iguard,RACE,racecheck,CLEAN,unresolved,none,unresolved,racecheck (label=CLEAN),(no confirmation report captured)
+> CC_CUDA_E_Topo_NonDeterm_IntType_ReadModifyWrite_NonPersist_CudaAtomic_NoExcessThreadsBug_NoLivelockBug_NoFieldBug,cuvein/vector-clock,CLEAN,iguard,RACE,unresolved,none,unresolved,cuvein/vector-clock (label=CLEAN),(no confirmation report captured)
+> CC_CUDA_E_Topo_NonDeterm_IntType_ReadModifyWrite_NonPersist_CudaAtomic_NoExcessThreadsBug_NoLivelockBug_NoFieldBug,cuvein/scalar-clock,CLEAN,iguard,RACE,unresolved,none,unresolved,cuvein/scalar-clock (label=CLEAN),(no confirmation report captured)
+> CC_CUDA_E_Topo_NonDeterm_IntType_ReadModifyWrite_NonPersist_CudaAtomic_NoExcessThreadsBug_NoLivelockBug_NoFieldBug,iguard,RACE,racecheck,CLEAN,unresolved,none,unresolved,racecheck (label=CLEAN),(no confirmation report captured)
+> graph-connectivity,cuvein/vector-clock,RACE,racecheck,CLEAN,weak-vs-weak,fence-chain,racecheck (PTX=CLEAN),cuvein/vector-clock (label=RACE),shared:0x100-0x5d0:WAW
+> graph-connectivity,cuvein/vector-clock,RACE,racecheck,CLEAN,weak-vs-weak,none,cuvein/vector-clock (PTX=RACE),cuvein/vector-clock (label=RACE),global:0x160-0x250:WAR
+> graph-connectivity,cuvein/vector-clock,RACE,racecheck,CLEAN,weak-vs-weak,none,cuvein/vector-clock (PTX=RACE),cuvein/vector-clock (label=RACE),global:0x160-0x3f0:WAR
+> graph-connectivity,cuvein/vector-clock,RACE,racecheck,CLEAN,weak-vs-weak,none,cuvein/vector-clock (PTX=RACE),cuvein/vector-clock (label=RACE),global:0x160-0x400:WAR
+> graph-connectivity,cuvein/vector-clock,RACE,racecheck,CLEAN,weak-vs-weak,fence-chain,racecheck (PTX=CLEAN),cuvein/vector-clock (label=RACE),shared:0x3e0-0x5c0:WAW
+> graph-connectivity,cuvein/vector-clock,RACE,racecheck,CLEAN,weak-vs-weak,fence-chain,racecheck (PTX=CLEAN),cuvein/vector-clock (label=RACE),global:0x3f0-0x5d0:WAW
+> graph-connectivity,cuvein/vector-clock,RACE,racecheck,CLEAN,weak-vs-weak,fence-chain,racecheck (PTX=CLEAN),cuvein/vector-clock (label=RACE),shared:0x540-0x5c0:WAW
+> graph-connectivity,cuvein/vector-clock,RACE,racecheck,CLEAN,weak-vs-weak,fence-chain,racecheck (PTX=CLEAN),cuvein/vector-clock (label=RACE),global:0x550-0x5d0:WAW
+X1 results/baselines-fp-causes.csv: reproduced byte for byte
+X1 BASELINES.md: DIFFERS from the committed file
+5671,7670c5671,7670
+< | conditional_edge_neighbor | cuvein/vector-clock | CLEAN | iguard | RACE | unresolved | none | unresolved | cuvein/vector-clock (label=CLEAN) |
+< | conditional_edge_neighbor | cuvein/scalar-clock | CLEAN | iguard | RACE | unresolved | none | unresolved | cuvein/scalar-clock (label=CLEAN) |
+< | conditional_edge_neighbor | hirace | CLEAN | iguard | RACE | unresolved | none | unresolved | hirace (label=CLEAN) |
+< | conditional_edge_neighbor | iguard | RACE | racecheck | CLEAN | unresolved | none | unresolved | racecheck (label=CLEAN) |
+< | conditional_edge_neighbor_boundsBug_cond_guardBug | cuvein/vector-clock | RACE | racecheck | CLEAN | weak-vs-weak | none | cuvein/vector-clock (PTX=RACE) | no-label |
+< | conditional_edge_neighbor_boundsBug_cond_guardBug | cuvein/scalar-clock | RACE | racecheck | CLEAN | weak-vs-weak | none | cuvein/scalar-clock (PTX=RACE) | no-label |
+< | conditional_edge_neighbor_boundsBug_cond_guardBug | hirace | RACE | racecheck | CLEAN | unresolved | none | unresolved | no-label |
+< | conditional_edge_neighbor_boundsBug_cond_guardBug | iguard | RACE | racecheck | CLEAN | unresolved | none | unresolved | no-label |
+< | conditional_edge_neighbor_boundsBug_guardBug_atomicBug | cuvein/vector-clock | RACE | racecheck | CLEAN | weak-vs-weak | none | cuvein/vector-clock (PTX=RACE) | no-label |
+< | conditional_edge_neighbor_boundsBug_guardBug_atomicBug | cuvein/vector-clock | RACE | racecheck | CLEAN | weak-vs-weak | none | cuvein/vector-clock (PTX=RACE) | no-label |
+< | conditional_edge_neighbor_boundsBug_guardBug_atomicBug | cuvein/scalar-clock | RACE | racecheck | CLEAN | weak-vs-weak | none | cuvein/scalar-clock (PTX=RACE) | no-label |
+< | conditional_edge_neighbor_boundsBug_guardBug_atomicBug | cuvein/scalar-clock | RACE | racecheck | CLEAN | weak-vs-weak | none | cuvein/scalar-clock (PTX=RACE) | no-label |
+< | conditional_edge_neighbor_boundsBug_guardBug_atomicBug | hirace | RACE | racecheck | CLEAN | unresolved | none | unresolved | no-label |
+< | conditional_edge_neighbor_boundsBug_guardBug_atomicBug | iguard | RACE | racecheck | CLEAN | unresolved | none | unresolved | no-label |
+< | conditional_edge_neighbor_boundsBug_last_atomicBug | cuvein/vector-clock | RACE | racecheck | CLEAN | weak-vs-weak | none | cuvein/vector-clock (PTX=RACE) | no-label |
+< | conditional_edge_neighbor_boundsBug_last_atomicBug | cuvein/vector-clock | RACE | racecheck | CLEAN | weak-vs-weak | none | cuvein/vector-clock (PTX=RACE) | no-label |
+< | conditional_edge_neighbor_boundsBug_last_atomicBug | cuvein/scalar-clock | RACE | racecheck | CLEAN | weak-vs-weak | none | cuvein/scalar-clock (PTX=RACE) | no-label |
+< | conditional_edge_neighbor_boundsBug_last_atomicBug | cuvein/scalar-clock | RACE | racecheck | CLEAN | weak-vs-weak | none | cuvein/scalar-clock (PTX=RACE) | no-label |
+< | conditional_edge_neighbor_boundsBug_last_atomicBug | hirace | RACE | racecheck | CLEAN | unresolved | none | unresolved | no-label |
+< | conditional_edge_neighbor_boundsBug_last_atomicBug | iguard | RACE | racecheck | CLEAN | unresolved | none | unresolved | no-label |
+< | conditional_edge_neighbor_boundsBug_last_cond_atomicBug | cuvein/vector-clock | RACE | racecheck | CLEAN | weak-vs-weak | none | cuvein/vector-clock (PTX=RACE) | no-label |
+< | conditional_edge_neighbor_boundsBug_last_cond_atomicBug | cuvein/vector-clock | RACE | racecheck | CLEAN | weak-vs-weak | none | cuvein/vector-clock (PTX=RACE) | no-label |
+< | conditional_edge_neighbor_boundsBug_last_cond_atomicBug | cuvein/scalar-clock | RACE | racecheck | CLEAN | weak-vs-weak | none | cuvein/scalar-clock (PTX=RACE) | no-label |
+< | conditional_edge_neighbor_boundsBug_last_cond_atomicBug | cuvein/scalar-clock | RACE | racecheck | CLEAN | weak-vs-weak | none | cuvein/scalar-clock (PTX=RACE) | no-label |
+< | conditional_edge_neighbor_boundsBug_last_cond_atomicBug | hirace | RACE | racecheck | CLEAN | unresolved | none | unresolved | no-label |
+< | conditional_edge_neighbor_boundsBug_last_cond_atomicBug | iguard | RACE | racecheck | CLEAN | unresolved | none | unresolved | no-label |
+< | conditional_edge_neighbor_boundsBug_last_guardBug | cuvein/vector-clock | RACE | racecheck | CLEAN | weak-vs-weak | none | cuvein/vector-clock (PTX=RACE) | no-label |
+< | conditional_edge_neighbor_boundsBug_last_guardBug | cuvein/scalar-clock | RACE | racecheck | CLEAN | weak-vs-weak | none | cuvein/scalar-clock (PTX=RACE) | no-label |
+< | conditional_edge_neighbor_boundsBug_last_guardBug | hirace | RACE | racecheck | CLEAN | unresolved | none | unresolved | no-label |
+X1 BASELINES_SUMMARY.md: reproduced byte for byte
+== X1's files and the other tools
+other tools' CSVs: before == after (209 files)
+equal to final-b/merged/other_tools.sha256.after
+tracked X1 files changed: 0
+?? eval/baselines/setup/final_b_compare_tables.py
+?? eval/baselines/setup/p_final_b_tables.sh
+?? eval/results/final-b/tables/
+== done 2026-10-24T22:29:44-04:00

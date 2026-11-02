@@ -1,0 +1,93 @@
+## coverage_verdicts.md
+| suite | mode | ids | RACE | CLEAN | TIMEOUT | ERROR |
+|---|---|---|---|---|---|---|
+| P1 | vector-clock | 400 | 200 | 200 | 0 | 0 |
+| P1 | scalar-clock | 400 | 200 | 200 | 0 | 0 |
+| P3 | vector-clock | 60 | 16 | 44 | 0 | 0 |
+| P3 | scalar-clock | 60 | 16 | 44 | 0 | 0 |
+| P4 | vector-clock | 28 | 16 | 12 | 0 | 0 |
+| P4 | scalar-clock | 28 | 16 | 12 | 0 | 0 |
+| P5 | vector-clock | 33 | 5 | 28 | 0 | 0 |
+| P5 | scalar-clock | 33 | 3 | 30 | 0 | 0 |
+| P6 | vector-clock | 50 | 8 | 26 | 0 | 16 |
+| P6 | scalar-clock | 50 | 8 | 26 | 0 | 16 |
+| P7 | vector-clock | 14 | 3 | 8 | 3 | 0 |
+| P7 | scalar-clock | 14 | 4 | 9 | 1 | 0 |
+| P9 | vector-clock | 10 | 2 | 6 | 2 | 0 |
+| P9 | scalar-clock | 10 | 3 | 6 | 1 | 0 |
+| PI | vector-clock | 4130 | 2420 | 1710 | 0 | 0 |
+| PI | scalar-clock | 4130 | 2420 | 1710 | 0 | 0 |
+| all | vector-clock | 4725 | 2670 | 2034 | 5 | 16 |
+| all | scalar-clock | 4725 | 2670 | 2037 | 2 | 16 |
+
+ids: 4725; (id, mode) keys: 9450; CSV rows in file: 28234 (blank-mode rows expanded to both modes for the key counts)
+
+## coverage_nodehours.md
+| job name | records | node-hours | nodes |
+|---|---|---|---|
+| x1b-dryrun | 1 | 0.0 | 1 |
+| x1b-final | 101 | 51.8 | 16 |
+| x1b-final-24h | 20 | 192.7 | 10 |
+| x1b-final-long | 11 | 32.3 | 5 |
+| x1b-final-pi | 64 | 15.2 | 12 |
+| x1b-final-r1 | 16 | 0.1 | 1 |
+| x1b-final-r2 | 25 | 0.1 | 2 |
+| all | 238 | 292.1 | |
+
+## residual keys: 39
+P6-bulkcpy-global_readwrite_race-fixed scalar-clock ERROR needs-sm90 ? 1 
+P6-bulkcpy-global_readwrite_race-fixed vector-clock ERROR needs-sm90 ? 1 
+P6-bulkcpy-global_readwrite_race-racy scalar-clock ERROR needs-sm90 ? 1 
+P6-bulkcpy-global_readwrite_race-racy vector-clock ERROR needs-sm90 ? 1 
+P6-bulkcpy-global_readwrite_race_g2s-fixed scalar-clock ERROR needs-sm90 ? 1 
+P6-bulkcpy-global_readwrite_race_g2s-fixed vector-clock ERROR needs-sm90 ? 1 
+P6-bulkcpy-global_readwrite_race_g2s-racy scalar-clock ERROR needs-sm90 ? 1 
+P6-bulkcpy-global_readwrite_race_g2s-racy vector-clock ERROR needs-sm90 ? 1 
+P6-bulkcpy-global_writewrite_race-fixed scalar-clock ERROR needs-sm90 ? 1 
+P6-bulkcpy-global_writewrite_race-fixed vector-clock ERROR needs-sm90 ? 1 
+P6-bulkcpy-global_writewrite_race-racy scalar-clock ERROR needs-sm90 ? 1 
+P6-bulkcpy-global_writewrite_race-racy vector-clock ERROR needs-sm90 ? 1 
+P6-bulkcpy-shared_readwrite_race-fixed scalar-clock ERROR needs-sm90 ? 1 
+P6-bulkcpy-shared_readwrite_race-fixed vector-clock ERROR needs-sm90 ? 1 
+P6-bulkcpy-shared_readwrite_race-racy scalar-clock ERROR needs-sm90 ? 1 
+P6-bulkcpy-shared_readwrite_race-racy vector-clock ERROR needs-sm90 ? 1 
+P6-bulkcpy-shared_writeread_race_g2s-fixed scalar-clock ERROR needs-sm90 ? 1 
+P6-bulkcpy-shared_writeread_race_g2s-fixed vector-clock ERROR needs-sm90 ? 1 
+P6-bulkcpy-shared_writeread_race_g2s-racy scalar-clock ERROR needs-sm90 ? 1 
+P6-bulkcpy-shared_writeread_race_g2s-racy vector-clock ERROR needs-sm90 ? 1 
+P6-bulkcpy-shared_writewrite_race_g2s-fixed scalar-clock ERROR needs-sm90 ? 1 
+P6-bulkcpy-shared_writewrite_race_g2s-fixed vector-clock ERROR needs-sm90 ? 1 
+P6-bulkcpy-shared_writewrite_race_g2s-racy scalar-clock ERROR needs-sm90 ? 1 
+P6-bulkcpy-shared_writewrite_race_g2s-racy vector-clock ERROR needs-sm90 ? 1 
+P6-dsmem-shared_readwrite_race-fixed scalar-clock ERROR needs-sm90 ? 1 
+P6-dsmem-shared_readwrite_race-fixed vector-clock ERROR needs-sm90 ? 1 
+P6-dsmem-shared_readwrite_race-racy scalar-clock ERROR needs-sm90 ? 1 
+P6-dsmem-shared_readwrite_race-racy vector-clock ERROR needs-sm90 ? 1 
+P6-dsmem-shared_writewrite_race-fixed scalar-clock ERROR needs-sm90 ? 1 
+P6-dsmem-shared_writewrite_race-fixed vector-clock ERROR needs-sm90 ? 1 
+P6-dsmem-shared_writewrite_race-racy scalar-clock ERROR needs-sm90 ? 1 
+P6-dsmem-shared_writewrite_race-racy vector-clock ERROR needs-sm90 ? 1 
+P7-haversine-cuda vector-clock TIMEOUT hb-clock-hang 5400 3 9496.3
+P7-particlefilter-cuda vector-clock TIMEOUT hb-state-memory 5400 3 124052.2
+P7-stencil1d-cuda scalar-clock TIMEOUT hb-state-memory 84600 1 168101.7
+P7-stencil1d-cuda vector-clock TIMEOUT hb-state-memory 84600 1 98492.2
+P9-atomicCAS-cuda scalar-clock TIMEOUT time-cap 84600 1 1103.5
+P9-atomicCAS-cuda vector-clock TIMEOUT hb-state-memory 1200 3 99100.4
+P9-expdist-cuda vector-clock TIMEOUT hb-clock-hang 84600 1 21016.5
+## partial rows: 16
+P7-particlefilter-cuda scalar-clock 1 RACE partial: OOM after 3 of ? kernels, 242.357 s, cap=1200 189538.6 c64
+P7-particlefilter-cuda scalar-clock 2 RACE partial: OOM after 3 of ? kernels, 238.521 s, cap=1200 189620.0 c64
+P7-particlefilter-cuda scalar-clock 3 RACE partial: OOM after 3 of ? kernels, 234.019 s, cap=1200 189685.6 c64
+P9-atomicCAS-cuda vector-clock 1 TIMEOUT partial: TIMEOUT after 0 of ? kernels, 1200.009 s, cap=1200 99961.5 
+P9-atomicCAS-cuda vector-clock 2 TIMEOUT partial: TIMEOUT after 0 of ? kernels, 1200.024 s, cap=1200 96150.2 
+P9-atomicCAS-cuda vector-clock 3 TIMEOUT partial: TIMEOUT after 0 of ? kernels, 1200.011 s, cap=1200 99100.4 
+P7-haversine-cuda vector-clock 1 TIMEOUT partial: TIMEOUT after 61 of 100 kernels, 5400.006 s, cap=5400 9498.7 
+P7-haversine-cuda vector-clock 2 TIMEOUT partial: TIMEOUT after 59 of 100 kernels, 5400.006 s, cap=5400 9436.7 
+P7-haversine-cuda vector-clock 3 TIMEOUT partial: TIMEOUT after 61 of 100 kernels, 5400.006 s, cap=5400 9496.3 
+P7-particlefilter-cuda vector-clock 1 TIMEOUT partial: TIMEOUT after 3 of ? kernels, 5400.009 s, cap=5400 124810.7 
+P7-particlefilter-cuda vector-clock 2 TIMEOUT partial: TIMEOUT after 3 of ? kernels, 5400.167 s, cap=5400 125396.8 
+P7-particlefilter-cuda vector-clock 3 TIMEOUT partial: TIMEOUT after 3 of ? kernels, 5400.058 s, cap=5400 124052.2 
+P7-stencil1d-cuda scalar-clock 1 TIMEOUT partial: TIMEOUT after 435 of ? kernels, 84600.017 s, cap=84600 168101.7 
+P7-stencil1d-cuda vector-clock 1 TIMEOUT partial: TIMEOUT after 117 of ? kernels, 84600.019 s, cap=84600 98492.2 
+P9-atomicCAS-cuda scalar-clock 1 TIMEOUT partial: TIMEOUT after 60000 of ? kernels, 84600.023 s, cap=84600 1103.5 
+P9-expdist-cuda vector-clock 1 TIMEOUT partial: TIMEOUT after 0 of 40 kernels, 84600.019 s, cap=84600 21016.5 

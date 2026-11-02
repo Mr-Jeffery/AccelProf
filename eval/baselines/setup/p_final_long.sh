@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-#SBATCH --job-name=x1-final-long
+#SBATCH --job-name=x1b-final-long
 #SBATCH --partition=rtx4060ti16g
-#SBATCH --exclude=c[0-3],c[23-24],c37,c[50-58],c[73-79]
+#SBATCH --exclude=c[0-3],c[23-24],c37,c46,c[50-58],c[73-79]
 #SBATCH --exclusive
 #SBATCH --nodes=1 --ntasks=1
 #SBATCH --time=1-00:00:00
-#SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/final-long-%A_%a.log
+#SBATCH --output=/home/fzheng4/AccelProf/eval/baselines/setup/build_logs/finalb-long-%A_%a.log
 # X1 second pass (eval/FINAL_SWEEP.md): the cap 5,400 s (--timeout-floor = --timeout-cap = 5400, as
 # p_final.sh does at 1,200 s) over the first pass's TIMEOUT ids of P1, P3, P4, P6, P7, P9 (never PI),
 # one mode per pass. Everything else is p_final.sh's configuration (BASELINE_HB_DUMP=0,
@@ -31,10 +31,10 @@
 #   MODE=scalar-clock ID_FILE=<ids> NSHARDS=<n> TAG=final-long-sc-<x> sbatch --array=0-<n-1> eval/baselines/setup/p_final_long.sh
 # Shard k of NSHARDS = the k-th id of the file in MANIFEST order (one id per shard).
 set -u
-W=${W:-/home/fzheng4/AccelProf/.claude/worktrees/wt-x1}
+W=${W:-/home/fzheng4/wt-x1b}
 MODE=${MODE:-vector-clock}
 if [ "$MODE" = scalar-clock ]; then SFX=-sc; else SFX=; fi
-export W MODES=$MODE CAP=5400 TAG=${TAG:-final-long$SFX} RES=final-long$SFX STORE_TAG=final-2026-10-long$SFX
-export ID_FILE=${ID_FILE:-$W/eval/baselines/setup/final_long${SFX/-/_}_ids.txt}
+export W MODES=$MODE CAP=5400 TAG=${TAG:-final-b-long$SFX} RES=final-b-long$SFX STORE_TAG=final-2026-11-long$SFX
+export ID_FILE=${ID_FILE:-$W/eval/baselines/setup/final_b_long${SFX/-/_}_ids.txt}
 export NSHARDS=${NSHARDS:?set NSHARDS = the number of lines of the id file}
 bash $W/eval/baselines/setup/p_final.sh

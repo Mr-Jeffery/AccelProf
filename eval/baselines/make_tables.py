@@ -24,26 +24,35 @@ OUT = f"{APH}/eval/BASELINES.md"
 sys.path.insert(0, f"{APH}/python")
 import hb_modes  # noqa: E402  (vector-clock / scalar-clock; legacy names accepted with a warning)
 VC, SC = hb_modes.VECTOR_CLOCK, hb_modes.SCALAR_CLOCK
+# C3: collector-only is a third cuVein mode (no HbClock, no sync pass; verdicts from the static certificates
+# alone). It is added to the tables only under `--collector-only`; without the flag nothing below changes.
+# python/hb_modes.py is not touched: the mode name passes through hb_modes.canon() unchanged.
+CO = "collector-only"
+WITH_CO = "--collector-only" in sys.argv
+MODES3 = (VC, SC) + ((CO,) if WITH_CO else ())
+SHORT_M = {**hb_modes.SHORT, CO: "cuVein-CO"}
+LABEL_M = {**hb_modes.LABEL, CO: "cuVein (collector-only)"}
 
 
 def _mode_rank(mode):
     """harness order: vector-clock before scalar-clock (keeps the pre-T8 table order)"""
-    return hb_modes.MODES.index(mode) if mode in hb_modes.MODES else len(hb_modes.MODES)
+    return MODES3.index(mode) if mode in MODES3 else len(MODES3)
 
 
 def _tool_key(label):
     """sort key for 'cuvein/<mode>' / '<tool>' labels in the harness mode order"""
-    for i, m in enumerate(hb_modes.MODES):
+    for i, m in enumerate(MODES3):
         label = label.replace(f"cuvein/{m}", f"cuvein/{i}")
     return label
 
 # tool column order in verdict tables. Race detectors first, then the three
 # non-race compute-sanitizer tools (their RACE verdict means FLAGGED).
-RACE_TOOLS = [("cuvein", VC), ("cuvein", SC),
+RACE_TOOLS = [("cuvein", m) for m in MODES3] + [
               ("racecheck", ""), ("hirace", ""), ("iguard", ""), ("supercollider", "")]
 FLAG_TOOLS = [("memcheck", ""), ("synccheck", ""), ("initcheck", "")]
 TOOLCOLS = RACE_TOOLS + FLAG_TOOLS
-COLNAME = {("cuvein", VC): hb_modes.SHORT[VC], ("cuvein", SC): hb_modes.SHORT[SC],
+COLNAME = {("cuvein", m): SHORT_M[m] for m in MODES3}
+COLNAME |= {
            ("racecheck", ""): "racecheck", ("hirace", ""): "HiRace",
            ("iguard", ""): "iGUARD", ("supercollider", ""): "SuperCollider",
            ("memcheck", ""): "memcheck*",
@@ -345,13 +354,19 @@ def _ratios(runs, meta):
     """(id,tool,mode) -> wall/native. Our tools share the id-level native wall (min over
     the runners that measured our build). SuperCollider is measured against ITS OWN
     uninstrumented build run the same way (same container), never against ours."""
-    native = {}
+    native, native_co = {}, {}
     for (i, t, m), r in runs.items():
         if r["native"] and t != "supercollider":
-            native[i] = min(native.get(i, r["native"]), r["native"])
+            d = native_co if (t == "cuvein" and m == CO) else native
+            d[i] = min(d.get(i, r["native"]), r["native"])
     out = {}
     for (i, t, m), r in runs.items():
-        n = r["native"] if t == "supercollider" else native.get(i)
+        # C3: the collector-only runs' own native walls never enter the other modes' denominator
+        # (adding the mode leaves their ratios unchanged); a collector-only ratio divides by the
+        # smaller of the two, the same "min over the runners that measured the build" convention.
+        n = (r["native"] if t == "supercollider" else
+             min([x for x in (native.get(i), native_co.get(i)) if x], default=None) if (t == "cuvein" and m == CO)
+             else native.get(i))
         if r["wall"] and n:
             out[(i, t, m)] = r["wall"] / n
     return out
@@ -603,7 +618,7 @@ def operating_points_section(runs, meta, man):
     out.append("| " + " | ".join(hdr) + " |")
     out.append("|" + "---|" * len(hdr))
     for ps in ("P1", "PI", "P3", "P4", "P5", "P6", "P7", "P9"):
-        for mode in (VC, SC):
+        for mode in MODES3:
             c = dict(fp=0, tp=0, nob=0, rac=0, fp1=0, tp1=0, nob1=0, rac1=0, lat=0, sc=0, na=0,
                      a2fp=0, a2tp=0, a2fp1=0, a2tp1=0, mb=0, sfp=0, stp=0, sfp1=0, stp1=0, sn=0)
             seen = False
@@ -646,7 +661,7 @@ def operating_points_section(runs, meta, man):
                 else:
                     c["tp1" if pos else "fp1"] += v1 == "RACE"
             if seen:
-                row = (f"| {ps} | {hb_modes.SHORT[mode]} | {c['fp']}/{c['nob']} / {c['tp']}/{c['rac']} "
+                row = (f"| {ps} | {SHORT_M[mode]} | {c['fp']}/{c['nob']} / {c['tp']}/{c['rac']} "
                        f"| {c['a2fp']} / {c['a2tp']} "
                        f"| {c['fp1']}/{c['nob1']} / {c['tp1']}/{c['rac1']} "
                        f"| {c['a2fp1']} / {c['a2tp1']} | {c['lat']} | {c['sc']} "
@@ -718,7 +733,7 @@ def cuvein_fn_note(runs, meta, man, ps):
     """Which labelled-racy programs cuVein did NOT report, per mode, grouped by the
     mechanical reason hint so the cell stays readable."""
     parts = []
-    for (t, m), tag in ((("cuvein", VC), "VC"), (("cuvein", SC), "SC")):
+    for (t, m), tag in ((("cuvein", VC), "VC"), (("cuvein", SC), "SC")) + ((("cuvein", CO), "CO"),) * WITH_CO:
         groups = defaultdict(list)
         for _id, mm in sorted(meta.items()):
             if mm[0] != ps or man.get(_id, {}).get("label", "") != "RACE":
@@ -860,7 +875,7 @@ def revision_delta_section(runs, meta, man):
     # native in the superseded rows (e.g. a first failed attempt) cannot skew the old side
     r_new = _ratios(runs, meta)
     native = {i: runs[(i, "cuvein", m)]["native"] for (i, t, m) in runs
-              if t == "cuvein" and runs[(i, t, m)]["native"]}
+              if t == "cuvein" and m != CO and runs[(i, t, m)]["native"]}    # C3: not the collector-only run's own
     r_olds = {tag: {(i, t, m): r["wall"] / native[i] for (i, t, m), r in o_runs.items()
                     if t == "cuvein" and r["wall"] and native.get(i)}
               for tag, o_runs, _, _ in olds}
@@ -970,14 +985,14 @@ SUITE_FULLNAME = {
     "P7": "HeCBench overhead set (unlabelled real applications)",
     "P9": "HeCBench — SuperCollider's 10-application subset",
 }
-MATRIX_COLS = [("cuvein", VC), ("cuvein", SC), ("racecheck", ""),
+MATRIX_COLS = [("cuvein", m) for m in MODES3] + [("racecheck", ""),
                ("sanitizer", ""), ("hirace", ""), ("iguard", ""), ("supercollider", "")]
-MATRIX_NAME = {("cuvein", VC): hb_modes.LABEL[VC], ("cuvein", SC): hb_modes.LABEL[SC],
-               ("racecheck", ""): "compute-sanitizer racecheck",
+MATRIX_NAME = {("cuvein", m): LABEL_M[m] for m in MODES3}
+MATRIX_NAME |= {("racecheck", ""): "compute-sanitizer racecheck",
                ("sanitizer", ""): "compute-sanitizer (any of memcheck / racecheck / synccheck / initcheck)",
                ("hirace", ""): "HiRace", ("iguard", ""): "iGUARD", ("supercollider", ""): "SuperCollider"}
-MATRIX_SHORT = {("cuvein", VC): hb_modes.SHORT[VC], ("cuvein", SC): hb_modes.SHORT[SC],
-                ("racecheck", ""): "racecheck", ("sanitizer", ""): "sanitizer(any)",
+MATRIX_SHORT = {("cuvein", m): SHORT_M[m] for m in MODES3}
+MATRIX_SHORT |= {("racecheck", ""): "racecheck", ("sanitizer", ""): "sanitizer(any)",
                 ("hirace", ""): "HiRace", ("iguard", ""): "iGUARD", ("supercollider", ""): "SuperCollider"}
 FP_CAUSE_TEXT = {"RC1": "cuda::atomic load/store not modelled as atomic",
                  "RC2": "latent report on a barrier/lock idiom (not raced dynamically, no static proof)",
@@ -1090,7 +1105,7 @@ def _fn_why(runs, meta, man, _id, tool, mode):
     shared = man.get(_id, {}).get("shared_mem", "") == "1"
     cat = prog.split("/")[0]
     if tool == "cuvein":
-        other = SC if mode == VC else VC
+        other = VC if mode == SC else SC
         o = runs.get((_id, "cuvein", other))
         if ps == "PI":
             return _bugclass_hint(prog, meta[_id][3], _id)
@@ -1418,7 +1433,7 @@ def memory_footprint_section(runs, meta, man):
            f"| unfinished: n, max last-seen (MB) |",
            "|---|---|---|---|---|---|"]
     for ps in ALL_PSETS:
-        for m in (VC, SC):
+        for m in MODES3:
             xs, us = fin.get((ps, m), []), unf.get((ps, m), [])
             if not xs and not us:
                 continue

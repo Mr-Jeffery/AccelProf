@@ -27,8 +27,10 @@ invariant checked over the stated recordings, **tested** = a specific result ass
   X2's two stores (16 + 16 flagged kernels), or in X1's main store (32 flagged kernels; 9,398
   (program, mode) tasks scanned). X1's merged CSV through `make_tables.py`: the regenerated tables are
   byte-identical to the committed ones and, with no row moved, identical before and after.
-* Not done, listed in §7: X1's 24 h vector-clock store (the cluster's BeeGFS was unmounted after the
-  10-18 shutdown), the GPU halves of the green set, a compile of the `.tex` paragraph.
+* X1's 24 h vector-clock store, left open on 10-18 (BeeGFS was unmounted after the shutdown), was
+  scanned on 10-20 once BeeGFS was back: 9 of its 11 programs have a `vector-clock` kernel directory
+  and none can move (§4); **0 moved**.
+* Not done, listed in §7: the GPU halves of the green set, a compile of the `.tex` paragraph.
 
 ## 1. The defect, in the code
 
@@ -128,7 +130,7 @@ the harness's CSV rows were not regenerated (§7).
 | X2 `final-certain` and `final-certain-recorded` (62 programs, vector-clock, dumps) | BeeGFS; recorded by `eval/final-certain` (head 7979869) | 369 kernels each (33 with a CAS pc) | 16 each | 16 each | **0** |
 | X1 main store `final-2026-10` (4,725 programs x 2 modes; harness/runtime per `eval/FINAL_SWEEP.md` section 0) | BeeGFS; X1 branch `eval/final-sweep` head 43c855e3b1ca96805cb12d07a1de6a1839d947a2 | 9,398 (program, mode) tasks: 4,842 without atomic opcodes, 4,482 whose dots have no `.CAS`, 74 kernels (66 with a CAS pc) | 32 | 32 | **0** |
 | X1 `-long`, `-long-sc`, `-24h-sc` | BeeGFS | 8 + 8 + 7 tasks: all without atomic opcodes except 1 without `.CAS` | 0 | 0 | 0 |
-| X1 `-24h-vc` | BeeGFS | **6 of 12 programs** (all without atomic opcodes); the 7th hung in a kernel JSON for 1.5 h and was killed by the shutdown; the rerun found BeeGFS unmounted | not run | not run | not run |
+| X1 `-24h-vc` (11 program directories, recorded by git_head 40941876 per its `STORE_INFO.json`) | BeeGFS, rescanned 10-20 (job 315513, c19) | 9 tasks with a `vector-clock` directory: 8 without atomic opcodes, and `P9-atomicCAS-cuda` (30,000 kernels; it has CAS opcodes but every CFG cluster has fewer than 3 atomic instructions, so no class of 3 pcs can exist and the closure cannot add a pair). The other 2: `P7-stencil1d-cuda` has only `vector-clock-partial-rep1` (its dot has no atomic opcode), `P9-expdist-cuda` has no kernel directory (its dot has CAS opcodes; nothing recorded in this store to re-score) | 0 | 0 | 0 |
 | X1 merged CSV `eval/results/baselines-cuvein.csv` through `make_tables.py` | `git show eval/final-sweep:...` (28,230 rows, sha256 bfbf32c5...); job 315313 | | | | `BASELINES.md` and `BASELINES_SUMMARY.md` regenerated from the unchanged CSV are **identical to the committed ones** and the "T23 rows" run is identical to the "as merged" run (0 diff lines) |
 
 Scan errors: 0 in every store. T20's 8 flagged kernels are P4-graph-connectivity-racy-small (k1) and
@@ -187,10 +189,10 @@ assumption (R3d: a plain access to the same address between two atomics breaks t
 
 ## 7. Not run / unverified
 
-* **X1 `final-2026-10-24h-vc`** (12 programs): 6 scanned, 6 not. BeeGFS was not mounted on any node
-  probed after the shutdown (c8, c9, c12, c46-c48, c66, c76; jobs 315312, 315325, 315385). The 12 programs are the
-  24 h pass over TIMEOUT programs; whether the unscanned ones have a closure pair naming a CAS pc is
-  unknown.
+* **X1 `final-2026-10-24h-vc`**: closed on 10-20 (§4). Between the shutdown and the return of BeeGFS no
+  node probed on 10-20 (c8, c9, c12, c46-c48, c66, c76; jobs 315312, 315325, 315385) had
+  `/mnt/beegfs`; the scan ran on c19 once it was back. `P9-expdist-cuda` has no recorded kernel in that
+  store, so no verdict of the X1 CSV can be re-scored from it.
 * X1 programs whose store directory is `*-partial-repN` (P9 and a few P7) are not enumerated by the
   scan (the harness' `analyze` does not read them either); 52 (id, mode) pairs of the main store have
   no kernel directory.
@@ -208,7 +210,7 @@ assumption (R3d: a plain access to the same address between two atomics breaks t
 
 Commits on `fix/r3-same-loc-closure` (base afccba7): 8ec3455 (failing test + data), 78323f9 (change),
 627369c / 4336498 / 1a9709c / f27b5dc / 3bd919e / e27ecac (re-score tooling), 4c200a2 (proof paragraph,
-scan and diff outputs), 5319fe3 (summary script), plus the commit of this report.
+scan and diff outputs), 5319fe3 (summary script), 06706db (this report, first version), 50c756e (drivers exit 75 if a mount is missing), and the follow-up that closes the 24 h vector-clock store.
 
 ```
 # step 1/2 (normal, no GPU): REV selects the exported revision
@@ -219,6 +221,7 @@ sbatch --export=ALL,STORE=final-rtraw,RTRAW=1 eval/baselines/setup/p_t23_scan.sh
 sbatch --array=0-7 --export=ALL,STORE=t20-parity2,IDFILE=eval/baselines/setup/t5b_parity_ids.txt eval/baselines/setup/p_t23_scan.sh   # 314853
 sbatch --export=ALL,STORE=final-certain eval/baselines/setup/p_t23_scan.sh              # 314854 (and -recorded 314855)
 sbatch --array=0-31 --export=ALL,STORE=final-2026-10 eval/baselines/setup/p_t23_scan.sh # 314874 (+ long, long-sc, 24h-sc)
+sbatch --time=03:00:00 --exclude=c54,c2,c23,c46 --export=ALL,STORE=final-2026-10-24h-vc eval/baselines/setup/p_t23_scan.sh   # 315513 (10-20, c19)
 sbatch --export=ALL,SCAN=final-rtraw eval/baselines/setup/p_t23_diff.sh                 # 314872
 sbatch --export=ALL,SCAN=t20-parity2 eval/baselines/setup/p_t23_diff.sh                 # 314871
 sbatch --array=0-3 --export=ALL,SCAN=t20-parity2,OUT=t20-parity2-all,ALL=1,MAXMB=300 eval/baselines/setup/p_t23_diff.sh   # 314910, 314930

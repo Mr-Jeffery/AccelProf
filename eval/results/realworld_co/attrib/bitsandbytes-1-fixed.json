@@ -1,0 +1,4442 @@
+{
+ "id": "bitsandbytes-1-fixed",
+ "target": "bitsandbytes-1",
+ "exe": "/mnt/beegfs/fzheng4/realworld_t21b/build/bitsandbytes-1/fixed/driver",
+ "cuda_home": "/usr/local/cuda-13.4",
+ "n_cubins": 1,
+ "n_dots": 1,
+ "oracle_kernel_substr": "kEstimateQuantiles",
+ "spec_found": true,
+ "modes": {
+  "collector-only": {
+   "n_kernel_jsons": 1,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 64,
+      "sc": 0,
+      "ordered": 711,
+      "skipped": 371,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 1,
+   "n_race": 64,
+   "n_sc": 0,
+   "reports": [
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1888,
+     "b_pc": 2256,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1888,
+     "b_pc": 2272,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1888,
+     "b_pc": 2288,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1888,
+     "b_pc": 2304,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1888,
+     "b_pc": 2320,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1888,
+     "b_pc": 2336,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1888,
+     "b_pc": 2352,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1888,
+     "b_pc": 2368,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1936,
+     "b_pc": 2256,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1936,
+     "b_pc": 2272,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1936,
+     "b_pc": 2288,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1936,
+     "b_pc": 2304,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1936,
+     "b_pc": 2320,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1936,
+     "b_pc": 2336,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1936,
+     "b_pc": 2352,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1936,
+     "b_pc": 2368,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1984,
+     "b_pc": 2256,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1984,
+     "b_pc": 2272,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1984,
+     "b_pc": 2288,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1984,
+     "b_pc": 2304,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1984,
+     "b_pc": 2320,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1984,
+     "b_pc": 2336,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1984,
+     "b_pc": 2352,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 1984,
+     "b_pc": 2368,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2032,
+     "b_pc": 2256,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2032,
+     "b_pc": 2272,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2032,
+     "b_pc": 2288,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2032,
+     "b_pc": 2304,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2032,
+     "b_pc": 2320,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2032,
+     "b_pc": 2336,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2032,
+     "b_pc": 2352,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2032,
+     "b_pc": 2368,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2080,
+     "b_pc": 2256,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2080,
+     "b_pc": 2272,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2080,
+     "b_pc": 2288,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2080,
+     "b_pc": 2304,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2080,
+     "b_pc": 2320,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2080,
+     "b_pc": 2336,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2080,
+     "b_pc": 2352,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2080,
+     "b_pc": 2368,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2128,
+     "b_pc": 2256,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2128,
+     "b_pc": 2272,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2128,
+     "b_pc": 2288,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2128,
+     "b_pc": 2304,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2128,
+     "b_pc": 2320,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2128,
+     "b_pc": 2336,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2128,
+     "b_pc": 2352,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2128,
+     "b_pc": 2368,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2160,
+     "b_pc": 2256,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2160,
+     "b_pc": 2272,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2160,
+     "b_pc": 2288,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2160,
+     "b_pc": 2304,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2160,
+     "b_pc": 2320,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2160,
+     "b_pc": 2336,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2160,
+     "b_pc": 2352,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2160,
+     "b_pc": 2368,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2224,
+     "b_pc": 2256,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2224,
+     "b_pc": 2272,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2224,
+     "b_pc": 2288,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2224,
+     "b_pc": 2304,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2224,
+     "b_pc": 2320,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2224,
+     "b_pc": 2336,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2224,
+     "b_pc": 2352,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2224,
+     "b_pc": 2368,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 524
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/detail/uninitialized_copy.cuh",
+       "line": 37
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 537
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_exchange.cuh",
+       "line": 999
+      },
+      {
+       "file": "/usr/local/cuda-13.4/targets/x86_64-linux/include/cccl/cub/block/block_load.cuh",
+       "line": 1074
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 640
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    }
+   ],
+   "site_verdicts": [
+    {
+     "current_pc": 9120,
+     "current_pc_hex": "0x23a0",
+     "ancient_pc": 8832,
+     "ancient_pc_hex": "0x2280",
+     "opcodes": [
+      "STS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "WAW",
+     "observed_distance": "block",
+     "contested_weight": 960,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      8912
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void kEstimateQuantiles<float>(float*, float*, float, float, int)",
+     "mangled": "_Z18kEstimateQuantilesIfEvPT_PffS0_i",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 663
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/bitsandbytes-1/fixed/src/csrc/kernels.cu",
+       "line": 655
+      }
+     ]
+    }
+   ],
+   "site_skipped": {}
+  }
+ },
+ "dots_checked": 1,
+ "dots_regenerated_equal": 1
+}
