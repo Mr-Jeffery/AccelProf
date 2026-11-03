@@ -3,7 +3,7 @@
 #SBATCH --partition=rtx4060ti16g,rtx4060ti8g
 #SBATCH --nodes=1 --ntasks=1 --exclusive
 #SBATCH --time=1-00:00:00
-#SBATCH --exclude=c0,c1,c2,c21,c22,c23,c34,c37,c46,c54
+#SBATCH --exclude=c0,c1,c2,c11,c12,c13,c18,c21,c22,c23,c34,c35,c37,c46,c54
 #SBATCH --output=/home/fzheng4/wt-x9/eval/x_logs/x9-rec-%j.log
 # X9 step 3: scalar-clock recordings (collector run only; step 4 analyzes on `normal`) + racecheck, per manifest id.
 #   IDS="a b" [FLAVOR=main|t5400|dump] [PHASES="rec racecheck"] sbatch eval/cutlass/harness/x9_record.sh
