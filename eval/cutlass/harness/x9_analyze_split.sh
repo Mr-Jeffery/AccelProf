@@ -3,7 +3,7 @@
 #SBATCH --partition=normal
 #SBATCH --nodes=1 --ntasks=1 --cpus-per-task=16 --exclusive
 #SBATCH --time=1-00:00:00
-#SBATCH --exclude=c0,c1,c2,c11,c12,c13,c18,c21,c22,c23,c34,c35,c37,c46,c54
+#SBATCH --exclude=c0,c1,c2,c11,c12,c13,c14,c15,c18,c21,c22,c23,c34,c35,c36,c37,c46,c54
 #SBATCH --output=/home/fzheng4/wt-x9/eval/x_logs/x9-anas-%j.log
 # X9 step 4 (CPU) for whole-binary recordings: per parent id, x9_split.py (one sub-store + manifest row per recorded
 # kernel name, eval/cutlass/manifests_k/<id>.csv), then per sub-id, PAR at a time: `parallel.py analyze --confirm
@@ -11,6 +11,7 @@
 # x9_pairs.py (pair level, both halves, file:line).
 #   IDS="a b" [FLAVOR=main|t5400] [PAR=16] [MEMGB=28] [SPLIT=1] [SKIPDONE=1] sbatch eval/cutlass/harness/x9_analyze_split.sh
 # PAR 16: each sub-id is one single-threaded process of < 0.1 GB RSS (load 4.00, 3 of 125 GB used at PAR=4, job 324864).
+# c14/c15/c35/c36 excluded: no /usr/local/cuda-13.3 (32 analysis jobs FAILED there in seconds, 11-02/03).
 # SKIPDONE=1: a sub-id whose pair file already exists is not re-analyzed (resubmission after a cancel).
 source /home/fzheng4/wt-x9/eval/cutlass/harness/x9_env.sh || exit $?
 TIMEV="/usr/bin/time -v -o"; [ -x /usr/bin/time ] || TIMEV="$PY $W/eval/cutlass/harness/x9_timev.py -o"   # no GNU time on some nodes
@@ -33,6 +34,7 @@ one() {   # one sub-id: analyze + pairs
   echo "  $sid analyze rc=$rc1 ${t1}s pairs rc=$rc2 $(( $(date +%s) - s ))s maxrss_kb=$(awk -F': ' '/Maximum resident/{print $2}' $LOG/time-pairs-$sid.txt) | $(tail -1 $LOG/pairs-$sid.out | cut -c1-200)"
 }
 export -f one; export PY W RES CONF PAIRS LOG ST MEMGB TIMEV SKIPDONE
+SUBS=$(mktemp); trap "rm -f $SUBS" EXIT
 for id in ${IDS:-}; do
   echo "=== $(date -Is) split $id"
   if [ "${SPLIT:-1}" = 1 ] || [ ! -f $MK/$id.csv ]; then
@@ -40,6 +42,9 @@ for id in ${IDS:-}; do
         > $LOG/split-$id.out 2>&1 || { echo "  split FAILED: $(tail -2 $LOG/split-$id.out)"; continue; }
   fi
   tail -1 $LOG/split-$id.out
-  tail -n +2 $MK/$id.csv | cut -d, -f1 | xargs -P $PAR -I{} bash -c "one {} $MK/$id.csv"
+  tail -n +2 $MK/$id.csv | cut -d, -f1 | sed "s|\$| $MK/$id.csv|" >> $SUBS
 done
+# one pool over all ids' sub-ids (an id with few kernel names no longer idles the other cores); __k000 (usually the
+# kernel name with the most launches) first
+sort -t_ -k3 -s $SUBS | awk '{print ($1 ~ /__k000$/ ? 0 : 1), $0}' | sort -s -k1,1n | cut -d" " -f2-   | xargs -P $PAR -L1 bash -c 'one "$0" "$1"'
 echo "=== $(date -Is) done"
