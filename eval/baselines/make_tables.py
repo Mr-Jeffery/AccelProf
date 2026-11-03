@@ -1361,6 +1361,287 @@ def comparison_matrix_section(runs, meta, man):
     return "\n".join(out)
 
 
+# ---------------------------------------------------------------------------------------------
+# X10 (2026-11-03): the accuracy matrix per BINARY instead of per run. One binary = one compiled
+# executable of a program (the manifest's `exe`); its inputs and repetitions fold into it. The
+# racy/fixed builds of one source are two binaries, and so are Indigo3's default and
+# -DSLOWER_ATOMIC builds. A tool's own instrumented build (HiRace twin, SuperCollider binary) is
+# the same unit: its rows carry our ids. Fold rule, the same for every tool: RACE if any run
+# reports; CLEAN if every run finished and none reports; else TIMEOUT if any run timed out, else
+# ERROR. Overhead stays per run. `--unit run` keeps the per-run summary byte for byte.
+UNIT = next((sys.argv[k + 1] for k, a in enumerate(sys.argv[:-1]) if a == "--unit"), "binary")
+assert UNIT in ("binary", "run"), f"--unit must be binary or run, not {UNIT!r}"
+SUMMARY_PER_RUN_OUT = f"{APH}/eval/BASELINES_SUMMARY_PER_RUN.md"
+# cuHadron categories outside the per-kernel HB model (decided 2026-10-18): host-vs-device,
+# cross-stream kernels, host-API memcpy against a kernel
+P6_OUT_OF_SCOPE = ("hostdevice/", "interkernel/", "asyncmemcpy/")
+BIN_EXPECTED = {"P1": 200, "PI": 590, "P3": 60, "P4": 14, "P5": 33, "P6": 50, "P7": 14, "P9": 10}
+
+
+def binary_key(_id, man, meta=None):
+    """The binary an id runs: the manifest's executable path (ids absent from the manifest are
+    their own binary)."""
+    r = man.get(_id)
+    if r and r.get("exe"):
+        return r["exe"]
+    return f"id:{_id}"
+
+
+def fold_verdict(vs):
+    """Fold the verdicts of one binary's runs (one tool, one mode)."""
+    if not vs:
+        return None
+    if "RACE" in vs:
+        return "RACE"
+    if all(v == "CLEAN" for v in vs):
+        return "CLEAN"
+    return "TIMEOUT" if "TIMEOUT" in vs else "ERROR"
+
+
+def fold_binaries(runs, ids, man, cols, meta=None):
+    """-> {binary: dict(label, members=[ids], v={(tool, mode): verdict}, cover={(tool, mode):
+    (runs present, members)})}. Raises if a binary's runs carry different labels."""
+    by = defaultdict(list)
+    for i in ids:
+        by[binary_key(i, man, meta)].append(i)
+    out = {}
+    for b, members in by.items():
+        labs = {(man.get(i, {}).get("label", "") or "").upper() for i in members}
+        if len(labs) != 1:
+            raise ValueError(f"binary {b}: runs carry different labels {sorted(labs)}: {members}")
+        e = dict(label=labs.pop(), members=sorted(members), v={}, cover={}, rep={})
+        for (t, m) in cols:
+            got = [(i, _mrun(runs, i, t, m)) for i in e["members"]]
+            got = [(i, r) for i, r in got if r]
+            if not got:
+                continue
+            v = fold_verdict([r["verdict"] for _, r in got])
+            e["v"][(t, m)] = v
+            e["cover"][(t, m)] = (len(got), len(members))
+            e["rep"][(t, m)] = [i for i, r in got if r["verdict"] == v] or [got[0][0]]
+        out[b] = e
+    return out
+
+
+def confusion_b(folded, tool, mode):
+    """confusion() over folded binaries; ids lists hold binary keys."""
+    c = dict(tp=0, fn=0, fp=0, tn=0, to=0, err=0, unl=0, n=0, lab_r=0, lab_c=0)
+    ids = dict(fn=[], fp=[], to=[], err=[])
+    for b, e in folded.items():
+        v = e["v"].get((tool, mode))
+        if v is None:
+            continue
+        c["n"] += 1
+        lab = e["label"]
+        c["lab_r"] += lab == "RACE"
+        c["lab_c"] += lab == "CLEAN"
+        if v == "TIMEOUT":
+            c["to"] += 1; ids["to"].append(b)
+        elif v == "ERROR":
+            c["err"] += 1; ids["err"].append(b)
+        elif lab == "RACE":
+            if v == "RACE":
+                c["tp"] += 1
+            else:
+                c["fn"] += 1; ids["fn"].append(b)
+        elif lab == "CLEAN":
+            if v == "RACE":
+                c["fp"] += 1; ids["fp"].append(b)
+            else:
+                c["tn"] += 1
+        else:
+            c["unl"] += 1
+    assert sum(c[k] for k in ("tp", "fn", "fp", "tn", "to", "err", "unl")) == c["n"]
+    return c, ids
+
+
+def _add_conf(a, b):
+    return {k: a.get(k, 0) + b.get(k, 0) for k in set(a) | set(b)}
+
+
+def _pi_oracle_all():
+    """id -> oracle verdict over every oracle CSV (the 3 original graphs + X8's 4)."""
+    d = {}
+    for f in ("baselines-pi-oracle.csv", "baselines-pi-oracle-x8.csv"):
+        for r in load_csv(f"{RES}/{f}"):
+            d[r["id"]] = r["oracle"]
+    return d
+
+
+def binary_view_ids(meta, view):
+    """ids of a table row: a suite, a PI view, or the cuHadron in-scope view."""
+    if view == "P6@in":
+        return [i for i, m in meta.items() if _in(m, ("P6",)) and not m[1].startswith(P6_OUT_OF_SCOPE)]
+    return [i for i, m in meta.items() if _in(m, (view,))]
+
+
+def _suite_name_b(ps, man, folded):
+    n = len(folded)
+    if ps == "P6@in":
+        return ("cuHadron, in scope (without host-vs-device, `interkernel/*`, `asyncmemcpy/*`; a view of "
+                f"the row above) — {n} binaries, {n - 16} runnable; 16 need sm_90")
+    rows = [r for r in man.values() if _in((r.get("pset"), r.get("program"), r.get("build"), r.get("input")), (ps,))]
+    nrun = len(rows)
+    base = SUITE_FULLNAME[ps]
+    extra = {
+        "P1": "200 binaries (100 codes × 2 atomic builds), 2 inputs each",
+        "PI": "590 binaries × 7 inputs",
+        "PI@sc": "99 binaries on SuperCollider's input",
+        "PI@sc7": "99 binaries × 7 inputs",
+        "P4": "14 binaries (7 codes × racy/race-free), 2 inputs each",
+        "P6": "50 binaries (25 test cases × racy/fixed), 34 runnable; 16 need sm_90",
+    }.get(ps)
+    if extra:
+        return f"{base} — {extra} ({nrun} runs)"
+    return f"{base} — {n} binaries" + (f" ({nrun} runs)" if nrun != n else "")
+
+
+def matrix_note_b(runs, meta, man, folded, fpc, diag, orc):
+    parts = []
+    for (t, m) in MATRIX_COLS:
+        c, ids = confusion_b(folded, t, m)
+        if not c["n"]:
+            continue
+        bits = []
+        if c["fn"]:
+            why = []
+            for b in ids["fn"]:
+                reps = folded[b]["rep"][(t, m)]
+                # a binary whose race exists on some input is a real miss: pick that input's run
+                real = [i for i in reps if orc.get(i) == "CONFLICT"]
+                why.append(_fn_why(runs, meta, man, (real or reps)[0], t, m))
+            bits.append(f"FN {c['fn']}: " + _tally(why))
+        if c["fp"]:
+            bits.append(f"FP {c['fp']}" + (", by iGUARD report class: " if t == "iguard" else ": ")
+                        + _tally(_fp_why(runs, folded[b]["rep"][(t, m)][0], t, m, fpc) for b in ids["fp"]))
+        if c["to"] + c["err"]:
+            why = []
+            for b in ids["to"] + ids["err"]:
+                i = folded[b]["rep"][(t, m)][0]
+                tr = runs.get((i, "cuvein", SC), {}).get("verdict") in ("RACE", "CLEAN")
+                rr = _mrun(runs, i, t, m)
+                if t == "sanitizer":
+                    rr = next((runs[(i, tt, mm)] for (tt, mm) in SAN_TOOLS if (i, tt, mm) in runs
+                               and runs[(i, tt, mm)]["verdict"] in ("TIMEOUT", "ERROR")), rr)
+                why.append(_fail_why(rr, diag.get((i, m)) if t == "cuvein" else "",
+                                     t == "cuvein" and m == VC and tr))
+            bits.append(f"TO/ERR {c['to'] + c['err']}: " + _tally(why))
+        if bits:
+            parts.append(f"**{MATRIX_SHORT[(t, m)]}** — " + ". ".join(bits))
+    return "<br>".join(parts) if parts else "no FN / FP / failures"
+
+
+def binary_folds(runs, meta, man):
+    """{row view: folded binaries} for every row of the per-binary matrix."""
+    views = [x for p0 in ALL_PSETS for x in ((p0, "PI@sc", "PI@sc7") if p0 == "PI" else
+                                             (p0, "P6@in") if p0 == "P6" else (p0,))]
+    return {v: fold_binaries(runs, binary_view_ids(meta, v), man, MATRIX_COLS, meta) for v in views}
+
+
+def comparison_matrix_binary_section(runs, meta, man):
+    fpc = defaultdict(set)
+    for r in load_csv(f"{RES}/baselines-fp-causes.csv"):
+        fpc[(r["id"], r["mode"])].add(r["cause"])
+    diag = {(r["id"], r["mode"]): r["cause"] for r in load_csv(f"{RES}/baselines-diagnose.csv")
+            if r.get("cause") not in ("resolved", "")}
+    orc = _pi_oracle_all()
+    folds = binary_folds(runs, meta, man)
+    for ps, n in BIN_EXPECTED.items():
+        if ps in folds and len(folds[ps]) != n:
+            raise ValueError(f"{ps}: {len(folds[ps])} binaries, expected {n}")
+    out = ["\n## 2c. Complete comparison matrix (detector × test suite), per binary\n",
+           "Unit: one **binary** (one compiled executable of a program); a binary's inputs and repetitions "
+           "fold into one verdict. Cell = `TP/(TP+FN), FP/(FP+TN), TO, ERR` in binaries: TP/(TP+FN) over the "
+           "suite's racy-labelled binaries, FP/(FP+TN) over its race-free-labelled binaries (both exclude "
+           "binaries that did not finish), TO = binaries with a timed-out run and no report, ERR = binaries "
+           "that errored. A binary is RACE if any run on any input reports, CLEAN if every run finished and "
+           "none reports, TO if a run timed out and none reports, otherwise ERR — the same rule for every "
+           "tool. The racy and fixed builds of a source are two binaries, and so are Indigo3's default and "
+           "`-DSLOWER_ATOMIC` builds (they lower the atomic helpers differently). A tool's own instrumented "
+           "build (HiRace's hand-instrumented twin, SuperCollider's shipped binary) counts as the same "
+           "binary. `-` = slot not available; `0/0` = the suite has such binaries but the tool finished none. "
+           "The per-run version of this table is `eval/BASELINES_SUMMARY_PER_RUN.md`. The note column gives, "
+           "per detector, the reason behind its FN, FP and failures, with binary counts in parentheses.\n"]
+    hdr = ["test suite"] + [MATRIX_NAME[c] for c in MATRIX_COLS] + ["note: reasons behind FN / FP / failures"]
+    out.append("| " + " | ".join(hdr) + " |")
+    out.append("|" + "---|" * len(hdr))
+    unl = defaultdict(int)
+    partial = defaultdict(int)
+    for v, folded in folds.items():
+        row = [_suite_name_b(v, man, folded)]
+        for (t, m) in MATRIX_COLS:
+            c, _ = confusion_b(folded, t, m)
+            row.append(_mcell(c))
+            unl[v] = max(unl[v], c["unl"])
+            partial[(v, t, m)] = sum(1 for e in folded.values()
+                                     if (t, m) in e["cover"] and e["cover"][(t, m)][0] < e["cover"][(t, m)][1])
+        row.append(matrix_note_b(runs, meta, man, folded, fpc, diag, orc))
+        out.append("| " + " | ".join(row) + " |")
+    totals = MATRIX_TOTALS + (("SuperCollider-matched suites, in scope (cuHadron in scope + the 99 Indigo "
+                                "codes × 7 inputs + HeCBench 10-application subset)", ("P6@in", "PI@sc7", "P9")),)
+    for name, sets in totals:
+        row = [f"**{name}**"]
+        for (t, m) in MATRIX_COLS:
+            acc = {}
+            for s in sets:
+                acc = _add_conf(acc, confusion_b(folds[s], t, m)[0])
+            row.append(_mcell(acc) if acc.get("n") else "-")
+        row.append("sum of the rows above")
+        out.append("| " + " | ".join(row) + " |")
+    pa = [f"{v} {MATRIX_SHORT[(t, m)]} {n}" for (v, t, m), n in sorted(partial.items()) if n]
+    out.append("\nFootnotes: (1) HiRace runs only on the 590 IndigoSuite codes its artifact ships "
+               "hand-instrumented. (2) SuperCollider exists only as pre-instrumented binaries for cuHadron and its "
+               "own Indigo/HeCBench subsets. (3) iGUARD was not run on the HeCBench overhead set. (4) 16 cuHadron "
+               "binaries need sm_90 and count as ERR for every tool pointed at them. (5) Binaries without a "
+               "racy/race-free label are in neither ratio: "
+               + ", ".join(f"{SUITE_FULLNAME[p].split(' (')[0] if p in SUITE_FULLNAME else p} {n}"
+                           for p, n in unl.items() if n and p in ALL_PSETS)
+               + ". (6) HeCBench-subset labels are the SuperCollider paper's flags. (7) Binaries a tool ran on only "
+               "some of their inputs (folded over the runs present): " + ("; ".join(pa) if pa else "none") + ".")
+    # (8) the oracle, per binary
+    pi = folds["PI"]
+    racy = {b: e for b, e in pi.items() if e["label"] == "RACE"}
+    cov = {b: [orc[i] for i in e["members"] if orc.get(i) in ("CONFLICT", "NO-CONFLICT")] for b, e in racy.items()}
+    full = sum(1 for b, e in racy.items() if len(cov[b]) == len(e["members"]))
+    none_c = {b for b in racy if cov[b] and "CONFLICT" not in cov[b]}
+    clean = {b: e for b, e in pi.items() if e["label"] == "CLEAN"}
+    clean_c = sum(1 for b, e in clean.items() if any(orc.get(i) == "CONFLICT" for i in e["members"]))
+    per = []
+    for (t, m) in MATRIX_COLS:
+        c, ids = confusion_b(racy, t, m)
+        if not c["fn"]:
+            continue
+        nr = sum(1 for b in ids["fn"] if b in none_c)
+        unk = sum(1 for b in ids["fn"] if not cov[b])
+        per.append(f"{MATRIX_NAME[(t, m)]}: {nr} not racy on any input, {c['fn'] - nr - unk} real misses"
+                   + (f", {unk} without oracle coverage" if unk else ""))
+    out[-1] += (f" (8) **Are the Indigo-original FN binaries racy?** The oracle (`oracle_pi/oracle_pi.py`; "
+                f"`eval/results/baselines-pi-oracle.csv` and `-x8.csv`) covers all inputs of {full} of the {len(racy)} "
+                f"racy-labelled binaries. {len(none_c)} of them have no input on which two threads make a conflicting "
+                f"access (the planted bug never fires on the seven graphs); {clean_c} of {len(clean)} race-free binaries "
+                "show a conflict on some input. FN split per detector — " + "; ".join(per) + ".")
+    return "\n".join(out)
+
+
+def indigo3_build_agreement(runs, meta, man):
+    """X10 §3: per tool/mode, the Indigo3 codes whose default and -DSLOWER_ATOMIC binaries get different
+    per-binary verdicts."""
+    folded = fold_binaries(runs, binary_view_ids(meta, "P1"), man, MATRIX_COLS, meta)
+    code = {b: meta[e["members"][0]][1] for b, e in folded.items()}
+    build = {b: meta[e["members"][0]][2] for b, e in folded.items()}
+    out = {}
+    for (t, m) in MATRIX_COLS:
+        pair = defaultdict(dict)
+        for b, e in folded.items():
+            if (t, m) in e["v"]:
+                pair[code[b]][build[b]] = (e["v"][(t, m)], e["label"], e["rep"][(t, m)][0])
+        if not pair:
+            continue
+        out[(t, m)] = {c: d for c, d in pair.items()
+                       if len(d) == 2 and len({x[0] for x in d.values()}) > 1}
+    return out, len({c for c in code.values()})
+
+
 def overhead_minmax_section(runs, meta, man):
     rat = _ratios(runs, meta)
     out = ["\n## 4a. Overhead per detector per test suite (min / max / avg / mid)\n",
@@ -1505,6 +1786,18 @@ def write_summary(runs, meta, man):
            f"cuVein revision: {rev or 'see eval/baselines/setup/cuvein_rev.status'}.\n",
            comparison_matrix_section(runs, meta, man).replace("## 2c. ", "## 1. "),
            overhead_minmax_section(runs, meta, man).replace("## 4a. ", "## 2. ").replace("§2c", "table 1")]
+    if UNIT == "run":
+        with open(SUMMARY_OUT, "w") as f:
+            f.write("\n".join(doc) + "\n")
+        print(f"wrote {SUMMARY_OUT}")
+        return
+    with open(SUMMARY_PER_RUN_OUT, "w") as f:      # X10: the per-run tables, appendix version
+        f.write("\n".join(doc).replace("# BASELINES — summary tables\n",
+                                         "# BASELINES — summary tables, per run (appendix version)\n", 1) + "\n")
+    print(f"wrote {SUMMARY_PER_RUN_OUT}")
+    doc[3] = comparison_matrix_binary_section(runs, meta, man).replace("## 2c. ", "## 1. ")
+    doc[4] = doc[4].replace("over the finished programs", "over the finished runs").replace(
+        "see TO in table 1)", "see TO in table 1). Overhead stays per run: a slowdown is a property of one execution")
     with open(SUMMARY_OUT, "w") as f:
         f.write("\n".join(doc) + "\n")
     print(f"wrote {SUMMARY_OUT}")
