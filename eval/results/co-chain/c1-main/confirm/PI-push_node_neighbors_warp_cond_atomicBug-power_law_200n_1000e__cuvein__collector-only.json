@@ -1,0 +1,53 @@
+{
+  "id": "PI-push_node_neighbors_warp_cond_atomicBug-power_law_200n_1000e",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "global:0x230-0x280:RAW",
+    "global:0x280-0x280:WAW"
+  ],
+  "pcs": [
+    560,
+    640
+  ],
+  "lines": "push_node_neighbors_warp_cond_atomicBug.cu:54",
+  "raw": [
+    {
+      "a_pc": 560,
+      "b_pc": 640,
+      "space": "global",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 640,
+      "b_pc": 640,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "560": "push_node_neighbors_warp_cond_atomicBug.cu:54",
+    "640": "push_node_neighbors_warp_cond_atomicBug.cu:54"
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "id": "PI-push_node_neighbors_persistent_cond_atomicBug-counterDAG_5n_5e",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "global:0x1e0-0x200:WAR",
+    "global:0x200-0x200:WAW",
+    "global:0x2b0-0x2d0:WAR",
+    "global:0x2d0-0x2d0:WAW"
+  ],
+  "pcs": [
+    480,
+    512,
+    688,
+    720
+  ],
+  "lines": "push_node_neighbors_persistent_cond_atomicBug.cu:53",
+  "raw": [
+    {
+      "a_pc": 480,
+      "b_pc": 512,
+      "space": "global",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain_rescue",
+      "chain_path": [
+        "0x1e0",
+        "0x1e0",
+        "0x200"
+      ]
+    },
+    {
+      "a_pc": 512,
+      "b_pc": 512,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 688,
+      "b_pc": 720,
+      "space": "global",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain_rescue",
+      "chain_path": [
+        "0x2b0",
+        "0x2b0",
+        "0x2d0"
+      ]
+    },
+    {
+      "a_pc": 720,
+      "b_pc": 720,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "480": "push_node_neighbors_persistent_cond_atomicBug.cu:53",
+    "512": "push_node_neighbors_persistent_cond_atomicBug.cu:53",
+    "688": "push_node_neighbors_persistent_cond_atomicBug.cu:53",
+    "720": "push_node_neighbors_persistent_cond_atomicBug.cu:53"
+  }
+}

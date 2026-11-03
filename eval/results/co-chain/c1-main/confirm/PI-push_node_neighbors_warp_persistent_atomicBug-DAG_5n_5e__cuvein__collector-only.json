@@ -1,0 +1,53 @@
+{
+  "id": "PI-push_node_neighbors_warp_persistent_atomicBug-DAG_5n_5e",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "global:0x260-0x290:WAR",
+    "global:0x290-0x290:WAW"
+  ],
+  "pcs": [
+    608,
+    656
+  ],
+  "lines": "push_node_neighbors_warp_persistent_atomicBug.cu:53",
+  "raw": [
+    {
+      "a_pc": 608,
+      "b_pc": 656,
+      "space": "global",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 656,
+      "b_pc": 656,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "608": "push_node_neighbors_warp_persistent_atomicBug.cu:53",
+    "656": "push_node_neighbors_warp_persistent_atomicBug.cu:53"
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "id": "P7-heartwall-cuda",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "global:0x16c40-0x16c40:WAW",
+    "global:0x16c80-0x16c80:WAW"
+  ],
+  "pcs": [
+    93248,
+    93312
+  ],
+  "lines": "kernel.h:1979;kernel.h:1980",
+  "raw": [
+    {
+      "a_pc": 93248,
+      "b_pc": 93248,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 93312,
+      "b_pc": 93312,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "93248": "kernel.h:1979",
+    "93312": "kernel.h:1980"
+  }
+}

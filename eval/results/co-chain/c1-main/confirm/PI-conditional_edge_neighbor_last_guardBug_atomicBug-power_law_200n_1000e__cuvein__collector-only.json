@@ -1,0 +1,53 @@
+{
+  "id": "PI-conditional_edge_neighbor_last_guardBug_atomicBug-power_law_200n_1000e",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "global:0x120-0x170:RAW",
+    "global:0x170-0x170:WAW"
+  ],
+  "pcs": [
+    288,
+    368
+  ],
+  "lines": "conditional_edge_neighbor_last_guardBug_atomicBug.cu:52;conditional_edge_neighbor_last_guardBug_atomicBug.cu:54",
+  "raw": [
+    {
+      "a_pc": 288,
+      "b_pc": 368,
+      "space": "global",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 368,
+      "b_pc": 368,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "288": "conditional_edge_neighbor_last_guardBug_atomicBug.cu:52",
+    "368": "conditional_edge_neighbor_last_guardBug_atomicBug.cu:54"
+  }
+}

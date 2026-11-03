@@ -1,0 +1,73 @@
+{
+  "id": "PI-conditional_edge_neighbors_block_shfl_cond_atomicBug-counterDAG_5n_5e",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0x80-0x2f0:WAW",
+    "global:0x3f0-0x420:RAW",
+    "global:0x420-0x420:WAW"
+  ],
+  "pcs": [
+    128,
+    752,
+    1008,
+    1056
+  ],
+  "lines": "conditional_edge_neighbors_block_shfl_cond_atomicBug.cu:47;conditional_edge_neighbors_block_shfl_cond_atomicBug.cu:66;conditional_edge_neighbors_block_shfl_cond_atomicBug.cu:78",
+  "raw": [
+    {
+      "a_pc": 128,
+      "b_pc": 752,
+      "space": "shared",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 1008,
+      "b_pc": 1056,
+      "space": "global",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 1056,
+      "b_pc": 1056,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "128": "conditional_edge_neighbors_block_shfl_cond_atomicBug.cu:47",
+    "752": "conditional_edge_neighbors_block_shfl_cond_atomicBug.cu:66",
+    "1056": "conditional_edge_neighbors_block_shfl_cond_atomicBug.cu:78",
+    "1008": "conditional_edge_neighbors_block_shfl_cond_atomicBug.cu:78"
+  }
+}

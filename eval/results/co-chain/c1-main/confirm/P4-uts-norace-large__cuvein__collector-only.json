@@ -1,0 +1,63 @@
+{
+  "id": "P4-uts-norace-large",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0x3b50-0x3d20:WAR",
+    "shared:0x3c90-0x3d20:RAW"
+  ],
+  "pcs": [
+    15184,
+    15504,
+    15648
+  ],
+  "lines": "uts_kernel.cu:173;uts_kernel.cu:177;uts_kernel.cu:182",
+  "raw": [
+    {
+      "a_pc": 15184,
+      "b_pc": 15648,
+      "space": "shared",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain_rescue",
+      "chain_path": [
+        "0x3d20",
+        "0x3d20",
+        "0x3b50"
+      ]
+    },
+    {
+      "a_pc": 15504,
+      "b_pc": 15648,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain_rescue",
+      "chain_path": [
+        "0x3c90",
+        "0x3d20",
+        "0x3d20"
+      ]
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "15184": "uts_kernel.cu:173",
+    "15648": "uts_kernel.cu:182",
+    "15504": "uts_kernel.cu:177"
+  }
+}

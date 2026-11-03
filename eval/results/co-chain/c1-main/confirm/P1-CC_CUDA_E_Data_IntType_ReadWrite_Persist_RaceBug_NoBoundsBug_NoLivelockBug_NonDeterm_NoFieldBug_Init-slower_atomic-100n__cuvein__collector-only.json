@@ -1,0 +1,79 @@
+{
+  "id": "P1-CC_CUDA_E_Data_IntType_ReadWrite_Persist_RaceBug_NoBoundsBug_NoLivelockBug_NonDeterm_NoFieldBug_Init-slower_atomic-100n",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "global:0x100-0x1a0:WAR",
+    "global:0x110-0x1a0:RAW",
+    "global:0x1a0-0x1a0:WAW"
+  ],
+  "pcs": [
+    256,
+    272,
+    416
+  ],
+  "lines": "CC_CUDA_E_Data_IntType_ReadWrite_Persist_RaceBug_NoBoundsBug_NoLivelockBug_NonDeterm_NoFieldBug_Init.cu:56;CC_CUDA_E_Data_IntType_ReadWrite_Persist_RaceBug_NoBoundsBug_NoLivelockBug_NonDeterm_NoFieldBug_Init.cu:57;CC_CUDA_E_Data_IntType_ReadWrite_Persist_RaceBug_NoBoundsBug_NoLivelockBug_NonDeterm_NoFieldBug_Init.cu:60",
+  "raw": [
+    {
+      "a_pc": 256,
+      "b_pc": 416,
+      "space": "global",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": [
+        "0x100",
+        "0x110",
+        "0x1a0"
+      ]
+    },
+    {
+      "a_pc": 272,
+      "b_pc": 416,
+      "space": "global",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": [
+        "0x110",
+        "0x110",
+        "0x1a0"
+      ]
+    },
+    {
+      "a_pc": 416,
+      "b_pc": 416,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "256": "CC_CUDA_E_Data_IntType_ReadWrite_Persist_RaceBug_NoBoundsBug_NoLivelockBug_NonDeterm_NoFieldBug_Init.cu:56",
+    "272": "CC_CUDA_E_Data_IntType_ReadWrite_Persist_RaceBug_NoBoundsBug_NoLivelockBug_NonDeterm_NoFieldBug_Init.cu:57",
+    "416": "CC_CUDA_E_Data_IntType_ReadWrite_Persist_RaceBug_NoBoundsBug_NoLivelockBug_NonDeterm_NoFieldBug_Init.cu:60"
+  }
+}

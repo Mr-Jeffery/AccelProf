@@ -1,0 +1,71 @@
+{
+  "id": "PI-populate_worklist_neighbors_warp_reverse_atomicBug-DAG_100n_100e",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "global:0x180-0x1e0:WAR",
+    "global:0x1e0-0x1e0:WAW",
+    "global:0x1f0-0x1f0:WAW"
+  ],
+  "pcs": [
+    384,
+    480,
+    496
+  ],
+  "lines": "populate_worklist_neighbors_warp_reverse_atomicBug.cu:53;populate_worklist_neighbors_warp_reverse_atomicBug.cu:54",
+  "raw": [
+    {
+      "a_pc": 384,
+      "b_pc": 480,
+      "space": "global",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 480,
+      "b_pc": 480,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 496,
+      "b_pc": 496,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "384": "populate_worklist_neighbors_warp_reverse_atomicBug.cu:53",
+    "480": "populate_worklist_neighbors_warp_reverse_atomicBug.cu:53",
+    "496": "populate_worklist_neighbors_warp_reverse_atomicBug.cu:54"
+  }
+}

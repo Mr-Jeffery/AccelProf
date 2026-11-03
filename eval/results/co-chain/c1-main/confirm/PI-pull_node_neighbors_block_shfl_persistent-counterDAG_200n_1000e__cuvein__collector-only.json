@@ -1,0 +1,37 @@
+{
+  "id": "PI-pull_node_neighbors_block_shfl_persistent-counterDAG_200n_1000e",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0x80-0x2e0:WAW"
+  ],
+  "pcs": [
+    128,
+    736
+  ],
+  "lines": "pull_node_neighbors_block_shfl_persistent.cu:48;pull_node_neighbors_block_shfl_persistent.cu:62",
+  "raw": [
+    {
+      "a_pc": 128,
+      "b_pc": 736,
+      "space": "shared",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "128": "pull_node_neighbors_block_shfl_persistent.cu:48",
+    "736": "pull_node_neighbors_block_shfl_persistent.cu:62"
+  }
+}

@@ -1,0 +1,151 @@
+{
+  "id": "PI-conditional_edge_neighbors_boundsBug_reverse_cond_guardBug-DAG_100n_100e",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "global:0x70-0x2e0:WAR",
+    "global:0x80-0x2e0:WAR",
+    "global:0x240-0x2e0:RAW",
+    "global:0x2e0-0x430:RAW",
+    "global:0x2e0-0x550:RAW",
+    "global:0x2e0-0x670:RAW"
+  ],
+  "pcs": [
+    112,
+    128,
+    576,
+    736,
+    1072,
+    1360,
+    1648
+  ],
+  "lines": "conditional_edge_neighbors_boundsBug_reverse_cond_guardBug.cu:47;conditional_edge_neighbors_boundsBug_reverse_cond_guardBug.cu:48;conditional_edge_neighbors_boundsBug_reverse_cond_guardBug.cu:53;device_atomic_functions.hpp:152",
+  "raw": [
+    {
+      "a_pc": 112,
+      "b_pc": 736,
+      "space": "global",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain",
+      "chain_path": [
+        "0x70",
+        "0x80",
+        "0x240",
+        "0x2e0"
+      ]
+    },
+    {
+      "a_pc": 128,
+      "b_pc": 736,
+      "space": "global",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain",
+      "chain_path": [
+        "0x80",
+        "0x240",
+        "0x2e0"
+      ]
+    },
+    {
+      "a_pc": 576,
+      "b_pc": 736,
+      "space": "global",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": "benign",
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 736,
+      "b_pc": 1072,
+      "space": "global",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain",
+      "chain_path": [
+        "0x2e0",
+        "0x240",
+        "0x430"
+      ]
+    },
+    {
+      "a_pc": 736,
+      "b_pc": 1360,
+      "space": "global",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain",
+      "chain_path": [
+        "0x2e0",
+        "0x240",
+        "0x430",
+        "0x550"
+      ]
+    },
+    {
+      "a_pc": 736,
+      "b_pc": 1648,
+      "space": "global",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain",
+      "chain_path": [
+        "0x2e0",
+        "0x240",
+        "0x430",
+        "0x550",
+        "0x670"
+      ]
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "736": "device_atomic_functions.hpp:152",
+    "576": "conditional_edge_neighbors_boundsBug_reverse_cond_guardBug.cu:53",
+    "128": "conditional_edge_neighbors_boundsBug_reverse_cond_guardBug.cu:47",
+    "1072": "conditional_edge_neighbors_boundsBug_reverse_cond_guardBug.cu:53",
+    "112": "conditional_edge_neighbors_boundsBug_reverse_cond_guardBug.cu:48",
+    "1360": "conditional_edge_neighbors_boundsBug_reverse_cond_guardBug.cu:53",
+    "1648": "conditional_edge_neighbors_boundsBug_reverse_cond_guardBug.cu:53"
+  }
+}

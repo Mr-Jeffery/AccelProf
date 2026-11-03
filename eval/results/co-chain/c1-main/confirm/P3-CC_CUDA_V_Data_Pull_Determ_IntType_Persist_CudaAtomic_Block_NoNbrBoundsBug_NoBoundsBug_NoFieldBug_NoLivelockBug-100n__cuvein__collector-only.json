@@ -1,0 +1,55 @@
+{
+  "id": "P3-CC_CUDA_V_Data_Pull_Determ_IntType_Persist_CudaAtomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0x170-0xf20:RAW",
+    "shared:0x370-0x370:WAW"
+  ],
+  "pcs": [
+    368,
+    880,
+    3872
+  ],
+  "lines": "CC_CUDA_V_Data_Pull_Determ_IntType_Persist_CudaAtomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug.cu:57;CC_CUDA_V_Data_Pull_Determ_IntType_Persist_CudaAtomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug.cu:79;CC_CUDA_V_Data_Pull_Determ_IntType_Persist_CudaAtomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug.cu:84",
+  "raw": [
+    {
+      "a_pc": 368,
+      "b_pc": 3872,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 880,
+      "b_pc": 880,
+      "space": "shared",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "368": "CC_CUDA_V_Data_Pull_Determ_IntType_Persist_CudaAtomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug.cu:57",
+    "3872": "CC_CUDA_V_Data_Pull_Determ_IntType_Persist_CudaAtomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug.cu:84",
+    "880": "CC_CUDA_V_Data_Pull_Determ_IntType_Persist_CudaAtomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug.cu:79"
+  }
+}

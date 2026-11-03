@@ -1,0 +1,53 @@
+{
+  "id": "amrex-1-fixed",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "global:0x1250-0x1250:WAW",
+    "global:0x14d0-0x14d0:WAW"
+  ],
+  "pcs": [
+    4688,
+    5328
+  ],
+  "lines": "AMReX_GpuLaunchGlobal.H:43",
+  "raw": [
+    {
+      "a_pc": 4688,
+      "b_pc": 4688,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 5328,
+      "b_pc": 5328,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "4688": "AMReX_GpuLaunchGlobal.H:43",
+    "5328": "AMReX_GpuLaunchGlobal.H:43"
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "id": "PI-conditional_edge_neighbors_persistent_reverse_atomicBug-counterDAG_5n_5e",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "global:0x190-0x1f0:WAR",
+    "global:0x1f0-0x1f0:WAW",
+    "global:0x280-0x280:WAW",
+    "global:0x280-0x2f0:WAW"
+  ],
+  "pcs": [
+    400,
+    496,
+    640,
+    752
+  ],
+  "lines": "conditional_edge_neighbors_persistent_reverse_atomicBug.cu:51",
+  "raw": [
+    {
+      "a_pc": 400,
+      "b_pc": 496,
+      "space": "global",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain_rescue",
+      "chain_path": [
+        "0x190",
+        "0x190",
+        "0x1f0"
+      ]
+    },
+    {
+      "a_pc": 496,
+      "b_pc": 496,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 640,
+      "b_pc": 640,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 640,
+      "b_pc": 752,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "400": "conditional_edge_neighbors_persistent_reverse_atomicBug.cu:51",
+    "496": "conditional_edge_neighbors_persistent_reverse_atomicBug.cu:51",
+    "640": "conditional_edge_neighbors_persistent_reverse_atomicBug.cu:51",
+    "752": "conditional_edge_neighbors_persistent_reverse_atomicBug.cu:51"
+  }
+}
