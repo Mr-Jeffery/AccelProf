@@ -3,7 +3,7 @@
 #SBATCH --partition=normal
 #SBATCH --nodes=1 --ntasks=1 --cpus-per-task=16 --exclusive
 #SBATCH --time=1-00:00:00
-#SBATCH --exclude=c0,c1,c2,c11,c12,c13,c14,c15,c18,c21,c22,c23,c34,c35,c36,c37,c46,c54
+#SBATCH --exclude=c[0-2],c[4-47],c54
 #SBATCH --output=/home/fzheng4/wt-x9/eval/x_logs/x9-anas-%j.log
 # X9 step 4 (CPU) for whole-binary recordings: per parent id, x9_split.py (one sub-store + manifest row per recorded
 # kernel name, eval/cutlass/manifests_k/<id>.csv), then per sub-id, PAR at a time: `parallel.py analyze --confirm
@@ -11,7 +11,7 @@
 # x9_pairs.py (pair level, both halves, file:line).
 #   IDS="a b" [FLAVOR=main|t5400] [PAR=16] [MEMGB=28] [SPLIT=1] [SKIPDONE=1] sbatch eval/cutlass/harness/x9_analyze_split.sh
 # PAR 16: each sub-id is one single-threaded process of < 0.1 GB RSS (load 4.00, 3 of 125 GB used at PAR=4, job 324864).
-# c14/c15/c35/c36 excluded: no /usr/local/cuda-13.3 (32 analysis jobs FAILED there in seconds, 11-02/03).
+# Excluded: c0-c2, c54 (standing list); c4-c47 = Xeon Silver 4110 class, kept free for C6b timing runs (coordinator, 11-03; covers c14/c15/c35/c36, which lack cuda-13.3).
 # SKIPDONE=1: a sub-id whose pair file already exists is not re-analyzed (resubmission after a cancel).
 source /home/fzheng4/wt-x9/eval/cutlass/harness/x9_env.sh || exit $?
 TIMEV="/usr/bin/time -v -o"; [ -x /usr/bin/time ] || TIMEV="$PY $W/eval/cutlass/harness/x9_timev.py -o"   # no GNU time on some nodes

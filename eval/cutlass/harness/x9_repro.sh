@@ -3,7 +3,7 @@
 #SBATCH --partition=rtx4060ti16g,rtx4060ti8g
 #SBATCH --nodes=1 --ntasks=1 --exclusive
 #SBATCH --time=0-06:00:00
-#SBATCH --exclude=c0,c1,c2,c11,c12,c13,c14,c15,c18,c21,c22,c23,c34,c35,c36,c37,c46,c54
+#SBATCH --exclude=c[0-2],c[4-47],c54
 #SBATCH --output=/home/fzheng4/wt-x9/eval/x_logs/x9-repro-%j.log
 # X9 step 6: one finding's reproducer. FIND=<finding id> (eval/cutlass/findings/<id>/: build.sh, repro.cu, patches,
 # manifest_repro.csv). Builds repro / repro_fixed / repro_perturb on the node (BeeGFS), native runs (REPS each),
