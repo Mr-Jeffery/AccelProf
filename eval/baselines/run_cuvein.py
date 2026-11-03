@@ -25,6 +25,7 @@ import contextlib
 import glob
 import json
 import os
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -81,12 +82,52 @@ def chain_note(stats):
     return note
 
 
+_DOT_TEXT = {}    # C6: dot path -> text, read once per process (inherited by forked workers)
+
+
+def dot_prefilter_enabled():
+    """C6: $CUVEIN_DOT_PREFILTER=1 puts the dots whose text names the kernel first (C2's T21b
+    prefilter, ported from eval/collector-only-realworld; default off, so C1 stores are searched in
+    the original sorted order)."""
+    return os.environ.get("CUVEIN_DOT_PREFILTER") == "1"
+
+
+def _kernel_base_name(kj):
+    """T21b dot prefilter: the kernel's base identifier from its kernel JSON, or None."""
+    try:
+        d = json.loads(Path(kj).read_text())
+    except Exception:
+        return None
+    k = d.get("kernel") if isinstance(d.get("kernel"), dict) else {}
+    name = k.get("kernel_name") or k.get("name") or d.get("kernel_name") or d.get("name")
+    if not isinstance(name, str) or not name.strip():
+        return None
+    base = re.split(r"[<(]", name)[0].split()
+    return base[-1] if base else None
+
+
+def _dots_for_kernel(kj, dots, dot_text):
+    """Dots whose text names the kernel come first, then every other dot, in the original
+    sorted order. Only the order changes: a wrong dot still raises AlignmentError and the
+    loop moves on (C2's port, identical logic)."""
+    base = _kernel_base_name(kj)
+    if not base:
+        return dots
+    hit = []
+    for d in dots:
+        if d not in dot_text:
+            dot_text[d] = Path(d).read_text(errors="replace")
+        if base in dot_text[d]:
+            hit.append(d)
+    return hit + [d for d in dots if d not in hit]
+
+
 def _kernel_report(kj, dots, chain=False):
     """One kernel JSON's report, as the serial loop computes it: the first .dot (in sorted
     order) that aligns with it, or None if none does. Only the two keys the merge reads are
     kept (rep["gate_policy"], rep["verdicts"]); with chain (C6) also rep["chain"] = the kernel's
     diagnostics.chain_closure and rep["kernel_json"] = kj."""
-    for dot in dots:
+    for dot in (_dots_for_kernel(kj, dots, _DOT_TEXT) if dot_prefilter_enabled() else dots):
         try:
             rep = sd.analyze(dot, kj, chain_closure=True) if chain else sd.analyze(dot, kj)
         except sd.AlignmentError:
