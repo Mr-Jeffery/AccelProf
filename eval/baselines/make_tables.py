@@ -29,9 +29,14 @@ VC, SC = hb_modes.VECTOR_CLOCK, hb_modes.SCALAR_CLOCK
 # python/hb_modes.py is not touched: the mode name passes through hb_modes.canon() unchanged.
 CO = "collector-only"
 WITH_CO = "--collector-only" in sys.argv
-MODES3 = (VC, SC) + ((CO,) if WITH_CO else ())
-SHORT_M = {**hb_modes.SHORT, CO: "cuVein-CO"}
-LABEL_M = {**hb_modes.LABEL, CO: "cuVein (collector-only)"}
+# C4: a fourth cuVein column, "collector-only, re-scored" (CO-R): the verdict layer on the SCALAR-CLOCK kernel JSONs with the
+# barrier-ordered rule off (CUVEIN_BARRIER_ORDER=0). Only under `--co-offline`; its rows carry the scalar-clock recording's walls
+# and peaks, so the overhead and memory sections leave the column out (C1's collector-only run keeps those figures).
+CORS = "collector-only-rescored"
+WITH_CORS = "--co-offline" in sys.argv
+MODES3 = (VC, SC) + ((CO,) if WITH_CO else ()) + ((CORS,) if WITH_CORS else ())
+SHORT_M = {**hb_modes.SHORT, CO: "cuVein-CO", CORS: "cuVein-CO-R"}
+LABEL_M = {**hb_modes.LABEL, CO: "cuVein (collector-only)", CORS: "cuVein (collector-only, re-scored)"}
 
 
 def _mode_rank(mode):
@@ -362,7 +367,7 @@ def _ratios(runs, meta):
     uninstrumented build run the same way (same container), never against ours."""
     native, native_co = {}, {}
     for (i, t, m), r in runs.items():
-        if r["native"] and t != "supercollider":
+        if r["native"] and t != "supercollider" and not (t == "cuvein" and m == CORS):    # C4: CO-R rows never feed a denominator
             d = native_co if (t == "cuvein" and m == CO) else native
             d[i] = min(d.get(i, r["native"]), r["native"])
     out = {}
@@ -379,7 +384,7 @@ def _ratios(runs, meta):
 
 
 def overhead_table(runs, meta):
-    cols = [c for c in TOOLCOLS if any(k[1:] == c for k in runs)]
+    cols = [c for c in TOOLCOLS if any(k[1:] == c for k in runs) and c != ("cuvein", CORS)]
     scopes = (("P1+P7", ("P1", "P7")), ("PI Indigo original", ("PI",)),
               ("P6+PI@sc+P9 (SuperCollider-matched)", SC_SETS),
               ("P6+PI@sc7+P9 (SuperCollider-matched, 99 codes × 7 inputs)", SC_SETS7),
@@ -889,7 +894,7 @@ def revision_delta_section(runs, meta, man):
     # native in the superseded rows (e.g. a first failed attempt) cannot skew the old side
     r_new = _ratios(runs, meta)
     native = {i: runs[(i, "cuvein", m)]["native"] for (i, t, m) in runs
-              if t == "cuvein" and m != CO and runs[(i, t, m)]["native"]}    # C3: not the collector-only run's own
+              if t == "cuvein" and m not in (CO, CORS) and runs[(i, t, m)]["native"]}    # C3: not the collector-only run's own; C4: nor CO-R's
     r_olds = {tag: {(i, t, m): r["wall"] / native[i] for (i, t, m), r in o_runs.items()
                     if t == "cuvein" and r["wall"] and native.get(i)}
               for tag, o_runs, _, _ in olds}
@@ -1450,6 +1455,8 @@ def memory_footprint_section(runs, meta, man):
            "|---|---|---|---|---|---|"]
     for ps in ALL_PSETS:
         for m in MODES3:
+            if m == CORS:
+                continue
             xs, us = fin.get((ps, m), []), unf.get((ps, m), [])
             if not xs and not us:
                 continue

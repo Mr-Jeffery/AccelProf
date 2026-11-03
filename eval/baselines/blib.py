@@ -104,7 +104,11 @@ def base_env(cuda_home=None, hb_trace=False, hb_mode=None, scope_file=None):
     for k in ("YOSEMITE_HB_TRACE", hb_modes.ENV, hb_modes.LEGACY_ENV, "YOSEMITE_ATOMIC_SCOPE_FILE",
               "YOSEMITE_HB_DUMP", "YOSEMITE_HB_SHARDS"):
         e.pop(k, None)
-    if hb_trace:
+    if hb_trace and hb_mode == hb_modes.COLLECTOR_ONLY:
+        # C1: no HbClock is constructed: no YOSEMITE_HB_* variable reaches the collector (the loop
+        # above dropped the inherited ones; the stats knob belongs to HbClock too)
+        e.pop("YOSEMITE_HB_STATS", None)
+    elif hb_trace:
         hb_modes.require_collector_support(APH)   # a pre-T8 library ignores YOSEMITE_HB_MODE
         e["YOSEMITE_HB_TRACE"] = "1"
         e.update(hb_modes.collector_env(hb_mode or hb_modes.VECTOR_CLOCK))

@@ -52,7 +52,7 @@ import run_cuvein as rc       # reuse _analyze_reports  # noqa: E402
 # $BASELINE_MODES=scalar-clock restricts a run to one mode (e.g. a static-leg revision);
 # the default collects vector-clock first, then scalar-clock (hb_modes.MODES).
 MODES = blib.hb_modes.parse_modes(os.environ.get("BASELINE_MODES", ",".join(blib.hb_modes.MODES)))
-VC, SC = blib.hb_modes.VECTOR_CLOCK, blib.hb_modes.SCALAR_CLOCK
+VC, SC, CO = blib.hb_modes.VECTOR_CLOCK, blib.hb_modes.SCALAR_CLOCK, blib.hb_modes.COLLECTOR_ONLY
 
 
 BEEGFS_ROOT = f"/mnt/beegfs/{os.environ.get('USER', 'nobody')}"
@@ -301,7 +301,7 @@ def collect_one(mrow, cuda, reps, floor=120, cap=1200):
     meta["scope_present"] = bool(scope)
     meta["hb_dump"] = blib.hb_dump()     # T4: 0 = recorded without hb_events (aggregates only)
     # X1b: YOSEMITE_HB_SHARDS per mode (scalar-clock only; 0 = serial pass) and the node's CPU count
-    meta["hb_shards"] = {VC: 0, SC: blib.hb_shards()}
+    meta["hb_shards"] = {VC: 0, SC: blib.hb_shards(), CO: 0}
     meta["nproc"] = os.cpu_count()
     os.makedirs(f"{idir}/dots", exist_ok=True)
     for dot in glob.glob(f"{cubindir}/*.dot"):
@@ -780,6 +780,14 @@ def cmd_analyze(a):
     os.makedirs(results_dir, exist_ok=True)
     path = f"{results_dir}/baselines-cuvein-shard{tag}.csv"
     import csv
+    if getattr(a, "no_barrier_order", False):        # C4: the whole pass with the rule off
+        os.environ["CUVEIN_BARRIER_ORDER"] = "0"
+    both = getattr(a, "both_barrier_orders", False)  # C4: True half -> path, False half -> bo0 csv
+    both_fh = open(f"{results_dir}/baselines-cuvein-bo0-shard{tag}.csv", "w", newline="") if both else None
+    both_w = csv.DictWriter(both_fh, fieldnames=blib.COLUMNS) if both else None
+    both_t = open(f"{results_dir}/analysis-time-shard{tag}.csv", "w") if both else None
+    if both:
+        both_w.writeheader(); both_t.write("id,t_barrier_order_on_s,t_barrier_order_off_s\n")
     with open(path, "w", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=blib.COLUMNS)
         w.writeheader()
@@ -787,19 +795,34 @@ def cmd_analyze(a):
         for m in rows:
             idir = f"{STORE}/{m['id']}"
             if not os.path.exists(f"{idir}/meta.json"):
-                w.writerow(blib.row(id=m["id"], pset=m["pset"], program=m["program"],
-                                    build=m["build"], input=m["input"], tool="cuvein",
-                                    verdict="ERROR", notes="no-trace-collected"))
+                row = blib.row(id=m["id"], pset=m["pset"], program=m["program"],
+                               build=m["build"], input=m["input"], tool="cuvein",
+                               verdict="ERROR", notes="no-trace-collected")
+                w.writerow(row)
+                if both:
+                    both_w.writerow(row)
                 continue
             n += 1
             print(f"[analyze {n}] {m['id']}", flush=True)
             try:
+                t0 = time.time()
                 analyze_one(idir, w, confirm_dir, getattr(a, "analysis_timeout", 0),
                             getattr(a, "analysis_mem", -1))
+                if both_w is not None:       # C4: second pass, barrier-ordered rule off
+                    t1 = time.time()
+                    os.environ["CUVEIN_BARRIER_ORDER"] = "0"
+                    try:
+                        analyze_one(idir, both_w, "", getattr(a, "analysis_timeout", 0),
+                                    getattr(a, "analysis_mem", -1))
+                    finally:
+                        os.environ.pop("CUVEIN_BARRIER_ORDER", None)
+                    both_t.write(f"{m['id']},{t1 - t0:.2f},{time.time() - t1:.2f}\n"); both_t.flush()
             except Exception as e:
                 w.writerow(blib.row(id=m["id"], pset=m["pset"], program=m["program"],
                                     build=m["build"], input=m["input"], tool="cuvein",
                                     verdict="ERROR", notes=f"{type(e).__name__}:{e}"))
+    if both:
+        both_fh.close(); both_t.close()
     print(f"analyze: {n} programs -> {path}")
 
 
@@ -955,6 +978,12 @@ def main():
                        help="drop a program's kernel JSONs above this size (0 = no cap, the "
                             "default: BeeGFS has room; a cap silently loses the largest traces)")
         p.add_argument("--tag", default="", help="prefix for the shard csv name")
+        p.add_argument("--no-barrier-order", dest="no_barrier_order", action="store_true",
+                       help="analyze: C4 -- the sync_dominance barrier-ordered rule off "
+                            "(CUVEIN_BARRIER_ORDER=0)")
+        p.add_argument("--both-barrier-orders", dest="both_barrier_orders", action="store_true",
+                       help="analyze: C4 -- every program twice, rule on (baselines-cuvein-shard*.csv) "
+                            "and off (baselines-cuvein-bo0-shard*.csv), with analysis-time-shard*.csv")
         p.add_argument("--analysis-timeout", dest="analysis_timeout", type=int, default=0,
                        help="cap (s) on the offline per-mode trace analysis; past it the "
                             "rows are ERROR analysis-timeout (0 = unbounded)")

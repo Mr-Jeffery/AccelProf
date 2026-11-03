@@ -1,0 +1,472 @@
+{
+ "id": "lit-arrayfire-1-buggy",
+ "target": "lit-arrayfire-1",
+ "exe": "/mnt/beegfs/fzheng4/realworld_t21b/build/lit-arrayfire-1/buggy/driver",
+ "cuda_home": "/usr/local/cuda-13.4",
+ "n_cubins": 1,
+ "n_dots": 1,
+ "oracle_kernel_substr": "nonfinal_kernel",
+ "spec_found": true,
+ "modes": {
+  "scalar-clock": {
+   "n_kernel_jsons": 6,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, 1, 8u, true>(cuda::Param<int>, cuda::Param<int>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>, unsigned int, unsigned int, unsigned int)",
+     "mangled": "_ZN4cuda6kernel24scan_dim_nonfinal_kernelIiiiL7af_op_t0ELi1ELj8ELb1EEEvNS_5ParamIT1_EES5_NS3_IcEENS3_IiEENS_6CParamIT_EENS8_IT0_EEjjj",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 4,
+      "sc": 0,
+      "ordered": 22,
+      "skipped": 37,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_1.json",
+     "name": "void cuda::kernel::scan_dim_final_kernel<int, char, int, (af_op_t)0, 1, 8u, false, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<char>, unsigned int, unsigned int, unsigned int)",
+     "mangled": "_ZN4cuda6kernel21scan_dim_final_kernelIiciL7af_op_t0ELi1ELj8ELb0ELb1EEEvNS_5ParamIT1_EENS_6CParamIT_EENS6_IT0_EEjjj",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 10,
+      "skipped": 20,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_2.json",
+     "name": "void cuda::kernel::bcast_dim_kernel<int, (af_op_t)0, 1>(cuda::Param<int>, cuda::CParam<int>, cuda::Param<int>, unsigned int, unsigned int, unsigned int, unsigned int)",
+     "mangled": "_ZN4cuda6kernel16bcast_dim_kernelIiL7af_op_t0ELi1EEEvNS_5ParamIT_EENS_6CParamIS4_EENS3_IiEEjjjj",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 6,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_3.json",
+     "name": "void cuda::kernel::scan_nonfinal_kernel<int, int, int, (af_op_t)0, 256u, true>(cuda::Param<int>, cuda::Param<int>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>, unsigned int, unsigned int, unsigned int)",
+     "mangled": "_ZN4cuda6kernel20scan_nonfinal_kernelIiiiL7af_op_t0ELj256ELb1EEEvNS_5ParamIT1_EES5_NS3_IcEENS3_IiEENS_6CParamIT_EENS8_IT0_EEjjj",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 3,
+      "sc": 0,
+      "ordered": 42,
+      "skipped": 55,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_4.json",
+     "name": "void cuda::kernel::scan_final_kernel<int, char, int, (af_op_t)0, 256u, false, true>(cuda::Param<int>, cuda::CParam<int>, cuda::CParam<char>, unsigned int, unsigned int, unsigned int)",
+     "mangled": "_ZN4cuda6kernel17scan_final_kernelIiciL7af_op_t0ELj256ELb0ELb1EEEvNS_5ParamIT1_EENS_6CParamIT_EENS6_IT0_EEjjj",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 30,
+      "skipped": 40,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_5.json",
+     "name": "void cuda::kernel::bcast_first_kernel<int, (af_op_t)0>(cuda::Param<int>, cuda::Param<int>, cuda::Param<int>, unsigned int, unsigned int, unsigned int)",
+     "mangled": "_ZN4cuda6kernel18bcast_first_kernelIiL7af_op_t0EEEvNS_5ParamIT_EES5_NS3_IiEEjjj",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 6,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 2,
+   "n_race": 6,
+   "n_sc": 0,
+   "reports": [
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cuda::kernel::scan_nonfinal_kernel<int, int, int, (af_op_t)0, 256u, true>(cuda::Param<int>, cuda::Param<int>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>, unsigned int, unsigned int, unsigned int)",
+     "mangled": "_ZN4cuda6kernel20scan_nonfinal_kernelIiiiL7af_op_t0ELj256ELb1EEEvNS_5ParamIT1_EES5_NS3_IcEENS3_IiEENS_6CParamIT_EENS8_IT0_EEjjj",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4320,
+     "b_pc": 4656,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-arrayfire-1/buggy/src/src/backend/cuda/kernel/scan_first_by_key_impl.hpp",
+       "line": 150
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-arrayfire-1/buggy/src/src/backend/cuda/kernel/scan_first_by_key_impl.hpp",
+       "line": 165
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cuda::kernel::scan_nonfinal_kernel<int, int, int, (af_op_t)0, 256u, true>(cuda::Param<int>, cuda::Param<int>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>, unsigned int, unsigned int, unsigned int)",
+     "mangled": "_ZN4cuda6kernel20scan_nonfinal_kernelIiiiL7af_op_t0ELj256ELb1EEEvNS_5ParamIT1_EES5_NS3_IcEENS3_IiEENS_6CParamIT_EENS8_IT0_EEjjj",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4352,
+     "b_pc": 4496,
+     "a_op": "LDS.U8",
+     "b_op": "STS.U8",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-arrayfire-1/buggy/src/src/backend/cuda/kernel/scan_first_by_key_impl.hpp",
+       "line": 145
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-arrayfire-1/buggy/src/src/backend/cuda/kernel/scan_first_by_key_impl.hpp",
+       "line": 157
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cuda::kernel::scan_nonfinal_kernel<int, int, int, (af_op_t)0, 256u, true>(cuda::Param<int>, cuda::Param<int>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>, unsigned int, unsigned int, unsigned int)",
+     "mangled": "_ZN4cuda6kernel20scan_nonfinal_kernelIiiiL7af_op_t0ELj256ELb1EEEvNS_5ParamIT1_EES5_NS3_IcEENS3_IiEENS_6CParamIT_EENS8_IT0_EEjjj",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 4432,
+     "b_pc": 4656,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-arrayfire-1/buggy/src/src/backend/cuda/kernel/scan_first_by_key_impl.hpp",
+       "line": 146
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-arrayfire-1/buggy/src/src/backend/cuda/kernel/scan_first_by_key_impl.hpp",
+       "line": 165
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, 1, 8u, true>(cuda::Param<int>, cuda::Param<int>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>, unsigned int, unsigned int, unsigned int)",
+     "mangled": "_ZN4cuda6kernel24scan_dim_nonfinal_kernelIiiiL7af_op_t0ELi1ELj8ELb1EEEvNS_5ParamIT1_EES5_NS3_IcEENS3_IiEENS_6CParamIT_EENS8_IT0_EEjjj",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3376,
+     "b_pc": 4064,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-arrayfire-1/buggy/src/src/backend/cuda/kernel/scan_dim_by_key_impl.hpp",
+       "line": 169
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-arrayfire-1/buggy/src/src/backend/cuda/kernel/scan_dim_by_key_impl.hpp",
+       "line": 190
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, 1, 8u, true>(cuda::Param<int>, cuda::Param<int>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>, unsigned int, unsigned int, unsigned int)",
+     "mangled": "_ZN4cuda6kernel24scan_dim_nonfinal_kernelIiiiL7af_op_t0ELi1ELj8ELb1EEEvNS_5ParamIT1_EES5_NS3_IcEENS3_IiEENS_6CParamIT_EENS8_IT0_EEjjj",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3408,
+     "b_pc": 3584,
+     "a_op": "LDS.U8",
+     "b_op": "STS.U8",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-arrayfire-1/buggy/src/src/backend/cuda/kernel/scan_dim_by_key_impl.hpp",
+       "line": 164
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-arrayfire-1/buggy/src/src/backend/cuda/kernel/scan_dim_by_key_impl.hpp",
+       "line": 176
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json",
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, 1, 8u, true>(cuda::Param<int>, cuda::Param<int>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>, unsigned int, unsigned int, unsigned int)",
+     "mangled": "_ZN4cuda6kernel24scan_dim_nonfinal_kernelIiiiL7af_op_t0ELi1ELj8ELb1EEEvNS_5ParamIT1_EES5_NS3_IcEENS3_IiEENS_6CParamIT_EENS8_IT0_EEjjj",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3488,
+     "b_pc": 4064,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-arrayfire-1/buggy/src/src/backend/cuda/kernel/scan_dim_by_key_impl.hpp",
+       "line": 165
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-arrayfire-1/buggy/src/src/backend/cuda/kernel/scan_dim_by_key_impl.hpp",
+       "line": 190
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    }
+   ],
+   "site_verdicts": [
+    {
+     "current_pc": 3408,
+     "current_pc_hex": "0xd50",
+     "ancient_pc": 3584,
+     "ancient_pc_hex": "0xe00",
+     "opcodes": [
+      "LDS.U8",
+      "STS.U8"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 32,
+     "access_size": 1,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, 1, 8u, true>(cuda::Param<int>, cuda::Param<int>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>, unsigned int, unsigned int, unsigned int)",
+     "mangled": "_ZN4cuda6kernel24scan_dim_nonfinal_kernelIiiiL7af_op_t0ELi1ELj8ELb1EEEvNS_5ParamIT1_EES5_NS3_IcEENS3_IiEENS_6CParamIT_EENS8_IT0_EEjjj",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-arrayfire-1/buggy/src/src/backend/cuda/kernel/scan_dim_by_key_impl.hpp",
+       "line": 164
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-arrayfire-1/buggy/src/src/backend/cuda/kernel/scan_dim_by_key_impl.hpp",
+       "line": 176
+      }
+     ]
+    },
+    {
+     "current_pc": 3584,
+     "current_pc_hex": "0xe00",
+     "ancient_pc": 3408,
+     "ancient_pc_hex": "0xd50",
+     "opcodes": [
+      "STS.U8",
+      "LDS.U8"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 1216,
+     "access_size": 1,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void cuda::kernel::scan_dim_nonfinal_kernel<int, int, int, (af_op_t)0, 1, 8u, true>(cuda::Param<int>, cuda::Param<int>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>, unsigned int, unsigned int, unsigned int)",
+     "mangled": "_ZN4cuda6kernel24scan_dim_nonfinal_kernelIiiiL7af_op_t0ELi1ELj8ELb1EEEvNS_5ParamIT1_EES5_NS3_IcEENS3_IiEENS_6CParamIT_EENS8_IT0_EEjjj",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-arrayfire-1/buggy/src/src/backend/cuda/kernel/scan_dim_by_key_impl.hpp",
+       "line": 176
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-arrayfire-1/buggy/src/src/backend/cuda/kernel/scan_dim_by_key_impl.hpp",
+       "line": 164
+      }
+     ]
+    },
+    {
+     "current_pc": 4496,
+     "current_pc_hex": "0x1190",
+     "ancient_pc": 4352,
+     "ancient_pc_hex": "0x1100",
+     "opcodes": [
+      "STS.U8",
+      "LDS.U8"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 34,
+     "access_size": 1,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void cuda::kernel::scan_nonfinal_kernel<int, int, int, (af_op_t)0, 256u, true>(cuda::Param<int>, cuda::Param<int>, cuda::Param<char>, cuda::Param<int>, cuda::CParam<int>, cuda::CParam<int>, unsigned int, unsigned int, unsigned int)",
+     "mangled": "_ZN4cuda6kernel20scan_nonfinal_kernelIiiiL7af_op_t0ELj256ELb1EEEvNS_5ParamIT1_EES5_NS3_IcEENS3_IiEENS_6CParamIT_EENS8_IT0_EEjjj",
+     "kernel_json": "kernel_3.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-arrayfire-1/buggy/src/src/backend/cuda/kernel/scan_first_by_key_impl.hpp",
+       "line": 157
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-arrayfire-1/buggy/src/src/backend/cuda/kernel/scan_first_by_key_impl.hpp",
+       "line": 145
+      }
+     ]
+    }
+   ],
+   "site_skipped": {
+    "intra_thread_only": 1
+   }
+  }
+ },
+ "dots_checked": 1,
+ "dots_regenerated_equal": 1
+}

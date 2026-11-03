@@ -1,0 +1,208 @@
+{
+ "id": "pytorch-3-buggy",
+ "target": "pytorch-3",
+ "exe": "/mnt/beegfs/fzheng4/realworld_t21b/build/pytorch-3/buggy/driver",
+ "cuda_home": "/usr/local/cuda-13.4",
+ "n_cubins": 1,
+ "n_dots": 1,
+ "oracle_kernel_substr": "MultiMarginLoss_backward_kernel",
+ "spec_found": true,
+ "modes": {
+  "scalar-clock": {
+   "n_kernel_jsons": 1,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "void at::native::(anonymous namespace)::MultiMarginLoss_backward_kernel<1, float>(float*, float const*, float const*, long const*, float const*, int, int, bool, float, bool)",
+     "mangled": "_ZN2at6native41_GLOBAL__N__3280fbee_9_driver_cu_b86932df31MultiMarginLoss_backward_kernelILi1EfEEvPT0_PKS3_S6_PKlS6_iibS3_b",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 2,
+      "sc": 0,
+      "ordered": 8,
+      "skipped": 15,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 1,
+   "n_race": 2,
+   "n_sc": 0,
+   "reports": [
+    {
+     "mode": "scalar-clock",
+     "kernel": "void at::native::(anonymous namespace)::MultiMarginLoss_backward_kernel<1, float>(float*, float const*, float const*, long const*, float const*, int, int, bool, float, bool)",
+     "mangled": "_ZN2at6native41_GLOBAL__N__3280fbee_9_driver_cu_b86932df31MultiMarginLoss_backward_kernelILi1EfEEvPT0_PKS3_S6_PKlS6_iibS3_b",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 6288,
+     "b_pc": 6848,
+     "a_op": "STG.E",
+     "b_op": "LDG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch-3/buggy/src/aten/src/ATen/native/cuda/MultiMarginLoss.cu",
+       "line": 121
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch-3/buggy/src/aten/src/ATen/native/cuda/MultiMarginLoss.cu",
+       "line": 125
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void at::native::(anonymous namespace)::MultiMarginLoss_backward_kernel<1, float>(float*, float const*, float const*, long const*, float const*, int, int, bool, float, bool)",
+     "mangled": "_ZN2at6native41_GLOBAL__N__3280fbee_9_driver_cu_b86932df31MultiMarginLoss_backward_kernelILi1EfEEvPT0_PKS3_S6_PKlS6_iibS3_b",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "global",
+     "a_pc": 6288,
+     "b_pc": 6960,
+     "a_op": "STG.E",
+     "b_op": "STG.E",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch-3/buggy/src/aten/src/ATen/native/cuda/MultiMarginLoss.cu",
+       "line": 121
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch-3/buggy/src/aten/src/ATen/native/cuda/MultiMarginLoss.cu",
+       "line": 125
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    }
+   ],
+   "site_verdicts": [
+    {
+     "current_pc": 6288,
+     "current_pc_hex": "0x1890",
+     "ancient_pc": 6960,
+     "ancient_pc_hex": "0x1b30",
+     "opcodes": [
+      "STG.E",
+      "STG.E"
+     ],
+     "space": "global",
+     "race_type": "WAW",
+     "observed_distance": "block",
+     "contested_weight": 1,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void at::native::(anonymous namespace)::MultiMarginLoss_backward_kernel<1, float>(float*, float const*, float const*, long const*, float const*, int, int, bool, float, bool)",
+     "mangled": "_ZN2at6native41_GLOBAL__N__3280fbee_9_driver_cu_b86932df31MultiMarginLoss_backward_kernelILi1EfEEvPT0_PKS3_S6_PKlS6_iibS3_b",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch-3/buggy/src/aten/src/ATen/native/cuda/MultiMarginLoss.cu",
+       "line": 121
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch-3/buggy/src/aten/src/ATen/native/cuda/MultiMarginLoss.cu",
+       "line": 125
+      }
+     ]
+    },
+    {
+     "current_pc": 6288,
+     "current_pc_hex": "0x1890",
+     "ancient_pc": 6848,
+     "ancient_pc_hex": "0x1ac0",
+     "opcodes": [
+      "STG.E",
+      "LDG.E"
+     ],
+     "space": "global",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 1,
+     "access_size": null,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": true,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void at::native::(anonymous namespace)::MultiMarginLoss_backward_kernel<1, float>(float*, float const*, float const*, long const*, float const*, int, int, bool, float, bool)",
+     "mangled": "_ZN2at6native41_GLOBAL__N__3280fbee_9_driver_cu_b86932df31MultiMarginLoss_backward_kernelILi1EfEEvPT0_PKS3_S6_PKlS6_iibS3_b",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch-3/buggy/src/aten/src/ATen/native/cuda/MultiMarginLoss.cu",
+       "line": 121
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch-3/buggy/src/aten/src/ATen/native/cuda/MultiMarginLoss.cu",
+       "line": 125
+      }
+     ]
+    }
+   ],
+   "site_skipped": {
+    "read_read": 1,
+    "intra_thread_only": 1
+   }
+  }
+ },
+ "dots_checked": 1,
+ "dots_regenerated_equal": 1
+}

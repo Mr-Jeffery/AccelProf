@@ -1,0 +1,6283 @@
+{
+ "id": "lit-shoc-1-fixed",
+ "target": "lit-shoc-1",
+ "exe": "/mnt/beegfs/fzheng4/realworld_t21b/build/lit-shoc-1/fixed/driver",
+ "cuda_home": "/usr/local/cuda-13.4",
+ "n_cubins": 1,
+ "n_dots": 1,
+ "oracle_kernel_substr": "bottom_scan",
+ "spec_found": true,
+ "modes": {
+  "scalar-clock": {
+   "n_kernel_jsons": 6,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "void reduce<float, 256>(float const*, float*, int)",
+     "mangled": "_Z6reduceIfLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 20,
+      "sc": 0,
+      "ordered": 3,
+      "skipped": 45,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_1.json",
+     "name": "void scan_single_block<float, 256>(float*, int)",
+     "mangled": "_Z17scan_single_blockIfLi256EEvPT_i",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 17,
+      "skipped": 36,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_2.json",
+     "name": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 45,
+      "skipped": 78,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_3.json",
+     "name": "void reduce<double, 256>(double const*, double*, int)",
+     "mangled": "_Z6reduceIdLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 20,
+      "sc": 0,
+      "ordered": 3,
+      "skipped": 37,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_4.json",
+     "name": "void scan_single_block<double, 256>(double*, int)",
+     "mangled": "_Z17scan_single_blockIdLi256EEvPT_i",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 17,
+      "skipped": 36,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_5.json",
+     "name": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 41,
+      "skipped": 80,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 2,
+   "n_race": 40,
+   "n_sc": 0,
+   "reports": [
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<double, 256>(double const*, double*, int)",
+     "mangled": "_Z6reduceIdLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2640,
+     "b_pc": 2672,
+     "a_op": "STS.64",
+     "b_op": "LDS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 126
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 127
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<double, 256>(double const*, double*, int)",
+     "mangled": "_Z6reduceIdLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2672,
+     "b_pc": 2704,
+     "a_op": "LDS.64",
+     "b_op": "STS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 127
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 127
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<double, 256>(double const*, double*, int)",
+     "mangled": "_Z6reduceIdLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2672,
+     "b_pc": 2768,
+     "a_op": "LDS.64",
+     "b_op": "STS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 127
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 128
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<double, 256>(double const*, double*, int)",
+     "mangled": "_Z6reduceIdLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2672,
+     "b_pc": 2832,
+     "a_op": "LDS.64",
+     "b_op": "STS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 127
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 129
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<double, 256>(double const*, double*, int)",
+     "mangled": "_Z6reduceIdLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2672,
+     "b_pc": 2896,
+     "a_op": "LDS.64",
+     "b_op": "STS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 127
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 130
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<double, 256>(double const*, double*, int)",
+     "mangled": "_Z6reduceIdLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2672,
+     "b_pc": 2960,
+     "a_op": "LDS.64",
+     "b_op": "STS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 127
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 131
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<double, 256>(double const*, double*, int)",
+     "mangled": "_Z6reduceIdLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2704,
+     "b_pc": 2736,
+     "a_op": "STS.64",
+     "b_op": "LDS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 127
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 128
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<double, 256>(double const*, double*, int)",
+     "mangled": "_Z6reduceIdLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2736,
+     "b_pc": 2768,
+     "a_op": "LDS.64",
+     "b_op": "STS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 128
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 128
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<double, 256>(double const*, double*, int)",
+     "mangled": "_Z6reduceIdLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2736,
+     "b_pc": 2832,
+     "a_op": "LDS.64",
+     "b_op": "STS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 128
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 129
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<double, 256>(double const*, double*, int)",
+     "mangled": "_Z6reduceIdLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2736,
+     "b_pc": 2896,
+     "a_op": "LDS.64",
+     "b_op": "STS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 128
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 130
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<double, 256>(double const*, double*, int)",
+     "mangled": "_Z6reduceIdLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2736,
+     "b_pc": 2960,
+     "a_op": "LDS.64",
+     "b_op": "STS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 128
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 131
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<double, 256>(double const*, double*, int)",
+     "mangled": "_Z6reduceIdLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2768,
+     "b_pc": 2800,
+     "a_op": "STS.64",
+     "b_op": "LDS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 128
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 129
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<double, 256>(double const*, double*, int)",
+     "mangled": "_Z6reduceIdLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2800,
+     "b_pc": 2832,
+     "a_op": "LDS.64",
+     "b_op": "STS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 129
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 129
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<double, 256>(double const*, double*, int)",
+     "mangled": "_Z6reduceIdLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2800,
+     "b_pc": 2896,
+     "a_op": "LDS.64",
+     "b_op": "STS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 129
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 130
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<double, 256>(double const*, double*, int)",
+     "mangled": "_Z6reduceIdLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2800,
+     "b_pc": 2960,
+     "a_op": "LDS.64",
+     "b_op": "STS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 129
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 131
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<double, 256>(double const*, double*, int)",
+     "mangled": "_Z6reduceIdLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2832,
+     "b_pc": 2864,
+     "a_op": "STS.64",
+     "b_op": "LDS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 129
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 130
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<double, 256>(double const*, double*, int)",
+     "mangled": "_Z6reduceIdLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2864,
+     "b_pc": 2896,
+     "a_op": "LDS.64",
+     "b_op": "STS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 130
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 130
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<double, 256>(double const*, double*, int)",
+     "mangled": "_Z6reduceIdLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2864,
+     "b_pc": 2960,
+     "a_op": "LDS.64",
+     "b_op": "STS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 130
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 131
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<double, 256>(double const*, double*, int)",
+     "mangled": "_Z6reduceIdLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2896,
+     "b_pc": 2928,
+     "a_op": "STS.64",
+     "b_op": "LDS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 130
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 131
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<double, 256>(double const*, double*, int)",
+     "mangled": "_Z6reduceIdLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2928,
+     "b_pc": 2960,
+     "a_op": "LDS.64",
+     "b_op": "STS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 131
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 131
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_3.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<float, 256>(float const*, float*, int)",
+     "mangled": "_Z6reduceIfLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2656,
+     "b_pc": 2688,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 126
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 127
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<float, 256>(float const*, float*, int)",
+     "mangled": "_Z6reduceIfLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2688,
+     "b_pc": 2720,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 127
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 127
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<float, 256>(float const*, float*, int)",
+     "mangled": "_Z6reduceIfLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2688,
+     "b_pc": 2784,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 127
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 128
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<float, 256>(float const*, float*, int)",
+     "mangled": "_Z6reduceIfLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2688,
+     "b_pc": 2848,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 127
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 129
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<float, 256>(float const*, float*, int)",
+     "mangled": "_Z6reduceIfLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2688,
+     "b_pc": 2912,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 127
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 130
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<float, 256>(float const*, float*, int)",
+     "mangled": "_Z6reduceIfLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2688,
+     "b_pc": 2976,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 127
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 131
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<float, 256>(float const*, float*, int)",
+     "mangled": "_Z6reduceIfLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2720,
+     "b_pc": 2752,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 127
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 128
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<float, 256>(float const*, float*, int)",
+     "mangled": "_Z6reduceIfLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2752,
+     "b_pc": 2784,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 128
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 128
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<float, 256>(float const*, float*, int)",
+     "mangled": "_Z6reduceIfLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2752,
+     "b_pc": 2848,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 128
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 129
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<float, 256>(float const*, float*, int)",
+     "mangled": "_Z6reduceIfLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2752,
+     "b_pc": 2912,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 128
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 130
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<float, 256>(float const*, float*, int)",
+     "mangled": "_Z6reduceIfLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2752,
+     "b_pc": 2976,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 128
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 131
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<float, 256>(float const*, float*, int)",
+     "mangled": "_Z6reduceIfLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2784,
+     "b_pc": 2816,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 128
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 129
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<float, 256>(float const*, float*, int)",
+     "mangled": "_Z6reduceIfLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2816,
+     "b_pc": 2848,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 129
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 129
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<float, 256>(float const*, float*, int)",
+     "mangled": "_Z6reduceIfLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2816,
+     "b_pc": 2912,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 129
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 130
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<float, 256>(float const*, float*, int)",
+     "mangled": "_Z6reduceIfLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2816,
+     "b_pc": 2976,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 129
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 131
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<float, 256>(float const*, float*, int)",
+     "mangled": "_Z6reduceIfLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2848,
+     "b_pc": 2880,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 129
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 130
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<float, 256>(float const*, float*, int)",
+     "mangled": "_Z6reduceIfLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2880,
+     "b_pc": 2912,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 130
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 130
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<float, 256>(float const*, float*, int)",
+     "mangled": "_Z6reduceIfLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2880,
+     "b_pc": 2976,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 130
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 131
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<float, 256>(float const*, float*, int)",
+     "mangled": "_Z6reduceIfLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2912,
+     "b_pc": 2944,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 130
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 131
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "RAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "void reduce<float, 256>(float const*, float*, int)",
+     "mangled": "_Z6reduceIfLi256EEvPKT_PS0_i",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2944,
+     "b_pc": 2976,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 131
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 131
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    }
+   ],
+   "site_verdicts": [
+    {
+     "current_pc": 2096,
+     "current_pc_hex": "0x830",
+     "ancient_pc": 4016,
+     "ancient_pc_hex": "0xfb0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 8128,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2176,
+      2208,
+      2272,
+      2336,
+      2432,
+      2480
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 184
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 2096,
+     "current_pc_hex": "0x830",
+     "ancient_pc": 4128,
+     "ancient_pc_hex": "0x1020",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 64,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2176,
+      2208,
+      2272,
+      2336,
+      2432,
+      2480
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 198
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 2160,
+     "current_pc_hex": "0x870",
+     "ancient_pc": 4128,
+     "ancient_pc_hex": "0x1020",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 448,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2176,
+      2208,
+      2272,
+      2336,
+      2432,
+      2480
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 152
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 198
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 2192,
+     "current_pc_hex": "0x890",
+     "ancient_pc": 2096,
+     "ancient_pc_hex": "0x830",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2176
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 157
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 2192,
+     "current_pc_hex": "0x890",
+     "ancient_pc": 2160,
+     "ancient_pc_hex": "0x870",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 896,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2176
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 157
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 152
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 2320,
+     "current_pc_hex": "0x910",
+     "ancient_pc": 2096,
+     "ancient_pc_hex": "0x830",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2176,
+      2208,
+      2272
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 160
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 2320,
+     "current_pc_hex": "0x910",
+     "ancient_pc": 2256,
+     "ancient_pc_hex": "0x8d0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 1792,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2272
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 160
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 158
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 2464,
+     "current_pc_hex": "0x9a0",
+     "ancient_pc": 2096,
+     "ancient_pc_hex": "0x830",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 256,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2176,
+      2208,
+      2272,
+      2336,
+      2432
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 163
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 2464,
+     "current_pc_hex": "0x9a0",
+     "ancient_pc": 2416,
+     "ancient_pc_hex": "0x970",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 3584,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2432
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 163
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 161
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 2560,
+     "current_pc_hex": "0xa00",
+     "ancient_pc": 2096,
+     "ancient_pc_hex": "0x830",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 512,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2176,
+      2208,
+      2272,
+      2336,
+      2432,
+      2480
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 166
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 2560,
+     "current_pc_hex": "0xa00",
+     "ancient_pc": 2528,
+     "ancient_pc_hex": "0x9e0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 7168,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2544
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 166
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 2656,
+     "current_pc_hex": "0xa60",
+     "ancient_pc": 2096,
+     "ancient_pc_hex": "0x830",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 1024,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2176,
+      2208,
+      2272,
+      2336,
+      2432,
+      2480
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 169
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 2656,
+     "current_pc_hex": "0xa60",
+     "ancient_pc": 2624,
+     "ancient_pc_hex": "0xa40",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 14336,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2640
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 169
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 167
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 2752,
+     "current_pc_hex": "0xac0",
+     "ancient_pc": 2096,
+     "ancient_pc_hex": "0x830",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 2048,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2176,
+      2208,
+      2272,
+      2336,
+      2432,
+      2480
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 174
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 2752,
+     "current_pc_hex": "0xac0",
+     "ancient_pc": 2720,
+     "ancient_pc_hex": "0xaa0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 28672,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2736
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 174
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 170
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 2848,
+     "current_pc_hex": "0xb20",
+     "ancient_pc": 2096,
+     "ancient_pc_hex": "0x830",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 4096,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2176,
+      2208,
+      2272,
+      2336,
+      2432,
+      2480
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 179
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 2848,
+     "current_pc_hex": "0xb20",
+     "ancient_pc": 2816,
+     "ancient_pc_hex": "0xb00",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 24576,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2832
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 179
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 175
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 2944,
+     "current_pc_hex": "0xb80",
+     "ancient_pc": 2096,
+     "ancient_pc_hex": "0x830",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 8192,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2176,
+      2208,
+      2272,
+      2336,
+      2432,
+      2480
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 184
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 2944,
+     "current_pc_hex": "0xb80",
+     "ancient_pc": 2912,
+     "ancient_pc_hex": "0xb60",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 16384,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2928
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 184
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 180
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3040,
+     "current_pc_hex": "0xbe0",
+     "ancient_pc": 4336,
+     "ancient_pc_hex": "0x10f0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 56,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      3248,
+      3328,
+      3360,
+      3424,
+      3456,
+      3520
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 301
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 313
+      }
+     ]
+    },
+    {
+     "current_pc": 3056,
+     "current_pc_hex": "0xbf0",
+     "ancient_pc": 3008,
+     "ancient_pc_hex": "0xbc0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 896,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      3024
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 198
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 185
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3280,
+     "current_pc_hex": "0xcd0",
+     "ancient_pc": 3040,
+     "ancient_pc_hex": "0xbe0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 117,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      3248
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 313
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 301
+      }
+     ]
+    },
+    {
+     "current_pc": 3296,
+     "current_pc_hex": "0xce0",
+     "ancient_pc": 2944,
+     "ancient_pc_hex": "0xb80",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 16256,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      2960,
+      3024,
+      3248
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 184
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3296,
+     "current_pc_hex": "0xce0",
+     "ancient_pc": 3056,
+     "ancient_pc_hex": "0xbf0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      3248
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 198
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3312,
+     "current_pc_hex": "0xcf0",
+     "ancient_pc": 3056,
+     "ancient_pc_hex": "0xbf0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 896,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      3248
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 152
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 198
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3344,
+     "current_pc_hex": "0xd10",
+     "ancient_pc": 3296,
+     "ancient_pc_hex": "0xce0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      3328
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 157
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3344,
+     "current_pc_hex": "0xd10",
+     "ancient_pc": 3312,
+     "ancient_pc_hex": "0xcf0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 896,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      3328
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 157
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 152
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3440,
+     "current_pc_hex": "0xd70",
+     "ancient_pc": 3296,
+     "ancient_pc_hex": "0xce0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      3328,
+      3360,
+      3424
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 160
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3440,
+     "current_pc_hex": "0xd70",
+     "ancient_pc": 3408,
+     "ancient_pc_hex": "0xd50",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 1792,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      3424
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 160
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 158
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3536,
+     "current_pc_hex": "0xdd0",
+     "ancient_pc": 3296,
+     "ancient_pc_hex": "0xce0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 256,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      3328,
+      3360,
+      3424,
+      3456,
+      3520
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 163
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3536,
+     "current_pc_hex": "0xdd0",
+     "ancient_pc": 3504,
+     "ancient_pc_hex": "0xdb0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 3584,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      3520
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 163
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 161
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3632,
+     "current_pc_hex": "0xe30",
+     "ancient_pc": 3296,
+     "ancient_pc_hex": "0xce0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 512,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      3328,
+      3360,
+      3424,
+      3456,
+      3520,
+      3552
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 166
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3632,
+     "current_pc_hex": "0xe30",
+     "ancient_pc": 3600,
+     "ancient_pc_hex": "0xe10",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 7168,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      3616
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 166
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3728,
+     "current_pc_hex": "0xe90",
+     "ancient_pc": 3296,
+     "ancient_pc_hex": "0xce0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 1024,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      3328,
+      3360,
+      3424,
+      3456,
+      3520,
+      3552
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 169
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3728,
+     "current_pc_hex": "0xe90",
+     "ancient_pc": 3696,
+     "ancient_pc_hex": "0xe70",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 14336,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      3712
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 169
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 167
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3824,
+     "current_pc_hex": "0xef0",
+     "ancient_pc": 3296,
+     "ancient_pc_hex": "0xce0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 2048,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      3328,
+      3360,
+      3424,
+      3456,
+      3520,
+      3552
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 174
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3824,
+     "current_pc_hex": "0xef0",
+     "ancient_pc": 3792,
+     "ancient_pc_hex": "0xed0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 28672,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      3808
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 174
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 170
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3920,
+     "current_pc_hex": "0xf50",
+     "ancient_pc": 3296,
+     "ancient_pc_hex": "0xce0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 4096,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      3328,
+      3360,
+      3424,
+      3456,
+      3520,
+      3552
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 179
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3920,
+     "current_pc_hex": "0xf50",
+     "ancient_pc": 3888,
+     "ancient_pc_hex": "0xf30",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 24576,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      3904
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 179
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 175
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 4016,
+     "current_pc_hex": "0xfb0",
+     "ancient_pc": 3296,
+     "ancient_pc_hex": "0xce0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 8192,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      3328,
+      3360,
+      3424,
+      3456,
+      3520,
+      3552
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 184
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 4016,
+     "current_pc_hex": "0xfb0",
+     "ancient_pc": 3984,
+     "ancient_pc_hex": "0xf90",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 16384,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      4000
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 184
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 180
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 4112,
+     "current_pc_hex": "0x1010",
+     "ancient_pc": 3280,
+     "ancient_pc_hex": "0xcd0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 117,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      3328,
+      3360,
+      3424,
+      3456,
+      3520,
+      3552
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 301
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 313
+      }
+     ]
+    },
+    {
+     "current_pc": 4128,
+     "current_pc_hex": "0x1020",
+     "ancient_pc": 4080,
+     "ancient_pc_hex": "0xff0",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 896,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      4096
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 198
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 185
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 4336,
+     "current_pc_hex": "0x10f0",
+     "ancient_pc": 4112,
+     "ancient_pc_hex": "0x1010",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 110,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      4272
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<float, float4, 256>(float const*, float*, float const*, int)",
+     "mangled": "_Z11bottom_scanIf6float4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 313
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 301
+      }
+     ]
+    },
+    {
+     "current_pc": 2304,
+     "current_pc_hex": "0x900",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2288
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 157
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 2304,
+     "current_pc_hex": "0x900",
+     "ancient_pc": 2272,
+     "ancient_pc_hex": "0x8e0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 896,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2288
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 157
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 152
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 2448,
+     "current_pc_hex": "0x990",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2288,
+      2320,
+      2384
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 160
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 2448,
+     "current_pc_hex": "0x990",
+     "ancient_pc": 2368,
+     "ancient_pc_hex": "0x940",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 1792,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2384
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 160
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 158
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 2592,
+     "current_pc_hex": "0xa20",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 256,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2288,
+      2320,
+      2384,
+      2464,
+      2544
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 163
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 2592,
+     "current_pc_hex": "0xa20",
+     "ancient_pc": 2528,
+     "ancient_pc_hex": "0x9e0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 3584,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2544
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 163
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 161
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 2720,
+     "current_pc_hex": "0xaa0",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 512,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2288,
+      2320,
+      2384,
+      2464,
+      2544,
+      2608
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 166
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 2720,
+     "current_pc_hex": "0xaa0",
+     "ancient_pc": 2672,
+     "ancient_pc_hex": "0xa70",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 7168,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2688
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 166
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 2816,
+     "current_pc_hex": "0xb00",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 1024,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2288,
+      2320,
+      2384,
+      2464,
+      2544,
+      2608
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 169
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 2816,
+     "current_pc_hex": "0xb00",
+     "ancient_pc": 2784,
+     "ancient_pc_hex": "0xae0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 14336,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2800
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 169
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 167
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 2912,
+     "current_pc_hex": "0xb60",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 2048,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2288,
+      2320,
+      2384,
+      2464,
+      2544,
+      2608
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 174
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 2912,
+     "current_pc_hex": "0xb60",
+     "ancient_pc": 2880,
+     "ancient_pc_hex": "0xb40",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 28672,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2896
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 174
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 170
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3008,
+     "current_pc_hex": "0xbc0",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 4096,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2288,
+      2320,
+      2384,
+      2464,
+      2544,
+      2608
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 179
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3008,
+     "current_pc_hex": "0xbc0",
+     "ancient_pc": 2976,
+     "ancient_pc_hex": "0xba0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 24576,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2992
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 179
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 175
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3104,
+     "current_pc_hex": "0xc20",
+     "ancient_pc": 2208,
+     "ancient_pc_hex": "0x8a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 8192,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      2288,
+      2320,
+      2384,
+      2464,
+      2544,
+      2608
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 184
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3104,
+     "current_pc_hex": "0xc20",
+     "ancient_pc": 3072,
+     "ancient_pc_hex": "0xc00",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 16384,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      3088
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 184
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 180
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3216,
+     "current_pc_hex": "0xc90",
+     "ancient_pc": 3168,
+     "ancient_pc_hex": "0xc60",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 896,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      3184
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 198
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 185
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3456,
+     "current_pc_hex": "0xd80",
+     "ancient_pc": 3200,
+     "ancient_pc_hex": "0xc80",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 118,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      3440
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 313
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 301
+      }
+     ]
+    },
+    {
+     "current_pc": 3472,
+     "current_pc_hex": "0xd90",
+     "ancient_pc": 3104,
+     "ancient_pc_hex": "0xc20",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 16256,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      3120,
+      3184,
+      3440
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 184
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3472,
+     "current_pc_hex": "0xd90",
+     "ancient_pc": 3216,
+     "ancient_pc_hex": "0xc90",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      3440
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 198
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3488,
+     "current_pc_hex": "0xda0",
+     "ancient_pc": 3216,
+     "ancient_pc_hex": "0xc90",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 896,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      3440
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 152
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 198
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3520,
+     "current_pc_hex": "0xdc0",
+     "ancient_pc": 3472,
+     "ancient_pc_hex": "0xd90",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      3504
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 157
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3520,
+     "current_pc_hex": "0xdc0",
+     "ancient_pc": 3488,
+     "ancient_pc_hex": "0xda0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 896,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      3504
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 157
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 152
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3616,
+     "current_pc_hex": "0xe20",
+     "ancient_pc": 3472,
+     "ancient_pc_hex": "0xd90",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      3504,
+      3536,
+      3600
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 160
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3616,
+     "current_pc_hex": "0xe20",
+     "ancient_pc": 3584,
+     "ancient_pc_hex": "0xe00",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 1792,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      3600
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 160
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 158
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3712,
+     "current_pc_hex": "0xe80",
+     "ancient_pc": 3472,
+     "ancient_pc_hex": "0xd90",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 256,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      3504,
+      3536,
+      3600,
+      3632,
+      3696
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 163
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3712,
+     "current_pc_hex": "0xe80",
+     "ancient_pc": 3680,
+     "ancient_pc_hex": "0xe60",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 3584,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      3696
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 163
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 161
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3808,
+     "current_pc_hex": "0xee0",
+     "ancient_pc": 3472,
+     "ancient_pc_hex": "0xd90",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 512,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      3504,
+      3536,
+      3600,
+      3632,
+      3696,
+      3728
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 166
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3808,
+     "current_pc_hex": "0xee0",
+     "ancient_pc": 3776,
+     "ancient_pc_hex": "0xec0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 7168,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      3792
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 166
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 164
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3904,
+     "current_pc_hex": "0xf40",
+     "ancient_pc": 3472,
+     "ancient_pc_hex": "0xd90",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 1024,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      3504,
+      3536,
+      3600,
+      3632,
+      3696,
+      3728
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 169
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 3904,
+     "current_pc_hex": "0xf40",
+     "ancient_pc": 3872,
+     "ancient_pc_hex": "0xf20",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 14336,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      3888
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 169
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 167
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 4000,
+     "current_pc_hex": "0xfa0",
+     "ancient_pc": 3472,
+     "ancient_pc_hex": "0xd90",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 2048,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      3504,
+      3536,
+      3600,
+      3632,
+      3696,
+      3728
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 174
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 4000,
+     "current_pc_hex": "0xfa0",
+     "ancient_pc": 3968,
+     "ancient_pc_hex": "0xf80",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 28672,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      3984
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 174
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 170
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 4096,
+     "current_pc_hex": "0x1000",
+     "ancient_pc": 3472,
+     "ancient_pc_hex": "0xd90",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 4096,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      3504,
+      3536,
+      3600,
+      3632,
+      3696,
+      3728
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 179
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 4096,
+     "current_pc_hex": "0x1000",
+     "ancient_pc": 4064,
+     "ancient_pc_hex": "0xfe0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 24576,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      4080
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 179
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 175
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 4192,
+     "current_pc_hex": "0x1060",
+     "ancient_pc": 3472,
+     "ancient_pc_hex": "0xd90",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 8192,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      3504,
+      3536,
+      3600,
+      3632,
+      3696,
+      3728
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 184
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 147
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 4192,
+     "current_pc_hex": "0x1060",
+     "ancient_pc": 4160,
+     "ancient_pc_hex": "0x1040",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 16384,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      4176
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 184
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 180
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 4288,
+     "current_pc_hex": "0x10c0",
+     "ancient_pc": 3456,
+     "ancient_pc_hex": "0xd80",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 114,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      3504,
+      3536,
+      3600,
+      3632,
+      3696,
+      3728
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 301
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 313
+      }
+     ]
+    },
+    {
+     "current_pc": 4304,
+     "current_pc_hex": "0x10d0",
+     "ancient_pc": 4256,
+     "ancient_pc_hex": "0x10a0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 896,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      4272
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 198
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 185
+      },
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 298
+      }
+     ]
+    },
+    {
+     "current_pc": 4528,
+     "current_pc_hex": "0x11b0",
+     "ancient_pc": 4288,
+     "ancient_pc_hex": "0x10c0",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 108,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      4464
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void bottom_scan<double, double4, 256>(double const*, double*, double const*, int)",
+     "mangled": "_Z11bottom_scanId7double4Li256EEvPKT_PS1_S3_i",
+     "kernel_json": "kernel_5.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 313
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/lit-shoc-1/fixed/src/src/cuda/level1/scan/scan_kernel.h",
+       "line": 301
+      }
+     ]
+    }
+   ],
+   "site_skipped": {
+    "intra_thread_only": 70,
+    "read_read": 68
+   }
+  }
+ },
+ "dots_checked": 1,
+ "dots_regenerated_equal": 1
+}

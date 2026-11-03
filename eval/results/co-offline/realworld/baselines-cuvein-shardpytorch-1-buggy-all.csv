@@ -1,0 +1,2 @@
+id,pset,program,build,input,tool,mode,rep,verdict,reports_dedup,report_ids,report_lines,wall_s,native_wall_s,peak_mb,rc,notes
+pytorch-1-buggy,RW,pytorch-1,buggy,"N=2048 indices (two batches of 1024; batch 1 reaches tid 992, 2017..3072 needed), D=32 (one block of 1024 threads), V=64",cuvein,scalar-clock,1,RACE,3,shared:0x190-0x250:RAW shared:0x190-0x3c0:WAR global:0x5f0-0x610:RAW,Embedding.cu:122;Embedding.cu:66;Embedding.cu:82;Embedding.cu:99,1.972,0.269,891.9,0,cap=1200;node=c75;arch=8.9;events=20566;nkernels=1;classes=race:3

@@ -1,0 +1,261 @@
+{
+ "diagnostics": {
+  "event_candidates": null,
+  "tv_violation": null,
+  "unknown_sync_count": 0,
+  "unknown_sync_opcodes": []
+ },
+ "gate_policy": null,
+ "inputs": {
+  "cfg_dot": "CC_CUDA_V_Data_Pull_Determ_IntType_Persist_RaceBug_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug.sm_89.dot",
+  "trace_json": "kernel_0.json"
+ },
+ "kernel": {
+  "mangled": "_Z14cc_vertex_data8ECLgraphPiS0_PKiiS0_S0_iS0_",
+  "name": "cc_vertex_data(ECLgraph, int*, int*, int const*, int, int*, int*, int, int*)"
+ },
+ "skipped_edges": [
+  {
+   "ancient_pc": null,
+   "current_pc": 144,
+   "reason": "cold_miss"
+  },
+  {
+   "ancient_pc": 144,
+   "current_pc": 144,
+   "reason": "read_read"
+  },
+  {
+   "ancient_pc": null,
+   "current_pc": 192,
+   "reason": "cold_miss"
+  },
+  {
+   "ancient_pc": 192,
+   "current_pc": 192,
+   "reason": "read_read"
+  },
+  {
+   "ancient_pc": null,
+   "current_pc": 208,
+   "reason": "cold_miss"
+  },
+  {
+   "ancient_pc": 208,
+   "current_pc": 208,
+   "reason": "read_read"
+  },
+  {
+   "ancient_pc": null,
+   "current_pc": 240,
+   "reason": "cold_miss"
+  },
+  {
+   "ancient_pc": null,
+   "current_pc": 304,
+   "reason": "cold_miss"
+  },
+  {
+   "ancient_pc": 304,
+   "current_pc": 304,
+   "reason": "read_read"
+  },
+  {
+   "ancient_pc": null,
+   "current_pc": 544,
+   "reason": "cold_miss"
+  },
+  {
+   "ancient_pc": null,
+   "current_pc": 608,
+   "reason": "cold_miss"
+  },
+  {
+   "ancient_pc": 608,
+   "current_pc": 608,
+   "reason": "read_read"
+  },
+  {
+   "ancient_pc": null,
+   "current_pc": 640,
+   "reason": "cold_miss"
+  },
+  {
+   "ancient_pc": 640,
+   "current_pc": 640,
+   "reason": "read_read"
+  },
+  {
+   "ancient_pc": 2320,
+   "current_pc": 2320,
+   "reason": "read_read"
+  }
+ ],
+ "summary": {
+  "hb_classes": null,
+  "model_bug": 0,
+  "ordered": 1,
+  "races": 3,
+  "sc": 0,
+  "skipped": 15
+ },
+ "syncs": [
+  {
+   "opcode": "WARPSYNC",
+   "pc": 272,
+   "pc_hex": "0x110",
+   "qualifying": true,
+   "scope": "warp"
+  },
+  {
+   "opcode": "BAR.SYNC.DEFER_BLOCKING",
+   "pc": 352,
+   "pc_hex": "0x160",
+   "qualifying": true,
+   "scope": "block"
+  },
+  {
+   "opcode": "BAR.SYNC.DEFER_BLOCKING",
+   "pc": 2304,
+   "pc_hex": "0x900",
+   "qualifying": true,
+   "scope": "block"
+  },
+  {
+   "opcode": "WARPSYNC",
+   "pc": 5248,
+   "pc_hex": "0x1480",
+   "qualifying": true,
+   "scope": "warp"
+  },
+  {
+   "opcode": "BAR.SYNC.DEFER_BLOCKING",
+   "pc": 5264,
+   "pc_hex": "0x1490",
+   "qualifying": true,
+   "scope": "block"
+  }
+ ],
+ "verdicts": [
+  {
+   "a2_uncertain": null,
+   "access_size": 4,
+   "ancient_pc": 768,
+   "ancient_pc_hex": "0x300",
+   "assumption": null,
+   "atomic_coherence": "none",
+   "benign": null,
+   "conflict_class": "DR",
+   "contested_weight": 1,
+   "current_pc": 640,
+   "current_pc_hex": "0x280",
+   "edge_rescued": false,
+   "event_candidate": false,
+   "hb_chain": null,
+   "hb_class": null,
+   "matrix_class": null,
+   "model_bug": null,
+   "observed_distance": "grid",
+   "opcodes": [
+    "LDG.E",
+    "STG.E"
+   ],
+   "ordering_syncs": [],
+   "race_type": "RAW",
+   "space": "global",
+   "strength": "none",
+   "verdict": "RACE",
+   "warp_same_inst": false
+  },
+  {
+   "a2_uncertain": null,
+   "access_size": 4,
+   "ancient_pc": 640,
+   "ancient_pc_hex": "0x280",
+   "assumption": null,
+   "atomic_coherence": "none",
+   "benign": null,
+   "conflict_class": "DR",
+   "contested_weight": 2,
+   "current_pc": 768,
+   "current_pc_hex": "0x300",
+   "edge_rescued": false,
+   "event_candidate": false,
+   "hb_chain": null,
+   "hb_class": null,
+   "matrix_class": null,
+   "model_bug": null,
+   "observed_distance": "grid",
+   "opcodes": [
+    "STG.E",
+    "LDG.E"
+   ],
+   "ordering_syncs": [],
+   "race_type": "WAR",
+   "space": "global",
+   "strength": "none",
+   "verdict": "RACE",
+   "warp_same_inst": false
+  },
+  {
+   "a2_uncertain": null,
+   "access_size": 4,
+   "ancient_pc": 768,
+   "ancient_pc_hex": "0x300",
+   "assumption": null,
+   "atomic_coherence": "none",
+   "benign": null,
+   "conflict_class": "DR",
+   "contested_weight": 1,
+   "current_pc": 768,
+   "current_pc_hex": "0x300",
+   "edge_rescued": false,
+   "event_candidate": false,
+   "hb_chain": null,
+   "hb_class": null,
+   "matrix_class": null,
+   "model_bug": null,
+   "observed_distance": "grid",
+   "opcodes": [
+    "STG.E",
+    "STG.E"
+   ],
+   "ordering_syncs": [],
+   "race_type": "WAW",
+   "space": "global",
+   "strength": "none",
+   "verdict": "RACE",
+   "warp_same_inst": false
+  },
+  {
+   "a2_uncertain": null,
+   "access_size": 1,
+   "ancient_pc": 240,
+   "ancient_pc_hex": "0xf0",
+   "assumption": null,
+   "atomic_coherence": "none",
+   "benign": null,
+   "conflict_class": "DR",
+   "contested_weight": 4,
+   "current_pc": 2320,
+   "current_pc_hex": "0x910",
+   "edge_rescued": false,
+   "event_candidate": false,
+   "hb_chain": null,
+   "hb_class": "barrier-ordered",
+   "matrix_class": "barrier-ordered",
+   "model_bug": null,
+   "observed_distance": "block",
+   "opcodes": [
+    "LDS.U8",
+    "STS.U8"
+   ],
+   "ordering_syncs": [],
+   "race_type": "RAW",
+   "space": "shared",
+   "strength": "none",
+   "verdict": "ORDERED",
+   "warp_same_inst": false
+  }
+ ]
+}

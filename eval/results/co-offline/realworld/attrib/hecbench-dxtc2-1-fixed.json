@@ -1,0 +1,286 @@
+{
+ "id": "hecbench-dxtc2-1-fixed",
+ "target": "hecbench-dxtc2-1",
+ "exe": "/mnt/beegfs/fzheng4/realworld_t21b/build/hecbench-dxtc2-1/fixed/main",
+ "cuda_home": "/usr/local/cuda-13.4",
+ "n_cubins": 2,
+ "n_dots": 2,
+ "oracle_kernel_substr": "compress",
+ "spec_found": true,
+ "modes": {
+  "scalar-clock": {
+   "n_kernel_jsons": 1,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "compress(unsigned int const*, unsigned int const*, uint2*, int)",
+     "mangled": "_Z8compressPKjS0_P5uint2i",
+     "dot": "main.sm_89.dot",
+     "summary": {
+      "races": 3,
+      "sc": 0,
+      "ordered": 130,
+      "skipped": 316,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 1,
+   "n_race": 3,
+   "n_sc": 0,
+   "reports": [
+    {
+     "mode": "scalar-clock",
+     "kernel": "compress(unsigned int const*, unsigned int const*, uint2*, int)",
+     "mangled": "_Z8compressPKjS0_P5uint2i",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 11088,
+     "b_pc": 11152,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-dxtc2-1/fixed/src/src/dxtc2-cuda/main.cu",
+       "line": 448
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-dxtc2-1/fixed/src/src/dxtc2-cuda/main.cu",
+       "line": 448
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "compress(unsigned int const*, unsigned int const*, uint2*, int)",
+     "mangled": "_Z8compressPKjS0_P5uint2i",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 11104,
+     "b_pc": 11168,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-dxtc2-1/fixed/src/src/dxtc2-cuda/main.cu",
+       "line": 448
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-dxtc2-1/fixed/src/src/dxtc2-cuda/main.cu",
+       "line": 448
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "scalar-clock",
+     "kernel": "compress(unsigned int const*, unsigned int const*, uint2*, int)",
+     "mangled": "_Z8compressPKjS0_P5uint2i",
+     "dot": "main.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 11120,
+     "b_pc": 11184,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-dxtc2-1/fixed/src/src/dxtc2-cuda/main.cu",
+       "line": 448
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-dxtc2-1/fixed/src/src/dxtc2-cuda/main.cu",
+       "line": 448
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    }
+   ],
+   "site_verdicts": [
+    {
+     "current_pc": 11152,
+     "current_pc_hex": "0x2b90",
+     "ancient_pc": 11088,
+     "ancient_pc_hex": "0x2b50",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 968,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "compress(unsigned int const*, unsigned int const*, uint2*, int)",
+     "mangled": "_Z8compressPKjS0_P5uint2i",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-dxtc2-1/fixed/src/src/dxtc2-cuda/main.cu",
+       "line": 448
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-dxtc2-1/fixed/src/src/dxtc2-cuda/main.cu",
+       "line": 448
+      }
+     ]
+    },
+    {
+     "current_pc": 11168,
+     "current_pc_hex": "0x2ba0",
+     "ancient_pc": 11104,
+     "ancient_pc_hex": "0x2b60",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 968,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "compress(unsigned int const*, unsigned int const*, uint2*, int)",
+     "mangled": "_Z8compressPKjS0_P5uint2i",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-dxtc2-1/fixed/src/src/dxtc2-cuda/main.cu",
+       "line": 448
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-dxtc2-1/fixed/src/src/dxtc2-cuda/main.cu",
+       "line": 448
+      }
+     ]
+    },
+    {
+     "current_pc": 11184,
+     "current_pc_hex": "0x2bb0",
+     "ancient_pc": 11120,
+     "ancient_pc_hex": "0x2b70",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "warp",
+     "contested_weight": 968,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "compress(unsigned int const*, unsigned int const*, uint2*, int)",
+     "mangled": "_Z8compressPKjS0_P5uint2i",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-dxtc2-1/fixed/src/src/dxtc2-cuda/main.cu",
+       "line": 448
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-dxtc2-1/fixed/src/src/dxtc2-cuda/main.cu",
+       "line": 448
+      }
+     ]
+    }
+   ],
+   "site_skipped": {}
+  }
+ },
+ "dots_checked": 1,
+ "dots_regenerated_equal": 1
+}
