@@ -187,8 +187,9 @@ The 24 binaries with a shared pair are the CC `Warp` and `Block` codes. Their sh
   would separate them sits after the loop (lines 139–141), not inside it. The push template has the barrier inside
   its loop (line 178), so its persistent codes do not have this WAR. cuRace reports it as `shared:…:WAR`.
 
-racecheck reports exactly the four `Pull…Persist…Block` binaries (2 codes × 2 atomic builds), at the generated
-`.cu` lines of the reset and the read. It reports none of the 20 binaries that have only the same-value write.
+racecheck reports exactly the four `Pull…Persist…Block` binaries (2 codes × 2 atomic builds), each at two
+generated `.cu` lines (76 and 91 in the `Determ` code, 74 and 87 in the `NonDeterm` one). That these are the reset
+and the read is inferred from the template, not checked against the generated file, which was not produced here. It reports none of the 20 binaries that have only the same-value write.
 
 Consequences:
 
