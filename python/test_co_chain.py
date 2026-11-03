@@ -5,7 +5,9 @@ $CUVEIN_CHAIN_CLOSURE=1). Default off, output unchanged when off.
 The collector keeps ONE last accessor per word, so a read in between hides a conflict: block 1
 reads (pc A), block 0 reads (pc B, edge B<-A), block 0 writes (pc C, edge C<-B) -- no edge A->C.
 With the switch on, a chain A -> h1 -> ... -> hk -> C (hk >= 1, inner pcs all reads) derives the
-pair (A, C) at the chain's widest hop (ultrametric bound; narrowest over all chains).
+pair (A, C) at the chain's widest hop (ultrametric bound). C6b: the bound is the WIDEST hop over
+all chains (C6 took the narrowest, a minimax), and every edge is judged at max(its own distance,
+its chain bound) -- a wider chain bound is a rescue (chain_rescue), also for a cross-thread edge.
 
 Fixtures: the real rtraw recording of testdata/r3_closure (hb_* keys stripped = a collector-only
 dump), synthetic kernels (a generated one-block .dot of LDG/STG and a hand-written kernel JSON), and
@@ -183,13 +185,57 @@ def test_three_hops_mixed_distances_take_the_widest():
     assert (A, B) not in out                       # one hop: an edge, not a chain
 
 
-def test_narrowest_bound_over_chains():
+def test_widest_bound_over_chains():
+    """C6b (was test_narrowest_bound_over_chains, which asserted C6's minimax: BLOCK via C, and
+    the second pair dropped): the bound is the widest hop over every chain."""
     hops = {A: {B: GRID, C: BLOCK}, B: {D: GRID}, C: {D: BLOCK}}
     out = sd.chain_closure_pairs(hops, lambda pc: pc in (B, C), lambda a, c: True, 10)
-    assert out[(A, D)] == (BLOCK, [A, C, D])
-    # all-intra-thread chain: not cross-thread, dropped even though a wider chain exists
+    assert out[(A, D)] == (GRID, [A, B, D])
+    # an all-intra-thread chain no longer hides a cross-thread one
     hops = {A: {B: NONE, C: GRID}, B: {D: NONE}, C: {D: GRID}}
-    assert (A, D) not in sd.chain_closure_pairs(hops, lambda pc: pc in (B, C), lambda a, c: True, 10)
+    assert sd.chain_closure_pairs(hops, lambda pc: pc in (B, C), lambda a, c: True, 10)[(A, D)] \
+        == (GRID, [A, C, D])
+    # only all-intra-thread chains: not cross-thread, dropped (as in C6)
+    hops = {A: {B: NONE}, B: {D: NONE}}
+    assert (A, D) not in sd.chain_closure_pairs(hops, lambda pc: pc == B, lambda a, c: True, 10)
+
+
+def test_widest_is_the_widest_hop_reachable_from_a_and_reaching_c():
+    """Equivalent form of the bound: the widest hop (u, v) with u reachable from a and c reachable
+    from v through reads -- here the GRID hop C -> E sits on a detour a chain to D can take."""
+    hops = {A: {B: WARP}, B: {C: WARP, D: WARP}, C: {E: GRID}, E: {B: WARP}}
+    out = sd.chain_closure_pairs(hops, lambda pc: pc in (B, C, E), lambda a, c: c == D, 10)
+    assert out[(A, D)] == (GRID, [A, B, C, E, B, D])
+
+
+def test_two_chains_warp_and_grid_judged_at_grid(tmp_path):
+    ops = {A: "W", B: "R", C: "R", D: "W"}
+    edges = [(B, A, "warp"), (D, B, "warp"), (C, A, "grid"), (D, C, "warp")]
+    dot, kj = _synth(tmp_path, "warpgrid", ops, edges)
+    v = _tags(sd.analyze(dot, kj, chain_closure=True))[(A, D)]
+    assert v["chain"] is True and v["observed_distance"] == "grid"
+    assert v["chain_path"] == ["0x10", "0x30", "0x40"]
+
+
+def test_intra_warp_edge_with_a_grid_chain_is_judged_at_grid(tmp_path):
+    """An edge recorded at intra_warp with a grid chain between its ends: judged at grid and
+    tagged chain_rescue (C6 judged it at its own warp distance); its weight stays the edge's."""
+    ops = {A: "W", B: "R", C: "W"}
+    edges = [(B, A, "grid"), (C, B, "grid"), (C, A, "warp")]
+    dot, kj = _synth(tmp_path, "warpedge", ops, edges)
+    off = _tags(sd.analyze(dot, kj))[(A, C)]
+    assert off["observed_distance"] == "warp"
+    on = sd.analyze(dot, kj, chain_closure=True)
+    v = _tags(on)[(A, C)]
+    assert v["observed_distance"] == "grid" and v["chain_rescue"] is True and v["chain"] is False
+    assert v["chain_path"] == ["0x10", "0x20", "0x30"]
+    assert v["edge_rescued"] is False and v["contested_weight"] == 1 and v["race_type"] == "WAW"
+    assert on["diagnostics"]["chain_closure"]["rescued"] == 1
+    assert on["diagnostics"]["chain_closure"]["derived"] == 0
+    # an edge whose own distance is at least the chain bound is untouched
+    dot2, kj2 = _synth(tmp_path, "gridedge", ops, [(B, A, "block"), (C, B, "block"), (C, A, "grid")])
+    v2 = _tags(sd.analyze(dot2, kj2, chain_closure=True))[(A, C)]
+    assert v2["chain_rescue"] is False and v2["observed_distance"] == "grid"
 
 
 def test_ultrametric_bound_through_analyze(tmp_path):
@@ -202,32 +248,40 @@ def test_ultrametric_bound_through_analyze(tmp_path):
     assert on[(A, B)]["chain"] is False and on[(A, B)]["observed_distance"] == "warp"
 
 
-def test_narrowest_over_two_chains_through_analyze(tmp_path):
+def test_widest_over_two_chains_through_analyze(tmp_path):
+    """C6b (was test_narrowest_over_two_chains_through_analyze: block via C under C6's minimax)."""
     ops = {A: "W", B: "R", C: "R", D: "W"}
     edges = [(B, A, "grid"), (D, B, "grid"), (C, A, "block"), (D, C, "block")]
     dot, kj = _synth(tmp_path, "twochains", ops, edges)
     v = _tags(sd.analyze(dot, kj, chain_closure=True))[(A, D)]
-    assert v["observed_distance"] == "block" and v["chain_path"] == ["0x10", "0x30", "0x40"]
+    assert v["observed_distance"] == "grid" and v["chain_path"] == ["0x10", "0x20", "0x40"]
 
 
-def test_same_instruction_self_edge_is_a_warp_hop_and_never_narrows(tmp_path):
-    """(pc, pc) with only intra_instance_launch counts as WARP as a hop; a self loop never narrows
-    a bound (the walk that skips it is the narrowest)."""
+def test_same_instruction_self_edge_is_a_warp_hop(tmp_path):
+    """(pc, pc) with only intra_instance_launch counts as WARP as a hop. C6b (this test asserted
+    C6's minimax before: a self loop never narrowed a bound, so (A, C) was dropped as intra-thread
+    by the walk that skips the loop): the widest walk takes the loop, A -> B -> B -> C crosses
+    another lane of B's warp instruction, so (A, C) is derived at WARP."""
     ops = {A: "W", B: "R", C: "W"}
     edges = [(B, A, "thread"), (B, B, "inst"), (C, B, "thread")]
     dot, kj = _synth(tmp_path, "selfedge", ops, edges)
     on = sd.analyze(dot, kj, chain_closure=True)
     assert on["diagnostics"]["chain_closure"]["hops"] == 3
-    assert (A, C) not in _tags(on)            # A -> B -> C is intra-thread all the way
+    d = _tags(on)[(A, C)]
+    assert d["chain"] is True and d["observed_distance"] == "warp" and d["race_type"] == "WAW"
+    assert d["chain_path"] == ["0x10", "0x20", "0x20", "0x30"]
     assert (B, B) not in _tags(on)            # the read-read self edge is skipped, as today
-    # ... but as a hop it makes the intra-thread edge A -> B cross-thread (A, then B on another
+    # ... and as a hop it makes the intra-thread edge A -> B cross-thread (A, then B on another
     # lane of the same warp instruction): a rescue at WARP
     r = _tags(on)[(A, B)]
-    assert r["chain_rescue"] is True and r["observed_distance"] == "warp"         and r["chain_path"] == ["0x10", "0x20", "0x20"]
+    assert r["chain_rescue"] is True and r["observed_distance"] == "warp" \
+        and r["chain_path"] == ["0x10", "0x20", "0x20"]
     assert sd.chain_closure_pairs({A: {B: NONE}, B: {B: WARP, C: NONE}},
-                                  lambda pc: pc == B, lambda a, c: a == A, 10) ==         {(A, B): (WARP, [A, B, B])}           # (A, C) is NONE by the walk that skips the loop
+                                  lambda pc: pc == B, lambda a, c: a == A, 10) == \
+        {(A, B): (WARP, [A, B, B]), (A, C): (WARP, [A, B, B, C])}
     assert sd.chain_closure_pairs({A: {B: BLOCK}, B: {B: GRID, C: BLOCK}},
-                                  lambda pc: pc == B, lambda a, c: a == A, 10)[(A, C)][0] == BLOCK
+                                  lambda pc: pc == B, lambda a, c: a == A, 10)[(A, C)] == \
+        (GRID, [A, B, B, C])
 
 
 # ---------------------------------------------------------------- rescue
@@ -279,10 +333,13 @@ def test_switch_off_is_byte_identical(tmp_path):
         assert '"chain' not in base and "chain_closure" not in base, name   # nothing added
         on = sd.analyze(dot, kj, chain_closure=True)
         assert "chain_closure" in on["diagnostics"]
-        # on: every other verdict is exactly today's (edges that produce a verdict are untouched)
+        # on: every other verdict is exactly today's (edges that produce a verdict and that no
+        # wider chain rescues are untouched; C6b: a rescued edge may have a verdict today too)
         kept = [{k: v for k, v in x.items() if k not in ("chain", "chain_rescue", "chain_path")}
                 for x in on["verdicts"] if not x["chain"] and not x["chain_rescue"]]
-        off_v = json.loads(base)["verdicts"]
+        resc = {(x["ancient_pc"], x["current_pc"]) for x in on["verdicts"] if x["chain_rescue"]}
+        off_v = [x for x in json.loads(base)["verdicts"]
+                 if (x["ancient_pc"], x["current_pc"]) not in resc]
         assert _canon(kept) == _canon(off_v), name
 
 

@@ -82,6 +82,36 @@ def chain_note(stats):
     return note
 
 
+def co_async_enabled(co_async=None):
+    """C6b: the collector-only cp.async switch (sync_dominance.analyze(co_async=)): the explicit
+    argument if not None, else $CUVEIN_CO_ASYNC == "1", else off."""
+    if co_async is None:
+        return os.environ.get("CUVEIN_CO_ASYNC") == "1"
+    return bool(co_async)
+
+
+def co_r3_mode(co_r3=None):
+    """C6b: the collector-only R3 certificate (sync_dominance.analyze(co_r3=)): the explicit
+    argument if not None, else $CUVEIN_CO_R3, else 'cfg' (today's region dominance)."""
+    mode = co_r3 if co_r3 is not None else (os.environ.get("CUVEIN_CO_R3") or "cfg")
+    if mode not in sd.CO_R3_MODES:
+        raise ValueError(f"co-r3 '{mode}' not in {sd.CO_R3_MODES}")
+    return mode
+
+
+def co_note(co_async, co_r3):
+    """C6b: the notes tokens of a collector-only row analysed with a non-default co switch
+    ('' at the defaults, so a default row is unchanged)."""
+    return (";co_async=1" if co_async else "") + (f";co_r3={co_r3}" if co_r3 != "cfg" else "")
+
+
+def _co_kwargs(co):
+    """sync_dominance.analyze kwargs of a resolved (co_async, co_r3) pair; {} at the defaults."""
+    if not co:
+        return {}
+    return {"co_async": co[0], "co_r3": co[1]}
+
+
 _DOT_TEXT = {}    # C6: dot path -> text, read once per process (inherited by forked workers)
 
 
@@ -122,32 +152,45 @@ def _dots_for_kernel(kj, dots, dot_text):
     return hit + [d for d in dots if d not in hit]
 
 
-def _kernel_report(kj, dots, chain=False):
+def _kernel_report(kj, dots, chain=False, co=None):
     """One kernel JSON's report, as the serial loop computes it: the first .dot (in sorted
     order) that aligns with it, or None if none does. Only the two keys the merge reads are
     kept (rep["gate_policy"], rep["verdicts"]); with chain (C6) also rep["chain"] = the kernel's
-    diagnostics.chain_closure and rep["kernel_json"] = kj."""
+    diagnostics.chain_closure and rep["kernel_json"] = kj. co (C6b) = None or a non-default
+    (co_async, co_r3) pair for sync_dominance.analyze; rep["co"] = diagnostics.co_rules (None
+    when the dump is not collector-only, so the switches did nothing)."""
     for dot in (_dots_for_kernel(kj, dots, _DOT_TEXT) if dot_prefilter_enabled() else dots):
         try:
-            rep = sd.analyze(dot, kj, chain_closure=True) if chain else sd.analyze(dot, kj)
+            kw = dict(_co_kwargs(co), **({"chain_closure": True} if chain else {}))
+            rep = sd.analyze(dot, kj, **kw)
         except sd.AlignmentError:
             continue
         out = {"gate_policy": rep.get("gate_policy"), "verdicts": rep["verdicts"]}
         if chain:
             out["chain"] = rep["diagnostics"]["chain_closure"]
             out["kernel_json"] = kj
+        if co:
+            out["co"] = rep["diagnostics"].get("co_rules")
         return out
     return None
 
 
-def _pool_task(kj, dots, chain=False):
+def _call_report(kj, dots, chain=False, co=None):
+    """_kernel_report with the pre-C6b call shapes when co is None (callers and tests that
+    replace _kernel_report keep working)."""
+    if co:
+        return _kernel_report(kj, dots, chain, co)
+    return _kernel_report(kj, dots, True) if chain else _kernel_report(kj, dots)
+
+
+def _pool_task(kj, dots, chain=False, co=None):
     """_kernel_report in a pool worker. An exception comes back as data, so the parent
     re-raises one of the same type and message at this kernel's place in the order: pickled
     as itself (its own __reduce__: OSError keeps errno and filename), except a
     JSONDecodeError, whose pickle would carry the whole document -- it travels as its
     message and positions (its str() is its message)."""
     try:
-        return ("OK", _kernel_report(kj, dots, True) if chain else _kernel_report(kj, dots))
+        return ("OK", _call_report(kj, dots, chain, co))
     except json.JSONDecodeError as e:
         return ("JDE", (e.args, e.msg, e.pos, e.lineno, e.colno))
     except Exception as e:   # noqa: BLE001 -- re-raised by the parent, in order
@@ -167,7 +210,7 @@ class AnalysisWorkerDied(RuntimeError):
     """X7: a pool worker of the verdict step vanished (killed: OOM, signal)."""
 
 
-def _kernel_reports(kjs, dots, workers, cached, chain=False):
+def _kernel_reports(kjs, dots, workers, cached, chain=False, co=None):
     """Yield _kernel_report(kj) for each kernel JSON in the order given, inside the
     static-graph cache when `cached`: inline when one worker (or one kernel JSON), else from a
     fork pool of `workers` processes whose results are consumed in input order
@@ -180,7 +223,7 @@ def _kernel_reports(kjs, dots, workers, cached, chain=False):
     with (sd.graph_cache() if cached else contextlib.nullcontext()):
         if workers <= 1 or len(kjs) <= 1:
             for kj in kjs:
-                yield _kernel_report(kj, dots, True) if chain else _kernel_report(kj, dots)
+                yield _call_report(kj, dots, chain, co)
             return
         if cached and not dot_prefilter_enabled():   # C6: with the C2 dot prefilter the dots are parsed lazily in
             for dot in dots:          # the workers (llama.cpp stores: 144 dots, 300 MB); parsed once here, inherited by the forked workers
@@ -195,7 +238,10 @@ def _kernel_reports(kjs, dots, workers, cached, chain=False):
                                  mp_context=multiprocessing.get_context("fork"))
         done = False
         try:
-            args = (_pool_task, kjs, [dots] * len(kjs)) + (([True] * len(kjs),) if chain else ())
+            # the pre-C6b call shapes when co is None (tests stand in for _kernel_report)
+            args = (_pool_task, kjs, [dots] * len(kjs)) + \
+                (([bool(chain)] * len(kjs), [co] * len(kjs)) if co else
+                 (([True] * len(kjs),) if chain else ()))
             for tag, payload in ex.map(*args):
                 if tag != "OK":
                     _reraise(tag, payload)
@@ -214,7 +260,7 @@ def _kernel_reports(kjs, dots, workers, cached, chain=False):
 
 
 def _analyze_reports(depdir, cubindir, workers=None, cache=None, chain_closure=None,
-                     stats_out=None):
+                     stats_out=None, co_async=None, co_r3=None):
     """Run sync_dominance.analyze over the dump and dedup RACE verdicts on
     (unordered pc pair, space). Used for BOTH modes: analyze derives the verdict
     from the trace edges, and when the dump carries HbClock's hb_races
@@ -254,8 +300,18 @@ def _analyze_reports(depdir, cubindir, workers=None, cache=None, chain_closure=N
     order}; the return value is the same tuple, and unchanged when the switch is off (stats_out
     is left alone, raw has no chain keys). A kernel past sync_dominance.CHAIN_CAP derived pairs
     raises sd.ChainCapError ('chain-cap: kernel ...'), as any exception: the caller's row is an
-    ERROR carrying it."""
+    ERROR carrying it.
+
+    C6b (collector-only rules, defaults = unchanged): co_async (co_async_enabled(): explicit,
+    else $CUVEIN_CO_ASYNC=1, else off) and co_r3 (co_r3_mode(): explicit, else $CUVEIN_CO_R3,
+    else 'cfg') go to every analyze call; they act on collector-only dumps only. When a switch
+    acted on some kernel of the dump, every returned raw RACE/SC record carries "async" (with
+    co_async: True iff every verdict of its dedup key at that verdict came from the cp.async
+    cross-agent rule) and/or "atomic_chain_off" (with co_r3 strict|off: True iff every such
+    verdict exists only because the cfg certificate was withheld)."""
     chain = chain_closure_enabled(chain_closure)
+    co_a, co_m = co_async_enabled(co_async), co_r3_mode(co_r3)
+    co = (co_a, co_m) if (co_a or co_m != "cfg") else None
     dots = sorted(glob.glob(f"{cubindir}/*.dot"))
     kjs = sorted(glob.glob(f"{depdir}/kernel_*.json"))
     workers = analysis_workers(workers)
@@ -265,10 +321,15 @@ def _analyze_reports(depdir, cubindir, workers=None, cache=None, chain_closure=N
     policies = set()   # T16: the chain-edge policy the dumps' hb_races were computed under
     a2s = {}   # T14: key -> [race of this run, some unflagged, latent, flagged without R3, flag seen]
     src_race, src_sc = {}, {}   # C6: key -> [sources seen, first chain path]
+    co_seen = set()             # C6b: the co switches that acted on some kernel ("async", "r3")
+    co_race, co_sc = {}, {}     # C6b: key -> [every verdict async, every verdict withheld]
     cstats = {"hops": 0, "derived": 0, "rescued": 0, "closure_s": 0.0, "maxk": 0, "kernels": []}
-    for rep in _kernel_reports(kjs, dots, workers, cached, chain):   # streamed, in kjs order
+    for rep in _kernel_reports(kjs, dots, workers, cached, chain, co):   # streamed, in kjs order
         if rep is None:
             continue
+        if co and rep.get("co"):
+            co_seen.update(k for k, on in (("async", rep["co"]["async"]),
+                                           ("r3", rep["co"]["r3"] != "cfg")) if on)
         if chain:
             cd = rep["chain"]
             cstats["kernels"].append({"kernel_json": rep["kernel_json"], **cd})
@@ -288,6 +349,10 @@ def _analyze_reports(depdir, cubindir, workers=None, cache=None, chain_closure=N
                            "chain_rescue" if v.get("chain_rescue") else "edge")
                 if ent[1] is None and v.get("chain_path"):
                     ent[1] = v["chain_path"]
+            if co and v["verdict"] in ("RACE", "SC"):
+                ce = (co_race if v["verdict"] == "RACE" else co_sc).setdefault(k, [True, True])
+                ce[0] = ce[0] and bool(v.get("async"))
+                ce[1] = ce[1] and bool(v.get("atomic_chain_off"))
             if v["verdict"] == "RACE":
                 ded.setdefault(k, v)
                 c = v.get("matrix_class", v.get("hb_class")) or "race"
@@ -329,6 +394,13 @@ def _analyze_reports(depdir, cubindir, workers=None, cache=None, chain_closure=N
             r["chain_path"] = ent[1]
         if stats_out is not None:
             stats_out.update(cstats)
+    if co_seen:                 # C6b: additive keys, only when a co switch acted on this dump
+        for r in raw:
+            ce = (co_race if r.get("verdict") != "SC" else co_sc)[(r["a_pc"], r["b_pc"], r["space"])]
+            if "async" in co_seen:
+                r["async"] = ce[0]
+            if "r3" in co_seen:
+                r["atomic_chain_off"] = ce[1]
     ids_h, raw_h = _host_reports(depdir)
     # T16: a certain-policy dump set is noted on every report (classes_note reads it off raw);
     # a mixed set (some kernels under each policy) is noted as such and is never the paper's
@@ -496,8 +568,11 @@ def run_one(mrow, modes, cuda, writer, confirm_dir, cap=1200):
                 # finished before that. A race it shows is a race; it is never CLEAN.
                 complete = rc == native_rc
                 cstats = {}
+                # C6b: the co switches ($CUVEIN_CO_ASYNC, $CUVEIN_CO_R3) reach collector-only only
+                co_kw = {} if mode == blib.hb_modes.COLLECTOR_ONLY else \
+                    {"co_async": False, "co_r3": "cfg"}
                 try:
-                    ids, pcs, raw = _analyze_reports(depdir, cubindir, stats_out=cstats)
+                    ids, pcs, raw = _analyze_reports(depdir, cubindir, stats_out=cstats, **co_kw)
                 except ValueError:
                     if complete:
                         raise
@@ -515,6 +590,8 @@ def run_one(mrow, modes, cuda, writer, confirm_dir, cap=1200):
             notes = f"cap={cap};{notes}"
             if chain_closure_enabled():     # C6: $CUVEIN_CHAIN_CLOSURE=1 reached _analyze_reports
                 notes += chain_note(cstats if not to and kjs else None)
+            if mode == blib.hb_modes.COLLECTOR_ONLY:   # C6b: '' at the defaults
+                notes += co_note(co_async_enabled(), co_r3_mode())
             writer.writerow(blib.row(
                 **common, mode=mode, rep=rep, verdict=verdict,
                 reports_dedup=len(ids), report_ids=" ".join(ids),
