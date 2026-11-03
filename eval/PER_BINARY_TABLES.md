@@ -152,8 +152,57 @@ binary's race does not fire.
 ## 7. What remains unverified
 
 - Computed in the claude.ai workspace from the committed CSVs, not on the cluster; nothing depends on the cluster.
-- The memory-space split of the Indigo3 races per binary (the paper's "196 of 200 in global memory"; "4 of 4" in
-  shared memory). The manifest's `shared_mem` is 0 for every Indigo3 row, so the split is not derivable here; per
-  binary racecheck reports 4 of 100 racy binaries, each on one of its two inputs.
+- Indigo3's memory-space split is settled in §8 from the generator source. Indigo 1.3's split rests on the
+  space of cuRace's reported pairs and racecheck's reports (§8), not on its source.
 - The paper's HeCBench rows (atomicCAS and knn scored race-free, expdist) come from a relabel that is not in
   `make_tables.py`; they are one run per binary and do not change.
+
+## 8. Memory space of the labelled races (added 2026-11-03)
+
+The paper states that 196 of the 200 Indigo3 races lie in global memory and that racecheck finds 4 of 4 within shared
+memory. No experiment recorded that split: the manifest's `shared_mem` is 0 for every Indigo row, so
+`make_tables.py` labels every racecheck miss "global", and the shared-memory count equals racecheck's own detections.
+
+**Independent evidence 1, cuRace's reports.** Every reported pair carries its space (`shared:` / `global:` in
+`report_ids`, scalar-clock rows). Per binary:
+
+| suite | racy binaries | global pairs only | shared pairs only | both | racecheck reports |
+|---|---|---|---|---|---|
+| Indigo 1.3 | 266 | 226 | 16 | 24 | the 40 with a shared pair, none of the 226 |
+| Indigo3 | 100 | 76 | 0 | 24 | 4 of the 24 with a shared pair |
+
+**Independent evidence 2, the Indigo3 generator** (`burtscher/Indigo3Suite`, `codeGen/cuda/CC-CUDA/`, read, not
+run). `RaceBug` replaces the atomics on the global arrays `label` / `label_n` with plain loads and stores
+(`CC_CUDA_V_Data_Pull.idg` lines 74, 77, 97, 104, 115–127; the same in `CC_CUDA_V_Data_Push.idg`). The planted race
+is therefore in global memory in every racy Indigo3 code: 100 of 100 binaries, 200 of 200 runs.
+
+The 24 binaries with a shared pair are the CC `Warp` and `Block` codes. Their shared pairs come from the flag
+`__shared__ bool updated`, which the template declares in every variant, the race-free `Atomic` ones included:
+
+- `updated = true` is written by every thread that lowers its label (`CC_CUDA_V_Data_Pull.idg:100`, `Push:154`).
+  It is a same-value write from one PC, a data race under PTX, of the same kind as ECL's idempotent
+  `updated = true`. cuRace reports it on all 24 (`shared:<pc>-<pc>:WAW`).
+- In the persistent pull codes with a block per vertex, thread 0 resets `updated = false` at the top of the next
+  iteration (line 85) while the other threads may still read it (`if (updated)`, line 110). The barrier that
+  would separate them sits after the loop (lines 139–141), not inside it. The push template has the barrier inside
+  its loop (line 178), so its persistent codes do not have this WAR. cuRace reports it as `shared:…:WAR`.
+
+racecheck reports exactly the four `Pull…Persist…Block` binaries (2 codes × 2 atomic builds), at the generated
+`.cu` lines of the reset and the read. It reports none of the 20 binaries that have only the same-value write.
+
+Consequences:
+
+- Indigo3 has no planted race in shared memory. racecheck's 4 Indigo3 detections are true races in the
+  scaffolding, but not the labelled race. Under label-level scoring they count as TPs. "4 of 4 within shared
+  memory" has no denominator on Indigo3.
+- The same reset/read WAR is in the race-free `Atomic` variants of the persistent block pull codes. Those variants
+  are not in the stratified sample: its race-free half is all BFS, whose `updated` is thread-local. The sample
+  therefore cannot show it as a false positive of any tool.
+- cuRace's extra shared reports on the 24 binaries are races under PTX, reported alongside the planted global
+  race. They change no per-binary verdict.
+- Indigo 1.3's split (226 / 40) agrees with both cuRace's spaces and racecheck's reports. It was not read from
+  the Indigo 1.3 source.
+
+Not verified: whether racecheck reports a same-value write-write hazard at all. It reported none of the 20, but
+this was not tested on a micro kernel. Not run: the generated codes (the session's policy blocks running
+downloaded generator scripts). Line numbers refer to the templates at the clone of 2026-11-03.
