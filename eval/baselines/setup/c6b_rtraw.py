@@ -19,7 +19,7 @@ for store in ("final-2026-11-co", "final-2026-11"):
 
 def find(store, mode, pat):
     r = sorted(glob.glob(f"{B}/{store}/{PROG}/**/{pat}", recursive=True))
-    return [p for p in r if mode in p]
+    return [p for p in r if mode in p or p.endswith(".dot")]
 
 LOG = []
 def wrap(cls, name, fmt):
