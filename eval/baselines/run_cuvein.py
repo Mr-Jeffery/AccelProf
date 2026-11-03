@@ -182,8 +182,8 @@ def _kernel_reports(kjs, dots, workers, cached, chain=False):
             for kj in kjs:
                 yield _kernel_report(kj, dots, True) if chain else _kernel_report(kj, dots)
             return
-        if cached:
-            for dot in dots:          # parsed once here, inherited by the forked workers
+        if cached and not dot_prefilter_enabled():   # C6: with the C2 dot prefilter the dots are parsed lazily in
+            for dot in dots:          # the workers (llama.cpp stores: 144 dots, 300 MB); parsed once here, inherited by the forked workers
                 try:
                     sd.parse_dot(dot)
                 except Exception:     # noqa: BLE001 -- not cached: the worker that needs
