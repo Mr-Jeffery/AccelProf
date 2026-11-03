@@ -1,0 +1,16 @@
+--- a/include/cutlass/barrier.h	2026-11-03 07:55:49.925967051 -0500
++++ b/include/cutlass/barrier.h	2026-11-03 07:55:49.925967051 -0500
+@@ -173,6 +173,13 @@
+         // Spin-loop
+         #pragma unroll 1
+         while(atomicCAS(flag_ptr, val, 0) != val) {}
++#if (__CUDA_ARCH__ >= 700)
++        // Acquire pattern: the strong (relaxed) atom read above followed by an acq_rel fence.  (The fence
++        // also acquires for the other threads of the group, which read the data after the sync below)
++        asm volatile ("fence.acq_rel.gpu;" ::: "memory");
++#else
++        __threadfence();
++#endif
+     }
+ 
+     Sync::sync();

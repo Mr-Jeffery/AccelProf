@@ -1,0 +1,22 @@
+--- a/include/cutlass/barrier.h	2026-11-03 07:55:49.929969068 -0500
++++ b/include/cutlass/barrier.h	2026-11-03 07:55:49.929969068 -0500
+@@ -188,6 +188,9 @@
+ 
+     if (thread_idx == 0)
+     {
++#if (__CUDA_ARCH__ >= 700)
++      for (int i_ = 0; i_ < 20; ++i_) { __nanosleep(1000); }  // PERTURB: hold the release ~20 us after the sync
++#endif
+       red_release(flag_ptr, val);
+     }
+   }
+@@ -205,6 +208,9 @@
+ 
+     // Select threads increment their flags
+     if (thread_idx < count) {
++#if (__CUDA_ARCH__ >= 700)
++      for (int i_ = 0; i_ < 20; ++i_) { __nanosleep(1000); }  // PERTURB: hold the release ~20 us after the sync
++#endif
+       red_release(flag_ptr, val);
+     }
+   }
