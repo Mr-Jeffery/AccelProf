@@ -9,7 +9,7 @@ Name in this file: **CO** = C1's collector-only run (verdicts from the collector
 - **Verdict changes against CO** (all CLEAN to RACE, 31 of 4,709 programs, parity violations 0): PI 26 (25 unlabelled, 1 racy-labelled), P4 2 (`uts-norace-small`, `uts-norace-large`, both race-free-labelled), P7 2 (`hotspot`, `lavaMD`, unlabelled), P9 1 (`knn`, scored race-free). P1, P3, P5, P6: 0. Real-world: `hecbench-surfel-1-fixed` CLEAN to RACE, `amrex-1` buggy and fixed ERROR to RACE (the reference timed out), candidate set none.
 - **Table 3, aggregate row** (races alone; Indigo 1.3 per code): VC 486/486 recall, 18/468 FP; SC 486/486, 18/468; CO 485/486, 54/468; **CO+chain 485/486, 56/468**. Per program-input: CO 1,956/2,082 and 246/1,548, CO+chain 1,957/2,082 and 248/1,548. The two extra false positives are the two `uts-norace` ScoR applications; the extra detection is one racy-labelled Indigo 1.3 program-input (the only one the oracle calls a conflict that CO missed). CO's recall is 485/486, not the 486/486 of the draft text, because one cuHadron racy program (`P6-memcpy-shared_readwrite_race-racy`) is Clean in CO and in CO+chain; the draft `coverage.tex` shows 6/6 for CO on cuHadron, the recomputed C1 cell is 5/6 (section 2.1).
 - **Against scalar-clock** (programs with a verdict in both): CO+chain finds 259 programs SC calls Clean (232 race-free-labelled: 224 Indigo 1.3, 6 ScoR applications, 2 HeCBench; 24 racy Indigo 1.3; 3 unlabelled HeCBench) and misses 2 that SC finds (`P5-race_interblock_none-lock_rtraw`, `P6-memcpy-shared_readwrite_race-racy`). In the 2,668 programs Race in both, scalar-clock reports 4,001 pc pairs in 345 programs that CO+chain does not. None of the 2 missed programs falls in a gap specific to collector-only mode; of the 4,001 pairs 74 (34 programs, all out-of-bounds `boundsBug` variants) have a dropped-word deficit at one of their pcs, none is a pool exhaustion that can be shown, 0 are pc-0 (section 3).
-- **Production races**: CCCL top-k, Ginkgo range-minimum and Kokkos rw_sum are detected through chain-derived or rescued reports (8 / 3 / 3 matched pairs); RAFT select_k stays missed (its 3 matched pairs are joined only by a path through a non-read accessor); PCL's data-race half is detected (44 of the 102 matched pairs). Scoring in section 2.2.
+- **Production races**: CCCL top-k, Ginkgo range-minimum and Kokkos rw_sum are detected through chain-derived or rescued reports (8 / 3 / 3 matched pairs); RAFT select_k stays missed (its 3 matched pairs are joined only by a path through a non-read accessor); PCL's data-race half is detected (44 of the 102 matched pairs). Recall set, buggy data-race components: CO+chain 24 detected of 25 attributed (VC 25 of 26, SC 25 of 26, C2's CO 21 of 26); the 26th is `amrex-1`, not attributed (section 8). Strong-conflict components 5 of 5 as in CO. Candidate set: 17 of 17 attributed buggy rows detected or detected-as-DR (SC 18 of 19; `colmap-new-1` not attributed, `llamacpp-open-2` not run). Scoring in section 2.2.
 - **Cost** (CAP_84600 section 3 rule, 4,685-program set): run alone 5.564 (= C1; over all 4,709 programs 5.652, the paper's 5.7), verdict step 2.098 (C1) and about 2.24 for CO+chain on A5's node class (bounds 2.10 to 2.56), end-to-end 7.773 (C1) and about 7.92 (bounds 7.77 to 8.25), against VC 7.320 / 2.454 / 9.966 and SC 7.015 / 2.173 / 9.339. Closure's share of the verdict step: 0.16 % over all programs, 5.6 % on HeCBench (section 5).
 
 ## 1. Setup and what the mode is
@@ -223,7 +223,9 @@ Every vector-clock and scalar-clock cell of the per-program-input accuracy table
 
 ### 2.2 Real-world recall and candidate counts
 
-Method (C4's, `p_co_rw.sh`): the 56 recall-set and 16 candidate-set recordings of C2 (`realworld-2026-10-co`, `realworld-2026-10-t21c-co`) re-attributed with `rw_attribute.py` of the branch that produced each table (copies of `study/realworld-recall` / `study/realworld-candidates` with C4's `RW_MODES` edit) with two edits: `sd.analyze(dot, kj, chain_closure=True)` and `chain_src` / `chain_path` on every report record (`c6_rw_setup.sh`); the per-id CSVs are the step-2 rows; `rw_score.py` scores them against the pre-registered oracles (`recall_pairs.json`). One attribution per id, serial, `c6_rw_run.sh`. Vector-clock and scalar-clock cells are T21b / T21c's `recall.csv`, the CO column is C2's.
+Method (C4's, `p_co_rw.sh`): the recall-set and candidate-set recordings of C2 (`realworld-2026-10-co`, `realworld-2026-10-t21c-co`) re-attributed with `rw_attribute.py` of the branch that produced each table (copies of `study/realworld-recall` / `study/realworld-candidates` with C4's `RW_MODES` edit) with two edits: `sd.analyze(dot, kj, chain_closure=True)` and `chain_src` / `chain_path` on every report record (`c6_rw_setup.sh`); the per-id CSVs are the step-2 rows; `rw_score.py` scores them against the pre-registered oracles (`recall_pairs.json`). One serial attribution per id (`c6_rw_run.sh`, `c6_rw_small.sh`). 69 of the 72 ids were attributed; `amrex-1` (buggy, fixed) and `colmap-new-1` were not finished (section 8) and show `NOT-SCORED` and are in no count. Vector-clock and scalar-clock cells are T21b / T21c's `recall.csv`, the CO column is C2's.
+
+Reading: the closure turns the four data-race components that C2's run missed and scalar-clock detects into three detections and one miss. **CCCL top-k** is detected through 8 derived pairs (the `merge atomicAdd` against the `init_histograms` plain store, joined through reads), **Ginkgo range-minimum** through 3 rescued edges (the packed-word load/store pairs whose own edge is thread-local), **Kokkos rw_sum** through 3 rescued edges. **RAFT select_k** stays missed: its 3 matched pairs (the histogram `atomicAdd` against `choose_bucket`'s plain loads and the reset store) are joined in the pc graph only by a path whose inner hop is not a read (an atomic or a store), a pair the closure's rule does not cross (section 3; the gap checks were not run on these three because the path exists). **PCL**'s data-race half is detected (550 reports in the chain run against 136 in C2's, 44 of the 102 scalar-clock pairs that match the oracle's pair are reported; the other 58 pairs are the same non-read-hop case). Buggy data-race components: 24 detected and 1 missed (RAFT) of the 25 attributed; fixed builds: CLEAN 17, RESIDUAL as expected 7, STILL reported 3, the same counts as C2's CO (vector-clock and scalar-clock: 20, 6, 1). Strong-conflict components: 2 detected and 3 detected as data race, as in every other mode. Candidate set: 13 detected, 1 detected through the family rule and 3 detected-as-DR of the 17 attributed buggy rows, none missed; scalar-clock has one more row (`llamacpp-open-2`, MISSED, not run in C2 or here).
 
 ### Recall set (T21b): per target and component, CO+chain next to vector-clock, scalar-clock and C2's collector-only run
 
@@ -252,8 +254,8 @@ CO+chain rows: `rw_score.py` of study/realworld-recall on the chain-closure attr
 | ginkgo-5 | fixed | - | CLEAN | CLEAN | CLEAN | CLEAN | 0/0 |
 | hecbench-dxtc2-1 | buggy | DR | DETECTED | DETECTED | DETECTED | DETECTED | 114/0 |
 | hecbench-dxtc2-1 | fixed | - | RESIDUAL | RESIDUAL | RESIDUAL | RESIDUAL | 3/0 |
-| hecbench-hungarian-1 | buggy | SC | DET-as-DR | DET-as-DR | DET-as-DR | NOT-SCORED | / **changed** |
-| hecbench-hungarian-1 | fixed | - | RESIDUAL | RESIDUAL | RESIDUAL | NOT-SCORED | / **changed** |
+| hecbench-hungarian-1 | buggy | SC | DET-as-DR | DET-as-DR | DET-as-DR | DET-as-DR | 445/310 |
+| hecbench-hungarian-1 | fixed | - | RESIDUAL | RESIDUAL | RESIDUAL | RESIDUAL | 441/310 |
 | hecbench-morphology-1 | buggy | DR | DETECTED | DETECTED | DETECTED | DETECTED | 52/0 |
 | hecbench-morphology-1 | fixed | - | CLEAN | CLEAN | CLEAN | CLEAN | 68/0 |
 | hecbench-surfel-1 | buggy | DR | DETECTED | DETECTED | DETECTED | DETECTED | 27/0 |
@@ -271,8 +273,8 @@ CO+chain rows: `rw_score.py` of study/realworld-recall on the chain-closure attr
 | lit-shoc-1 | buggy | DR | DETECTED | DETECTED | DETECTED | DETECTED | 134/0 |
 | lit-shoc-1 | buggy | SC | DET-as-DR | DET-as-DR | DET-as-DR | DET-as-DR | 134/0 |
 | lit-shoc-1 | fixed | - | CLEAN | CLEAN | CLEAN | CLEAN | 120/0 |
-| llamacpp-2 | buggy | DR | DETECTED | DETECTED | DETECTED | NOT-SCORED | / **changed** |
-| llamacpp-2 | fixed | - | CLEAN | CLEAN | STILL | NOT-SCORED | / **changed** |
+| llamacpp-2 | buggy | DR | DETECTED | DETECTED | DETECTED | DETECTED | 14/0 |
+| llamacpp-2 | fixed | - | CLEAN | CLEAN | STILL | STILL | 14/0 |
 | llamacpp-4 | buggy | DR | DETECTED | DETECTED | DETECTED | DETECTED | 1/0 |
 | llamacpp-4 | fixed | - | CLEAN | CLEAN | CLEAN | CLEAN | 0/0 |
 | llamacpp-5 | buggy | DR | DETECTED | DETECTED | DETECTED | DETECTED | 1546/0 |
@@ -295,17 +297,17 @@ CO+chain rows: `rw_score.py` of study/realworld-recall on the chain-closure attr
 
 | components | outcome | vector-clock | scalar-clock | CO (C2) | CO+chain |
 |---|---|---|---|---|---|
-| buggy, data-race components | DETECTED | 25 | 25 | 21 | 23 |
+| buggy, data-race components | DETECTED | 25 | 25 | 21 | 24 |
 | buggy, data-race components | MISSED | 1 | 1 | 5 | 1 |
-| buggy, data-race components | **total** | 26 | 26 | 26 | 24 |
+| buggy, data-race components | **total** | 26 | 26 | 26 | 25 |
 | buggy, strong-conflict components | DETECTED | 2 | 2 | 2 | 2 |
-| buggy, strong-conflict components | DETECTED-AS-DR | 3 | 3 | 3 | 2 |
-| buggy, strong-conflict components | **total** | 5 | 5 | 5 | 4 |
+| buggy, strong-conflict components | DETECTED-AS-DR | 3 | 3 | 3 | 3 |
+| buggy, strong-conflict components | **total** | 5 | 5 | 5 | 5 |
 | fixed builds | CLEAN-FOR-PAIR | 20 | 20 | 17 | 17 |
 | fixed builds | NOT-SCORED | 0 | 0 | 1 | 0 |
-| fixed builds | RESIDUAL-AS-EXPECTED | 6 | 6 | 7 | 6 |
-| fixed builds | STILL-REPORTED | 1 | 1 | 3 | 2 |
-| fixed builds | **total** | 27 | 27 | 28 | 25 |
+| fixed builds | RESIDUAL-AS-EXPECTED | 6 | 6 | 7 | 7 |
+| fixed builds | STILL-REPORTED | 1 | 1 | 3 | 3 |
+| fixed builds | **total** | 27 | 27 | 28 | 27 |
 
 ### The data-race components C2's run missed and scalar-clock detected
 
@@ -366,6 +368,8 @@ Per attributed id: how many of the id's reports in the attribution are edge / re
 - cmssw-1-fixed: 6 reports: edge 3, rescued 0, derived 3
 - ginkgo-5-buggy: 6 reports: edge 3, rescued 3, derived 0
 - hecbench-dxtc2-1-buggy: 114 reports: edge 92, rescued 10, derived 12
+- hecbench-hungarian-1-buggy: 755 reports: edge 281, rescued 33, derived 441
+- hecbench-hungarian-1-fixed: 751 reports: edge 276, rescued 32, derived 443
 - hecbench-morphology-1-buggy: 52 reports: edge 8, rescued 16, derived 28
 - hecbench-morphology-1-fixed: 68 reports: edge 8, rescued 8, derived 52
 - hecbench-surfel-1-buggy: 27 reports: edge 14, rescued 0, derived 13
@@ -380,6 +384,8 @@ Per attributed id: how many of the id's reports in the attribution are edge / re
 - lit-exllamav3-1-fixed: 156 reports: edge 64, rescued 0, derived 92
 - lit-shoc-1-buggy: 134 reports: edge 22, rescued 10, derived 102
 - lit-shoc-1-fixed: 120 reports: edge 10, rescued 10, derived 100
+- llamacpp-2-buggy: 14 reports: edge 8, rescued 0, derived 6
+- llamacpp-2-fixed: 14 reports: edge 8, rescued 0, derived 6
 - llamacpp-5-buggy: 1546 reports: edge 1032, rescued 0, derived 514
 - llamacpp-5-fixed: 1026 reports: edge 768, rescued 0, derived 258
 - opencv-2-buggy: 2521 reports: edge 105, rescued 27, derived 2389
@@ -806,9 +812,10 @@ Source: c6 step 0 (code reading at `98371ee`) and the interim gap note (classifi
 - The re-time covers 47 of 4,709 programs; the A5-class cost is an estimate with bounds, not a measurement of the whole corpus.
 - Static deficit counts are an estimate (one access width per pc; aggregated over launches of the same kernel name).
 - Dropped-word attribution for a missed pair is by the pair's own pcs; a deficit at a pc of a hidden intermediate hop cannot be seen (no addresses), so the 74 pairs are a lower bound for the first-lane effect on pairs classed "via a non-read hop".
-- Real-world: ids whose attribution had not finished when this file was written show `NOT-SCORED` in the tables above and are in no count (see section 2.2).
+- Real-world attribution of `amrex-1-buggy`, `amrex-1-fixed` and `colmap-new-1-buggy`: not finished. `rw_attribute.py` analyses one kernel JSON at a time (the step-2 analysis used 16 workers): amrex-1 has 1,246 and 1,452 kernel JSONs (step-2 analysis_s 796.8 s and 1,765.1 s at 16 workers), colmap-new-1 seven kernel JSONs of about 4,100 s each. After 7 h 5 min of the 12 h limit per id (23:28 to 06:35, 2-3 Nov) they were still running and job 325769 was cancelled. Their step-2 verdicts stand (`amrex-1-buggy` RACE with 59 reports, `amrex-1-fixed` RACE with 2, both ERROR in C2; `colmap-new-1-buggy` RACE with 4,248 reports against 272 in C2), but their oracle components are not scored: the recall counts above are over the attributed ids (amrex-1's data-race component is MISSED in vector-clock, scalar-clock and C2's CO, unscored here).
+- `llamacpp-open-2` (buggy, fixed), `lightgbm-new-1`, `lightgbm-new-2`: not run in C2, not run here.
 
 
 ## 9. Jobs
 
-Step 2 jobs are in `eval/results/co-chain/README.md`. Step 3: one SLURM job on one node (the node cap was held by another session until 23:09 on 2 Nov): **325769** (`c6-step3`, `normal`, `--exclusive`, c4, EPYC 9115 16-core, 125 GB), a worker that ran the queued steps `c6_stage.sh` (sandbox and `make_tables.py --collector-only --co-chain`), `c6_tables.py`, `c6_cost.py`, `c6_detect.py` (twice), `c6_extra.py`, and the real-world attribution `c6_rw_setup.sh` / `c6_rw_run.sh` (12 h limit per id) with `c6_rw_report.py`. No other job was submitted. Scripts: `eval/baselines/setup/c6_{stage,tables,cost,detect,extra,rw_setup,rw_run,rw_report,static_checks,static_agg}.*`, `c6_worker.sbatch`, `c6_env.sh`.
+Step 2 jobs are in `eval/results/co-chain/README.md`. Step 3 (the node cap was held by another session until 23:09 on 2 Nov): job **325769** (`c6-step3`, `normal`, `--exclusive`, c4, EPYC 9115 16-core, 125 GB, started 23:16 on 2 Nov, cancelled by me at 06:35 on 3 Nov), one worker that ran the queued steps `c6_stage.sh` (sandbox and `make_tables.py --collector-only --co-chain`), `c6_tables.py`, `c6_cost.py`, `c6_detect.py` (run twice: the first run died on Python 3.14's forkserver default, the second set `fork`; the third run restricted the false-report split to race-class records), `c6_extra.py`, the real-world attribution `c6_rw_setup.sh` / `c6_rw_run.sh` / `c6_rw_small.sh` (the first start was killed and restarted once because its 8 long ids blocked the queue) and `c6_rw_interim.sh` / `c6_rw_report.py`; job **325902** (`c6-doc`, 1 node, a minute) assembled this file with `c6_doc.py`; a second `c6-doc` job re-assembled it after the last edits. Python is not run on the login node. Scripts: `eval/baselines/setup/c6_*`.
