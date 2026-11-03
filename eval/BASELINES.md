@@ -127,7 +127,7 @@ SuperCollider appears here only through P6: its compiler pass is not distributed
 | racecheck | 288 | 1819 | 0 | 1569 | 17 | 1.00 | 0.14 | 0.24 | 0.00 | 2.8 | — |
 | HiRace | 1714 | 148 | 0 | 1260 | 0 | 1.00 | 0.92 | 0.96 | 0.00 | 1.0 | 103 |
 | iGUARD | 1761 | 346 | 794 | 774 | 18 | 0.69 | 0.84 | 0.76 | 0.51 | 2.3 | 172 |
-| SuperCollider | 48 | 10 | 0 | 65 | 16 | 1.00 | 0.83 | 0.91 | 0.00 | 1.2 | 121 |
+| SuperCollider | 271 | 57 | 0 | 329 | 16 | 1.00 | 0.83 | 0.90 | 0.00 | 1.1 | 125 |
 | compute-sanitizer(any) | 307 | 1801 | 37 | 1532 | 16 | 0.89 | 0.15 | 0.25 | 0.02 | 3.6 | — |
 
 Agreement with cuVein-VC on programs where both tools reached a verdict:
@@ -138,7 +138,7 @@ Agreement with cuVein-VC on programs where both tools reached a verdict:
 | racecheck | 4684 | 49% | 2375 | 0 |
 | HiRace | 4130 | 95% | 185 | 0 |
 | iGUARD | 4683 | 75% | 261 | 893 |
-| SuperCollider | 133 | 90% | 9 | 4 |
+| SuperCollider | 727 | 93% | 40 | 4 |
 | compute-sanitizer(any) | 4685 | 57% | 1783 | 219 |
 
 ### SuperCollider-matched sets (P6 cuHadron + its 99-test subset of PI Indigo original + P9 HeCBench-10)
@@ -196,6 +196,96 @@ Programs where exactly one of the two reports a race, split by who the label fav
 | PI@sc | pull_node_neighbors_block_cond_syncBug | sc-subset | RACE | cuVein only |
 | PI@sc | pull_node_neighbors_block_persistent_cond_syncBug | sc-subset | RACE | cuVein only |
 | PI@sc | pull_node_neighbors_block_persistent_reverse_cond_syncBug | sc-subset | RACE | cuVein only |
+| P9 | knn-cuda | default | RACE | SuperCollider only |
+
+</details>
+
+### SuperCollider-matched sets, second view: its 99 Indigo codes × all 7 inputs (693 rows)
+
+Same as the block above, except the 99 shipped Indigo codes are taken on all seven inputs of the Indigo original suite (X8): the artifact's own graph (256×4) and the six HiRace Table-1 graphs (256×1024). Every tool's cells are on exactly those 693 rows.
+
+| tool | TP | FN | FP | TN | err/TO | precision | recall | F1 | FP rate | geomean× | median peak MB |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| cuVein-VC | 301 | 30 | 1 | 333 | 2 | 1.00 | 0.91 | 0.95 | 0.00 | 5.5 | 848 |
+| cuVein-SC | 301 | 30 | 1 | 333 | 2 | 1.00 | 0.91 | 0.95 | 0.00 | 5.4 | 847 |
+| racecheck | 25 | 306 | 0 | 334 | 18 | 1.00 | 0.08 | 0.14 | 0.00 | 2.8 | — |
+| HiRace | 292 | 23 | 0 | 308 | 0 | 1.00 | 0.93 | 0.96 | 0.00 | 1.0 | 103 |
+| iGUARD | 248 | 82 | 149 | 184 | 20 | 0.62 | 0.75 | 0.68 | 0.45 | 2.3 | 172 |
+| SuperCollider | 276 | 57 | 0 | 334 | 16 | 1.00 | 0.83 | 0.91 | 0.00 | 1.1 | 125 |
+| compute-sanitizer(any) | 26 | 305 | 0 | 334 | 18 | 1.00 | 0.08 | 0.15 | 0.00 | 3.3 | — |
+
+Agreement with cuVein-VC on programs where both tools reached a verdict:
+
+| other tool | programs | agree | cuVein-VC RACE, other CLEAN | cuVein-VC CLEAN, other RACE |
+|---|---|---|---|---|
+| cuVein-SC | 735 | 100% | 0 | 0 |
+| racecheck | 733 | 57% | 309 | 0 |
+| HiRace | 693 | 95% | 28 | 0 |
+| iGUARD | 732 | 70% | 55 | 164 |
+| SuperCollider | 735 | 93% | 40 | 5 |
+| compute-sanitizer(any) | 733 | 60% | 275 | 17 |
+
+### cuVein vs SuperCollider, program by program (second view, 99 codes × 7 inputs)
+
+Programs where exactly one of the two reports a race, split by who the label favours, plus the programs only one of them could finish.
+
+| set | cuVein mode | both RACE | both CLEAN | cuVein only (label RACE / CLEAN / none) | SuperCollider only (label RACE / CLEAN / none) | cuVein ERR/TO where SC has a verdict | SC ERR/TO where cuVein has a verdict |
+|---|---|---|---|---|---|---|---|
+| P6 | vector-clock | 5 | 22 | 2 / 1 / 0 | 4 / 0 / 0 | 0 | 0 |
+| P6 | scalar-clock | 5 | 22 | 2 / 1 / 0 | 4 / 0 / 0 | 0 | 0 |
+| PI Indigo original — SuperCollider's 99 codes × 7 inputs (693 rows, view) | vector-clock | 288 | 368 | 30 / 0 / 7 | 0 / 0 / 0 | 0 | 0 |
+| PI Indigo original — SuperCollider's 99 codes × 7 inputs (693 rows, view) | scalar-clock | 288 | 368 | 30 / 0 / 7 | 0 / 0 / 0 | 0 | 0 |
+| P9 | vector-clock | 2 | 5 | 0 / 0 / 0 | 1 / 0 / 0 | 2 | 0 |
+| P9 | scalar-clock | 2 | 5 | 0 / 0 / 0 | 1 / 0 / 0 | 2 | 0 |
+
+<details><summary>45 split programs (cuVein vector-clock vs SuperCollider)</summary>
+
+| set | program | build | label | who reports |
+|---|---|---|---|---|
+| P6 | asyncmemcpy/kernel_memcpy_dtoh_race | fixed | CLEAN | cuVein only |
+| P6 | asyncmemcpy/kernel_memcpy_dtoh_race | racy | RACE | cuVein only |
+| P6 | asyncmemcpy/memcpy_htod_kernel_race | racy | RACE | SuperCollider only |
+| P6 | hostdevice/global_writeread_race | racy | RACE | SuperCollider only |
+| P6 | hostdevice/global_writewrite_race | racy | RACE | SuperCollider only |
+| P6 | interkernel/global_readwrite_race | racy | RACE | SuperCollider only |
+| P6 | interwave/global_writewrite_race | racy | RACE | cuVein only |
+| PI@sc7 | conditional_edge_neighbors_block_cond_atomicBug | sc-subset | RACE | cuVein only |
+| PI@sc7 | conditional_edge_neighbors_block_cond_guardBug | sc-subset | RACE | cuVein only |
+| PI@sc7 | conditional_edge_neighbors_boundsBug | sc-subset | — | cuVein only |
+| PI@sc7 | conditional_edge_neighbors_boundsBug | sc-subset | — | cuVein only |
+| PI@sc7 | conditional_edge_neighbors_warp_cond_atomicBug | sc-subset | RACE | cuVein only |
+| PI@sc7 | conditional_vertex_neighbors_block_atomicBug | sc-subset | RACE | cuVein only |
+| PI@sc7 | conditional_vertex_neighbors_block_persistent_atomicBug | sc-subset | RACE | cuVein only |
+| PI@sc7 | conditional_vertex_neighbors_block_persistent_reverse_atomicBug | sc-subset | RACE | cuVein only |
+| PI@sc7 | conditional_vertex_neighbors_boundsBug | sc-subset | — | cuVein only |
+| PI@sc7 | conditional_vertex_neighbors_boundsBug | sc-subset | — | cuVein only |
+| PI@sc7 | conditional_vertex_neighbors_warp_atomicBug | sc-subset | RACE | cuVein only |
+| PI@sc7 | conditional_vertex_neighbors_warp_persistent_atomicBug | sc-subset | RACE | cuVein only |
+| PI@sc7 | conditional_vertex_neighbors_warp_persistent_reverse_atomicBug | sc-subset | RACE | cuVein only |
+| PI@sc7 | pull_node_neighbors_block_cond_syncBug | sc-subset | RACE | cuVein only |
+| PI@sc7 | pull_node_neighbors_block_cond_syncBug | sc-subset | RACE | cuVein only |
+| PI@sc7 | pull_node_neighbors_block_cond_syncBug | sc-subset | RACE | cuVein only |
+| PI@sc7 | pull_node_neighbors_block_cond_syncBug | sc-subset | RACE | cuVein only |
+| PI@sc7 | pull_node_neighbors_block_cond_syncBug | sc-subset | RACE | cuVein only |
+| PI@sc7 | pull_node_neighbors_block_cond_syncBug | sc-subset | RACE | cuVein only |
+| PI@sc7 | pull_node_neighbors_block_cond_syncBug | sc-subset | RACE | cuVein only |
+| PI@sc7 | pull_node_neighbors_block_persistent_cond_syncBug | sc-subset | RACE | cuVein only |
+| PI@sc7 | pull_node_neighbors_block_persistent_cond_syncBug | sc-subset | RACE | cuVein only |
+| PI@sc7 | pull_node_neighbors_block_persistent_cond_syncBug | sc-subset | RACE | cuVein only |
+| PI@sc7 | pull_node_neighbors_block_persistent_cond_syncBug | sc-subset | RACE | cuVein only |
+| PI@sc7 | pull_node_neighbors_block_persistent_cond_syncBug | sc-subset | RACE | cuVein only |
+| PI@sc7 | pull_node_neighbors_block_persistent_cond_syncBug | sc-subset | RACE | cuVein only |
+| PI@sc7 | pull_node_neighbors_block_persistent_cond_syncBug | sc-subset | RACE | cuVein only |
+| PI@sc7 | pull_node_neighbors_block_persistent_reverse_cond_syncBug | sc-subset | RACE | cuVein only |
+| PI@sc7 | pull_node_neighbors_block_persistent_reverse_cond_syncBug | sc-subset | RACE | cuVein only |
+| PI@sc7 | pull_node_neighbors_block_persistent_reverse_cond_syncBug | sc-subset | RACE | cuVein only |
+| PI@sc7 | pull_node_neighbors_block_persistent_reverse_cond_syncBug | sc-subset | RACE | cuVein only |
+| PI@sc7 | pull_node_neighbors_block_persistent_reverse_cond_syncBug | sc-subset | RACE | cuVein only |
+| PI@sc7 | pull_node_neighbors_block_persistent_reverse_cond_syncBug | sc-subset | RACE | cuVein only |
+| PI@sc7 | pull_node_neighbors_block_persistent_reverse_cond_syncBug | sc-subset | RACE | cuVein only |
+| PI@sc7 | pull_node_neighbors_boundsBug | sc-subset | — | cuVein only |
+| PI@sc7 | push_node_neighbors_boundsBug | sc-subset | — | cuVein only |
+| PI@sc7 | push_node_neighbors_boundsBug | sc-subset | — | cuVein only |
 | P9 | knn-cuda | default | RACE | SuperCollider only |
 
 </details>
@@ -711,18 +801,20 @@ Cell = `TP/(TP+FN), FP/(FP+TN), TO, ERR`: TP/(TP+FN) over the suite's racy-label
 | test suite | cuVein (vector-clock) | cuVein (scalar-clock) | compute-sanitizer racecheck | compute-sanitizer (any of memcheck / racecheck / synccheck / initcheck) | HiRace | iGUARD | SuperCollider | note: reasons behind FN / FP / failures |
 |---|---|---|---|---|---|---|---|---|
 | Indigo3 suite (Indigo3Suite; stratified 100 programs × {default, -DSLOWER_ATOMIC} × 2 graphs) — 400 program-inputs (100 codes) | 200/200, 0/200, 0, 0 | 200/200, 0/200, 0, 0 | 4/200, 0/200, 0, 0 | 8/200, 24/200, 0, 0 | - | 196/200, 100/200, 0, 0 | - | **racecheck** — FN 196: race on global/device memory — racecheck only tracks `__shared__` memory (196)<br>**sanitizer(any)** — FN 192: race on global/device memory — racecheck only tracks `__shared__` memory (192). FP 24: flagged by initcheck (not a data-race report) (24)<br>**iGUARD** — FN 4: race not reported (only cudaMalloc-tracked global memory is checked) (4). FP 100, by iGUARD report class: Missing blkfence (63); Missing gpufence (14); Missing warpsync (12); Missing blkfence + Missing gpufence (9); Missing gpufence + Missing warpsync (2) |
-| Indigo original suite (IndigoSuite 1.3, all 590 CUDA codes × 7 inputs: the HiRace artifact's six Table-1 graphs at 256×1024 + SuperCollider's graph at 256×4) — 4130 program-inputs (590 codes) | 1714/1862, 0/1260, 0, 0 | 1714/1862, 0/1260, 0, 0 | 280/1862, 0/1260, 0, 0 | 280/1862, 0/1260, 0, 0 | 1714/1862, 0/1260, 0, 0 | 1538/1862, 634/1260, 0, 0 | 39/45, 0/44, 0, 0 | **cuVein-VC** — FN 148: planted atomicBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (72); planted guardBug+atomicBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (36); planted guardBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (36); planted atomicBug: NOT racy on this input (≥100-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (4)<br>**cuVein-SC** — FN 148: planted atomicBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (72); planted guardBug+atomicBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (36); planted guardBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (36); planted atomicBug: NOT racy on this input (≥100-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (4)<br>**racecheck** — FN 1582: race on global/device memory — racecheck only tracks `__shared__` memory (1582)<br>**sanitizer(any)** — FN 1582: race on global/device memory — racecheck only tracks `__shared__` memory (1582)<br>**HiRace** — FN 148: planted atomicBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (72); planted guardBug+atomicBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (36); planted guardBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (36); planted atomicBug: NOT racy on this input (≥100-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (4)<br>**iGUARD** — FN 324: planted atomicBug not reported although a conflicting access pair exists on this input (5-vertex graph; real miss, footnote 8) (78); planted atomicBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (72); planted guardBug+atomicBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (36); planted guardBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (36); planted syncBug not reported on a ≥100-vertex graph (32); planted guardBug+atomicBug not reported although a conflicting access pair exists on this input (5-vertex graph; real miss, footnote 8) (22); planted syncBug not reported although a conflicting access pair exists on this input (5-vertex graph; real miss, footnote 8) (16); planted guardBug+atomicBug+syncBug not reported although a conflicting access pair exists on this input (5-vertex graph; real miss, footnote 8) (8); planted guardBug+syncBug not reported although a conflicting access pair exists on this input (5-vertex graph; real miss, footnote 8) (8); planted syncBug not reported although a conflicting access pair exists on this input (≥100-vertex graph; real miss, footnote 8) (8); planted atomicBug: NOT racy on this input (≥100-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (4); race not reported (4). FP 634, by iGUARD report class: Missing blkfence (381); Missing gpufence (237); Missing warpsync (11); Missing blkfence + Missing warpsync (5)<br>**SuperCollider** — FN 6: planted syncBug not reported although a conflicting access pair exists on this input (≥100-vertex graph; real miss, footnote 8): race never manifested in the 5 attempts (probabilistic redundant-read detection) (3); planted atomicBug: NOT racy on this input (≥100-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8): race never manifested in the 5 attempts (probabilistic redundant-read detection) (2); planted guardBug not reported although a conflicting access pair exists on this input (≥100-vertex graph; real miss, footnote 8): race never manifested in the 5 attempts (probabilistic redundant-read detection) (1) |
+| Indigo original suite (IndigoSuite 1.3, all 590 CUDA codes × 7 inputs: the HiRace artifact's six Table-1 graphs at 256×1024 + SuperCollider's graph at 256×4) — 4130 program-inputs (590 codes) | 1714/1862, 0/1260, 0, 0 | 1714/1862, 0/1260, 0, 0 | 280/1862, 0/1260, 0, 0 | 280/1862, 0/1260, 0, 0 | 1714/1862, 0/1260, 0, 0 | 1538/1862, 634/1260, 0, 0 | 262/315, 0/308, 0, 0 | **cuVein-VC** — FN 148: planted atomicBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (72); planted guardBug+atomicBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (36); planted guardBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (36); planted atomicBug: NOT racy on this input (≥100-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (4)<br>**cuVein-SC** — FN 148: planted atomicBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (72); planted guardBug+atomicBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (36); planted guardBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (36); planted atomicBug: NOT racy on this input (≥100-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (4)<br>**racecheck** — FN 1582: race on global/device memory — racecheck only tracks `__shared__` memory (1582)<br>**sanitizer(any)** — FN 1582: race on global/device memory — racecheck only tracks `__shared__` memory (1582)<br>**HiRace** — FN 148: planted atomicBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (72); planted guardBug+atomicBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (36); planted guardBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (36); planted atomicBug: NOT racy on this input (≥100-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (4)<br>**iGUARD** — FN 324: planted atomicBug not reported although a conflicting access pair exists on this input (5-vertex graph; real miss, footnote 8) (78); planted atomicBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (72); planted guardBug+atomicBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (36); planted guardBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (36); planted syncBug not reported on a ≥100-vertex graph (32); planted guardBug+atomicBug not reported although a conflicting access pair exists on this input (5-vertex graph; real miss, footnote 8) (22); planted syncBug not reported although a conflicting access pair exists on this input (5-vertex graph; real miss, footnote 8) (16); planted guardBug+atomicBug+syncBug not reported although a conflicting access pair exists on this input (5-vertex graph; real miss, footnote 8) (8); planted guardBug+syncBug not reported although a conflicting access pair exists on this input (5-vertex graph; real miss, footnote 8) (8); planted syncBug not reported although a conflicting access pair exists on this input (≥100-vertex graph; real miss, footnote 8) (8); planted atomicBug: NOT racy on this input (≥100-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (4); race not reported (4). FP 634, by iGUARD report class: Missing blkfence (381); Missing gpufence (237); Missing warpsync (11); Missing blkfence + Missing warpsync (5)<br>**SuperCollider** — FN 53: planted atomicBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8): race never manifested in the 5 attempts (probabilistic redundant-read detection) (18); planted syncBug not reported on a ≥100-vertex graph: race never manifested in the 5 attempts (probabilistic redundant-read detection) (12); planted atomicBug not reported although a conflicting access pair exists on this input (5-vertex graph; real miss, footnote 8): race never manifested in the 5 attempts (probabilistic redundant-read detection) (8); planted syncBug not reported although a conflicting access pair exists on this input (5-vertex graph; real miss, footnote 8): race never manifested in the 5 attempts (probabilistic redundant-read detection) (6); planted guardBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8): race never manifested in the 5 attempts (probabilistic redundant-read detection) (3); planted syncBug not reported although a conflicting access pair exists on this input (≥100-vertex graph; real miss, footnote 8): race never manifested in the 5 attempts (probabilistic redundant-read detection) (3); planted atomicBug: NOT racy on this input (≥100-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8): race never manifested in the 5 attempts (probabilistic redundant-read detection) (2); planted guardBug not reported although a conflicting access pair exists on this input (≥100-vertex graph; real miss, footnote 8): race never manifested in the 5 attempts (probabilistic redundant-read detection) (1) |
 | Indigo original suite — SuperCollider's 99-test subset on its own input (a view of the row above, not a separate dataset) — 99 programs | 43/45, 0/44, 0, 0 | 43/45, 0/44, 0, 0 | 3/45, 0/44, 0, 0 | 3/45, 0/44, 0, 0 | 43/45, 0/44, 0, 0 | 40/45, 22/44, 0, 0 | 39/45, 0/44, 0, 0 | **cuVein-VC** — FN 2: planted atomicBug: NOT racy on this input (≥100-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (2)<br>**cuVein-SC** — FN 2: planted atomicBug: NOT racy on this input (≥100-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (2)<br>**racecheck** — FN 42: race on global/device memory — racecheck only tracks `__shared__` memory (42)<br>**sanitizer(any)** — FN 42: race on global/device memory — racecheck only tracks `__shared__` memory (42)<br>**HiRace** — FN 2: planted atomicBug: NOT racy on this input (≥100-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (2)<br>**iGUARD** — FN 5: planted syncBug not reported although a conflicting access pair exists on this input (≥100-vertex graph; real miss, footnote 8) (3); planted atomicBug: NOT racy on this input (≥100-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (2). FP 22, by iGUARD report class: Missing blkfence (12); Missing gpufence (10)<br>**SuperCollider** — FN 6: planted syncBug not reported although a conflicting access pair exists on this input (≥100-vertex graph; real miss, footnote 8): race never manifested in the 5 attempts (probabilistic redundant-read detection) (3); planted atomicBug: NOT racy on this input (≥100-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8): race never manifested in the 5 attempts (probabilistic redundant-read detection) (2); planted guardBug not reported although a conflicting access pair exists on this input (≥100-vertex graph; real miss, footnote 8): race never manifested in the 5 attempts (probabilistic redundant-read detection) (1) |
+| Indigo original suite — SuperCollider's 99 codes × 7 inputs (a view of the row above, not a separate dataset) — 693 program-inputs (99 codes) | 292/315, 0/308, 0, 0 | 292/315, 0/308, 0, 0 | 21/315, 0/308, 0, 0 | 21/315, 0/308, 0, 0 | 292/315, 0/308, 0, 0 | 247/315, 142/308, 0, 0 | 262/315, 0/308, 0, 0 | **cuVein-VC** — FN 23: planted atomicBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (18); planted guardBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (3); planted atomicBug: NOT racy on this input (≥100-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (2)<br>**cuVein-SC** — FN 23: planted atomicBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (18); planted guardBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (3); planted atomicBug: NOT racy on this input (≥100-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (2)<br>**racecheck** — FN 294: race on global/device memory — racecheck only tracks `__shared__` memory (294)<br>**sanitizer(any)** — FN 294: race on global/device memory — racecheck only tracks `__shared__` memory (294)<br>**HiRace** — FN 23: planted atomicBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (18); planted guardBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (3); planted atomicBug: NOT racy on this input (≥100-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (2)<br>**iGUARD** — FN 68: planted atomicBug not reported although a conflicting access pair exists on this input (5-vertex graph; real miss, footnote 8) (20); planted atomicBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (18); planted syncBug not reported on a ≥100-vertex graph (12); planted syncBug not reported although a conflicting access pair exists on this input (5-vertex graph; real miss, footnote 8) (6); race not reported (4); planted guardBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (3); planted syncBug not reported although a conflicting access pair exists on this input (≥100-vertex graph; real miss, footnote 8) (3); planted atomicBug: NOT racy on this input (≥100-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8) (2). FP 142, by iGUARD report class: Missing blkfence (86); Missing gpufence (54); Missing warpsync (2)<br>**SuperCollider** — FN 53: planted atomicBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8): race never manifested in the 5 attempts (probabilistic redundant-read detection) (18); planted syncBug not reported on a ≥100-vertex graph: race never manifested in the 5 attempts (probabilistic redundant-read detection) (12); planted atomicBug not reported although a conflicting access pair exists on this input (5-vertex graph; real miss, footnote 8): race never manifested in the 5 attempts (probabilistic redundant-read detection) (8); planted syncBug not reported although a conflicting access pair exists on this input (5-vertex graph; real miss, footnote 8): race never manifested in the 5 attempts (probabilistic redundant-read detection) (6); planted guardBug: NOT racy on this input (5-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8): race never manifested in the 5 attempts (probabilistic redundant-read detection) (3); planted syncBug not reported although a conflicting access pair exists on this input (≥100-vertex graph; real miss, footnote 8): race never manifested in the 5 attempts (probabilistic redundant-read detection) (3); planted atomicBug: NOT racy on this input (≥100-vertex graph) — no two threads make conflicting accesses there (oracle, footnote 8): race never manifested in the 5 attempts (probabilistic redundant-read detection) (2); planted guardBug not reported although a conflicting access pair exists on this input (≥100-vertex graph; real miss, footnote 8): race never manifested in the 5 attempts (probabilistic redundant-read detection) (1) |
 | ECL race-free graph codes (CC / MIS / MST, generated from Indigo3) — 60 programs | -, 16/60, 0, 0 | -, 16/60, 0, 0 | -, 0/60, 0, 0 | -, 0/60, 0, 0 | - | -, 48/60, 0, 0 | - | **cuVein-VC** — FP 16: same-pc write-write of the same value (idempotent `updated = true`) (16)<br>**cuVein-SC** — FP 16: same-pc write-write of the same value (idempotent `updated = true`) (16)<br>**iGUARD** — FP 48, by iGUARD report class: Missing blkfence (32); Missing gpufence (11); Missing blkfence + Missing gpufence (5) |
 | ScoR applications — 28 program-inputs (7 codes) | 14/14, 2/14, 0, 0 | 14/14, 2/14, 0, 0 | 0/13, 0/14, 1, 0 | 8/14, 8/14, 0, 0 | - | 12/14, 7/14, 0, 0 | - | **cuVein-VC** — FP 2: plain conflicting accesses that did race in the run (suite labels the program race-free) (2)<br>**cuVein-SC** — FP 2: latent report on a barrier/lock idiom (not raced dynamically, no static proof) (2)<br>**racecheck** — FN 13: race on global/device memory — racecheck only tracks `__shared__` memory (9); `__shared__`-memory race not reported (4). TO/ERR 1: exceeded the time cap (1)<br>**sanitizer(any)** — FN 6: race on global/device memory — racecheck only tracks `__shared__` memory (4); `__shared__`-memory race not reported (2). FP 8: flagged by initcheck (not a data-race report) (8)<br>**iGUARD** — FN 2: `__shared__` memory is not tracked by iGUARD (1); race not reported (only cudaMalloc-tracked global memory is checked) (1). FP 7, by iGUARD report class: Missing blkfence + Missing gpufence (4); Missing warpsync (2); Missing gpufence (1) |
 | ScoR micro-benchmarks + canary — 33 programs | 3/19, 1/14, 0, 0 | 2/19, 0/14, 0, 0 | 0/19, 0/14, 0, 0 | 6/19, 5/14, 0, 0 | - | 14/19, 1/14, 0, 0 | - | **cuVein-VC** — FN 16: race not reported (`race_interblock_blkfence_raw`) (1); race not reported (`race_interblock_fence_rtraw`) (1); race not reported (`race_interblock_lock-blkfence_waw`) (1); race not reported (`race_interblock_lock-no-stf_waw`) (1); race not reported (`race_interblock_lock-no-tf_waw`) (1); race not reported (`race_interblock_none-atom_waw`) (1); race not reported (`race_interblock_none-lock_rtraw`) (1); race not reported (`race_interblock_none-lock_waw`) (1); race not reported (`race_interwarp_blklock-no-stf_waw`) (1); race not reported (`race_interwarp_blklock-no-tf_waw`) (1); race not reported (`race_interwarp_dev-blklock-no-stf_waw`) (1); race not reported (`race_interwarp_dev-blklock-no-tf_waw`) (1); race not reported (`race_interwarp_none-atom_waw`) (1); race not reported (`race_interwarp_none-blkatom_waw`) (1); race not reported (`race_interwarp_none-blklock_waw`) (1); race not reported (`race_interwarp_none-lock_waw`) (1). FP 1: plain conflicting accesses that did race in the run (suite labels the program race-free) (1)<br>**cuVein-SC** — FN 17: PC-level dedup hides the pair (scalar-clock leg only; vector-clock catches it) (1); race not reported (`race_interblock_blkfence_raw`) (1); race not reported (`race_interblock_fence_rtraw`) (1); race not reported (`race_interblock_lock-blkfence_waw`) (1); race not reported (`race_interblock_lock-no-stf_waw`) (1); race not reported (`race_interblock_lock-no-tf_waw`) (1); race not reported (`race_interblock_none-atom_waw`) (1); race not reported (`race_interblock_none-lock_rtraw`) (1); race not reported (`race_interblock_none-lock_waw`) (1); race not reported (`race_interwarp_blklock-no-stf_waw`) (1); race not reported (`race_interwarp_blklock-no-tf_waw`) (1); race not reported (`race_interwarp_dev-blklock-no-stf_waw`) (1); race not reported (`race_interwarp_dev-blklock-no-tf_waw`) (1); race not reported (`race_interwarp_none-atom_waw`) (1); race not reported (`race_interwarp_none-blkatom_waw`) (1); race not reported (`race_interwarp_none-blklock_waw`) (1); race not reported (`race_interwarp_none-lock_waw`) (1)<br>**racecheck** — FN 19: race on global/device memory — racecheck only tracks `__shared__` memory (19)<br>**sanitizer(any)** — FN 13: race on global/device memory — racecheck only tracks `__shared__` memory (13). FP 5: flagged by initcheck (not a data-race report) (5)<br>**iGUARD** — FN 5: race not reported (only cudaMalloc-tracked global memory is checked) (5). FP 1, by iGUARD report class: Missing lock (1) |
 | cuHadron — 50 program-inputs (25 codes) | 7/13, 1/21, 0, 16 | 7/13, 1/21, 0, 16 | 4/13, 0/21, 0, 16 | 5/13, 0/21, 0, 16 | - | 1/12, 4/20, 2, 16 | 9/13, 0/21, 0, 16 | **cuVein-VC** — FN 6: host-vs-device access (outside kernel HB model) (3); cross-stream / inter-kernel race (out of cuVein's scope, footnote 7) (2); host-API `cudaMemcpyAsync`-vs-kernel race (out of cuVein's scope, footnote 7) (1). FP 1: same-pc write-write of the same value (idempotent `updated = true`) + plain conflicting accesses that did race in the run (suite labels the program race-free) (1). TO/ERR 16: binary needs sm_90 (not buildable/runnable on the sm_89 nodes) (16)<br>**cuVein-SC** — FN 6: host-vs-device access (outside kernel HB model) (3); cross-stream / inter-kernel race (out of cuVein's scope, footnote 7) (2); host-API `cudaMemcpyAsync`-vs-kernel race (out of cuVein's scope, footnote 7) (1). FP 1: latent report on a barrier/lock idiom (not raced dynamically, no static proof) + same-pc write-write of the same value (idempotent `updated = true`) (1). TO/ERR 16: binary needs sm_90 (not buildable/runnable on the sm_89 nodes) (16)<br>**racecheck** — FN 9: race on global/device memory — racecheck only tracks `__shared__` memory (8); `__shared__`-memory race not reported (1). TO/ERR 16: binary needs sm_90 (not buildable/runnable on the sm_89 nodes) (16)<br>**sanitizer(any)** — FN 8: race on global/device memory — racecheck only tracks `__shared__` memory (7); `__shared__`-memory race not reported (1). TO/ERR 16: binary needs sm_90 (not buildable/runnable on the sm_89 nodes) (16)<br>**iGUARD** — FN 11: `__shared__` memory is not tracked by iGUARD (5); host-vs-device race (host side not instrumented) (3); memcpy-vs-kernel race (memcpy side not instrumented) (2); cross-stream / inter-kernel race not reported (1). FP 4, by iGUARD report class: Missing blkfence (4). TO/ERR 18: binary needs sm_90 (not buildable/runnable on the sm_89 nodes) (16); exceeded the time cap (2)<br>**SuperCollider** — FN 4: not detectable by design (DMA / CPU-side access; artifact README) (2); race never manifested in the 5 attempts (probabilistic redundant-read detection) (2). TO/ERR 16: binary needs sm_90 (not buildable/runnable on the sm_89 nodes) (16) |
 | HeCBench overhead set (unlabelled real applications) — 14 programs | -, -, 1, 0 | -, -, 1, 0 | -, -, 1, 0 | -, -, 0, 0 | - | - | - | **cuVein-VC** — TO/ERR 1: hb-state-memory (1)<br>**cuVein-SC** — TO/ERR 1: hb-state-memory (1)<br>**racecheck** — TO/ERR 1: exceeded the time cap (1) |
 | HeCBench — SuperCollider's 10-application subset — 10 programs | 2/3, 0/5, 2, 0 | 2/3, 0/5, 2, 0 | 0/3, 0/5, 2, 0 | 0/3, 0/5, 2, 0 | - | 0/3, 3/5, 2, 0 | 5/5, 0/5, 0, 0 | **cuVein-VC** — FN 1: race not reported (`knn-cuda`) (1). TO/ERR 2: hb-state-memory (1); no-kernel-in-cap (1)<br>**cuVein-SC** — FN 1: race not reported (`knn-cuda`) (1). TO/ERR 2: time-cap (2)<br>**racecheck** — FN 3: race on global/device memory — racecheck only tracks `__shared__` memory (3). TO/ERR 2: exceeded the time cap (2)<br>**sanitizer(any)** — FN 3: race on global/device memory — racecheck only tracks `__shared__` memory (3). TO/ERR 2: exceeded the time cap (2)<br>**iGUARD** — FN 3: race not reported (only cudaMalloc-tracked global memory is checked) (3). FP 3, by iGUARD report class: Missing gpufence (3). TO/ERR 2: exceeded the time cap (2) |
-| **All pre-registered labelled suites (Indigo3 + Indigo original + ECL + ScoR applications + ScoR micro-benchmarks + cuHadron)** | 1938/2108, 20/1569, 0, 16 | 1937/2108, 19/1569, 0, 16 | 288/2107, 0/1569, 1, 16 | 307/2108, 37/1569, 0, 16 | 1714/1862, 0/1260, 0, 0 | 1761/2107, 794/1568, 2, 16 | 48/58, 0/65, 0, 16 | sum of the rows above |
+| **All pre-registered labelled suites (Indigo3 + Indigo original + ECL + ScoR applications + ScoR micro-benchmarks + cuHadron)** | 1938/2108, 20/1569, 0, 16 | 1937/2108, 19/1569, 0, 16 | 288/2107, 0/1569, 1, 16 | 307/2108, 37/1569, 0, 16 | 1714/1862, 0/1260, 0, 0 | 1761/2107, 794/1568, 2, 16 | 271/328, 0/329, 0, 16 | sum of the rows above |
 | **SuperCollider-matched suites (cuHadron + the 99-test subset view of the Indigo original suite + HeCBench 10-application subset)** | 52/61, 1/70, 2, 16 | 52/61, 1/70, 2, 16 | 7/61, 0/70, 2, 16 | 8/61, 0/70, 2, 16 | 43/45, 0/44, 0, 0 | 41/60, 29/69, 4, 16 | 53/63, 0/70, 0, 16 | sum of the rows above |
+| **SuperCollider-matched suites, second view (cuHadron + the 99 Indigo codes × 7 inputs + HeCBench 10-application subset)** | 301/331, 1/334, 2, 16 | 301/331, 1/334, 2, 16 | 25/331, 0/334, 2, 16 | 26/331, 0/334, 2, 16 | 292/315, 0/308, 0, 0 | 248/330, 149/333, 4, 16 | 276/333, 0/334, 0, 16 | sum of the rows above |
 
-Footnotes: (1) HiRace is source-level and has no usable instrumenter (its `src/clang` prototype only rewrites kernel params named `data1`/`data2`, emits an API the shipped runtime does not have and needs an LLVM source tree to build); it runs only on the 590 IndigoSuite codes its artifact ships hand-instrumented, which are exactly the Indigo original suite. (2) SuperCollider's compiler pass is not distributed; it exists only as pre-instrumented binaries for cuHadron and its own Indigo/HeCBench subsets. (3) iGUARD was not run on the HeCBench overhead set. (4) 16 cuHadron targets need sm_90 and count as ERR for every tool that was pointed at them. (5) Programs without a racy/race-free label are in neither ratio: Indigo original suite 1008, Indigo original suite — SuperCollider's 99-test subset on its own input 10, HeCBench overhead set 14 (HeCBench overhead apps are unlabelled; Indigo `boundsBug` codes are out-of-bounds bugs, excluded by both the HiRace and the SuperCollider artifact's ground truth). (6) HeCBench-subset labels are the SuperCollider paper's racy/race-free flags, not an independent oracle. (7) Two cuHadron categories are out of cuVein's scope (user decision, 2026-09-21); their rows are kept, not excluded, because the labels apply to every detector. `asyncmemcpy/*` races a host-API `cudaMemcpyAsync` against a kernel on another stream: the collector's async-copy tracer covers the in-kernel `cp.async` instruction (the `memcpy/*` tests, which cuVein does run), and the race tool consumes no host memcpy events. `interkernel/*` races two kernels on different streams: the happens-before model is per kernel launch. cuVein verdicts on them: asyncmemcpy vector-clock: CLEAN 2, RACE 2; asyncmemcpy scalar-clock: CLEAN 2, RACE 2; interkernel vector-clock: CLEAN 4; interkernel scalar-clock: CLEAN 4 (4 program-inputs per category). Their failures are trace volume of the kernels themselves (`kernel_memcpy_dtoh_race`: 64M threads × 201 writes ≈ 1.3e10 traced accesses; `memcpy_htod_kernel_race`: ≈ 2.6e8 reads, vector-clock mode only; `interkernel/global_writewrite_race`: ≈ 1.1e8 events, finishes only with the 20-minute cap). Not re-run for that reason: the longer-cap diagnose re-runs of `kernel_memcpy_dtoh_race` (cancelled after node failures on c3, c2, c75), the `memcpy_htod_kernel_race-fixed` row lost to a full scratch disk on c37, and the `interkernel/global_writewrite_race-fixed` diagnose task that was OOM-killed on c53. (9) Labelled race-free, reported under the instance gate (T12, D11): PTX section 8.7.1 gives no ordering where one side of a hand-off has no fence of sufficient scope. `P4-reduction-norace-small`: the ticket `atomicInc` is followed by the shared store `amLast` with no fence in between (the program relies on the `__syncthreads()` after it) (also reported by iguard); `P4-reduction-norace-large`: the ticket `atomicInc`, as in the small input (also reported by iguard); `P5-norace_interblock_fence_raw`: the consumer spins on the flag with a relaxed `atomicExch` and has no fence before it reads the volatile data (SC) (no baseline reports it); `P5-norace_interwarp_fence_raw`: the consumer spins on the flag with a relaxed `atomicExch` and has no fence before it reads the volatile data (SC) (no baseline reports it); `P5-norace_interwarp_blkfence_raw`: the consumer spins on the flag with a relaxed `atomicExch` and has no fence before it reads the volatile data (SC) (no baseline reports it); `P5-norace_interwarp-block_fence_hrf-indirect`: the consumer spins on the flag with a relaxed `atomicAdd` and has no fence before it updates the volatile data (SC) (no baseline reports it); `P5-norace_interwarp-block_fence-atom_hrd-indirect`: the consumer spins on the flag with a relaxed `atomicAdd` and has no fence before it does a block-scope `atomicExch` on data the other block writes with a device-scope one (not morally strong: DR) (no baseline reports it). (8) **Are the Indigo-original FNs racy?** The suite labels a CODE racy (a planted `atomicBug`/`guardBug`/`syncBug`), but whether two threads actually conflict depends on the input graph. `oracle_pi/oracle_pi.py` (→ `eval/results/baselines-pi-oracle.csv`) decides it per (code, input) independently of every detector: the unmodified source is compiled for the CPU with an access-logging `data_t`, each GPU thread runs as a fiber with `__syncthreads` barriers and warp collectives emulated, under 3 thread schedules, and a row is CONFLICT iff two different threads touch one location, at least one writes, not both atomic, with no barrier/collective between them (source-level: an elided store still counts). Checked inputs: `DAG_100n_100e`, `DAG_5n_5e`, `counterDAG_5n_5e` (every FN of cuVein and HiRace is on these). Result: 148 of 798 racy-labelled rows have NO conflicting access on their input (e.g. `DAG_5n_5e` has every edge pointing to a lower vertex id, so a `cond` variant's `if (i < nei)` is never true and the buggy update is never reached; with `guardBug` the unguarded write only happens when the compared value is larger, which it never is there; the 4 rows on `DAG_100n_100e` are block-per-vertex codes launched with SuperCollider's 4 blocks, so only vertices 0–3 run and they update two different elements, one thread each); 0 of 540 bug-free rows show a conflict. FN split per detector — cuVein (vector-clock): 148 not racy on the input, 0 real misses; cuVein (scalar-clock): 148 not racy on the input, 0 real misses; compute-sanitizer racecheck: 148 not racy on the input, 530 real misses, 904 on inputs not checked; compute-sanitizer (any of memcheck / racecheck / synccheck / initcheck): 148 not racy on the input, 530 real misses, 904 on inputs not checked; HiRace: 148 not racy on the input, 0 real misses; iGUARD: 148 not racy on the input, 144 real misses, 32 on inputs not checked; SuperCollider: 2 not racy on the input, 4 real misses. So the FN cells of cuVein (both modes) and HiRace on this suite contain no missed race: on input-level truth their recall is 100% and the label-based ratio under-states it. The label-based cells are kept as pre-registered.
+Footnotes: (1) HiRace is source-level and has no usable instrumenter (its `src/clang` prototype only rewrites kernel params named `data1`/`data2`, emits an API the shipped runtime does not have and needs an LLVM source tree to build); it runs only on the 590 IndigoSuite codes its artifact ships hand-instrumented, which are exactly the Indigo original suite. (2) SuperCollider's compiler pass is not distributed; it exists only as pre-instrumented binaries for cuHadron and its own Indigo/HeCBench subsets. (3) iGUARD was not run on the HeCBench overhead set. (4) 16 cuHadron targets need sm_90 and count as ERR for every tool that was pointed at them. (5) Programs without a racy/race-free label are in neither ratio: Indigo original suite 1008, Indigo original suite — SuperCollider's 99-test subset on its own input 10, Indigo original suite — SuperCollider's 99 codes × 7 inputs 70, HeCBench overhead set 14 (HeCBench overhead apps are unlabelled; Indigo `boundsBug` codes are out-of-bounds bugs, excluded by both the HiRace and the SuperCollider artifact's ground truth). (6) HeCBench-subset labels are the SuperCollider paper's racy/race-free flags, not an independent oracle. (7) Two cuHadron categories are out of cuVein's scope (user decision, 2026-09-21); their rows are kept, not excluded, because the labels apply to every detector. `asyncmemcpy/*` races a host-API `cudaMemcpyAsync` against a kernel on another stream: the collector's async-copy tracer covers the in-kernel `cp.async` instruction (the `memcpy/*` tests, which cuVein does run), and the race tool consumes no host memcpy events. `interkernel/*` races two kernels on different streams: the happens-before model is per kernel launch. cuVein verdicts on them: asyncmemcpy vector-clock: CLEAN 2, RACE 2; asyncmemcpy scalar-clock: CLEAN 2, RACE 2; interkernel vector-clock: CLEAN 4; interkernel scalar-clock: CLEAN 4 (4 program-inputs per category). Their failures are trace volume of the kernels themselves (`kernel_memcpy_dtoh_race`: 64M threads × 201 writes ≈ 1.3e10 traced accesses; `memcpy_htod_kernel_race`: ≈ 2.6e8 reads, vector-clock mode only; `interkernel/global_writewrite_race`: ≈ 1.1e8 events, finishes only with the 20-minute cap). Not re-run for that reason: the longer-cap diagnose re-runs of `kernel_memcpy_dtoh_race` (cancelled after node failures on c3, c2, c75), the `memcpy_htod_kernel_race-fixed` row lost to a full scratch disk on c37, and the `interkernel/global_writewrite_race-fixed` diagnose task that was OOM-killed on c53. (9) Labelled race-free, reported under the instance gate (T12, D11): PTX section 8.7.1 gives no ordering where one side of a hand-off has no fence of sufficient scope. `P4-reduction-norace-small`: the ticket `atomicInc` is followed by the shared store `amLast` with no fence in between (the program relies on the `__syncthreads()` after it) (also reported by iguard); `P4-reduction-norace-large`: the ticket `atomicInc`, as in the small input (also reported by iguard); `P5-norace_interblock_fence_raw`: the consumer spins on the flag with a relaxed `atomicExch` and has no fence before it reads the volatile data (SC) (no baseline reports it); `P5-norace_interwarp_fence_raw`: the consumer spins on the flag with a relaxed `atomicExch` and has no fence before it reads the volatile data (SC) (no baseline reports it); `P5-norace_interwarp_blkfence_raw`: the consumer spins on the flag with a relaxed `atomicExch` and has no fence before it reads the volatile data (SC) (no baseline reports it); `P5-norace_interwarp-block_fence_hrf-indirect`: the consumer spins on the flag with a relaxed `atomicAdd` and has no fence before it updates the volatile data (SC) (no baseline reports it); `P5-norace_interwarp-block_fence-atom_hrd-indirect`: the consumer spins on the flag with a relaxed `atomicAdd` and has no fence before it does a block-scope `atomicExch` on data the other block writes with a device-scope one (not morally strong: DR) (no baseline reports it). (8) **Are the Indigo-original FNs racy?** The suite labels a CODE racy (a planted `atomicBug`/`guardBug`/`syncBug`), but whether two threads actually conflict depends on the input graph. `oracle_pi/oracle_pi.py` (→ `eval/results/baselines-pi-oracle.csv`) decides it per (code, input) independently of every detector: the unmodified source is compiled for the CPU with an access-logging `data_t`, each GPU thread runs as a fiber with `__syncthreads` barriers and warp collectives emulated, under 3 thread schedules, and a row is CONFLICT iff two different threads touch one location, at least one writes, not both atomic, with no barrier/collective between them (source-level: an elided store still counts). Checked inputs: `DAG_100n_100e`, `DAG_5n_5e`, `counterDAG_5n_5e` (every FN of cuVein and HiRace is on these). Result: 148 of 798 racy-labelled rows have NO conflicting access on their input (e.g. `DAG_5n_5e` has every edge pointing to a lower vertex id, so a `cond` variant's `if (i < nei)` is never true and the buggy update is never reached; with `guardBug` the unguarded write only happens when the compared value is larger, which it never is there; the 4 rows on `DAG_100n_100e` are block-per-vertex codes launched with SuperCollider's 4 blocks, so only vertices 0–3 run and they update two different elements, one thread each); 0 of 540 bug-free rows show a conflict. FN split per detector — cuVein (vector-clock): 148 not racy on the input, 0 real misses; cuVein (scalar-clock): 148 not racy on the input, 0 real misses; compute-sanitizer racecheck: 148 not racy on the input, 530 real misses, 904 on inputs not checked; compute-sanitizer (any of memcheck / racecheck / synccheck / initcheck): 148 not racy on the input, 530 real misses, 904 on inputs not checked; HiRace: 148 not racy on the input, 0 real misses; iGUARD: 148 not racy on the input, 144 real misses, 32 on inputs not checked; SuperCollider: 23 not racy on the input, 18 real misses, 12 on inputs not checked. So the FN cells of cuVein (both modes) and HiRace on this suite contain no missed race: on input-level truth their recall is 100% and the label-based ratio under-states it. The label-based cells are kept as pre-registered.
 
 ### HiRace artifact Table 1, reproduced verbatim (`make table1`)
 
@@ -762,7 +854,7 @@ FP = race-free program reported RACE; FN = racy program not reported. Denominato
 | pset | cuVein-VC FP / TP (err) | cuVein-SC FP / TP (err) | HiRace FP / TP (err) | iGUARD FP / TP (err) | SuperCollider FP / TP (err) | compute-sanitizer(any) FP / TP (err) | cuVein missed TPs (FN) — note |
 |---|---|---|---|---|---|---|---|
 | P1 | 0/200 / 200/200 (0) | 0/200 / 200/200 (0) | — | 100/200 / 196/200 (0) | — | 24/200 / 8/200 (0) | none |
-| PI | 0/1260 / 1714/1862 (0) | 0/1260 / 1714/1862 (0) | 0/1260 / 1714/1862 (0) | 634/1260 / 1538/1862 (0) | 0/44 / 39/45 (0) | 0/1260 / 280/1862 (0) | **VC** (148) — bug class atomicBug: `conditional_edge_neighbor_cond_atomicBug`, `conditional_edge_neighbor_last_cond_atomicBug`, `conditional_edge_neighbor_persistent_cond_atomicBug`, `conditional_edge_neighbor_persistent_last_cond_atomicBug`, `conditional_edge_neighbors_cond_atomicBug`, `conditional_edge_neighbors_cond_atomicBug_break`, `conditional_edge_neighbors_persistent_cond_atomicBug`, `conditional_edge_neighbors_persistent_cond_atomicBug_break`, `conditional_edge_neighbors_persistent_reverse_cond_atomicBug`, `conditional_edge_neighbors_persistent_reverse_cond_atomicBug_break`, `conditional_edge_neighbors_reverse_cond_atomicBug`, `conditional_edge_neighbors_reverse_cond_atomicBug_break`, `conditional_vertex_neighbor_atomicBug`, `conditional_vertex_neighbor_last_atomicBug`, `conditional_vertex_neighbor_persistent_atomicBug`, `conditional_vertex_neighbor_persistent_last_atomicBug`, `conditional_vertex_neighbors_atomicBug`, `conditional_vertex_neighbors_atomicBug_break`, `conditional_vertex_neighbors_persistent_atomicBug`, `conditional_vertex_neighbors_persistent_atomicBug_break`, `conditional_vertex_neighbors_persistent_reverse_atomicBug`, `conditional_vertex_neighbors_persistent_reverse_atomicBug_break`, `conditional_vertex_neighbors_reverse_atomicBug`, `conditional_vertex_neighbors_reverse_atomicBug_break`, `populate_worklist_neighbor_atomicBug`, `populate_worklist_neighbor_last_atomicBug`, `populate_worklist_neighbor_persistent_atomicBug`, `populate_worklist_neighbor_persistent_last_atomicBug`, `populate_worklist_neighbors_atomicBug`, `populate_worklist_neighbors_atomicBug_break`, `populate_worklist_neighbors_block_atomicBug`, `populate_worklist_neighbors_block_persistent_atomicBug`, `populate_worklist_neighbors_block_persistent_reverse_atomicBug`, `populate_worklist_neighbors_block_reverse_atomicBug`, `populate_worklist_neighbors_persistent_atomicBug`, `populate_worklist_neighbors_persistent_atomicBug_break`, `populate_worklist_neighbors_persistent_reverse_atomicBug`, `populate_worklist_neighbors_persistent_reverse_atomicBug_break`, `populate_worklist_neighbors_reverse_atomicBug`, `populate_worklist_neighbors_reverse_atomicBug_break`, `populate_worklist_neighbors_warp_atomicBug`, `populate_worklist_neighbors_warp_persistent_atomicBug`, `populate_worklist_neighbors_warp_persistent_reverse_atomicBug`, `populate_worklist_neighbors_warp_reverse_atomicBug`, `push_node_neighbor_cond_atomicBug`, `push_node_neighbor_last_atomicBug`, `push_node_neighbor_last_cond_atomicBug`, `push_node_neighbor_last_cond_atomicBug`, `push_node_neighbor_persistent_cond_atomicBug`, `push_node_neighbor_persistent_last_atomicBug`, `push_node_neighbor_persistent_last_cond_atomicBug`, `push_node_neighbor_persistent_last_cond_atomicBug`, `push_node_neighbors_block_atomicBug`, `push_node_neighbors_block_cond_atomicBug`, `push_node_neighbors_block_cond_atomicBug`, `push_node_neighbors_block_persistent_cond_atomicBug`, `push_node_neighbors_block_persistent_reverse_cond_atomicBug`, `push_node_neighbors_block_reverse_atomicBug`, `push_node_neighbors_block_reverse_cond_atomicBug`, `push_node_neighbors_block_reverse_cond_atomicBug`, `push_node_neighbors_cond_atomicBug`, `push_node_neighbors_cond_atomicBug_break`, `push_node_neighbors_persistent_cond_atomicBug`, `push_node_neighbors_persistent_cond_atomicBug_break`, `push_node_neighbors_persistent_reverse_atomicBug_break`, `push_node_neighbors_persistent_reverse_cond_atomicBug`, `push_node_neighbors_persistent_reverse_cond_atomicBug_break`, `push_node_neighbors_persistent_reverse_cond_atomicBug_break`, `push_node_neighbors_reverse_atomicBug_break`, `push_node_neighbors_reverse_cond_atomicBug`, `push_node_neighbors_reverse_cond_atomicBug_break`, `push_node_neighbors_reverse_cond_atomicBug_break`, `push_node_neighbors_warp_cond_atomicBug`, `push_node_neighbors_warp_persistent_cond_atomicBug`, `push_node_neighbors_warp_persistent_reverse_cond_atomicBug`, `push_node_neighbors_warp_reverse_cond_atomicBug`; labelled RACE by name but the planted bug is OOB/guard, not a data race: `conditional_edge_neighbor_cond_guardBug`, `conditional_edge_neighbor_cond_guardBug`, `conditional_edge_neighbor_guardBug`, `conditional_edge_neighbor_last_cond_guardBug`, `conditional_edge_neighbor_persistent_cond_guardBug`, `conditional_edge_neighbor_persistent_cond_guardBug`, `conditional_edge_neighbor_persistent_guardBug`, `conditional_edge_neighbor_persistent_last_cond_guardBug`, `conditional_edge_neighbors_block_cond_guardBug`, `conditional_edge_neighbors_block_cond_guardBug`, `conditional_edge_neighbors_block_guardBug`, `conditional_edge_neighbors_block_persistent_cond_guardBug`, `conditional_edge_neighbors_block_persistent_cond_guardBug`, `conditional_edge_neighbors_block_persistent_guardBug`, `conditional_edge_neighbors_block_persistent_reverse_cond_guardBug`, `conditional_edge_neighbors_block_reverse_cond_guardBug`, `conditional_edge_neighbors_block_shfl_cond_guardBug`, `conditional_edge_neighbors_block_shfl_persistent_cond_guardBug`, `conditional_edge_neighbors_block_shfl_persistent_reverse_cond_guardBug`, `conditional_edge_neighbors_block_shfl_reverse_cond_guardBug`, `conditional_edge_neighbors_cond_guardBug`, `conditional_edge_neighbors_cond_guardBug_break`, `conditional_edge_neighbors_cond_guardBug_break`, `conditional_edge_neighbors_guardBug_break`, `conditional_edge_neighbors_persistent_cond_guardBug`, `conditional_edge_neighbors_persistent_cond_guardBug_break`, `conditional_edge_neighbors_persistent_cond_guardBug_break`, `conditional_edge_neighbors_persistent_guardBug_break`, `conditional_edge_neighbors_persistent_reverse_cond_guardBug`, `conditional_edge_neighbors_persistent_reverse_cond_guardBug_break`, `conditional_edge_neighbors_reverse_cond_guardBug`, `conditional_edge_neighbors_reverse_cond_guardBug_break`, `conditional_edge_neighbors_warp_cond_guardBug`, `conditional_edge_neighbors_warp_persistent_cond_guardBug`, `conditional_edge_neighbors_warp_persistent_reverse_cond_guardBug`, `conditional_edge_neighbors_warp_reverse_cond_guardBug`; bug class guardBug+atomicBug: `conditional_edge_neighbor_cond_guardBug_atomicBug`, `conditional_edge_neighbor_cond_guardBug_atomicBug`, `conditional_edge_neighbor_guardBug_atomicBug`, `conditional_edge_neighbor_last_cond_guardBug_atomicBug`, `conditional_edge_neighbor_persistent_cond_guardBug_atomicBug`, `conditional_edge_neighbor_persistent_cond_guardBug_atomicBug`, `conditional_edge_neighbor_persistent_guardBug_atomicBug`, `conditional_edge_neighbor_persistent_last_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_guardBug_atomicBug`, `conditional_edge_neighbors_block_persistent_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_persistent_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_persistent_guardBug_atomicBug`, `conditional_edge_neighbors_block_persistent_reverse_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_reverse_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_shfl_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_shfl_persistent_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_shfl_persistent_reverse_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_shfl_reverse_cond_guardBug_atomicBug`, `conditional_edge_neighbors_cond_guardBug_atomicBug`, `conditional_edge_neighbors_cond_guardBug_atomicBug_break`, `conditional_edge_neighbors_cond_guardBug_atomicBug_break`, `conditional_edge_neighbors_guardBug_atomicBug_break`, `conditional_edge_neighbors_persistent_cond_guardBug_atomicBug`, `conditional_edge_neighbors_persistent_cond_guardBug_atomicBug_break`, `conditional_edge_neighbors_persistent_cond_guardBug_atomicBug_break`, `conditional_edge_neighbors_persistent_guardBug_atomicBug_break`, `conditional_edge_neighbors_persistent_reverse_cond_guardBug_atomicBug`, `conditional_edge_neighbors_persistent_reverse_cond_guardBug_atomicBug_break`, `conditional_edge_neighbors_reverse_cond_guardBug_atomicBug`, `conditional_edge_neighbors_reverse_cond_guardBug_atomicBug_break`, `conditional_edge_neighbors_warp_cond_guardBug_atomicBug`, `conditional_edge_neighbors_warp_persistent_cond_guardBug_atomicBug`, `conditional_edge_neighbors_warp_persistent_reverse_cond_guardBug_atomicBug`, `conditional_edge_neighbors_warp_reverse_cond_guardBug_atomicBug`<br>**SC** (148) — bug class atomicBug: `conditional_edge_neighbor_cond_atomicBug`, `conditional_edge_neighbor_last_cond_atomicBug`, `conditional_edge_neighbor_persistent_cond_atomicBug`, `conditional_edge_neighbor_persistent_last_cond_atomicBug`, `conditional_edge_neighbors_cond_atomicBug`, `conditional_edge_neighbors_cond_atomicBug_break`, `conditional_edge_neighbors_persistent_cond_atomicBug`, `conditional_edge_neighbors_persistent_cond_atomicBug_break`, `conditional_edge_neighbors_persistent_reverse_cond_atomicBug`, `conditional_edge_neighbors_persistent_reverse_cond_atomicBug_break`, `conditional_edge_neighbors_reverse_cond_atomicBug`, `conditional_edge_neighbors_reverse_cond_atomicBug_break`, `conditional_vertex_neighbor_atomicBug`, `conditional_vertex_neighbor_last_atomicBug`, `conditional_vertex_neighbor_persistent_atomicBug`, `conditional_vertex_neighbor_persistent_last_atomicBug`, `conditional_vertex_neighbors_atomicBug`, `conditional_vertex_neighbors_atomicBug_break`, `conditional_vertex_neighbors_persistent_atomicBug`, `conditional_vertex_neighbors_persistent_atomicBug_break`, `conditional_vertex_neighbors_persistent_reverse_atomicBug`, `conditional_vertex_neighbors_persistent_reverse_atomicBug_break`, `conditional_vertex_neighbors_reverse_atomicBug`, `conditional_vertex_neighbors_reverse_atomicBug_break`, `populate_worklist_neighbor_atomicBug`, `populate_worklist_neighbor_last_atomicBug`, `populate_worklist_neighbor_persistent_atomicBug`, `populate_worklist_neighbor_persistent_last_atomicBug`, `populate_worklist_neighbors_atomicBug`, `populate_worklist_neighbors_atomicBug_break`, `populate_worklist_neighbors_block_atomicBug`, `populate_worklist_neighbors_block_persistent_atomicBug`, `populate_worklist_neighbors_block_persistent_reverse_atomicBug`, `populate_worklist_neighbors_block_reverse_atomicBug`, `populate_worklist_neighbors_persistent_atomicBug`, `populate_worklist_neighbors_persistent_atomicBug_break`, `populate_worklist_neighbors_persistent_reverse_atomicBug`, `populate_worklist_neighbors_persistent_reverse_atomicBug_break`, `populate_worklist_neighbors_reverse_atomicBug`, `populate_worklist_neighbors_reverse_atomicBug_break`, `populate_worklist_neighbors_warp_atomicBug`, `populate_worklist_neighbors_warp_persistent_atomicBug`, `populate_worklist_neighbors_warp_persistent_reverse_atomicBug`, `populate_worklist_neighbors_warp_reverse_atomicBug`, `push_node_neighbor_cond_atomicBug`, `push_node_neighbor_last_atomicBug`, `push_node_neighbor_last_cond_atomicBug`, `push_node_neighbor_last_cond_atomicBug`, `push_node_neighbor_persistent_cond_atomicBug`, `push_node_neighbor_persistent_last_atomicBug`, `push_node_neighbor_persistent_last_cond_atomicBug`, `push_node_neighbor_persistent_last_cond_atomicBug`, `push_node_neighbors_block_atomicBug`, `push_node_neighbors_block_cond_atomicBug`, `push_node_neighbors_block_cond_atomicBug`, `push_node_neighbors_block_persistent_cond_atomicBug`, `push_node_neighbors_block_persistent_reverse_cond_atomicBug`, `push_node_neighbors_block_reverse_atomicBug`, `push_node_neighbors_block_reverse_cond_atomicBug`, `push_node_neighbors_block_reverse_cond_atomicBug`, `push_node_neighbors_cond_atomicBug`, `push_node_neighbors_cond_atomicBug_break`, `push_node_neighbors_persistent_cond_atomicBug`, `push_node_neighbors_persistent_cond_atomicBug_break`, `push_node_neighbors_persistent_reverse_atomicBug_break`, `push_node_neighbors_persistent_reverse_cond_atomicBug`, `push_node_neighbors_persistent_reverse_cond_atomicBug_break`, `push_node_neighbors_persistent_reverse_cond_atomicBug_break`, `push_node_neighbors_reverse_atomicBug_break`, `push_node_neighbors_reverse_cond_atomicBug`, `push_node_neighbors_reverse_cond_atomicBug_break`, `push_node_neighbors_reverse_cond_atomicBug_break`, `push_node_neighbors_warp_cond_atomicBug`, `push_node_neighbors_warp_persistent_cond_atomicBug`, `push_node_neighbors_warp_persistent_reverse_cond_atomicBug`, `push_node_neighbors_warp_reverse_cond_atomicBug`; labelled RACE by name but the planted bug is OOB/guard, not a data race: `conditional_edge_neighbor_cond_guardBug`, `conditional_edge_neighbor_cond_guardBug`, `conditional_edge_neighbor_guardBug`, `conditional_edge_neighbor_last_cond_guardBug`, `conditional_edge_neighbor_persistent_cond_guardBug`, `conditional_edge_neighbor_persistent_cond_guardBug`, `conditional_edge_neighbor_persistent_guardBug`, `conditional_edge_neighbor_persistent_last_cond_guardBug`, `conditional_edge_neighbors_block_cond_guardBug`, `conditional_edge_neighbors_block_cond_guardBug`, `conditional_edge_neighbors_block_guardBug`, `conditional_edge_neighbors_block_persistent_cond_guardBug`, `conditional_edge_neighbors_block_persistent_cond_guardBug`, `conditional_edge_neighbors_block_persistent_guardBug`, `conditional_edge_neighbors_block_persistent_reverse_cond_guardBug`, `conditional_edge_neighbors_block_reverse_cond_guardBug`, `conditional_edge_neighbors_block_shfl_cond_guardBug`, `conditional_edge_neighbors_block_shfl_persistent_cond_guardBug`, `conditional_edge_neighbors_block_shfl_persistent_reverse_cond_guardBug`, `conditional_edge_neighbors_block_shfl_reverse_cond_guardBug`, `conditional_edge_neighbors_cond_guardBug`, `conditional_edge_neighbors_cond_guardBug_break`, `conditional_edge_neighbors_cond_guardBug_break`, `conditional_edge_neighbors_guardBug_break`, `conditional_edge_neighbors_persistent_cond_guardBug`, `conditional_edge_neighbors_persistent_cond_guardBug_break`, `conditional_edge_neighbors_persistent_cond_guardBug_break`, `conditional_edge_neighbors_persistent_guardBug_break`, `conditional_edge_neighbors_persistent_reverse_cond_guardBug`, `conditional_edge_neighbors_persistent_reverse_cond_guardBug_break`, `conditional_edge_neighbors_reverse_cond_guardBug`, `conditional_edge_neighbors_reverse_cond_guardBug_break`, `conditional_edge_neighbors_warp_cond_guardBug`, `conditional_edge_neighbors_warp_persistent_cond_guardBug`, `conditional_edge_neighbors_warp_persistent_reverse_cond_guardBug`, `conditional_edge_neighbors_warp_reverse_cond_guardBug`; bug class guardBug+atomicBug: `conditional_edge_neighbor_cond_guardBug_atomicBug`, `conditional_edge_neighbor_cond_guardBug_atomicBug`, `conditional_edge_neighbor_guardBug_atomicBug`, `conditional_edge_neighbor_last_cond_guardBug_atomicBug`, `conditional_edge_neighbor_persistent_cond_guardBug_atomicBug`, `conditional_edge_neighbor_persistent_cond_guardBug_atomicBug`, `conditional_edge_neighbor_persistent_guardBug_atomicBug`, `conditional_edge_neighbor_persistent_last_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_guardBug_atomicBug`, `conditional_edge_neighbors_block_persistent_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_persistent_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_persistent_guardBug_atomicBug`, `conditional_edge_neighbors_block_persistent_reverse_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_reverse_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_shfl_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_shfl_persistent_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_shfl_persistent_reverse_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_shfl_reverse_cond_guardBug_atomicBug`, `conditional_edge_neighbors_cond_guardBug_atomicBug`, `conditional_edge_neighbors_cond_guardBug_atomicBug_break`, `conditional_edge_neighbors_cond_guardBug_atomicBug_break`, `conditional_edge_neighbors_guardBug_atomicBug_break`, `conditional_edge_neighbors_persistent_cond_guardBug_atomicBug`, `conditional_edge_neighbors_persistent_cond_guardBug_atomicBug_break`, `conditional_edge_neighbors_persistent_cond_guardBug_atomicBug_break`, `conditional_edge_neighbors_persistent_guardBug_atomicBug_break`, `conditional_edge_neighbors_persistent_reverse_cond_guardBug_atomicBug`, `conditional_edge_neighbors_persistent_reverse_cond_guardBug_atomicBug_break`, `conditional_edge_neighbors_reverse_cond_guardBug_atomicBug`, `conditional_edge_neighbors_reverse_cond_guardBug_atomicBug_break`, `conditional_edge_neighbors_warp_cond_guardBug_atomicBug`, `conditional_edge_neighbors_warp_persistent_cond_guardBug_atomicBug`, `conditional_edge_neighbors_warp_persistent_reverse_cond_guardBug_atomicBug`, `conditional_edge_neighbors_warp_reverse_cond_guardBug_atomicBug` |
+| PI | 0/1260 / 1714/1862 (0) | 0/1260 / 1714/1862 (0) | 0/1260 / 1714/1862 (0) | 634/1260 / 1538/1862 (0) | 0/308 / 262/315 (0) | 0/1260 / 280/1862 (0) | **VC** (148) — bug class atomicBug: `conditional_edge_neighbor_cond_atomicBug`, `conditional_edge_neighbor_last_cond_atomicBug`, `conditional_edge_neighbor_persistent_cond_atomicBug`, `conditional_edge_neighbor_persistent_last_cond_atomicBug`, `conditional_edge_neighbors_cond_atomicBug`, `conditional_edge_neighbors_cond_atomicBug_break`, `conditional_edge_neighbors_persistent_cond_atomicBug`, `conditional_edge_neighbors_persistent_cond_atomicBug_break`, `conditional_edge_neighbors_persistent_reverse_cond_atomicBug`, `conditional_edge_neighbors_persistent_reverse_cond_atomicBug_break`, `conditional_edge_neighbors_reverse_cond_atomicBug`, `conditional_edge_neighbors_reverse_cond_atomicBug_break`, `conditional_vertex_neighbor_atomicBug`, `conditional_vertex_neighbor_last_atomicBug`, `conditional_vertex_neighbor_persistent_atomicBug`, `conditional_vertex_neighbor_persistent_last_atomicBug`, `conditional_vertex_neighbors_atomicBug`, `conditional_vertex_neighbors_atomicBug_break`, `conditional_vertex_neighbors_persistent_atomicBug`, `conditional_vertex_neighbors_persistent_atomicBug_break`, `conditional_vertex_neighbors_persistent_reverse_atomicBug`, `conditional_vertex_neighbors_persistent_reverse_atomicBug_break`, `conditional_vertex_neighbors_reverse_atomicBug`, `conditional_vertex_neighbors_reverse_atomicBug_break`, `populate_worklist_neighbor_atomicBug`, `populate_worklist_neighbor_last_atomicBug`, `populate_worklist_neighbor_persistent_atomicBug`, `populate_worklist_neighbor_persistent_last_atomicBug`, `populate_worklist_neighbors_atomicBug`, `populate_worklist_neighbors_atomicBug_break`, `populate_worklist_neighbors_block_atomicBug`, `populate_worklist_neighbors_block_persistent_atomicBug`, `populate_worklist_neighbors_block_persistent_reverse_atomicBug`, `populate_worklist_neighbors_block_reverse_atomicBug`, `populate_worklist_neighbors_persistent_atomicBug`, `populate_worklist_neighbors_persistent_atomicBug_break`, `populate_worklist_neighbors_persistent_reverse_atomicBug`, `populate_worklist_neighbors_persistent_reverse_atomicBug_break`, `populate_worklist_neighbors_reverse_atomicBug`, `populate_worklist_neighbors_reverse_atomicBug_break`, `populate_worklist_neighbors_warp_atomicBug`, `populate_worklist_neighbors_warp_persistent_atomicBug`, `populate_worklist_neighbors_warp_persistent_reverse_atomicBug`, `populate_worklist_neighbors_warp_reverse_atomicBug`, `push_node_neighbor_cond_atomicBug`, `push_node_neighbor_last_atomicBug`, `push_node_neighbor_last_cond_atomicBug`, `push_node_neighbor_last_cond_atomicBug`, `push_node_neighbor_persistent_cond_atomicBug`, `push_node_neighbor_persistent_last_atomicBug`, `push_node_neighbor_persistent_last_cond_atomicBug`, `push_node_neighbor_persistent_last_cond_atomicBug`, `push_node_neighbors_block_atomicBug`, `push_node_neighbors_block_cond_atomicBug`, `push_node_neighbors_block_cond_atomicBug`, `push_node_neighbors_block_persistent_cond_atomicBug`, `push_node_neighbors_block_persistent_reverse_cond_atomicBug`, `push_node_neighbors_block_reverse_atomicBug`, `push_node_neighbors_block_reverse_cond_atomicBug`, `push_node_neighbors_block_reverse_cond_atomicBug`, `push_node_neighbors_cond_atomicBug`, `push_node_neighbors_cond_atomicBug_break`, `push_node_neighbors_persistent_cond_atomicBug`, `push_node_neighbors_persistent_cond_atomicBug_break`, `push_node_neighbors_persistent_reverse_atomicBug_break`, `push_node_neighbors_persistent_reverse_cond_atomicBug`, `push_node_neighbors_persistent_reverse_cond_atomicBug_break`, `push_node_neighbors_persistent_reverse_cond_atomicBug_break`, `push_node_neighbors_reverse_atomicBug_break`, `push_node_neighbors_reverse_cond_atomicBug`, `push_node_neighbors_reverse_cond_atomicBug_break`, `push_node_neighbors_reverse_cond_atomicBug_break`, `push_node_neighbors_warp_cond_atomicBug`, `push_node_neighbors_warp_persistent_cond_atomicBug`, `push_node_neighbors_warp_persistent_reverse_cond_atomicBug`, `push_node_neighbors_warp_reverse_cond_atomicBug`; labelled RACE by name but the planted bug is OOB/guard, not a data race: `conditional_edge_neighbor_cond_guardBug`, `conditional_edge_neighbor_cond_guardBug`, `conditional_edge_neighbor_guardBug`, `conditional_edge_neighbor_last_cond_guardBug`, `conditional_edge_neighbor_persistent_cond_guardBug`, `conditional_edge_neighbor_persistent_cond_guardBug`, `conditional_edge_neighbor_persistent_guardBug`, `conditional_edge_neighbor_persistent_last_cond_guardBug`, `conditional_edge_neighbors_block_cond_guardBug`, `conditional_edge_neighbors_block_cond_guardBug`, `conditional_edge_neighbors_block_guardBug`, `conditional_edge_neighbors_block_persistent_cond_guardBug`, `conditional_edge_neighbors_block_persistent_cond_guardBug`, `conditional_edge_neighbors_block_persistent_guardBug`, `conditional_edge_neighbors_block_persistent_reverse_cond_guardBug`, `conditional_edge_neighbors_block_reverse_cond_guardBug`, `conditional_edge_neighbors_block_shfl_cond_guardBug`, `conditional_edge_neighbors_block_shfl_persistent_cond_guardBug`, `conditional_edge_neighbors_block_shfl_persistent_reverse_cond_guardBug`, `conditional_edge_neighbors_block_shfl_reverse_cond_guardBug`, `conditional_edge_neighbors_cond_guardBug`, `conditional_edge_neighbors_cond_guardBug_break`, `conditional_edge_neighbors_cond_guardBug_break`, `conditional_edge_neighbors_guardBug_break`, `conditional_edge_neighbors_persistent_cond_guardBug`, `conditional_edge_neighbors_persistent_cond_guardBug_break`, `conditional_edge_neighbors_persistent_cond_guardBug_break`, `conditional_edge_neighbors_persistent_guardBug_break`, `conditional_edge_neighbors_persistent_reverse_cond_guardBug`, `conditional_edge_neighbors_persistent_reverse_cond_guardBug_break`, `conditional_edge_neighbors_reverse_cond_guardBug`, `conditional_edge_neighbors_reverse_cond_guardBug_break`, `conditional_edge_neighbors_warp_cond_guardBug`, `conditional_edge_neighbors_warp_persistent_cond_guardBug`, `conditional_edge_neighbors_warp_persistent_reverse_cond_guardBug`, `conditional_edge_neighbors_warp_reverse_cond_guardBug`; bug class guardBug+atomicBug: `conditional_edge_neighbor_cond_guardBug_atomicBug`, `conditional_edge_neighbor_cond_guardBug_atomicBug`, `conditional_edge_neighbor_guardBug_atomicBug`, `conditional_edge_neighbor_last_cond_guardBug_atomicBug`, `conditional_edge_neighbor_persistent_cond_guardBug_atomicBug`, `conditional_edge_neighbor_persistent_cond_guardBug_atomicBug`, `conditional_edge_neighbor_persistent_guardBug_atomicBug`, `conditional_edge_neighbor_persistent_last_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_guardBug_atomicBug`, `conditional_edge_neighbors_block_persistent_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_persistent_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_persistent_guardBug_atomicBug`, `conditional_edge_neighbors_block_persistent_reverse_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_reverse_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_shfl_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_shfl_persistent_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_shfl_persistent_reverse_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_shfl_reverse_cond_guardBug_atomicBug`, `conditional_edge_neighbors_cond_guardBug_atomicBug`, `conditional_edge_neighbors_cond_guardBug_atomicBug_break`, `conditional_edge_neighbors_cond_guardBug_atomicBug_break`, `conditional_edge_neighbors_guardBug_atomicBug_break`, `conditional_edge_neighbors_persistent_cond_guardBug_atomicBug`, `conditional_edge_neighbors_persistent_cond_guardBug_atomicBug_break`, `conditional_edge_neighbors_persistent_cond_guardBug_atomicBug_break`, `conditional_edge_neighbors_persistent_guardBug_atomicBug_break`, `conditional_edge_neighbors_persistent_reverse_cond_guardBug_atomicBug`, `conditional_edge_neighbors_persistent_reverse_cond_guardBug_atomicBug_break`, `conditional_edge_neighbors_reverse_cond_guardBug_atomicBug`, `conditional_edge_neighbors_reverse_cond_guardBug_atomicBug_break`, `conditional_edge_neighbors_warp_cond_guardBug_atomicBug`, `conditional_edge_neighbors_warp_persistent_cond_guardBug_atomicBug`, `conditional_edge_neighbors_warp_persistent_reverse_cond_guardBug_atomicBug`, `conditional_edge_neighbors_warp_reverse_cond_guardBug_atomicBug`<br>**SC** (148) — bug class atomicBug: `conditional_edge_neighbor_cond_atomicBug`, `conditional_edge_neighbor_last_cond_atomicBug`, `conditional_edge_neighbor_persistent_cond_atomicBug`, `conditional_edge_neighbor_persistent_last_cond_atomicBug`, `conditional_edge_neighbors_cond_atomicBug`, `conditional_edge_neighbors_cond_atomicBug_break`, `conditional_edge_neighbors_persistent_cond_atomicBug`, `conditional_edge_neighbors_persistent_cond_atomicBug_break`, `conditional_edge_neighbors_persistent_reverse_cond_atomicBug`, `conditional_edge_neighbors_persistent_reverse_cond_atomicBug_break`, `conditional_edge_neighbors_reverse_cond_atomicBug`, `conditional_edge_neighbors_reverse_cond_atomicBug_break`, `conditional_vertex_neighbor_atomicBug`, `conditional_vertex_neighbor_last_atomicBug`, `conditional_vertex_neighbor_persistent_atomicBug`, `conditional_vertex_neighbor_persistent_last_atomicBug`, `conditional_vertex_neighbors_atomicBug`, `conditional_vertex_neighbors_atomicBug_break`, `conditional_vertex_neighbors_persistent_atomicBug`, `conditional_vertex_neighbors_persistent_atomicBug_break`, `conditional_vertex_neighbors_persistent_reverse_atomicBug`, `conditional_vertex_neighbors_persistent_reverse_atomicBug_break`, `conditional_vertex_neighbors_reverse_atomicBug`, `conditional_vertex_neighbors_reverse_atomicBug_break`, `populate_worklist_neighbor_atomicBug`, `populate_worklist_neighbor_last_atomicBug`, `populate_worklist_neighbor_persistent_atomicBug`, `populate_worklist_neighbor_persistent_last_atomicBug`, `populate_worklist_neighbors_atomicBug`, `populate_worklist_neighbors_atomicBug_break`, `populate_worklist_neighbors_block_atomicBug`, `populate_worklist_neighbors_block_persistent_atomicBug`, `populate_worklist_neighbors_block_persistent_reverse_atomicBug`, `populate_worklist_neighbors_block_reverse_atomicBug`, `populate_worklist_neighbors_persistent_atomicBug`, `populate_worklist_neighbors_persistent_atomicBug_break`, `populate_worklist_neighbors_persistent_reverse_atomicBug`, `populate_worklist_neighbors_persistent_reverse_atomicBug_break`, `populate_worklist_neighbors_reverse_atomicBug`, `populate_worklist_neighbors_reverse_atomicBug_break`, `populate_worklist_neighbors_warp_atomicBug`, `populate_worklist_neighbors_warp_persistent_atomicBug`, `populate_worklist_neighbors_warp_persistent_reverse_atomicBug`, `populate_worklist_neighbors_warp_reverse_atomicBug`, `push_node_neighbor_cond_atomicBug`, `push_node_neighbor_last_atomicBug`, `push_node_neighbor_last_cond_atomicBug`, `push_node_neighbor_last_cond_atomicBug`, `push_node_neighbor_persistent_cond_atomicBug`, `push_node_neighbor_persistent_last_atomicBug`, `push_node_neighbor_persistent_last_cond_atomicBug`, `push_node_neighbor_persistent_last_cond_atomicBug`, `push_node_neighbors_block_atomicBug`, `push_node_neighbors_block_cond_atomicBug`, `push_node_neighbors_block_cond_atomicBug`, `push_node_neighbors_block_persistent_cond_atomicBug`, `push_node_neighbors_block_persistent_reverse_cond_atomicBug`, `push_node_neighbors_block_reverse_atomicBug`, `push_node_neighbors_block_reverse_cond_atomicBug`, `push_node_neighbors_block_reverse_cond_atomicBug`, `push_node_neighbors_cond_atomicBug`, `push_node_neighbors_cond_atomicBug_break`, `push_node_neighbors_persistent_cond_atomicBug`, `push_node_neighbors_persistent_cond_atomicBug_break`, `push_node_neighbors_persistent_reverse_atomicBug_break`, `push_node_neighbors_persistent_reverse_cond_atomicBug`, `push_node_neighbors_persistent_reverse_cond_atomicBug_break`, `push_node_neighbors_persistent_reverse_cond_atomicBug_break`, `push_node_neighbors_reverse_atomicBug_break`, `push_node_neighbors_reverse_cond_atomicBug`, `push_node_neighbors_reverse_cond_atomicBug_break`, `push_node_neighbors_reverse_cond_atomicBug_break`, `push_node_neighbors_warp_cond_atomicBug`, `push_node_neighbors_warp_persistent_cond_atomicBug`, `push_node_neighbors_warp_persistent_reverse_cond_atomicBug`, `push_node_neighbors_warp_reverse_cond_atomicBug`; labelled RACE by name but the planted bug is OOB/guard, not a data race: `conditional_edge_neighbor_cond_guardBug`, `conditional_edge_neighbor_cond_guardBug`, `conditional_edge_neighbor_guardBug`, `conditional_edge_neighbor_last_cond_guardBug`, `conditional_edge_neighbor_persistent_cond_guardBug`, `conditional_edge_neighbor_persistent_cond_guardBug`, `conditional_edge_neighbor_persistent_guardBug`, `conditional_edge_neighbor_persistent_last_cond_guardBug`, `conditional_edge_neighbors_block_cond_guardBug`, `conditional_edge_neighbors_block_cond_guardBug`, `conditional_edge_neighbors_block_guardBug`, `conditional_edge_neighbors_block_persistent_cond_guardBug`, `conditional_edge_neighbors_block_persistent_cond_guardBug`, `conditional_edge_neighbors_block_persistent_guardBug`, `conditional_edge_neighbors_block_persistent_reverse_cond_guardBug`, `conditional_edge_neighbors_block_reverse_cond_guardBug`, `conditional_edge_neighbors_block_shfl_cond_guardBug`, `conditional_edge_neighbors_block_shfl_persistent_cond_guardBug`, `conditional_edge_neighbors_block_shfl_persistent_reverse_cond_guardBug`, `conditional_edge_neighbors_block_shfl_reverse_cond_guardBug`, `conditional_edge_neighbors_cond_guardBug`, `conditional_edge_neighbors_cond_guardBug_break`, `conditional_edge_neighbors_cond_guardBug_break`, `conditional_edge_neighbors_guardBug_break`, `conditional_edge_neighbors_persistent_cond_guardBug`, `conditional_edge_neighbors_persistent_cond_guardBug_break`, `conditional_edge_neighbors_persistent_cond_guardBug_break`, `conditional_edge_neighbors_persistent_guardBug_break`, `conditional_edge_neighbors_persistent_reverse_cond_guardBug`, `conditional_edge_neighbors_persistent_reverse_cond_guardBug_break`, `conditional_edge_neighbors_reverse_cond_guardBug`, `conditional_edge_neighbors_reverse_cond_guardBug_break`, `conditional_edge_neighbors_warp_cond_guardBug`, `conditional_edge_neighbors_warp_persistent_cond_guardBug`, `conditional_edge_neighbors_warp_persistent_reverse_cond_guardBug`, `conditional_edge_neighbors_warp_reverse_cond_guardBug`; bug class guardBug+atomicBug: `conditional_edge_neighbor_cond_guardBug_atomicBug`, `conditional_edge_neighbor_cond_guardBug_atomicBug`, `conditional_edge_neighbor_guardBug_atomicBug`, `conditional_edge_neighbor_last_cond_guardBug_atomicBug`, `conditional_edge_neighbor_persistent_cond_guardBug_atomicBug`, `conditional_edge_neighbor_persistent_cond_guardBug_atomicBug`, `conditional_edge_neighbor_persistent_guardBug_atomicBug`, `conditional_edge_neighbor_persistent_last_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_guardBug_atomicBug`, `conditional_edge_neighbors_block_persistent_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_persistent_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_persistent_guardBug_atomicBug`, `conditional_edge_neighbors_block_persistent_reverse_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_reverse_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_shfl_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_shfl_persistent_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_shfl_persistent_reverse_cond_guardBug_atomicBug`, `conditional_edge_neighbors_block_shfl_reverse_cond_guardBug_atomicBug`, `conditional_edge_neighbors_cond_guardBug_atomicBug`, `conditional_edge_neighbors_cond_guardBug_atomicBug_break`, `conditional_edge_neighbors_cond_guardBug_atomicBug_break`, `conditional_edge_neighbors_guardBug_atomicBug_break`, `conditional_edge_neighbors_persistent_cond_guardBug_atomicBug`, `conditional_edge_neighbors_persistent_cond_guardBug_atomicBug_break`, `conditional_edge_neighbors_persistent_cond_guardBug_atomicBug_break`, `conditional_edge_neighbors_persistent_guardBug_atomicBug_break`, `conditional_edge_neighbors_persistent_reverse_cond_guardBug_atomicBug`, `conditional_edge_neighbors_persistent_reverse_cond_guardBug_atomicBug_break`, `conditional_edge_neighbors_reverse_cond_guardBug_atomicBug`, `conditional_edge_neighbors_reverse_cond_guardBug_atomicBug_break`, `conditional_edge_neighbors_warp_cond_guardBug_atomicBug`, `conditional_edge_neighbors_warp_persistent_cond_guardBug_atomicBug`, `conditional_edge_neighbors_warp_persistent_reverse_cond_guardBug_atomicBug`, `conditional_edge_neighbors_warp_reverse_cond_guardBug_atomicBug` |
 | P3 | 16/60 / 0/0 (0) | 16/60 / 0/0 (0) | — | 48/60 / 0/0 (0) | — | 0/60 / 0/0 (0) | none |
 | P4 | 2/14 / 14/14 (0) | 2/14 / 14/14 (0) | — | 7/14 / 12/14 (0) | — | 8/14 / 8/14 (0) | none |
 | P5 | 1/14 / 3/19 (0) | 0/14 / 2/19 (0) | — | 1/14 / 14/19 (0) | — | 5/14 / 6/19 (0) | **VC** (16) — no hint: `race_interblock_blkfence_raw`, `race_interblock_fence_rtraw`, `race_interblock_lock-blkfence_waw`, `race_interblock_lock-no-stf_waw`, `race_interblock_lock-no-tf_waw`, `race_interblock_none-atom_waw`, `race_interblock_none-lock_rtraw`, `race_interblock_none-lock_waw`, `race_interwarp_blklock-no-stf_waw`, `race_interwarp_blklock-no-tf_waw`, `race_interwarp_dev-blklock-no-stf_waw`, `race_interwarp_dev-blklock-no-tf_waw`, `race_interwarp_none-atom_waw`, `race_interwarp_none-blkatom_waw`, `race_interwarp_none-blklock_waw`, `race_interwarp_none-lock_waw`<br>**SC** (17) — PC-level dedup hides the pair (scalar-clock leg only; vector-clock catches it): `canary_pc_level_false_negative`; no hint: `race_interblock_blkfence_raw`, `race_interblock_fence_rtraw`, `race_interblock_lock-blkfence_waw`, `race_interblock_lock-no-stf_waw`, `race_interblock_lock-no-tf_waw`, `race_interblock_none-atom_waw`, `race_interblock_none-lock_rtraw`, `race_interblock_none-lock_waw`, `race_interwarp_blklock-no-stf_waw`, `race_interwarp_blklock-no-tf_waw`, `race_interwarp_dev-blklock-no-stf_waw`, `race_interwarp_dev-blklock-no-tf_waw`, `race_interwarp_none-atom_waw`, `race_interwarp_none-blkatom_waw`, `race_interwarp_none-blklock_waw`, `race_interwarp_none-lock_waw` |
@@ -822,19 +914,19 @@ Rows are the bug tokens planted in the generated program's name (`nobug` = race-
 
 | bug class | n | cuVein-VC | cuVein-SC | racecheck | HiRace | iGUARD | SuperCollider | memcheck* | synccheck* | initcheck* | compute-sanitizer(any) |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| nobug | 1260 | 0/1260 | 0/1260 | 0/1260 | 0/1260 | 634/1260 | 0/44 | 0/1260 | 0/1260 | 0/1260 | 0/1260 |
-| atomicBug | 896 | 820/896 | 820/896 | 0/896 | 820/896 | 742/896 | 36/38 | 0/896 | 0/896 | 0/896 | 0/896 |
+| nobug | 1260 | 0/1260 | 0/1260 | 0/1260 | 0/1260 | 634/1260 | 0/308 | 0/1260 | 0/1260 | 0/1260 | 0/1260 |
+| atomicBug | 896 | 820/896 | 820/896 | 0/896 | 820/896 | 742/896 | 238/266 | 0/896 | 0/896 | 0/896 | 0/896 |
 | atomicBug+boundsBug | 336 | 304/336 | 304/336 | 0/336 | 303/336 | 264/336 | — | 252/336 | 0/336 | 0/336 | 252/336 |
 | atomicBug+boundsBug+guardBug | 112 | 99/112 | 99/112 | 0/112 | 99/112 | 92/112 | — | 84/112 | 0/112 | 0/112 | 84/112 |
 | atomicBug+guardBug | 336 | 300/336 | 300/336 | 0/336 | 300/336 | 278/336 | — | 0/336 | 0/336 | 0/336 | 0/336 |
 | atomicBug+guardBug+syncBug | 56 | 56/56 | 56/56 | 56/56 | 56/56 | 48/56 | — | 0/56 | 0/56 | 0/56 | 56/56 |
 | atomicBug+syncBug | 56 | 56/56 | 56/56 | 56/56 | 56/56 | 56/56 | — | 0/56 | 0/56 | 0/56 | 56/56 |
-| boundsBug | 448 | 204/448 | 204/448 | 0/448 | 20/448 | 288/448 | 3/10 | 336/448 | 0/448 | 0/448 | 336/448 |
+| boundsBug | 448 | 204/448 | 204/448 | 0/448 | 20/448 | 288/448 | 26/70 | 336/448 | 0/448 | 0/448 | 336/448 |
 | boundsBug+guardBug | 112 | 99/112 | 99/112 | 0/112 | 99/112 | 97/112 | — | 84/112 | 0/112 | 0/112 | 84/112 |
-| guardBug | 336 | 300/336 | 300/336 | 0/336 | 300/336 | 300/336 | 1/2 | 0/336 | 0/336 | 0/336 | 0/336 |
+| guardBug | 336 | 300/336 | 300/336 | 0/336 | 300/336 | 300/336 | 10/14 | 0/336 | 0/336 | 0/336 | 0/336 |
 | guardBug+syncBug | 56 | 56/56 | 56/56 | 56/56 | 56/56 | 48/56 | — | 0/56 | 0/56 | 0/56 | 56/56 |
-| racy(unlabelled-token) | 14 | 14/14 | 14/14 | 0/14 | 14/14 | 10/14 | 2/2 | 0/14 | 0/14 | 0/14 | 0/14 |
-| syncBug | 112 | 112/112 | 112/112 | 112/112 | 112/112 | 56/112 | 0/3 | 0/112 | 0/112 | 0/112 | 112/112 |
+| racy(unlabelled-token) | 14 | 14/14 | 14/14 | 0/14 | 14/14 | 10/14 | 14/14 | 0/14 | 0/14 | 0/14 | 0/14 |
+| syncBug | 112 | 112/112 | 112/112 | 112/112 | 112/112 | 56/112 | 0/21 | 0/112 | 0/112 | 0/112 | 112/112 |
 
 ### compute-sanitizer family per program set
 
@@ -1260,33 +1352,33 @@ _Counts:_ cuVein-VC RACE 200 / CLEAN 200 / TO 0 / ERR 0; cuVein-SC RACE 200 / CL
 
 ### PI Indigo original (all 590 IndigoSuite codes x 7 inputs)
 
-_Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; racecheck RACE 280 / CLEAN 3850 / TO 0 / ERR 0; HiRace RACE 2235 / CLEAN 1895 / TO 0 / ERR 0; iGUARD RACE 2913 / CLEAN 1217 / TO 0 / ERR 0; SuperCollider RACE 42 / CLEAN 57 / TO 0 / ERR 0; memcheck* FLAG 756 / CLEAN 3374 / TO 0 / ERR 0; synccheck* FLAG 0 / CLEAN 4130 / TO 0 / ERR 0; initcheck* FLAG 0 / CLEAN 4130 / TO 0 / ERR 0
+_Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; racecheck RACE 280 / CLEAN 3850 / TO 0 / ERR 0; HiRace RACE 2235 / CLEAN 1895 / TO 0 / ERR 0; iGUARD RACE 2913 / CLEAN 1217 / TO 0 / ERR 0; SuperCollider RACE 288 / CLEAN 405 / TO 0 / ERR 0; memcheck* FLAG 756 / CLEAN 3374 / TO 0 / ERR 0; synccheck* FLAG 0 / CLEAN 4130 / TO 0 / ERR 0; initcheck* FLAG 0 / CLEAN 4130 / TO 0 / ERR 0
 
 <details><summary>4130 program-input rows</summary>
 
 | program | build | input | oracle | cuVein-VC | cuVein-SC | racecheck | HiRace | iGUARD | SuperCollider | memcheck* | synccheck* | initcheck* |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | conditional_edge_neighbor | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
-| conditional_edge_neighbor | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbor | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbor | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| conditional_edge_neighbor | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbor | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| conditional_edge_neighbor | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
+| conditional_edge_neighbor | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbor | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbor | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| conditional_edge_neighbor | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbor | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| conditional_edge_neighbor | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
 | conditional_edge_neighbor_atomicBug | sc-subset | DAG_100n_100e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | RACE(2) | clean | clean | clean |
-| conditional_edge_neighbor_atomicBug | default | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbor_atomicBug | default | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_edge_neighbor_atomicBug | default | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | — | clean | clean | clean |
-| conditional_edge_neighbor_atomicBug | default | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_edge_neighbor_atomicBug | default | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | — | clean | clean | clean |
-| conditional_edge_neighbor_atomicBug | default | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
+| conditional_edge_neighbor_atomicBug | sc-subset | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | RACE(2) | clean | clean | clean |
+| conditional_edge_neighbor_atomicBug | sc-subset | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_edge_neighbor_atomicBug | sc-subset | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | RACE(1) | clean | clean | clean |
+| conditional_edge_neighbor_atomicBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_edge_neighbor_atomicBug | sc-subset | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | RACE(1) | clean | clean | clean |
+| conditional_edge_neighbor_atomicBug | sc-subset | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
 | conditional_edge_neighbor_boundsBug | sc-subset | DAG_100n_100e |  | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | FLAG(1) | clean | clean |
-| conditional_edge_neighbor_boundsBug | default | DAG_100n_200e |  | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbor_boundsBug | default | DAG_200n_400e |  | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbor_boundsBug | default | DAG_5n_5e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| conditional_edge_neighbor_boundsBug | default | counterDAG_200n_1000e |  | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbor_boundsBug | default | counterDAG_5n_5e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | FLAG(1) | clean | clean |
-| conditional_edge_neighbor_boundsBug | default | power_law_200n_1000e |  | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | FLAG(1) | clean | clean |
+| conditional_edge_neighbor_boundsBug | sc-subset | DAG_100n_200e |  | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbor_boundsBug | sc-subset | DAG_200n_400e |  | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbor_boundsBug | sc-subset | DAG_5n_5e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| conditional_edge_neighbor_boundsBug | sc-subset | counterDAG_200n_1000e |  | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbor_boundsBug | sc-subset | counterDAG_5n_5e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | FLAG(1) | clean | clean |
+| conditional_edge_neighbor_boundsBug | sc-subset | power_law_200n_1000e |  | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | FLAG(1) | clean | clean |
 | conditional_edge_neighbor_boundsBug_atomicBug | default | DAG_100n_100e |  | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | — | FLAG(1) | clean | clean |
 | conditional_edge_neighbor_boundsBug_atomicBug | default | DAG_100n_200e |  | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | — | clean | clean | clean |
 | conditional_edge_neighbor_boundsBug_atomicBug | default | DAG_200n_400e |  | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
@@ -1393,19 +1485,19 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | conditional_edge_neighbor_boundsBug_last_guardBug_atomicBug | default | counterDAG_5n_5e |  | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | — | clean | clean | clean |
 | conditional_edge_neighbor_boundsBug_last_guardBug_atomicBug | default | power_law_200n_1000e |  | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | FLAG(1) | clean | clean |
 | conditional_edge_neighbor_cond | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
-| conditional_edge_neighbor_cond | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbor_cond | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbor_cond | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| conditional_edge_neighbor_cond | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbor_cond | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| conditional_edge_neighbor_cond | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
+| conditional_edge_neighbor_cond | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbor_cond | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbor_cond | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| conditional_edge_neighbor_cond | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbor_cond | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| conditional_edge_neighbor_cond | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
 | conditional_edge_neighbor_cond_atomicBug | sc-subset | DAG_100n_100e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | RACE(2) | clean | clean | clean |
-| conditional_edge_neighbor_cond_atomicBug | default | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_edge_neighbor_cond_atomicBug | default | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_edge_neighbor_cond_atomicBug | default | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| conditional_edge_neighbor_cond_atomicBug | default | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_edge_neighbor_cond_atomicBug | default | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | — | clean | clean | clean |
-| conditional_edge_neighbor_cond_atomicBug | default | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
+| conditional_edge_neighbor_cond_atomicBug | sc-subset | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_edge_neighbor_cond_atomicBug | sc-subset | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_edge_neighbor_cond_atomicBug | sc-subset | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| conditional_edge_neighbor_cond_atomicBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_edge_neighbor_cond_atomicBug | sc-subset | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | RACE(1) | clean | clean | clean |
+| conditional_edge_neighbor_cond_atomicBug | sc-subset | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
 | conditional_edge_neighbor_cond_guardBug | default | DAG_100n_100e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(1) | RACE(1) | — | clean | clean | clean |
 | conditional_edge_neighbor_cond_guardBug | default | DAG_100n_200e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(1) | RACE(1) | — | clean | clean | clean |
 | conditional_edge_neighbor_cond_guardBug | default | DAG_200n_400e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
@@ -1715,61 +1807,61 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | conditional_edge_neighbor_persistent_last_guardBug_atomicBug | default | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | — | clean | clean | clean |
 | conditional_edge_neighbor_persistent_last_guardBug_atomicBug | default | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | — | clean | clean | clean |
 | conditional_edge_neighbors | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(4) | CLEAN | clean | clean | clean |
-| conditional_edge_neighbors | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(4) | — | clean | clean | clean |
-| conditional_edge_neighbors | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(4) | — | clean | clean | clean |
-| conditional_edge_neighbors | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbors | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(4) | — | clean | clean | clean |
-| conditional_edge_neighbors | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| conditional_edge_neighbors | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(4) | — | clean | clean | clean |
+| conditional_edge_neighbors | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(4) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbors | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(4) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbors | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbors | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(4) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbors | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| conditional_edge_neighbors | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(4) | CLEAN | clean | clean | clean |
 | conditional_edge_neighbors_atomicBug | sc-subset | DAG_100n_100e | RACE | RACE(22) | RACE(22) | CLEAN | RACE(1) | RACE(5) | RACE(2) | clean | clean | clean |
-| conditional_edge_neighbors_atomicBug | default | DAG_100n_200e | RACE | RACE(24) | RACE(24) | CLEAN | RACE(1) | RACE(5) | — | clean | clean | clean |
-| conditional_edge_neighbors_atomicBug | default | DAG_200n_400e | RACE | RACE(24) | RACE(25) | CLEAN | RACE(1) | RACE(5) | — | clean | clean | clean |
-| conditional_edge_neighbors_atomicBug | default | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbors_atomicBug | default | counterDAG_200n_1000e | RACE | RACE(25) | RACE(25) | CLEAN | RACE(1) | RACE(5) | — | clean | clean | clean |
-| conditional_edge_neighbors_atomicBug | default | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | — | clean | clean | clean |
-| conditional_edge_neighbors_atomicBug | default | power_law_200n_1000e | RACE | RACE(25) | RACE(25) | CLEAN | RACE(1) | RACE(5) | — | clean | clean | clean |
+| conditional_edge_neighbors_atomicBug | sc-subset | DAG_100n_200e | RACE | RACE(24) | RACE(24) | CLEAN | RACE(1) | RACE(5) | RACE(2) | clean | clean | clean |
+| conditional_edge_neighbors_atomicBug | sc-subset | DAG_200n_400e | RACE | RACE(24) | RACE(25) | CLEAN | RACE(1) | RACE(5) | RACE(2) | clean | clean | clean |
+| conditional_edge_neighbors_atomicBug | sc-subset | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | RACE(1) | clean | clean | clean |
+| conditional_edge_neighbors_atomicBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(25) | RACE(25) | CLEAN | RACE(1) | RACE(5) | RACE(2) | clean | clean | clean |
+| conditional_edge_neighbors_atomicBug | sc-subset | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | RACE(1) | clean | clean | clean |
+| conditional_edge_neighbors_atomicBug | sc-subset | power_law_200n_1000e | RACE | RACE(25) | RACE(25) | CLEAN | RACE(1) | RACE(5) | RACE(2) | clean | clean | clean |
 | conditional_edge_neighbors_atomicBug_break | sc-subset | DAG_100n_100e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | RACE(2) | clean | clean | clean |
-| conditional_edge_neighbors_atomicBug_break | default | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbors_atomicBug_break | default | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_edge_neighbors_atomicBug_break | default | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | — | clean | clean | clean |
-| conditional_edge_neighbors_atomicBug_break | default | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_edge_neighbors_atomicBug_break | default | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | — | clean | clean | clean |
-| conditional_edge_neighbors_atomicBug_break | default | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
+| conditional_edge_neighbors_atomicBug_break | sc-subset | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | RACE(2) | clean | clean | clean |
+| conditional_edge_neighbors_atomicBug_break | sc-subset | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_edge_neighbors_atomicBug_break | sc-subset | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | RACE(1) | clean | clean | clean |
+| conditional_edge_neighbors_atomicBug_break | sc-subset | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_edge_neighbors_atomicBug_break | sc-subset | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | RACE(1) | clean | clean | clean |
+| conditional_edge_neighbors_atomicBug_break | sc-subset | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
 | conditional_edge_neighbors_block | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
-| conditional_edge_neighbors_block | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbors_block | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbors_block | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbors_block | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbors_block | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbors_block | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
+| conditional_edge_neighbors_block | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbors_block | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbors_block | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbors_block | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbors_block | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbors_block | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
 | conditional_edge_neighbors_block_atomicBug | sc-subset | DAG_100n_100e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(1) | clean | clean | clean |
-| conditional_edge_neighbors_block_atomicBug | default | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_edge_neighbors_block_atomicBug | default | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_edge_neighbors_block_atomicBug | default | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_edge_neighbors_block_atomicBug | default | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_edge_neighbors_block_atomicBug | default | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_edge_neighbors_block_atomicBug | default | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
+| conditional_edge_neighbors_block_atomicBug | sc-subset | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_edge_neighbors_block_atomicBug | sc-subset | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_edge_neighbors_block_atomicBug | sc-subset | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(1) | clean | clean | clean |
+| conditional_edge_neighbors_block_atomicBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_edge_neighbors_block_atomicBug | sc-subset | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_edge_neighbors_block_atomicBug | sc-subset | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
 | conditional_edge_neighbors_block_cond | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
-| conditional_edge_neighbors_block_cond | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbors_block_cond | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbors_block_cond | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbors_block_cond | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbors_block_cond | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbors_block_cond | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
+| conditional_edge_neighbors_block_cond | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbors_block_cond | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbors_block_cond | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbors_block_cond | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbors_block_cond | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbors_block_cond | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
 | conditional_edge_neighbors_block_cond_atomicBug | sc-subset | DAG_100n_100e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
-| conditional_edge_neighbors_block_cond_atomicBug | default | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_edge_neighbors_block_cond_atomicBug | default | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_edge_neighbors_block_cond_atomicBug | default | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_edge_neighbors_block_cond_atomicBug | default | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_edge_neighbors_block_cond_atomicBug | default | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_edge_neighbors_block_cond_atomicBug | default | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
+| conditional_edge_neighbors_block_cond_atomicBug | sc-subset | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_edge_neighbors_block_cond_atomicBug | sc-subset | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_edge_neighbors_block_cond_atomicBug | sc-subset | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbors_block_cond_atomicBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_edge_neighbors_block_cond_atomicBug | sc-subset | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_edge_neighbors_block_cond_atomicBug | sc-subset | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
 | conditional_edge_neighbors_block_cond_guardBug | sc-subset | DAG_100n_100e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(1) | RACE(2) | CLEAN | clean | clean | clean |
-| conditional_edge_neighbors_block_cond_guardBug | default | DAG_100n_200e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_edge_neighbors_block_cond_guardBug | default | DAG_200n_400e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_edge_neighbors_block_cond_guardBug | default | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| conditional_edge_neighbors_block_cond_guardBug | default | counterDAG_200n_1000e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_edge_neighbors_block_cond_guardBug | default | counterDAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| conditional_edge_neighbors_block_cond_guardBug | default | power_law_200n_1000e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
+| conditional_edge_neighbors_block_cond_guardBug | sc-subset | DAG_100n_200e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(1) | RACE(2) | RACE(1) | clean | clean | clean |
+| conditional_edge_neighbors_block_cond_guardBug | sc-subset | DAG_200n_400e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(1) | RACE(2) | RACE(1) | clean | clean | clean |
+| conditional_edge_neighbors_block_cond_guardBug | sc-subset | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| conditional_edge_neighbors_block_cond_guardBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(1) | RACE(2) | RACE(1) | clean | clean | clean |
+| conditional_edge_neighbors_block_cond_guardBug | sc-subset | counterDAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| conditional_edge_neighbors_block_cond_guardBug | sc-subset | power_law_200n_1000e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(1) | RACE(2) | RACE(1) | clean | clean | clean |
 | conditional_edge_neighbors_block_cond_guardBug_atomicBug | default | DAG_100n_100e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | — | clean | clean | clean |
 | conditional_edge_neighbors_block_cond_guardBug_atomicBug | default | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
 | conditional_edge_neighbors_block_cond_guardBug_atomicBug | default | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
@@ -2408,12 +2500,12 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | conditional_edge_neighbors_block_syncBug_guardBug_atomicBug | default | counterDAG_5n_5e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | — | clean | clean | clean |
 | conditional_edge_neighbors_block_syncBug_guardBug_atomicBug | default | power_law_200n_1000e | RACE | RACE(3) | RACE(3) | RACE(2) | RACE(2) | RACE(2) | — | clean | clean | clean |
 | conditional_edge_neighbors_boundsBug | sc-subset | DAG_100n_100e |  | RACE(10) | RACE(10) | CLEAN | CLEAN | RACE(4) | CLEAN | FLAG(1) | clean | clean |
-| conditional_edge_neighbors_boundsBug | default | DAG_100n_200e |  | RACE(10) | RACE(10) | CLEAN | CLEAN | RACE(4) | — | FLAG(1) | clean | clean |
-| conditional_edge_neighbors_boundsBug | default | DAG_200n_400e |  | RACE(10) | RACE(10) | CLEAN | CLEAN | RACE(4) | — | FLAG(1) | clean | clean |
-| conditional_edge_neighbors_boundsBug | default | DAG_5n_5e |  | RACE(2) | RACE(2) | CLEAN | CLEAN | RACE(1) | — | FLAG(1) | clean | clean |
-| conditional_edge_neighbors_boundsBug | default | counterDAG_200n_1000e |  | RACE(10) | RACE(10) | CLEAN | CLEAN | RACE(4) | — | FLAG(1) | clean | clean |
-| conditional_edge_neighbors_boundsBug | default | counterDAG_5n_5e |  | RACE(2) | RACE(2) | CLEAN | CLEAN | RACE(1) | — | FLAG(1) | clean | clean |
-| conditional_edge_neighbors_boundsBug | default | power_law_200n_1000e |  | RACE(10) | RACE(10) | CLEAN | CLEAN | RACE(4) | — | FLAG(1) | clean | clean |
+| conditional_edge_neighbors_boundsBug | sc-subset | DAG_100n_200e |  | RACE(10) | RACE(10) | CLEAN | CLEAN | RACE(4) | RACE(1) | FLAG(1) | clean | clean |
+| conditional_edge_neighbors_boundsBug | sc-subset | DAG_200n_400e |  | RACE(10) | RACE(10) | CLEAN | CLEAN | RACE(4) | RACE(1) | FLAG(1) | clean | clean |
+| conditional_edge_neighbors_boundsBug | sc-subset | DAG_5n_5e |  | RACE(2) | RACE(2) | CLEAN | CLEAN | RACE(1) | RACE(1) | FLAG(1) | clean | clean |
+| conditional_edge_neighbors_boundsBug | sc-subset | counterDAG_200n_1000e |  | RACE(10) | RACE(10) | CLEAN | CLEAN | RACE(4) | RACE(2) | FLAG(1) | clean | clean |
+| conditional_edge_neighbors_boundsBug | sc-subset | counterDAG_5n_5e |  | RACE(2) | RACE(2) | CLEAN | CLEAN | RACE(1) | CLEAN | FLAG(1) | clean | clean |
+| conditional_edge_neighbors_boundsBug | sc-subset | power_law_200n_1000e |  | RACE(10) | RACE(10) | CLEAN | CLEAN | RACE(4) | RACE(2) | FLAG(1) | clean | clean |
 | conditional_edge_neighbors_boundsBug_atomicBug | default | DAG_100n_100e |  | RACE(30) | RACE(30) | CLEAN | RACE(1) | RACE(5) | — | FLAG(1) | clean | clean |
 | conditional_edge_neighbors_boundsBug_atomicBug | default | DAG_100n_200e |  | RACE(30) | RACE(30) | CLEAN | RACE(1) | RACE(5) | — | FLAG(1) | clean | clean |
 | conditional_edge_neighbors_boundsBug_atomicBug | default | DAG_200n_400e |  | RACE(30) | RACE(30) | CLEAN | RACE(1) | RACE(5) | — | FLAG(1) | clean | clean |
@@ -2632,12 +2724,12 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | conditional_edge_neighbors_boundsBug_reverse_guardBug_break | default | counterDAG_5n_5e |  | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | — | FLAG(1) | clean | clean |
 | conditional_edge_neighbors_boundsBug_reverse_guardBug_break | default | power_law_200n_1000e |  | RACE(3) | RACE(3) | CLEAN | RACE(1) | RACE(2) | — | FLAG(1) | clean | clean |
 | conditional_edge_neighbors_break | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
-| conditional_edge_neighbors_break | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbors_break | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbors_break | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| conditional_edge_neighbors_break | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbors_break | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| conditional_edge_neighbors_break | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
+| conditional_edge_neighbors_break | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbors_break | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbors_break | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| conditional_edge_neighbors_break | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbors_break | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| conditional_edge_neighbors_break | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
 | conditional_edge_neighbors_cond | default | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(2) | — | clean | clean | clean |
 | conditional_edge_neighbors_cond | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(2) | — | clean | clean | clean |
 | conditional_edge_neighbors_cond | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(2) | — | clean | clean | clean |
@@ -3059,40 +3151,40 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | conditional_edge_neighbors_reverse_guardBug_break | default | counterDAG_5n_5e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(1) | RACE(1) | — | clean | clean | clean |
 | conditional_edge_neighbors_reverse_guardBug_break | default | power_law_200n_1000e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(1) | RACE(1) | — | clean | clean | clean |
 | conditional_edge_neighbors_warp | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
-| conditional_edge_neighbors_warp | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbors_warp | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbors_warp | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbors_warp | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbors_warp | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbors_warp | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
+| conditional_edge_neighbors_warp | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbors_warp | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbors_warp | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbors_warp | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbors_warp | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbors_warp | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
 | conditional_edge_neighbors_warp_atomicBug | sc-subset | DAG_100n_100e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
-| conditional_edge_neighbors_warp_atomicBug | default | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_edge_neighbors_warp_atomicBug | default | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_edge_neighbors_warp_atomicBug | default | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_edge_neighbors_warp_atomicBug | default | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_edge_neighbors_warp_atomicBug | default | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_edge_neighbors_warp_atomicBug | default | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
+| conditional_edge_neighbors_warp_atomicBug | sc-subset | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_edge_neighbors_warp_atomicBug | sc-subset | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_edge_neighbors_warp_atomicBug | sc-subset | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(1) | clean | clean | clean |
+| conditional_edge_neighbors_warp_atomicBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_edge_neighbors_warp_atomicBug | sc-subset | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(1) | clean | clean | clean |
+| conditional_edge_neighbors_warp_atomicBug | sc-subset | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
 | conditional_edge_neighbors_warp_cond | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
-| conditional_edge_neighbors_warp_cond | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbors_warp_cond | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbors_warp_cond | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbors_warp_cond | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbors_warp_cond | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbors_warp_cond | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
+| conditional_edge_neighbors_warp_cond | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbors_warp_cond | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbors_warp_cond | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbors_warp_cond | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbors_warp_cond | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbors_warp_cond | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
 | conditional_edge_neighbors_warp_cond_atomicBug | sc-subset | DAG_100n_100e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
-| conditional_edge_neighbors_warp_cond_atomicBug | default | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_edge_neighbors_warp_cond_atomicBug | default | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_edge_neighbors_warp_cond_atomicBug | default | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_edge_neighbors_warp_cond_atomicBug | default | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_edge_neighbors_warp_cond_atomicBug | default | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_edge_neighbors_warp_cond_atomicBug | default | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
+| conditional_edge_neighbors_warp_cond_atomicBug | sc-subset | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_edge_neighbors_warp_cond_atomicBug | sc-subset | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_edge_neighbors_warp_cond_atomicBug | sc-subset | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | CLEAN | clean | clean | clean |
+| conditional_edge_neighbors_warp_cond_atomicBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_edge_neighbors_warp_cond_atomicBug | sc-subset | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(1) | clean | clean | clean |
+| conditional_edge_neighbors_warp_cond_atomicBug | sc-subset | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
 | conditional_edge_neighbors_warp_cond_guardBug | sc-subset | DAG_100n_100e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(1) | RACE(2) | RACE(1) | clean | clean | clean |
-| conditional_edge_neighbors_warp_cond_guardBug | default | DAG_100n_200e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_edge_neighbors_warp_cond_guardBug | default | DAG_200n_400e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_edge_neighbors_warp_cond_guardBug | default | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| conditional_edge_neighbors_warp_cond_guardBug | default | counterDAG_200n_1000e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_edge_neighbors_warp_cond_guardBug | default | counterDAG_5n_5e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(1) | RACE(1) | — | clean | clean | clean |
-| conditional_edge_neighbors_warp_cond_guardBug | default | power_law_200n_1000e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
+| conditional_edge_neighbors_warp_cond_guardBug | sc-subset | DAG_100n_200e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(1) | RACE(2) | RACE(1) | clean | clean | clean |
+| conditional_edge_neighbors_warp_cond_guardBug | sc-subset | DAG_200n_400e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(1) | RACE(2) | RACE(1) | clean | clean | clean |
+| conditional_edge_neighbors_warp_cond_guardBug | sc-subset | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| conditional_edge_neighbors_warp_cond_guardBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(1) | RACE(2) | RACE(1) | clean | clean | clean |
+| conditional_edge_neighbors_warp_cond_guardBug | sc-subset | counterDAG_5n_5e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(1) | RACE(1) | RACE(1) | clean | clean | clean |
+| conditional_edge_neighbors_warp_cond_guardBug | sc-subset | power_law_200n_1000e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(1) | RACE(2) | RACE(1) | clean | clean | clean |
 | conditional_edge_neighbors_warp_cond_guardBug_atomicBug | default | DAG_100n_100e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
 | conditional_edge_neighbors_warp_cond_guardBug_atomicBug | default | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
 | conditional_edge_neighbors_warp_cond_guardBug_atomicBug | default | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
@@ -3283,26 +3375,26 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | conditional_edge_neighbors_warp_reverse_guardBug_atomicBug | default | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | — | clean | clean | clean |
 | conditional_edge_neighbors_warp_reverse_guardBug_atomicBug | default | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
 | conditional_vertex_neighbor | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
-| conditional_vertex_neighbor | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_vertex_neighbor | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_vertex_neighbor | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| conditional_vertex_neighbor | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_vertex_neighbor | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| conditional_vertex_neighbor | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
+| conditional_vertex_neighbor | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbor | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbor | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbor | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbor | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbor | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
 | conditional_vertex_neighbor_atomicBug | sc-subset | DAG_100n_100e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | RACE(2) | clean | clean | clean |
-| conditional_vertex_neighbor_atomicBug | default | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | — | clean | clean | clean |
-| conditional_vertex_neighbor_atomicBug | default | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbor_atomicBug | default | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| conditional_vertex_neighbor_atomicBug | default | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbor_atomicBug | default | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | — | clean | clean | clean |
-| conditional_vertex_neighbor_atomicBug | default | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
+| conditional_vertex_neighbor_atomicBug | sc-subset | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | RACE(2) | clean | clean | clean |
+| conditional_vertex_neighbor_atomicBug | sc-subset | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_vertex_neighbor_atomicBug | sc-subset | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbor_atomicBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_vertex_neighbor_atomicBug | sc-subset | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | RACE(1) | clean | clean | clean |
+| conditional_vertex_neighbor_atomicBug | sc-subset | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
 | conditional_vertex_neighbor_boundsBug | sc-subset | DAG_100n_100e |  | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | FLAG(1) | clean | clean |
-| conditional_vertex_neighbor_boundsBug | default | DAG_100n_200e |  | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_vertex_neighbor_boundsBug | default | DAG_200n_400e |  | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_vertex_neighbor_boundsBug | default | DAG_5n_5e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| conditional_vertex_neighbor_boundsBug | default | counterDAG_200n_1000e |  | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_vertex_neighbor_boundsBug | default | counterDAG_5n_5e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | FLAG(1) | clean | clean |
-| conditional_vertex_neighbor_boundsBug | default | power_law_200n_1000e |  | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | FLAG(1) | clean | clean |
+| conditional_vertex_neighbor_boundsBug | sc-subset | DAG_100n_200e |  | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbor_boundsBug | sc-subset | DAG_200n_400e |  | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbor_boundsBug | sc-subset | DAG_5n_5e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbor_boundsBug | sc-subset | counterDAG_200n_1000e |  | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbor_boundsBug | sc-subset | counterDAG_5n_5e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | FLAG(1) | clean | clean |
+| conditional_vertex_neighbor_boundsBug | sc-subset | power_law_200n_1000e |  | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | FLAG(1) | clean | clean |
 | conditional_vertex_neighbor_boundsBug_atomicBug | default | DAG_100n_100e |  | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | FLAG(1) | clean | clean |
 | conditional_vertex_neighbor_boundsBug_atomicBug | default | DAG_100n_200e |  | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
 | conditional_vertex_neighbor_boundsBug_atomicBug | default | DAG_200n_400e |  | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
@@ -3325,19 +3417,19 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | conditional_vertex_neighbor_boundsBug_last_atomicBug | default | counterDAG_5n_5e |  | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | — | clean | clean | clean |
 | conditional_vertex_neighbor_boundsBug_last_atomicBug | default | power_law_200n_1000e |  | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | FLAG(1) | clean | clean |
 | conditional_vertex_neighbor_last | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
-| conditional_vertex_neighbor_last | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_vertex_neighbor_last | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_vertex_neighbor_last | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| conditional_vertex_neighbor_last | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_vertex_neighbor_last | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| conditional_vertex_neighbor_last | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
+| conditional_vertex_neighbor_last | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbor_last | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbor_last | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbor_last | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbor_last | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbor_last | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
 | conditional_vertex_neighbor_last_atomicBug | sc-subset | DAG_100n_100e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | RACE(2) | clean | clean | clean |
-| conditional_vertex_neighbor_last_atomicBug | default | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | — | clean | clean | clean |
-| conditional_vertex_neighbor_last_atomicBug | default | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbor_last_atomicBug | default | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| conditional_vertex_neighbor_last_atomicBug | default | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbor_last_atomicBug | default | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | — | clean | clean | clean |
-| conditional_vertex_neighbor_last_atomicBug | default | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
+| conditional_vertex_neighbor_last_atomicBug | sc-subset | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | RACE(2) | clean | clean | clean |
+| conditional_vertex_neighbor_last_atomicBug | sc-subset | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_vertex_neighbor_last_atomicBug | sc-subset | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbor_last_atomicBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_vertex_neighbor_last_atomicBug | sc-subset | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | RACE(1) | clean | clean | clean |
+| conditional_vertex_neighbor_last_atomicBug | sc-subset | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
 | conditional_vertex_neighbor_persistent | default | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
 | conditional_vertex_neighbor_persistent | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
 | conditional_vertex_neighbor_persistent | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
@@ -3395,54 +3487,54 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | conditional_vertex_neighbor_persistent_last_atomicBug | default | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | — | clean | clean | clean |
 | conditional_vertex_neighbor_persistent_last_atomicBug | default | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
 | conditional_vertex_neighbors | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(2) | CLEAN | clean | clean | clean |
-| conditional_vertex_neighbors | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| conditional_vertex_neighbors | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| conditional_vertex_neighbors | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(2) | — | clean | clean | clean |
+| conditional_vertex_neighbors | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(2) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(2) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(2) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(2) | CLEAN | clean | clean | clean |
 | conditional_vertex_neighbors_atomicBug | sc-subset | DAG_100n_100e | RACE | RACE(23) | RACE(25) | CLEAN | RACE(1) | RACE(5) | RACE(2) | clean | clean | clean |
-| conditional_vertex_neighbors_atomicBug | default | DAG_100n_200e | RACE | RACE(37) | RACE(40) | CLEAN | RACE(1) | RACE(9) | — | clean | clean | clean |
-| conditional_vertex_neighbors_atomicBug | default | DAG_200n_400e | RACE | RACE(39) | RACE(35) | CLEAN | RACE(1) | RACE(9) | — | clean | clean | clean |
-| conditional_vertex_neighbors_atomicBug | default | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| conditional_vertex_neighbors_atomicBug | default | counterDAG_200n_1000e | RACE | RACE(40) | RACE(40) | CLEAN | RACE(1) | RACE(9) | — | clean | clean | clean |
-| conditional_vertex_neighbors_atomicBug | default | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | — | clean | clean | clean |
-| conditional_vertex_neighbors_atomicBug | default | power_law_200n_1000e | RACE | RACE(40) | RACE(40) | CLEAN | RACE(1) | RACE(9) | — | clean | clean | clean |
+| conditional_vertex_neighbors_atomicBug | sc-subset | DAG_100n_200e | RACE | RACE(37) | RACE(40) | CLEAN | RACE(1) | RACE(9) | RACE(2) | clean | clean | clean |
+| conditional_vertex_neighbors_atomicBug | sc-subset | DAG_200n_400e | RACE | RACE(39) | RACE(35) | CLEAN | RACE(1) | RACE(9) | RACE(2) | clean | clean | clean |
+| conditional_vertex_neighbors_atomicBug | sc-subset | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors_atomicBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(40) | RACE(40) | CLEAN | RACE(1) | RACE(9) | RACE(2) | clean | clean | clean |
+| conditional_vertex_neighbors_atomicBug | sc-subset | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | RACE(1) | clean | clean | clean |
+| conditional_vertex_neighbors_atomicBug | sc-subset | power_law_200n_1000e | RACE | RACE(40) | RACE(40) | CLEAN | RACE(1) | RACE(9) | RACE(2) | clean | clean | clean |
 | conditional_vertex_neighbors_atomicBug_break | sc-subset | DAG_100n_100e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
-| conditional_vertex_neighbors_atomicBug_break | default | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors_atomicBug_break | default | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors_atomicBug_break | default | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| conditional_vertex_neighbors_atomicBug_break | default | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors_atomicBug_break | default | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | — | clean | clean | clean |
-| conditional_vertex_neighbors_atomicBug_break | default | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
+| conditional_vertex_neighbors_atomicBug_break | sc-subset | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_vertex_neighbors_atomicBug_break | sc-subset | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_vertex_neighbors_atomicBug_break | sc-subset | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors_atomicBug_break | sc-subset | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_vertex_neighbors_atomicBug_break | sc-subset | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | RACE(1) | clean | clean | clean |
+| conditional_vertex_neighbors_atomicBug_break | sc-subset | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
 | conditional_vertex_neighbors_block | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
-| conditional_vertex_neighbors_block | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_vertex_neighbors_block | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_vertex_neighbors_block | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_vertex_neighbors_block | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_vertex_neighbors_block | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_vertex_neighbors_block | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
+| conditional_vertex_neighbors_block | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors_block | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors_block | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors_block | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors_block | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors_block | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
 | conditional_vertex_neighbors_block_atomicBug | sc-subset | DAG_100n_100e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(1) | clean | clean | clean |
-| conditional_vertex_neighbors_block_atomicBug | default | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors_block_atomicBug | default | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors_block_atomicBug | default | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors_block_atomicBug | default | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors_block_atomicBug | default | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors_block_atomicBug | default | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
+| conditional_vertex_neighbors_block_atomicBug | sc-subset | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_vertex_neighbors_block_atomicBug | sc-subset | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_vertex_neighbors_block_atomicBug | sc-subset | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors_block_atomicBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_vertex_neighbors_block_atomicBug | sc-subset | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(1) | clean | clean | clean |
+| conditional_vertex_neighbors_block_atomicBug | sc-subset | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
 | conditional_vertex_neighbors_block_persistent | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
-| conditional_vertex_neighbors_block_persistent | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_vertex_neighbors_block_persistent | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_vertex_neighbors_block_persistent | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_vertex_neighbors_block_persistent | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_vertex_neighbors_block_persistent | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_vertex_neighbors_block_persistent | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
+| conditional_vertex_neighbors_block_persistent | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors_block_persistent | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors_block_persistent | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors_block_persistent | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors_block_persistent | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors_block_persistent | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
 | conditional_vertex_neighbors_block_persistent_atomicBug | sc-subset | DAG_100n_100e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
-| conditional_vertex_neighbors_block_persistent_atomicBug | default | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors_block_persistent_atomicBug | default | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors_block_persistent_atomicBug | default | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors_block_persistent_atomicBug | default | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors_block_persistent_atomicBug | default | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors_block_persistent_atomicBug | default | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
+| conditional_vertex_neighbors_block_persistent_atomicBug | sc-subset | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_vertex_neighbors_block_persistent_atomicBug | sc-subset | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_vertex_neighbors_block_persistent_atomicBug | sc-subset | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors_block_persistent_atomicBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_vertex_neighbors_block_persistent_atomicBug | sc-subset | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(1) | clean | clean | clean |
+| conditional_vertex_neighbors_block_persistent_atomicBug | sc-subset | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
 | conditional_vertex_neighbors_block_persistent_reverse | default | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
 | conditional_vertex_neighbors_block_persistent_reverse | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
 | conditional_vertex_neighbors_block_persistent_reverse | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
@@ -3451,12 +3543,12 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | conditional_vertex_neighbors_block_persistent_reverse | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
 | conditional_vertex_neighbors_block_persistent_reverse | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
 | conditional_vertex_neighbors_block_persistent_reverse_atomicBug | sc-subset | DAG_100n_100e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
-| conditional_vertex_neighbors_block_persistent_reverse_atomicBug | default | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors_block_persistent_reverse_atomicBug | default | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors_block_persistent_reverse_atomicBug | default | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors_block_persistent_reverse_atomicBug | default | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors_block_persistent_reverse_atomicBug | default | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors_block_persistent_reverse_atomicBug | default | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
+| conditional_vertex_neighbors_block_persistent_reverse_atomicBug | sc-subset | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_vertex_neighbors_block_persistent_reverse_atomicBug | sc-subset | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_vertex_neighbors_block_persistent_reverse_atomicBug | sc-subset | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors_block_persistent_reverse_atomicBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_vertex_neighbors_block_persistent_reverse_atomicBug | sc-subset | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(1) | clean | clean | clean |
+| conditional_vertex_neighbors_block_persistent_reverse_atomicBug | sc-subset | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
 | conditional_vertex_neighbors_block_reverse | default | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
 | conditional_vertex_neighbors_block_reverse | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
 | conditional_vertex_neighbors_block_reverse | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
@@ -3472,12 +3564,12 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | conditional_vertex_neighbors_block_reverse_atomicBug | default | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
 | conditional_vertex_neighbors_block_reverse_atomicBug | default | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
 | conditional_vertex_neighbors_boundsBug | sc-subset | DAG_100n_100e |  | RACE(8) | RACE(8) | CLEAN | CLEAN | RACE(2) | CLEAN | FLAG(1) | clean | clean |
-| conditional_vertex_neighbors_boundsBug | default | DAG_100n_200e |  | RACE(10) | RACE(10) | CLEAN | CLEAN | RACE(2) | — | FLAG(1) | clean | clean |
-| conditional_vertex_neighbors_boundsBug | default | DAG_200n_400e |  | RACE(10) | RACE(10) | CLEAN | CLEAN | RACE(2) | — | FLAG(1) | clean | clean |
-| conditional_vertex_neighbors_boundsBug | default | DAG_5n_5e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | FLAG(1) | clean | clean |
-| conditional_vertex_neighbors_boundsBug | default | counterDAG_200n_1000e |  | RACE(10) | RACE(10) | CLEAN | CLEAN | RACE(2) | — | FLAG(1) | clean | clean |
-| conditional_vertex_neighbors_boundsBug | default | counterDAG_5n_5e |  | RACE(2) | RACE(2) | CLEAN | CLEAN | CLEAN | — | FLAG(1) | clean | clean |
-| conditional_vertex_neighbors_boundsBug | default | power_law_200n_1000e |  | RACE(10) | RACE(10) | CLEAN | CLEAN | RACE(2) | — | FLAG(1) | clean | clean |
+| conditional_vertex_neighbors_boundsBug | sc-subset | DAG_100n_200e |  | RACE(10) | RACE(10) | CLEAN | CLEAN | RACE(2) | RACE(1) | FLAG(1) | clean | clean |
+| conditional_vertex_neighbors_boundsBug | sc-subset | DAG_200n_400e |  | RACE(10) | RACE(10) | CLEAN | CLEAN | RACE(2) | RACE(1) | FLAG(1) | clean | clean |
+| conditional_vertex_neighbors_boundsBug | sc-subset | DAG_5n_5e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | FLAG(1) | clean | clean |
+| conditional_vertex_neighbors_boundsBug | sc-subset | counterDAG_200n_1000e |  | RACE(10) | RACE(10) | CLEAN | CLEAN | RACE(2) | RACE(1) | FLAG(1) | clean | clean |
+| conditional_vertex_neighbors_boundsBug | sc-subset | counterDAG_5n_5e |  | RACE(2) | RACE(2) | CLEAN | CLEAN | CLEAN | CLEAN | FLAG(1) | clean | clean |
+| conditional_vertex_neighbors_boundsBug | sc-subset | power_law_200n_1000e |  | RACE(10) | RACE(10) | CLEAN | CLEAN | RACE(2) | RACE(1) | FLAG(1) | clean | clean |
 | conditional_vertex_neighbors_boundsBug_atomicBug | default | DAG_100n_100e |  | RACE(33) | RACE(32) | CLEAN | RACE(1) | RACE(6) | — | FLAG(1) | clean | clean |
 | conditional_vertex_neighbors_boundsBug_atomicBug | default | DAG_100n_200e |  | RACE(45) | RACE(45) | CLEAN | RACE(1) | RACE(9) | — | FLAG(1) | clean | clean |
 | conditional_vertex_neighbors_boundsBug_atomicBug | default | DAG_200n_400e |  | RACE(49) | RACE(48) | CLEAN | RACE(1) | RACE(9) | — | FLAG(1) | clean | clean |
@@ -3528,12 +3620,12 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | conditional_vertex_neighbors_boundsBug_reverse_break | default | counterDAG_5n_5e |  | RACE(2) | RACE(2) | CLEAN | CLEAN | CLEAN | — | FLAG(1) | clean | clean |
 | conditional_vertex_neighbors_boundsBug_reverse_break | default | power_law_200n_1000e |  | RACE(2) | RACE(2) | CLEAN | CLEAN | RACE(1) | — | FLAG(1) | clean | clean |
 | conditional_vertex_neighbors_break | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
-| conditional_vertex_neighbors_break | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_vertex_neighbors_break | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_vertex_neighbors_break | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| conditional_vertex_neighbors_break | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_vertex_neighbors_break | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| conditional_vertex_neighbors_break | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
+| conditional_vertex_neighbors_break | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors_break | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors_break | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors_break | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors_break | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors_break | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
 | conditional_vertex_neighbors_persistent | default | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(4) | — | clean | clean | clean |
 | conditional_vertex_neighbors_persistent | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(4) | — | clean | clean | clean |
 | conditional_vertex_neighbors_persistent | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(4) | — | clean | clean | clean |
@@ -3619,33 +3711,33 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | conditional_vertex_neighbors_reverse_break | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | conditional_vertex_neighbors_reverse_break | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
 | conditional_vertex_neighbors_warp | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
-| conditional_vertex_neighbors_warp | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_vertex_neighbors_warp | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_vertex_neighbors_warp | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_vertex_neighbors_warp | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_vertex_neighbors_warp | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_vertex_neighbors_warp | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
+| conditional_vertex_neighbors_warp | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors_warp | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors_warp | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors_warp | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors_warp | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors_warp | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
 | conditional_vertex_neighbors_warp_atomicBug | sc-subset | DAG_100n_100e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
-| conditional_vertex_neighbors_warp_atomicBug | default | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors_warp_atomicBug | default | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors_warp_atomicBug | default | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors_warp_atomicBug | default | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors_warp_atomicBug | default | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors_warp_atomicBug | default | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
+| conditional_vertex_neighbors_warp_atomicBug | sc-subset | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_vertex_neighbors_warp_atomicBug | sc-subset | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_vertex_neighbors_warp_atomicBug | sc-subset | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors_warp_atomicBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_vertex_neighbors_warp_atomicBug | sc-subset | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_vertex_neighbors_warp_atomicBug | sc-subset | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
 | conditional_vertex_neighbors_warp_persistent | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
-| conditional_vertex_neighbors_warp_persistent | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_vertex_neighbors_warp_persistent | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_vertex_neighbors_warp_persistent | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_vertex_neighbors_warp_persistent | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_vertex_neighbors_warp_persistent | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| conditional_vertex_neighbors_warp_persistent | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
+| conditional_vertex_neighbors_warp_persistent | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors_warp_persistent | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors_warp_persistent | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors_warp_persistent | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors_warp_persistent | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors_warp_persistent | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
 | conditional_vertex_neighbors_warp_persistent_atomicBug | sc-subset | DAG_100n_100e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
-| conditional_vertex_neighbors_warp_persistent_atomicBug | default | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors_warp_persistent_atomicBug | default | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors_warp_persistent_atomicBug | default | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors_warp_persistent_atomicBug | default | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors_warp_persistent_atomicBug | default | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors_warp_persistent_atomicBug | default | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
+| conditional_vertex_neighbors_warp_persistent_atomicBug | sc-subset | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_vertex_neighbors_warp_persistent_atomicBug | sc-subset | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_vertex_neighbors_warp_persistent_atomicBug | sc-subset | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors_warp_persistent_atomicBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_vertex_neighbors_warp_persistent_atomicBug | sc-subset | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(1) | clean | clean | clean |
+| conditional_vertex_neighbors_warp_persistent_atomicBug | sc-subset | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
 | conditional_vertex_neighbors_warp_persistent_reverse | default | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
 | conditional_vertex_neighbors_warp_persistent_reverse | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
 | conditional_vertex_neighbors_warp_persistent_reverse | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
@@ -3654,12 +3746,12 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | conditional_vertex_neighbors_warp_persistent_reverse | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
 | conditional_vertex_neighbors_warp_persistent_reverse | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
 | conditional_vertex_neighbors_warp_persistent_reverse_atomicBug | sc-subset | DAG_100n_100e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
-| conditional_vertex_neighbors_warp_persistent_reverse_atomicBug | default | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors_warp_persistent_reverse_atomicBug | default | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors_warp_persistent_reverse_atomicBug | default | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors_warp_persistent_reverse_atomicBug | default | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors_warp_persistent_reverse_atomicBug | default | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| conditional_vertex_neighbors_warp_persistent_reverse_atomicBug | default | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
+| conditional_vertex_neighbors_warp_persistent_reverse_atomicBug | sc-subset | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_vertex_neighbors_warp_persistent_reverse_atomicBug | sc-subset | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_vertex_neighbors_warp_persistent_reverse_atomicBug | sc-subset | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | CLEAN | clean | clean | clean |
+| conditional_vertex_neighbors_warp_persistent_reverse_atomicBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| conditional_vertex_neighbors_warp_persistent_reverse_atomicBug | sc-subset | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(1) | clean | clean | clean |
+| conditional_vertex_neighbors_warp_persistent_reverse_atomicBug | sc-subset | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
 | conditional_vertex_neighbors_warp_reverse | default | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
 | conditional_vertex_neighbors_warp_reverse | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
 | conditional_vertex_neighbors_warp_reverse | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
@@ -3675,68 +3767,68 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | conditional_vertex_neighbors_warp_reverse_atomicBug | default | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
 | conditional_vertex_neighbors_warp_reverse_atomicBug | default | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
 | path_compression | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
-| path_compression | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| path_compression | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| path_compression | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| path_compression | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| path_compression | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| path_compression | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
+| path_compression | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| path_compression | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| path_compression | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| path_compression | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| path_compression | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| path_compression | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
 | path_compression_persistent | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
-| path_compression_persistent | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| path_compression_persistent | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| path_compression_persistent | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| path_compression_persistent | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| path_compression_persistent | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| path_compression_persistent | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
+| path_compression_persistent | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| path_compression_persistent | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| path_compression_persistent | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| path_compression_persistent | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| path_compression_persistent | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| path_compression_persistent | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
 | path_compression_raceBug | sc-subset | DAG_100n_100e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(2) | RACE(2) | RACE(1) | clean | clean | clean |
-| path_compression_raceBug | default | DAG_100n_200e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(2) | RACE(2) | — | clean | clean | clean |
-| path_compression_raceBug | default | DAG_200n_400e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(2) | RACE(2) | — | clean | clean | clean |
-| path_compression_raceBug | default | DAG_5n_5e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(2) | CLEAN | — | clean | clean | clean |
-| path_compression_raceBug | default | counterDAG_200n_1000e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(2) | RACE(2) | — | clean | clean | clean |
-| path_compression_raceBug | default | counterDAG_5n_5e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(2) | CLEAN | — | clean | clean | clean |
-| path_compression_raceBug | default | power_law_200n_1000e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(2) | RACE(2) | — | clean | clean | clean |
+| path_compression_raceBug | sc-subset | DAG_100n_200e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(2) | RACE(2) | RACE(1) | clean | clean | clean |
+| path_compression_raceBug | sc-subset | DAG_200n_400e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(2) | RACE(2) | RACE(1) | clean | clean | clean |
+| path_compression_raceBug | sc-subset | DAG_5n_5e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(2) | CLEAN | RACE(1) | clean | clean | clean |
+| path_compression_raceBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(2) | RACE(2) | RACE(1) | clean | clean | clean |
+| path_compression_raceBug | sc-subset | counterDAG_5n_5e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(2) | CLEAN | RACE(1) | clean | clean | clean |
+| path_compression_raceBug | sc-subset | power_law_200n_1000e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(2) | RACE(2) | RACE(1) | clean | clean | clean |
 | path_compression_raceBug_persistent | sc-subset | DAG_100n_100e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(2) | RACE(2) | RACE(1) | clean | clean | clean |
-| path_compression_raceBug_persistent | default | DAG_100n_200e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(2) | RACE(2) | — | clean | clean | clean |
-| path_compression_raceBug_persistent | default | DAG_200n_400e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(2) | RACE(2) | — | clean | clean | clean |
-| path_compression_raceBug_persistent | default | DAG_5n_5e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(2) | CLEAN | — | clean | clean | clean |
-| path_compression_raceBug_persistent | default | counterDAG_200n_1000e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(2) | RACE(2) | — | clean | clean | clean |
-| path_compression_raceBug_persistent | default | counterDAG_5n_5e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(2) | CLEAN | — | clean | clean | clean |
-| path_compression_raceBug_persistent | default | power_law_200n_1000e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(2) | RACE(2) | — | clean | clean | clean |
+| path_compression_raceBug_persistent | sc-subset | DAG_100n_200e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(2) | RACE(2) | RACE(1) | clean | clean | clean |
+| path_compression_raceBug_persistent | sc-subset | DAG_200n_400e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(2) | RACE(2) | RACE(1) | clean | clean | clean |
+| path_compression_raceBug_persistent | sc-subset | DAG_5n_5e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(2) | CLEAN | RACE(1) | clean | clean | clean |
+| path_compression_raceBug_persistent | sc-subset | counterDAG_200n_1000e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(2) | RACE(2) | RACE(1) | clean | clean | clean |
+| path_compression_raceBug_persistent | sc-subset | counterDAG_5n_5e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(2) | CLEAN | RACE(1) | clean | clean | clean |
+| path_compression_raceBug_persistent | sc-subset | power_law_200n_1000e | RACE | RACE(1) | RACE(1) | CLEAN | RACE(2) | RACE(2) | RACE(1) | clean | clean | clean |
 | path_compression_traverse | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
-| path_compression_traverse | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| path_compression_traverse | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| path_compression_traverse | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| path_compression_traverse | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| path_compression_traverse | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| path_compression_traverse | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
+| path_compression_traverse | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| path_compression_traverse | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| path_compression_traverse | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| path_compression_traverse | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| path_compression_traverse | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| path_compression_traverse | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
 | path_compression_traverse_persistent | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
-| path_compression_traverse_persistent | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| path_compression_traverse_persistent | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| path_compression_traverse_persistent | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| path_compression_traverse_persistent | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| path_compression_traverse_persistent | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| path_compression_traverse_persistent | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
+| path_compression_traverse_persistent | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| path_compression_traverse_persistent | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| path_compression_traverse_persistent | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| path_compression_traverse_persistent | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| path_compression_traverse_persistent | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| path_compression_traverse_persistent | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
 | populate_worklist_neighbor | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
-| populate_worklist_neighbor | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbor | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbor | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbor | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbor | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbor | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
+| populate_worklist_neighbor | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbor | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbor | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbor | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbor | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbor | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
 | populate_worklist_neighbor_atomicBug | sc-subset | DAG_100n_100e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(2) | RACE(3) | clean | clean | clean |
-| populate_worklist_neighbor_atomicBug | default | DAG_100n_200e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(2) | — | clean | clean | clean |
-| populate_worklist_neighbor_atomicBug | default | DAG_200n_400e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
-| populate_worklist_neighbor_atomicBug | default | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbor_atomicBug | default | counterDAG_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
-| populate_worklist_neighbor_atomicBug | default | counterDAG_5n_5e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbor_atomicBug | default | power_law_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
+| populate_worklist_neighbor_atomicBug | sc-subset | DAG_100n_200e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(2) | RACE(3) | clean | clean | clean |
+| populate_worklist_neighbor_atomicBug | sc-subset | DAG_200n_400e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
+| populate_worklist_neighbor_atomicBug | sc-subset | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbor_atomicBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
+| populate_worklist_neighbor_atomicBug | sc-subset | counterDAG_5n_5e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | CLEAN | RACE(2) | clean | clean | clean |
+| populate_worklist_neighbor_atomicBug | sc-subset | power_law_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
 | populate_worklist_neighbor_boundsBug | sc-subset | DAG_100n_100e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | FLAG(1) | clean | clean |
-| populate_worklist_neighbor_boundsBug | default | DAG_100n_200e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbor_boundsBug | default | DAG_200n_400e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbor_boundsBug | default | DAG_5n_5e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbor_boundsBug | default | counterDAG_200n_1000e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbor_boundsBug | default | counterDAG_5n_5e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | FLAG(1) | clean | clean |
-| populate_worklist_neighbor_boundsBug | default | power_law_200n_1000e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | FLAG(1) | clean | clean |
+| populate_worklist_neighbor_boundsBug | sc-subset | DAG_100n_200e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbor_boundsBug | sc-subset | DAG_200n_400e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbor_boundsBug | sc-subset | DAG_5n_5e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbor_boundsBug | sc-subset | counterDAG_200n_1000e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbor_boundsBug | sc-subset | counterDAG_5n_5e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | FLAG(1) | clean | clean |
+| populate_worklist_neighbor_boundsBug | sc-subset | power_law_200n_1000e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | FLAG(1) | clean | clean |
 | populate_worklist_neighbor_boundsBug_atomicBug | default | DAG_100n_100e |  | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | FLAG(1) | clean | clean |
 | populate_worklist_neighbor_boundsBug_atomicBug | default | DAG_100n_200e |  | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
 | populate_worklist_neighbor_boundsBug_atomicBug | default | DAG_200n_400e |  | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
@@ -3759,19 +3851,19 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | populate_worklist_neighbor_boundsBug_last_atomicBug | default | counterDAG_5n_5e |  | RACE(3) | RACE(3) | CLEAN | RACE(2) | CLEAN | — | clean | clean | clean |
 | populate_worklist_neighbor_boundsBug_last_atomicBug | default | power_law_200n_1000e |  | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | FLAG(1) | clean | clean |
 | populate_worklist_neighbor_last | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
-| populate_worklist_neighbor_last | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbor_last | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbor_last | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbor_last | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbor_last | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbor_last | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
+| populate_worklist_neighbor_last | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbor_last | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbor_last | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbor_last | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbor_last | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbor_last | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
 | populate_worklist_neighbor_last_atomicBug | sc-subset | DAG_100n_100e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(2) | RACE(3) | clean | clean | clean |
-| populate_worklist_neighbor_last_atomicBug | default | DAG_100n_200e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(2) | — | clean | clean | clean |
-| populate_worklist_neighbor_last_atomicBug | default | DAG_200n_400e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
-| populate_worklist_neighbor_last_atomicBug | default | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbor_last_atomicBug | default | counterDAG_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
-| populate_worklist_neighbor_last_atomicBug | default | counterDAG_5n_5e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbor_last_atomicBug | default | power_law_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
+| populate_worklist_neighbor_last_atomicBug | sc-subset | DAG_100n_200e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(2) | RACE(3) | clean | clean | clean |
+| populate_worklist_neighbor_last_atomicBug | sc-subset | DAG_200n_400e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
+| populate_worklist_neighbor_last_atomicBug | sc-subset | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbor_last_atomicBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
+| populate_worklist_neighbor_last_atomicBug | sc-subset | counterDAG_5n_5e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | CLEAN | RACE(2) | clean | clean | clean |
+| populate_worklist_neighbor_last_atomicBug | sc-subset | power_law_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
 | populate_worklist_neighbor_persistent | default | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | populate_worklist_neighbor_persistent | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | populate_worklist_neighbor_persistent | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
@@ -3829,54 +3921,54 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | populate_worklist_neighbor_persistent_last_atomicBug | default | counterDAG_5n_5e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | CLEAN | — | clean | clean | clean |
 | populate_worklist_neighbor_persistent_last_atomicBug | default | power_law_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
 | populate_worklist_neighbors | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
-| populate_worklist_neighbors | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
+| populate_worklist_neighbors | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
 | populate_worklist_neighbors_atomicBug | sc-subset | DAG_100n_100e | RACE | RACE(30) | RACE(30) | CLEAN | RACE(2) | RACE(6) | RACE(3) | clean | clean | clean |
-| populate_worklist_neighbors_atomicBug | default | DAG_100n_200e | RACE | RACE(42) | RACE(42) | CLEAN | RACE(2) | RACE(10) | — | clean | clean | clean |
-| populate_worklist_neighbors_atomicBug | default | DAG_200n_400e | RACE | RACE(43) | RACE(49) | CLEAN | RACE(2) | RACE(10) | — | clean | clean | clean |
-| populate_worklist_neighbors_atomicBug | default | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors_atomicBug | default | counterDAG_200n_1000e | RACE | RACE(51) | RACE(51) | CLEAN | RACE(2) | RACE(10) | — | clean | clean | clean |
-| populate_worklist_neighbors_atomicBug | default | counterDAG_5n_5e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors_atomicBug | default | power_law_200n_1000e | RACE | RACE(51) | RACE(51) | CLEAN | RACE(2) | RACE(10) | — | clean | clean | clean |
+| populate_worklist_neighbors_atomicBug | sc-subset | DAG_100n_200e | RACE | RACE(42) | RACE(42) | CLEAN | RACE(2) | RACE(10) | RACE(3) | clean | clean | clean |
+| populate_worklist_neighbors_atomicBug | sc-subset | DAG_200n_400e | RACE | RACE(43) | RACE(49) | CLEAN | RACE(2) | RACE(10) | RACE(3) | clean | clean | clean |
+| populate_worklist_neighbors_atomicBug | sc-subset | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors_atomicBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(51) | RACE(51) | CLEAN | RACE(2) | RACE(10) | RACE(3) | clean | clean | clean |
+| populate_worklist_neighbors_atomicBug | sc-subset | counterDAG_5n_5e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | CLEAN | RACE(2) | clean | clean | clean |
+| populate_worklist_neighbors_atomicBug | sc-subset | power_law_200n_1000e | RACE | RACE(51) | RACE(51) | CLEAN | RACE(2) | RACE(10) | RACE(3) | clean | clean | clean |
 | populate_worklist_neighbors_atomicBug_break | sc-subset | DAG_100n_100e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
-| populate_worklist_neighbors_atomicBug_break | default | DAG_100n_200e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
-| populate_worklist_neighbors_atomicBug_break | default | DAG_200n_400e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
-| populate_worklist_neighbors_atomicBug_break | default | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors_atomicBug_break | default | counterDAG_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
-| populate_worklist_neighbors_atomicBug_break | default | counterDAG_5n_5e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors_atomicBug_break | default | power_law_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
+| populate_worklist_neighbors_atomicBug_break | sc-subset | DAG_100n_200e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
+| populate_worklist_neighbors_atomicBug_break | sc-subset | DAG_200n_400e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
+| populate_worklist_neighbors_atomicBug_break | sc-subset | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors_atomicBug_break | sc-subset | counterDAG_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
+| populate_worklist_neighbors_atomicBug_break | sc-subset | counterDAG_5n_5e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | CLEAN | RACE(2) | clean | clean | clean |
+| populate_worklist_neighbors_atomicBug_break | sc-subset | power_law_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
 | populate_worklist_neighbors_block | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
-| populate_worklist_neighbors_block | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors_block | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors_block | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors_block | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors_block | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors_block | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
+| populate_worklist_neighbors_block | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors_block | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors_block | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors_block | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors_block | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors_block | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
 | populate_worklist_neighbors_block_atomicBug | sc-subset | DAG_100n_100e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(1) | RACE(1) | RACE(1) | clean | clean | clean |
-| populate_worklist_neighbors_block_atomicBug | default | DAG_100n_200e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
-| populate_worklist_neighbors_block_atomicBug | default | DAG_200n_400e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
-| populate_worklist_neighbors_block_atomicBug | default | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors_block_atomicBug | default | counterDAG_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
-| populate_worklist_neighbors_block_atomicBug | default | counterDAG_5n_5e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(2) | — | clean | clean | clean |
-| populate_worklist_neighbors_block_atomicBug | default | power_law_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
+| populate_worklist_neighbors_block_atomicBug | sc-subset | DAG_100n_200e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
+| populate_worklist_neighbors_block_atomicBug | sc-subset | DAG_200n_400e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
+| populate_worklist_neighbors_block_atomicBug | sc-subset | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors_block_atomicBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
+| populate_worklist_neighbors_block_atomicBug | sc-subset | counterDAG_5n_5e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(2) | RACE(2) | clean | clean | clean |
+| populate_worklist_neighbors_block_atomicBug | sc-subset | power_law_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
 | populate_worklist_neighbors_block_persistent | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
-| populate_worklist_neighbors_block_persistent | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors_block_persistent | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors_block_persistent | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors_block_persistent | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors_block_persistent | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors_block_persistent | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
+| populate_worklist_neighbors_block_persistent | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors_block_persistent | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors_block_persistent | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors_block_persistent | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors_block_persistent | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors_block_persistent | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
 | populate_worklist_neighbors_block_persistent_atomicBug | sc-subset | DAG_100n_100e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
-| populate_worklist_neighbors_block_persistent_atomicBug | default | DAG_100n_200e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
-| populate_worklist_neighbors_block_persistent_atomicBug | default | DAG_200n_400e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
-| populate_worklist_neighbors_block_persistent_atomicBug | default | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors_block_persistent_atomicBug | default | counterDAG_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
-| populate_worklist_neighbors_block_persistent_atomicBug | default | counterDAG_5n_5e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(1) | — | clean | clean | clean |
-| populate_worklist_neighbors_block_persistent_atomicBug | default | power_law_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
+| populate_worklist_neighbors_block_persistent_atomicBug | sc-subset | DAG_100n_200e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
+| populate_worklist_neighbors_block_persistent_atomicBug | sc-subset | DAG_200n_400e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
+| populate_worklist_neighbors_block_persistent_atomicBug | sc-subset | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors_block_persistent_atomicBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
+| populate_worklist_neighbors_block_persistent_atomicBug | sc-subset | counterDAG_5n_5e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(1) | RACE(2) | clean | clean | clean |
+| populate_worklist_neighbors_block_persistent_atomicBug | sc-subset | power_law_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
 | populate_worklist_neighbors_block_persistent_reverse | default | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | populate_worklist_neighbors_block_persistent_reverse | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | populate_worklist_neighbors_block_persistent_reverse | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
@@ -3885,12 +3977,12 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | populate_worklist_neighbors_block_persistent_reverse | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | populate_worklist_neighbors_block_persistent_reverse | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | populate_worklist_neighbors_block_persistent_reverse_atomicBug | sc-subset | DAG_100n_100e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
-| populate_worklist_neighbors_block_persistent_reverse_atomicBug | default | DAG_100n_200e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
-| populate_worklist_neighbors_block_persistent_reverse_atomicBug | default | DAG_200n_400e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
-| populate_worklist_neighbors_block_persistent_reverse_atomicBug | default | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors_block_persistent_reverse_atomicBug | default | counterDAG_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
-| populate_worklist_neighbors_block_persistent_reverse_atomicBug | default | counterDAG_5n_5e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(2) | — | clean | clean | clean |
-| populate_worklist_neighbors_block_persistent_reverse_atomicBug | default | power_law_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
+| populate_worklist_neighbors_block_persistent_reverse_atomicBug | sc-subset | DAG_100n_200e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
+| populate_worklist_neighbors_block_persistent_reverse_atomicBug | sc-subset | DAG_200n_400e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
+| populate_worklist_neighbors_block_persistent_reverse_atomicBug | sc-subset | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors_block_persistent_reverse_atomicBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
+| populate_worklist_neighbors_block_persistent_reverse_atomicBug | sc-subset | counterDAG_5n_5e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(2) | RACE(2) | clean | clean | clean |
+| populate_worklist_neighbors_block_persistent_reverse_atomicBug | sc-subset | power_law_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
 | populate_worklist_neighbors_block_reverse | default | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | populate_worklist_neighbors_block_reverse | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | populate_worklist_neighbors_block_reverse | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
@@ -3906,12 +3998,12 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | populate_worklist_neighbors_block_reverse_atomicBug | default | counterDAG_5n_5e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(2) | — | clean | clean | clean |
 | populate_worklist_neighbors_block_reverse_atomicBug | default | power_law_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
 | populate_worklist_neighbors_boundsBug | sc-subset | DAG_100n_100e |  | RACE(16) | RACE(16) | CLEAN | CLEAN | RACE(3) | RACE(1) | FLAG(1) | clean | clean |
-| populate_worklist_neighbors_boundsBug | default | DAG_100n_200e |  | RACE(20) | RACE(20) | CLEAN | CLEAN | RACE(4) | — | FLAG(1) | clean | clean |
-| populate_worklist_neighbors_boundsBug | default | DAG_200n_400e |  | RACE(20) | RACE(20) | CLEAN | CLEAN | RACE(4) | — | FLAG(1) | clean | clean |
-| populate_worklist_neighbors_boundsBug | default | DAG_5n_5e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | FLAG(1) | clean | clean |
-| populate_worklist_neighbors_boundsBug | default | counterDAG_200n_1000e |  | RACE(20) | RACE(20) | CLEAN | CLEAN | RACE(4) | — | FLAG(1) | clean | clean |
-| populate_worklist_neighbors_boundsBug | default | counterDAG_5n_5e |  | RACE(4) | RACE(4) | CLEAN | CLEAN | RACE(2) | — | FLAG(1) | clean | clean |
-| populate_worklist_neighbors_boundsBug | default | power_law_200n_1000e |  | RACE(20) | RACE(20) | CLEAN | CLEAN | RACE(4) | — | FLAG(1) | clean | clean |
+| populate_worklist_neighbors_boundsBug | sc-subset | DAG_100n_200e |  | RACE(20) | RACE(20) | CLEAN | CLEAN | RACE(4) | RACE(2) | FLAG(1) | clean | clean |
+| populate_worklist_neighbors_boundsBug | sc-subset | DAG_200n_400e |  | RACE(20) | RACE(20) | CLEAN | CLEAN | RACE(4) | RACE(2) | FLAG(1) | clean | clean |
+| populate_worklist_neighbors_boundsBug | sc-subset | DAG_5n_5e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | FLAG(1) | clean | clean |
+| populate_worklist_neighbors_boundsBug | sc-subset | counterDAG_200n_1000e |  | RACE(20) | RACE(20) | CLEAN | CLEAN | RACE(4) | RACE(1) | FLAG(1) | clean | clean |
+| populate_worklist_neighbors_boundsBug | sc-subset | counterDAG_5n_5e |  | RACE(4) | RACE(4) | CLEAN | CLEAN | RACE(2) | RACE(1) | FLAG(1) | clean | clean |
+| populate_worklist_neighbors_boundsBug | sc-subset | power_law_200n_1000e |  | RACE(20) | RACE(20) | CLEAN | CLEAN | RACE(4) | RACE(2) | FLAG(1) | clean | clean |
 | populate_worklist_neighbors_boundsBug_atomicBug | default | DAG_100n_100e |  | RACE(46) | RACE(46) | CLEAN | RACE(2) | RACE(7) | — | FLAG(1) | clean | clean |
 | populate_worklist_neighbors_boundsBug_atomicBug | default | DAG_100n_200e |  | RACE(70) | RACE(62) | CLEAN | RACE(2) | RACE(10) | — | FLAG(1) | clean | clean |
 | populate_worklist_neighbors_boundsBug_atomicBug | default | DAG_200n_400e |  | RACE(65) | RACE(69) | CLEAN | RACE(2) | RACE(10) | — | FLAG(1) | clean | clean |
@@ -3962,12 +4054,12 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | populate_worklist_neighbors_boundsBug_reverse_break | default | counterDAG_5n_5e |  | RACE(4) | RACE(4) | CLEAN | CLEAN | RACE(2) | — | FLAG(1) | clean | clean |
 | populate_worklist_neighbors_boundsBug_reverse_break | default | power_law_200n_1000e |  | RACE(4) | RACE(4) | CLEAN | CLEAN | RACE(2) | — | FLAG(1) | clean | clean |
 | populate_worklist_neighbors_break | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
-| populate_worklist_neighbors_break | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors_break | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors_break | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors_break | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors_break | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors_break | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
+| populate_worklist_neighbors_break | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors_break | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors_break | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors_break | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors_break | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors_break | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
 | populate_worklist_neighbors_persistent | default | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | populate_worklist_neighbors_persistent | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | populate_worklist_neighbors_persistent | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
@@ -4053,33 +4145,33 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | populate_worklist_neighbors_reverse_break | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | populate_worklist_neighbors_reverse_break | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | populate_worklist_neighbors_warp | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
-| populate_worklist_neighbors_warp | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors_warp | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors_warp | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors_warp | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors_warp | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors_warp | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
+| populate_worklist_neighbors_warp | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors_warp | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors_warp | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors_warp | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors_warp | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors_warp | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
 | populate_worklist_neighbors_warp_atomicBug | sc-subset | DAG_100n_100e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
-| populate_worklist_neighbors_warp_atomicBug | default | DAG_100n_200e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
-| populate_worklist_neighbors_warp_atomicBug | default | DAG_200n_400e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
-| populate_worklist_neighbors_warp_atomicBug | default | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors_warp_atomicBug | default | counterDAG_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
-| populate_worklist_neighbors_warp_atomicBug | default | counterDAG_5n_5e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(2) | — | clean | clean | clean |
-| populate_worklist_neighbors_warp_atomicBug | default | power_law_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
+| populate_worklist_neighbors_warp_atomicBug | sc-subset | DAG_100n_200e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
+| populate_worklist_neighbors_warp_atomicBug | sc-subset | DAG_200n_400e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
+| populate_worklist_neighbors_warp_atomicBug | sc-subset | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors_warp_atomicBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
+| populate_worklist_neighbors_warp_atomicBug | sc-subset | counterDAG_5n_5e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(2) | RACE(3) | clean | clean | clean |
+| populate_worklist_neighbors_warp_atomicBug | sc-subset | power_law_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
 | populate_worklist_neighbors_warp_persistent | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
-| populate_worklist_neighbors_warp_persistent | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors_warp_persistent | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors_warp_persistent | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors_warp_persistent | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors_warp_persistent | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors_warp_persistent | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
+| populate_worklist_neighbors_warp_persistent | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors_warp_persistent | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors_warp_persistent | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors_warp_persistent | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors_warp_persistent | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors_warp_persistent | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
 | populate_worklist_neighbors_warp_persistent_atomicBug | sc-subset | DAG_100n_100e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
-| populate_worklist_neighbors_warp_persistent_atomicBug | default | DAG_100n_200e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
-| populate_worklist_neighbors_warp_persistent_atomicBug | default | DAG_200n_400e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
-| populate_worklist_neighbors_warp_persistent_atomicBug | default | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors_warp_persistent_atomicBug | default | counterDAG_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
-| populate_worklist_neighbors_warp_persistent_atomicBug | default | counterDAG_5n_5e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(2) | — | clean | clean | clean |
-| populate_worklist_neighbors_warp_persistent_atomicBug | default | power_law_200n_1000e | RACE | RACE(10) | RACE(10) | CLEAN | RACE(2) | RACE(4) | — | clean | clean | clean |
+| populate_worklist_neighbors_warp_persistent_atomicBug | sc-subset | DAG_100n_200e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
+| populate_worklist_neighbors_warp_persistent_atomicBug | sc-subset | DAG_200n_400e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
+| populate_worklist_neighbors_warp_persistent_atomicBug | sc-subset | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors_warp_persistent_atomicBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
+| populate_worklist_neighbors_warp_persistent_atomicBug | sc-subset | counterDAG_5n_5e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(2) | RACE(3) | clean | clean | clean |
+| populate_worklist_neighbors_warp_persistent_atomicBug | sc-subset | power_law_200n_1000e | RACE | RACE(10) | RACE(10) | CLEAN | RACE(2) | RACE(4) | RACE(3) | clean | clean | clean |
 | populate_worklist_neighbors_warp_persistent_reverse | default | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | populate_worklist_neighbors_warp_persistent_reverse | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | populate_worklist_neighbors_warp_persistent_reverse | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
@@ -4088,12 +4180,12 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | populate_worklist_neighbors_warp_persistent_reverse | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | populate_worklist_neighbors_warp_persistent_reverse | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | populate_worklist_neighbors_warp_persistent_reverse_atomicBug | sc-subset | DAG_100n_100e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
-| populate_worklist_neighbors_warp_persistent_reverse_atomicBug | default | DAG_100n_200e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
-| populate_worklist_neighbors_warp_persistent_reverse_atomicBug | default | DAG_200n_400e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
-| populate_worklist_neighbors_warp_persistent_reverse_atomicBug | default | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| populate_worklist_neighbors_warp_persistent_reverse_atomicBug | default | counterDAG_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
-| populate_worklist_neighbors_warp_persistent_reverse_atomicBug | default | counterDAG_5n_5e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(2) | — | clean | clean | clean |
-| populate_worklist_neighbors_warp_persistent_reverse_atomicBug | default | power_law_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
+| populate_worklist_neighbors_warp_persistent_reverse_atomicBug | sc-subset | DAG_100n_200e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
+| populate_worklist_neighbors_warp_persistent_reverse_atomicBug | sc-subset | DAG_200n_400e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
+| populate_worklist_neighbors_warp_persistent_reverse_atomicBug | sc-subset | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| populate_worklist_neighbors_warp_persistent_reverse_atomicBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
+| populate_worklist_neighbors_warp_persistent_reverse_atomicBug | sc-subset | counterDAG_5n_5e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(2) | RACE(3) | clean | clean | clean |
+| populate_worklist_neighbors_warp_persistent_reverse_atomicBug | sc-subset | power_law_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | RACE(3) | clean | clean | clean |
 | populate_worklist_neighbors_warp_reverse | default | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | populate_worklist_neighbors_warp_reverse | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | populate_worklist_neighbors_warp_reverse | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
@@ -4109,19 +4201,19 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | populate_worklist_neighbors_warp_reverse_atomicBug | default | counterDAG_5n_5e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(2) | — | clean | clean | clean |
 | populate_worklist_neighbors_warp_reverse_atomicBug | default | power_law_200n_1000e | RACE | RACE(3) | RACE(3) | CLEAN | RACE(2) | RACE(3) | — | clean | clean | clean |
 | pull_node_neighbor | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
-| pull_node_neighbor | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbor | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbor | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbor | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbor | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbor | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
+| pull_node_neighbor | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbor | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbor | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbor | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbor | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbor | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
 | pull_node_neighbor_boundsBug | sc-subset | DAG_100n_100e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | FLAG(1) | clean | clean |
-| pull_node_neighbor_boundsBug | default | DAG_100n_200e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbor_boundsBug | default | DAG_200n_400e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbor_boundsBug | default | DAG_5n_5e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbor_boundsBug | default | counterDAG_200n_1000e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbor_boundsBug | default | counterDAG_5n_5e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | FLAG(1) | clean | clean |
-| pull_node_neighbor_boundsBug | default | power_law_200n_1000e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | FLAG(1) | clean | clean |
+| pull_node_neighbor_boundsBug | sc-subset | DAG_100n_200e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbor_boundsBug | sc-subset | DAG_200n_400e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbor_boundsBug | sc-subset | DAG_5n_5e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbor_boundsBug | sc-subset | counterDAG_200n_1000e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbor_boundsBug | sc-subset | counterDAG_5n_5e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | FLAG(1) | clean | clean |
+| pull_node_neighbor_boundsBug | sc-subset | power_law_200n_1000e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | FLAG(1) | clean | clean |
 | pull_node_neighbor_boundsBug_cond | default | DAG_100n_100e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | FLAG(1) | clean | clean |
 | pull_node_neighbor_boundsBug_cond | default | DAG_100n_200e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | pull_node_neighbor_boundsBug_cond | default | DAG_200n_400e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
@@ -4144,12 +4236,12 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | pull_node_neighbor_boundsBug_last_cond | default | counterDAG_5n_5e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | pull_node_neighbor_boundsBug_last_cond | default | power_law_200n_1000e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | FLAG(1) | clean | clean |
 | pull_node_neighbor_cond | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
-| pull_node_neighbor_cond | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbor_cond | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbor_cond | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbor_cond | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbor_cond | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbor_cond | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
+| pull_node_neighbor_cond | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbor_cond | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbor_cond | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbor_cond | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbor_cond | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbor_cond | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
 | pull_node_neighbor_last | default | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | pull_node_neighbor_last | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | pull_node_neighbor_last | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
@@ -4221,33 +4313,33 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | pull_node_neighbor_persistent_last_cond | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | pull_node_neighbor_persistent_last_cond | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | pull_node_neighbors | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
-| pull_node_neighbors | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
+| pull_node_neighbors | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
 | pull_node_neighbors_block | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
-| pull_node_neighbors_block | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_block | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_block | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_block | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_block | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_block | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
+| pull_node_neighbors_block | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_block | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_block | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_block | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_block | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_block | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
 | pull_node_neighbors_block_cond | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
-| pull_node_neighbors_block_cond | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_block_cond | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_block_cond | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_block_cond | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_block_cond | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_block_cond | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
+| pull_node_neighbors_block_cond | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_block_cond | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_block_cond | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_block_cond | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_block_cond | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_block_cond | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
 | pull_node_neighbors_block_cond_syncBug | sc-subset | DAG_100n_100e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | CLEAN | clean | clean | clean |
-| pull_node_neighbors_block_cond_syncBug | default | DAG_100n_200e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_block_cond_syncBug | default | DAG_200n_400e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_block_cond_syncBug | default | DAG_5n_5e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_block_cond_syncBug | default | counterDAG_200n_1000e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_block_cond_syncBug | default | counterDAG_5n_5e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_block_cond_syncBug | default | power_law_200n_1000e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | — | clean | clean | clean |
+| pull_node_neighbors_block_cond_syncBug | sc-subset | DAG_100n_200e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_block_cond_syncBug | sc-subset | DAG_200n_400e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_block_cond_syncBug | sc-subset | DAG_5n_5e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_block_cond_syncBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_block_cond_syncBug | sc-subset | counterDAG_5n_5e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_block_cond_syncBug | sc-subset | power_law_200n_1000e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | CLEAN | clean | clean | clean |
 | pull_node_neighbors_block_persistent | default | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | pull_node_neighbors_block_persistent | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | pull_node_neighbors_block_persistent | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
@@ -4263,12 +4355,12 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | pull_node_neighbors_block_persistent_cond | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | pull_node_neighbors_block_persistent_cond | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | pull_node_neighbors_block_persistent_cond_syncBug | sc-subset | DAG_100n_100e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | CLEAN | clean | clean | clean |
-| pull_node_neighbors_block_persistent_cond_syncBug | default | DAG_100n_200e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_block_persistent_cond_syncBug | default | DAG_200n_400e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_block_persistent_cond_syncBug | default | DAG_5n_5e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_block_persistent_cond_syncBug | default | counterDAG_200n_1000e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_block_persistent_cond_syncBug | default | counterDAG_5n_5e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_block_persistent_cond_syncBug | default | power_law_200n_1000e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | — | clean | clean | clean |
+| pull_node_neighbors_block_persistent_cond_syncBug | sc-subset | DAG_100n_200e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_block_persistent_cond_syncBug | sc-subset | DAG_200n_400e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_block_persistent_cond_syncBug | sc-subset | DAG_5n_5e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_block_persistent_cond_syncBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_block_persistent_cond_syncBug | sc-subset | counterDAG_5n_5e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_block_persistent_cond_syncBug | sc-subset | power_law_200n_1000e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | CLEAN | clean | clean | clean |
 | pull_node_neighbors_block_persistent_reverse | default | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | pull_node_neighbors_block_persistent_reverse | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | pull_node_neighbors_block_persistent_reverse | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
@@ -4284,12 +4376,12 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | pull_node_neighbors_block_persistent_reverse_cond | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | pull_node_neighbors_block_persistent_reverse_cond | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | pull_node_neighbors_block_persistent_reverse_cond_syncBug | sc-subset | DAG_100n_100e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | CLEAN | clean | clean | clean |
-| pull_node_neighbors_block_persistent_reverse_cond_syncBug | default | DAG_100n_200e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_block_persistent_reverse_cond_syncBug | default | DAG_200n_400e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_block_persistent_reverse_cond_syncBug | default | DAG_5n_5e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_block_persistent_reverse_cond_syncBug | default | counterDAG_200n_1000e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_block_persistent_reverse_cond_syncBug | default | counterDAG_5n_5e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_block_persistent_reverse_cond_syncBug | default | power_law_200n_1000e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | — | clean | clean | clean |
+| pull_node_neighbors_block_persistent_reverse_cond_syncBug | sc-subset | DAG_100n_200e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_block_persistent_reverse_cond_syncBug | sc-subset | DAG_200n_400e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_block_persistent_reverse_cond_syncBug | sc-subset | DAG_5n_5e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_block_persistent_reverse_cond_syncBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_block_persistent_reverse_cond_syncBug | sc-subset | counterDAG_5n_5e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_block_persistent_reverse_cond_syncBug | sc-subset | power_law_200n_1000e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | CLEAN | clean | clean | clean |
 | pull_node_neighbors_block_persistent_reverse_syncBug | default | DAG_100n_100e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | — | clean | clean | clean |
 | pull_node_neighbors_block_persistent_reverse_syncBug | default | DAG_100n_200e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | — | clean | clean | clean |
 | pull_node_neighbors_block_persistent_reverse_syncBug | default | DAG_200n_400e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | — | clean | clean | clean |
@@ -4396,12 +4488,12 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | pull_node_neighbors_block_syncBug | default | counterDAG_5n_5e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | — | clean | clean | clean |
 | pull_node_neighbors_block_syncBug | default | power_law_200n_1000e | RACE | RACE(1) | RACE(1) | RACE(2) | RACE(1) | CLEAN | — | clean | clean | clean |
 | pull_node_neighbors_boundsBug | sc-subset | DAG_100n_100e |  | RACE(35) | RACE(35) | CLEAN | RACE(2) | RACE(8) | RACE(2) | FLAG(1) | clean | clean |
-| pull_node_neighbors_boundsBug | default | DAG_100n_200e |  | RACE(35) | RACE(35) | CLEAN | RACE(2) | RACE(8) | — | FLAG(1) | clean | clean |
-| pull_node_neighbors_boundsBug | default | DAG_200n_400e |  | RACE(35) | RACE(35) | CLEAN | RACE(2) | RACE(8) | — | FLAG(2) | clean | clean |
-| pull_node_neighbors_boundsBug | default | DAG_5n_5e |  | RACE(3) | RACE(3) | CLEAN | CLEAN | RACE(2) | — | FLAG(1) | clean | clean |
-| pull_node_neighbors_boundsBug | default | counterDAG_200n_1000e |  | RACE(35) | RACE(35) | CLEAN | RACE(2) | RACE(8) | — | FLAG(1) | clean | clean |
-| pull_node_neighbors_boundsBug | default | counterDAG_5n_5e |  | RACE(3) | RACE(3) | CLEAN | CLEAN | RACE(2) | — | FLAG(1) | clean | clean |
-| pull_node_neighbors_boundsBug | default | power_law_200n_1000e |  | RACE(35) | RACE(35) | CLEAN | RACE(2) | RACE(8) | — | FLAG(1) | clean | clean |
+| pull_node_neighbors_boundsBug | sc-subset | DAG_100n_200e |  | RACE(35) | RACE(35) | CLEAN | RACE(2) | RACE(8) | RACE(2) | FLAG(1) | clean | clean |
+| pull_node_neighbors_boundsBug | sc-subset | DAG_200n_400e |  | RACE(35) | RACE(35) | CLEAN | RACE(2) | RACE(8) | RACE(2) | FLAG(2) | clean | clean |
+| pull_node_neighbors_boundsBug | sc-subset | DAG_5n_5e |  | RACE(3) | RACE(3) | CLEAN | CLEAN | RACE(2) | CLEAN | FLAG(1) | clean | clean |
+| pull_node_neighbors_boundsBug | sc-subset | counterDAG_200n_1000e |  | RACE(35) | RACE(35) | CLEAN | RACE(2) | RACE(8) | RACE(2) | FLAG(1) | clean | clean |
+| pull_node_neighbors_boundsBug | sc-subset | counterDAG_5n_5e |  | RACE(3) | RACE(3) | CLEAN | CLEAN | RACE(2) | RACE(1) | FLAG(1) | clean | clean |
+| pull_node_neighbors_boundsBug | sc-subset | power_law_200n_1000e |  | RACE(35) | RACE(35) | CLEAN | RACE(2) | RACE(8) | RACE(3) | FLAG(1) | clean | clean |
 | pull_node_neighbors_boundsBug_break | default | DAG_100n_100e |  | RACE(3) | RACE(3) | CLEAN | RACE(1) | RACE(2) | — | FLAG(1) | clean | clean |
 | pull_node_neighbors_boundsBug_break | default | DAG_100n_200e |  | RACE(3) | RACE(3) | CLEAN | RACE(1) | RACE(2) | — | FLAG(1) | clean | clean |
 | pull_node_neighbors_boundsBug_break | default | DAG_200n_400e |  | RACE(3) | RACE(3) | CLEAN | RACE(1) | RACE(2) | — | FLAG(2) | clean | clean |
@@ -4452,12 +4544,12 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | pull_node_neighbors_boundsBug_reverse_cond_break | default | counterDAG_5n_5e |  | RACE(2) | RACE(2) | CLEAN | CLEAN | RACE(1) | — | FLAG(1) | clean | clean |
 | pull_node_neighbors_boundsBug_reverse_cond_break | default | power_law_200n_1000e |  | RACE(2) | RACE(2) | CLEAN | CLEAN | CLEAN | — | FLAG(1) | clean | clean |
 | pull_node_neighbors_break | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
-| pull_node_neighbors_break | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_break | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_break | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_break | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_break | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_break | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
+| pull_node_neighbors_break | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_break | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_break | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_break | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_break | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_break | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
 | pull_node_neighbors_cond | default | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | pull_node_neighbors_cond | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | pull_node_neighbors_cond | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
@@ -4557,19 +4649,19 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | pull_node_neighbors_reverse_cond_break | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | pull_node_neighbors_reverse_cond_break | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | pull_node_neighbors_warp | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
-| pull_node_neighbors_warp | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_warp | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_warp | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_warp | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_warp | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_warp | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
+| pull_node_neighbors_warp | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_warp | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_warp | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_warp | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_warp | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_warp | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
 | pull_node_neighbors_warp_cond | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
-| pull_node_neighbors_warp_cond | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_warp_cond | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_warp_cond | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_warp_cond | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_warp_cond | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| pull_node_neighbors_warp_cond | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
+| pull_node_neighbors_warp_cond | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_warp_cond | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_warp_cond | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_warp_cond | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_warp_cond | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| pull_node_neighbors_warp_cond | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
 | pull_node_neighbors_warp_persistent | default | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | pull_node_neighbors_warp_persistent | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | pull_node_neighbors_warp_persistent | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
@@ -4613,26 +4705,26 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | pull_node_neighbors_warp_reverse_cond | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | pull_node_neighbors_warp_reverse_cond | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | push_node_neighbor | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
-| push_node_neighbor | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| push_node_neighbor | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| push_node_neighbor | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| push_node_neighbor | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| push_node_neighbor | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| push_node_neighbor | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
+| push_node_neighbor | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| push_node_neighbor | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| push_node_neighbor | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| push_node_neighbor | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| push_node_neighbor | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| push_node_neighbor | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
 | push_node_neighbor_atomicBug | sc-subset | DAG_100n_100e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | RACE(2) | clean | clean | clean |
-| push_node_neighbor_atomicBug | default | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| push_node_neighbor_atomicBug | default | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| push_node_neighbor_atomicBug | default | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | — | clean | clean | clean |
-| push_node_neighbor_atomicBug | default | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| push_node_neighbor_atomicBug | default | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | — | clean | clean | clean |
-| push_node_neighbor_atomicBug | default | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
+| push_node_neighbor_atomicBug | sc-subset | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(1) | clean | clean | clean |
+| push_node_neighbor_atomicBug | sc-subset | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| push_node_neighbor_atomicBug | sc-subset | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | RACE(1) | clean | clean | clean |
+| push_node_neighbor_atomicBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| push_node_neighbor_atomicBug | sc-subset | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | RACE(1) | clean | clean | clean |
+| push_node_neighbor_atomicBug | sc-subset | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
 | push_node_neighbor_boundsBug | sc-subset | DAG_100n_100e |  | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | FLAG(1) | clean | clean |
-| push_node_neighbor_boundsBug | default | DAG_100n_200e |  | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| push_node_neighbor_boundsBug | default | DAG_200n_400e |  | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| push_node_neighbor_boundsBug | default | DAG_5n_5e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| push_node_neighbor_boundsBug | default | counterDAG_200n_1000e |  | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| push_node_neighbor_boundsBug | default | counterDAG_5n_5e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | FLAG(1) | clean | clean |
-| push_node_neighbor_boundsBug | default | power_law_200n_1000e |  | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | FLAG(1) | clean | clean |
+| push_node_neighbor_boundsBug | sc-subset | DAG_100n_200e |  | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| push_node_neighbor_boundsBug | sc-subset | DAG_200n_400e |  | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| push_node_neighbor_boundsBug | sc-subset | DAG_5n_5e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| push_node_neighbor_boundsBug | sc-subset | counterDAG_200n_1000e |  | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| push_node_neighbor_boundsBug | sc-subset | counterDAG_5n_5e |  | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | FLAG(1) | clean | clean |
+| push_node_neighbor_boundsBug | sc-subset | power_law_200n_1000e |  | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | FLAG(1) | clean | clean |
 | push_node_neighbor_boundsBug_atomicBug | default | DAG_100n_100e |  | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | FLAG(1) | clean | clean |
 | push_node_neighbor_boundsBug_atomicBug | default | DAG_100n_200e |  | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
 | push_node_neighbor_boundsBug_atomicBug | default | DAG_200n_400e |  | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
@@ -4683,19 +4775,19 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | push_node_neighbor_boundsBug_last_cond_atomicBug | default | counterDAG_5n_5e |  | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | — | clean | clean | clean |
 | push_node_neighbor_boundsBug_last_cond_atomicBug | default | power_law_200n_1000e |  | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | FLAG(1) | clean | clean |
 | push_node_neighbor_cond | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
-| push_node_neighbor_cond | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| push_node_neighbor_cond | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| push_node_neighbor_cond | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| push_node_neighbor_cond | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| push_node_neighbor_cond | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| push_node_neighbor_cond | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
+| push_node_neighbor_cond | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| push_node_neighbor_cond | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| push_node_neighbor_cond | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| push_node_neighbor_cond | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| push_node_neighbor_cond | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| push_node_neighbor_cond | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
 | push_node_neighbor_cond_atomicBug | sc-subset | DAG_100n_100e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | RACE(1) | clean | clean | clean |
-| push_node_neighbor_cond_atomicBug | default | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | — | clean | clean | clean |
-| push_node_neighbor_cond_atomicBug | default | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | — | clean | clean | clean |
-| push_node_neighbor_cond_atomicBug | default | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| push_node_neighbor_cond_atomicBug | default | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | — | clean | clean | clean |
-| push_node_neighbor_cond_atomicBug | default | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | — | clean | clean | clean |
-| push_node_neighbor_cond_atomicBug | default | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | — | clean | clean | clean |
+| push_node_neighbor_cond_atomicBug | sc-subset | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | RACE(1) | clean | clean | clean |
+| push_node_neighbor_cond_atomicBug | sc-subset | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | RACE(2) | clean | clean | clean |
+| push_node_neighbor_cond_atomicBug | sc-subset | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| push_node_neighbor_cond_atomicBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | RACE(2) | clean | clean | clean |
+| push_node_neighbor_cond_atomicBug | sc-subset | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | RACE(1) | clean | clean | clean |
+| push_node_neighbor_cond_atomicBug | sc-subset | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | RACE(1) | clean | clean | clean |
 | push_node_neighbor_last | default | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
 | push_node_neighbor_last | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
 | push_node_neighbor_last | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
@@ -4837,54 +4929,54 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | push_node_neighbor_persistent_last_cond_atomicBug | default | counterDAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | push_node_neighbor_persistent_last_cond_atomicBug | default | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
 | push_node_neighbors | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(5) | CLEAN | clean | clean | clean |
-| push_node_neighbors | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(5) | — | clean | clean | clean |
-| push_node_neighbors | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(5) | — | clean | clean | clean |
-| push_node_neighbors | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| push_node_neighbors | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(5) | — | clean | clean | clean |
-| push_node_neighbors | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| push_node_neighbors | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(5) | — | clean | clean | clean |
+| push_node_neighbors | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(5) | CLEAN | clean | clean | clean |
+| push_node_neighbors | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(5) | CLEAN | clean | clean | clean |
+| push_node_neighbors | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| push_node_neighbors | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(5) | CLEAN | clean | clean | clean |
+| push_node_neighbors | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| push_node_neighbors | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(5) | CLEAN | clean | clean | clean |
 | push_node_neighbors_atomicBug | sc-subset | DAG_100n_100e | RACE | RACE(16) | RACE(16) | CLEAN | RACE(2) | RACE(6) | RACE(2) | clean | clean | clean |
-| push_node_neighbors_atomicBug | default | DAG_100n_200e | RACE | RACE(40) | RACE(40) | CLEAN | RACE(2) | RACE(9) | — | clean | clean | clean |
-| push_node_neighbors_atomicBug | default | DAG_200n_400e | RACE | RACE(40) | RACE(40) | CLEAN | RACE(2) | RACE(9) | — | clean | clean | clean |
-| push_node_neighbors_atomicBug | default | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(2) | RACE(1) | — | clean | clean | clean |
-| push_node_neighbors_atomicBug | default | counterDAG_200n_1000e | RACE | RACE(40) | RACE(40) | CLEAN | RACE(2) | RACE(9) | — | clean | clean | clean |
-| push_node_neighbors_atomicBug | default | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | — | clean | clean | clean |
-| push_node_neighbors_atomicBug | default | power_law_200n_1000e | RACE | RACE(40) | RACE(40) | CLEAN | RACE(2) | RACE(9) | — | clean | clean | clean |
+| push_node_neighbors_atomicBug | sc-subset | DAG_100n_200e | RACE | RACE(40) | RACE(40) | CLEAN | RACE(2) | RACE(9) | RACE(2) | clean | clean | clean |
+| push_node_neighbors_atomicBug | sc-subset | DAG_200n_400e | RACE | RACE(40) | RACE(40) | CLEAN | RACE(2) | RACE(9) | RACE(2) | clean | clean | clean |
+| push_node_neighbors_atomicBug | sc-subset | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(2) | RACE(1) | RACE(1) | clean | clean | clean |
+| push_node_neighbors_atomicBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(40) | RACE(40) | CLEAN | RACE(2) | RACE(9) | RACE(2) | clean | clean | clean |
+| push_node_neighbors_atomicBug | sc-subset | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | RACE(2) | clean | clean | clean |
+| push_node_neighbors_atomicBug | sc-subset | power_law_200n_1000e | RACE | RACE(40) | RACE(40) | CLEAN | RACE(2) | RACE(9) | RACE(2) | clean | clean | clean |
 | push_node_neighbors_atomicBug_break | sc-subset | DAG_100n_100e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | RACE(2) | clean | clean | clean |
-| push_node_neighbors_atomicBug_break | default | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| push_node_neighbors_atomicBug_break | default | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| push_node_neighbors_atomicBug_break | default | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | — | clean | clean | clean |
-| push_node_neighbors_atomicBug_break | default | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| push_node_neighbors_atomicBug_break | default | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | — | clean | clean | clean |
-| push_node_neighbors_atomicBug_break | default | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
+| push_node_neighbors_atomicBug_break | sc-subset | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(1) | clean | clean | clean |
+| push_node_neighbors_atomicBug_break | sc-subset | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| push_node_neighbors_atomicBug_break | sc-subset | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | RACE(1) | clean | clean | clean |
+| push_node_neighbors_atomicBug_break | sc-subset | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| push_node_neighbors_atomicBug_break | sc-subset | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | CLEAN | RACE(1) | clean | clean | clean |
+| push_node_neighbors_atomicBug_break | sc-subset | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
 | push_node_neighbors_block | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
-| push_node_neighbors_block | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| push_node_neighbors_block | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| push_node_neighbors_block | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| push_node_neighbors_block | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| push_node_neighbors_block | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| push_node_neighbors_block | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
+| push_node_neighbors_block | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| push_node_neighbors_block | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| push_node_neighbors_block | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| push_node_neighbors_block | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| push_node_neighbors_block | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| push_node_neighbors_block | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
 | push_node_neighbors_block_atomicBug | sc-subset | DAG_100n_100e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
-| push_node_neighbors_block_atomicBug | default | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| push_node_neighbors_block_atomicBug | default | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| push_node_neighbors_block_atomicBug | default | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| push_node_neighbors_block_atomicBug | default | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| push_node_neighbors_block_atomicBug | default | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | — | clean | clean | clean |
-| push_node_neighbors_block_atomicBug | default | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
+| push_node_neighbors_block_atomicBug | sc-subset | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| push_node_neighbors_block_atomicBug | sc-subset | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| push_node_neighbors_block_atomicBug | sc-subset | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| push_node_neighbors_block_atomicBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| push_node_neighbors_block_atomicBug | sc-subset | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | RACE(1) | clean | clean | clean |
+| push_node_neighbors_block_atomicBug | sc-subset | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
 | push_node_neighbors_block_cond | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
-| push_node_neighbors_block_cond | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| push_node_neighbors_block_cond | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| push_node_neighbors_block_cond | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| push_node_neighbors_block_cond | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| push_node_neighbors_block_cond | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| push_node_neighbors_block_cond | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
+| push_node_neighbors_block_cond | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| push_node_neighbors_block_cond | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| push_node_neighbors_block_cond | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| push_node_neighbors_block_cond | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| push_node_neighbors_block_cond | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| push_node_neighbors_block_cond | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
 | push_node_neighbors_block_cond_atomicBug | sc-subset | DAG_100n_100e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
-| push_node_neighbors_block_cond_atomicBug | default | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| push_node_neighbors_block_cond_atomicBug | default | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| push_node_neighbors_block_cond_atomicBug | default | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| push_node_neighbors_block_cond_atomicBug | default | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| push_node_neighbors_block_cond_atomicBug | default | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | — | clean | clean | clean |
-| push_node_neighbors_block_cond_atomicBug | default | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
+| push_node_neighbors_block_cond_atomicBug | sc-subset | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| push_node_neighbors_block_cond_atomicBug | sc-subset | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| push_node_neighbors_block_cond_atomicBug | sc-subset | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| push_node_neighbors_block_cond_atomicBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| push_node_neighbors_block_cond_atomicBug | sc-subset | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | RACE(1) | clean | clean | clean |
+| push_node_neighbors_block_cond_atomicBug | sc-subset | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
 | push_node_neighbors_block_persistent | default | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
 | push_node_neighbors_block_persistent | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
 | push_node_neighbors_block_persistent | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
@@ -4893,12 +4985,12 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | push_node_neighbors_block_persistent | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
 | push_node_neighbors_block_persistent | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
 | push_node_neighbors_block_persistent_atomicBug | sc-subset | DAG_100n_100e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(2) | RACE(2) | RACE(2) | clean | clean | clean |
-| push_node_neighbors_block_persistent_atomicBug | default | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| push_node_neighbors_block_persistent_atomicBug | default | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| push_node_neighbors_block_persistent_atomicBug | default | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| push_node_neighbors_block_persistent_atomicBug | default | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| push_node_neighbors_block_persistent_atomicBug | default | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | — | clean | clean | clean |
-| push_node_neighbors_block_persistent_atomicBug | default | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
+| push_node_neighbors_block_persistent_atomicBug | sc-subset | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| push_node_neighbors_block_persistent_atomicBug | sc-subset | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| push_node_neighbors_block_persistent_atomicBug | sc-subset | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| push_node_neighbors_block_persistent_atomicBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| push_node_neighbors_block_persistent_atomicBug | sc-subset | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | RACE(1) | clean | clean | clean |
+| push_node_neighbors_block_persistent_atomicBug | sc-subset | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
 | push_node_neighbors_block_persistent_cond | default | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
 | push_node_neighbors_block_persistent_cond | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
 | push_node_neighbors_block_persistent_cond | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
@@ -4970,12 +5062,12 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | push_node_neighbors_block_reverse_cond_atomicBug | default | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | — | clean | clean | clean |
 | push_node_neighbors_block_reverse_cond_atomicBug | default | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
 | push_node_neighbors_boundsBug | sc-subset | DAG_100n_100e |  | RACE(10) | RACE(10) | CLEAN | CLEAN | RACE(5) | RACE(1) | FLAG(1) | clean | clean |
-| push_node_neighbors_boundsBug | default | DAG_100n_200e |  | RACE(10) | RACE(10) | CLEAN | CLEAN | RACE(5) | — | FLAG(1) | clean | clean |
-| push_node_neighbors_boundsBug | default | DAG_200n_400e |  | RACE(10) | RACE(10) | CLEAN | CLEAN | RACE(5) | — | FLAG(2) | clean | clean |
-| push_node_neighbors_boundsBug | default | DAG_5n_5e |  | RACE(2) | RACE(2) | CLEAN | CLEAN | RACE(1) | — | FLAG(1) | clean | clean |
-| push_node_neighbors_boundsBug | default | counterDAG_200n_1000e |  | RACE(10) | RACE(10) | CLEAN | CLEAN | RACE(5) | — | FLAG(1) | clean | clean |
-| push_node_neighbors_boundsBug | default | counterDAG_5n_5e |  | RACE(2) | RACE(2) | CLEAN | CLEAN | RACE(1) | — | FLAG(1) | clean | clean |
-| push_node_neighbors_boundsBug | default | power_law_200n_1000e |  | RACE(10) | RACE(10) | CLEAN | CLEAN | RACE(5) | — | FLAG(1) | clean | clean |
+| push_node_neighbors_boundsBug | sc-subset | DAG_100n_200e |  | RACE(10) | RACE(10) | CLEAN | CLEAN | RACE(5) | RACE(1) | FLAG(1) | clean | clean |
+| push_node_neighbors_boundsBug | sc-subset | DAG_200n_400e |  | RACE(10) | RACE(10) | CLEAN | CLEAN | RACE(5) | RACE(1) | FLAG(2) | clean | clean |
+| push_node_neighbors_boundsBug | sc-subset | DAG_5n_5e |  | RACE(2) | RACE(2) | CLEAN | CLEAN | RACE(1) | CLEAN | FLAG(1) | clean | clean |
+| push_node_neighbors_boundsBug | sc-subset | counterDAG_200n_1000e |  | RACE(10) | RACE(10) | CLEAN | CLEAN | RACE(5) | RACE(2) | FLAG(1) | clean | clean |
+| push_node_neighbors_boundsBug | sc-subset | counterDAG_5n_5e |  | RACE(2) | RACE(2) | CLEAN | CLEAN | RACE(1) | CLEAN | FLAG(1) | clean | clean |
+| push_node_neighbors_boundsBug | sc-subset | power_law_200n_1000e |  | RACE(10) | RACE(10) | CLEAN | CLEAN | RACE(5) | RACE(2) | FLAG(1) | clean | clean |
 | push_node_neighbors_boundsBug_atomicBug | default | DAG_100n_100e |  | RACE(50) | RACE(50) | CLEAN | RACE(2) | RACE(9) | — | FLAG(1) | clean | clean |
 | push_node_neighbors_boundsBug_atomicBug | default | DAG_100n_200e |  | RACE(50) | RACE(50) | CLEAN | RACE(2) | RACE(9) | — | FLAG(1) | clean | clean |
 | push_node_neighbors_boundsBug_atomicBug | default | DAG_200n_400e |  | RACE(50) | RACE(50) | CLEAN | RACE(2) | RACE(9) | — | FLAG(1) | clean | clean |
@@ -5082,12 +5174,12 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | push_node_neighbors_boundsBug_reverse_cond_break | default | counterDAG_5n_5e |  | RACE(2) | RACE(2) | CLEAN | CLEAN | RACE(1) | — | FLAG(1) | clean | clean |
 | push_node_neighbors_boundsBug_reverse_cond_break | default | power_law_200n_1000e |  | RACE(2) | RACE(2) | CLEAN | CLEAN | RACE(1) | — | FLAG(1) | clean | clean |
 | push_node_neighbors_break | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
-| push_node_neighbors_break | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| push_node_neighbors_break | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| push_node_neighbors_break | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| push_node_neighbors_break | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| push_node_neighbors_break | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| push_node_neighbors_break | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
+| push_node_neighbors_break | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| push_node_neighbors_break | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| push_node_neighbors_break | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| push_node_neighbors_break | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| push_node_neighbors_break | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| push_node_neighbors_break | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
 | push_node_neighbors_cond | default | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(2) | — | clean | clean | clean |
 | push_node_neighbors_cond | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(2) | — | clean | clean | clean |
 | push_node_neighbors_cond | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(2) | — | clean | clean | clean |
@@ -5285,33 +5377,33 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | push_node_neighbors_reverse_cond_break | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
 | push_node_neighbors_reverse_cond_break | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
 | push_node_neighbors_warp | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
-| push_node_neighbors_warp | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| push_node_neighbors_warp | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| push_node_neighbors_warp | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| push_node_neighbors_warp | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| push_node_neighbors_warp | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| push_node_neighbors_warp | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
+| push_node_neighbors_warp | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| push_node_neighbors_warp | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| push_node_neighbors_warp | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| push_node_neighbors_warp | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| push_node_neighbors_warp | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| push_node_neighbors_warp | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
 | push_node_neighbors_warp_atomicBug | sc-subset | DAG_100n_100e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | RACE(1) | clean | clean | clean |
-| push_node_neighbors_warp_atomicBug | default | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| push_node_neighbors_warp_atomicBug | default | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| push_node_neighbors_warp_atomicBug | default | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | — | clean | clean | clean |
-| push_node_neighbors_warp_atomicBug | default | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| push_node_neighbors_warp_atomicBug | default | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | — | clean | clean | clean |
-| push_node_neighbors_warp_atomicBug | default | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
+| push_node_neighbors_warp_atomicBug | sc-subset | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| push_node_neighbors_warp_atomicBug | sc-subset | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| push_node_neighbors_warp_atomicBug | sc-subset | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | RACE(2) | clean | clean | clean |
+| push_node_neighbors_warp_atomicBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| push_node_neighbors_warp_atomicBug | sc-subset | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | RACE(1) | clean | clean | clean |
+| push_node_neighbors_warp_atomicBug | sc-subset | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
 | push_node_neighbors_warp_cond | sc-subset | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
-| push_node_neighbors_warp_cond | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| push_node_neighbors_warp_cond | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| push_node_neighbors_warp_cond | default | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| push_node_neighbors_warp_cond | default | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| push_node_neighbors_warp_cond | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
-| push_node_neighbors_warp_cond | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
+| push_node_neighbors_warp_cond | sc-subset | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| push_node_neighbors_warp_cond | sc-subset | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| push_node_neighbors_warp_cond | sc-subset | DAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| push_node_neighbors_warp_cond | sc-subset | counterDAG_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| push_node_neighbors_warp_cond | sc-subset | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
+| push_node_neighbors_warp_cond | sc-subset | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | CLEAN | clean | clean | clean |
 | push_node_neighbors_warp_cond_atomicBug | sc-subset | DAG_100n_100e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | RACE(1) | clean | clean | clean |
-| push_node_neighbors_warp_cond_atomicBug | default | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| push_node_neighbors_warp_cond_atomicBug | default | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| push_node_neighbors_warp_cond_atomicBug | default | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | — | clean | clean | clean |
-| push_node_neighbors_warp_cond_atomicBug | default | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| push_node_neighbors_warp_cond_atomicBug | default | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | — | clean | clean | clean |
-| push_node_neighbors_warp_cond_atomicBug | default | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
+| push_node_neighbors_warp_cond_atomicBug | sc-subset | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| push_node_neighbors_warp_cond_atomicBug | sc-subset | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| push_node_neighbors_warp_cond_atomicBug | sc-subset | DAG_5n_5e | RACE | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | clean | clean | clean |
+| push_node_neighbors_warp_cond_atomicBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| push_node_neighbors_warp_cond_atomicBug | sc-subset | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | RACE(1) | clean | clean | clean |
+| push_node_neighbors_warp_cond_atomicBug | sc-subset | power_law_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
 | push_node_neighbors_warp_persistent | default | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
 | push_node_neighbors_warp_persistent | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
 | push_node_neighbors_warp_persistent | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
@@ -5320,12 +5412,12 @@ _Counts:_ cuVein-VC RACE 2420 / CLEAN 1710 / TO 0 / ERR 0; cuVein-SC RACE 2420 /
 | push_node_neighbors_warp_persistent | default | counterDAG_5n_5e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
 | push_node_neighbors_warp_persistent | default | power_law_200n_1000e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
 | push_node_neighbors_warp_persistent_atomicBug | sc-subset | DAG_100n_100e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(2) | RACE(2) | RACE(2) | clean | clean | clean |
-| push_node_neighbors_warp_persistent_atomicBug | default | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| push_node_neighbors_warp_persistent_atomicBug | default | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| push_node_neighbors_warp_persistent_atomicBug | default | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | — | clean | clean | clean |
-| push_node_neighbors_warp_persistent_atomicBug | default | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
-| push_node_neighbors_warp_persistent_atomicBug | default | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | — | clean | clean | clean |
-| push_node_neighbors_warp_persistent_atomicBug | default | power_law_200n_1000e | RACE | RACE(5) | RACE(5) | CLEAN | RACE(1) | RACE(2) | — | clean | clean | clean |
+| push_node_neighbors_warp_persistent_atomicBug | sc-subset | DAG_100n_200e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| push_node_neighbors_warp_persistent_atomicBug | sc-subset | DAG_200n_400e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| push_node_neighbors_warp_persistent_atomicBug | sc-subset | DAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | RACE(2) | clean | clean | clean |
+| push_node_neighbors_warp_persistent_atomicBug | sc-subset | counterDAG_200n_1000e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
+| push_node_neighbors_warp_persistent_atomicBug | sc-subset | counterDAG_5n_5e | RACE | RACE(2) | RACE(2) | CLEAN | RACE(1) | RACE(1) | RACE(1) | clean | clean | clean |
+| push_node_neighbors_warp_persistent_atomicBug | sc-subset | power_law_200n_1000e | RACE | RACE(5) | RACE(5) | CLEAN | RACE(1) | RACE(2) | RACE(2) | clean | clean | clean |
 | push_node_neighbors_warp_persistent_cond | default | DAG_100n_100e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
 | push_node_neighbors_warp_persistent_cond | default | DAG_100n_200e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
 | push_node_neighbors_warp_persistent_cond | default | DAG_200n_400e | CLEAN | CLEAN | CLEAN | CLEAN | CLEAN | RACE(1) | — | clean | clean | clean |
@@ -7675,17 +7767,17 @@ Race-capable tools only (cuVein vector-clock/scalar-clock, racecheck, HiRace, iG
 
 Ratio = tool wall / native wall of the same program (median of reps). TIMEOUT/ERROR runs are excluded (their true slowdown exceeds the cap), so the cuVein figures are lower bounds. sanitizer rows use the native wall measured by the cuVein/iGUARD runners for the same id. SuperCollider is timed against the artifact's own uninstrumented binary, both inside the same Singularity container, so ~0.3 s of container start-up sits in numerator and denominator and compresses its ratio towards 1 on sub-second programs.
 
-| tool/mode | n / geomean× — P1+P7 | n / geomean× — PI Indigo original | n / geomean× — P6+PI@sc+P9 (SuperCollider-matched) | n / geomean× — P9 HeCBench-10 only (seconds-long apps) | n / geomean× — all |
-|---|---|---|---|---|---|
-| cuVein-VC | 413 / 8.2 | 4130 / 5.1 | 141 / 8.0 | 8 / 1519.0 | 4706 / 5.5 |
-| cuVein-SC | 413 / 7.1 | 4130 / 5.0 | 141 / 7.6 | 8 / 1052.5 | 4706 / 5.3 |
-| racecheck | 413 / 3.9 | 4130 / 2.7 | 141 / 3.2 | 8 / 91.2 | 4705 / 2.8 |
-| HiRace | 0 / — | 4130 / 1.0 | 99 / 1.1 | 0 / — | 4130 / 1.0 |
-| iGUARD | 400 / 3.1 | 4130 / 2.2 | 139 / 2.7 | 8 / 33.4 | 4691 / 2.3 |
-| SuperCollider | 0 / — | 99 / 1.0 | 143 / 1.2 | 10 / 2.3 | 143 / 1.2 |
-| memcheck* | 414 / 3.6 | 4130 / 2.9 | 143 / 2.6 | 10 / 3.9 | 4709 / 3.0 |
-| synccheck* | 414 / 3.1 | 4130 / 2.3 | 143 / 2.4 | 10 / 4.5 | 4709 / 2.4 |
-| initcheck* | 414 / 3.4 | 4130 / 2.3 | 143 / 2.5 | 10 / 2.7 | 4709 / 2.4 |
+| tool/mode | n / geomean× — P1+P7 | n / geomean× — PI Indigo original | n / geomean× — P6+PI@sc+P9 (SuperCollider-matched) | n / geomean× — P6+PI@sc7+P9 (SuperCollider-matched, 99 codes × 7 inputs) | n / geomean× — P9 HeCBench-10 only (seconds-long apps) | n / geomean× — all |
+|---|---|---|---|---|---|---|
+| cuVein-VC | 413 / 8.2 | 4130 / 5.1 | 141 / 8.0 | 735 / 5.5 | 8 / 1519.0 | 4706 / 5.5 |
+| cuVein-SC | 413 / 7.1 | 4130 / 5.0 | 141 / 7.6 | 735 / 5.4 | 8 / 1052.5 | 4706 / 5.3 |
+| racecheck | 413 / 3.9 | 4130 / 2.7 | 141 / 3.2 | 735 / 2.8 | 8 / 91.2 | 4705 / 2.8 |
+| HiRace | 0 / — | 4130 / 1.0 | 99 / 1.1 | 693 / 1.0 | 0 / — | 4130 / 1.0 |
+| iGUARD | 400 / 3.1 | 4130 / 2.2 | 139 / 2.7 | 733 / 2.3 | 8 / 33.4 | 4691 / 2.3 |
+| SuperCollider | 0 / — | 693 / 1.0 | 143 / 1.2 | 737 / 1.1 | 10 / 2.3 | 737 / 1.1 |
+| memcheck* | 414 / 3.6 | 4130 / 2.9 | 143 / 2.6 | 737 / 2.6 | 10 / 3.9 | 4709 / 3.0 |
+| synccheck* | 414 / 3.1 | 4130 / 2.3 | 143 / 2.4 | 737 / 2.3 | 10 / 4.5 | 4709 / 2.4 |
+| initcheck* | 414 / 3.4 | 4130 / 2.3 | 143 / 2.5 | 737 / 2.4 | 10 / 2.7 | 4709 / 2.4 |
 
 ## 4a. Overhead per detector per test suite (min / max / avg / mid)
 
@@ -7694,15 +7786,16 @@ Slowdown = tool wall / native wall of the same program and input (median of reps
 | test suite | cuVein (vector-clock) | cuVein (scalar-clock) | compute-sanitizer racecheck | compute-sanitizer (any of memcheck / racecheck / synccheck / initcheck) | HiRace | iGUARD | SuperCollider |
 |---|---|---|---|---|---|---|---|
 | Indigo3 suite (Indigo3Suite; stratified 100 programs × {default, -DSLOWER_ATOMIC} × 2 graphs) — 400 program-inputs (100 codes) | 3.5× / 541.0× / 13.3× / 5.8× (7.0×), n=400 | 3.5× / 104.4× / 7.5× / 5.5× (6.0×), n=400 | 2.1× / 20.3× / 4.0× / 3.5× (3.7×), n=400 | 2.6× / 22.4× / 5.4× / 4.2× (4.9×), n=400 | - | 1.9× / 16.9× / 3.2× / 3.3× (3.1×), n=400 | - |
-| Indigo original suite (IndigoSuite 1.3, all 590 CUDA codes × 7 inputs: the HiRace artifact's six Table-1 graphs at 256×1024 + SuperCollider's graph at 256×4) — 4130 program-inputs (590 codes) | 3.1× / 374.8× / 5.7× / 5.2× (5.1×), n=4130 | 3.1× / 73.1× / 5.2× / 5.2× (5.0×), n=4130 | 1.7× / 10.5× / 2.7× / 2.6× (2.7×), n=4130 | 1.8× / 31.2× / 4.5× / 2.8× (3.5×), n=4130 | 0.8× / 1.5× / 1.0× / 1.0× (1.0×), n=4130 | 1.4× / 5.2× / 2.2× / 2.2× (2.2×), n=4130 | 1.0× / 1.2× / 1.0× / 1.0× (1.0×), n=99 |
+| Indigo original suite (IndigoSuite 1.3, all 590 CUDA codes × 7 inputs: the HiRace artifact's six Table-1 graphs at 256×1024 + SuperCollider's graph at 256×4) — 4130 program-inputs (590 codes) | 3.1× / 374.8× / 5.7× / 5.2× (5.1×), n=4130 | 3.1× / 73.1× / 5.2× / 5.2× (5.0×), n=4130 | 1.7× / 10.5× / 2.7× / 2.6× (2.7×), n=4130 | 1.8× / 31.2× / 4.5× / 2.8× (3.5×), n=4130 | 0.8× / 1.5× / 1.0× / 1.0× (1.0×), n=4130 | 1.4× / 5.2× / 2.2× / 2.2× (2.2×), n=4130 | 1.0× / 1.2× / 1.0× / 1.0× (1.0×), n=693 |
 | Indigo original suite — SuperCollider's 99-test subset on its own input (a view of the row above, not a separate dataset) — 99 programs | 3.3× / 7.4× / 5.0× / 5.2× (5.0×), n=99 | 3.3× / 7.4× / 5.0× / 5.2× (5.0×), n=99 | 1.8× / 3.7× / 2.6× / 2.6× (2.6×), n=99 | 1.9× / 6.8× / 2.9× / 2.7× (2.8×), n=99 | 1.0× / 1.3× / 1.1× / 1.0× (1.1×), n=99 | 1.4× / 3.1× / 2.2× / 2.2× (2.2×), n=99 | 1.0× / 1.2× / 1.0× / 1.0× (1.0×), n=99 |
+| Indigo original suite — SuperCollider's 99 codes × 7 inputs (a view of the row above, not a separate dataset) — 693 program-inputs (99 codes) | 3.1× / 8.9× / 5.1× / 5.2× (5.1×), n=693 | 3.3× / 8.0× / 5.1× / 5.2× (5.0×), n=693 | 1.8× / 10.5× / 2.8× / 2.6× (2.7×), n=693 | 1.9× / 27.0× / 3.6× / 2.8× (3.1×), n=693 | 1.0× / 1.5× / 1.0× / 1.0× (1.0×), n=693 | 1.4× / 3.1× / 2.2× / 2.2× (2.2×), n=693 | 1.0× / 1.2× / 1.0× / 1.0× (1.0×), n=693 |
 | ECL race-free graph codes (CC / MIS / MST, generated from Indigo3) — 60 programs | 4.0× / 50.4× / 7.6× / 5.3× (6.1×), n=60 | 3.8× / 16.1× / 5.6× / 5.1× (5.4×), n=60 | 2.1× / 10.2× / 3.7× / 3.3× (3.6×), n=60 | 2.8× / 10.2× / 4.3× / 4.0× (4.2×), n=60 | - | 1.9× / 4.3× / 3.0× / 3.3× (3.0×), n=60 | - |
 | ScoR applications — 28 program-inputs (7 codes) | 4.2× / 2330.7× / 186.1× / 15.0× (25.5×), n=28 | 4.0× / 105.0× / 17.7× / 6.8× (9.3×), n=28 | 3.3× / 17.6× / 7.2× / 6.0× (6.5×), n=27 | 4.0× / 2765.3× / 112.2× / 8.6× (12.5×), n=28 | - | 2.1× / 14.9× / 4.4× / 3.5× (3.8×), n=28 | - |
 | ScoR micro-benchmarks + canary — 33 programs | 3.5× / 7.7× / 4.8× / 4.7× (4.8×), n=33 | 3.3× / 6.0× / 4.6× / 4.7× (4.6×), n=33 | 2.3× / 9.8× / 4.1× / 3.7× (3.8×), n=33 | 2.8× / 10.8× / 5.1× / 4.8× (4.8×), n=33 | - | 1.4× / 2.8× / 2.1× / 2.1× (2.1×), n=33 | - |
 | cuHadron — 50 program-inputs (25 codes) | 1.5× / 12436.1× / 737.6× / 4.8× (9.2×), n=34 | 1.4× / 3926.8× / 243.6× / 4.7× (8.2×), n=34 | 0.9× / 10.3× / 2.9× / 2.6× (2.5×), n=34 | 1.1× / 54.7× / 6.5× / 3.3× (3.8×), n=34 | - | 1.6× / 24.4× / 4.9× / 2.1× (3.1×), n=32 | 1.0× / 60.0× / 5.1× / 1.0× (1.7×), n=34 |
 | HeCBench overhead set (unlabelled real applications) — 14 programs | 25.6× / 45725.8× / 7082.8× / 1977.1× (1404.9×), n=13 | 19.2× / 41204.6× / 5895.0× / 1839.5× (1152.2×), n=13 | 1.0× / 1770.9× / 206.6× / 20.0× (25.4×), n=13 | 1.2× / 1770.9× / 265.3× / 70.3× (54.6×), n=14 | - | - | - |
 | HeCBench — SuperCollider's 10-application subset — 10 programs | 30.8× / 50696.8× / 9168.4× / 2529.7× (1519.0×), n=8 | 28.1× / 43876.0× / 7357.1× / 1797.0× (1052.5×), n=8 | 4.4× / 2216.6× / 395.9× / 130.3× (91.2×), n=8 | 4.4× / 2216.6× / 395.9× / 130.3× (91.2×), n=8 | - | 3.2× / 1408.3× / 244.6× / 27.6× (33.4×), n=8 | 1.0× / 16.5× / 4.0× / 1.4× (2.3×), n=10 |
-| **All suites** | 1.5× / 50696.8× / 47.8× / 5.2× (5.5×), n=4706 | 1.4× / 43876.0× / 35.9× / 5.2× (5.3×), n=4706 | 0.9× / 2216.6× / 4.1× / 2.7× (2.8×), n=4705 | 1.1× / 2765.3× / 6.6× / 2.9× (3.6×), n=4707 | 0.8× / 1.5× / 1.0× / 1.0× (1.0×), n=4130 | 1.4× / 1408.3× / 2.8× / 2.4× (2.3×), n=4691 | 1.0× / 60.0× / 2.2× / 1.0× (1.2×), n=143 |
+| **All suites** | 1.5× / 50696.8× / 47.8× / 5.2× (5.5×), n=4706 | 1.4× / 43876.0× / 35.9× / 5.2× (5.3×), n=4706 | 0.9× / 2216.6× / 4.1× / 2.7× (2.8×), n=4705 | 1.1× / 2765.3× / 6.6× / 2.9× (3.6×), n=4707 | 0.8× / 1.5× / 1.0× / 1.0× (1.0×), n=4130 | 1.4× / 1408.3× / 2.8× / 2.4× (2.3×), n=4691 | 1.0× / 60.0× / 1.3× / 1.0× (1.1×), n=737 |
 
 HiRace's slowdown is its hand-instrumented twin vs the uninstrumented build of the same code, same input and launch. iGUARD was not run on the HeCBench overhead set; SuperCollider exists only for cuHadron and its own two subsets.
 

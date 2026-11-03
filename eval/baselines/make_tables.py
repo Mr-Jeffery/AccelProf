@@ -89,14 +89,20 @@ PREREG_SETS = ("P1", "PI", "P3", "P4", "P5", "P6")
 # programs SuperCollider ships instrumented: cuHadron, its HeCBench-10, and -- as a VIEW of
 # PI, not a separate dataset -- its 99 Indigo tests on its own input (build == sc-subset)
 SC_SETS = ("P6", "PI@sc", "P9")
-SET_NAME = {"PI@sc": "PI Indigo original — SuperCollider's 99-test subset (view)"}
+# X8: the second view -- the same 99 shipped codes on all 7 inputs (693 rows); PI@sc stays the artifact's
+# own protocol (99 rows on DAG_100n_100e, 256x4)
+SC_SETS7 = ("P6", "PI@sc7", "P9")
+SC_INPUT = "DAG_100n_100e"
+SET_NAME = {"PI@sc": "PI Indigo original — SuperCollider's 99-test subset (view)",
+            "PI@sc7": "PI Indigo original — SuperCollider's 99 codes × 7 inputs (693 rows, view)"}
 
 
 def _in(m, sets):
     """Is the program with meta tuple m=(pset, program, build, input) in any of `sets`?
     'PI@sc' is the SuperCollider-subset view of PI."""
     return bool(m) and (m[0] in sets or ("PI@sc" in sets and m[0] == "PI"
-                                         and len(m) > 2 and m[2] == "sc-subset"))
+                                         and len(m) > 3 and m[2] == "sc-subset" and m[3] == SC_INPUT)
+                        or ("PI@sc7" in sets and m[0] == "PI" and len(m) > 2 and m[2] == "sc-subset"))
 BUG_TOKENS = ["RaceBug", "SyncBug", "BoundsBug", "NbrBoundsBug", "LivelockBug",
               "FieldBug", "OverflowBug", "ExcessThreadsBug", "UninitializedBug",
               "atomicBug", "boundsBug", "syncBug", "guardBug", "race"]
@@ -376,6 +382,7 @@ def overhead_table(runs, meta):
     cols = [c for c in TOOLCOLS if any(k[1:] == c for k in runs)]
     scopes = (("P1+P7", ("P1", "P7")), ("PI Indigo original", ("PI",)),
               ("P6+PI@sc+P9 (SuperCollider-matched)", SC_SETS),
+              ("P6+PI@sc7+P9 (SuperCollider-matched, 99 codes × 7 inputs)", SC_SETS7),
               ("P9 HeCBench-10 only (seconds-long apps)", ("P9",)), ("all", ALL_PSETS))
     ratios = {sc: defaultdict(list) for sc, _ in scopes}
     for (i, t, m), x in _ratios(runs, meta).items():
@@ -826,6 +833,13 @@ def headtohead_section(runs, meta, man):
                           "the others use 3 reps.")
         out += _agreement(runs, meta, SC_SETS, ("cuvein", VC), tools)
         out += cuvein_vs_sc(runs, meta, man)
+        out += _h2h_block(runs, meta, man, SC_SETS7, tools,
+                          "SuperCollider-matched sets, second view: its 99 Indigo codes × all 7 inputs (693 rows)",
+                          "Same as the block above, except the 99 shipped Indigo codes are taken on all seven "
+                          "inputs of the Indigo original suite (X8): the artifact's own graph (256×4) and the six "
+                          "HiRace Table-1 graphs (256×1024). Every tool's cells are on exactly those 693 rows.")
+        out += _agreement(runs, meta, SC_SETS7, ("cuvein", VC), tools)
+        out += cuvein_vs_sc(runs, meta, man, SC_SETS7, "second view, 99 codes × 7 inputs")
     return "\n".join(out)
 
 
@@ -928,14 +942,14 @@ def revision_delta_section(runs, meta, man):
     return "\n".join(out)
 
 
-def cuvein_vs_sc(runs, meta, man):
-    out = ["\n### cuVein vs SuperCollider, program by program (matched sets)\n",
+def cuvein_vs_sc(runs, meta, man, sets=SC_SETS, label="matched sets"):
+    out = [f"\n### cuVein vs SuperCollider, program by program ({label})\n",
            "Programs where exactly one of the two reports a race, split by who the label "
            "favours, plus the programs only one of them could finish.\n",
            "| set | cuVein mode | both RACE | both CLEAN | cuVein only (label RACE / CLEAN / none) | SuperCollider only (label RACE / CLEAN / none) | cuVein ERR/TO where SC has a verdict | SC ERR/TO where cuVein has a verdict |",
            "|---|---|---|---|---|---|---|---|"]
     details = []
-    for ps in SC_SETS:
+    for ps in sets:
         for cm in (("cuvein", VC), ("cuvein", SC)):
             bb = cc = cvto = scto = 0
             cv = {"RACE": 0, "CLEAN": 0, "": 0}
@@ -978,6 +992,7 @@ SUITE_FULLNAME = {
     "P1": "Indigo3 suite (Indigo3Suite; stratified 100 programs × {default, -DSLOWER_ATOMIC} × 2 graphs)",
     "PI": "Indigo original suite (IndigoSuite 1.3, all 590 CUDA codes × 7 inputs: the HiRace artifact's six Table-1 graphs at 256×1024 + SuperCollider's graph at 256×4)",
     "PI@sc": "Indigo original suite — SuperCollider's 99-test subset on its own input (a view of the row above, not a separate dataset)",
+    "PI@sc7": "Indigo original suite — SuperCollider's 99 codes × 7 inputs (a view of the row above, not a separate dataset)",
     "P3": "ECL race-free graph codes (CC / MIS / MST, generated from Indigo3)",
     "P4": "ScoR applications",
     "P5": "ScoR micro-benchmarks + canary",
@@ -1197,11 +1212,12 @@ def matrix_note(runs, meta, man, ps, fpc, diag):
 
 MATRIX_TOTALS = (("All pre-registered labelled suites (Indigo3 + Indigo original + ECL + ScoR applications + ScoR micro-benchmarks + cuHadron)",
                   PREREG_SETS),
-                 ("SuperCollider-matched suites (cuHadron + the 99-test subset view of the Indigo original suite + HeCBench 10-application subset)", SC_SETS))
+                 ("SuperCollider-matched suites (cuHadron + the 99-test subset view of the Indigo original suite + HeCBench 10-application subset)", SC_SETS),
+                 ("SuperCollider-matched suites, second view (cuHadron + the 99 Indigo codes × 7 inputs + HeCBench 10-application subset)", SC_SETS7))
 
 
 def _suite_name(ps, man):
-    rows = [r for r in man.values() if _in((r.get("pset"), r.get("program"), r.get("build")), (ps,))]
+    rows = [r for r in man.values() if _in((r.get("pset"), r.get("program"), r.get("build"), r.get("input")), (ps,))]
     codes = len({r.get("program") for r in rows})
     n = f"{len(rows)} programs" if codes == len(rows) else f"{len(rows)} program-inputs ({codes} codes)"
     return f"{SUITE_FULLNAME[ps]} — {n}"
@@ -1226,7 +1242,7 @@ def comparison_matrix_section(runs, meta, man):
     out.append("| " + " | ".join(hdr) + " |")
     out.append("|" + "---|" * len(hdr))
     unl = defaultdict(int)
-    for ps in [x for p0 in ALL_PSETS for x in ((p0, "PI@sc") if p0 == "PI" else (p0,))]:
+    for ps in [x for p0 in ALL_PSETS for x in ((p0, "PI@sc", "PI@sc7") if p0 == "PI" else (p0,))]:
         row = [_suite_name(ps, man)]
         for (t, m) in MATRIX_COLS:
             c, _ = confusion(runs, meta, man, (ps,), t, m)
@@ -1364,7 +1380,7 @@ def overhead_minmax_section(runs, meta, man):
         return (f"{min(xs):.1f}× / {max(xs):.1f}× / {sum(xs) / len(xs):.1f}× / "
                 f"{statistics.median(xs):.1f}× ({_geomean(xs):.1f}×), n={len(xs)}")
 
-    for ps in [x for p0 in ALL_PSETS for x in ((p0, "PI@sc") if p0 == "PI" else (p0,))]:
+    for ps in [x for p0 in ALL_PSETS for x in ((p0, "PI@sc", "PI@sc7") if p0 == "PI" else (p0,))]:
         out.append("| " + " | ".join([_suite_name(ps, man)] + [cell((ps,), t, m) for (t, m) in MATRIX_COLS]) + " |")
     out.append("| " + " | ".join(["**All suites**"] + [cell(ALL_PSETS, t, m) for (t, m) in MATRIX_COLS]) + " |")
     out.append("\nHiRace's slowdown is its hand-instrumented twin vs the uninstrumented build of the same "
@@ -1660,6 +1676,9 @@ def main():
             meta.setdefault(k, v)
     add_sanitizer_union(runs)
     man = load_manifest()
+    for _id, mm in list(meta.items()):      # X8: the build tag is the manifest's, not the last-loaded CSV's
+        if mm[0] == "PI" and _id in man and man[_id]["build"] != mm[2]:
+            meta[_id] = (mm[0], mm[1], man[_id]["build"], mm[3])
     if "--memory" in sys.argv[1:]:     # §4b alone (eval/MEMORY_FOOTPRINT.md)
         print(memory_footprint_section(runs, meta, man))
         return

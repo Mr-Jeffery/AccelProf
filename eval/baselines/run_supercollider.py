@@ -6,7 +6,9 @@ artifact (Zenodo 10.5281/zenodo.19058944) ships NO compiler, only pre-instrument
 binaries + the runtime `lib64/librc-release.so` (enabled with
 CUDA_INJECTION64_PATH). So it can only be measured on the programs it ships:
   P6  cuHadron      bin/cuhadron/{instrumented,fixed}/<cat>/<test>.all.out
-  P8  Indigo (99)   bin/indigo/instrumented/<pattern>/<test>.out
+  P8/PI  Indigo (99) bin/indigo/instrumented/<pattern>/<test>.out
+                    (PI rows with build=sc-subset: the 99 shipped codes on ALL 7 inputs;
+                    the binaries take graph + launch on the command line)
   P9  HeCBench (10) bin/hecbench/instrumented-balanced/<app>
 Manifest rows of those sets are mapped onto the artifact binary of the SAME program
 (the other detectors run our own build of the same source). Native wall comes from
@@ -27,6 +29,7 @@ import argparse
 import csv
 import os
 import re
+import socket
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -89,8 +92,8 @@ def sc_binaries(m):
         return (f"{SC}/bin/cuhadron/{sub}/{cat}/{name}.all.out",
                 f"{SC}/bin/cuhadron/native/{cat}/{name}.all.out")
     # PI = the whole Indigo-original suite; SuperCollider ships binaries only for its
-    # 99-test subset and only its own input (build_indigo_full.py tags those rows
-    # build=sc-subset). P8 = the retired stand-alone copy of that subset.
+    # 99-test subset (build_indigo_full.py tags every input of those codes
+    # build=sc-subset: 99 codes x 7 inputs). P8 = the retired stand-alone copy of that subset.
     if ps == "P8" or (ps == "PI" and m["build"] == "sc-subset"):
         pat = m["monitored_kernels"]
         return (f"{SC}/bin/indigo/instrumented/{pat}/{prog}.out",
@@ -119,6 +122,15 @@ def parse(text):
 
 
 def run_one(m, cuda, reps, logroot):
+    """rows of one manifest row; every row's notes carries node=<host> (where it ran)."""
+    node = socket.gethostname().split(".")[0]
+    out = _run_one(m, cuda, reps, logroot)
+    for r in out:
+        r["notes"] = ";".join(x for x in (str(r.get("notes") or ""), f"node={node}") if x)
+    return out
+
+
+def _run_one(m, cuda, reps, logroot):
     common = dict(id=m["id"], pset=m["pset"], program=m["program"], build=m["build"],
                   input=m["input"], tool="supercollider")
     inst, nat = sc_binaries(m)
@@ -200,6 +212,10 @@ def main():
     ap.add_argument("--shard", default="")
     ap.add_argument("--reps", type=int, default=5, help="artifact protocol: 5 attempts")
     ap.add_argument("--out", default="")
+    ap.add_argument("--exclude-input", default="",
+                    help="comma list of manifest `input` tags to skip (X8: DAG_100n_100e, the 99 "
+                         "rows already measured under the artifact protocol)")
+    ap.add_argument("--log-root", default="", help="per-run log dir (default /mnt/local/$USER/sc_logs)")
     a = ap.parse_args()
     for need in (LIB, SIF, SING):
         if not os.path.exists(need):
@@ -211,13 +227,16 @@ def main():
     ids = set(a.id.split(",")) if a.id else None
     rows = [m for m in blib.read_manifest(a.manifest)
             if (not psets or m["pset"] in psets) and (not ids or m["id"] in ids)]
-    # of the whole Indigo-original suite only the artifact's 99-test subset on its own
-    # input has binaries; the other PI rows are not runnable (no row, shown as "-")
+    # of the whole Indigo-original suite only the artifact's 99-test subset has binaries
+    # (all 7 inputs of those codes); the other PI codes are not runnable (no row, shown as "-")
     rows = [m for m in rows if m["pset"] != "PI" or m["build"] == "sc-subset"]
+    if a.exclude_input:
+        ex = set(a.exclude_input.split(","))
+        rows = [m for m in rows if m["input"] not in ex]
     rows = _shard(rows, a.shard)
     tag = a.shard.replace("/", "_") if a.shard else "all"
     path = a.out or f"{blib.RESULTS_DIR}/baselines-supercollider-shard{tag}.csv"
-    logroot = f"/mnt/local/{os.environ.get('USER', 'u')}/sc_logs"
+    logroot = a.log_root or f"/mnt/local/{os.environ.get('USER', 'u')}/sc_logs"
     try:
         os.makedirs(logroot, exist_ok=True)
     except OSError:
@@ -234,7 +253,8 @@ def main():
             except Exception as e:
                 w.writerow(blib.row(id=m["id"], pset=m["pset"], program=m["program"],
                                     build=m["build"], input=m["input"], tool="supercollider",
-                                    verdict="ERROR", notes=f"{type(e).__name__}:{e}"))
+                                    verdict="ERROR",
+                                    notes=f"{type(e).__name__}:{e};node={socket.gethostname().split('.')[0]}"))
             fh.flush()
     print(f"supercollider: {len(rows)} program(s) -> {path}")
 

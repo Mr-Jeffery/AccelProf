@@ -17,8 +17,11 @@ next to it (indigo/indigo_hirace_sources/<pattern>/<pattern>_hirace<suffix>.cu):
 Inputs (7 per code -> 4130 manifest rows, id PI-<code>-<graph>):
   * the six graphs + launch of the HiRace artifact's `make table1`
     (indigo/input/*.egr, 256 threads/block x 1024 blocks)
-  * SuperCollider's input (DAG_100n_100e.egr, 256 x 4): the only input its
-    pre-instrumented binaries are shipped for.
+  * SuperCollider's input (DAG_100n_100e.egr, 256 x 4): the input of the artifact's own
+    protocol. Its pre-instrumented binaries take the graph and launch on the command line,
+    so every input of a shipped code is runnable: all 7 inputs of the 99 shipped codes carry
+    build=sc-subset (693 rows); the six HiRace graphs keep their 256 x 1024 launch, which the
+    authors never ran their binaries on.
 Label = both artifacts' ground truth (HiRace scripts/gen_table1.py, SuperCollider
 gen_table_indigo_detection.py): RACE if the name has "Bug" and not "boundsBug"; CLEAN if
 no "Bug"; boundsBug codes are excluded (label '').
@@ -111,7 +114,7 @@ def main():
     for pat, code, _ in codes:
         for tag, g, launch in inputs():
             rows.append(dict(id=f"PI-{code}-{tag}", pset="PI", program=code,
-                             build="sc-subset" if (code in sc and g == SC_GRAPH) else "default",
+                             build="sc-subset" if code in sc else "default",
                              input=tag, exe=f"{BIN}/PI/{code}", args=f"{g} {launch}", stdin="",
                              shared_mem=0, label=sc_label(code), arrays_to_wrap="",
                              monitored_kernels=pat, reps=3, timeout=600))
