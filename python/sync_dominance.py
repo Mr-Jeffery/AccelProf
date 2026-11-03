@@ -1413,8 +1413,73 @@ def _observed(dist):
     return NONE, 0
 
 
+# C6 (chain closure, default off; analyze(..., chain_closure=True)): one kernel stops, with
+# ChainCapError, once its chains derive more than CHAIN_CAP (anc, cur) pairs -- never truncated.
+CHAIN_CAP = 10 ** 6
+
+
+class ChainCapError(RuntimeError):
+    """The chain closure of one kernel exceeded CHAIN_CAP derived pairs; the message starts with
+    'chain-cap' and names the kernel and the count."""
+
+
+def chain_closure_pairs(hops, is_read, conflict, cap, label=""):
+    """C6. hops = {anc_pc: {cur_pc: widest observed distance (NONE..GRID)}}, every non-cold-miss
+    edge of one kernel. A chain is a walk a -> h1 -> ... -> hk -> c (k >= 1) whose inner pcs
+    h1..hk are all reads (is_read); its two ends' thread relation is at most its widest hop (the
+    ultrametric argument: same-warp < same-block < same-grid). -> {(a, c): (bound, path)} for
+    every pair that conflicts (conflict(a, c)) and whose narrowest chain bound is cross-thread
+    (> NONE); path = one witness [a, h1, ..., hk, c]. The bound is a minimax (bottleneck) over
+    all chains, found per source a by a Dijkstra on max(distance); closure is over pcs, not
+    addresses. Raises ChainCapError past `cap` pairs."""
+    import heapq
+    out = {}
+    for a in sorted(hops):
+        b_in, pred, heap = {}, {}, []      # inner (read) nodes: best bound, predecessor inner node
+        for h, d in hops[a].items():
+            if is_read(h) and d < b_in.get(h, GRID + 1):
+                b_in[h], pred[h] = d, None
+                heapq.heappush(heap, (d, h))
+        while heap:
+            d, h = heapq.heappop(heap)
+            if d > b_in[h]:
+                continue
+            for c, dc in hops.get(h, {}).items():
+                nd = max(d, dc)
+                if is_read(c) and nd < b_in.get(c, GRID + 1):
+                    b_in[c], pred[c] = nd, h
+                    heapq.heappush(heap, (nd, c))
+        best = {}                          # endpoint c -> (bound, last inner node)
+        for h in sorted(b_in):
+            for c, dc in hops.get(h, {}).items():
+                nd = max(b_in[h], dc)
+                if c not in best or nd < best[c][0]:
+                    best[c] = (nd, h)
+        for c in sorted(best):
+            bound, h = best[c]
+            if bound <= NONE or not conflict(a, c):
+                continue
+            path = []
+            while h is not None:
+                path.append(h)
+                h = pred[h]
+            out[(a, c)] = (bound, [a] + path[::-1] + [c])
+            if len(out) > cap:
+                raise ChainCapError(f"chain-cap: kernel {label}: {len(out)} derived pairs "
+                                    f"exceed the cap of {cap}")
+    return out
+
+
 def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
-            barrier_pass=True, event_candidates=True):
+            barrier_pass=True, event_candidates=True, chain_closure=False):
+    """chain_closure (C6, default off, output unchanged when off): also judge the (anc, cur) pcs
+    that a CHAIN of recorded edges joins -- the collector keeps one last accessor per word, so a
+    read in between hides the conflict (block 1 reads, block 0 reads, block 0 writes: edges
+    read->read and read->write, never read->write across the blocks). See chain_closure_pairs.
+    Each derived pair is judged by judge() at the chain's bound, weight 1, same_inst 0, and an edge
+    that is intra-thread-only today is judged at its chain's bound (a rescue). Verdict records carry
+    chain / chain_rescue (+ chain_path, hex pcs, on the chain-sourced ones);
+    diagnostics.chain_closure = {hops, derived, rescued, closure_s, capped}."""
     trace = json.loads(Path(trace_path).read_text())
     # X7: parse_dot + select_kernel + HBGraph(...), cached inside graph_cache()
     mangled, eng = kernel_graph(dot_path, trace["kernel"]["kernel_name"])
@@ -1700,6 +1765,39 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
                                               for g, a, b in ev["loc_closure"]]
 
 
+    def emit(cur, anc, observed, weight, same_inst, rescued, access_size, from_events, tag=None):
+        """judge(), plus (chain_closure only) the chain tags on the record it appended."""
+        n0 = len(verdicts)
+        judge(cur, anc, observed, weight, same_inst, rescued, access_size, from_events)
+        if chain_closure and len(verdicts) > n0:
+            verdicts[-1].update(tag or {"chain": False, "chain_rescue": False})
+
+    chain_bound, edge_pairs, n_hops, closure_s, n_rescued = {}, set(), 0, 0.0, 0
+    if chain_closure:
+        from time import perf_counter
+        t_cl = perf_counter()
+        hops = {}
+        for e in trace.get("edges", []):
+            cur, anc = e["current_pc"], e.get("ancient_pc")
+            if e.get("cold_miss") or anc is None:
+                continue
+            edge_pairs.add((anc, cur))
+            dist = e.get("dist", {})
+            d, _ = _observed(dist)
+            if d == NONE and dist.get("intra_instance_launch", 0):
+                d = WARP      # a same-instruction self edge: other lanes of one warp (judge's WARP)
+            row = hops.setdefault(anc, {})
+            row[cur] = max(row.get(cur, NONE), d)
+        n_hops = sum(len(r) for r in hops.values())
+
+        def _acc(pc):
+            return "atomic" if pc in atom else flags.get(pc, ("generic", "read"))[1]
+
+        chain_bound = chain_closure_pairs(
+            hops, lambda pc: _acc(pc) == "read", lambda a, c: not (_acc(a) == "read" == _acc(c)),
+            CHAIN_CAP, f"{trace['kernel']['kernel_name']} ({trace_path})")
+        closure_s = perf_counter() - t_cl
+
     for e in trace.get("edges", []):
         cur, anc = e["current_pc"], e.get("ancient_pc")
         rec = {"current_pc": cur, "ancient_pc": anc}
@@ -1708,15 +1806,21 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
             continue
         observed, weight = _observed(e.get("dist", {}))
         same_inst = e.get("dist", {}).get("intra_instance_launch", 0)
-        rescued = False
+        rescued, tag = False, None
         if observed == NONE and same_inst == 0:
             observed = observed_dyn.get(frozenset((cur, anc)), NONE) if cur != anc else NONE
-            if observed == NONE:
+            if observed == NONE and (anc, cur) in chain_bound:
+                # C6: cross-thread per a chain of reads, not the edge or the event stream
+                observed, path = chain_bound[(anc, cur)]
+                tag = {"chain": False, "chain_rescue": True,
+                       "chain_path": [hex(p) for p in path]}
+                n_rescued += 1
+            elif observed == NONE:
                 skipped.append({**rec, "reason": "intra_thread_only"})
                 continue
             rescued, weight = True, 1   # cross-thread per the event stream, not the edge
-        judge(cur, anc, observed, weight, same_inst, rescued,
-              e.get("current_access_size"), False)
+        emit(cur, anc, observed, weight, same_inst, rescued,
+             e.get("current_access_size"), False, tag)
 
     # event-stream candidates no edge produced a verdict for (see event_pairs above)
     cand_diag = None
@@ -1738,12 +1842,21 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
                 cand_diag["no_event_evidence"] += 1
                 continue
             anc, cur, dist, n = info
-            judge(cur, anc, dist, n, 0, False, None, True)
+            emit(cur, anc, dist, n, 0, False, None, True)
             cand_diag["judged"] += 1
+
+    # C6: the pairs only a chain joins (no edge of their own), after the edge and event verdicts
+    n_derived = 0
+    for (a, c), (bound, path) in sorted(chain_bound.items()):
+        if (a, c) in edge_pairs:
+            continue        # an edge: judged above (or rescued above), never re-judged
+        n_derived += 1
+        emit(c, a, bound, 1, 0, False, None, False,
+             {"chain": True, "chain_rescue": False, "chain_path": [hex(p) for p in path]})
 
     races = sum(v["verdict"] == "RACE" for v in verdicts)
     n_sc = sum(v["verdict"] == "SC" for v in verdicts)
-    return {
+    report = {
         "inputs": {"cfg_dot": str(dot_path), "trace_json": str(trace_path)},
         "kernel": {"mangled": mangled, "name": trace["kernel"]["kernel_name"]},
         # T16: the chain-edge policy the dump's hb_races were computed under (None: no HbClock
@@ -1778,6 +1891,11 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
                     # the model_bug annotation (R1 contradicted by hb_races), on DR and SC
                     "model_bug": sum(bool(v.get("model_bug")) for v in verdicts)},
     }
+    if chain_closure:
+        report["diagnostics"]["chain_closure"] = {
+            "hops": n_hops, "derived": n_derived, "rescued": n_rescued,
+            "closure_s": round(closure_s, 6), "capped": False}
+    return report
 
 
 def render(report, out):

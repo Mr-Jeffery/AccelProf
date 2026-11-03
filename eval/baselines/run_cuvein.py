@@ -62,27 +62,51 @@ def graph_cache_enabled(cache=None):
     return bool(cache)
 
 
-def _kernel_report(kj, dots):
+def chain_closure_enabled(chain_closure=None):
+    """C6: the chain-closure switch (sync_dominance.analyze(chain_closure=)) for one analysis:
+    the explicit argument if not None, else $CUVEIN_CHAIN_CLOSURE == "1", else off."""
+    if chain_closure is None:
+        return os.environ.get("CUVEIN_CHAIN_CLOSURE") == "1"
+    return bool(chain_closure)
+
+
+def chain_note(stats):
+    """C6: the notes tokens of a chain-closure analysis (`;chain=1` plus, once an analysis ran,
+    its aggregate stats) -- stats as filled into _analyze_reports' stats_out."""
+    note = ";chain=1"
+    if stats:
+        note += (f";chain_hops={stats['hops']};chain_derived={stats['derived']}"
+                 f";chain_rescued={stats['rescued']};chain_s={stats['closure_s']:.3f}"
+                 f";chain_maxk={stats['maxk']}")
+    return note
+
+
+def _kernel_report(kj, dots, chain=False):
     """One kernel JSON's report, as the serial loop computes it: the first .dot (in sorted
     order) that aligns with it, or None if none does. Only the two keys the merge reads are
-    kept (rep["gate_policy"], rep["verdicts"])."""
+    kept (rep["gate_policy"], rep["verdicts"]); with chain (C6) also rep["chain"] = the kernel's
+    diagnostics.chain_closure and rep["kernel_json"] = kj."""
     for dot in dots:
         try:
-            rep = sd.analyze(dot, kj)
+            rep = sd.analyze(dot, kj, chain_closure=True) if chain else sd.analyze(dot, kj)
         except sd.AlignmentError:
             continue
-        return {"gate_policy": rep.get("gate_policy"), "verdicts": rep["verdicts"]}
+        out = {"gate_policy": rep.get("gate_policy"), "verdicts": rep["verdicts"]}
+        if chain:
+            out["chain"] = rep["diagnostics"]["chain_closure"]
+            out["kernel_json"] = kj
+        return out
     return None
 
 
-def _pool_task(kj, dots):
+def _pool_task(kj, dots, chain=False):
     """_kernel_report in a pool worker. An exception comes back as data, so the parent
     re-raises one of the same type and message at this kernel's place in the order: pickled
     as itself (its own __reduce__: OSError keeps errno and filename), except a
     JSONDecodeError, whose pickle would carry the whole document -- it travels as its
     message and positions (its str() is its message)."""
     try:
-        return ("OK", _kernel_report(kj, dots))
+        return ("OK", _kernel_report(kj, dots, True) if chain else _kernel_report(kj, dots))
     except json.JSONDecodeError as e:
         return ("JDE", (e.args, e.msg, e.pos, e.lineno, e.colno))
     except Exception as e:   # noqa: BLE001 -- re-raised by the parent, in order
@@ -102,7 +126,7 @@ class AnalysisWorkerDied(RuntimeError):
     """X7: a pool worker of the verdict step vanished (killed: OOM, signal)."""
 
 
-def _kernel_reports(kjs, dots, workers, cached):
+def _kernel_reports(kjs, dots, workers, cached, chain=False):
     """Yield _kernel_report(kj) for each kernel JSON in the order given, inside the
     static-graph cache when `cached`: inline when one worker (or one kernel JSON), else from a
     fork pool of `workers` processes whose results are consumed in input order
@@ -115,7 +139,7 @@ def _kernel_reports(kjs, dots, workers, cached):
     with (sd.graph_cache() if cached else contextlib.nullcontext()):
         if workers <= 1 or len(kjs) <= 1:
             for kj in kjs:
-                yield _kernel_report(kj, dots)
+                yield _kernel_report(kj, dots, True) if chain else _kernel_report(kj, dots)
             return
         if cached:
             for dot in dots:          # parsed once here, inherited by the forked workers
@@ -130,7 +154,8 @@ def _kernel_reports(kjs, dots, workers, cached):
                                  mp_context=multiprocessing.get_context("fork"))
         done = False
         try:
-            for tag, payload in ex.map(_pool_task, kjs, [dots] * len(kjs)):
+            args = (_pool_task, kjs, [dots] * len(kjs)) + (([True] * len(kjs),) if chain else ())
+            for tag, payload in ex.map(*args):
                 if tag != "OK":
                     _reraise(tag, payload)
                 yield payload
@@ -147,7 +172,8 @@ def _kernel_reports(kjs, dots, workers, cached):
             ex.shutdown(wait=True, cancel_futures=True)
 
 
-def _analyze_reports(depdir, cubindir, workers=None, cache=None):
+def _analyze_reports(depdir, cubindir, workers=None, cache=None, chain_closure=None,
+                     stats_out=None):
     """Run sync_dominance.analyze over the dump and dedup RACE verdicts on
     (unordered pc pair, space). Used for BOTH modes: analyze derives the verdict
     from the trace edges, and when the dump carries HbClock's hb_races
@@ -173,7 +199,22 @@ def _analyze_reports(depdir, cubindir, workers=None, cache=None):
     their reports in the serial loop's order (sorted kernel_*.json names), so the result is
     the serial one. cache = the static-graph cache (graph_cache_enabled(): on unless
     $CUVEIN_GRAPH_CACHE=0); with a pool, the parent parses every .dot once before forking
-    and the workers inherit the parsed graphs."""
+    and the workers inherit the parsed graphs.
+
+    C6 (chain closure, default off): chain_closure = the switch, passed to every pool task as an
+    argument (chain_closure_enabled(): the explicit value if not None, else
+    $CUVEIN_CHAIN_CLOSURE=1, else off); on, sync_dominance.analyze judges the pairs a chain of
+    reads joins too (derived) and the edges a chain makes cross-thread (rescued), and every
+    returned raw RACE/SC record carries "chain_src" ("edge" if some verdict of its dedup key came
+    from an edge judged today, else "chain_rescue" if one came from a rescue, else "chain") and
+    "chain_path" (hex pcs of the first chain-sourced verdict, else None). stats_out, a dict
+    passed in, receives {hops, derived, rescued, closure_s, maxk (the most derived in one
+    kernel), kernels: [{kernel_json, hops, derived, rescued, closure_s, capped}, ...] in kernel
+    order}; the return value is the same tuple, and unchanged when the switch is off (stats_out
+    is left alone, raw has no chain keys). A kernel past sync_dominance.CHAIN_CAP derived pairs
+    raises sd.ChainCapError ('chain-cap: kernel ...'), as any exception: the caller's row is an
+    ERROR carrying it."""
+    chain = chain_closure_enabled(chain_closure)
     dots = sorted(glob.glob(f"{cubindir}/*.dot"))
     kjs = sorted(glob.glob(f"{depdir}/kernel_*.json"))
     workers = analysis_workers(workers)
@@ -182,15 +223,30 @@ def _analyze_reports(depdir, cubindir, workers=None, cache=None):
     mbug = set()   # keys with a model_bug annotation (R1 contradicted by hb_races; DR or SC)
     policies = set()   # T16: the chain-edge policy the dumps' hb_races were computed under
     a2s = {}   # T14: key -> [race of this run, some unflagged, latent, flagged without R3, flag seen]
-    for rep in _kernel_reports(kjs, dots, workers, cached):   # streamed, in kjs order
+    src_race, src_sc = {}, {}   # C6: key -> [sources seen, first chain path]
+    cstats = {"hops": 0, "derived": 0, "rescued": 0, "closure_s": 0.0, "maxk": 0, "kernels": []}
+    for rep in _kernel_reports(kjs, dots, workers, cached, chain):   # streamed, in kjs order
         if rep is None:
             continue
+        if chain:
+            cd = rep["chain"]
+            cstats["kernels"].append({"kernel_json": rep["kernel_json"], **cd})
+            for f in ("hops", "derived", "rescued", "closure_s"):
+                cstats[f] += cd[f]
+            cstats["maxk"] = max(cstats["maxk"], cd["derived"])
         if rep.get("gate_policy"):
             policies.add(rep["gate_policy"])
         for v in rep["verdicts"]:
             k = agg._dedup_key(v)
             if v.get("model_bug") or v.get("hb_class") == "model_bug":
                 mbug.add(k)
+            if chain and v["verdict"] in ("RACE", "SC"):
+                src = src_race if v["verdict"] == "RACE" else src_sc
+                ent = src.setdefault(k, [set(), None])
+                ent[0].add("chain" if v.get("chain") else
+                           "chain_rescue" if v.get("chain_rescue") else "edge")
+                if ent[1] is None and v.get("chain_path"):
+                    ent[1] = v["chain_path"]
             if v["verdict"] == "RACE":
                 ded.setdefault(k, v)
                 c = v.get("matrix_class", v.get("hb_class")) or "race"
@@ -224,6 +280,14 @@ def _analyze_reports(depdir, cubindir, workers=None, cache=None):
                     "hb_class": v.get("hb_class"), "hb_chain": v.get("hb_chain"),
                     "matrix_class": v.get("matrix_class"), "conflict_class": "SC",
                     "model_bug": k in mbug})
+    if chain:
+        for r in raw:
+            ent = (src_race if r.get("verdict") != "SC" else src_sc)[(r["a_pc"], r["b_pc"], r["space"])]
+            r["chain_src"] = ("edge" if "edge" in ent[0] else
+                              "chain_rescue" if "chain_rescue" in ent[0] else "chain")
+            r["chain_path"] = ent[1]
+        if stats_out is not None:
+            stats_out.update(cstats)
     ids_h, raw_h = _host_reports(depdir)
     # T16: a certain-policy dump set is noted on every report (classes_note reads it off raw);
     # a mixed set (some kernels under each policy) is noted as such and is never the paper's
@@ -390,8 +454,9 @@ def run_one(mrow, modes, cuda, writer, confirm_dir, cap=1200):
                 # e.g. an OOM-killed vector-clock run) and the dump holds only the kernels
                 # finished before that. A race it shows is a race; it is never CLEAN.
                 complete = rc == native_rc
+                cstats = {}
                 try:
-                    ids, pcs, raw = _analyze_reports(depdir, cubindir)
+                    ids, pcs, raw = _analyze_reports(depdir, cubindir, stats_out=cstats)
                 except ValueError:
                     if complete:
                         raise
@@ -407,6 +472,8 @@ def run_one(mrow, modes, cuda, writer, confirm_dir, cap=1200):
                         verdict = "ERROR"
                         notes = f"incomplete-trace(rc={rc};nkernels={len(kjs)})"
             notes = f"cap={cap};{notes}"
+            if chain_closure_enabled():     # C6: $CUVEIN_CHAIN_CLOSURE=1 reached _analyze_reports
+                notes += chain_note(cstats if not to and kjs else None)
             writer.writerow(blib.row(
                 **common, mode=mode, rep=rep, verdict=verdict,
                 reports_dedup=len(ids), report_ids=" ".join(ids),
