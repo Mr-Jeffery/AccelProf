@@ -1,0 +1,63 @@
+{
+  "id": "PI-path_compression_raceBug_persistent-DAG_5n_5e",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "global:0x90-0x1b0:WAR",
+    "global:0x140-0x1b0:WAR"
+  ],
+  "pcs": [
+    144,
+    320,
+    432
+  ],
+  "lines": "path_compression_raceBug_persistent.cu:50;path_compression_raceBug_persistent.cu:55",
+  "raw": [
+    {
+      "a_pc": 144,
+      "b_pc": 432,
+      "space": "global",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain_rescue",
+      "chain_path": [
+        "0x90",
+        "0x140",
+        "0x1b0"
+      ],
+      "async": false,
+      "atomic_chain_off": false
+    },
+    {
+      "a_pc": 320,
+      "b_pc": 432,
+      "space": "global",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "144": "path_compression_raceBug_persistent.cu:50",
+    "320": "path_compression_raceBug_persistent.cu:50",
+    "432": "path_compression_raceBug_persistent.cu:55"
+  }
+}

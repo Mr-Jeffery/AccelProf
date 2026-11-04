@@ -1,0 +1,39 @@
+{
+  "id": "PI-conditional_edge_neighbors_block_shfl_reverse-counterDAG_5n_5e",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0x80-0x2c0:WAW"
+  ],
+  "pcs": [
+    128,
+    704
+  ],
+  "lines": "conditional_edge_neighbors_block_shfl_reverse.cu:47;conditional_edge_neighbors_block_shfl_reverse.cu:64",
+  "raw": [
+    {
+      "a_pc": 128,
+      "b_pc": 704,
+      "space": "shared",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "128": "conditional_edge_neighbors_block_shfl_reverse.cu:47",
+    "704": "conditional_edge_neighbors_block_shfl_reverse.cu:64"
+  }
+}

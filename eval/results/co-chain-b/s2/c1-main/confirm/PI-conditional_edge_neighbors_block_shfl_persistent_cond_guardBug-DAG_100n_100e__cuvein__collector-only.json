@@ -1,0 +1,83 @@
+{
+  "id": "PI-conditional_edge_neighbors_block_shfl_persistent_cond_guardBug-DAG_100n_100e",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0x80-0x320:WAW",
+    "shared:0x320-0x320:WAW",
+    "global:0x470-0x500:RAW"
+  ],
+  "pcs": [
+    128,
+    800,
+    1136,
+    1280
+  ],
+  "lines": "conditional_edge_neighbors_block_shfl_persistent_cond_guardBug.cu:47;conditional_edge_neighbors_block_shfl_persistent_cond_guardBug.cu:65;conditional_edge_neighbors_block_shfl_persistent_cond_guardBug.cu:77;device_atomic_functions.hpp:152",
+  "raw": [
+    {
+      "a_pc": 128,
+      "b_pc": 800,
+      "space": "shared",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    },
+    {
+      "a_pc": 800,
+      "b_pc": 800,
+      "space": "shared",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain",
+      "chain_path": [
+        "0x320",
+        "0x350",
+        "0x320"
+      ],
+      "async": false,
+      "atomic_chain_off": false
+    },
+    {
+      "a_pc": 1136,
+      "b_pc": 1280,
+      "space": "global",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": "benign",
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "128": "conditional_edge_neighbors_block_shfl_persistent_cond_guardBug.cu:47",
+    "1280": "device_atomic_functions.hpp:152",
+    "800": "conditional_edge_neighbors_block_shfl_persistent_cond_guardBug.cu:65",
+    "1136": "conditional_edge_neighbors_block_shfl_persistent_cond_guardBug.cu:77"
+  }
+}

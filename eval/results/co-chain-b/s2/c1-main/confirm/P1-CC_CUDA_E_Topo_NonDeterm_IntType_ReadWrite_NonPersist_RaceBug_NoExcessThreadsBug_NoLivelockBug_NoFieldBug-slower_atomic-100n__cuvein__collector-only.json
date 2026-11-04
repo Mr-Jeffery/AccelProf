@@ -1,0 +1,101 @@
+{
+  "id": "P1-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-slower_atomic-100n",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "global:0xe0-0x150:WAR",
+    "global:0xf0-0x150:WAR",
+    "global:0x150-0x150:WAW",
+    "global:0x160-0x160:WAW"
+  ],
+  "pcs": [
+    224,
+    240,
+    336,
+    352
+  ],
+  "lines": "CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug.cu:58",
+  "raw": [
+    {
+      "a_pc": 224,
+      "b_pc": 336,
+      "space": "global",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": [
+        "0xe0",
+        "0xf0",
+        "0x150"
+      ],
+      "async": false,
+      "atomic_chain_off": false
+    },
+    {
+      "a_pc": 240,
+      "b_pc": 336,
+      "space": "global",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    },
+    {
+      "a_pc": 336,
+      "b_pc": 336,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    },
+    {
+      "a_pc": 352,
+      "b_pc": 352,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "224": "CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug.cu:58",
+    "240": "CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug.cu:58",
+    "336": "CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug.cu:58",
+    "352": "CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug.cu:58"
+  }
+}

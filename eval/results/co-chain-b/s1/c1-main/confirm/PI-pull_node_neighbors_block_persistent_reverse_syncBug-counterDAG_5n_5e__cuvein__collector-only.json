@@ -1,0 +1,59 @@
+{
+  "id": "PI-pull_node_neighbors_block_persistent_reverse_syncBug-counterDAG_5n_5e",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0x200-0x290:RAW",
+    "shared:0x290-0x2b0:RAW"
+  ],
+  "pcs": [
+    512,
+    656,
+    688
+  ],
+  "lines": "pull_node_neighbors_block_persistent_reverse_syncBug.cu:58;pull_node_neighbors_block_persistent_reverse_syncBug.cu:62",
+  "raw": [
+    {
+      "a_pc": 512,
+      "b_pc": 656,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    },
+    {
+      "a_pc": 656,
+      "b_pc": 688,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "512": "pull_node_neighbors_block_persistent_reverse_syncBug.cu:58",
+    "656": "pull_node_neighbors_block_persistent_reverse_syncBug.cu:62",
+    "688": "pull_node_neighbors_block_persistent_reverse_syncBug.cu:62"
+  }
+}

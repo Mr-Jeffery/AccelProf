@@ -1,0 +1,61 @@
+{
+  "id": "PI-conditional_edge_neighbors_block_reverse_guardBug-DAG_5n_5e",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0x330-0x350:RAW",
+    "global:0x3c0-0x400:RAW"
+  ],
+  "pcs": [
+    816,
+    848,
+    960,
+    1024
+  ],
+  "lines": "conditional_edge_neighbors_block_reverse_guardBug.cu:63;conditional_edge_neighbors_block_reverse_guardBug.cu:69;device_atomic_functions.hpp:152",
+  "raw": [
+    {
+      "a_pc": 816,
+      "b_pc": 848,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    },
+    {
+      "a_pc": 960,
+      "b_pc": 1024,
+      "space": "global",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": "benign",
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "816": "conditional_edge_neighbors_block_reverse_guardBug.cu:63",
+    "1024": "device_atomic_functions.hpp:152",
+    "848": "conditional_edge_neighbors_block_reverse_guardBug.cu:63",
+    "960": "conditional_edge_neighbors_block_reverse_guardBug.cu:69"
+  }
+}

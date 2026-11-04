@@ -1,0 +1,61 @@
+{
+  "id": "PI-conditional_edge_neighbors_atomicBug-counterDAG_5n_5e",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "global:0x160-0x260:WAR",
+    "global:0x260-0x260:WAW"
+  ],
+  "pcs": [
+    352,
+    608
+  ],
+  "lines": "conditional_edge_neighbors_atomicBug.cu:51",
+  "raw": [
+    {
+      "a_pc": 352,
+      "b_pc": 608,
+      "space": "global",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain_rescue",
+      "chain_path": [
+        "0x160",
+        "0x160",
+        "0x260"
+      ],
+      "async": false,
+      "atomic_chain_off": false
+    },
+    {
+      "a_pc": 608,
+      "b_pc": 608,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "352": "conditional_edge_neighbors_atomicBug.cu:51",
+    "608": "conditional_edge_neighbors_atomicBug.cu:51"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "id": "P5-norace_interwarp-block_fence-atom_hrd-indirect",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0x2d0-0x3f0:WAW"
+  ],
+  "pcs": [
+    720,
+    1008
+  ],
+  "lines": "device_atomic_functions.hpp:132;sm_60_atomic_functions.hpp:396",
+  "raw": [
+    {
+      "a_pc": 720,
+      "b_pc": 1008,
+      "space": "shared",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": true
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "720": "sm_60_atomic_functions.hpp:396",
+    "1008": "device_atomic_functions.hpp:132"
+  }
+}

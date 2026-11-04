@@ -1,0 +1,39 @@
+{
+  "id": "PI-conditional_edge_neighbors_guardBug_break-power_law_200n_1000e",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "global:0x120-0x1c0:RAW"
+  ],
+  "pcs": [
+    288,
+    448
+  ],
+  "lines": "conditional_edge_neighbors_guardBug_break.cu:51;device_atomic_functions.hpp:152",
+  "raw": [
+    {
+      "a_pc": 288,
+      "b_pc": 448,
+      "space": "global",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": "benign",
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "288": "conditional_edge_neighbors_guardBug_break.cu:51",
+    "448": "device_atomic_functions.hpp:152"
+  }
+}

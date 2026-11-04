@@ -1,0 +1,133 @@
+{
+  "id": "P1-CC_CUDA_V_Topo_Pull_NonDeterm_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-slower_atomic-1296n",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "global:0xa0-0x560:WAR",
+    "global:0x1e0-0x560:RAW",
+    "global:0x290-0x290:WAW",
+    "global:0x530-0x560:WAR",
+    "global:0x560-0x560:WAW"
+  ],
+  "pcs": [
+    160,
+    480,
+    656,
+    1328,
+    1376
+  ],
+  "lines": "CC_CUDA_V_Topo_Pull_NonDeterm_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug.cu:57;CC_CUDA_V_Topo_Pull_NonDeterm_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug.cu:73;CC_CUDA_V_Topo_Pull_NonDeterm_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug.cu:78;CC_CUDA_V_Topo_Pull_NonDeterm_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug.cu:82",
+  "raw": [
+    {
+      "a_pc": 160,
+      "b_pc": 1376,
+      "space": "global",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain",
+      "chain_path": [
+        "0xa0",
+        "0x1e0",
+        "0x560"
+      ],
+      "async": false,
+      "atomic_chain_off": false
+    },
+    {
+      "a_pc": 480,
+      "b_pc": 1376,
+      "space": "global",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": [
+        "0x1e0",
+        "0x530",
+        "0x560"
+      ],
+      "async": false,
+      "atomic_chain_off": false
+    },
+    {
+      "a_pc": 656,
+      "b_pc": 656,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    },
+    {
+      "a_pc": 1328,
+      "b_pc": 1376,
+      "space": "global",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain_rescue",
+      "chain_path": [
+        "0x530",
+        "0x1e0",
+        "0x560"
+      ],
+      "async": false,
+      "atomic_chain_off": false
+    },
+    {
+      "a_pc": 1376,
+      "b_pc": 1376,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain_rescue",
+      "chain_path": [
+        "0x560",
+        "0x1e0",
+        "0x560"
+      ],
+      "async": false,
+      "atomic_chain_off": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "160": "CC_CUDA_V_Topo_Pull_NonDeterm_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug.cu:57",
+    "480": "CC_CUDA_V_Topo_Pull_NonDeterm_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug.cu:73",
+    "1376": "CC_CUDA_V_Topo_Pull_NonDeterm_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug.cu:82",
+    "1328": "CC_CUDA_V_Topo_Pull_NonDeterm_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug.cu:82",
+    "656": "CC_CUDA_V_Topo_Pull_NonDeterm_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug.cu:78"
+  }
+}
