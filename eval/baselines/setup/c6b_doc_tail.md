@@ -1,0 +1,93 @@
+
+## 2. False reports: the split by how the verdict step found them
+
+Race-free-labelled programs that are Race (races alone): VC 20, SC 19, C1 248, C6 251, **S1 251, S2 252** (table at the end of section 1). Unit and classes below; the tables follow C6's section 4 (per suite and label, reports not in C1 and not in scalar-clock) and add the C6 reference column and the two new classes.
+
+@@fp_checks@@
+
+@@fp@@
+
+Reading (race-free-labelled programs only, pairs):
+
+- Against C1, every pair S1 adds is the closure's: 41 = 29 derived + 12 rescued + 0 async + 0 atomic-chain-off + 0 other (C6: 37 = 25 + 12). S2 adds one more, an atomic-chain-off pair (42). The four extra derived pairs over C6 are all in ScoR applications (P4, race-free-labelled); the S2-only pair is `P5-norace_interwarp-block_fence-atom_hrd-indirect` (shared:0x2d0-0x3f0), the litmus kernel S2 turns Race (section 3.1); Table 3 does not contain the litmus rows, so its FP cells do not move, but the litmus FP cell does (S2 1/14 against 0/14, per-input table).
+- Against scalar-clock, 281 pairs are `other` in all three (ordinary edge reports C1 already has and SC's frontier does not); the derived and rescued counts are the same as against C1.
+- The async rule adds 1 pair (cuHadron, racy-labelled `P6-memcpy-shared_readwrite_race-racy`, shared:0x70-0x90) and no pair on a race-free-labelled program. The atomic-chain-off rule adds 16 pairs in S1 (all in P4 racy-labelled programs, which were Race in C6) and 20 in S2 (the 16, the 3 P5 pairs and 1 unlabelled Indigo 1.3 pair); 1 of the 20 is on a race-free-labelled program.
+- Strong-conflict-class pairs are tabulated per setting under each table (S1 305 pairs, 108 of them atomic-chain-off; S2 326, 128; C6 197): `strong` countings move accordingly (section 1: ScoR applications strong 8/14 · 6/14 in S1 and 8/14 · 8/14 in S2 against C6's 6/14 · 4/14; S2 litmus strong FP 7/14).
+
+## 3. What moved against C6
+
+### 3.1 Verdict changes
+
+Program level, S1 and S2 against C6 and C1 (tables in section 1, "Program level"); tags of the records that cause the changes (from the confirm JSONs):
+
+@@moved1@@
+
+Causes:
+
+- **S1, `P6-memcpy-shared_readwrite_race-racy` (async).** The kernel does a `LDGSTS` (the async global-to-shared copy) at 0x70, reads the destination with `LDS` at 0x90 and waits only afterwards (`DEPBAR.LE SB0, 0x0` at 0xa0): C6's report of this program is `CO_CHAIN.md` section 3.2 (case F4 of `eval/FIX_REPORT.md`). `--co-async` treats a `LDGSTS` pc's accesses as the issuing thread's async agent's: an edge with a same-thread instance (`intra_thread` > 0) whose earlier access is a copy and whose later access is not is a cross-agent candidate, judged at no narrower than warp with no R1/R3 credit, unless an unguarded `DEPBAR.LE SB0, 0x0` lies on every CFG path from the copy to the later access (`HBGraph.async_waited`; a wait with a non-zero count never orders it). The record is tagged `async`: the raw record `shared:0x70-0x90` in S1 and S2, nothing in C6.
+- **S2, three P5 programs (atomic_chain_off).** `--co-r3 off` withholds the PC-level atomic hand-off certificate (R3) that cfg grants; `--co-r3 strict` keeps it only where R3 also finds a chain with scalar-clock's CFG-decidable declines (the landing check of `_past_release` and the write-before-lock check of `_before_acquire`, decided on the CFG alone, the location condition taken as true). The three records, all `atomic_chain_off`: `P5-canary` global:0x160-0x1f0 WAW, `P5-race_interblock_none-lock_rtraw` global:0x170-0x2f0 WAW, `P5-norace_interwarp-block_fence-atom_hrd-indirect` shared:0x2d0-0x3f0. In S1 none of the three is reported: no record carries the tag, i.e. the strict certificate was not withheld. Labels: canary racy, lock_rtraw racy, `...hrd-indirect` race-free (a false report of S2; scalar-clock reports none, VC reports Race on it).
+- Programs with atomic_chain_off records (any class) in the notes: S1 6 (P4), S2 24 (P4 12, P5 11, PI 1); their Race-class pairs are the 16 and 20 above, the rest are strong-conflict-class pairs.
+
+### 3.2 Narrowest against widest closure bound (C6 to S1/S2)
+
+C6 judged a derived pair at the narrowest bound over all chains of reads (a minimax); C6b judges every edge at max(its own widest distance, the widest hop over every such chain), so an edge whose chain bound is wider than its own distance is a rescue (C6: only edges whose own distance was thread-local). Counts below are the notes' `chain_derived` / `chain_rescued` (rep 1, one row per program) and the pairs of the confirm JSONs:
+
+@@moved2@@
+
+- The widening adds rescues (programs with rescued > 0: 532 to 687; sum of rescued 11,793 to 25,197) and almost no derived pairs (programs 1,093 to 1,093; sum 132,522 to 142,465, +9,943, of which 9,833 in P9 and 9 in P7: the two HeCBench suites; the rest 101 over P1, PI, P4). The per-program counts against C6: derived up in 77 programs, rescued up in 316, none down.
+- At pair level the widening only adds: S1 against C6 loses 0 pairs and gains 87 (62 derived, 8 rescued, 1 async, 16 atomic-chain-off) in 49 programs; 48 of them keep their verdict (PI 40, P4 6, P7 1, P9 1), the 49th is the `async` P6 program. S2 gains 91 (S1's plus 3 P5 and 1 PI atomic-chain-off pairs) in 53 programs, 49 with the same verdict. No program loses a Race verdict; no pair of C6 disappears.
+- Race-free-labelled programs: the four derived pairs C6 does not have are in P4 (race-free-labelled, already Race in C6).
+
+### 3.3 `lock_rtraw` and `matrix-multiplication-norace`
+
+@@moved3@@
+
+- `P5-race_interblock_none-lock_rtraw`: SC reports `global:0x170-0x2f0` (WAW) as Race. C1 reports nothing; C6 orders that pair by the R3 chain 0x1b0 to 0x230 (`results/co-chain-b/step0/rtraw.md`) and reports only the strong-conflict pair 0x140/0x340 (WAR, derived). **S1 still orders the recorded pair**: no raw record for it, `classes=sc:1`, verdict Clean (Strong in the litmus table), the same as C6. **S2 reports it**: the Race-class record `global:0x170-0x2f0` WAW, source `edge`, tagged `atomic_chain_off`, plus the same 0x140/0x340 strong pair; verdict Race, litmus Race, as SC. Step 0's caveat stands: SC's recording has `0x330 <- 0x1b0` where the collector-only recording has `0x230 <- 0x1b0`, so the S2 report agrees with SC's verdict on a different recording and for a different reason (certificate withheld, not an edge that fails to land).
+- `P4-matrix-multiplication-norace-small` and `-large` (race-free): Clean (Race alone) in SC, C1, C6, S1 and S2. S1 has no record. S2 has strong-conflict-class records only, all tagged `atomic_chain_off` (4 pairs in `-small`, 6 in `-large`, the `classes=` of the notes `sc:4` / `sc:6`), so the races-alone verdict does not move and the `strong` counting can (S2's ScoR-applications strong FP cell is 8/14 against S1's 6/14; these two race-free-labelled programs are among the programs with strong-class records in S2 only).
+
+## 4. Step 3: the collector-only verdict layer on the hb-stripped scalar-clock recordings
+
+Question: on the same recording, is every program that scalar-clock mode reports Race also Race in collector-only mode? Input: the scalar-clock kernel JSONs of X1b's `final-2026-11-view` (4,725 ids) with every `hb_*` key deleted (`c6b_s3_strip.py`), analysed by the unmodified `parallel.py analyze` in collector-only mode at three settings (S1, S2, cfg: `--chain-closure --co-async --co-r3 cfg`, C6's R3 with the widest bound and async). Scalar-clock verdicts: the scalar-clock rows of `eval/results/final-b/merged`. Method, jobs and the 8 ids re-run after a metadata mismatch are in `results/co-chain-b/step3/step3_summary.md`; its result, reproduced here by `c6b_step3_frag.py` from the committed TSVs:
+
+@@step3@@
+
+Reading. The acceptance claim is met at program level: 2,670 programs are Race in scalar-clock, all 2,670 are Race in collector-only at S1, S2 and cfg (0 violations). It is not met at pair level: 3,702 scalar-clock pairs in 349 programs are not among the collector-only reports, 3,611 of them because the collector-only recording has no candidate pair (no edge or chain of reads joins the pcs across threads: thread-local only, or only through a non-read hop), 3 because the verdict step orders a candidate by a certificate (R2 coherence, morally strong RMW pair; `P4-rule-110-racy-large` 1, `P4-uts-racy-small` 2), and 88 because a lane was dropped by the collector. The exception the claim names, the collector dropping a lane that HbClock sees (first-lane allocation lookup, words past an allocation's end), accounts for 88 pairs in 41 Indigo 1.3 `boundsBug` programs; its evidence is step 3's per-pair sub-cause "dropped-word deficit at a pair pc" (the static check (b) of C6: the words expected from the node's lane and address counts exceed the words on the edges; `CO_CHAIN.md` sections 3.3 and 7.1), and every one of those 41 programs is nevertheless Race in collector-only (the lane drop removes pairs, not programs). The other 319 programs with missing pairs (3,611 candidate-missing pairs; 13 of them also hold lane-drop pairs, 28 programs are lane-drop only) are not lane drops: the pairs are not joined across threads by an edge or a chain of reads in the recording (thread-local only, or only through a non-read accessor), the closure's own rule; sub-causes per pair are in `pairs_*_by_program.tsv`.
+
+## 5. Cost
+
+Rule and script of `eval/CAP_84600.md` section 3 (`3de35b29`, found with `git log --all -- eval/CAP_84600.md`), geometric means: run alone = tool wall / native wall over the finished programs, verdict step = analysis_s / native, end-to-end = (wall + analysis_s) / native over the finished programs that carry analysis_s; "All" = P1, PI, P3, P4, P5, P6 (4,685 programs); unrestricted adds P7 and P9 (HeCBench, 24 programs). `c6b_cost.py` reproduces CAP's rows exactly (check lines below: VC 7.320 / 2.454 / 9.966, SC 7.015 / 2.173 / 9.339, C1 5.564 / 2.098 / 7.773, n = 4,685 each), then applies the rule to C6, S1 and S2.
+
+- **(a) Run alone.** S1, S2 and C6 re-use C1's recordings: their run wall is C1's in 4,709 of 4,709 rows, so run alone is C1's: 5.564 over the 4,685 programs, 5.652 over all 4,709.
+- **(b) Verdict step**, 4,685-set: VC 2.454, SC 2.173, C1 2.098, C6 2.242 (A5-class estimate; 1.860 as measured on EPYC nodes), **S1 3.280, S2 3.143**. Over all 4,709: VC 2.447 (4,705), SC 2.168 (4,707), C1 2.091, C6 2.234 / 1.853, S1 3.269, S2 3.133. HeCBench (P7+P9, 24): C1 1.103, C6 1.119 / 0.884, S1 and S2 in the generated table.
+- **(c) End-to-end**, 4,685-set: VC 9.966, SC **9.339**, C1 7.773, C6 7.923 (7.550), **S1 8.988, S2 8.851**. Over all 4,709: VC 10.182 (4,705), SC 9.497 (4,707), C1 7.884, C6 8.035 / 7.658, S1 9.110, S2 8.972. S1 and S2 are 3.8 % and 5.2 % below scalar-clock's 9.339 on the 4,685-set, and 15.6 % and 13.9 % above C1's 7.773.
+- **Where the analysis ran.** S1 and S2: c14 for all 4,709 programs each (Xeon Silver 4110, `anode=c14` in every row, lscpu-checked by the job). C6: c5 (EPYC 9115, 2,360 programs) and c45 (EPYC 7302P, 2,349). C1, VC and SC: no `anode` is recorded in their rows; the rows carry `node=`, the recording node (listed below), and the analysis node of C1's reference rows is not recorded (C6 recorded c36 / c79 from the job logs and could not measure their CPU). So the clock modes' analysis_s and S1/S2's were **not** measured on one node, and which nodes the clock modes' ran on cannot be told from the rows (the task states the class, Xeon Silver 4110). Section 5.1 measures it: on one 4110 node (c19) the recorded VC and SC figures of 47 programs are reproduced within 5 %, and c14 is 15 to 17 % slower than c19 for S1/S2.
+
+@@cost@@
+
+### 5.1 Same-node re-time
+
+Because the node of the clock-mode figures is not recorded, the question "how much of S1/S2's verdict step is the rules and how much is c14" is measured directly: C6's 47-program re-time sample (8 P1, 4 P3, 8 P4, 4 P5, 4 P6, 12 PI, 7 HeCBench), five configurations on one Xeon Silver 4110 node (`c6b_retime.sbatch`; each configuration twice in a row, pass 2 warm): VC and SC (as recorded, no flags), C1's rules (`--confirm` only), S1 and S2 (`--confirm --chain-closure --co-async --co-r3 {strict,off}`), all `--analysis-workers 16`, one program at a time.
+
+@@retime_text@@
+
+@@retime@@
+
+## 6. Setup
+
+- **Base and branch.** `eval/co-chain-b`, cut from `eval/co-chain` be325e03 (C6; cuVein 98371ee + C3 + the merge of `eval/collector-only-tables`). Commits: `d150eb40`, `7e9417fd` (step 0: lock_rtraw, `results/co-chain-b/step0/rtraw.md`), `3b2e91f8` (step 1: the three rules, `test_co_rules.py`, `test_co_chain.py`; green set 11 files, before 85 passed 156 skipped, after 107 passed 156 skipped), `93ae2d66` (step 2 scripts), `ea2b9c9f` (step 2 results), `90cc7e9d` (step 3), and this step's commit. Step 2 ran at code rev `93ae2d664256` (`dirty=0`); `python/` is unchanged by step 4.
+- **The three switches** (`python/sync_dominance.py` at `3b2e91f8`; `parallel.py analyze` flags; all default off and byte-identical when off; `co_async` and `co_r3` act only on collector-only dumps, i.e. kernel JSONs with no `hb_*` key):
+  1. `--chain-closure`, rule (a): `chain_closure_pairs` finds, per source pc a, the **widest** hop over **every** walk a to h1..hk to c whose inner pcs are reads (C6: the narrowest chain, a minimax). Each chain bounds only its own instances, and a chain whose hops lay on different addresses can give a bound below a real instance's distance. Implementation: a breadth-first search over (inner node, widest hop so far) states, a state kept only when it widens its node's level (at most 4 per node); the witness is the walk to the state that gives the bound (shallowest, then smallest pc). Every edge is judged at max(its own widest distance, its widest chain bound) (a same-instruction edge's own distance is WARP); where the chain bound is wider the record is a rescue (`chain_rescue`); a pair joined only by a chain is derived (`chain`). Closure is over pcs, not addresses. Cap: `ChainCapError` past the cap (no program in S1 or S2 hit it).
+  2. `--co-async`, rule (b): an `LDGSTS` (cp.async) pc's accesses are the issuing thread's async agent's (T1a `async_pcs`; a kernel with `ARRIVES.LDGSTSBAR` keeps the pre-T1a reading). An edge with a same-thread instance whose earlier access is a copy and whose later one is not is a cross-agent candidate: judged at max(WARP, the edge's own and chain distance) with no R1/R3 credit, unless `HBGraph.async_waited(copy, later)`: an unguarded `DEPBAR.LE SB0, 0x0` (`_DEPBAR_ALL`, the `cp.async.wait_all` / `wait_group 0` form) lies on every CFG path (instruction graph) from the copy to the later access; False for a pc the CFG does not know, vacuously True for a later access no path reaches; a wait with a non-zero count never orders it. Every verdict record gets `async` (true on the candidates).
+  3. `--co-r3 cfg|strict|off`, rule (c): `cfg` (default) region-dominance certificate of R3; `strict`: the certificate stands only if R3 also finds a chain with scalar-clock's CFG-decidable declines (`_past_release`'s landing check, `_before_acquire`'s write-before-lock), decided on the CFG alone (`HBGraph.r3_cfg_only`, location condition taken as true); `off`: no R3 certificate, R1 alone orders. Every verdict record gets `atomic_chain_off` (true where the cfg certificate was withheld). S1 = `--co-r3 strict`, S2 = `--co-r3 off`, both with `--chain-closure --co-async`.
+- **Step 2 parity** (`merged-s*/parity_report.txt`): a program whose derived, rescued, async and atomic_chain_off are all 0 equals C1 on verdict, reports_dedup, report_ids, report_lines and `classes=`: 4,725 programs, 4,709 analysed (the 16 not analysed are P6 `missing-exe` rows, equal to C1), **0 violations** at S1 and S2; programs with derived > 0 1,093, rescued > 0 687, async > 0 1, atomic_chain_off > 0 6 (S1) / 24 (S2); no chain-cap. Verdict changes against C1 (all CLEAN to RACE): S1 32, S2 35.
+- **Step 2 jobs** (one node at a time; all on c14, Xeon Silver 4110 2 sockets x 8 cores, `lscpu` checked, no job aborted): 326257 (S1 shards 0-7, 00:37:55), 326276 (S1 8-15, 00:35:22), 326288 (S2 0-7, 00:33:33), 326292 (S2 8-15, 00:34:45), 326308 (S1 long + 24h, 00:00:43), 326319 (S2 long + 24h, 00:00:42); merges 326333 (S1), 326334 (S2) on c7. Step 0: 326237, 326247. Step 1: tests (jobs named c6b-job1..3: 326244, 326248, 326250; which of them ran the green set is not recorded in the commit). Step 3: 326348, 326351 (prep), 326352 (S1, c2), 326353 (S2, c14), 326354 (cfg, c42), 326435 (cancelled), 326463 (strip), 326467 to 326469 (re-run of 8 ids), 326479 to 326481 (post), 326491, 326494 (final).
+- **Step 4 jobs.** A single worker on `normal` (326496, c3, `--exclusive`, queued command files: stage, tables, cost, detect, step-3 fragment, document) and the same-node re-time 326502 (`skylake`, `--exclusive`, c19, Xeon Silver 4110). Never more than 2 of my nodes at a time (the cap of 10 held by the `x9-*` jobs, which were not touched). Python is `/home/fzheng4/AccelProf/.env/bin/python`; `CUVEIN_HOME=ACCEL_PROF_HOME=/home/fzheng4/wt-c6b`, every other `CUVEIN_*` and `YOSEMITE_*` unset. Scripts: `eval/baselines/setup/c6b_{env.sh,stage.sh,tables.py,cost.py,detect.py,step3_frag.py,retime.sbatch,retime_summary.py,doc.py,worker.sbatch}`; outputs `eval/results/co-chain-b/step4/` (`tables/`, `cost/`, `detect/`, `retime/`, `*.stdout`, fragments).
+
+## 7. Missing, and why
+
+- Real-world recall and candidate sets (C2's recordings): not re-analysed at S1 or S2; step 2 covered only the 4,725 C1 programs, so section 1 has no real-world rows for them.
+- Analysis node of the clock modes' and C1's analysis_s: not recorded in their rows (no `anode`); only the recording node (`node=`) is. The same-node re-time (5.1) replaces the missing record with a measurement on one node for 47 programs, not for the whole corpus.
+- Step 1's report was not a separate file; the rules above are from the step 1 commit message and diff (`git show 3b2e91f8`). Which of the jobs 326244, 326248, 326250 ran which test is not recorded.
+- `lock_rtraw`: the recordings still cannot separate the effect of the recording (`0x230 <- 0x1b0` against `0x330 <- 0x1b0`) from the effect of the rule (step 0); S2's Race agrees with SC's by a different route.
+- Raw confirm JSONs of step 3 (`run-*/confirm`, `.state-*.pkl`) are not committed (size); step 3's tables are from the committed TSVs. The 20-pair address-sharing sample of `CO_CHAIN.md` section 4 was not repeated (no addresses in the kernel JSONs).
+- Step-2 confirm JSONs hold Race-class (`raw`) and strong-class (`raw_sc`) records; the false-report tables count `raw` pairs and list `raw_sc` totals separately. A pair is a pc pair, not an address pair.
