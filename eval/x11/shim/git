@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# X11: the ubuntu22.04 image has no git; accelprof only prints "git rev-parse HEAD" / "git status --porcelain"
+# of ACCEL_PROF_HOME into its metadata line. Values are computed outside the container and passed in.
+case "$*" in
+  *"rev-parse HEAD"*) echo "${X11_RT_HEAD:-unknown}" ;;
+  *"status --porcelain"*) [ -n "${X11_RT_STATUS:-}" ] && echo "$X11_RT_STATUS" ;;
+  *) exit 1 ;;
+esac
