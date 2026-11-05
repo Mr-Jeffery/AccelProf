@@ -56,3 +56,15 @@ Range `6a8c46c4` (artifact, 2025-09-09) .. `7d2d3c56` (ours, 2026-09-01), 5,862 
 | tridiagonal | racy | 8 | no: net diff is Makefile/CMake only (`-std=c++17`, `LAUNCHER`); `cyclic_kernels.cu:108,225,226` (reported lines) and the code ordering them are unchanged | LABEL STILL APPLIES |
 | expdist | racy | 7 | yes, 3583b2c4 (location missing): `kernel.h` `distance_tiled`, the `sh_B` / `sh_scale_B` fill is guarded by `tx == 0` and a `__syncthreads()` is added before first use | LABEL CHANGED (3583b2c4); location missing |
 | mr | race-free | 7 | no labelled race (artifact subset marks it race-free); diff: host repeat loop and `cudaMemset` moved (b1a8e1a2), `static const` mask table made local in `sprp32.h` (f7d0d5b9); no new shared or global kernel accesses | LABEL STILL APPLIES (race-free) |
+
+## How the artifact binaries are run (deviations from our own-build runs)
+
+- **Container.** The artifact binaries need GLIBC 2.34, the cluster has 2.28: every tool run, and the native timing (job 327526), executes inside `ubuntu2204.sif` (`singularity exec --nv`, the image `run_supercollider.py` uses; `/mnt/beegfs`, `/opt`, `/usr/local` bound).
+- **cudart.** The artifact binaries link cudart statically; the collector (`libcompute_sanitizer.so`) references cudart symbols (e.g. `cudaDeviceGetStreamPriorityRange`) that only a shared-cudart program exports, so it fails to load into them (`symbol lookup error`). cuRace clock-mode and collector-only runs therefore use a copy of `bin/accelprof` (in a shadow `ACCEL_PROF_HOME` made of symlinks to the installed runtime; `bin/` itself is untouched) with one changed line, 307:
+
+  ```
+  -        LD_PRELOAD=${LD_PRELOAD_LIB} ${EXECUTABLE} ${ARGS} >> ${OUTPUT_REDIRECT} 2>&1
+  +        LD_PRELOAD="${X11_CUDART}:${LD_PRELOAD_LIB}" ${EXECUTABLE} ${ARGS} >> ${OUTPUT_REDIRECT} 2>&1
+  ```
+  `X11_CUDART=/usr/local/cuda-13.3/lib64/libcudart.so.13`. It changes no detection logic: the collector, `libsanalyzer`, `python/`, the verdict code and the harness are the installed ones; the line only adds a second, shared cudart to the process so the collector's symbols resolve (the program keeps its own static cudart). The image has no `git`; a shim answers the two metadata calls of `accelprof` (`rev-parse HEAD`, `status --porcelain` of `ACCEL_PROF_HOME`). racecheck and iGUARD run unpatched.
+- **Checks that the patched path reproduces our results.** collector-only on the artifact binaries of gpp and crs: events 10,368,000 / 9,864,919, 10 / 50 kernels, verdicts CLEAN / RACE (7 reports), identical to the old rows. Clock-mode smoke test (overlap, scalar-clock, 1 run, 1,200 s, through the container and the patched `accelprof`) against the old row: see the line below once the job has run (jobs 327694 recording, 327695 analysis).
