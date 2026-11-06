@@ -5,7 +5,8 @@ Analyzed kernels (sub-ids <parent>__kNNN and the gate ids): two rows, mode scala
 baselines-cuvein-bo0-shard<sid>-all.csv); pair counts by status from pairs/<flavor>/<sid>.json; recording figures from
 the parent's meta.json copy (eval/x_logs/store_copy/<flavor>/<parent>/meta.json).
 Recorded ids with no analyzed kernel get one row, kernel "-", mode "record", and `outcome` saying why (TIMEOUT
-re-recorded at 5,400 s or split, TIMEOUT1 final, NO-KERNELS, DUPLICATE of another id, NOT-ANALYZED).
+re-recorded at 5,400 s or split, TIMEOUT1 final, NO-KERNELS, DUPLICATE of another id, NOT-RECORDED (no meta.json:
+recorded as chunks instead), NOT-ANALYZED). `pairs` is the pair count (an older pair file holds the list itself).
 usage: x9_csv.py [--out eval/results/cutlass/x9.csv] [--timeout1 ids...] [--duplicate ids...]"""
 import argparse, csv, glob, json, os, re
 W = "/home/fzheng4/wt-x9"
@@ -13,8 +14,16 @@ ap = argparse.ArgumentParser()
 ap.add_argument("--out", default=f"{W}/eval/results/cutlass/x9.csv")
 ap.add_argument("--timeout1", nargs="*", default=[])
 ap.add_argument("--duplicate", nargs="*", default=[])
+ap.add_argument("--launches", help="tsv <flavor> <sub_id> <kernel JSONs in the sub-store> (counted on a compute node); "
+                "used where the pair file's `kernels` map is empty (a kernel with no pairs)")
 a = ap.parse_args()
 man = {r["id"]: r for r in csv.DictReader(open(f"{W}/eval/cutlass/manifest_cutlass.csv", newline=""))}
+nlaunch = {}
+if a.launches:
+    for ln in open(a.launches):
+        x = ln.split()
+        if len(x) == 3:
+            nlaunch[(x[0], x[1])] = int(x[2])
 kname = {}
 for f in glob.glob(f"{W}/eval/cutlass/manifests_k/*.csv"):
     for r in csv.DictReader(open(f, newline="")):
@@ -44,7 +53,7 @@ for fl in ("main", "t5400"):
         sc = d.get("status_counts", {}) or {}
         ks = d.get("kernels", {}) or {}
         kn = kname.get(sid) or (";".join(k.split("::", 1)[-1] for k in ks) if isinstance(ks, dict) else "")
-        launches = sum(ks.values()) if isinstance(ks, dict) else ""
+        launches = sum(ks.values()) if isinstance(ks, dict) and ks else nlaunch.get((fl, sid), "missing")
         m, r = meta(fl, pid)
         tm = row1(f"{W}/eval/results/cutlass/{fl}/analysis-time-shard{sid}-all.csv")
         analyzed_parents.add((fl, pid))
@@ -54,7 +63,8 @@ for fl in ("main", "t5400"):
             rows.append(dict(binary=os.path.basename(mr.get("exe", "")), family=mr.get("target", ""), parent_id=pid,
                              flavor=fl, sub_id=sid, kernel=kn, launches=launches, mode=mode, outcome="ANALYZED",
                              verdict=v.get("verdict", "missing"), reports_dedup=v.get("reports_dedup", ""),
-                             report_lines=v.get("report_lines", ""), pairs=d.get("pairs", ""),
+                             report_lines=v.get("report_lines", ""),
+                             pairs=len(d["pairs"]) if isinstance(d.get("pairs"), list) else d.get("pairs", ""),
                              CONFIRMED=sc.get("CONFIRMED", 0), BARRIER_ORDERED=sc.get("BARRIER-ORDERED", 0),
                              RECLASSIFIED=sc.get("RECLASSIFIED", 0), ON_ONLY=sc.get("ON-ONLY", 0),
                              analysis_s=tm.get(tk, ""), record_wall_s=r.get("wall", ""), record_peak_mb=r.get("peak_mb", ""),
@@ -69,7 +79,9 @@ for fl in ("main", "t5400"):
             continue
         m, r = meta(fl, pid)
         mr = man.get(pid, {})
-        if pid in a.duplicate:
+        if not r:
+            out = "NOT-RECORDED"   # empty store_copy dir, no meta.json: the binary was recorded as chunks (-cNN) instead
+        elif pid in a.duplicate:
             out = "DUPLICATE"
         elif r.get("timed_out"):
             out = "TIMEOUT1" if pid in a.timeout1 else "TIMEOUT"

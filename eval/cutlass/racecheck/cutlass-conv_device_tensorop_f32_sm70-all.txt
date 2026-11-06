@@ -1,0 +1,38 @@
+========= COMPUTE-SANITIZER
+[==========] Running 6 tests from 6 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from SM70_Device_Conv2d_Fprop_With_Residual_Block_Plus_Optimized_ImplicitGemm_f16nhwc_f16nhwc_f32nhwc_tensor_op_f32
+[ RUN      ] SM70_Device_Conv2d_Fprop_With_Residual_Block_Plus_Optimized_ImplicitGemm_f16nhwc_f16nhwc_f32nhwc_tensor_op_f32.128x128_32x2_64x64x32
+[       OK ] SM70_Device_Conv2d_Fprop_With_Residual_Block_Plus_Optimized_ImplicitGemm_f16nhwc_f16nhwc_f32nhwc_tensor_op_f32.128x128_32x2_64x64x32 (140465 ms)
+[----------] 1 test from SM70_Device_Conv2d_Fprop_With_Residual_Block_Plus_Optimized_ImplicitGemm_f16nhwc_f16nhwc_f32nhwc_tensor_op_f32 (140465 ms total)
+
+[----------] 1 test from SM70_Device_Conv2d_Fprop_Analytic_ImplicitGemm_f16nhwc_f16nhwc_f32nhwc_tensor_op_f32
+[ RUN      ] SM70_Device_Conv2d_Fprop_Analytic_ImplicitGemm_f16nhwc_f16nhwc_f32nhwc_tensor_op_f32.128x128_32x2_64x64x32
+[       OK ] SM70_Device_Conv2d_Fprop_Analytic_ImplicitGemm_f16nhwc_f16nhwc_f32nhwc_tensor_op_f32.128x128_32x2_64x64x32 (137209 ms)
+[----------] 1 test from SM70_Device_Conv2d_Fprop_Analytic_ImplicitGemm_f16nhwc_f16nhwc_f32nhwc_tensor_op_f32 (137209 ms total)
+
+[----------] 1 test from SM70_Device_Conv2d_Fprop_Optimized_ImplicitGemm_f16nhwc_f16nhwc_f32nhwc_tensor_op_f32
+[ RUN      ] SM70_Device_Conv2d_Fprop_Optimized_ImplicitGemm_f16nhwc_f16nhwc_f32nhwc_tensor_op_f32.128x128_32x2_64x64x32
+[       OK ] SM70_Device_Conv2d_Fprop_Optimized_ImplicitGemm_f16nhwc_f16nhwc_f32nhwc_tensor_op_f32.128x128_32x2_64x64x32 (57013 ms)
+[----------] 1 test from SM70_Device_Conv2d_Fprop_Optimized_ImplicitGemm_f16nhwc_f16nhwc_f32nhwc_tensor_op_f32 (57013 ms total)
+
+[----------] 1 test from SM70_Device_Conv2d_Dgrad_Analytic_ImplicitGemm_f16nhwc_f16nhwc_f32nhwc_tensor_op_f32
+[ RUN      ] SM70_Device_Conv2d_Dgrad_Analytic_ImplicitGemm_f16nhwc_f16nhwc_f32nhwc_tensor_op_f32.128x128_32x2_64x64x32
+[       OK ] SM70_Device_Conv2d_Dgrad_Analytic_ImplicitGemm_f16nhwc_f16nhwc_f32nhwc_tensor_op_f32.128x128_32x2_64x64x32 (147828 ms)
+[----------] 1 test from SM70_Device_Conv2d_Dgrad_Analytic_ImplicitGemm_f16nhwc_f16nhwc_f32nhwc_tensor_op_f32 (147828 ms total)
+
+[----------] 1 test from SM70_Device_Conv2d_Dgrad_Optimized_ImplicitGemm_f16nhwc_f16nhwc_f32nhwc_tensor_op_f32_unity_stride
+[ RUN      ] SM70_Device_Conv2d_Dgrad_Optimized_ImplicitGemm_f16nhwc_f16nhwc_f32nhwc_tensor_op_f32_unity_stride.128x128_32x2_64x64x32
+[       OK ] SM70_Device_Conv2d_Dgrad_Optimized_ImplicitGemm_f16nhwc_f16nhwc_f32nhwc_tensor_op_f32_unity_stride.128x128_32x2_64x64x32 (32777 ms)
+[----------] 1 test from SM70_Device_Conv2d_Dgrad_Optimized_ImplicitGemm_f16nhwc_f16nhwc_f32nhwc_tensor_op_f32_unity_stride (32777 ms total)
+
+[----------] 1 test from SM70_Device_Conv2d_Wgrad_Analytic_ImplicitGemm_f16nhwc_f16nhwc_f32nhwc_tensor_op_f32
+[ RUN      ] SM70_Device_Conv2d_Wgrad_Analytic_ImplicitGemm_f16nhwc_f16nhwc_f32nhwc_tensor_op_f32.128x128_32x2_64x64x32
+[       OK ] SM70_Device_Conv2d_Wgrad_Analytic_ImplicitGemm_f16nhwc_f16nhwc_f32nhwc_tensor_op_f32.128x128_32x2_64x64x32 (156680 ms)
+[----------] 1 test from SM70_Device_Conv2d_Wgrad_Analytic_ImplicitGemm_f16nhwc_f16nhwc_f32nhwc_tensor_op_f32 (156680 ms total)
+
+[----------] Global test environment tear-down
+[==========] 6 tests from 6 test suites ran. (671976 ms total)
+[  PASSED  ] 6 tests.
+========= RACECHECK SUMMARY: 0 hazards displayed (0 errors, 0 warnings)
+# exit 0

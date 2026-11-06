@@ -1,0 +1,121 @@
+{
+  "id": "cutlass-conv_device_tensorop_f32_sm75-c02__k000",
+  "tool": "cuvein",
+  "mode": "scalar-clock",
+  "verdict": "RACE",
+  "report_ids": [
+    "global:0x4910-0x52b0:RAW",
+    "global:0x4930-0x5330:RAW",
+    "global:0x52b0-0x52b0:WAW",
+    "global:0x5330-0x5330:WAW"
+  ],
+  "pcs": [
+    18704,
+    18736,
+    21168,
+    21296
+  ],
+  "lines": "memory.h:153;predicated_tile_iterator.h:361;semaphore.h:74;semaphore.h:76",
+  "raw": [
+    {
+      "a_pc": 18704,
+      "b_pc": 21168,
+      "space": "global",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    },
+    {
+      "a_pc": 18736,
+      "b_pc": 21296,
+      "space": "global",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    },
+    {
+      "a_pc": 21168,
+      "b_pc": 21168,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    },
+    {
+      "a_pc": 21296,
+      "b_pc": 21296,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    }
+  ],
+  "raw_sc": [
+    {
+      "a_pc": 15056,
+      "b_pc": 21600,
+      "space": "global",
+      "verdict": "SC",
+      "race_type": "WAR",
+      "strength": "block",
+      "hb_class": "sc",
+      "hb_chain": null,
+      "matrix_class": "sc",
+      "conflict_class": "SC",
+      "model_bug": false
+    },
+    {
+      "a_pc": 17520,
+      "b_pc": 21600,
+      "space": "global",
+      "verdict": "SC",
+      "race_type": "RAW",
+      "strength": "block",
+      "hb_class": "sc",
+      "hb_chain": null,
+      "matrix_class": "sc",
+      "conflict_class": "SC",
+      "model_bug": false
+    },
+    {
+      "a_pc": 21600,
+      "b_pc": 21600,
+      "space": "global",
+      "verdict": "SC",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": "sc",
+      "hb_chain": null,
+      "matrix_class": "sc",
+      "conflict_class": "SC",
+      "model_bug": false
+    }
+  ],
+  "scope_file": "",
+  "pc_lines": {
+    "18704": "semaphore.h:74",
+    "18736": "semaphore.h:76",
+    "21168": "memory.h:153",
+    "21296": "predicated_tile_iterator.h:361"
+  }
+}

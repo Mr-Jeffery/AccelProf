@@ -1,0 +1,121 @@
+{
+  "id": "cutlass-conv_device_simt-c01s17__k000",
+  "tool": "cuvein",
+  "mode": "scalar-clock",
+  "verdict": "RACE",
+  "report_ids": [
+    "global:0x75d0-0x8180:RAW",
+    "global:0x76c0-0x8380:RAW",
+    "global:0x8180-0x8180:WAW",
+    "global:0x8380-0x8380:WAW"
+  ],
+  "pcs": [
+    30160,
+    30400,
+    33152,
+    33664
+  ],
+  "lines": "epilogue.h:496;implicit_gemm_convolution.h:408;predicated_tile_iterator.h:277;predicated_tile_iterator.h:464",
+  "raw": [
+    {
+      "a_pc": 30160,
+      "b_pc": 33152,
+      "space": "global",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    },
+    {
+      "a_pc": 30400,
+      "b_pc": 33664,
+      "space": "global",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    },
+    {
+      "a_pc": 33152,
+      "b_pc": 33152,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    },
+    {
+      "a_pc": 33664,
+      "b_pc": 33664,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    }
+  ],
+  "raw_sc": [
+    {
+      "a_pc": 26048,
+      "b_pc": 34288,
+      "space": "global",
+      "verdict": "SC",
+      "race_type": "WAR",
+      "strength": "block",
+      "hb_class": "sc",
+      "hb_chain": null,
+      "matrix_class": "sc",
+      "conflict_class": "SC",
+      "model_bug": false
+    },
+    {
+      "a_pc": 28528,
+      "b_pc": 34288,
+      "space": "global",
+      "verdict": "SC",
+      "race_type": "RAW",
+      "strength": "block",
+      "hb_class": "sc",
+      "hb_chain": null,
+      "matrix_class": "sc",
+      "conflict_class": "SC",
+      "model_bug": false
+    },
+    {
+      "a_pc": 34288,
+      "b_pc": 34288,
+      "space": "global",
+      "verdict": "SC",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": "sc",
+      "hb_chain": null,
+      "matrix_class": "sc",
+      "conflict_class": "SC",
+      "model_bug": false
+    }
+  ],
+  "scope_file": "",
+  "pc_lines": {
+    "30160": "implicit_gemm_convolution.h:408",
+    "33152": "epilogue.h:496",
+    "33664": "predicated_tile_iterator.h:464",
+    "30400": "predicated_tile_iterator.h:277"
+  }
+}

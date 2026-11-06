@@ -1,0 +1,376 @@
+========= COMPUTE-SANITIZER
+[==========] Running 169 tests from 10 test suites.
+[----------] Global test environment set-up.
+[----------] 9 tests from PredicatedTileIterator
+[ RUN      ] PredicatedTileIterator.tensor_op_64x64x32_64x64x8
+[       OK ] PredicatedTileIterator.tensor_op_64x64x32_64x64x8 (159 ms)
+[ RUN      ] PredicatedTileIterator.tensor_op_128x64x32_64x64x8
+[       OK ] PredicatedTileIterator.tensor_op_128x64x32_64x64x8 (4 ms)
+[ RUN      ] PredicatedTileIterator.tensor_op_128x256x32_64x64x8
+[       OK ] PredicatedTileIterator.tensor_op_128x256x32_64x64x8 (5 ms)
+[ RUN      ] PredicatedTileIterator.volta_tensor_op_64x64x32_64x64x4
+[       OK ] PredicatedTileIterator.volta_tensor_op_64x64x32_64x64x4 (5 ms)
+[ RUN      ] PredicatedTileIterator.volta_tensor_op_64x128x32_32x64x4
+[       OK ] PredicatedTileIterator.volta_tensor_op_64x128x32_32x64x4 (5 ms)
+[ RUN      ] PredicatedTileIterator.volta_tensor_op_128x256x32_64x64x4
+[       OK ] PredicatedTileIterator.volta_tensor_op_128x256x32_64x64x4 (37 ms)
+[ RUN      ] PredicatedTileIterator.volta_tensor_op_256x128x32_64x64x4
+[       OK ] PredicatedTileIterator.volta_tensor_op_256x128x32_64x64x4 (25 ms)
+[ RUN      ] PredicatedTileIterator.simt_32x64x8_32x64x1
+[       OK ] PredicatedTileIterator.simt_32x64x8_32x64x1 (3 ms)
+[ RUN      ] PredicatedTileIterator.simt_128x128x8_32x64x1
+[       OK ] PredicatedTileIterator.simt_128x128x8_32x64x1 (5 ms)
+[----------] 9 tests from PredicatedTileIterator (251 ms total)
+
+[----------] 23 tests from ThreadMap
+[ RUN      ] ThreadMap.f16_tensor_op_64x64_64x64x8
+[       OK ] ThreadMap.f16_tensor_op_64x64_64x64x8 (0 ms)
+[ RUN      ] ThreadMap.f16_tensor_op_128x128_64x64x8
+[       OK ] ThreadMap.f16_tensor_op_128x128_64x64x8 (0 ms)
+[ RUN      ] ThreadMap.f16_tensor_op_256x128_64x64x8
+[       OK ] ThreadMap.f16_tensor_op_256x128_64x64x8 (0 ms)
+[ RUN      ] ThreadMap.f16_tensor_op_128x256_64x64x8
+[       OK ] ThreadMap.f16_tensor_op_128x256_64x64x8 (0 ms)
+[ RUN      ] ThreadMap.f16_tensor_op_128x64_64x32x8
+[       OK ] ThreadMap.f16_tensor_op_128x64_64x32x8 (0 ms)
+[ RUN      ] ThreadMap.f16_tensor_op_64x128_128x64x8
+[       OK ] ThreadMap.f16_tensor_op_64x128_128x64x8 (0 ms)
+[ RUN      ] ThreadMap.f32_tensor_op_64x64_64x64x8
+[       OK ] ThreadMap.f32_tensor_op_64x64_64x64x8 (0 ms)
+[ RUN      ] ThreadMap.f32_tensor_op_128x128_64x64x8
+[       OK ] ThreadMap.f32_tensor_op_128x128_64x64x8 (0 ms)
+[ RUN      ] ThreadMap.f32_tensor_op_256x128_64x64x8
+[       OK ] ThreadMap.f32_tensor_op_256x128_64x64x8 (0 ms)
+[ RUN      ] ThreadMap.f32_tensor_op_128x256_64x64x8
+[       OK ] ThreadMap.f32_tensor_op_128x256_64x64x8 (0 ms)
+[ RUN      ] ThreadMap.f32_tensor_op_128x64_64x32x8
+[       OK ] ThreadMap.f32_tensor_op_128x64_64x32x8 (0 ms)
+[ RUN      ] ThreadMap.f32_tensor_op_64x128_128x64x8
+[       OK ] ThreadMap.f32_tensor_op_64x128_128x64x8 (0 ms)
+[ RUN      ] ThreadMap.f32_volta_tensor_op_64x64_64x64x8
+[       OK ] ThreadMap.f32_volta_tensor_op_64x64_64x64x8 (0 ms)
+[ RUN      ] ThreadMap.f32_volta_tensor_op_64x128_64x64x8
+[       OK ] ThreadMap.f32_volta_tensor_op_64x128_64x64x8 (0 ms)
+[ RUN      ] ThreadMap.f32_volta_tensor_op_128x64_64x64x8
+[       OK ] ThreadMap.f32_volta_tensor_op_128x64_64x64x8 (0 ms)
+[ RUN      ] ThreadMap.f32_volta_tensor_op_128x64_64x32x8
+[       OK ] ThreadMap.f32_volta_tensor_op_128x64_64x32x8 (0 ms)
+[ RUN      ] ThreadMap.f32_volta_tensor_op_128x128_64x64x8
+[       OK ] ThreadMap.f32_volta_tensor_op_128x128_64x64x8 (0 ms)
+[ RUN      ] ThreadMap.f32_volta_tensor_op_128x256_64x64x8
+[       OK ] ThreadMap.f32_volta_tensor_op_128x256_64x64x8 (0 ms)
+[ RUN      ] ThreadMap.f32_volta_tensor_op_256x128_64x64x8
+[       OK ] ThreadMap.f32_volta_tensor_op_256x128_64x64x8 (0 ms)
+[ RUN      ] ThreadMap.simt_32x64_32x64x1
+[       OK ] ThreadMap.simt_32x64_32x64x1 (0 ms)
+[ RUN      ] ThreadMap.simt_32x128_32x64x1
+[       OK ] ThreadMap.simt_32x128_32x64x1 (0 ms)
+[ RUN      ] ThreadMap.simt_64x128_32x64x1
+[       OK ] ThreadMap.simt_64x128_32x64x1 (0 ms)
+[ RUN      ] ThreadMap.simt_128x128_32x64x1
+[       OK ] ThreadMap.simt_128x128_32x64x1 (0 ms)
+[----------] 23 tests from ThreadMap (0 ms total)
+
+[----------] 15 tests from SM50_Epilogue_threadblock_epilogue
+[ RUN      ] SM50_Epilogue_threadblock_epilogue.simt_f32_32x64_32x64x8
+[       OK ] SM50_Epilogue_threadblock_epilogue.simt_f32_32x64_32x64x8 (509 ms)
+[ RUN      ] SM50_Epilogue_threadblock_epilogue.simt_f32_32x128_32x64x8
+[       OK ] SM50_Epilogue_threadblock_epilogue.simt_f32_32x128_32x64x8 (520 ms)
+[ RUN      ] SM50_Epilogue_threadblock_epilogue.simt_f32_64x128_32x64x8
+[       OK ] SM50_Epilogue_threadblock_epilogue.simt_f32_64x128_32x64x8 (632 ms)
+[ RUN      ] SM50_Epilogue_threadblock_epilogue.simt_f32_128x128_32x64x8
+[       OK ] SM50_Epilogue_threadblock_epilogue.simt_f32_128x128_32x64x8 (1673 ms)
+[ RUN      ] SM50_Epilogue_threadblock_epilogue.simt_f64_32x64_32x64x8
+[       OK ] SM50_Epilogue_threadblock_epilogue.simt_f64_32x64_32x64x8 (506 ms)
+[ RUN      ] SM50_Epilogue_threadblock_epilogue.simt_f64_32x128_32x64x8
+[       OK ] SM50_Epilogue_threadblock_epilogue.simt_f64_32x128_32x64x8 (622 ms)
+[ RUN      ] SM50_Epilogue_threadblock_epilogue.simt_f64_64x128_32x64x8
+[       OK ] SM50_Epilogue_threadblock_epilogue.simt_f64_64x128_32x64x8 (810 ms)
+[ RUN      ] SM50_Epilogue_threadblock_epilogue.simt_f64_128x128_32x64x8
+[       OK ] SM50_Epilogue_threadblock_epilogue.simt_f64_128x128_32x64x8 (1219 ms)
+[ RUN      ] SM50_Epilogue_threadblock_epilogue.simt_complex_f32_32x64_32x64x8
+[       OK ] SM50_Epilogue_threadblock_epilogue.simt_complex_f32_32x64_32x64x8 (506 ms)
+[ RUN      ] SM50_Epilogue_threadblock_epilogue.simt_complex_f32_32x128_32x64x8
+[       OK ] SM50_Epilogue_threadblock_epilogue.simt_complex_f32_32x128_32x64x8 (614 ms)
+[ RUN      ] SM50_Epilogue_threadblock_epilogue.simt_complex_f32_128x128_32x64x8
+[       OK ] SM50_Epilogue_threadblock_epilogue.simt_complex_f32_128x128_32x64x8 (1220 ms)
+[ RUN      ] SM50_Epilogue_threadblock_epilogue.simt_complex_f64_32x64_32x64x8
+[       OK ] SM50_Epilogue_threadblock_epilogue.simt_complex_f64_32x64_32x64x8 (618 ms)
+[ RUN      ] SM50_Epilogue_threadblock_epilogue.simt_complex_f64_32x128_32x64x8
+[       OK ] SM50_Epilogue_threadblock_epilogue.simt_complex_f64_32x128_32x64x8 (808 ms)
+[ RUN      ] SM50_Epilogue_threadblock_epilogue.simt_complex_f64_128x128_32x64x8
+[       OK ] SM50_Epilogue_threadblock_epilogue.simt_complex_f64_128x128_32x64x8 (1984 ms)
+[ RUN      ] SM50_Epilogue_threadblock_epilogue.simt_quaternion_f32_32x64_32x64x8
+[       OK ] SM50_Epilogue_threadblock_epilogue.simt_quaternion_f32_32x64_32x64x8 (592 ms)
+[----------] 15 tests from SM50_Epilogue_threadblock_epilogue (12838 ms total)
+
+[----------] 6 tests from SM60_Epilogue_threadblock_epilogue
+[ RUN      ] SM60_Epilogue_threadblock_epilogue.simt_f16_32x64_32x64x8
+[       OK ] SM60_Epilogue_threadblock_epilogue.simt_f16_32x64_32x64x8 (446 ms)
+[ RUN      ] SM60_Epilogue_threadblock_epilogue.simt_f16_64x64_64x64x8
+[       OK ] SM60_Epilogue_threadblock_epilogue.simt_f16_64x64_64x64x8 (473 ms)
+[ RUN      ] SM60_Epilogue_threadblock_epilogue.simt_f16_64x128_64x64x8
+[       OK ] SM60_Epilogue_threadblock_epilogue.simt_f16_64x128_64x64x8 (942 ms)
+[ RUN      ] SM60_Epilogue_threadblock_epilogue.simt_f16_128x128_64x64x8
+[       OK ] SM60_Epilogue_threadblock_epilogue.simt_f16_128x128_64x64x8 (1806 ms)
+[ RUN      ] SM60_Epilogue_threadblock_epilogue.simt_f16_128x256_64x64x8
+[       OK ] SM60_Epilogue_threadblock_epilogue.simt_f16_128x256_64x64x8 (3601 ms)
+[ RUN      ] SM60_Epilogue_threadblock_epilogue.simt_f16_256x128_64x64x8
+[       OK ] SM60_Epilogue_threadblock_epilogue.simt_f16_256x128_64x64x8 (3638 ms)
+[----------] 6 tests from SM60_Epilogue_threadblock_epilogue (10909 ms total)
+
+[----------] 15 tests from SM61_Epilogue_threadblock_epilogue
+[ RUN      ] SM61_Epilogue_threadblock_epilogue.simt_i32_32x64_32x64x8
+[       OK ] SM61_Epilogue_threadblock_epilogue.simt_i32_32x64_32x64x8 (476 ms)
+[ RUN      ] SM61_Epilogue_threadblock_epilogue.simt_i32_32x128_32x64x8
+[       OK ] SM61_Epilogue_threadblock_epilogue.simt_i32_32x128_32x64x8 (521 ms)
+[ RUN      ] SM61_Epilogue_threadblock_epilogue.simt_i32_64x128_32x64x8
+[       OK ] SM61_Epilogue_threadblock_epilogue.simt_i32_64x128_32x64x8 (635 ms)
+[ RUN      ] SM61_Epilogue_threadblock_epilogue.simt_i32_128x128_32x64x8
+[       OK ] SM61_Epilogue_threadblock_epilogue.simt_i32_128x128_32x64x8 (1683 ms)
+[ RUN      ] SM61_Epilogue_threadblock_epilogue.simt_i32_128x64_32x64x8
+[       OK ] SM61_Epilogue_threadblock_epilogue.simt_i32_128x64_32x64x8 (635 ms)
+[ RUN      ] SM61_Epilogue_threadblock_epilogue.simt_f32_i32_32x64_32x64x8
+[       OK ] SM61_Epilogue_threadblock_epilogue.simt_f32_i32_32x64_32x64x8 (468 ms)
+[ RUN      ] SM61_Epilogue_threadblock_epilogue.simt_f32_i32_32x128_32x64x8
+[       OK ] SM61_Epilogue_threadblock_epilogue.simt_f32_i32_32x128_32x64x8 (523 ms)
+[ RUN      ] SM61_Epilogue_threadblock_epilogue.simt_f32_i32_64x128_32x64x8
+[       OK ] SM61_Epilogue_threadblock_epilogue.simt_f32_i32_64x128_32x64x8 (638 ms)
+[ RUN      ] SM61_Epilogue_threadblock_epilogue.simt_f32_i32_128x128_32x64x8
+[       OK ] SM61_Epilogue_threadblock_epilogue.simt_f32_i32_128x128_32x64x8 (1678 ms)
+[ RUN      ] SM61_Epilogue_threadblock_epilogue.simt_f32_i32_128x64_32x64x8
+[       OK ] SM61_Epilogue_threadblock_epilogue.simt_f32_i32_128x64_32x64x8 (636 ms)
+[ RUN      ] SM61_Epilogue_threadblock_epilogue.simt_i8_i32_32x64_32x64x8
+[       OK ] SM61_Epilogue_threadblock_epilogue.simt_i8_i32_32x64_32x64x8 (467 ms)
+[ RUN      ] SM61_Epilogue_threadblock_epilogue.simt_i8_i32_32x128_32x64x8
+[       OK ] SM61_Epilogue_threadblock_epilogue.simt_i8_i32_32x128_32x64x8 (522 ms)
+[ RUN      ] SM61_Epilogue_threadblock_epilogue.simt_i8_i32_64x128_32x64x8
+[       OK ] SM61_Epilogue_threadblock_epilogue.simt_i8_i32_64x128_32x64x8 (637 ms)
+[ RUN      ] SM61_Epilogue_threadblock_epilogue.simt_i8_i32_128x128_32x64x8
+[       OK ] SM61_Epilogue_threadblock_epilogue.simt_i8_i32_128x128_32x64x8 (1678 ms)
+[ RUN      ] SM61_Epilogue_threadblock_epilogue.simt_i8_i32_128x64_32x64x8
+[       OK ] SM61_Epilogue_threadblock_epilogue.simt_i8_i32_128x64_32x64x8 (633 ms)
+[----------] 15 tests from SM61_Epilogue_threadblock_epilogue (11839 ms total)
+
+[----------] 45 tests from SM75_Epilogue_threadblock_epilogue
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.s4_tensor_op_64x64_64x64x32
+[       OK ] SM75_Epilogue_threadblock_epilogue.s4_tensor_op_64x64_64x64x32 (558 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.s4_tensor_op_64x64_32x32x32
+[       OK ] SM75_Epilogue_threadblock_epilogue.s4_tensor_op_64x64_32x32x32 (512 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.s4_tensor_op_128x128_64x64x32
+[       OK ] SM75_Epilogue_threadblock_epilogue.s4_tensor_op_128x128_64x64x32 (813 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.s4_tensor_op_128x64_64x32x32
+[       OK ] SM75_Epilogue_threadblock_epilogue.s4_tensor_op_128x64_64x32x32 (626 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.s4_tensor_op_64x128_32x64x32
+[       OK ] SM75_Epilogue_threadblock_epilogue.s4_tensor_op_64x128_32x64x32 (614 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.s4_tensor_op_32x128_32x64x32
+[       OK ] SM75_Epilogue_threadblock_epilogue.s4_tensor_op_32x128_32x64x32 (508 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.s4_tensor_op_128x32_64x32x32
+[       OK ] SM75_Epilogue_threadblock_epilogue.s4_tensor_op_128x32_64x32x32 (507 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.s4_tensor_op_256x128_64x64x32
+[       OK ] SM75_Epilogue_threadblock_epilogue.s4_tensor_op_256x128_64x64x32 (1226 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.s4_tensor_op_128x256_64x64x32
+[       OK ] SM75_Epilogue_threadblock_epilogue.s4_tensor_op_128x256_64x64x32 (1224 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.s8_tensor_op_64x64_64x64x16
+[       OK ] SM75_Epilogue_threadblock_epilogue.s8_tensor_op_64x64_64x64x16 (505 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.s8_tensor_op_64x64_32x3216
+[       OK ] SM75_Epilogue_threadblock_epilogue.s8_tensor_op_64x64_32x3216 (514 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.s8_tensor_op_128x128_64x64x16
+[       OK ] SM75_Epilogue_threadblock_epilogue.s8_tensor_op_128x128_64x64x16 (815 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.s8_tensor_op_64x128_64x64x16
+[       OK ] SM75_Epilogue_threadblock_epilogue.s8_tensor_op_64x128_64x64x16 (812 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.s8_tensor_op_128x64_64x32x16
+[       OK ] SM75_Epilogue_threadblock_epilogue.s8_tensor_op_128x64_64x32x16 (626 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.s8_tensor_op_64x128_32x64x16
+[       OK ] SM75_Epilogue_threadblock_epilogue.s8_tensor_op_64x128_32x64x16 (619 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.s8_tensor_op_32x128_32x64x16
+[       OK ] SM75_Epilogue_threadblock_epilogue.s8_tensor_op_32x128_32x64x16 (509 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.s8_tensor_op_128x32_64x32x16
+[       OK ] SM75_Epilogue_threadblock_epilogue.s8_tensor_op_128x32_64x32x16 (503 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.tensor_op_64x64_64x64x8
+[       OK ] SM75_Epilogue_threadblock_epilogue.tensor_op_64x64_64x64x8 (515 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.tensor_op_128x128_64x64x8
+[       OK ] SM75_Epilogue_threadblock_epilogue.tensor_op_128x128_64x64x8 (813 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.tensor_op_128x256_64x64x8
+[       OK ] SM75_Epilogue_threadblock_epilogue.tensor_op_128x256_64x64x8 (1227 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.tensor_op_256x128_64x64x8
+[       OK ] SM75_Epilogue_threadblock_epilogue.tensor_op_256x128_64x64x8 (1228 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.tensor_op_32x32_32x32x8
+[       OK ] SM75_Epilogue_threadblock_epilogue.tensor_op_32x32_32x32x8 (444 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.tensor_op_64x64_32x32x8
+[       OK ] SM75_Epilogue_threadblock_epilogue.tensor_op_64x64_32x32x8 (512 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.tensor_op_64x128_32x64x8
+[       OK ] SM75_Epilogue_threadblock_epilogue.tensor_op_64x128_32x64x8 (619 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.tensor_op_128x64_64x32x8
+[       OK ] SM75_Epilogue_threadblock_epilogue.tensor_op_128x64_64x32x8 (627 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.mixed_f16_f32_tensor_op_64x64_64x64x8
+[       OK ] SM75_Epilogue_threadblock_epilogue.mixed_f16_f32_tensor_op_64x64_64x64x8 (515 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.mixed_f16_f32_tensor_op_128x128_64x64x8
+[       OK ] SM75_Epilogue_threadblock_epilogue.mixed_f16_f32_tensor_op_128x128_64x64x8 (815 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.mixed_f16_f32_tensor_op_128x256_64x64x8
+[       OK ] SM75_Epilogue_threadblock_epilogue.mixed_f16_f32_tensor_op_128x256_64x64x8 (1230 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.mixed_f16_f32_tensor_op_256x128_64x64x8
+[       OK ] SM75_Epilogue_threadblock_epilogue.mixed_f16_f32_tensor_op_256x128_64x64x8 (1228 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.mixed_f16_f32_tensor_op_32x32_32x32x8
+[       OK ] SM75_Epilogue_threadblock_epilogue.mixed_f16_f32_tensor_op_32x32_32x32x8 (441 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.mixed_f16_f32_tensor_op_64x64_32x32x8
+[       OK ] SM75_Epilogue_threadblock_epilogue.mixed_f16_f32_tensor_op_64x64_32x32x8 (512 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.mixed_f16_f32_tensor_op_64x128_32x64x8
+[       OK ] SM75_Epilogue_threadblock_epilogue.mixed_f16_f32_tensor_op_64x128_32x64x8 (617 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.mixed_f16_f32_tensor_op_128x64_64x32x8
+[       OK ] SM75_Epilogue_threadblock_epilogue.mixed_f16_f32_tensor_op_128x64_64x32x8 (624 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.f16_tensor_op_64x64_64x64x8
+[       OK ] SM75_Epilogue_threadblock_epilogue.f16_tensor_op_64x64_64x64x8 (466 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.f16_tensor_op_128x128_64x64x8
+[       OK ] SM75_Epilogue_threadblock_epilogue.f16_tensor_op_128x128_64x64x8 (634 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.f16_tensor_op_128x256_64x64x8
+[       OK ] SM75_Epilogue_threadblock_epilogue.f16_tensor_op_128x256_64x64x8 (1252 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.f16_tensor_op_256x128_64x64x8
+[       OK ] SM75_Epilogue_threadblock_epilogue.f16_tensor_op_256x128_64x64x8 (1260 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.f16_tensor_op_32x32_32x32x8
+[       OK ] SM75_Epilogue_threadblock_epilogue.f16_tensor_op_32x32_32x32x8 (430 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.f16_tensor_op_64x64_32x32x8
+[       OK ] SM75_Epilogue_threadblock_epilogue.f16_tensor_op_64x64_32x32x8 (464 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.f16_tensor_op_64x128_32x64x8
+[       OK ] SM75_Epilogue_threadblock_epilogue.f16_tensor_op_64x128_32x64x8 (513 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.f16_tensor_op_128x64_64x32x8
+[       OK ] SM75_Epilogue_threadblock_epilogue.f16_tensor_op_128x64_64x32x8 (520 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.vec1_mixed_f16_f32_tensor_op_128x128_64x64x8
+[       OK ] SM75_Epilogue_threadblock_epilogue.vec1_mixed_f16_f32_tensor_op_128x128_64x64x8 (839 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.vec1_mixed_f16_f32_tensor_op_128x256_64x64x8
+[       OK ] SM75_Epilogue_threadblock_epilogue.vec1_mixed_f16_f32_tensor_op_128x256_64x64x8 (1843 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.vec1_tensor_op_128x128_64x64x8
+[       OK ] SM75_Epilogue_threadblock_epilogue.vec1_tensor_op_128x128_64x64x8 (836 ms)
+[ RUN      ] SM75_Epilogue_threadblock_epilogue.vec1_tensor_op_128x256_64x64x8
+[       OK ] SM75_Epilogue_threadblock_epilogue.vec1_tensor_op_128x256_64x64x8 (1971 ms)
+[----------] 45 tests from SM75_Epilogue_threadblock_epilogue (34513 ms total)
+
+[----------] 4 tests from SM80_Epilogue_threadblock_epilogue
+[ RUN      ] SM80_Epilogue_threadblock_epilogue.f64_tensor_op_64x64_32x32x4
+[       OK ] SM80_Epilogue_threadblock_epilogue.f64_tensor_op_64x64_32x32x4 (617 ms)
+[ RUN      ] SM80_Epilogue_threadblock_epilogue.f64_tensor_op_128x64_64x32x4
+[       OK ] SM80_Epilogue_threadblock_epilogue.f64_tensor_op_128x64_64x32x4 (614 ms)
+[ RUN      ] SM80_Epilogue_threadblock_epilogue.f64_tensor_op_64x128_32x64x4
+[       OK ] SM80_Epilogue_threadblock_epilogue.f64_tensor_op_64x128_32x64x4 (614 ms)
+[ RUN      ] SM80_Epilogue_threadblock_epilogue.f64_tensor_op_128x128_32x64x4
+[       OK ] SM80_Epilogue_threadblock_epilogue.f64_tensor_op_128x128_32x64x4 (1192 ms)
+[----------] 4 tests from SM80_Epilogue_threadblock_epilogue (3038 ms total)
+
+[----------] 34 tests from SM70_Epilogue_threadblock_epilogue
+[ RUN      ] SM70_Epilogue_threadblock_epilogue.f16_volta_tensor_op_64x64_32x32x4
+[       OK ] SM70_Epilogue_threadblock_epilogue.f16_volta_tensor_op_64x64_32x32x4 (499 ms)
+[ RUN      ] SM70_Epilogue_threadblock_epilogue.f16_volta_tensor_op_128x64_64x32x4
+[       OK ] SM70_Epilogue_threadblock_epilogue.f16_volta_tensor_op_128x64_64x32x4 (512 ms)
+[ RUN      ] SM70_Epilogue_threadblock_epilogue.f16_volta_tensor_op_64x128_32x64x4
+[       OK ] SM70_Epilogue_threadblock_epilogue.f16_volta_tensor_op_64x128_32x64x4 (510 ms)
+[ RUN      ] SM70_Epilogue_threadblock_epilogue.f16_volta_tensor_op_64x64_64x64x4
+[       OK ] SM70_Epilogue_threadblock_epilogue.f16_volta_tensor_op_64x64_64x64x4 (468 ms)
+[ RUN      ] SM70_Epilogue_threadblock_epilogue.f16_volta_tensor_op_64x128_64x64x4
+[       OK ] SM70_Epilogue_threadblock_epilogue.f16_volta_tensor_op_64x128_64x64x4 (510 ms)
+[ RUN      ] SM70_Epilogue_threadblock_epilogue.f16_volta_tensor_op_128x64_64x64x4
+[       OK ] SM70_Epilogue_threadblock_epilogue.f16_volta_tensor_op_128x64_64x64x4 (509 ms)
+[ RUN      ] SM70_Epilogue_threadblock_epilogue.f16_volta_tensor_op_128x128_64x64x4
+[       OK ] SM70_Epilogue_threadblock_epilogue.f16_volta_tensor_op_128x128_64x64x4 (623 ms)
+[ RUN      ] SM70_Epilogue_threadblock_epilogue.f16_volta_tensor_op_128x256_64x64x4
+[       OK ] SM70_Epilogue_threadblock_epilogue.f16_volta_tensor_op_128x256_64x64x4 (817 ms)
+[ RUN      ] SM70_Epilogue_threadblock_epilogue.f16_volta_tensor_op_256x128_64x64x4
+[       OK ] SM70_Epilogue_threadblock_epilogue.f16_volta_tensor_op_256x128_64x64x4 (816 ms)
+[ RUN      ] SM70_Epilogue_threadblock_epilogue.f16_f32_volta_tensor_op_64x64_64x64x4
+[       OK ] SM70_Epilogue_threadblock_epilogue.f16_f32_volta_tensor_op_64x64_64x64x4 (509 ms)
+[ RUN      ] SM70_Epilogue_threadblock_epilogue.f16_f32_volta_tensor_op_128x256_64x64x4
+[       OK ] SM70_Epilogue_threadblock_epilogue.f16_f32_volta_tensor_op_128x256_64x64x4 (1212 ms)
+[ RUN      ] SM70_Epilogue_threadblock_epilogue.f16_f32_volta_tensor_op_256x128_64x64x4
+[       OK ] SM70_Epilogue_threadblock_epilogue.f16_f32_volta_tensor_op_256x128_64x64x4 (1219 ms)
+[ RUN      ] SM70_Epilogue_threadblock_epilogue.f16_f32_volta_tensor_op_128x128_64x64x4
+[       OK ] SM70_Epilogue_threadblock_epilogue.f16_f32_volta_tensor_op_128x128_64x64x4 (812 ms)
+[ RUN      ] SM70_Epilogue_threadblock_epilogue.f16_f32_volta_tensor_op_64x64_32x32x4
+[       OK ] SM70_Epilogue_threadblock_epilogue.f16_f32_volta_tensor_op_64x64_32x32x4 (505 ms)
+[ RUN      ] SM70_Epilogue_threadblock_epilogue.f16_f32_volta_tensor_op_64x128_32x64x4
+[       OK ] SM70_Epilogue_threadblock_epilogue.f16_f32_volta_tensor_op_64x128_32x64x4 (608 ms)
+[ RUN      ] SM70_Epilogue_threadblock_epilogue.f16_f32_volta_tensor_op_128x64_64x32x4
+[       OK ] SM70_Epilogue_threadblock_epilogue.f16_f32_volta_tensor_op_128x64_64x32x4 (615 ms)
+[ RUN      ] SM70_Epilogue_threadblock_epilogue.f32_volta_tensor_op_64x64_64x64x4
+[       OK ] SM70_Epilogue_threadblock_epilogue.f32_volta_tensor_op_64x64_64x64x4 (514 ms)
+[ RUN      ] SM70_Epilogue_threadblock_epilogue.f32_volta_tensor_op_64x128_64x64x4
+[       OK ] SM70_Epilogue_threadblock_epilogue.f32_volta_tensor_op_64x128_64x64x4 (621 ms)
+[ RUN      ] SM70_Epilogue_threadblock_epilogue.f32_volta_tensor_op_128x64_64x64x4
+[       OK ] SM70_Epilogue_threadblock_epilogue.f32_volta_tensor_op_128x64_64x64x4 (619 ms)
+[ RUN      ] SM70_Epilogue_threadblock_epilogue.f32_volta_tensor_op_128x128_64x64x4
+[       OK ] SM70_Epilogue_threadblock_epilogue.f32_volta_tensor_op_128x128_64x64x4 (810 ms)
+[ RUN      ] SM70_Epilogue_threadblock_epilogue.f32_volta_tensor_op_128x256_64x64x4
+[       OK ] SM70_Epilogue_threadblock_epilogue.f32_volta_tensor_op_128x256_64x64x4 (1216 ms)
+[ RUN      ] SM70_Epilogue_threadblock_epilogue.f32_volta_tensor_op_256x128_64x64x4
+[       OK ] SM70_Epilogue_threadblock_epilogue.f32_volta_tensor_op_256x128_64x64x4 (1215 ms)
+[ RUN      ] SM70_Epilogue_threadblock_epilogue.f32_volta_tensor_op_64x64_32x32x4
+[       OK ] SM70_Epilogue_threadblock_epilogue.f32_volta_tensor_op_64x64_32x32x4 (503 ms)
+[ RUN      ] SM70_Epilogue_threadblock_epilogue.f32_volta_tensor_op_128x64_64x32x4
+[       OK ] SM70_Epilogue_threadblock_epilogue.f32_volta_tensor_op_128x64_64x32x4 (621 ms)
+[ RUN      ] SM70_Epilogue_threadblock_epilogue.f32_volta_tensor_op_64x128_32x64x4
+[       OK ] SM70_Epilogue_threadblock_epilogue.f32_volta_tensor_op_64x128_32x64x4 (605 ms)
+[ RUN      ] SM70_Epilogue_threadblock_epilogue.vec8_f16_f32_volta_tensor_op_64x64_32x32x4
+[       OK ] SM70_Epilogue_threadblock_epilogue.vec8_f16_f32_volta_tensor_op_64x64_32x32x4 (504 ms)
+[ RUN      ] SM70_Epilogue_threadblock_epilogue.vec2_f16_f32_volta_tensor_op_64x64_32x32x4
+[       OK ] SM70_Epilogue_threadblock_epilogue.vec2_f16_f32_volta_tensor_op_64x64_32x32x4 (507 ms)
+[ RUN      ] SM70_Epilogue_threadblock_epilogue.vec1_f16_f32_volta_tensor_op_64x64_32x32x4
+[       OK ] SM70_Epilogue_threadblock_epilogue.vec1_f16_f32_volta_tensor_op_64x64_32x32x4 (506 ms)
+[ RUN      ] SM70_Epilogue_threadblock_epilogue.vec1_f32_volta_tensor_op_128x128_64x64x4
+[       OK ] SM70_Epilogue_threadblock_epilogue.vec1_f32_volta_tensor_op_128x128_64x64x4 (815 ms)
+[ RUN      ] SM70_Epilogue_threadblock_epilogue.vec1_f16_f32_volta_tensor_op_128x128_64x64x4
+[       OK ] SM70_Epilogue_threadblock_epilogue.vec1_f16_f32_volta_tensor_op_128x128_64x64x4 (819 ms)
+[ RUN      ] SM70_Epilogue_threadblock_epilogue.vec1_f16_f32_volta_tensor_op_128x256_64x64x4
+[       OK ] SM70_Epilogue_threadblock_epilogue.vec1_f16_f32_volta_tensor_op_128x256_64x64x4 (1646 ms)
+[ RUN      ] SM70_Epilogue_threadblock_epilogue.f16_wmma_tensor_op_64x64_64x64x16
+[       OK ] SM70_Epilogue_threadblock_epilogue.f16_wmma_tensor_op_64x64_64x64x16 (463 ms)
+[ RUN      ] SM70_Epilogue_threadblock_epilogue.f16_wmma_tensor_op_64x128_64x64x16
+[       OK ] SM70_Epilogue_threadblock_epilogue.f16_wmma_tensor_op_64x128_64x64x16 (512 ms)
+[ RUN      ] SM70_Epilogue_threadblock_epilogue.f32_wmma_tensor_op_64x64_64x64x16
+[       OK ] SM70_Epilogue_threadblock_epilogue.f32_wmma_tensor_op_64x64_64x64x16 (510 ms)
+[----------] 34 tests from SM70_Epilogue_threadblock_epilogue (23767 ms total)
+
+[----------] 6 tests from Epilogue_threadblock_epilogue
+[ RUN      ] Epilogue_threadblock_epilogue.planar_complex_f32_f32_tensor_op_64x64_32x32x8
+[       OK ] Epilogue_threadblock_epilogue.planar_complex_f32_f32_tensor_op_64x64_32x32x8 (619 ms)
+[ RUN      ] Epilogue_threadblock_epilogue.planar_complex_f16_f32_tensor_op_64x64_32x32x8
+[       OK ] Epilogue_threadblock_epilogue.planar_complex_f16_f32_tensor_op_64x64_32x32x8 (618 ms)
+[ RUN      ] Epilogue_threadblock_epilogue.planar_complex_f16_f16_tensor_op_64x64_32x32x8
+[       OK ] Epilogue_threadblock_epilogue.planar_complex_f16_f16_tensor_op_64x64_32x32x8 (512 ms)
+[ RUN      ] Epilogue_threadblock_epilogue.planar_complex_f32_f32_volta_tensor_op_64x64_32x32x4
+[       OK ] Epilogue_threadblock_epilogue.planar_complex_f32_f32_volta_tensor_op_64x64_32x32x4 (463 ms)
+[ RUN      ] Epilogue_threadblock_epilogue.planar_complex_simt_f32_64x64_32x32x8
+[       OK ] Epilogue_threadblock_epilogue.planar_complex_simt_f32_64x64_32x32x8 (645 ms)
+[ RUN      ] Epilogue_threadblock_epilogue.planar_complex_simt_f64_64x64_16x32x8
+[       OK ] Epilogue_threadblock_epilogue.planar_complex_simt_f64_64x64_16x32x8 (819 ms)
+[----------] 6 tests from Epilogue_threadblock_epilogue (3678 ms total)
+
+[----------] 12 tests from SM75_Epilogue_with_reduction_threadblock
+[ RUN      ] SM75_Epilogue_with_reduction_threadblock.f16_tensor_op_64x64_64x64x8
+[       OK ] SM75_Epilogue_with_reduction_threadblock.f16_tensor_op_64x64_64x64x8 (21 ms)
+[ RUN      ] SM75_Epilogue_with_reduction_threadblock.f32_tensor_op_64x64_64x64x8
+[       OK ] SM75_Epilogue_with_reduction_threadblock.f32_tensor_op_64x64_64x64x8 (6 ms)
+[ RUN      ] SM75_Epilogue_with_reduction_threadblock.f32_tensor_op_128x128_64x64x8
+[       OK ] SM75_Epilogue_with_reduction_threadblock.f32_tensor_op_128x128_64x64x8 (10 ms)
+[ RUN      ] SM75_Epilogue_with_reduction_threadblock.f16_tensor_op_128x128_64x64x8
+[       OK ] SM75_Epilogue_with_reduction_threadblock.f16_tensor_op_128x128_64x64x8 (10 ms)
+[ RUN      ] SM75_Epilogue_with_reduction_threadblock.f32_tensor_op_128x64_64x32x8
+[       OK ] SM75_Epilogue_with_reduction_threadblock.f32_tensor_op_128x64_64x32x8 (7 ms)
+[ RUN      ] SM75_Epilogue_with_reduction_threadblock.f16_tensor_op_128x64_64x32x8
+[       OK ] SM75_Epilogue_with_reduction_threadblock.f16_tensor_op_128x64_64x32x8 (8 ms)
+[ RUN      ] SM75_Epilogue_with_reduction_threadblock.f32_tensor_op_64x128_32x64x8
+[       OK ] SM75_Epilogue_with_reduction_threadblock.f32_tensor_op_64x128_32x64x8 (7 ms)
+[ RUN      ] SM75_Epilogue_with_reduction_threadblock.f16_tensor_op_64x128_32x64x8
+[       OK ] SM75_Epilogue_with_reduction_threadblock.f16_tensor_op_64x128_32x64x8 (8 ms)
+[ RUN      ] SM75_Epilogue_with_reduction_threadblock.f32_tensor_op_128x256_64x64x8
+[       OK ] SM75_Epilogue_with_reduction_threadblock.f32_tensor_op_128x256_64x64x8 (16 ms)
+[ RUN      ] SM75_Epilogue_with_reduction_threadblock.f16_tensor_op_128x256_64x64x8
+[       OK ] SM75_Epilogue_with_reduction_threadblock.f16_tensor_op_128x256_64x64x8 (16 ms)
+[ RUN      ] SM75_Epilogue_with_reduction_threadblock.f32_tensor_op_256x128_64x64x8
+[       OK ] SM75_Epilogue_with_reduction_threadblock.f32_tensor_op_256x128_64x64x8 (15 ms)
+[ RUN      ] SM75_Epilogue_with_reduction_threadblock.f16_tensor_op_256x128_64x64x8
+[       OK ] SM75_Epilogue_with_reduction_threadblock.f16_tensor_op_256x128_64x64x8 (16 ms)
+[----------] 12 tests from SM75_Epilogue_with_reduction_threadblock (145 ms total)
+
+[----------] Global test environment tear-down
+[==========] 169 tests from 10 test suites ran. (100981 ms total)
+[  PASSED  ] 169 tests.
+========= RACECHECK SUMMARY: 0 hazards displayed (0 errors, 0 warnings)
+# exit 0
