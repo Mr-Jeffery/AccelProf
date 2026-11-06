@@ -1,11 +1,15 @@
 {
- "files": 2234,
+ "files": 2346,
  "unreadable": 0,
  "on_only": [],
  "families": {
   "conv-sm80": {
    "files": 181,
    "CONFIRMED": 3747
+  },
+  "tensorop-sm70-sm75": {
+   "files": 622,
+   "CONFIRMED": 23202
   },
   "epilogue-unit": {
    "files": 146
@@ -36,10 +40,6 @@
   "tensorop-multistage-cpasync": {
    "files": 1,
    "CONFIRMED": 386
-  },
-  "tensorop-sm70-sm75": {
-   "files": 510,
-   "CONFIRMED": 18963
   },
   "reduction": {
    "files": 47
@@ -4452,10 +4452,10 @@
    "a": "include/cutlass/block_striped.h:194",
    "b": "include/cutlass/functional.h:134",
    "status": {
-    "CONFIRMED": 13232
+    "CONFIRMED": 16464
    },
-   "pairs": 13232,
-   "kernels": 151,
+   "pairs": 16464,
+   "kernels": 185,
    "classes": [
     "GemmUniversalStreamk"
    ],
@@ -4492,14 +4492,15 @@
     ]
    ],
    "parents": [
+    "main:cutlass-gemm_device_tensorop_sm70-all",
     "main:cutlass-gemm_device_tensorop_sm75-c00",
     "main:cutlass-gemm_device_tensorop_sm75-c01",
     "main:cutlass-gemm_device_wmma-all"
    ],
    "rep": {
-    "sid": "cutlass-gemm_device_tensorop_sm75-c00__k077",
-    "a_pc": 23072,
-    "b_pc": 25696,
+    "sid": "cutlass-gemm_device_tensorop_sm70-all__k055",
+    "a_pc": 69520,
+    "b_pc": 72144,
     "frames_a": [
      "include/cutlass/block_striped.h:194",
      "include/cutlass/gemm/kernel/gemm_universal_streamk.h:772",
@@ -4664,10 +4665,10 @@
    "a": "include/cutlass/block_striped.h:194",
    "b": "include/cutlass/functional.h:177",
    "status": {
-    "CONFIRMED": 704
+    "CONFIRMED": 1376
    },
-   "pairs": 704,
-   "kernels": 18,
+   "pairs": 1376,
+   "kernels": 32,
    "classes": [
     "GemmUniversalStreamk"
    ],
@@ -4704,12 +4705,13 @@
     ]
    ],
    "parents": [
+    "main:cutlass-gemm_device_tensorop_sm70-all",
     "main:cutlass-gemm_device_tensorop_sm75-c00"
    ],
    "rep": {
-    "sid": "cutlass-gemm_device_tensorop_sm75-c00__k076",
-    "a_pc": 21824,
-    "b_pc": 23408,
+    "sid": "cutlass-gemm_device_tensorop_sm70-all__k054",
+    "a_pc": 48880,
+    "b_pc": 50464,
     "frames_a": [
      "/usr/local/cuda-13.3/include/cuda_fp16.hpp:254",
      "include/cutlass/block_striped.h:194",
@@ -4771,12 +4773,13 @@
    "a": "include/cutlass/arch/memory.h:153",
    "b": "include/cutlass/arch/memory.h:415",
    "status": {
-    "CONFIRMED": 16
+    "CONFIRMED": 176
    },
-   "pairs": 16,
-   "kernels": 1,
+   "pairs": 176,
+   "kernels": 6,
    "classes": [
-    "Gemm"
+    "Gemm",
+    "ImplicitGemmConvolution"
    ],
    "race_types": [
     "RAW",
@@ -4799,25 +4802,26 @@
      "@P5 STG.E.128 [R8.64], R4"
     ],
     [
-     "@P2 LDG.E.LTC128B.128 R132, [R10.64]",
-     "@P3 STG.E.128 [R16.64], R4"
+     "@P2 LDG.E.LTC128B.128 R100, [R18.64+0x100]",
+     "STG.E.128 [R2.64+0x100], R8"
     ],
     [
-     "@P2 LDG.E.LTC128B.128 R132, [R164.64+0x100]",
-     "@P3 STG.E.128 [R4.64+0x100], R140"
+     "@P2 LDG.E.LTC128B.128 R100, [R18.64+0x100]",
+     "STG.E.128 [R6.64+0x100], R8"
     ],
     [
-     "@P2 LDG.E.LTC128B.128 R132, [R32.64]",
-     "@P3 STG.E.128 [R28.64], R4"
+     "@P2 LDG.E.LTC128B.128 R12, [R2.64+0x100]",
+     "STG.E.128 [R16.64+0x100], R8"
     ]
    ],
    "parents": [
+    "main:cutlass-conv_device_tensorop_f32_sm70-all",
     "main:cutlass-gemm_device_tensorop_sm75-c01"
    ],
    "rep": {
-    "sid": "cutlass-gemm_device_tensorop_sm75-c01__k014",
-    "a_pc": 12000,
-    "b_pc": 12880,
+    "sid": "cutlass-conv_device_tensorop_f32_sm70-all__k000",
+    "a_pc": 62400,
+    "b_pc": 63680,
     "frames_a": [
      "include/cutlass/arch/memory.h:153",
      "include/cutlass/epilogue/threadblock/predicated_tile_iterator.h:356",
@@ -4825,7 +4829,7 @@
      "include/cutlass/epilogue/threadblock/epilogue.h:273",
      "include/cutlass/epilogue/threadblock/epilogue.h:491",
      "include/cutlass/epilogue/threadblock/epilogue.h:405",
-     "include/cutlass/gemm/kernel/gemm.h:351",
+     "include/cutlass/conv/kernel/implicit_gemm_convolution.h:425",
      "include/cutlass/device_kernel.h:84"
     ],
     "frames_b": [
@@ -4834,7 +4838,7 @@
      "include/cutlass/epilogue/threadblock/predicated_tile_iterator.h:481",
      "include/cutlass/epilogue/threadblock/epilogue.h:534",
      "include/cutlass/epilogue/threadblock/epilogue.h:405",
-     "include/cutlass/gemm/kernel/gemm.h:351",
+     "include/cutlass/conv/kernel/implicit_gemm_convolution.h:425",
      "include/cutlass/device_kernel.h:84"
     ],
     "on": {
@@ -4852,8 +4856,8 @@
       "WAR"
      ],
      "syncs": [
-      "12080",
-      "12240"
+      "63056",
+      "63376"
      ],
      "n": 8
     },
@@ -4872,8 +4876,8 @@
       "WAR"
      ],
      "syncs": [
-      "12080",
-      "12240"
+      "63056",
+      "63376"
      ],
      "n": 8
     }
@@ -4885,12 +4889,13 @@
    "a": "include/cutlass/arch/memory.h:415",
    "b": "include/cutlass/arch/memory.h:415",
    "status": {
-    "CONFIRMED": 16
+    "CONFIRMED": 176
    },
-   "pairs": 16,
-   "kernels": 1,
+   "pairs": 176,
+   "kernels": 6,
    "classes": [
-    "Gemm"
+    "Gemm",
+    "ImplicitGemmConvolution"
    ],
    "race_types": [
     "WAW"
@@ -4900,44 +4905,45 @@
    ],
    "sass": [
     [
+     "@P1 STG.E.128 [R16.64], R24",
+     "@P1 STG.E.128 [R16.64], R24"
+    ],
+    [
+     "@P1 STG.E.128 [R16.64], R32",
+     "@P1 STG.E.128 [R16.64], R32"
+    ],
+    [
+     "@P1 STG.E.128 [R2.64], R16",
+     "@P1 STG.E.128 [R2.64], R16"
+    ],
+    [
+     "@P1 STG.E.128 [R6.64], R28",
+     "@P1 STG.E.128 [R6.64], R28"
+    ],
+    [
      "@P2 STG.E.128 [R10.64], R4",
      "@P2 STG.E.128 [R10.64], R4"
     ],
     [
-     "@P2 STG.E.128 [R20.64], R12",
-     "@P2 STG.E.128 [R20.64], R12"
-    ],
-    [
-     "@P2 STG.E.128 [R24.64], R4",
-     "@P2 STG.E.128 [R24.64], R4"
-    ],
-    [
-     "@P2 STG.E.128 [R34.64], R4",
-     "@P2 STG.E.128 [R34.64], R4"
-    ],
-    [
-     "@P2 STG.E.128 [R40.64], R4",
-     "@P2 STG.E.128 [R40.64], R4"
-    ],
-    [
-     "@P2 STG.E.128 [R8.64], R4",
-     "@P2 STG.E.128 [R8.64], R4"
+     "@P2 STG.E.128 [R2.64+0x100], R12",
+     "@P2 STG.E.128 [R2.64+0x100], R12"
     ]
    ],
    "parents": [
+    "main:cutlass-conv_device_tensorop_f32_sm70-all",
     "main:cutlass-gemm_device_tensorop_sm75-c01"
    ],
    "rep": {
-    "sid": "cutlass-gemm_device_tensorop_sm75-c01__k014",
-    "a_pc": 12880,
-    "b_pc": 12880,
+    "sid": "cutlass-conv_device_tensorop_f32_sm70-all__k000",
+    "a_pc": 63680,
+    "b_pc": 63680,
     "frames_a": [
      "include/cutlass/arch/memory.h:415",
      "include/cutlass/epilogue/threadblock/predicated_tile_iterator.h:447",
      "include/cutlass/epilogue/threadblock/predicated_tile_iterator.h:481",
      "include/cutlass/epilogue/threadblock/epilogue.h:534",
      "include/cutlass/epilogue/threadblock/epilogue.h:405",
-     "include/cutlass/gemm/kernel/gemm.h:351",
+     "include/cutlass/conv/kernel/implicit_gemm_convolution.h:425",
      "include/cutlass/device_kernel.h:84"
     ],
     "frames_b": [
@@ -4946,7 +4952,7 @@
      "include/cutlass/epilogue/threadblock/predicated_tile_iterator.h:481",
      "include/cutlass/epilogue/threadblock/epilogue.h:534",
      "include/cutlass/epilogue/threadblock/epilogue.h:405",
-     "include/cutlass/gemm/kernel/gemm.h:351",
+     "include/cutlass/conv/kernel/implicit_gemm_convolution.h:425",
      "include/cutlass/device_kernel.h:84"
     ],
     "on": {
@@ -4989,12 +4995,13 @@
    "a": "include/cutlass/semaphore.h:106",
    "b": "include/cutlass/semaphore.h:76",
    "status": {
-    "CONFIRMED": 2
+    "CONFIRMED": 12
    },
-   "pairs": 2,
-   "kernels": 1,
+   "pairs": 12,
+   "kernels": 6,
    "classes": [
-    "Gemm"
+    "Gemm",
+    "ImplicitGemmConvolution"
    ],
    "race_types": [
     "RAW",
@@ -5007,23 +5014,40 @@
     [
      "LDG.E.STRONG.GPU R135, [R156.64]",
      "STG.E.STRONG.GPU [R156.64], R3"
+    ],
+    [
+     "LDG.E.STRONG.GPU R2, [R60.64]",
+     "STG.E.STRONG.GPU [R60.64], R0"
+    ],
+    [
+     "LDG.E.STRONG.GPU R8, [R2.64]",
+     "STG.E.STRONG.GPU [R2.64], R5"
+    ],
+    [
+     "LDG.E.STRONG.GPU R8, [R4.64]",
+     "STG.E.STRONG.GPU [R2.64], R5"
+    ],
+    [
+     "LDG.E.STRONG.GPU R81, [R2.64]",
+     "STG.E.STRONG.GPU [R2.64], R5"
     ]
    ],
    "parents": [
+    "main:cutlass-conv_device_tensorop_f32_sm70-all",
     "main:cutlass-gemm_device_tensorop_sm75-c01"
    ],
    "rep": {
-    "sid": "cutlass-gemm_device_tensorop_sm75-c01__k014",
-    "a_pc": 9952,
-    "b_pc": 29344,
+    "sid": "cutlass-conv_device_tensorop_f32_sm70-all__k000",
+    "a_pc": 59792,
+    "b_pc": 79024,
     "frames_a": [
      "include/cutlass/semaphore.h:76",
-     "include/cutlass/gemm/kernel/gemm.h:306",
+     "include/cutlass/conv/kernel/implicit_gemm_convolution.h:371",
      "include/cutlass/device_kernel.h:84"
     ],
     "frames_b": [
      "include/cutlass/semaphore.h:106",
-     "include/cutlass/gemm/kernel/gemm.h:370",
+     "include/cutlass/conv/kernel/implicit_gemm_convolution.h:444",
      "include/cutlass/device_kernel.h:84"
     ],
     "on": {
@@ -5066,12 +5090,13 @@
    "a": "include/cutlass/semaphore.h:106",
    "b": "include/cutlass/semaphore.h:106",
    "status": {
-    "CONFIRMED": 1
+    "CONFIRMED": 6
    },
-   "pairs": 1,
-   "kernels": 1,
+   "pairs": 6,
+   "kernels": 6,
    "classes": [
-    "Gemm"
+    "Gemm",
+    "ImplicitGemmConvolution"
    ],
    "race_types": [
     "WAW"
@@ -5083,23 +5108,32 @@
     [
      "STG.E.STRONG.GPU [R156.64], R3",
      "STG.E.STRONG.GPU [R156.64], R3"
+    ],
+    [
+     "STG.E.STRONG.GPU [R2.64], R5",
+     "STG.E.STRONG.GPU [R2.64], R5"
+    ],
+    [
+     "STG.E.STRONG.GPU [R60.64], R0",
+     "STG.E.STRONG.GPU [R60.64], R0"
     ]
    ],
    "parents": [
+    "main:cutlass-conv_device_tensorop_f32_sm70-all",
     "main:cutlass-gemm_device_tensorop_sm75-c01"
    ],
    "rep": {
-    "sid": "cutlass-gemm_device_tensorop_sm75-c01__k014",
-    "a_pc": 29344,
-    "b_pc": 29344,
+    "sid": "cutlass-conv_device_tensorop_f32_sm70-all__k000",
+    "a_pc": 79024,
+    "b_pc": 79024,
     "frames_a": [
      "include/cutlass/semaphore.h:106",
-     "include/cutlass/gemm/kernel/gemm.h:370",
+     "include/cutlass/conv/kernel/implicit_gemm_convolution.h:444",
      "include/cutlass/device_kernel.h:84"
     ],
     "frames_b": [
      "include/cutlass/semaphore.h:106",
-     "include/cutlass/gemm/kernel/gemm.h:370",
+     "include/cutlass/conv/kernel/implicit_gemm_convolution.h:444",
      "include/cutlass/device_kernel.h:84"
     ],
     "on": {

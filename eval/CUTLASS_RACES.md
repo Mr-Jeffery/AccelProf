@@ -96,19 +96,19 @@ Per family. Sources: `summary/families.tsv` and `summary/groups_classified.tsv`.
 | simt | 297 | 12,247 | 12,247 | 0 | 0 | 0 | 18 | 5 | 9 | 4 | 0 | 0 |
 | simt-2stage | 1 | 64 | 64 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 |
 | tensorop-multistage-cpasync | 1 | 386 | 386 | 0 | 0 | 0 | 5 | 2 | 1 | 2 | 0 | 0 |
-| tensorop-sm70-sm75 | 510 | 18,963 | 18,963 | 0 | 0 | 0 | 7 | 3 | 2 | 2 | 0 | 0 |
+| tensorop-sm70-sm75 | 622 | 23,202 | 23,202 | 0 | 0 | 0 | 7 | 3 | 2 | 2 | 0 | 0 |
 | tensorop-sm80-multistage | 585 | 48,315 | 48,315 | 0 | 0 | 0 | 15 | 6 | 5 | 4 | 0 | 0 |
 | tensorop-sm80-variants | 100 | 3,267 | 3,267 | 0 | 0 | 0 | 12 | 4 | 4 | 4 | 0 | 0 |
-| **total** | **2,234** | **87,059** | **87,059** | **0** | **0** | **0** | **74** | **21** | **33** | **20** | **0** | **0** |
+| **total** | **2,346** | **91,298** | **91,298** | **0** | **0** | **0** | **74** | **21** | **33** | **20** | **0** | **0** |
 
-SM70-PENDING: tensorop-sm70-sm75 does not yet include conv_device_tensorop_f32_sm70 and gemm_device_tensorop_sm70 (see §6).
+The two sm70 binaries (conv_device_tensorop_f32_sm70, gemm_device_tensorop_sm70) were recorded and analyzed last (§5 item 7). They add 112 kernels (53 RACE, 59 CLEAN) and 4,239 pairs, all CONFIRMED, to tensorop-sm70-sm75. Every one of those pairs falls into the family's existing 7 groups; no new group and no UNCLASSIFIED group appeared (`summary/funnel.tsv`).
 
-- **Subset check.** It holds on every kernel: ON-ONLY is 0, and scalar-clock mode's report set equals collector-only mode's on all 2,234 kernels. Kernel verdicts are identical in the two modes:
-  - RACE: 658
-  - CLEAN: 1,574
+- **Subset check.** It holds on every kernel: ON-ONLY is 0, and scalar-clock mode's report set equals collector-only mode's on all 2,346 kernels. Kernel verdicts are identical in the two modes:
+  - RACE: 711
+  - CLEAN: 1,633
   - missing: 2 (reduction_device-c10 `__k000`/`__k001`, empty verdict CSV, see §6)
 - **Not (a)** (20 groups: 12 on `semaphore.h`, 8 on `barrier.h`). Pairs on the synchronization words themselves: `semaphore.h:76/106` and `barrier.h:104/124/175`. Both accesses are morally strong (`.acquire`/`.release`/atomic, gpu scope), so by §8.7.1 they are not a data race. cuVein reports them as SC for information.
-- **The 21 (a) candidates are one race.** They are 60,400 pc-level pairs, all of the S1b shape:
+- **The 21 (a) candidates are one race.** They are 64,304 pc-level pairs, all of the S1b shape:
   - the stream-K finisher's or reduction block's plain read of peer partials (`functional.h:134/177/202`, `complex.h:202`, `block_striped.h:165`)
   - against the peers' stores or atomic reduces (`block_striped.h:194`, `functional.h:943/963/992`)
   - in `GemmUniversalStreamk` instantiations of 6 families.
@@ -155,7 +155,7 @@ The CUTLASS 3.x sm90/sm100 stream-K schedulers use `wait_eq`/`wait_lt` and are n
 
 | cluster | candidates | mechanism | SASS construct | why the detector does not certify it |
 |---|---|---|---|---|
-| K: split-K serial epilogue under `cutlass::Semaphore` | `arch/memory.h:153×415`, `415×415`, `396×85`, `396×396`, `204×431`, `431×431`, `252×447`, `447×447`, `298×463`, `463×463`; `predicated_tile_iterator.h:447`; `epilogue_direct_store.h:260×268`, `268×268` 26 groups, 8,184 pc pairs: conv-sm80 10, epilogue-fusion 2, simt 8, tensorop-sm70-sm75 2, tensorop-sm80-multistage 2, tensorop-sm80-variants 2 | Slice k's epilogue writes D; slice k+1 reads D (beta source) and overwrites it. In between: `bar.sync` (`semaphore.h:102`), thread 0 `st.release.gpu` (:106); thread 0 of slice k+1 spins on `ld.acquire.gpu` (:76) inside `__syncthreads_and` (:92-93), then `__syncthreads` (:96). This is causality-ordered under PTX. | release: `BAR.SYNC; MEMBAR.ALL.GPU; ERRBAR; STG.E.STRONG.GPU`; acquire: `LDG.E.STRONG.GPU; CCTL.IVALL; BAR.RED.AND; BAR.SYNC` | R3 starts only from a PO-next RMW, and the Semaphore has no RMW (documented as assumption R3b, `instance_gate.md` §7). R1 is intra-CTA, and the barrier-only clock has no cross-CTA edge. |
+| K: split-K serial epilogue under `cutlass::Semaphore` | `arch/memory.h:153×415`, `415×415`, `396×85`, `396×396`, `204×431`, `431×431`, `252×447`, `447×447`, `298×463`, `463×463`; `predicated_tile_iterator.h:447`; `epilogue_direct_store.h:260×268`, `268×268` 26 groups, 8,504 pc pairs: conv-sm80 10, epilogue-fusion 2, simt 8, tensorop-sm70-sm75 2, tensorop-sm80-multistage 2, tensorop-sm80-variants 2 | Slice k's epilogue writes D; slice k+1 reads D (beta source) and overwrites it. In between: `bar.sync` (`semaphore.h:102`), thread 0 `st.release.gpu` (:106); thread 0 of slice k+1 spins on `ld.acquire.gpu` (:76) inside `__syncthreads_and` (:92-93), then `__syncthreads` (:96). This is causality-ordered under PTX. | release: `BAR.SYNC; MEMBAR.ALL.GPU; ERRBAR; STG.E.STRONG.GPU`; acquire: `LDG.E.STRONG.GPU; CCTL.IVALL; BAR.RED.AND; BAR.SYNC` | R3 starts only from a PO-next RMW, and the Semaphore has no RMW (documented as assumption R3b, `instance_gate.md` §7). R1 is intra-CTA, and the barrier-only clock has no cross-CTA edge. |
 | S1a: stream-K first peer's partials × later peers' atomic reduce | `block_striped.h:194 × functional.h:943/963/992` 7 groups, 17,616 pc pairs: simt 1, tensorop-multistage-cpasync 1, tensorop-sm80-multistage 3, tensorop-sm80-variants 2 | The first peer runs `__syncthreads`, then thread 0 runs `fence.acq_rel.gpu; red.relaxed.gpu` (`barrier.h:121-124`). The next peer's thread 0 spins on `ld.acquire.gpu` (`wait_eq`, :104/:161), then `__syncthreads` (:163). This is ordered under PTX. | `BAR.SYNC; MEMBAR.ALL.GPU; RED.E.ADD.STRONG.GPU` / `LDG.E.STRONG.GPU; CCTL.IVALL; BAR.SYNC` | A single elected thread releases and acquires for the CTA, and the acquire is a load, not an RMW. R3 finds no start or end point in the accessing threads, and `BAR.SYNC` is CTA-scope. |
 
 The per-group class of each candidate is in `eval/results/cutlass/summary/groups_classified.tsv`. Triage write-ups:
@@ -173,8 +173,50 @@ Source: `eval/results/cutlass/summary/per_binary.tsv`, from `x9.csv`. Column mea
 - **analysis s:** summed per-kernel analysis time of both halves.
 - **superseded:** recordings that timed out at 1,200 s or 5,400 s and were re-recorded at 5,400 s or split.
 - **final timeouts:** single tests that still exceed 5,400 s.
+- **total** row: sums, except max peak MB, which is the maximum.
 
-PER-BINARY-TABLE
+| binary | recordings | of them t5400 | wall s | max peak MB | kernels | launches | analysis s | superseded | final timeouts | no-kernel ids |
+|---|---|---|---|---|---|---|---|---|---|---|
+| conv_device_simt | 42 | 40 | 118,410 | 124,265 | 67 | 3,640 | 153,216 | 7 | 3 | 1 |
+| conv_device_tensorop_f16_sm80 | 10 | 7 | 18,287 | 95,802 | 21 | 1,128 | 18,461 | 3 | 0 | 0 |
+| conv_device_tensorop_f32_sm70 | 1 | 0 | 488 | 9,196 | 7 | 597 | 4,834 | 0 | 0 | 0 |
+| conv_device_tensorop_f32_sm75 | 4 | 0 | 1,437 | 7,725 | 24 | 1,964 | 19,003 | 0 | 0 | 0 |
+| conv_device_tensorop_f32_sm80 | 7 | 3 | 12,197 | 93,161 | 39 | 1,920 | 20,033 | 3 | 0 | 0 |
+| conv_device_tensorop_f32_tf32_sm80 | 13 | 11 | 14,489 | 110,151 | 22 | 898 | 13,360 | 2 | 0 | 0 |
+| conv_device_tensorop_f8_sm89 | 4 | 0 | 2,820 | 8,808 | 10 | 880 | 23,810 | 0 | 0 | 0 |
+| conv_device_tensorop_s32 | 1 | 0 | 1,184 | 10,421 | 9 | 792 | 5,097 | 0 | 0 | 0 |
+| conv_device_tensorop_s32_interleaved | 5 | 0 | 2,355 | 9,108 | 56 | 3,664 | 479,468 | 0 | 0 | 0 |
+| epilogue_thread | 1 | 0 | 2 | 944 | 4 | 4 | 14 | 0 | 0 | 0 |
+| epilogue_threadblock | 1 | 0 | 290 | 1,305 | 142 | 10,146 | 316,040 | 0 | 0 | 0 |
+| epilogue_warp | 1 | 0 | 2 | 323 | 0 | 0 | 0 | 0 | 0 | 1 |
+| gemm_device_blas3 | 9 | 6 | 17,516 | 5,261 | 278 | 5,490 | 346,955 | 3 | 0 | 0 |
+| gemm_device_blas3_gaussian | 1 | 0 | 274 | 3,399 | 6 | 114 | 300 | 0 | 0 | 0 |
+| gemm_device_broadcast | 1 | 0 | 150 | 2,148 | 3 | 3 | 21 | 0 | 0 | 0 |
+| gemm_device_gemm_with_fused_epilogue_tensorop | 3 | 0 | 1,147 | 4,616 | 13 | 3,460 | 174,335 | 0 | 0 | 0 |
+| gemm_device_grouped | 1 | 0 | 1,050 | 4,875 | 14 | 14 | 345 | 0 | 0 | 0 |
+| gemm_device_grouped_blas3 | 22 | 21 | 11,541 | 4,828 | 20 | 20 | 3,093 | 2 | 0 | 0 |
+| gemm_device_grouped_rank_2k_scheduler | 2 | 1 | 2,704 | 3,529 | 16 | 1,280 | 12,571 | 1 | 0 | 0 |
+| gemm_device_grouped_scheduler | 1 | 0 | 811 | 3,328 | 16 | 1,280 | 5,436 | 0 | 0 | 0 |
+| gemm_device_mixed_input_tensorop_sm80 | 1 | 0 | 441 | 7,671 | 37 | 824 | 50,614 | 0 | 0 | 0 |
+| gemm_device_simt | 2 | 0 | 482 | 5,481 | 211 | 1,976 | 80,903 | 0 | 0 | 0 |
+| gemm_device_simt_3x | 3 | 1 | 2,268 | 4,021 | 20 | 2,388 | 180,536 | 1 | 0 | 0 |
+| gemm_device_sparse_tensorop_sm80 | 1 | 0 | 118 | 3,816 | 21 | 168 | 4,625 | 0 | 0 | 0 |
+| gemm_device_tensorop_f16_sm80 | 1 | 0 | 30 | 2,338 | 4 | 48 | 110 | 0 | 0 | 0 |
+| gemm_device_tensorop_f32_sm80 | 4 | 0 | 2,070 | 11,729 | 268 | 3,848 | 282,525 | 0 | 0 | 0 |
+| gemm_device_tensorop_f32_sm80_3x | 12 | 11 | 12,303 | 36,226 | 9 | 1,161 | 87,132 | 2 | 1 | 0 |
+| gemm_device_tensorop_f32_tf32_sm80 | 1 | 0 | 1,065 | 10,791 | 118 | 2,136 | 191,964 | 0 | 0 | 0 |
+| gemm_device_tensorop_f64 | 2 | 1 | 2,505 | 10,337 | 51 | 830 | 38,313 | 1 | 0 | 0 |
+| gemm_device_tensorop_planar_complex | 2 | 0 | 840 | 3,448 | 12 | 3,024 | 28,881 | 0 | 0 | 0 |
+| gemm_device_tensorop_s32_sm80 | 1 | 0 | 399 | 7,425 | 124 | 1,440 | 38,618 | 0 | 0 | 0 |
+| gemm_device_tensorop_sm70 | 1 | 0 | 106 | 1,849 | 105 | 1,068 | 69,034 | 0 | 0 | 0 |
+| gemm_device_tensorop_sm75 | 2 | 0 | 340 | 1,915 | 234 | 3,391 | 69,809 | 0 | 0 | 0 |
+| gemm_device_tensorop_sm89 | 1 | 0 | 113 | 3,537 | 40 | 312 | 5,912 | 0 | 0 | 0 |
+| gemm_device_tensorop_sm89_blockwise | 1 | 0 | 2 | 975 | 2 | 2 | 3 | 0 | 0 | 0 |
+| gemm_device_wmma | 1 | 0 | 365 | 3,337 | 276 | 3,244 | 212,375 | 0 | 0 | 0 |
+| reduction_device | 13 | 0 | 1,525 | 4,174 | 40 | 11,756 | 583,037 | 0 | 0 | 0 |
+| reduction_kernel | 1 | 0 | 3 | 968 | 4 | 60 | 114 | 0 | 0 | 0 |
+| reduction_thread | 1 | 0 | 1 | 854 | 3 | 3 | 2 | 0 | 0 | 0 |
+| **total** | **181** | **102** | **232,130** | **124,265** | **2,346** | **74,973** | **3,520,899** | **25** | **4** | **2** |
 
 Final timeouts (TIMEOUT1). These single tests exceed 5,400 s under the tool and are not analyzed:
 - `conv_device_simt`:
@@ -209,7 +251,7 @@ Departures from the brief, and losses:
    - Excluded: the brief's list (c0–c2, c11–c13, c18, c21–c23, c34, c37, c46, c54) and c14, c15, c35, c36 (no CUDA 13.3).
    - From 11-03 17:15, c4–c47 (the Xeon Silver 4110 class, reserved for C6b by the coordinator), with an X9 ceiling of 7 nodes.
    - Recording and racecheck ran on GPU partitions `rtx4060ti16g,rtx4060ti8g`. The green set (0b) ran on a GPU node because it records GPU fixtures.
-7. **The two sm70 binaries were not recorded with the rest** (an omission found at the end). SM70-PENDING.
+7. **The two sm70 binaries were not recorded with the rest** (an omission found at the end). They were recorded on 11-06 (jobs 328440 gemm_device_tensorop_sm70-all, 1,068 launches, 105 kernel names; 328441 conv_device_tensorop_f32_sm70-all, 597 launches, 7 kernel names) and analyzed by 328449 (c60, 2:44:28) and 328456 (c57, 0:36:26), both COMPLETED. Their results are in every table above.
 
 ## §6 What remains unverified
 
@@ -221,9 +263,8 @@ Departures from the brief, and losses:
   - the 4 TIMEOUT1 tests
   - the 42 grouped_blas3 tests outside the suite sample
   - `conv_device_simt-c00s03s01` (0 kernels under the tool)
-  - SM70-PENDING
 - **reduction_device-c10 `__k000`/`__k001`.** Their verdict CSVs are empty, because the job was cut off while writing. Their pair files exist and show 0 pairs in both halves. The verdict column of `x9.csv` says `missing` for those 4 rows.
-- **Launch counts.** For kernels with no pairs the pair file has no launch count. `x9.csv` takes the count from the sub-store's kernel JSONs where it was counted, and otherwise says `missing`.
+- **Launch counts.** For the 104 kernels with no pairs the pair file has no launch count. `x9.csv` takes it from the sub-store's `meta.json` (`x9_split.launches`, equal to its count of kernel JSONs on all 104; `summary/launches_from_substores.tsv`). No launch count is missing.
 - **sm_90a kernels** (103 test files): not built, not run.
 - **"Already known?" coverage.** Limited to the queries listed in `known_fixes.md` and the dossier §10. Some large GitHub result sets were only partly read.
 - **The verifier did not re-run the GPU experiments.** It re-derived the source and PTX argument; the run results are as the dossier reports them.
