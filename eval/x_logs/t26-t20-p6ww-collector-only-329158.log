@@ -1,0 +1,35 @@
+host=c3 gpu=[NVIDIA GeForce RTX 4060 Ti, 8.9, 615.71.09] cpu=[AMD EPYC 9115 16-Core Processor] nproc=16 mem=125G job=329158 mode=collector-only cfgs=[I0 Ic A B Bc] replays=[inst n1 n16 n16t] cap=1200s skip=[P7-particlefilter-cuda] 2026-11-07T13:52:35-05:00
+installed: libsanalyzer 5a20fd14ab6c6806 collector b746b4dd23e90f46 HEAD f551ca00947e
+new: libsanalyzer 31e4d53d367e693b collector 86473afa906669e5 worktree HEAD 98371ee1db65 dirty 5
+capture: shim 13af2850be2309d2 collector 32c379841cc17fc2 replay 0a53adee05384d95
+fatbin a2d7368bc1c61986
+store=/mnt/beegfs/fzheng4/t26/t20-collector-only-329158 work=/tmp/fzheng4-t26-t20-collector-only-329158 (763G free)
+== P6-interkernel-global_writewrite_race-racy 2026-11-07T13:52:36-05:00
+  live I0 (154 s): rc=0 timed_out=False wall=153.177 kernels=2 records=None workers=1
+  live Ic (170 s): rc=0 timed_out=False wall=169.045 kernels=2 records=None workers=1
+  live A (152 s): rc=0 timed_out=False wall=151.876 kernels=2 records=None workers=1
+  live B (153 s): rc=0 timed_out=False wall=151.477 kernels=2 records=None workers=16
+  live Bc (169 s): rc=0 timed_out=False wall=168.097 kernels=2 records=None workers=16
+  Ic capture 5206250981 bytes
+  replay Ic inst: [t26_replay] Ic/P6-interkernel-global_writewrite_race-racy/cap.2624348.bin: 2 kernels, 52 drains, 106250002 records, 19.632 s rc=0 
+  replay Ic n1: [t26_replay] Ic/P6-interkernel-global_writewrite_race-racy/cap.2624348.bin: 2 kernels, 52 drains, 106250002 records, 11.116 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P6-interkernel-global_writewrite_race-racy/cap.2624348.bin: 2 kernels, 52 drains, 106250002 records, 20.043 s rc=0 
+  replay Ic n16t: [t26_replay] Ic/P6-interkernel-global_writewrite_race-racy/cap.2624348.bin: 2 kernels, 52 drains, 106250002 records, 20.284 s rc=0 
+  Bc capture 5206250981 bytes
+  replay Bc inst: [t26_replay] Bc/P6-interkernel-global_writewrite_race-racy/cap.2626630.bin: 2 kernels, 52 drains, 106250002 records, 19.080 s rc=0 
+  replay Bc n1: [t26_replay] Bc/P6-interkernel-global_writewrite_race-racy/cap.2626630.bin: 2 kernels, 52 drains, 106250002 records, 10.754 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P6-interkernel-global_writewrite_race-racy/cap.2626630.bin: 2 kernels, 52 drains, 106250002 records, 19.883 s rc=0 
+  replay Bc n16t: [t26_replay] Bc/P6-interkernel-global_writewrite_race-racy/cap.2626630.bin: 2 kernels, 52 drains, 106250002 records, 20.043 s rc=0 
+P6-interkernel-global_writewrite_race-racy fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-interkernel-global_writewrite_race-racy same-stream: Ic installed -n1 vs new n1 EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-interkernel-global_writewrite_race-racy same-stream: Ic installed -n1 vs new n16 EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-interkernel-global_writewrite_race-racy same-stream: Ic installed -n1 vs new n16t EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-interkernel-global_writewrite_race-racy same-stream: Bc installed -n1 vs new n1 EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-interkernel-global_writewrite_race-racy same-stream: Bc installed -n1 vs new n16 EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-interkernel-global_writewrite_race-racy same-stream: Bc installed -n1 vs new n16t EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-interkernel-global_writewrite_race-racy same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-interkernel-global_writewrite_race-racy live: I0 installed -n1 vs A new N=1 EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-interkernel-global_writewrite_race-racy live: I0 installed -n1 vs B new N=16 EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-interkernel-global_writewrite_race-racy live control: I0 installed -n1 vs Ic installed -n1 EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+== 1 ids 2026-11-07T14:08:18-05:00
+== done 2026-11-07T14:08:18-05:00

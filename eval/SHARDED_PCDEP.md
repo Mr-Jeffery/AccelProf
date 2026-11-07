@@ -105,17 +105,21 @@ fixtures, not the runtime; job 329125): **21 passed**.
 | | | fidelity / new live N=16 vs installed on its records | 63/64, 63/64 | 502/502, 501/501 |
 | T20 ids, scalar-clock, X1b settings (job 329115, c56) | 64 × 2 | installed `-n 1` vs new N=16 | 64/64, 64/64 | 505/505, 504/504 |
 | | | fidelity / new live N=16 vs installed on its records | 63/64, 63/64 | 504/504, 503/503 |
-| T20 ids, vector-clock (job 329116, c71; **51 of 64 ids at commit time**) | 51 × 2 | installed `-n 1` vs new N=16 | 51/51, 51/51 | 397/397, 397/397 |
-| | | fidelity / new live N=16 vs installed on its records | 50/51, 50/51 | 396/396, 396/396 |
+| T20 ids, vector-clock (job 329116, c71) | 64 × 2 | installed `-n 1` vs new N=16 | 64/64, 64/64 | 490/490, 490/490 |
+| | | fidelity / new live N=16 vs installed on its records | 62/64, 62/64 | 476/476, 476/476 |
+| P6-interkernel-ww, 1,200 s re-recording (jobs 329158–329160) | 1 × 2 per mode | every check above, all three modes, live included | 3/3 modes | 2/2 kernels each |
 | synthetic streams (`synth.py`, 6 seeds × 5 kernels × 150,000 records; job 329103, CPU) | 6 × 2 pools | installed `-n 1` vs new N=1, 2, 3, 7, 16, 64, 16 threaded | 84/84 | 420/420 |
 
-The one program short in every "fidelity / live vs its records" row is P6-interkernel-global_writewrite_race-racy: every
+The program short in every "fidelity / live vs its records" row of the 64-id sets is P6-interkernel-global_writewrite_race-racy: every
 configuration's live run, installed included, hit the harness's tool timeout of 120 s (`parallel.py collect` does not
 pass `--timeout-floor` on; the timeout is min(max(10 × native, 120), cap)), so the live side has no kernel JSON while the
 replay of the partial stream writes one. Its same-stream rows (installed vs new on that partial stream) are equal. A
-re-run with a true 1,200 s tool timeout (`LIVE=direct`, `t26_parity/live_one.py`; jobs 329158/9/60) was **still running at
-commit time**. In vector-clock mode P7-bfs-cuda's live runs also stopped at 120 s (13 kernels); its 13-kernel streams
-compare equal. P7-particlefilter-cuda is not in any set: C1 recorded it as TIMEOUT at 1,200 s (7.3·10⁹ records; a capture
+re-run with a true 1,200 s tool timeout (`LIVE=direct`, `t26_parity/live_one.py`; jobs 329158/9/60) completed in every
+configuration (151–177 s per run, 2 kernels, 5.2 GB streams) and is byte-identical on every check in all three modes, the
+live comparisons and the installed-vs-installed control included. In vector-clock mode P7-bfs-cuda's live runs also
+stopped at the 120 s cutoff (13 of 24 kernels), which is the second short program in the vector-clock row; its 13-kernel
+streams compare equal. Its 1,200 s vector-clock re-run (job 329231) was cancelled on request before it finished: complete
+vector-clock recordings of P7-bfs-cuda are **missing**. P7-particlefilter-cuda is not in any set: C1 recorded it as TIMEOUT at 1,200 s (7.3·10⁹ records; a capture
 would be ~2 TB). The synthetic streams cover: global lanes misaligned, crossing 128-byte segments, out of region past a
 first in-region lane, untracked and freed-region addresses, access sizes 0–32, repeat lanes; shared offsets past a 4,096-byte
 object and wrapping 2³²; a 32-object pool with misses and reuse (and the default pool); block ids above 2²²; an unknown
@@ -128,7 +132,7 @@ record type (366–376 "unknown memory type" lines, the same count from both lib
 | fixtures, 22 programs | 17 equal, 5 differ | 17 equal, 5 differ | 17 equal, 5 differ (the same 5) |
 | T20 ids collector-only, 64 | 26 equal, 37 differ, 1 none | 27 equal, 36 differ, 1 none | 26 equal, 37 differ, 1 none |
 | T20 ids scalar-clock, 64 | — | 27 equal, 36 differ, 1 none (installed run through the shim vs new) | — |
-| T20 ids vector-clock, 51 so far | — | 9 equal, 41 differ, 1 none | — |
+| T20 ids vector-clock, 64 | — | 13 equal, 49 differ, 2 none (P6-interkernel, P7-bfs: 120 s cutoff) | — |
 
 Kernels byte-identical in the collector-only rows: 110/497 (N=1), 113/497 (N=16), 109/498 (control). The fixtures that
 differ are `broadcast_read`, `flag_writers`, `lock_contention_a2`, `grid_workqueue`, `tiled_gemm`: multi-warp kernels whose
@@ -169,7 +173,7 @@ sbatch -o <W>/eval/x_logs/t26-fix-%j.log  <W>/eval/baselines/setup/t26_parity/fi
 sbatch -o <W>/eval/x_logs/t26-synth-%j.log <W>/eval/baselines/setup/t26_parity/synth.sh
 for m in collector-only scalar-clock vector-clock; do
   sbatch --export=ALL,MODE=$m -o <W>/eval/x_logs/t26-t20-$m-%j.log <W>/eval/baselines/setup/t26_parity/t20.sh; done
-for m in collector-only scalar-clock vector-clock; do
+for m in collector-only scalar-clock vector-clock; do      # P7-bfs-cuda vector-clock likewise: job 329231, cancelled
   sbatch --export=ALL,MODE=$m,LIVE=direct,IDS=P6-interkernel-global_writewrite_race-racy,CAP=1200 \
     -o <W>/eval/x_logs/t26-t20-p6ww-$m-%j.log <W>/eval/baselines/setup/t26_parity/t20.sh; done
 .env/bin/python eval/baselines/setup/t26_parity/summarize.py eval/x_logs/t26-t20-*.log
@@ -180,8 +184,7 @@ sbatch -o <W>/eval/x_logs/t26-time-%j.log <W>/eval/baselines/setup/t26_parity/ti
 
 ## 6. What remains unverified
 
-- Vector-clock parity on the last 13 T20 ids, and P6-interkernel-ww's complete (1,200 s) recordings in all three modes:
-  running at commit time (jobs 329116, 329158–329160); to be added in a follow-up commit.
+- P7-bfs-cuda in vector-clock mode: complete recordings missing (120 s harness cutoff; the 1,200 s re-run was cancelled).
 - P7-particlefilter-cuda: not compared (TIMEOUT at 1,200 s in C1; capture size).
 - The green set runs the tests' `accelprof -n 1` only; N=16 is covered by the fixture, T20 and synthetic parity, not by
   the pytest assertions.
