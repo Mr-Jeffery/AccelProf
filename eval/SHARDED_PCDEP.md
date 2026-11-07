@@ -194,3 +194,71 @@ sbatch -o <W>/eval/x_logs/t26-time-%j.log <W>/eval/baselines/setup/t26_parity/ti
 - The live parity jobs ran the installed and new runtimes through the capture shim in the "c" configurations (Ic, Bc);
   the plain runtimes were run as I0, A, B (collector-only only).
 - Performance: routing on the drain thread is the N=16 bottleneck (4.4); X12's wall times are measured by X12.
+
+## 7. X12 follow-up: SuperCollider's native HeCBench binaries (parity gate)
+
+X12 recorded SuperCollider's native binaries in collector-only mode at N=16 and compared them with X11's three `-n 1` recordings. crs, fpc, mr and dxtc2 differed, so I checked whether the pass is at fault, using the same capture/replay method as in section 4.
+
+**Setup.** `t26_parity/sc.sh` runs inside X12's container (`ubuntu2204.sif`) with the same setup X12 used:
+- a shadow ACCEL_PROF_HOME whose `bin/accelprof` also preloads `libcudart.so.13`;
+- X12's run tree (`x12_mktree.py`), with arguments taken from `artifact_subset.json`;
+- `accelprof -v`.
+
+Each program is recorded once through the capture shim (installed library, `-n 1`). On the host, that stream is replayed through the installed library at `-n 1` and through the new library at N=1, N=16 and N=16 with every drain threaded. `KMAX_<app>=k` limits the capture to the first k kernels; this sets the shim's new `CAP_MAX_KERNELS` option.
+
+**Same-stream results** (jobs 329305 and 329320; shim e1a01cdd4f0cf5de):
+
+| program | kernels | records | new N=1 | new N=16 | new N=16t | fidelity |
+|---|---|---|---|---|---|---|
+| mr | 16 | 845,192 | EQUAL | EQUAL | EQUAL | EQUAL |
+| crs | 50 | 9,864,919 | EQUAL | EQUAL | EQUAL | EQUAL |
+| fpc | 202 | 145,620,992 | EQUAL | EQUAL | EQUAL | EQUAL |
+| dxtc2, first 10 kernels | 10 | 49,501,310 | EQUAL | EQUAL | EQUAL | EQUAL |
+
+EQUAL means byte-identical on every kernel. Fidelity compares the installed replay with the live run that produced the stream. The full dxtc2 stream (about 150 GB) was not captured; that job was cancelled.
+
+**Live context.** The live installed `-n 1` run made through the shim differs from X11 r1/r2/r3 about as much as those three differ from each other:
+
+| program | edges changed vs X11 | edges changed between X11 runs |
+|---|---|---|
+| crs | 443–447 | 445–446 |
+| fpc | 399–403 | 402–403 |
+| mr | 246–248 | 247–248 |
+
+**Runtime checks** (from the metas):
+- X12 (crs, fpc, mr, dxtc2): `workers=16`, `analyzer_workers=16`, libsanalyzer 31e4d53d367e693b, collector 86473afa906669e5.
+- X12's crs control: libsanalyzer 5a20fd14ab6c6806, `workers=1`.
+- X11 r1–r3: libsanalyzer 5a20fd14ab6c6806, collector b746b4dd23e90f46 (the installed runtime).
+- Drained-record counts are equal across all of them.
+
+**Why `intra_block` and `intra_grid` move between runs.** Each 4-byte shadow word stores the thread that touched it last, packed as tid = ctaId<<10 | warpId<<5 | lane. `pcd_classify` compares the current access with that stored thread:
+- a different `ctaId` counts as `intra_grid`;
+- the same `ctaId` but a different `warpId` counts as `intra_block`;
+- the same warp but a different lane counts as `intra_warp`;
+- otherwise it counts as `intra_thread`.
+
+In pc_dependency, `ctaId` is `get_ctaid_as_uint64()` and `warpId` is flat threadIdx/32, so both are logical ids, fixed per access. Which thread came last depends on record order, which is the order in which warps take buffer slots (`GetBufferIndex`, an atomic). That order differs from run to run. When the interleaved accesses share a PC pair, only the split between `intra_block` and `intra_grid` changes (crs, fpc). When different PCs interleave, the ancient PC changes as well, so per-edge totals move too (mr, dxtc2).
+
+Routing and shard order have no effect. Each word has exactly one owning shard, that shard applies the word's entries in drain order, and per-shard counts are integer sums.
+
+**Gate for X12 (two parts).**
+- **G1, the pass.** Every `same-stream` line must be EQUAL; any DIFFER is a pass bug. Run:
+  `APPS="<apps>" [KMAX_knn=20 KMAX_tridiagonal=50] sbatch -o eval/x_logs/t26-sc-%j.log eval/baselines/setup/t26_parity/sc.sh`
+  - Captures take about 300 B per record on the node's /tmp, which has about 760 GB free.
+  - knn (11.8 G records) and tridiagonal (5.6 G records) therefore need a kernel prefix.
+  - atomicCAS and expdist (about 390 GB each) fit, one at a time.
+  - G1 has not yet been run for gpp, overlap, expdist, knn, tridiagonal or atomicCAS.
+- **G2, the live recordings.** Run:
+  `t26_parity/live_gate.py --label <app> --base <X11 r1> <r2> <r3> --new <rep1> <rep2> <rep3>`
+  - The checks are: exact bytes, node set, edge set, per-edge totals, grand total, and drained records.
+  - A check is enforced only if all baseline runs satisfy it on every kernel of the program.
+  - A per-kernel rule overfits: X11's dxtc2 runs gain or lose a rare edge on 11 of 100 kernels, and other runs do so on other kernels.
+  - Results on X12's 3 reps, all PASS:
+    - gpp, overlap: every check enforced.
+    - crs, fpc: every check except exact enforced.
+    - mr: nodes, edges and grand total enforced.
+    - dxtc2: nodes and grand total enforced.
+  - A G2 FAIL is decided by G1 for that program, not waived.
+  - For Indigo3 against C1, G2 needs at least 2 C1 recordings per id (parity-a, parity-b, main). Ids with a single recording get G1 on a sample instead.
+
+Logs: `eval/x_logs/t26-sc-dbg-329305.log` (mr), `t26-sc-329320.log`, `t26-build-cap-kmax-329319.log`. Store: `/mnt/beegfs/fzheng4/t26/sc-{329305,329320}`.

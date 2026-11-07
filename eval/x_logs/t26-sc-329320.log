@@ -1,0 +1,59 @@
+host=c3 gpu=[NVIDIA GeForce RTX 4060 Ti, 8.9, 615.71.09] cpu=[AMD EPYC 9115 16-Core Processor] nproc=16 job=329320 apps=[crs fpc dxtc2] 2026-11-07T15:35:20-05:00
+installed: libsanalyzer 5a20fd14ab6c6806 collector b746b4dd23e90f46 HEAD f551ca00947e
+new: libsanalyzer 31e4d53d367e693b collector 86473afa906669e5 worktree HEAD 4400cdbbc09d dirty 1
+capture: shim e1a01cdd4f0cf5de collector 32c379841cc17fc2 replay 0a53adee05384d95
+fatbin a2d7368bc1c61986
+store=/mnt/beegfs/fzheng4/t26/sc-329320 work=/tmp/t26-sc-329320 (662G free)
+accelprof lines changed: 1 lib -> /home/fzheng4/stage-t26/cap-rt-lib
+LD_LIBRARY_PATH=/opt/ohpc/pub/compiler/gcc/12.4.0/lib64:/usr/local/cuda-13.3/compute-sanitizer:/usr/local/cuda-13.3/lib64:/.singularity.d/libs
+crs 9ce51242f7e82946
+fpc 0d2e11009576ef0e
+dxtc2 0269ca63f76a237d
+== crs: args [1 1] rc=0 wall=11748 ms kernels=50 binary=9ce51242f7e82946 captures=1 bytes=2892925938
+   [t26-capture] 50 drains, 9864919 records
+== fpc: args [256 100] rc=0 wall=130991 ms kernels=202 binary=0d2e11009576ef0e captures=1 bytes=33373754017
+   [t26-capture] 202 drains, 145620992 records
+== dxtc2: args [../dxtc2-sycl/data/lena_std.ppm ../dxtc2-sycl/data/lena_ref.dds 100] CAP_MAX_KERNELS=10 rc=0 wall=137323 ms kernels=100 binary=0269ca63f76a237d captures=1 bytes=10778374724
+   [t26-capture] stream closed after 10 kernels (CAP_MAX_KERNELS): 30 drains, 49501310 records
+== capture done rc=0 2026-11-07T15:40:03-05:00
+== crs 2026-11-07T15:40:03-05:00
+  capture 2892925938 bytes (1 files, largest replayed)
+  replay inst: [t26_replay] crs/cap.2676893.bin: 50 kernels, 50 drains, 9864919 records, 4.089 s [t26_replay] library 1.153 s: drains 1.134 s, kernel ends 0.010 s, other calls 0.009 s rc=0 
+  replay n1: [t26_replay] crs/cap.2676893.bin: 50 kernels, 50 drains, 9864919 records, 3.108 s [t26_replay] library 0.630 s: drains 0.603 s, kernel ends 0.011 s, other calls 0.016 s rc=0 
+  replay n16: [t26_replay] crs/cap.2676893.bin: 50 kernels, 50 drains, 9864919 records, 3.498 s [t26_replay] library 0.592 s: drains 0.554 s, kernel ends 0.013 s, other calls 0.025 s rc=0 
+  replay n16t: [t26_replay] crs/cap.2676893.bin: 50 kernels, 50 drains, 9864919 records, 3.579 s [t26_replay] library 0.576 s: drains 0.538 s, kernel ends 0.013 s, other calls 0.025 s rc=0 
+crs same-stream: installed -n1 vs new n1 EQUAL kernels=50 bytes_equal=50 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+crs same-stream: installed -n1 vs new n16 EQUAL kernels=50 bytes_equal=50 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+crs same-stream: installed -n1 vs new n16t EQUAL kernels=50 bytes_equal=50 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+crs fidelity: installed replay vs live (installed -n1 via shim) EQUAL kernels=50 bytes_equal=50 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+crs context: X11 r1 vs this live run DIFFER kernels=50 bytes_equal=0 differ=50 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=443 dist_count_diffs=925 nodes_differ=0
+crs context: X11 r2 vs this live run DIFFER kernels=50 bytes_equal=0 differ=50 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=445 dist_count_diffs=929 nodes_differ=0
+crs context: X11 r3 vs this live run DIFFER kernels=50 bytes_equal=0 differ=50 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=447 dist_count_diffs=934 nodes_differ=0
+crs context: X11 r1 vs r2 DIFFER kernels=50 bytes_equal=0 differ=50 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=445 dist_count_diffs=929 nodes_differ=0
+crs context: X11 r1 vs r3 DIFFER kernels=50 bytes_equal=0 differ=50 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=446 dist_count_diffs=932 nodes_differ=0
+== fpc 2026-11-07T15:40:20-05:00
+  capture 33373754017 bytes (1 files, largest replayed)
+  replay inst: [t26_replay] fpc/cap.2676992.bin: 202 kernels, 202 drains, 145620992 records, 46.765 s [t26_replay] library 19.443 s: drains 19.377 s, kernel ends 0.026 s, other calls 0.040 s rc=0 
+  replay n1: [t26_replay] fpc/cap.2676992.bin: 202 kernels, 202 drains, 145620992 records, 40.051 s [t26_replay] library 10.291 s: drains 9.797 s, kernel ends 0.021 s, other calls 0.473 s rc=0 
+  replay n16: [t26_replay] fpc/cap.2676992.bin: 202 kernels, 202 drains, 145620992 records, 49.545 s [t26_replay] library 16.491 s: drains 15.889 s, kernel ends 0.029 s, other calls 0.573 s rc=0 
+  replay n16t: [t26_replay] fpc/cap.2676992.bin: 202 kernels, 202 drains, 145620992 records, 49.278 s [t26_replay] library 16.595 s: drains 15.987 s, kernel ends 0.030 s, other calls 0.578 s rc=0 
+fpc same-stream: installed -n1 vs new n1 EQUAL kernels=202 bytes_equal=202 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+fpc same-stream: installed -n1 vs new n16 EQUAL kernels=202 bytes_equal=202 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+fpc same-stream: installed -n1 vs new n16t EQUAL kernels=202 bytes_equal=202 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+fpc fidelity: installed replay vs live (installed -n1 via shim) EQUAL kernels=202 bytes_equal=202 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+fpc context: X11 r1 vs this live run DIFFER kernels=202 bytes_equal=1 differ=201 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=399 dist_count_diffs=798 nodes_differ=0
+fpc context: X11 r2 vs this live run DIFFER kernels=202 bytes_equal=0 differ=202 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=403 dist_count_diffs=806 nodes_differ=0
+fpc context: X11 r3 vs this live run DIFFER kernels=202 bytes_equal=0 differ=202 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=400 dist_count_diffs=800 nodes_differ=0
+fpc context: X11 r1 vs r2 DIFFER kernels=202 bytes_equal=0 differ=202 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=403 dist_count_diffs=806 nodes_differ=0
+fpc context: X11 r1 vs r3 DIFFER kernels=202 bytes_equal=0 differ=202 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=402 dist_count_diffs=804 nodes_differ=0
+== dxtc2 2026-11-07T15:43:30-05:00
+  capture 10778374724 bytes (1 files, largest replayed)
+  replay inst: [t26_replay] dxtc2/cap.2677251.bin: 10 kernels, 30 drains, 49501310 records, 18.717 s [t26_replay] library 9.441 s: drains 9.423 s, kernel ends 0.018 s, other calls 0.000 s rc=0 
+  replay n1: [t26_replay] dxtc2/cap.2677251.bin: 10 kernels, 30 drains, 49501310 records, 14.599 s [t26_replay] library 4.829 s: drains 4.811 s, kernel ends 0.018 s, other calls 0.000 s rc=0 
+  replay n16: [t26_replay] dxtc2/cap.2677251.bin: 10 kernels, 30 drains, 49501310 records, 12.152 s [t26_replay] library 1.712 s: drains 1.686 s, kernel ends 0.025 s, other calls 0.000 s rc=0 
+  replay n16t: [t26_replay] dxtc2/cap.2677251.bin: 10 kernels, 30 drains, 49501310 records, 12.394 s [t26_replay] library 1.723 s: drains 1.697 s, kernel ends 0.025 s, other calls 0.000 s rc=0 
+dxtc2 same-stream: installed -n1 vs new n1 EQUAL kernels=10 bytes_equal=10 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+dxtc2 same-stream: installed -n1 vs new n16 EQUAL kernels=10 bytes_equal=10 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+dxtc2 same-stream: installed -n1 vs new n16t EQUAL kernels=10 bytes_equal=10 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+dxtc2 fidelity: installed replay vs live first 10 kernels (installed -n1 via shim) EQUAL kernels=10 bytes_equal=10 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+== done 2026-11-07T15:44:29-05:00

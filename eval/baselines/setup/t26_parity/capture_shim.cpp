@@ -5,7 +5,8 @@
 // with its records -- are written in call order to CAP_DIR/cap.<pid>.bin (replay.cpp reads it). A
 // GPU re-recording is another execution; one captured stream fed to two libraries is the same one.
 // Records keep every field the analyzer reads; addresses are kept for the lanes in
-// active_mask | unique_address_mask (the only lanes either pass reads). Nothing in the analyzer or
+// active_mask | unique_address_mask (the only lanes either pass reads). CAP_MAX_KERNELS=k ends the
+// stream after the k-th kernel end (a prefix). Nothing in the analyzer or
 // the collector is changed: the shim sits between them.
 #include "sanalyzer.h"
 
@@ -43,7 +44,7 @@ std::mutex mu;
 void* real = nullptr;
 FILE* out = nullptr;
 bool tried = false;
-unsigned long long drains = 0, records = 0;
+unsigned long long drains = 0, records = 0, kends = 0;
 
 void* sym(const char* name) {
     if (real == nullptr) {
@@ -175,7 +176,19 @@ YosemiteResult_t yosemite_kernel_end_callback(std::string kernel_name, int devic
          "_Z28yosemite_kernel_end_callbackNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEi");
     {
         std::lock_guard<std::mutex> l(mu);
-        if (FILE* f = file()) { tag(f, 'E'); put_str(f, kernel_name); put(f, device_id); std::fflush(f); }
+        if (FILE* f = file()) {
+            tag(f, 'E'); put_str(f, kernel_name); put(f, device_id); std::fflush(f);
+            // CAP_MAX_KERNELS=k: the stream ends after the k-th kernel end (a prefix of the run, for programs
+            // whose whole stream does not fit on disk); the run itself goes on, forwarded as before
+            static const long max_k = [] { const char* e = std::getenv("CAP_MAX_KERNELS"); return e ? std::atol(e) : 0L; }();
+            if (max_k > 0 && ++kends >= static_cast<unsigned long long>(max_k)) {
+                tag(f, 'X'); std::fflush(f);
+                fprintf(stderr, "[t26-capture] stream closed after %llu kernels (CAP_MAX_KERNELS): %llu drains, %llu records\n",
+                        kends, drains, records);
+                std::fclose(f);
+                out = nullptr;   // tried stays true: nothing more is written
+            }
+        }
     }
     return fn(kernel_name, device_id);
 }
