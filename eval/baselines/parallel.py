@@ -737,7 +737,7 @@ def analyze_one(idir, writer, confirm_dir, analysis_cap=0, analysis_mem=-1,
                 notes = f"cap={meta['tool_timeout_cap']};{notes}"
             notes += tnote                                 # X7 (A1)
             if meta.get("workers") is not None:            # X12: the analyzer worker count of the recording
-                notes += f";workers={meta[workers]}"
+                notes += f";workers={meta['workers']}"
             writer.writerow(blib.row(
                 **common, mode=mode, rep=rep, verdict=verdict, reports_dedup=nd,
                 report_ids=ri, report_lines=rl, wall_s=rm.get("wall"),
