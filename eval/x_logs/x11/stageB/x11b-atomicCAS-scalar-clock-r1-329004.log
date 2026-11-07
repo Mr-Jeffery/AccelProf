@@ -1,0 +1,7 @@
+host=c1 gpu=[NVIDIA GeForce RTX 4060 Ti, 8.9, 580.82.07] cpu=[AMD EPYC 9115 16-Core Processor] mem=125G job=329004 app=atomicCAS tool=scalar-clock run=1 2026-11-07T11:22:41-05:00
+in-container: Ubuntu 22.04.5 LTS glibc=2.35 tool=scalar-clock app=atomicCAS run=1
+runtime /home/fzheng4/AccelProf HEAD=f551ca00947e harness /home/fzheng4/wt-x1b HEAD=94fde7322c25 nvcc=Build cuda_13.3.r13.3/compiler.38244171_0 sanitizer=Version 2026.2.1.0 (build 38334959) (public-release)
+atomicCAS 290014e58fa3adf3
+accelprof lines changed: 1
+hb_shards(scalar-clock)=16 hb_dump=0 mode=scalar-clock
+[collect] X11-atomicCAS cap=84600s modes=scalar-clock store=/mnt/beegfs/fzheng4/cuvein_traces/x11b-scalar-clock-atomicCAS-r1

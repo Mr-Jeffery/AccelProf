@@ -1,0 +1,34 @@
+	libstdc++.so.6 => /opt/ohpc/pub/compiler/gcc/12.4.0/lib64/libstdc++.so.6 (0x00007ff22c800000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007ff22c1d7000)
+--- plain
+ Final achtemp
+( -0.096066, 11.431852) 
+********** Total Time Taken **********= 0.182643 secs
+--- preload
+[SANALYZER ERROR] No tool name specified.
+Sizeof(CustomComplex<dataType> = 16 bytes
+number_bands = 512	 nvband = 2	 ncouls = 512	 nodes_per_group  = 20	 ngpown = 25	 nend = 3	 nstart = 0
+[SANITIZER INFO] Context 0x7ffd3ddf4fe0 creation starting on device 0x7ffd3ddf4ff0
+[SANITIZER INFO] Stream 0x7ffd3ddf4f10 created on context 0x7ffd3ddf4f00
+[SANITIZER INFO] Stream 0x7ffd3ddf4f10 created on context 0x7ffd3ddf4f00
+[SANITIZER INFO] Stream 0x7ffd3ddf4f10 created on context 0x7ffd3ddf4f00
+[SANITIZER INFO] Stream 0x7ffd3ddf4f10 created on context 0x7ffd3ddf4f00
+[SANITIZER INFO] Stream 0x7ffd3ddf4f10 created on context 0x7ffd3ddf4f00
+[SANITIZER INFO] Stream 0x7ffd3ddf4f10 created on context 0x7ffd3ddf4f00
+[SANITIZER INFO] Stream 0x7ffd3ddf4f10 created on context 0x7ffd3ddf4f00
+[SANITIZER INFO] Context 0x7ffd3ddf4f90 creation finished on device 0x7ffd3ddf4fa0
+./gpp: symbol lookup error: /home/fzheng4/AccelProf/lib/libcompute_sanitizer.so: undefined symbol: cudaDeviceGetStreamPriorityRange
+rc=127
+--- injection
+Sizeof(CustomComplex<dataType> = 16 bytes
+number_bands = 512	 nvband = 2	 ncouls = 512	 nodes_per_group  = 20	 ngpown = 25	 nend = 3	 nstart = 0
+Memory Foot Print = 0.0081979 GBs
+Launching a kernel with grid = (512,25,1), and threads = (32,1,1) 
+Average kernel execution time 0.002946 (s)
+
+Test result: SUCCESS
+
+ Final achtemp
+( -0.096066, 11.431852) 
+********** Total Time Taken **********= 0.167526 secs
+rc=0

@@ -23,7 +23,7 @@ Branch eval/sc-native-hecbench (from origin/cuVein 98371ee1). Reproduce: `python
 | atomicCAS (RACE) | CLEAN 84.3x → CLEAN 79.9x | RACE 1091x → RACE 1099x * | TO † | TO † | CLEAN 299x → RACE 438x | RACE 1.4x † |
 | dxtc2 (RACE) | CLEAN 1905x → RACE 1728x | CLEAN 20.5x → CLEAN 25.2x | RACE 9147x → RACE 7496x | RACE 1847x → RACE 1095x | RACE 587x → RACE 639x | RACE 10.5x † |
 | knn (RACE) | CLEAN 712x → CLEAN 765x * | RACE 11.4x → RACE 10.8x * | CLEAN 4889x → RACE * | CLEAN 807x → RACE 1202x * | RACE 312x → RACE 324x | RACE 3.6x † |
-| tridiagonal (RACE) | RACE 7693x → RACE 8712x * | CLEAN 56.1x → CLEAN 56.7x | RACE 66714x → ERR * | RACE 11969x → ERR * | RACE 6330x → RACE 4769x | RACE 16.5x † |
+| tridiagonal (RACE) | RACE 7693x → RACE 8712x * | CLEAN 56.1x → CLEAN 56.7x | RACE 66714x → RACE 55140x * | RACE 11969x → RACE 12135x * | RACE 6330x → RACE 4769x | RACE 16.5x † |
 | expdist (RACE) | CLEAN 180x → RACE 206x | CLEAN 3.3x → CLEAN 2.8x | TO * | RACE 1234x → RACE 728x * | RACE 185x → RACE 154x | RACE 2.7x † |
 | overlap (CLEAN) | CLEAN 19.5x † * | CLEAN 4.1x † | CLEAN 177x † | CLEAN 78.5x † | CLEAN 35.2x → CLEAN 33.4x | CLEAN 1.0x † |
 | fpc (CLEAN) | CLEAN 269x † * | RACE 23.5x † | CLEAN 857x † | CLEAN 285x † | CLEAN 31.2x → CLEAN 26.6x | CLEAN 1.1x † |
@@ -43,15 +43,14 @@ HeCBench SuperCollider subset (10 programs), old → new:
 |---|---|---|---|---|---|
 | racecheck | 1/5 → 3/5 | 0/5 | 0 | 0 | 116.5x (10) → 91.8x (10) |
 | iGUARD | 2/5 | 3/5 | 0 | 0 | 28.7x (10) → 20.0x (10) |
-| vector-clock | 2/3 → 2/2 | 0/5 | 2 | 0 → 1 | 1118.6x (8) → 222.9x (6) |
-| scalar-clock | 3/4 → 3/3 | 0/5 | 1 | 0 → 1 | 354.4x (9) → 132.5x (8) |
+| vector-clock | 2/3 → 3/3 | 0/5 | 2 | 0 | 1118.6x (8) → 489.8x (7) |
+| scalar-clock | 3/4 → 4/4 | 0/5 | 1 | 0 | 354.4x (9) → 218.9x (9) |
 | collector-only mode | 4/5 → 5/5 | 1/5 | 0 | 0 | 107.8x (10) → 74.4x (10) |
 | SuperCollider | 5/5 | 0/5 | 0 | 0 | 2.3x (10) |
-
 ## Missing and why
 
-- atomicCAS vector-clock and scalar-clock: not run at cap=84600 (Jeffery); recorded TO, old row also TO.
-- tridiagonal vector-clock and scalar-clock: recording finished (42,403 s, 9,332 s), verdict analysis hit its 13,800 s limit: ERR, no verdict.
+- atomicCAS vector-clock: not run at cap=84600 (Jeffery); recorded TO, old row also TO. atomicCAS scalar-clock: resubmitted (Jeffery; recording 329004, analysis 329005 with the old rows' verdict code), result pending; recorded TO until then.
+- tridiagonal vector-clock and scalar-clock: the first analysis (wt-x1b harness, serial) hit its 13,800 s limit; re-scored from the same recordings with the old rows' verdict code (origin/cuVein 98371ee1, 16 workers; jobs 328968/328969, 137 s / 136 s): RACE, 24 reports each, as the old rows.
 - expdist vector-clock: TO at 84,600 s; analysis of the 4-kernel prefix ran out of memory (108 GB): no reports. knn vector-clock: TO at 84,600 s, 2 reports in the 279-kernel prefix, counted RACE, no slowdown.
 - Race locations for atomicCAS, dxtc2, expdist in SuperCollider's reports: missing (no line table; SuperCollider not re-run).
 - cuHadron: not re-run; 10 of 27 programs not decidable (no binary of ours). racecheck on atomicCAS: rc 9, hazards 0 in old and new runs, counted CLEAN as in the old row.

@@ -4,13 +4,15 @@
 (<store>/<id>/<mode>-partial-rep*/, a prefix of the kernels), judge that prefix too: kernel JSONs that do not parse
 are dropped, the rest go through the same verdict step; the reports found are written to partial.json. A report in the prefix is a
 report (rule: RACE if any run reports); no report in the prefix proves nothing (the cell stays TO).
-  python x11_b_analyze.py HARNESS_WT MANIFEST ID MODE LOGD TAG ANALYSIS_CAP_S"""
+  python x11_b_analyze.py HARNESS_WT MANIFEST ID MODE LOGD TAG ANALYSIS_CAP_S [WORKERS]
+WORKERS (optional): --analysis-workers of the verdict step (needs a harness with the parallel verdict code, origin/cuVein 98371ee1)."""
 import glob, json, os, subprocess, sys, tempfile
 W, manifest, pid, mode, logd, tag, cap = sys.argv[1:8]
 cap = int(cap)
+workers = int(sys.argv[8]) if len(sys.argv) > 8 else None
 os.makedirs(f"{logd}/confirm", exist_ok=True)
 cmd = [sys.executable, f"{W}/eval/baselines/parallel.py", "analyze", "--manifest", manifest, "--id", pid, "--confirm",
-       "--confirm-dir", f"{logd}/confirm", "--tag", tag, "--results-dir", logd, "--analysis-timeout", str(cap)]
+       "--confirm-dir", f"{logd}/confirm", "--tag", tag, "--results-dir", logd, "--analysis-timeout", str(cap)] + (["--analysis-workers", str(workers)] if workers else [])
 print("[analyze]", " ".join(cmd), flush=True)
 rc = subprocess.run(cmd).returncode
 print(f"[analyze] parallel.py analyze rc={rc}", flush=True)
@@ -34,7 +36,7 @@ for pd in sorted(glob.glob(f"{idir}/{mode}-partial-rep*")):
         for k in good:
             os.symlink(k, f"{tmp}/{os.path.basename(k)}")
         try:
-            (ids, pcs, raw), reason = parallel._analyze_capped(tmp, f"{idir}/dots", cap, -1)
+            (ids, pcs, raw), reason = (parallel._analyze_capped(tmp, f"{idir}/dots", cap, -1, workers) if workers else parallel._analyze_capped(tmp, f"{idir}/dots", cap, -1))
             d.update(reports=len(ids), report_ids=ids[:200], reason=reason)
         except Exception as e:
             d.update(error=f"{type(e).__name__}: {str(e)[:200]}")

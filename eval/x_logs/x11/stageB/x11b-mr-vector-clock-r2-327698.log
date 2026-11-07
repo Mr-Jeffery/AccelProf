@@ -1,0 +1,10 @@
+host=c0 gpu=[NVIDIA GeForce RTX 4060 Ti, 8.9, 615.71.10] cpu=[AMD EPYC 9115 16-Core Processor] mem=125G job=327698 app=mr tool=vector-clock run=2 2026-11-05T19:52:40-05:00
+in-container: Ubuntu 22.04.5 LTS glibc=2.35 tool=vector-clock app=mr run=2
+runtime /home/fzheng4/AccelProf HEAD=f551ca00947e harness /home/fzheng4/wt-x1b HEAD=94fde7322c25 nvcc=Build cuda_13.3.r13.3/compiler.38244171_0 sanitizer=Version 2026.2.1.0 (build 38334959) (public-release)
+mr ae32d5d82d938220
+accelprof lines changed: 1
+hb_shards(scalar-clock)=16 hb_dump=0 mode=vector-clock
+[collect] X11-mr cap=84600s modes=vector-clock store=/mnt/beegfs/fzheng4/cuvein_traces/x11b-vector-clock-mr-r2
+[collect] done
+== tool rc=0
+== done rc=0 2026-11-05T19:53:31-05:00
