@@ -1,70 +1,60 @@
-# SuperCollider native binaries vs ours (X11)
+# SuperCollider's native HeCBench binaries (X11)
 
-## Step 0 — same program? (jobs 327374 first pass, 327378 final; scripts in eval/x11/)
+Branch eval/sc-native-hecbench (from origin/cuVein 98371ee1). Reproduce: `python eval/sc_native/check.py` (reads eval/results/sc_native/summary.csv only). All runs rtx4060ti16g, inside ubuntu2204.sif, cap 84,600 s per run; native time = median of 3 runs in the same container.
 
-Base: origin/cuVein 98371ee1. HeCBench: artifact commit 6a8c46c4 (its Dockerfile) vs ours 7d2d3c56 (shallow clone, 2026-09-01), so rule 1 never applies; cuHadron: artifact states no commit. SASS compared at sm_89 after removing addresses (incl. branch/call targets), register numbers, comments. Artifact HeCBench binaries carry SASS sm_75..sm_121 (+sm_120 PTX), cuHadron sm_80..sm_120; ours sm_89 only. Not run on a GPU: "runnable" is read from the SASS archs.
+## Step 0 (SASS at sm_89, addresses/registers/comments removed; artifact commit 6a8c46c4 vs ours 7d2d3c56)
 
-| suite | program | same program (rule) | same input | runnable on | re-run proposed |
+| program | SC label | same program (rule) | same input | source check (diff 6a8c46c4..7d2d3c56) | re-run |
 |---|---|---|---|---|---|
-| HeCBench | atomicCAS | DIFFERENT (3; `_Z16atomicAddDerivedIdEvPT_`) | yes (`10000`) | sm_89 | yes |
-| HeCBench | dxtc2 | DIFFERENT (3; `_Z8compressPKjS0_P5uint2i`) | yes (same args; data files at 6a8c46c4 not checkable) | sm_89 | yes |
-| HeCBench | knn | DIFFERENT (3; `_Z15cuInsertionSortPfPiiii`) | yes (`100`) | sm_89 | yes |
-| HeCBench | tridiagonal | DIFFERENT (3; `_Z33sweep_small_systems_global_kernelPKfS0_S0_S0_PfS1_iib`) | yes (`-num_systems=30000`) | sm_89 | yes |
-| HeCBench | expdist | DIFFERENT (3; `_Z8distanceIdEvPKT_S2_iiS2_S2_PS0_`) | yes (`10000 10`) | sm_89 | yes |
-| HeCBench | mr | DIFFERENT (3; `_Z8mr32_effPKjS0_Pii`) | no (artifact: no args; ours: `100`) | sm_89 | yes |
-| HeCBench | overlap | SAME (3) | yes (no args) | sm_89 | no |
-| HeCBench | fpc | SAME (3) | yes (`256 100`) | sm_89 | no |
-| HeCBench | gpp | SAME (3) | yes (no args) | sm_89 | no |
-| HeCBench | crs | SAME (3) | yes (`1 1`) | sm_89 | no |
-| cuHadron | asyncmemcpy/kernel_memcpy_dtoh_race | SAME (3) | yes | sm_89 | no |
-| cuHadron | asyncmemcpy/memcpy_htod_kernel_race | SAME (3) | yes | sm_89 | no |
-| cuHadron | false_positives/global_bytewise_readwrite | SAME (3) | yes | sm_89 | no |
-| cuHadron | false_positives/global_bytewise_writewrite | SAME (3) | yes | sm_89 | no |
-| cuHadron | false_positives/shared_bytewise_readwrite | SAME (3) | yes | sm_89 | no |
-| cuHadron | false_positives/shared_bytewise_writewrite | SAME (3) | yes | sm_89 | no |
-| cuHadron | hostdevice/global_readwrite_race | SAME (3) | yes | sm_89 | no |
-| cuHadron | hostdevice/global_writeread_race | SAME (3) | yes | sm_89 | no |
-| cuHadron | hostdevice/global_writewrite_race | SAME (3) | yes | sm_89 | no |
-| cuHadron | interkernel/global_readwrite_race | SAME (3) | yes | sm_89 | no |
-| cuHadron | interkernel/global_writewrite_race | SAME (3) | yes | sm_89 | no |
-| cuHadron | intersubwarp/shared_readwrite_race | SAME (3) | yes | sm_89 | no |
-| cuHadron | intersubwarp/shared_writewrite_race | SAME (3) | yes | sm_89 | no |
-| cuHadron | interwave/global_writewrite_race | SAME (3) | yes | sm_89 | no |
-| cuHadron | memcpy/global_readwrite_race | SAME (3) | yes | sm_89 | no |
-| cuHadron | memcpy/shared_readwrite_race | SAME (3) | yes | sm_89 | no |
-| cuHadron | memcpy/shared_writewrite_race | SAME (3) | yes | sm_89 | no |
-| cuHadron | bulkcpy/global_readwrite_race | not decidable (no binary of ours) | yes | sm_90 (c29), per run script | no |
-| cuHadron | bulkcpy/global_readwrite_race_g2s | not decidable (no binary of ours) | yes | sm_90 (c29) | no |
-| cuHadron | bulkcpy/global_writewrite_race | not decidable (no binary of ours) | yes | sm_90 (c29) | no |
-| cuHadron | bulkcpy/shared_readwrite_race | not decidable (no binary of ours) | yes | sm_90 (c29) | no |
-| cuHadron | bulkcpy/shared_writeread_race_g2s | not decidable (no binary of ours) | yes | sm_90 (c29) | no |
-| cuHadron | bulkcpy/shared_writewrite_race_g2s | not decidable (no binary of ours) | yes | sm_90 (c29) | no |
-| cuHadron | dsmem/shared_readwrite_race | not decidable (no binary of ours) | yes | sm_90 (c29) | no |
-| cuHadron | dsmem/shared_writewrite_race | not decidable (no binary of ours) | yes | sm_90 (c29) | no |
-| cuHadron | multigpu/global_readwrite_race | not decidable (no binary of ours) | yes | needs 2 GPUs, per run script | no |
-| cuHadron | multigpu/global_writewrite_race | not decidable (no binary of ours) | yes | needs 2 GPUs, per run script | no |
+| atomicCAS | racy | DIFFERENT (3) | yes | label changed (a3c11f79) | yes |
+| dxtc2 | racy | DIFFERENT (3) | yes | label changed (6e11c2bb) | yes |
+| knn | racy | DIFFERENT (3) | yes | label changed (22574e78) | yes |
+| tridiagonal | racy | DIFFERENT (3) | yes | label still applies | yes |
+| expdist | racy | DIFFERENT (3) | yes | label changed (3583b2c4) | yes |
+| mr | race-free | DIFFERENT (3) | no (artifact no args, ours `100`) | label still applies | yes |
+| overlap, fpc, gpp, crs | race-free | SAME (3) | yes | not needed | collector-only mode only |
+| cuHadron, 17 programs | per program | SAME (3) | yes | n/a | no (not asked) |
+| cuHadron, 10 programs | per program | not decidable (no binary of ours) | yes | n/a | no |
 
-## Source check: does the labelled race survive in our HeCBench commit?
+## Results (HeCBench, 10 programs; old = our own builds, new = SuperCollider's native binaries)
 
-Range `6a8c46c4` (artifact, 2025-09-09) .. `7d2d3c56` (ours, 2026-09-01), 5,862 commits; `git log` / `git diff` per `src/<app>-cuda/` from a blobless clone of zjin-lcf/HeCBench (job 327582 and the attribution job; diffs in eval/x_logs/x11/srccheck/). Decision from the diff only. SuperCollider label = the racy / race-free flag of the artifact subset (`scripts/hecbench/benchmarks/artifact_subset.json`: 5 racy, 5 race-free; REPRODUCTION.md section 3 lists the same 5 racy apps). Race location: the artifact's own reports in the old SuperCollider rows (knn and tridiagonal only; those artifact binaries carry line tables). The PLDI'26 paper states no per-application location (its Table 1 gives counts per suite). For atomicCAS, dxtc2 and expdist the location is missing: the artifact binaries have no line table and its raw reports were not kept.
+| program (label) | racecheck | iGUARD | vector-clock | scalar-clock | collector-only mode | SuperCollider |
+|---|---|---|---|---|---|---|
+| atomicCAS (RACE) | CLEAN 84.3x → CLEAN 79.9x | RACE 1091x → RACE 1099x * | TO † | TO † | CLEAN 299x → RACE 438x | RACE 1.4x † |
+| dxtc2 (RACE) | CLEAN 1905x → RACE 1728x | CLEAN 20.5x → CLEAN 25.2x | RACE 9147x → RACE 7496x | RACE 1847x → RACE 1095x | RACE 587x → RACE 639x | RACE 10.5x † |
+| knn (RACE) | CLEAN 712x → CLEAN 765x * | RACE 11.4x → RACE 10.8x * | CLEAN 4889x → RACE * | CLEAN 807x → RACE 1202x * | RACE 312x → RACE 324x | RACE 3.6x † |
+| tridiagonal (RACE) | RACE 7693x → RACE 8712x * | CLEAN 56.1x → CLEAN 56.7x | RACE 66714x → ERR * | RACE 11969x → ERR * | RACE 6330x → RACE 4769x | RACE 16.5x † |
+| expdist (RACE) | CLEAN 180x → RACE 206x | CLEAN 3.3x → CLEAN 2.8x | TO * | RACE 1234x → RACE 728x * | RACE 185x → RACE 154x | RACE 2.7x † |
+| overlap (CLEAN) | CLEAN 19.5x † * | CLEAN 4.1x † | CLEAN 177x † | CLEAN 78.5x † | CLEAN 35.2x → CLEAN 33.4x | CLEAN 1.0x † |
+| fpc (CLEAN) | CLEAN 269x † * | RACE 23.5x † | CLEAN 857x † | CLEAN 285x † | CLEAN 31.2x → CLEAN 26.6x | CLEAN 1.1x † |
+| gpp (CLEAN) | CLEAN 14.0x † * | RACE 428x † | CLEAN 401x † | CLEAN 92.6x † | CLEAN 33.9x → CLEAN 25.6x | CLEAN 1.3x † |
+| crs (CLEAN) | CLEAN 3.8x † * | CLEAN 3.8x † | CLEAN 53.7x † | CLEAN 20.8x † | RACE 3.3x → RACE 2.3x | CLEAN 1.0x † |
+| mr (CLEAN) | CLEAN 10.4x → CLEAN 0.8x | RACE 51.1x → RACE 1.4x | CLEAN 251x → CLEAN 5.0x | CLEAN 92.9x → CLEAN 2.3x | CLEAN 26.9x → CLEAN 1.5x | CLEAN 1.0x † |
 
-| application | SuperCollider label | commits in range (count) | touches the labelled race (yes/no, commit) | decision |
-|---|---|---|---|---|
-| atomicCAS | racy | 6 | yes, a3c11f79 (location missing): `kernels.h`, the plain `*address` first read of the CAS loops becomes `__nv_atomic_load_n` (CUDA >= 12.8) | LABEL CHANGED (a3c11f79); location missing |
-| dxtc2 | racy | 7 | yes, 6e11c2bb (location missing): `compress()` prologue rewritten, the colorSums / bestFitLine / sortColors shared-memory steps are now separated by `cg::sync` (00850447 and 557f37ba also change `main.cu`) | LABEL CHANGED (6e11c2bb); location missing |
-| knn | racy | 9 | yes, 22574e78: `main.cu:45-49` `begin_A/begin_B/step_A/step_B/end_A` lose `__shared__`; the writes at `main.cu:60-64` (SuperCollider's reported lines) are now thread-private | LABEL CHANGED (22574e78) |
-| tridiagonal | racy | 8 | no: net diff is Makefile/CMake only (`-std=c++17`, `LAUNCHER`); `cyclic_kernels.cu:108,225,226` (reported lines) and the code ordering them are unchanged | LABEL STILL APPLIES |
-| expdist | racy | 7 | yes, 3583b2c4 (location missing): `kernel.h` `distance_tiled`, the `sh_B` / `sh_scale_B` fill is guarded by `tx == 0` and a `__syncthreads()` is added before first use | LABEL CHANGED (3583b2c4); location missing |
-| mr | race-free | 7 | no labelled race (artifact subset marks it race-free); diff: host repeat loop and `cudaMemset` moved (b1a8e1a2), `static const` mask table made local in `sprp32.h` (f7d0d5b9); no new shared or global kernel accesses | LABEL STILL APPLIES (race-free) |
+† old row kept (not re-run: SAME program, or SuperCollider); * 1 run; cell = verdict slowdown, changed cell = old → new; TO = timeout, ERR = error.
 
-## How the artifact binaries are run (deviations from our own-build runs)
+Control (overlap, fpc, gpp, crs, collector-only mode, 3 runs): verdicts and report counts equal the old rows (crs 7 / 9 reports). Overlap scalar-clock smoke test (1 run, 1,200 s): CLEAN, 0 reports, equal to the 3 old runs.
 
-- **Container.** The artifact binaries need GLIBC 2.34, the cluster has 2.28: every tool run, and the native timing (job 327526), executes inside `ubuntu2204.sif` (`singularity exec --nv`, the image `run_supercollider.py` uses; `/mnt/beegfs`, `/opt`, `/usr/local` bound).
-- **cudart.** The artifact binaries link cudart statically; the collector (`libcompute_sanitizer.so`) references cudart symbols (e.g. `cudaDeviceGetStreamPriorityRange`) that only a shared-cudart program exports, so it fails to load into them (`symbol lookup error`). cuRace clock-mode and collector-only runs therefore use a copy of `bin/accelprof` (in a shadow `ACCEL_PROF_HOME` made of symlinks to the installed runtime; `bin/` itself is untouched) with one changed line, 307:
+## Aggregates, HeCBench SuperCollider subset (labels = SuperCollider paper flags; old → new)
 
-  ```
-  -        LD_PRELOAD=${LD_PRELOAD_LIB} ${EXECUTABLE} ${ARGS} >> ${OUTPUT_REDIRECT} 2>&1
-  +        LD_PRELOAD="${X11_CUDART}:${LD_PRELOAD_LIB}" ${EXECUTABLE} ${ARGS} >> ${OUTPUT_REDIRECT} 2>&1
-  ```
-  `X11_CUDART=/usr/local/cuda-13.3/lib64/libcudart.so.13`. It changes no detection logic: the collector, `libsanalyzer`, `python/`, the verdict code and the harness are the installed ones; the line only adds a second, shared cudart to the process so the collector's symbols resolve (the program keeps its own static cudart). The image has no `git`; a shim answers the two metadata calls of `accelprof` (`rev-parse HEAD`, `status --porcelain` of `ACCEL_PROF_HOME`). racecheck and iGUARD run unpatched.
-- **Checks that the patched path reproduces our results.** collector-only on the artifact binaries of gpp and crs: events 10,368,000 / 9,864,919, 10 / 50 kernels, verdicts CLEAN / RACE (7 reports), identical to the old rows. Clock-mode smoke test (overlap, scalar-clock, 1 run, 1,200 s, through the container and the patched `accelprof`) against the old row: see the line below once the job has run (jobs 327694 recording, 327695 analysis).
+HeCBench SuperCollider subset (10 programs), old → new:
+
+| tool | TP/(TP+FN) | FP/(FP+TN) | TO | ERR | geomean slowdown (n) |
+|---|---|---|---|---|---|
+| racecheck | 1/5 → 3/5 | 0/5 | 0 | 0 | 116.5x (10) → 91.8x (10) |
+| iGUARD | 2/5 | 3/5 | 0 | 0 | 28.7x (10) → 20.0x (10) |
+| vector-clock | 2/3 → 2/2 | 0/5 | 2 | 0 → 1 | 1118.6x (8) → 222.9x (6) |
+| scalar-clock | 3/4 → 3/3 | 0/5 | 1 | 0 → 1 | 354.4x (9) → 132.5x (8) |
+| collector-only mode | 4/5 → 5/5 | 1/5 | 0 | 0 | 107.8x (10) → 74.4x (10) |
+| SuperCollider | 5/5 | 0/5 | 0 | 0 | 2.3x (10) |
+
+## Missing and why
+
+- atomicCAS vector-clock and scalar-clock: not run at cap=84600 (Jeffery); recorded TO, old row also TO.
+- tridiagonal vector-clock and scalar-clock: recording finished (42,403 s, 9,332 s), verdict analysis hit its 13,800 s limit: ERR, no verdict.
+- expdist vector-clock: TO at 84,600 s; analysis of the 4-kernel prefix ran out of memory (108 GB): no reports. knn vector-clock: TO at 84,600 s, 2 reports in the 279-kernel prefix, counted RACE, no slowdown.
+- Race locations for atomicCAS, dxtc2, expdist in SuperCollider's reports: missing (no line table; SuperCollider not re-run).
+- cuHadron: not re-run; 10 of 27 programs not decidable (no binary of ours). racecheck on atomicCAS: rc 9, hazards 0 in old and new runs, counted CLEAN as in the old row.
+- Patched `bin/accelprof` copy (shadow ACCEL_PROF_HOME, `bin/` untouched), needed because the artifact binaries link cudart statically; it changes no detection logic (collector, analyzer, verdict code, harness unchanged; only adds the shared cudart to the process):
+  `-  LD_PRELOAD=${LD_PRELOAD_LIB} ${EXECUTABLE} ${ARGS} ...`
+  `+  LD_PRELOAD="${X11_CUDART}:${LD_PRELOAD_LIB}" ${EXECUTABLE} ${ARGS} ...` (X11_CUDART=/usr/local/cuda-13.3/lib64/libcudart.so.13)

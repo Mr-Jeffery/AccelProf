@@ -1,0 +1,97 @@
+{
+  "id": "X11-knn",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0x140-0x140:WAW",
+    "shared:0x140-0x940:RAW",
+    "shared:0x140-0x9b0:RAW",
+    "shared:0x160-0x160:WAW",
+    "shared:0x160-0x950:RAW"
+  ],
+  "pcs": [
+    320,
+    352,
+    2368,
+    2384,
+    2480
+  ],
+  "lines": "main.cu:63;main.cu:64;main.cu:93",
+  "raw": [
+    {
+      "a_pc": 320,
+      "b_pc": 320,
+      "space": "shared",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    },
+    {
+      "a_pc": 320,
+      "b_pc": 2368,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    },
+    {
+      "a_pc": 320,
+      "b_pc": 2480,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    },
+    {
+      "a_pc": 352,
+      "b_pc": 352,
+      "space": "shared",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    },
+    {
+      "a_pc": 352,
+      "b_pc": 2384,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "320": "main.cu:64",
+    "2368": "main.cu:93",
+    "352": "main.cu:63",
+    "2384": "main.cu:93",
+    "2480": "main.cu:93"
+  }
+}

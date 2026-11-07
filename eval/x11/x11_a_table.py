@@ -22,9 +22,12 @@ def old(rs, app):
     return [r for r in rs if r["id"] == f"P9-{app}-cuda" and r["mode"] == "collector-only"]
 new_co, new_ch = {}, {}
 for n in (1, 2, 3):
-    for f in glob.glob(f"{L}/stageA-x11-co-r{n}/baselines-cuvein-shard*.csv"):
-        for r in rows(f): new_co.setdefault(r["id"], []).append(r)
-    for f in glob.glob(f"{L}/stageA-chain-r{n}/baselines-cuvein-shard*.csv"):
+    for f in glob.glob(f"{L}/stageA-x11-co-r{n}*/baselines-cuvein-shard*.csv"):
+        for r in rows(f):
+            # atomicCAS ran in the sequential loop stores (stageA-x11-co-rN); every other app in its own store (-rN-<app>)
+            if (r["id"] == "X11-atomicCAS") == f.split("/")[-2].endswith(f"-r{n}"):
+                new_co.setdefault(r["id"], []).append(r)
+    for f in glob.glob(f"{L}/stageA-chain-r{n}-*/baselines-cuvein-shard*.csv"):
         for r in rows(f): new_ch.setdefault(r["id"], []).append(r)
 nat = {r["id"]: r for r in rows(f"{L}/stageA-native.csv")}
 fmt = lambda a, b: a if a == b else f"{a} → {b}"

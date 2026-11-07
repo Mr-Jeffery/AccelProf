@@ -1,0 +1,165 @@
+diff --git a/src/mr-cuda/CMakeLists.txt b/src/mr-cuda/CMakeLists.txt
+new file mode 100644
+index 00000000..19013a8f
+--- /dev/null
++++ b/src/mr-cuda/CMakeLists.txt
+@@ -0,0 +1,8 @@
++# mr-cuda/CMakeLists.txt
++
++add_hecbench_benchmark(
++    NAME mr
++    MODEL cuda
++    SOURCES main.cu
++    CATEGORIES algorithms
++)
+diff --git a/src/mr-cuda/Makefile b/src/mr-cuda/Makefile
+index 64c1c6c0..03827377 100644
+--- a/src/mr-cuda/Makefile
++++ b/src/mr-cuda/Makefile
+@@ -7,7 +7,7 @@ CC        = nvcc
+ OPTIMIZE  = yes
+ DEBUG     = no
+ ARCH      = sm_60
+-LAUNCHER  =
++LAUNCHER  ?=
+ 
+ #===============================================================================
+ # Program name & source code list
+@@ -24,7 +24,7 @@ obj = $(source:.cu=.o)
+ #===============================================================================
+ 
+ # Standard Flags
+-CFLAGS := $(EXTRA_CFLAGS) -std=c++14 -Xcompiler -Wno-narrowing -Xcompiler -Wall -arch=$(ARCH)
++CFLAGS := $(EXTRA_CFLAGS) -std=c++17 -Xcompiler -Wno-narrowing -Xcompiler -Wall -arch=$(ARCH)
+ 
+ # Linker Flags
+ LDFLAGS = 
+@@ -53,5 +53,4 @@ clean:
+ 	rm -rf $(program) $(obj)
+ 
+ run: $(program)
+-	$(LAUNCHER) ./$(program)
+-
++	$(LAUNCHER) ./$(program) 100
+diff --git a/src/mr-cuda/main.cu b/src/mr-cuda/main.cu
+index fe505d48..0809b4f2 100644
+--- a/src/mr-cuda/main.cu
++++ b/src/mr-cuda/main.cu
+@@ -7,7 +7,7 @@
+ #include "benchmark.h"
+ #include "kernels.h"
+ 
+-void run_benchmark()
++void run_benchmark(const int repeat)
+ {
+   int i, j, cnt, val_ref, val_eff;
+   uint64_t time_vals[SIZES_CNT_MAX][BASES_CNT_MAX][2];
+@@ -35,7 +35,6 @@ void run_benchmark()
+   for (i = 0; i < SIZES_CNT32; i++) {
+     val_ref = val_eff = 0;
+     cudaMemcpy(d_n32, n32[i], n32_size, cudaMemcpyHostToDevice);
+-    cudaMemset(d_val, 0, sizeof(int));
+ 
+     for (cnt = 1; cnt <= BASES_CNT32; cnt++) {
+       time_point start = get_time();
+@@ -58,16 +57,17 @@ void run_benchmark()
+       break;
+     }
+ 
+-    cudaDeviceSynchronize();
+-    auto start = std::chrono::steady_clock::now();
+-
+-    // the efficient version is faster than the simple version on a device
+-    mr32_sf <<< grids, blocks >>> (d_bases32, d_n32, d_val, BENCHMARK_ITERATIONS);
+-
+-    cudaDeviceSynchronize();
+-    auto end = std::chrono::steady_clock::now();
+-    auto time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+-    mr32_sf_time += time;
++    double time = 0.0;
++    for (int n = 0; n < repeat; n++) {
++      cudaMemset(d_val, 0, sizeof(int));
++      cudaDeviceSynchronize();
++      auto start = std::chrono::steady_clock::now();
++      mr32_sf <<< grids, blocks >>> (d_bases32, d_n32, d_val, BENCHMARK_ITERATIONS);
++      cudaDeviceSynchronize();
++      auto end = std::chrono::steady_clock::now();
++      time += std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
++    }
++    mr32_sf_time += time / repeat;
+ 
+     cudaMemcpy(&val_dev, d_val, sizeof(int), cudaMemcpyDeviceToHost);
+     if (val_ref != val_dev) {
+@@ -76,17 +76,17 @@ void run_benchmark()
+       break;
+     }
+ 
+-    cudaMemset(d_val, 0, sizeof(int));
+-
+-    cudaDeviceSynchronize();
+-    start = std::chrono::steady_clock::now();
+-
+-    mr32_eff <<< grids, blocks >>> (d_bases32, d_n32, d_val, BENCHMARK_ITERATIONS);
+-
+-    cudaDeviceSynchronize();
+-    end = std::chrono::steady_clock::now();
+-    time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+-    mr32_eff_time += time;
++    time = 0.0;
++    for (int n = 0; n < repeat; n++) {
++      cudaMemset(d_val, 0, sizeof(int));
++      cudaDeviceSynchronize();
++      auto start = std::chrono::steady_clock::now();
++      mr32_eff <<< grids, blocks >>> (d_bases32, d_n32, d_val, BENCHMARK_ITERATIONS);
++      cudaDeviceSynchronize();
++      auto end = std::chrono::steady_clock::now();
++      time += std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
++    }
++    mr32_eff_time += time / repeat;
+ 
+     cudaMemcpy(&val_dev, d_val, sizeof(int), cudaMemcpyDeviceToHost);
+     if (val_ref != val_dev) {
+@@ -108,19 +108,27 @@ void run_benchmark()
+   cudaFree(d_val);
+ }
+ 
+-int main()
++int main(int argc, char *argv[]) 
+ {
++  if (argc != 2) {
++    printf("Usage: %s <repeat>\n", argv[0]);
++    return 1;
++  }
++
++  const int repeat = atoi(argv[1]);
++  if (repeat <= 0) return 1;
++
+ #ifdef _WIN32
+   system("mode CON: COLS=98");
+ #endif
+ 
+   printf("Setting random primes...\n");
+   set_nprimes();
+-  run_benchmark();
++  run_benchmark(repeat);
+ 
+   printf("Setting random odd integers...\n");
+   set_nintegers();
+-  run_benchmark();
++  run_benchmark(repeat);
+ 
+   return 0;
+ }
+diff --git a/src/mr-cuda/sprp32.h b/src/mr-cuda/sprp32.h
+index b3fc3061..b0200b3f 100644
+--- a/src/mr-cuda/sprp32.h
++++ b/src/mr-cuda/sprp32.h
+@@ -34,7 +34,7 @@ static inline uint32_t mont_square32(const uint32_t a, const uint32_t n, const u
+ ESS
+ static inline uint32_t modular_inverse32(const uint32_t a)
+ {
+-  static const unsigned char mask[128] = {255,85,51,73,199,93,59,17,15,229,195,89,215,237,203,33,31,117,83,105,231,125,91,49,47,5,227,121,247,13,235,65,63,149,115,137,7,157,123,81,79,37,3,153,23,45,11,97,95,181,147,169,39,189,155,113,111,69,35,185,55,77,43,129,127,213,179,201,71,221,187,145,143,101,67,217,87,109,75,161,159,245,211,233,103,253,219,177,175,133,99,249,119,141,107,193,191,21,243,9,135,29,251,209,207,165,131,25,151,173,139,225,223,53,19,41,167,61,27,241,239,197,163,57,183,205,171,1};
++  const unsigned char mask[128] = {255,85,51,73,199,93,59,17,15,229,195,89,215,237,203,33,31,117,83,105,231,125,91,49,47,5,227,121,247,13,235,65,63,149,115,137,7,157,123,81,79,37,3,153,23,45,11,97,95,181,147,169,39,189,155,113,111,69,35,185,55,77,43,129,127,213,179,201,71,221,187,145,143,101,67,217,87,109,75,161,159,245,211,233,103,253,219,177,175,133,99,249,119,141,107,193,191,21,243,9,135,29,251,209,207,165,131,25,151,173,139,225,223,53,19,41,167,61,27,241,239,197,163,57,183,205,171,1};
+ 
+   // use Hensel lifting, suggested by Robert Gerbicz
+   uint32_t ret = mask[(a >> 1) & 127];

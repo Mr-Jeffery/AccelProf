@@ -1,0 +1,49 @@
+{
+  "id": "X11-knn",
+  "tool": "cuvein",
+  "mode": "scalar-clock",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0x140-0x140:WAW",
+    "shared:0x160-0x160:WAW"
+  ],
+  "pcs": [
+    320,
+    352
+  ],
+  "lines": "main.cu:63;main.cu:64",
+  "raw": [
+    {
+      "a_pc": 320,
+      "b_pc": 320,
+      "space": "shared",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    },
+    {
+      "a_pc": 352,
+      "b_pc": 352,
+      "space": "shared",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "320": "main.cu:64",
+    "352": "main.cu:63"
+  }
+}
