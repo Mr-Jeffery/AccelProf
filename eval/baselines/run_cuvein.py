@@ -364,8 +364,8 @@ def run_one(mrow, modes, cuda, writer, confirm_dir, cap=1200):
         got = sorted({pcmap[p] for p in pcs if p in pcmap})
         return ";".join(got)
 
-    accel = ["accelprof", "-t", "pc_dependency_analysis", "-n", "1",
-             f"./{base}", *args]
+    accel = ["accelprof", "-t", "pc_dependency_analysis", "-n", str(blib.analyzer_workers()),
+             f"./{base}", *args]   # T26: $BASELINE_WORKERS, default 1
 
     for mode in modes:
         env = blib.base_env(cuda, hb_trace=True, hb_mode=mode, scope_file=scope or None)

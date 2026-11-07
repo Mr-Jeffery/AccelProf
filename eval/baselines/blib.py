@@ -119,6 +119,21 @@ def base_env(cuda_home=None, hb_trace=False, hb_mode=None, scope_file=None):
     return e
 
 
+def analyzer_workers():
+    """T26 (eval/SHARDED_PCDEP.md): $BASELINE_WORKERS = the analyzer's worker count, `accelprof -n`
+    (YOSEMITE_WORKER_COUNT): the shard count of the location-sharded PCDepGraph pass, whose output is
+    the same at any count. Default 1, the count every earlier sweep used. Recorded in every program's
+    meta.json as `analyzer_workers`."""
+    v = os.environ.get("BASELINE_WORKERS", "1")
+    try:
+        n = int(v)
+    except ValueError:
+        raise SystemExit(f"BASELINE_WORKERS={v!r} is not an integer")
+    if n < 1:
+        raise SystemExit(f"BASELINE_WORKERS={n} must be >= 1")
+    return n
+
+
 def hb_dump():
     """T4 (design/no_dump.md): $BASELINE_HB_DUMP=0 records every HB run of a sweep without the
     hb_events array (YOSEMITE_HB_DUMP=0: HbClock's aggregates only); default 1, the lossless

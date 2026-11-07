@@ -2757,14 +2757,16 @@ PcDependency::PcDependency() : Tool(PC_DEPENDENCY_ANALYSIS) {
         static_cast<uint64_t>(sm_count) * static_cast<uint64_t>(max_active_blocks_per_sm);
     const uint64_t slack_block_capacity =
         (total_block_capacity * static_cast<uint64_t>(pool_slack_percent) + 99ull) / 100ull;
+    // T26: one pool for the pass (the drain thread acquires and releases), the -n 1 capacity at any
+    // shard count, so a pool miss is the serial pass's
     _shared_shadow_object_cap_per_worker =
-        static_cast<uint32_t>(std::max<uint64_t>(32ull, (slack_block_capacity + _worker_count - 1) / _worker_count));
+        static_cast<uint32_t>(std::max<uint64_t>(32ull, slack_block_capacity));
     _shared_shadow_bytes_per_object = read_env_u32("YOSEMITE_GPU_MAX_SHARED_MEMORY_PER_BLOCK", 102400u);
     if (_shared_shadow_bytes_per_object == 0) {
         _shared_shadow_bytes_per_object = 1;
     }
 
-    _worker_shadow_memory_shared.resize(_worker_count);
+    _worker_shadow_memory_shared.resize(1);
     for (auto& worker_state : _worker_shadow_memory_shared) {
         worker_state.object_entries.resize(_shared_shadow_object_cap_per_worker, nullptr);
         worker_state.object_owner_cta.assign(_shared_shadow_object_cap_per_worker, std::numeric_limits<uint64_t>::max());
@@ -2786,14 +2788,8 @@ PcDependency::PcDependency() : Tool(PC_DEPENDENCY_ANALYSIS) {
             worker_state.object_entries[idx] = entries;
         }
     }
-    _job_worker_trace_indices.resize(_worker_count);
-    _job_worker_pc_statistics.resize(_worker_count);
-    _job_worker_pc_flags.resize(_worker_count);
-    _job_worker_distinct_sector_count.resize(_worker_count);
-    _workers.reserve(_worker_count);
-    for (uint64_t worker_idx = 0; worker_idx < _worker_count; ++worker_idx) {
-        _workers.emplace_back(&PcDependency::worker_loop, this, worker_idx);
-    }
+    // T26: the pass's shards (threads, statistics) are file-static (pcd_pool), started at the first
+    // kernel; _workers and the _job_worker_* members stay empty
 }
 
 
@@ -2823,6 +2819,12 @@ PcDependency::~PcDependency() {
 
 
 static void hb_clock_select_kernel(const std::string& kernel_name);
+// T26: the sharded PCDepGraph pass (defined with gpu_data_analysis)
+static void pcdep_start_kernel(uint64_t worker_count);
+static void pcdep_merge_shards(phmap::flat_hash_map<uint64_t, PC_statisitics>& pc_statistics,
+                               phmap::flat_hash_map<uint32_t, std::pair<uint32_t, uint32_t>>& pc_flags,
+                               std::unordered_map<uint32_t, std::array<uint64_t, 97>>& distinct_sector_count,
+                               uint32_t kernel_id);
 
 void PcDependency::kernel_start_callback(std::shared_ptr<KernelLaunch_t> kernel) {
 
@@ -2842,18 +2844,15 @@ void PcDependency::kernel_start_callback(std::shared_ptr<KernelLaunch_t> kernel)
     g_hb_events_count = g_hb_lanes_count = 0;   // T4
     hb_clock_reset();
     hb_clock_select_kernel(kernel->kernel_name);
-    for (uint64_t worker_idx = 0; worker_idx < _worker_count; ++worker_idx) {
-        auto& worker_state = _worker_shadow_memory_shared[worker_idx];
+    {   // T26: the one pool, slot = cta (the serial pass's)
+        auto& worker_state = _worker_shadow_memory_shared[0];
         worker_state.pool_miss_count = 0;
-        uint64_t worker_cta_slots = 0;
-        if (_current_kernel_cta_count > worker_idx) {
-            worker_cta_slots = (_current_kernel_cta_count + _worker_count - 1u - worker_idx) / _worker_count;
-        }
         worker_state.cta_slot_to_object.assign(
-            static_cast<size_t>(worker_cta_slots),
+            static_cast<size_t>(_current_kernel_cta_count),
             worker_shared_shadow_state::k_invalid_object
         );
     }
+    pcdep_start_kernel(_worker_count);   // T26: the shards' statistics and untracked-address maps
     _kernel_generation = static_cast<uint8_t>(_kernel_generation + 1u);
     if (_kernel_generation == 0) {
         for (auto& shadow_memory_iter : _shadow_memories) {
@@ -3038,11 +3037,14 @@ struct ShardPool {
         return x ^ (x >> 33);
     }
     unsigned pick(uint64_t h) const { return static_cast<unsigned>(((h >> 32) * n) >> 32); }
+    static unsigned pick_n(unsigned nn, uint64_t h) { return static_cast<unsigned>(((h >> 32) * nn) >> 32); }
     // a 128-byte segment of one (space, block) -> its shard: a function of the location, so every
     // record of a location reaches the same shard; a warp's coalesced access is one segment. Not
     // FlatBuckets::mix, whose low bits index each shard's own segment directory.
-    unsigned shard_of(uint64_t hi, uint64_t seg) const {
-        return pick(mix(seg * 0x9e3779b97f4a7c15ULL ^ (hi * 0xc2b2ae3d27d4eb4fULL)));
+    unsigned shard_of(uint64_t hi, uint64_t seg) const { return shard_of_n(n, hi, seg); }
+    // T26: the same function for the PCDepGraph pass's shard count
+    static unsigned shard_of_n(unsigned nn, uint64_t hi, uint64_t seg) {
+        return pick_n(nn, mix(seg * 0x9e3779b97f4a7c15ULL ^ (hi * 0xc2b2ae3d27d4eb4fULL)));
     }
     // the shard that monitors a block's records, and the one keeping R3's points of a warp's
     // threads: chunks of 2^rmw_bits consecutive thread indices (ThreadArray's), so a large grid's
@@ -3700,6 +3702,8 @@ void PcDependency::kernel_trace_flush(std::shared_ptr<KernelLaunch_t> kernel) {
 void PcDependency::kernel_end_callback(std::shared_ptr<KernelEnd_t> kernel) {
     auto evt = std::prev(kernel_events.end())->second;
     evt->end_time = _timer.get();
+    // T26: the shards' statistics into the global maps, once per kernel
+    pcdep_merge_shards(_pc_statistics, _pc_flags, _distinct_sector_count, evt->kernel_id);
     kernel_trace_flush(evt);
 
     _timer.increment(true);
@@ -3779,204 +3783,399 @@ void PcDependency::ten_free_callback(std::shared_ptr<TenFree_t> ten) {
     _timer.increment(true);
 }
 
-void PcDependency::unit_access(
-    uint64_t ptr,
-    uint32_t pc_offset,
-    uint64_t current_block_id,
-    uint32_t current_warp_id,
-    uint32_t current_lane_id,
-    memory_region& memory_region_target,
-    int access_size,
-    phmap::flat_hash_map<uint64_t, PC_statisitics>& local_pc_statistics
-) {
-    // auto& shadow_memory = this->_shadow_memories[memory_region_target];
-    auto shadow_memory_it = this->_shadow_memories.find(memory_region_target);
-    if (shadow_memory_it == this->_shadow_memories.end()) {
-        printf("shadow memory not found for memory region: %lu - %lu\n", memory_region_target.get_start(), memory_region_target.get_end());
-        return;
-    }
-    auto& shadow_memory = *(shadow_memory_it->second);
-    const uint32_t current_flat_thread_id =
-        static_cast<uint32_t>((current_block_id << 10) | (current_warp_id << 5) | current_lane_id);
+// T26 (eval/SHARDED_PCDEP.md): the PCDepGraph pass sharded by location. YOSEMITE_WORKER_COUNT
+// (`accelprof -n N`) is the shard count (at most 64). A memory record's lane goes to the shard
+// owning its 128-byte segment, ShardPool::shard_of (T22's function): global memory by the absolute
+// address (hi 0), shared memory by (pooled object, word offset). Each shard owns its shadow words
+// exclusively -- disjoint entries of the region shadows, its own map for untracked addresses, the
+// words of a shared-memory object -- so plain loads and stores replace the atomic exchange and the
+// map lock, and a word's accesses reach one shard in drain order: every shadow transition, hence
+// every count, is the serial pass's. A lane whose words span segments is split by word (PCD_SPLIT:
+// the shard keeps only the words it owns). A record's own statistics (pc flags, the three
+// histograms, the repeat-lane and pool-miss counts) go to one shard (PCD_REC). Statistics are
+// per shard and merged into the global maps once, at kernel end; sums, ORs and maxima commute.
+// The shared-memory object pool is the serial pass's (one pool of the -n 1 capacity, slot = cta):
+// the drain thread acquires and releases objects in drain order, so a pool miss and an object's
+// reuse are the serial pass's at any N, and routing by object (not block) keeps a reused object's
+// words with one shard. The drain thread routes a chunk at a time and publishes it; the shards run
+// behind it on their own threads, and the drain is joined before gpu_data_analysis returns (the
+// collector reuses the buffer). N=1 is the serial path: the drain thread applies each record itself.
+// State is file-static, not PcDependency members (the header's latent-UB note).
+namespace {
 
+enum : uint32_t {
+    PCD_REC = 1,        // this shard keeps the record's own statistics
+    PCD_SPLIT = 2,      // a lane of this entry spans segments: keep only the owned words
+    PCD_MISS = 4,       // shared: the pool had no object (every sample a cold miss)
+    PCD_UNKNOWN = 8,    // global: no tracked region (the per-shard map)
+};
+
+struct PcdEnt {
+    uint32_t k;                      // the record's position in the drain
+    uint32_t mask;                   // the lanes this shard handles
+    uint32_t f;                      // PCD_*
+    uint32_t obj;                    // shared: the pooled object
+    uint64_t base;                   // global: the start of the record's region (first active lane)
+    shadow_memory* sm;               // global: its shadow
+};
+
+// what an entry's processing reads besides the record: fixed for a drain
+struct PcdCtx {
+    const MemoryAccess* buf = nullptr;
+    uint8_t kgen = 0;                                  // _kernel_generation
+    uint32_t shared_kgen = 0;                          // _shared_kernel_generation
+    uint32_t shared_bytes = 1;                         // _shared_shadow_bytes_per_object
+    shared_shadow_memory_entry* const* objects = nullptr;
+    unsigned n = 1;
+};
+
+static inline uint64_t pcd_pair(uint32_t cur, uint32_t anc) {
+    return static_cast<uint64_t>(cur) << 32 | static_cast<uint64_t>(anc);
+}
+static inline uint64_t pcd_shared_hi(uint32_t obj) { return (uint64_t(1) << 63) | obj; }
+
+struct alignas(64) PcdShard {
+    phmap::flat_hash_map<uint64_t, PC_statisitics> stats;
+    std::unordered_map<uint32_t, std::pair<uint32_t, uint32_t>> flags;
+    std::unordered_map<uint32_t, std::array<uint64_t, 97>> hist;
+    phmap::flat_hash_map<uint64_t, uint64_t> unknown;     // untracked addresses this shard owns
+    // the last (pc, ancient pc) key and its slot: a warp's lanes mostly hit one key. Every insert
+    // goes through st(), which re-points the cache, so a rehash never leaves it dangling.
+    uint64_t key = ~uint64_t(0);
+    PC_statisitics* slot = nullptr;
+    // the last pc's flag and histogram (node-based maps: stable references)
+    uint32_t rpc = ~uint32_t(0);
+    std::pair<uint32_t, uint32_t>* rflag = nullptr;
+    std::array<uint64_t, 97>* rhist = nullptr;
+    double busy_s = 0, stall_s = 0;
+
+    PC_statisitics& st(uint64_t k) {
+        if (k != key) { slot = &stats[k]; key = k; }
+        return *slot;
+    }
+    void clear() {
+        stats.clear(); flags.clear(); hist.clear(); unknown.clear();
+        key = ~uint64_t(0); slot = nullptr;
+        rpc = ~uint32_t(0); rflag = nullptr; rhist = nullptr;
+        busy_s = stall_s = 0;
+    }
+};
+
+static inline unsigned pcd_owner(unsigned n, uint64_t hi, uint64_t seg) {
+    return ShardPool::shard_of_n(n, hi, seg);
+}
+
+static inline void pcd_classify(PcdShard& sh, uint64_t pair, uint32_t last_tid, uint64_t block,
+                                uint32_t warp, uint32_t lane) {
+    const uint64_t last_block_id = static_cast<uint64_t>(last_tid >> 10);
+    const uint64_t last_warp_id = static_cast<uint64_t>((last_tid >> 5) & 0x1F);
+    const uint64_t last_lane_id = static_cast<uint64_t>(last_tid & 0x1F);
+    if (last_block_id != block) {
+        sh.st(pair).dist[4] += 1;
+    } else if (last_warp_id != warp) {
+        sh.st(pair).dist[3] += 1;
+    } else if (last_lane_id != lane) {
+        sh.st(pair).dist[2] += 1;
+    } else {
+        sh.st(pair).dist[0] += 1;
+    }
+}
+
+// a global lane in a tracked region (the serial pass's unit_access)
+static void pcd_global(PcdShard& sh, const PcdCtx& c, unsigned me, const MemoryAccess& t,
+                       uint32_t lane, uint32_t pc, shadow_memory& sm, uint64_t base, bool split) {
+    const uint64_t ptr = t.addresses[lane] - base;
+    const uint64_t block = t.ctaId;
+    const uint32_t tid = static_cast<uint32_t>((block << 10) | (t.warpId << 5) | lane);
+    const int access_size = static_cast<int>(t.accessSize);
     for (int i = 0; i < access_size; i += 4) {
         const uint64_t addr = ptr + i;
-        // Byte-granularity shadow memory: addr is byte offset within allocation.
-        // Bound check to avoid OOB on allocations at end boundary or odd sizes.
-        if (addr >= shadow_memory._size) {
-            break;
-        }
-
-        auto& entry = shadow_memory.get_entry(addr);
-        const uint64_t old_packed = __atomic_exchange_n(
-            &entry.packed,
-            pack_shadow_entry(_kernel_generation, pc_offset, current_flat_thread_id),
-            __ATOMIC_ACQ_REL
-        );
-        const bool is_cold_miss = (old_packed == 0);
-
-        if (is_cold_miss) {
-            const uint64_t pc_ancient_pairs = pack_pc_ancient_pairs(pc_offset, 0u);
-            local_pc_statistics[pc_ancient_pairs].dist[0] += 1;
-            continue;
-        }
-
+        if (addr >= sm._size) break;
+        if (split && pcd_owner(c.n, 0, (t.addresses[lane] + i) >> 7) != me) continue;
+        auto& entry = sm.get_entry(addr);
+        const uint64_t old_packed = entry.packed;               // owned: no other shard's word
+        entry.packed = pack_shadow_entry(c.kgen, pc, tid);
+        if (old_packed == 0) { sh.st(pcd_pair(pc, 0u)).dist[0] += 1; continue; }
         const uint32_t last_pc_encoded = unpack_shadow_pc_encoded(old_packed);
-        const uint8_t last_generation = static_cast<uint8_t>(last_pc_encoded >> 24);
-        if (last_generation != _kernel_generation) {
-            const uint64_t pc_ancient_pairs = pack_pc_ancient_pairs(pc_offset, 0u);
-            local_pc_statistics[pc_ancient_pairs].dist[0] += 1;
+        if (static_cast<uint8_t>(last_pc_encoded >> 24) != c.kgen) {
+            sh.st(pcd_pair(pc, 0u)).dist[0] += 1;
             continue;
         }
-        const uint32_t last_pc = (last_pc_encoded & 0x00FFFFFFu);
-        const uint32_t last_flat_thread_id = unpack_shadow_flat_tid(old_packed);
-        const uint64_t last_block_id = static_cast<uint64_t>(last_flat_thread_id >> 10);
-        const uint64_t last_warp_id = static_cast<uint64_t>((last_flat_thread_id >> 5) & 0x1F);
-        const uint64_t last_lane_id = static_cast<uint64_t>(last_flat_thread_id & 0x1F);
-        const uint64_t pc_ancient_pairs = pack_pc_ancient_pairs(pc_offset, last_pc);
-        if (last_block_id != current_block_id) {
-            local_pc_statistics[pc_ancient_pairs].dist[4] += 1;
-        } else if (last_warp_id != current_warp_id) {
-            local_pc_statistics[pc_ancient_pairs].dist[3] += 1;
-        } else if (last_lane_id != current_lane_id) {
-            local_pc_statistics[pc_ancient_pairs].dist[2] += 1;
-        } else {
-            local_pc_statistics[pc_ancient_pairs].dist[0] += 1;
-        }
+        pcd_classify(sh, pcd_pair(pc, last_pc_encoded & 0x00FFFFFFu), unpack_shadow_flat_tid(old_packed),
+                     block, t.warpId, lane);
     }
 }
 
-void PcDependency::unit_access_unknown(
-    uint64_t abs_addr,
-    uint32_t pc_offset,
-    uint64_t current_block_id,
-    uint32_t current_warp_id,
-    uint32_t current_lane_id,
-    int access_size,
-    phmap::flat_hash_map<uint64_t, PC_statisitics>& local_pc_statistics
-) {
-    const uint32_t current_flat_thread_id =
-        static_cast<uint32_t>((current_block_id << 10) | (current_warp_id << 5) | current_lane_id);
-
+// a global lane outside every tracked region (the serial pass's unit_access_unknown)
+static void pcd_unknown(PcdShard& sh, const PcdCtx& c, unsigned me, const MemoryAccess& t,
+                        uint32_t lane, uint32_t pc, bool split) {
+    const uint64_t block = t.ctaId;
+    const uint32_t tid = static_cast<uint32_t>((block << 10) | (t.warpId << 5) | lane);
+    const int access_size = static_cast<int>(t.accessSize);
     for (int i = 0; i < access_size; i += 4) {
-        const uint64_t sampled_addr = abs_addr + static_cast<uint64_t>(i);
-        const uint64_t new_packed =
-            pack_shadow_entry(_kernel_generation, pc_offset, current_flat_thread_id);
-
-        // Atomically insert-or-update under the shard's lock.
-        // try_emplace_l: if key exists  -> calls lambda(value_ref), returns false.
-        //                if key missing -> inserts with new_packed,  returns true.
-        uint64_t old_packed = 0;
-        const bool inserted = _unknown_region_shadow.try_emplace_l(
-            sampled_addr,
-            [&](auto& kv) {
-                old_packed = kv.second;
-                kv.second = new_packed;
-            },
-            new_packed   // value used when the key is first inserted
-        );
-
-        if (inserted) {
-            // First-ever access to this address this kernel → cold miss.
-            local_pc_statistics[pack_pc_ancient_pairs(pc_offset, 0u)].dist[0] += 1;
-            continue;
-        }
-
-        // Key already existed; old_packed holds the previous entry.
-        const bool is_cold_miss = (old_packed == 0);
-        if (is_cold_miss) {
-            local_pc_statistics[pack_pc_ancient_pairs(pc_offset, 0u)].dist[0] += 1;
-            continue;
-        }
-
+        const uint64_t sampled_addr = t.addresses[lane] + static_cast<uint64_t>(i);
+        if (split && pcd_owner(c.n, 0, sampled_addr >> 7) != me) continue;
+        const uint64_t new_packed = pack_shadow_entry(c.kgen, pc, tid);
+        auto ins = sh.unknown.try_emplace(sampled_addr, new_packed);
+        if (ins.second) { sh.st(pcd_pair(pc, 0u)).dist[0] += 1; continue; }
+        const uint64_t old_packed = ins.first->second;
+        ins.first->second = new_packed;
+        if (old_packed == 0) { sh.st(pcd_pair(pc, 0u)).dist[0] += 1; continue; }
         const uint32_t last_pc_encoded = unpack_shadow_pc_encoded(old_packed);
-        const uint8_t last_generation = static_cast<uint8_t>(last_pc_encoded >> 24);
-        if (last_generation != _kernel_generation) {
-            local_pc_statistics[pack_pc_ancient_pairs(pc_offset, 0u)].dist[0] += 1;
+        if (static_cast<uint8_t>(last_pc_encoded >> 24) != c.kgen) {
+            sh.st(pcd_pair(pc, 0u)).dist[0] += 1;
             continue;
         }
-
-        const uint32_t last_pc            = (last_pc_encoded & 0x00FFFFFFu);
-        const uint32_t last_flat_thread_id = unpack_shadow_flat_tid(old_packed);
-        const uint64_t last_block_id       = static_cast<uint64_t>(last_flat_thread_id >> 10);
-        const uint64_t last_warp_id        = static_cast<uint64_t>((last_flat_thread_id >> 5) & 0x1F);
-        const uint64_t last_lane_id        = static_cast<uint64_t>(last_flat_thread_id & 0x1F);
-
-        const uint64_t pc_ancient_pairs = pack_pc_ancient_pairs(pc_offset, last_pc);
-        if (last_block_id != current_block_id) {
-            local_pc_statistics[pc_ancient_pairs].dist[4] += 1;
-        } else if (last_warp_id != current_warp_id) {
-            local_pc_statistics[pc_ancient_pairs].dist[3] += 1;
-        } else if (last_lane_id != current_lane_id) {
-            local_pc_statistics[pc_ancient_pairs].dist[2] += 1;
-        } else {
-            local_pc_statistics[pc_ancient_pairs].dist[0] += 1;
-        }
+        pcd_classify(sh, pcd_pair(pc, last_pc_encoded & 0x00FFFFFFu), unpack_shadow_flat_tid(old_packed),
+                     block, t.warpId, lane);
     }
 }
 
-
-void PcDependency::unit_access_shared(
-    uint64_t ptr,
-    uint32_t pc_offset,
-    uint32_t object_idx,
-    uint64_t current_block_id,
-    uint32_t current_warp_id,
-    uint32_t current_lane_id,
-    int access_size,
-    phmap::flat_hash_map<uint64_t, PC_statisitics>& local_pc_statistics,
-    worker_shared_shadow_state& local_shadow_memory_shared
-) {
-    const uint32_t base_addr_low32 = static_cast<uint32_t>(ptr & 0xFFFFFFFFull);
-    const uint32_t current_flat_thread_id =
-        static_cast<uint32_t>((current_warp_id << 5) | current_lane_id);
-
+// a shared lane on a pooled object (the serial pass's unit_access_shared)
+static void pcd_shared(PcdShard& sh, const PcdCtx& c, unsigned me, const MemoryAccess& t,
+                       uint32_t lane, uint32_t pc, uint32_t obj, bool split) {
+    const uint32_t base_addr_low32 = static_cast<uint32_t>(t.addresses[lane] & 0xFFFFFFFFull);
+    const uint32_t tid = static_cast<uint32_t>((t.warpId << 5) | lane);
+    const uint32_t block32 = static_cast<uint32_t>(t.ctaId);
+    const int access_size = static_cast<int>(t.accessSize);
+    shared_shadow_memory_entry* entries = c.objects[obj];
     for (int i = 0; i < access_size; i += 4) {
         const uint32_t addr = base_addr_low32 + static_cast<uint32_t>(i);
-        if (addr >= _shared_shadow_bytes_per_object) {
-            const uint64_t pc_ancient_pairs = pack_pc_ancient_pairs(pc_offset, 0u);
-            local_pc_statistics[pc_ancient_pairs].dist[0] += 1;
-            continue;
-        }
-        auto& entry = get_shared_shadow_entry(local_shadow_memory_shared, object_idx, addr);
-        const bool is_cold_miss = (entry.generation != _shared_kernel_generation)
-                               || (entry.flat_block_id != static_cast<uint32_t>(current_block_id));
-
-        if (is_cold_miss) {
-            entry.pc_offset = pc_offset;
-            entry.flat_thread_id = current_flat_thread_id;
-            entry.flat_block_id = static_cast<uint32_t>(current_block_id);
-            entry.generation = _shared_kernel_generation;
-            const uint64_t pc_ancient_pairs = pack_pc_ancient_pairs(pc_offset, 0u);
-            local_pc_statistics[pc_ancient_pairs].dist[0] += 1;
-            continue;
-        }
-
+        if (split && pcd_owner(c.n, pcd_shared_hi(obj), addr >> 7) != me) continue;
+        if (addr >= c.shared_bytes) { sh.st(pcd_pair(pc, 0u)).dist[0] += 1; continue; }
+        auto& entry = entries[addr];
+        const bool is_cold_miss = (entry.generation != c.shared_kgen) || (entry.flat_block_id != block32);
         const uint32_t last_pc = entry.pc_offset;
-        const uint32_t last_flat_thread_id = entry.flat_thread_id;
-        const uint64_t last_warp_id = static_cast<uint64_t>((last_flat_thread_id >> 5) & 0x1F);
-        const uint64_t last_lane_id = static_cast<uint64_t>(last_flat_thread_id & 0x1F);
-
-        entry.pc_offset = pc_offset;
-        entry.flat_thread_id = current_flat_thread_id;
-        entry.flat_block_id = static_cast<uint32_t>(current_block_id);
-        entry.generation = _shared_kernel_generation;
-        const uint64_t pc_ancient_pairs = pack_pc_ancient_pairs(pc_offset, last_pc);
-        if (last_warp_id != current_warp_id) {
-            local_pc_statistics[pc_ancient_pairs].dist[3] += 1;
-        } else if (last_lane_id != current_lane_id) {
-            local_pc_statistics[pc_ancient_pairs].dist[2] += 1;
+        const uint32_t last_tid = entry.flat_thread_id;
+        entry.pc_offset = pc;
+        entry.flat_thread_id = tid;
+        entry.flat_block_id = block32;
+        entry.generation = c.shared_kgen;
+        if (is_cold_miss) { sh.st(pcd_pair(pc, 0u)).dist[0] += 1; continue; }
+        const uint64_t pair = pcd_pair(pc, last_pc);
+        const uint32_t last_warp_id = (last_tid >> 5) & 0x1F;
+        const uint32_t last_lane_id = last_tid & 0x1F;
+        if (last_warp_id != t.warpId) {
+            sh.st(pair).dist[3] += 1;
+        } else if (last_lane_id != lane) {
+            sh.st(pair).dist[2] += 1;
         } else {
-            local_pc_statistics[pc_ancient_pairs].dist[0] += 1;
+            sh.st(pair).dist[0] += 1;
         }
     }
 }
+
+// one routed entry on shard `me`, in drain order (the serial worker_loop's record step)
+static void pcd_apply(PcdShard& sh, const PcdCtx& c, unsigned me, const PcdEnt& e) {
+    const MemoryAccess& t = c.buf[e.k];
+    const uint32_t pc = static_cast<uint32_t>(t.pc & 0x00FFFFFFu);
+    const bool rec = (e.f & PCD_REC) != 0;
+    const bool split = (e.f & PCD_SPLIT) != 0;
+    uint32_t flags = t.flags;
+    switch (t.type) {
+        case MemoryType::Local:
+            flags |= SANITIZER_MEMORY_LOCAL;
+            break;
+        case MemoryType::Shared: {
+            flags |= SANITIZER_MEMORY_SHARED;
+            if (e.f & PCD_MISS) {
+                // hard capacity hit: every sample of every active lane a cold miss (serial pass)
+                if (rec) {
+                    const uint32_t samples = (t.accessSize + 3u) / 4u;
+                    sh.st(pcd_pair(pc, 0u)).dist[0] +=
+                        static_cast<uint64_t>(samples) * static_cast<uint64_t>(__builtin_popcount(t.active_mask));
+                }
+                break;
+            }
+            if (rec) {
+                const uint32_t repeat_count = __builtin_popcount(t.active_mask & ~t.unique_address_mask);
+                if (repeat_count > 0) sh.st(pcd_pair(pc, pc)).dist[1] += repeat_count;
+            }
+            for (uint32_t m = e.mask; m != 0; m &= (m - 1))
+                pcd_shared(sh, c, me, t, static_cast<uint32_t>(__builtin_ctz(m)), pc, e.obj, split);
+            break;
+        }
+        case MemoryType::Global: {
+            flags |= SANITIZER_MEMORY_GLOBAL;
+            if (t.active_mask == 0) break;
+            if (rec) {
+                const uint32_t repeat_count = __builtin_popcount(t.active_mask & ~t.unique_address_mask);
+                if (repeat_count > 0) sh.st(pcd_pair(pc, pc)).dist[1] += repeat_count;
+            }
+            if (e.f & PCD_UNKNOWN) {
+                for (uint32_t m = e.mask; m != 0; m &= (m - 1))
+                    pcd_unknown(sh, c, me, t, static_cast<uint32_t>(__builtin_ctz(m)), pc, split);
+            } else {
+                for (uint32_t m = e.mask; m != 0; m &= (m - 1))
+                    pcd_global(sh, c, me, t, static_cast<uint32_t>(__builtin_ctz(m)), pc, *e.sm,
+                               e.base, split);
+            }
+            break;
+        }
+        default:
+            if (rec) printf("unknown memory type\n");
+            break;
+    }
+    if (!rec) return;
+    if (pc != sh.rpc) {
+        sh.rflag = &sh.flags[pc];
+        sh.rhist = &sh.hist[pc];
+        sh.rpc = pc;
+    }
+    auto& local_flag = *sh.rflag;
+    const uint32_t access_size = t.accessSize;
+    local_flag.first |= flags;
+    if (local_flag.second == 0) {
+        local_flag.second = access_size;
+    } else if (local_flag.second != access_size) {
+        local_flag.second = std::max(local_flag.second, access_size);
+    }
+    auto& h = *sh.rhist;
+    const uint32_t distinct_sector_count = t.distinct_sector_count;
+    if (distinct_sector_count >= 1 && distinct_sector_count <= 32) h[distinct_sector_count - 1] += 1;
+    const uint32_t active_lane_count = __builtin_popcount(t.active_mask);
+    if (active_lane_count <= 32) h[32 + active_lane_count] += 1;
+    const uint32_t distinct_address_count = __builtin_popcount(t.unique_address_mask);
+    if (distinct_address_count >= 1 && distinct_address_count <= 32) h[65 + distinct_address_count - 1] += 1;
+}
+
+// The router's per-record output: up to one entry per shard. The drain thread fills it for a
+// record, then emits it -- applied in place (N=1) or appended to the shards' chunk lists.
+struct PcdRoute {
+    unsigned n = 1;
+    uint32_t masks[64] = {};
+    uint32_t fl[64] = {};
+    uint64_t touched = 0;
+    void lane(unsigned s, uint32_t bit, uint32_t f) {
+        masks[s] |= bit;
+        fl[s] |= f;
+        touched |= uint64_t(1) << s;
+    }
+    // lanes of `lanes`; seg(l, i) = the segment of lane l's word at byte i, under hi
+    template <class Seg>
+    void lanes_by_segment(uint32_t lanes, int access_size, uint64_t hi, uint32_t f, Seg seg) {
+        if (access_size <= 0 || lanes == 0) return;            // no word: nothing to own
+        if (n == 1) { lane(0, lanes, f); return; }
+        const int last = ((access_size - 1) / 4) * 4;
+        uint64_t cseg = ~uint64_t(0);
+        unsigned cs = 0;
+        for (uint32_t r = lanes; r != 0; r &= (r - 1)) {
+            const uint32_t l = static_cast<uint32_t>(__builtin_ctz(r));
+            const uint64_t s0 = seg(l, 0);
+            if (s0 == seg(l, last)) {
+                if (s0 != cseg) { cseg = s0; cs = pcd_owner(n, hi, s0); }
+                lane(cs, 1u << l, f);
+            } else {                                           // spans segments: by word
+                for (int i = 0; i < access_size; i += 4)
+                    lane(pcd_owner(n, hi, seg(l, i)), 1u << l, f | PCD_SPLIT);
+            }
+        }
+    }
+};
+
+struct PcdPool {
+    using Clock_ = std::chrono::steady_clock;
+    static constexpr uint64_t CHUNK = 32768;
+    unsigned n = 1;
+    uint64_t inline_max = 4096;
+    std::vector<std::unique_ptr<PcdShard>> shards;
+    std::vector<std::vector<std::vector<PcdEnt>>> cents;   // [shard][chunk]
+    PcdCtx ctx;
+    uint64_t size = 0, nchunks = 0;
+    std::atomic<uint64_t> routed{0};
+    std::mutex cmu, mu;
+    std::condition_variable ccv, cv, done_cv;
+    uint64_t gen = 0;
+    unsigned pending = 0;
+    std::vector<std::thread> workers;
+    bool stats = false;
+    double drain_s = 0, route_s = 0, wait_s = 0;
+    uint64_t records = 0, entries = 0, split_entries = 0;
+
+    void start(unsigned nshards) {
+        n = nshards;
+        inline_max = read_env_u32("YOSEMITE_PCDEP_INLINE_MAX", 4096);
+        stats = read_env_u32("YOSEMITE_PCDEP_STATS", 0) != 0;
+        for (unsigned i = 0; i < n; ++i) shards.push_back(std::make_unique<PcdShard>());
+        cents.resize(n);
+        if (n > 1)
+            for (unsigned i = 0; i < n; ++i) workers.emplace_back([this, i] { work(i); });
+    }
+    void prepare(uint64_t sz) {
+        size = sz;
+        nchunks = (sz + CHUNK - 1) / CHUNK;
+        for (auto& v : cents) if (v.size() < nchunks) v.resize(nchunks);
+        routed.store(0, std::memory_order_relaxed);
+    }
+    void run(unsigned i) {
+        PcdShard& sh = *shards[i];
+        double busy = 0, stall = 0;
+        for (uint64_t c = 0; c < nchunks; ++c) {
+            auto t0 = Clock_::now();
+            if (routed.load(std::memory_order_acquire) <= c) {
+                std::unique_lock<std::mutex> l(cmu);
+                ccv.wait(l, [&] { return routed.load(std::memory_order_acquire) > c; });
+                const auto t1 = Clock_::now();
+                stall += std::chrono::duration<double>(t1 - t0).count();
+                t0 = t1;
+            }
+            for (const PcdEnt& e : cents[i][c]) pcd_apply(sh, ctx, i, e);
+            busy += std::chrono::duration<double>(Clock_::now() - t0).count();
+        }
+        sh.busy_s += busy;
+        sh.stall_s += stall;
+    }
+    void work(unsigned i) {
+        uint64_t seen = 0;
+        for (;;) {
+            {
+                std::unique_lock<std::mutex> l(mu);
+                cv.wait(l, [&] { return gen > seen; });
+                seen = gen;
+            }
+            run(i);
+            std::lock_guard<std::mutex> l(mu);
+            if (--pending == 0) done_cv.notify_one();
+        }
+    }
+    void launch() {                                        // the shards start behind the router
+        {
+            std::lock_guard<std::mutex> l(mu);
+            pending = n;
+            ++gen;
+        }
+        cv.notify_all();
+    }
+    void publish(uint64_t c) {
+        {
+            std::lock_guard<std::mutex> l(cmu);
+            routed.store(c + 1, std::memory_order_release);
+        }
+        ccv.notify_all();
+    }
+    void join() {
+        std::unique_lock<std::mutex> l(mu);
+        done_cv.wait(l, [&] { return pending == 0; });
+    }
+    void reset_kernel() {
+        for (auto& s : shards) s->clear();
+        drain_s = route_s = wait_s = 0;
+        records = entries = split_entries = 0;
+    }
+};
+// never destroyed: its threads wait on it until the process ends (as T22's ShardPool)
+PcdPool*& pcd_pool() {
+    static PcdPool* pool = nullptr;
+    return pool;
+}
+}  // namespace
 
 uint32_t PcDependency::acquire_shared_shadow_object(
     worker_shared_shadow_state& local_shadow_memory_shared,
     uint64_t cta_id
 ) {
-    const uint64_t local_slot_u64 = cta_id / _worker_count;
+    // T26: one pool, the serial pass's; slot = cta (the -n 1 partition's cta / 1)
+    const uint64_t local_slot_u64 = cta_id;
     if (local_slot_u64 >= local_shadow_memory_shared.cta_slot_to_object.size()) {
         local_shadow_memory_shared.cta_slot_to_object.resize(
             static_cast<size_t>(local_slot_u64 + 1u),
@@ -4005,7 +4204,7 @@ void PcDependency::release_shared_shadow_object(
     uint64_t cta_id,
     uint32_t exiting_threads
 ) {
-    const uint64_t local_slot_u64 = cta_id / _worker_count;
+    const uint64_t local_slot_u64 = cta_id;                  // T26: the serial pass's slot
     if (local_slot_u64 >= local_shadow_memory_shared.cta_slot_to_object.size()) {
         return;
     }
@@ -4024,192 +4223,6 @@ void PcDependency::release_shared_shadow_object(
     local_shadow_memory_shared.object_owner_cta[object_idx] = std::numeric_limits<uint64_t>::max();
     local_shadow_memory_shared.object_active_threads[object_idx] = 0u;
     local_shadow_memory_shared.free_object_indices.push_back(object_idx);
-}
-
-shared_shadow_memory_entry& PcDependency::get_shared_shadow_entry(
-    worker_shared_shadow_state& local_shadow_memory_shared,
-    uint32_t object_idx,
-    uint32_t addr
-) {
-    assert(addr < _shared_shadow_bytes_per_object);
-    return local_shadow_memory_shared.object_entries[object_idx][addr];
-}
-
-void PcDependency::unit_access_local(uint64_t ptr, uint32_t pc_offset, uint64_t current_block_id, uint32_t current_warp_id, uint32_t current_lane_id, int access_size) {
-    // TODO: implement local memory access
-}
-
-
-void PcDependency::worker_loop(uint64_t worker_idx) {
-    uint64_t seen_generation = 0;
-    while (true) {
-        uint64_t current_generation = 0;
-        {
-            std::unique_lock<std::mutex> lock(_worker_pool_mutex);
-            _worker_pool_cv.wait(lock, [&]{
-                return _worker_pool_shutdown || _worker_job_generation > seen_generation;
-            });
-            if (_worker_pool_shutdown) {
-                return;
-            }
-            current_generation = _worker_job_generation;
-        }
-
-        auto& local_pc_statistics = _job_worker_pc_statistics[worker_idx];
-        auto& local_pc_flags = _job_worker_pc_flags[worker_idx];
-        auto& local_distinct_sector_count = _job_worker_distinct_sector_count[worker_idx];
-        auto& local_shadow_memory_shared = _worker_shadow_memory_shared[worker_idx];
-        const auto& trace_indices = _job_worker_trace_indices[worker_idx];
-
-        for (uint64_t i : trace_indices) {
-            const MemoryAccess& trace = _job_accesses_buffer[i];
-            uint32_t pc_offset = (trace.pc & 0x00FFFFFFu);
-            uint32_t flags = trace.flags;
-            uint32_t access_size = trace.accessSize;
-            uint32_t distinct_sector_count = trace.distinct_sector_count;
-            uint32_t active_mask = trace.active_mask;
-            switch (trace.type) {
-                case MemoryType::Local:{
-                        flags |= SANITIZER_MEMORY_LOCAL;
-                        break;
-                    }
-                case MemoryType::Shared:{
-                        flags |= SANITIZER_MEMORY_SHARED;
-                        const uint32_t object_idx =
-                            acquire_shared_shadow_object(local_shadow_memory_shared, trace.ctaId);
-                        if (object_idx == std::numeric_limits<uint32_t>::max()) {
-                            // Hard capacity hit: keep behavior safe by treating accesses as cold misses.
-                            const uint32_t samples = (trace.accessSize + 3u) / 4u;
-                            const uint64_t pc_ancient_pairs = pack_pc_ancient_pairs(pc_offset, 0u);
-                            local_pc_statistics[pc_ancient_pairs].dist[0] +=
-                                static_cast<uint64_t>(samples) * static_cast<uint64_t>(__builtin_popcount(active_mask));
-                            break;
-                        }
-                        // Repeat lanes are intra-instance-launch reuse.
-                        const uint32_t unique_mask = trace.unique_address_mask;
-                        const uint32_t repeat_count = __builtin_popcount(active_mask & ~unique_mask);
-                        if (repeat_count > 0) {
-                            local_pc_statistics[pack_pc_ancient_pairs(pc_offset, pc_offset)].dist[1] += repeat_count;
-                        }
-                        uint32_t remaining_mask = unique_mask;
-                        while (remaining_mask != 0) {
-                            const uint32_t j = static_cast<uint32_t>(__builtin_ctz(remaining_mask));
-                            remaining_mask &= (remaining_mask - 1);
-                            unit_access_shared(
-                                trace.addresses[j],
-                                pc_offset,
-                                object_idx,
-                                trace.ctaId,
-                                trace.warpId,
-                                j,
-                                trace.accessSize,
-                                local_pc_statistics,
-                                local_shadow_memory_shared
-                            );
-                        }
-                        break;
-                    }
-                case MemoryType::Global:{
-                        flags |= SANITIZER_MEMORY_GLOBAL;
-                        if (active_mask == 0) {
-                            break;
-                        }
-                        // Repeat lanes (same address as an earlier lane in this warp) are
-                        // intra-instance-launch reuse: classify directly without shadow access.
-                        const uint32_t unique_mask = trace.unique_address_mask;
-                        const uint32_t repeat_count = __builtin_popcount(active_mask & ~unique_mask);
-                        if (repeat_count > 0) {
-                            local_pc_statistics[pack_pc_ancient_pairs(pc_offset, pc_offset)].dist[1] += repeat_count;
-                        }
-                        const uint32_t first_lane = static_cast<uint32_t>(__builtin_ctz(active_mask));
-                        const uint64_t first_valid_address = trace.addresses[first_lane];
-                        const memory_region* memory_region_target_ptr =
-                            find_memory_region_containing(this->_memory_regions, first_valid_address);
-                        uint32_t remaining_mask = unique_mask;
-                        if (memory_region_target_ptr == nullptr) {
-                            // Fallback: region not tracked (static __device__ global,
-                            // VMM-mapped memory, etc.).  Use the concurrent hashmap.
-                            while (remaining_mask != 0) {
-                                const uint32_t j = static_cast<uint32_t>(__builtin_ctz(remaining_mask));
-                                remaining_mask &= (remaining_mask - 1);
-                                unit_access_unknown(
-                                    trace.addresses[j],
-                                    pc_offset,
-                                    trace.ctaId,
-                                    trace.warpId,
-                                    j,
-                                    access_size,
-                                    local_pc_statistics
-                                );
-                            }
-                        } else {
-                            memory_region memory_region_target = *memory_region_target_ptr;
-                            uint64_t memory_region_start = memory_region_target.get_start();
-                            while (remaining_mask != 0) {
-                                const uint32_t j = static_cast<uint32_t>(__builtin_ctz(remaining_mask));
-                                remaining_mask &= (remaining_mask - 1);
-                                unit_access(
-                                    trace.addresses[j] - memory_region_start,
-                                    pc_offset,
-                                    trace.ctaId,
-                                    trace.warpId,
-                                    j,
-                                    memory_region_target,
-                                    access_size,
-                                    local_pc_statistics
-                                );
-                            }
-                        }
-                        break;
-                    }
-                case MemoryType::BlockExit:{
-                        const uint32_t exiting_threads = __builtin_popcount(active_mask);
-                        release_shared_shadow_object(local_shadow_memory_shared, trace.ctaId, exiting_threads);
-                        continue;
-                    }
-                case MemoryType::Barrier:
-                case MemoryType::Syncwarp:
-                case MemoryType::PipelineCommit:   // T1a (HB-trace runs only)
-                case MemoryType::PipelineWait:
-                    // Phase 2 sync events: no shadow/pc-statistics update. Consumed
-                    // by hb_collect_events (HB oracle) and HbClock.
-                    continue;
-                default:
-                    printf("unknown memory type\n");
-                    break;
-            }
-            auto& local_flag = local_pc_flags[pc_offset];
-            local_flag.first |= flags;
-            if (local_flag.second == 0) {
-                local_flag.second = access_size;
-            } else if (local_flag.second != access_size) {
-                local_flag.second = std::max(local_flag.second, access_size);
-            }
-            if (distinct_sector_count >= 1 && distinct_sector_count <= 32) {
-                local_distinct_sector_count[pc_offset][distinct_sector_count - 1] += 1;
-            }
-            const uint32_t active_lane_count = __builtin_popcount(active_mask);
-            if (active_lane_count <= 32) {
-                local_distinct_sector_count[pc_offset][32 + active_lane_count] += 1;
-            }
-            const uint32_t distinct_address_count = __builtin_popcount(trace.unique_address_mask);
-            if (distinct_address_count >= 1 && distinct_address_count <= 32) {
-                local_distinct_sector_count[pc_offset][65 + distinct_address_count - 1] += 1;
-            }
-        }
-
-        {
-            std::lock_guard<std::mutex> guard(_worker_pool_mutex);
-            seen_generation = current_generation;
-            if (!trace_indices.empty()) {
-                assert(_worker_pending_jobs > 0);
-                _worker_pending_jobs -= 1;
-                if (_worker_pending_jobs == 0) {
-                    _worker_pool_done_cv.notify_one();
-                }
-            }
-        }
-    }
 }
 
 
@@ -4250,47 +4263,141 @@ void PcDependency::gpu_data_analysis(void* data, uint64_t size) {
         g_late_keys.clear();
     }
 
-    for (uint64_t worker_idx = 0; worker_idx < _worker_count; ++worker_idx) {
-        _job_worker_trace_indices[worker_idx].clear();
-        _job_worker_pc_statistics[worker_idx].clear();
-        _job_worker_pc_flags[worker_idx].clear();
-        _job_worker_distinct_sector_count[worker_idx].clear();
-        _job_worker_trace_indices[worker_idx].reserve((size / _worker_count) + 1);
+    // T26: the PCDepGraph pass, sharded by location (the block comment above PcdEnt). The pass
+    // reads the drain in buffer order, as the serial pass did.
+    PcdPool* pool = pcd_pool();
+    if (pool == nullptr) {                     // a tool instance that saw no kernel start
+        pool = pcd_pool() = new PcdPool();
+        pool->start(static_cast<unsigned>(std::min<uint64_t>(64, _worker_count)));
     }
-
-    // Stable assignment by block id keeps intra-block trace order.
-    for (uint64_t i = 0; i < size; ++i) {
-        const uint64_t worker_idx = accesses_buffer[i].ctaId % _worker_count;
-        _job_worker_trace_indices[worker_idx].push_back(i);
-    }
-
-    uint64_t pending_jobs = 0;
-    for (uint64_t worker_idx = 0; worker_idx < _worker_count; ++worker_idx) {
-        if (!_job_worker_trace_indices[worker_idx].empty()) {
-            pending_jobs += 1;
+    const auto t_drain = std::chrono::steady_clock::now();
+    worker_shared_shadow_state& shared_pool = _worker_shadow_memory_shared[0];
+    PcdCtx& ctx = pool->ctx;
+    ctx.buf = accesses_buffer;
+    ctx.kgen = _kernel_generation;
+    ctx.shared_kgen = _shared_kernel_generation;
+    ctx.shared_bytes = _shared_shadow_bytes_per_object;
+    ctx.objects = shared_pool.object_entries.data();
+    ctx.n = pool->n;
+    const unsigned n = pool->n;
+    // threaded: a drain of at least inline_max records with more than one shard
+    const bool threaded = n > 1 && size >= pool->inline_max;
+    pool->prepare(size);
+    if (threaded) pool->launch();
+    PcdRoute rt;
+    rt.n = n;
+    double route_s = 0;
+    for (uint64_t c = 0; c < pool->nchunks; ++c) {
+        const auto t0 = std::chrono::steady_clock::now();
+        if (n > 1) for (unsigned s = 0; s < n; ++s) pool->cents[s][c].clear();
+        const uint64_t kend = std::min<uint64_t>(size, (c + 1) * PcdPool::CHUNK);
+        for (uint64_t k = c * PcdPool::CHUNK; k < kend; ++k) {
+            const MemoryAccess& t = accesses_buffer[k];
+            uint32_t obj = 0;
+            uint64_t base = 0;
+            shadow_memory* sm = nullptr;
+            bool miss = false;
+            switch (t.type) {
+                case MemoryType::BlockExit:
+                    release_shared_shadow_object(shared_pool, t.ctaId, __builtin_popcount(t.active_mask));
+                    continue;
+                case MemoryType::Barrier:
+                case MemoryType::Syncwarp:
+                case MemoryType::PipelineCommit:   // T1a (HB-trace runs only)
+                case MemoryType::PipelineWait:
+                    // Phase 2 sync events: no shadow/pc-statistics update. Consumed
+                    // by hb_collect_events (HB oracle) and HbClock.
+                    continue;
+                case MemoryType::Shared: {
+                    obj = acquire_shared_shadow_object(shared_pool, t.ctaId);
+                    if (obj == std::numeric_limits<uint32_t>::max()) {
+                        obj = 0;
+                        miss = true;                        // the record alone, PCD_MISS
+                        break;
+                    }
+                    const uint32_t o = obj;
+                    rt.lanes_by_segment(t.unique_address_mask, static_cast<int>(t.accessSize),
+                                        pcd_shared_hi(o), 0, [&](uint32_t l, int i) -> uint64_t {
+                        return static_cast<uint32_t>(static_cast<uint32_t>(t.addresses[l] & 0xFFFFFFFFull)
+                                                     + static_cast<uint32_t>(i)) >> 7;
+                    });
+                    break;
+                }
+                case MemoryType::Global: {
+                    if (t.active_mask == 0) break;
+                    const memory_region* reg = find_memory_region_containing(
+                        this->_memory_regions, t.addresses[__builtin_ctz(t.active_mask)]);
+                    uint32_t f = PCD_UNKNOWN;
+                    if (reg != nullptr) {
+                        auto it = this->_shadow_memories.find(*reg);
+                        if (it == this->_shadow_memories.end()) {
+                            // reported per lane (serial unit_access); no word is touched
+                            for (uint32_t m = t.unique_address_mask; m != 0; m &= (m - 1))
+                                printf("shadow memory not found for memory region: %lu - %lu\n",
+                                       reg->get_start(), reg->get_end());
+                            break;
+                        }
+                        sm = it->second.get();
+                        base = reg->get_start();
+                        f = 0;
+                    }
+                    rt.lanes_by_segment(t.unique_address_mask, static_cast<int>(t.accessSize), 0, f,
+                                        [&](uint32_t l, int i) -> uint64_t {
+                        return (t.addresses[l] + static_cast<uint64_t>(i)) >> 7;
+                    });
+                    break;
+                }
+                default:                                   // Local, an unknown type: the record alone
+                    break;
+            }
+            // the record's own statistics: on its first touched shard, else on shard k mod n
+            const unsigned rs = rt.touched != 0 ? static_cast<unsigned>(__builtin_ctzll(rt.touched))
+                                                : static_cast<unsigned>(k % n);
+            rt.touched |= uint64_t(1) << rs;
+            rt.fl[rs] |= PCD_REC;
+            for (uint64_t tt = rt.touched; tt != 0; tt &= (tt - 1)) {
+                const unsigned s = static_cast<unsigned>(__builtin_ctzll(tt));
+                const PcdEnt e{static_cast<uint32_t>(k), rt.masks[s], rt.fl[s] | (miss ? PCD_MISS : 0u),
+                               obj, base, sm};
+                if (n == 1) pcd_apply(*pool->shards[0], ctx, 0, e);
+                else {
+                    pool->cents[s][c].push_back(e);
+                    if (pool->stats) { pool->entries += 1; if (e.f & PCD_SPLIT) pool->split_entries += 1; }
+                }
+                rt.masks[s] = 0;
+                rt.fl[s] = 0;
+            }
+            rt.touched = 0;
         }
+        route_s += std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count();
+        if (threaded) pool->publish(c);
     }
-    if (pending_jobs == 0) {
-        return;
+    pool->route_s += route_s;
+    pool->records += size;
+    if (n > 1) {
+        const auto t0 = std::chrono::steady_clock::now();
+        if (threaded) {
+            pool->join();
+        } else {
+            pool->routed.store(pool->nchunks, std::memory_order_relaxed);
+            for (unsigned s = 0; s < n; ++s) pool->run(s);
+        }
+        pool->wait_s += std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count();
     }
+    pool->drain_s += std::chrono::duration<double>(std::chrono::steady_clock::now() - t_drain).count();
+}
 
-    {
-        std::lock_guard<std::mutex> guard(_worker_pool_mutex);
-        _job_accesses_buffer = accesses_buffer;
-        _worker_pending_jobs = pending_jobs;
-        ++_worker_job_generation;
-    }
-    _worker_pool_cv.notify_all();
-    {
-        std::unique_lock<std::mutex> lock(_worker_pool_mutex);
-        _worker_pool_done_cv.wait(lock, [&]{
-            return _worker_pending_jobs == 0;
-        });
-    }
-
-    for (auto& local_flags_map : _job_worker_pc_flags) {
-        for (auto& [pc, local_flag] : local_flags_map) {
-            auto& global_flag = this->_pc_flags[pc];
+// T26: the shards' statistics into the global maps, once per kernel (before kernel_trace_flush)
+static void pcdep_merge_shards(phmap::flat_hash_map<uint64_t, PC_statisitics>& pc_statistics,
+                        phmap::flat_hash_map<uint32_t, std::pair<uint32_t, uint32_t>>& pc_flags,
+                        std::unordered_map<uint32_t, std::array<uint64_t, 97>>& distinct_sector_count,
+                        uint32_t kernel_id) {
+    PcdPool* pool = pcd_pool();
+    if (pool == nullptr) return;
+    for (auto& shp : pool->shards) {
+        PcdShard& sh = *shp;
+        for (auto& [pc, local_flag] : sh.flags) {
+            auto& global_flag = pc_flags[pc];
             global_flag.first |= local_flag.first;
             if (global_flag.second == 0) {
                 global_flag.second = local_flag.second;
@@ -4298,26 +4405,45 @@ void PcDependency::gpu_data_analysis(void* data, uint64_t size) {
                 global_flag.second = std::max(global_flag.second, local_flag.second);
             }
         }
-    }
-
-    for (auto& local_distinct_map : _job_worker_distinct_sector_count) {
-        for (auto& [pc, local_hist] : local_distinct_map) {
-            auto& global_hist = this->_distinct_sector_count[pc];
-            for (size_t idx = 0; idx < global_hist.size(); ++idx) {
-                global_hist[idx] += local_hist[idx];
-            }
+        for (auto& [pc, local_hist] : sh.hist) {
+            auto& global_hist = distinct_sector_count[pc];
+            for (size_t idx = 0; idx < global_hist.size(); ++idx) global_hist[idx] += local_hist[idx];
+        }
+        for (auto& kv : sh.stats) {
+            auto& global_stats = pc_statistics[kv.first];
+            for (int d = 0; d < 5; ++d) global_stats.dist[d] += kv.second.dist[d];
         }
     }
-
-    for (auto& local_map : _job_worker_pc_statistics) {
-        for (auto& kv : local_map) {
-            auto& global_stats = this->_pc_statistics[kv.first];
-            for (int d = 0; d < 5; ++d) {
-                global_stats.dist[d] += kv.second.dist[d];
-            }
-        }
+    if (pool->stats) {
+        std::ostringstream o;
+        o << "{\"shards\": " << pool->n << ", \"records\": " << pool->records
+          << ", \"entries\": " << pool->entries << ", \"split_entries\": " << pool->split_entries
+          << ", \"drain_s\": " << pool->drain_s << ", \"route_s\": " << pool->route_s
+          << ", \"wait_s\": " << pool->wait_s << ", \"busy_s\": [";
+        for (unsigned i = 0; i < pool->n; ++i) o << (i ? ", " : "") << pool->shards[i]->busy_s;
+        o << "], \"stall_s\": [";
+        for (unsigned i = 0; i < pool->n; ++i) o << (i ? ", " : "") << pool->shards[i]->stall_s;
+        o << "], \"stats_keys\": [";
+        for (unsigned i = 0; i < pool->n; ++i) o << (i ? ", " : "") << pool->shards[i]->stats.size();
+        o << "]}";
+        fprintf(stderr, "[PCDEP_STATS] kernel_%u %s\n", kernel_id, o.str().c_str());
     }
+    pool->reset_kernel();
+}
 
+static void pcdep_start_kernel(uint64_t worker_count) {
+    PcdPool*& pool = pcd_pool();
+    if (pool == nullptr) {
+        uint64_t n = worker_count;
+        if (n > 64) {
+            fprintf(stderr, "[cuVein] YOSEMITE_WORKER_COUNT=%lu is above 64; the PCDepGraph pass uses 64 shards\n",
+                    (unsigned long)n);
+            n = 64;
+        }
+        pool = new PcdPool();
+        pool->start(static_cast<unsigned>(std::max<uint64_t>(1, n)));
+    }
+    pool->reset_kernel();
 }
 
 

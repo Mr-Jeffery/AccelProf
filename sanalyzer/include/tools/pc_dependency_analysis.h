@@ -257,55 +257,14 @@ private:
     void hb_clock_reset();
     void hb_clock_emit(std::ofstream& jout);
 
-    void unit_access(
-        uint64_t ptr,
-        uint32_t pc_offset,
-        uint64_t current_block_id,
-        uint32_t current_warp_id,
-        uint32_t current_lane_id,
-        memory_region& memory_region_target,
-        int access_size,
-        phmap::flat_hash_map<uint64_t, PC_statisitics>& local_pc_statistics
-    );
-
-    void unit_access_shared(
-        uint64_t ptr,
-        uint32_t pc_offset,
-        uint32_t object_idx,
-        uint64_t current_block_id,
-        uint32_t current_warp_id,
-        uint32_t current_lane_id,
-        int access_size,
-        phmap::flat_hash_map<uint64_t, PC_statisitics>& local_pc_statistics,
-        worker_shared_shadow_state& local_shadow_memory_shared
-    );
-
-    void unit_access_local(uint64_t ptr, uint32_t pc_offset, uint64_t current_block_id, uint32_t current_warp_id, uint32_t current_lane_id, int access_size);
-
-    // Fallback for global-memory accesses whose base allocation was not captured
-    // (e.g. __device__ static globals, VMM-mapped memory).  Uses a concurrent
-    // hashmap keyed by absolute device address instead of a pre-allocated shadow
-    // array, so no prior registration is required.
-    void unit_access_unknown(
-        uint64_t abs_addr,
-        uint32_t pc_offset,
-        uint64_t current_block_id,
-        uint32_t current_warp_id,
-        uint32_t current_lane_id,
-        int access_size,
-        phmap::flat_hash_map<uint64_t, PC_statisitics>& local_pc_statistics
-    );
-    void worker_loop(uint64_t worker_idx);
+    // T26: the PCDepGraph pass's per-lane steps (the serial unit_access, unit_access_unknown,
+    // unit_access_shared) and its worker loop are file-static in the .cpp (pcd_global, pcd_unknown,
+    // pcd_shared, PcdPool); the drain thread routes and owns the shared-memory pool.
     uint32_t acquire_shared_shadow_object(worker_shared_shadow_state& local_shadow_memory_shared, uint64_t cta_id);
     void release_shared_shadow_object(
         worker_shared_shadow_state& local_shadow_memory_shared,
         uint64_t cta_id,
         uint32_t exiting_threads
-    );
-    shared_shadow_memory_entry& get_shared_shadow_entry(
-        worker_shared_shadow_state& local_shadow_memory_shared,
-        uint32_t object_idx,
-        uint32_t addr
     );
     uint64_t pack_pc_ancient_pairs(uint32_t current_pc_offset, uint32_t ancient_pc_offset){
         return static_cast<uint64_t>(current_pc_offset) << 32 | static_cast<uint64_t>(ancient_pc_offset);
@@ -370,7 +329,9 @@ private:
     // Index [65..96]: distinct address count 1..32.
     std::unordered_map<uint32_t, std::array<uint64_t, 97>> _distinct_sector_count;
 
-    // Persistent worker pool and per-worker shared-memory shadow state.
+    // Persistent worker pool and per-worker shared-memory shadow state. T26: the members below are
+    // kept for the layout (see the note above); the pass uses _worker_count (the shard count), one
+    // pool _worker_shadow_memory_shared[0] and the per-object sizes; the rest stay empty.
     uint64_t _worker_count = 1;
     std::vector<std::thread> _workers;
     std::vector<worker_shared_shadow_state> _worker_shadow_memory_shared;

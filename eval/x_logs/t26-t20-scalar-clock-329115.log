@@ -1,0 +1,905 @@
+host=c56 gpu=[NVIDIA GeForce RTX 4060 Ti, 8.9, 580.105.08] cpu=[AMD EPYC 9115 16-Core Processor] nproc=16 mem=125G job=329115 mode=scalar-clock cfgs=[Ic Bc] replays=[inst n16] cap=1200s skip=[P7-particlefilter-cuda] 2026-11-07T13:26:02-05:00
+installed: libsanalyzer 5a20fd14ab6c6806 collector b746b4dd23e90f46 HEAD f551ca00947e
+new: libsanalyzer 31e4d53d367e693b collector 86473afa906669e5 worktree HEAD 98371ee1db65 dirty 5
+capture: shim 13af2850be2309d2 collector 32c379841cc17fc2 replay 0a53adee05384d95
+fatbin a2d7368bc1c61986
+store=/mnt/beegfs/fzheng4/t26/t20-scalar-clock-329115 work=/tmp/fzheng4-t26-t20-scalar-clock-329115 (390G free)
+== P1-BFS_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Thread_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug_NoOverflowBug-default-100n 2026-11-07T13:26:05-05:00
+  live Ic (3 s): rc=0 timed_out=False wall=1.269 kernels=12 records=None workers=1
+  live Bc (2 s): rc=0 timed_out=False wall=0.617 kernels=12 records=None workers=16
+  Ic capture 98456 bytes
+  replay Ic inst: [t26_replay] Ic/P1-BFS_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Thread_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug_NoOverflowBug-default-100n/cap.1499229.bin: 12 kernels, 12 drains, 525 records, 0.009 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P1-BFS_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Thread_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug_NoOverflowBug-default-100n/cap.1499229.bin: 12 kernels, 12 drains, 525 records, 0.008 s rc=0 
+  Bc capture 98456 bytes
+  replay Bc inst: [t26_replay] Bc/P1-BFS_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Thread_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug_NoOverflowBug-default-100n/cap.1499305.bin: 12 kernels, 12 drains, 525 records, 0.008 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P1-BFS_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Thread_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug_NoOverflowBug-default-100n/cap.1499305.bin: 12 kernels, 12 drains, 525 records, 0.008 s rc=0 
+P1-BFS_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Thread_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug_NoOverflowBug-default-100n fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=12 bytes_equal=12 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-BFS_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Thread_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug_NoOverflowBug-default-100n same-stream: Ic installed -n1 vs new n16 EQUAL kernels=12 bytes_equal=12 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-BFS_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Thread_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug_NoOverflowBug-default-100n same-stream: Bc installed -n1 vs new n16 EQUAL kernels=12 bytes_equal=12 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-BFS_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Thread_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug_NoOverflowBug-default-100n same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=12 bytes_equal=12 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-BFS_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Thread_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug_NoOverflowBug-default-100n live: Ic installed -n1 vs Bc new N=16 EQUAL kernels=12 bytes_equal=12 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+== P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-100n 2026-11-07T13:26:12-05:00
+  live Ic (2 s): rc=0 timed_out=False wall=0.617 kernels=12 records=None workers=1
+  live Bc (2 s): rc=0 timed_out=False wall=0.617 kernels=12 records=None workers=16
+  Ic capture 140879 bytes
+  replay Ic inst: [t26_replay] Ic/P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-100n/cap.1499633.bin: 12 kernels, 12 drains, 856 records, 0.011 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-100n/cap.1499633.bin: 12 kernels, 12 drains, 856 records, 0.010 s rc=0 
+  Bc capture 139896 bytes
+  replay Bc inst: [t26_replay] Bc/P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-100n/cap.1499709.bin: 12 kernels, 12 drains, 833 records, 0.010 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-100n/cap.1499709.bin: 12 kernels, 12 drains, 833 records, 0.010 s rc=0 
+P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-100n fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=12 bytes_equal=12 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-100n same-stream: Ic installed -n1 vs new n16 EQUAL kernels=12 bytes_equal=12 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-100n same-stream: Bc installed -n1 vs new n16 EQUAL kernels=12 bytes_equal=12 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-100n same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=12 bytes_equal=12 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-100n live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=12 bytes_equal=7 differ=5 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=1 edges_changed=27 dist_count_diffs=51 nodes_differ=30
+== P1-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_RaceBug_NoBoundsBug_NoLivelockBug_NoFieldBug-default-100n 2026-11-07T13:26:29-05:00
+  live Ic (2 s): rc=0 timed_out=False wall=0.717 kernels=13 records=None workers=1
+  live Bc (2 s): rc=0 timed_out=False wall=0.717 kernels=13 records=None workers=16
+  Ic capture 6029952 bytes
+  replay Ic inst: [t26_replay] Ic/P1-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_RaceBug_NoBoundsBug_NoLivelockBug_NoFieldBug-default-100n/cap.1500044.bin: 13 kernels, 13 drains, 20483 records, 0.051 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P1-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_RaceBug_NoBoundsBug_NoLivelockBug_NoFieldBug-default-100n/cap.1500044.bin: 13 kernels, 13 drains, 20483 records, 0.047 s rc=0 
+  Bc capture 6029966 bytes
+  replay Bc inst: [t26_replay] Bc/P1-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_RaceBug_NoBoundsBug_NoLivelockBug_NoFieldBug-default-100n/cap.1500120.bin: 13 kernels, 13 drains, 20481 records, 0.050 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P1-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_RaceBug_NoBoundsBug_NoLivelockBug_NoFieldBug-default-100n/cap.1500120.bin: 13 kernels, 13 drains, 20481 records, 0.047 s rc=0 
+P1-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_RaceBug_NoBoundsBug_NoLivelockBug_NoFieldBug-default-100n fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=13 bytes_equal=13 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_RaceBug_NoBoundsBug_NoLivelockBug_NoFieldBug-default-100n same-stream: Ic installed -n1 vs new n16 EQUAL kernels=13 bytes_equal=13 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_RaceBug_NoBoundsBug_NoLivelockBug_NoFieldBug-default-100n same-stream: Bc installed -n1 vs new n16 EQUAL kernels=13 bytes_equal=13 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_RaceBug_NoBoundsBug_NoLivelockBug_NoFieldBug-default-100n same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=13 bytes_equal=13 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_RaceBug_NoBoundsBug_NoLivelockBug_NoFieldBug-default-100n live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=13 bytes_equal=1 differ=12 only_in_a=0 only_in_b=0 edges_only_a=9 edges_only_b=7 edges_changed=72 dist_count_diffs=100 nodes_differ=16
+== P1-BFS_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Thread_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoOverflowBug_NoLivelockBug-default-1296n 2026-11-07T13:26:35-05:00
+  live Ic (2 s): rc=0 timed_out=False wall=0.718 kernels=14 records=None workers=1
+  live Bc (3 s): rc=0 timed_out=False wall=0.717 kernels=14 records=None workers=16
+  Ic capture 7142225 bytes
+  replay Ic inst: [t26_replay] Ic/P1-BFS_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Thread_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoOverflowBug_NoLivelockBug-default-1296n/cap.1500446.bin: 14 kernels, 14 drains, 25799 records, 0.072 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P1-BFS_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Thread_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoOverflowBug_NoLivelockBug-default-1296n/cap.1500446.bin: 14 kernels, 14 drains, 25799 records, 0.070 s rc=0 
+  Bc capture 7142241 bytes
+  replay Bc inst: [t26_replay] Bc/P1-BFS_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Thread_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoOverflowBug_NoLivelockBug-default-1296n/cap.1500522.bin: 14 kernels, 14 drains, 25799 records, 0.073 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P1-BFS_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Thread_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoOverflowBug_NoLivelockBug-default-1296n/cap.1500522.bin: 14 kernels, 14 drains, 25799 records, 0.070 s rc=0 
+P1-BFS_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Thread_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoOverflowBug_NoLivelockBug-default-1296n fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=14 bytes_equal=14 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-BFS_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Thread_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoOverflowBug_NoLivelockBug-default-1296n same-stream: Ic installed -n1 vs new n16 EQUAL kernels=14 bytes_equal=14 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-BFS_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Thread_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoOverflowBug_NoLivelockBug-default-1296n same-stream: Bc installed -n1 vs new n16 EQUAL kernels=14 bytes_equal=14 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-BFS_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Thread_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoOverflowBug_NoLivelockBug-default-1296n same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=14 bytes_equal=14 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-BFS_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Thread_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoOverflowBug_NoLivelockBug-default-1296n live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=14 bytes_equal=5 differ=9 only_in_a=0 only_in_b=0 edges_only_a=17 edges_only_b=29 edges_changed=449 dist_count_diffs=653 nodes_differ=172
+== P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_Persist_RaceBug_Thread_NoNbrBoundsBug_NoBoundsBug_NoLivelockBug_NoFieldBug-default-1296n 2026-11-07T13:26:42-05:00
+  live Ic (2 s): rc=0 timed_out=False wall=0.717 kernels=11 records=None workers=1
+  live Bc (2 s): rc=0 timed_out=False wall=0.717 kernels=11 records=None workers=16
+  Ic capture 7388563 bytes
+  replay Ic inst: [t26_replay] Ic/P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_Persist_RaceBug_Thread_NoNbrBoundsBug_NoBoundsBug_NoLivelockBug_NoFieldBug-default-1296n/cap.1500848.bin: 11 kernels, 11 drains, 26599 records, 0.089 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_Persist_RaceBug_Thread_NoNbrBoundsBug_NoBoundsBug_NoLivelockBug_NoFieldBug-default-1296n/cap.1500848.bin: 11 kernels, 11 drains, 26599 records, 0.086 s rc=0 
+  Bc capture 7383449 bytes
+  replay Bc inst: [t26_replay] Bc/P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_Persist_RaceBug_Thread_NoNbrBoundsBug_NoBoundsBug_NoLivelockBug_NoFieldBug-default-1296n/cap.1500924.bin: 11 kernels, 11 drains, 26517 records, 0.088 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_Persist_RaceBug_Thread_NoNbrBoundsBug_NoBoundsBug_NoLivelockBug_NoFieldBug-default-1296n/cap.1500924.bin: 11 kernels, 11 drains, 26517 records, 0.085 s rc=0 
+P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_Persist_RaceBug_Thread_NoNbrBoundsBug_NoBoundsBug_NoLivelockBug_NoFieldBug-default-1296n fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=11 bytes_equal=11 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_Persist_RaceBug_Thread_NoNbrBoundsBug_NoBoundsBug_NoLivelockBug_NoFieldBug-default-1296n same-stream: Ic installed -n1 vs new n16 EQUAL kernels=11 bytes_equal=11 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_Persist_RaceBug_Thread_NoNbrBoundsBug_NoBoundsBug_NoLivelockBug_NoFieldBug-default-1296n same-stream: Bc installed -n1 vs new n16 EQUAL kernels=11 bytes_equal=11 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_Persist_RaceBug_Thread_NoNbrBoundsBug_NoBoundsBug_NoLivelockBug_NoFieldBug-default-1296n same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=11 bytes_equal=11 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-CC_CUDA_V_Topo_Push_NonDeterm_IntType_ReadWrite_Persist_RaceBug_Thread_NoNbrBoundsBug_NoBoundsBug_NoLivelockBug_NoFieldBug-default-1296n live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=11 bytes_equal=1 differ=10 only_in_a=0 only_in_b=0 edges_only_a=50 edges_only_b=31 edges_changed=540 dist_count_diffs=1142 nodes_differ=45
+== P1-BFS_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoOverflowBug_NoLivelockBug-default-100n 2026-11-07T13:26:58-05:00
+  live Ic (3 s): rc=0 timed_out=False wall=0.767 kernels=12 records=None workers=1
+  live Bc (3 s): rc=0 timed_out=False wall=0.717 kernels=12 records=None workers=16
+  Ic capture 9218500 bytes
+  replay Ic inst: [t26_replay] Ic/P1-BFS_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoOverflowBug_NoLivelockBug-default-100n/cap.1501258.bin: 12 kernels, 12 drains, 32636 records, 0.097 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P1-BFS_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoOverflowBug_NoLivelockBug-default-100n/cap.1501258.bin: 12 kernels, 12 drains, 32636 records, 0.092 s rc=0 
+  Bc capture 9218500 bytes
+  replay Bc inst: [t26_replay] Bc/P1-BFS_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoOverflowBug_NoLivelockBug-default-100n/cap.1501334.bin: 12 kernels, 12 drains, 32636 records, 0.095 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P1-BFS_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoOverflowBug_NoLivelockBug-default-100n/cap.1501334.bin: 12 kernels, 12 drains, 32636 records, 0.091 s rc=0 
+P1-BFS_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoOverflowBug_NoLivelockBug-default-100n fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=12 bytes_equal=12 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-BFS_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoOverflowBug_NoLivelockBug-default-100n same-stream: Ic installed -n1 vs new n16 EQUAL kernels=12 bytes_equal=12 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-BFS_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoOverflowBug_NoLivelockBug-default-100n same-stream: Bc installed -n1 vs new n16 EQUAL kernels=12 bytes_equal=12 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-BFS_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoOverflowBug_NoLivelockBug-default-100n same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=12 bytes_equal=12 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-BFS_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoOverflowBug_NoLivelockBug-default-100n live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=12 bytes_equal=3 differ=9 only_in_a=0 only_in_b=0 edges_only_a=32 edges_only_b=33 edges_changed=170 dist_count_diffs=182 nodes_differ=48
+== P1-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_RaceBug_NoBoundsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n 2026-11-07T13:27:06-05:00
+  live Ic (2 s): rc=0 timed_out=False wall=0.717 kernels=11 records=None workers=1
+  live Bc (2 s): rc=0 timed_out=False wall=0.717 kernels=11 records=None workers=16
+  Ic capture 9253229 bytes
+  replay Ic inst: [t26_replay] Ic/P1-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_RaceBug_NoBoundsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n/cap.1501660.bin: 11 kernels, 11 drains, 34150 records, 0.106 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P1-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_RaceBug_NoBoundsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n/cap.1501660.bin: 11 kernels, 11 drains, 34150 records, 0.102 s rc=0 
+  Bc capture 9259451 bytes
+  replay Bc inst: [t26_replay] Bc/P1-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_RaceBug_NoBoundsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n/cap.1501736.bin: 11 kernels, 11 drains, 34100 records, 0.105 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P1-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_RaceBug_NoBoundsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n/cap.1501736.bin: 11 kernels, 11 drains, 34100 records, 0.101 s rc=0 
+P1-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_RaceBug_NoBoundsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=11 bytes_equal=11 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_RaceBug_NoBoundsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n same-stream: Ic installed -n1 vs new n16 EQUAL kernels=11 bytes_equal=11 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_RaceBug_NoBoundsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n same-stream: Bc installed -n1 vs new n16 EQUAL kernels=11 bytes_equal=11 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_RaceBug_NoBoundsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=11 bytes_equal=11 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_RaceBug_NoBoundsBug_NoLivelockBug_NoFieldBug-slower_atomic-1296n live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=11 bytes_equal=1 differ=10 only_in_a=0 only_in_b=0 edges_only_a=2 edges_only_b=0 edges_changed=102 dist_count_diffs=209 nodes_differ=18
+== P1-CC_CUDA_V_Topo_Pull_NonDeterm_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-default-100n 2026-11-07T13:27:12-05:00
+  live Ic (2 s): rc=0 timed_out=False wall=0.767 kernels=11 records=None workers=1
+  live Bc (1 s): rc=0 timed_out=False wall=0.717 kernels=10 records=None workers=16
+  Ic capture 23970260 bytes
+  replay Ic inst: [t26_replay] Ic/P1-CC_CUDA_V_Topo_Pull_NonDeterm_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-default-100n/cap.1502062.bin: 11 kernels, 11 drains, 83080 records, 0.138 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P1-CC_CUDA_V_Topo_Pull_NonDeterm_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-default-100n/cap.1502062.bin: 11 kernels, 11 drains, 83080 records, 0.138 s rc=0 
+  Bc capture 21579974 bytes
+  replay Bc inst: [t26_replay] Bc/P1-CC_CUDA_V_Topo_Pull_NonDeterm_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-default-100n/cap.1502138.bin: 10 kernels, 10 drains, 74889 records, 0.124 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P1-CC_CUDA_V_Topo_Pull_NonDeterm_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-default-100n/cap.1502138.bin: 10 kernels, 10 drains, 74889 records, 0.120 s rc=0 
+P1-CC_CUDA_V_Topo_Pull_NonDeterm_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-default-100n fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=11 bytes_equal=11 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-CC_CUDA_V_Topo_Pull_NonDeterm_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-default-100n same-stream: Ic installed -n1 vs new n16 EQUAL kernels=11 bytes_equal=11 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-CC_CUDA_V_Topo_Pull_NonDeterm_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-default-100n same-stream: Bc installed -n1 vs new n16 EQUAL kernels=10 bytes_equal=10 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-CC_CUDA_V_Topo_Pull_NonDeterm_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-default-100n same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=10 bytes_equal=10 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-CC_CUDA_V_Topo_Pull_NonDeterm_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-default-100n live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=10 bytes_equal=1 differ=9 only_in_a=1 only_in_b=0 edges_only_a=5 edges_only_b=0 edges_changed=171 dist_count_diffs=181 nodes_differ=18
+== P1-BFS_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Block_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug_NoOverflowBug-slower_atomic-1296n 2026-11-07T13:27:21-05:00
+  live Ic (2 s): rc=0 timed_out=False wall=0.918 kernels=14 records=None workers=1
+  live Bc (2 s): rc=0 timed_out=False wall=0.917 kernels=14 records=None workers=16
+  Ic capture 53140312 bytes
+  replay Ic inst: [t26_replay] Ic/P1-BFS_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Block_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug_NoOverflowBug-slower_atomic-1296n/cap.1502464.bin: 14 kernels, 14 drains, 189611 records, 0.278 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P1-BFS_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Block_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug_NoOverflowBug-slower_atomic-1296n/cap.1502464.bin: 14 kernels, 14 drains, 189611 records, 0.274 s rc=0 
+  Bc capture 53629282 bytes
+  replay Bc inst: [t26_replay] Bc/P1-BFS_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Block_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug_NoOverflowBug-slower_atomic-1296n/cap.1502549.bin: 14 kernels, 14 drains, 191421 records, 0.274 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P1-BFS_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Block_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug_NoOverflowBug-slower_atomic-1296n/cap.1502549.bin: 14 kernels, 14 drains, 191421 records, 0.280 s rc=0 
+P1-BFS_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Block_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug_NoOverflowBug-slower_atomic-1296n fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=14 bytes_equal=14 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-BFS_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Block_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug_NoOverflowBug-slower_atomic-1296n same-stream: Ic installed -n1 vs new n16 EQUAL kernels=14 bytes_equal=14 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-BFS_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Block_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug_NoOverflowBug-slower_atomic-1296n same-stream: Bc installed -n1 vs new n16 EQUAL kernels=14 bytes_equal=14 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-BFS_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Block_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug_NoOverflowBug-slower_atomic-1296n same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=14 bytes_equal=14 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-BFS_CUDA_V_Data_Push_NonDeterm_IntType_ReadWrite_NonPersist_RaceBug_Block_NonDup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug_NoOverflowBug-slower_atomic-1296n live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=14 bytes_equal=2 differ=12 only_in_a=0 only_in_b=0 edges_only_a=2 edges_only_b=0 edges_changed=238 dist_count_diffs=287 nodes_differ=123
+== P1-CC_CUDA_V_Topo_Pull_Determ_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-slower_atomic-1296n 2026-11-07T13:27:29-05:00
+  live Ic (4 s): rc=0 timed_out=False wall=2.694 kernels=15 records=None workers=1
+  live Bc (3 s): rc=0 timed_out=False wall=2.642 kernels=15 records=None workers=16
+  Ic capture 460142826 bytes
+  replay Ic inst: [t26_replay] Ic/P1-CC_CUDA_V_Topo_Pull_Determ_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-slower_atomic-1296n/cap.1502932.bin: 15 kernels, 15 drains, 1588845 records, 1.744 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P1-CC_CUDA_V_Topo_Pull_Determ_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-slower_atomic-1296n/cap.1502932.bin: 15 kernels, 15 drains, 1588845 records, 1.736 s rc=0 
+  Bc capture 459706236 bytes
+  replay Bc inst: [t26_replay] Bc/P1-CC_CUDA_V_Topo_Pull_Determ_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-slower_atomic-1296n/cap.1503222.bin: 15 kernels, 15 drains, 1587375 records, 1.714 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P1-CC_CUDA_V_Topo_Pull_Determ_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-slower_atomic-1296n/cap.1503222.bin: 15 kernels, 15 drains, 1587375 records, 1.710 s rc=0 
+P1-CC_CUDA_V_Topo_Pull_Determ_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-slower_atomic-1296n fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=15 bytes_equal=15 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-CC_CUDA_V_Topo_Pull_Determ_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-slower_atomic-1296n same-stream: Ic installed -n1 vs new n16 EQUAL kernels=15 bytes_equal=15 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-CC_CUDA_V_Topo_Pull_Determ_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-slower_atomic-1296n same-stream: Bc installed -n1 vs new n16 EQUAL kernels=15 bytes_equal=15 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-CC_CUDA_V_Topo_Pull_Determ_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-slower_atomic-1296n same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=15 bytes_equal=15 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P1-CC_CUDA_V_Topo_Pull_Determ_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-slower_atomic-1296n live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=15 bytes_equal=1 differ=14 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=211 dist_count_diffs=239 nodes_differ=12
+== P3-CC_CUDA_E_Topo_NonDeterm_IntType_ReadModifyWrite_NonPersist_Atomic_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n 2026-11-07T13:27:48-05:00
+  live Ic (2 s): rc=0 timed_out=False wall=0.618 kernels=11 records=None workers=1
+  live Bc (1 s): rc=0 timed_out=False wall=0.617 kernels=11 records=None workers=16
+  Ic capture 214118 bytes
+  replay Ic inst: [t26_replay] Ic/P3-CC_CUDA_E_Topo_NonDeterm_IntType_ReadModifyWrite_NonPersist_Atomic_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n/cap.1504588.bin: 11 kernels, 11 drains, 855 records, 0.008 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P3-CC_CUDA_E_Topo_NonDeterm_IntType_ReadModifyWrite_NonPersist_Atomic_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n/cap.1504588.bin: 11 kernels, 11 drains, 855 records, 0.008 s rc=0 
+  Bc capture 214410 bytes
+  replay Bc inst: [t26_replay] Bc/P3-CC_CUDA_E_Topo_NonDeterm_IntType_ReadModifyWrite_NonPersist_Atomic_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n/cap.1504664.bin: 11 kernels, 11 drains, 859 records, 0.007 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P3-CC_CUDA_E_Topo_NonDeterm_IntType_ReadModifyWrite_NonPersist_Atomic_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n/cap.1504664.bin: 11 kernels, 11 drains, 859 records, 0.008 s rc=0 
+P3-CC_CUDA_E_Topo_NonDeterm_IntType_ReadModifyWrite_NonPersist_Atomic_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=11 bytes_equal=11 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_E_Topo_NonDeterm_IntType_ReadModifyWrite_NonPersist_Atomic_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n same-stream: Ic installed -n1 vs new n16 EQUAL kernels=11 bytes_equal=11 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_E_Topo_NonDeterm_IntType_ReadModifyWrite_NonPersist_Atomic_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n same-stream: Bc installed -n1 vs new n16 EQUAL kernels=11 bytes_equal=11 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_E_Topo_NonDeterm_IntType_ReadModifyWrite_NonPersist_Atomic_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=11 bytes_equal=11 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_E_Topo_NonDeterm_IntType_ReadModifyWrite_NonPersist_Atomic_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=11 bytes_equal=1 differ=10 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=2 edges_changed=37 dist_count_diffs=50 nodes_differ=8
+== P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_Thread_Dup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n 2026-11-07T13:27:54-05:00
+  live Ic (2 s): rc=0 timed_out=False wall=0.667 kernels=13 records=None workers=1
+  live Bc (2 s): rc=0 timed_out=False wall=0.667 kernels=13 records=None workers=16
+  Ic capture 181976 bytes
+  replay Ic inst: [t26_replay] Ic/P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_Thread_Dup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n/cap.1504990.bin: 13 kernels, 13 drains, 835 records, 0.010 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_Thread_Dup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n/cap.1504990.bin: 13 kernels, 13 drains, 835 records, 0.010 s rc=0 
+  Bc capture 181752 bytes
+  replay Bc inst: [t26_replay] Bc/P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_Thread_Dup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n/cap.1505066.bin: 13 kernels, 13 drains, 835 records, 0.010 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_Thread_Dup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n/cap.1505066.bin: 13 kernels, 13 drains, 835 records, 0.010 s rc=0 
+P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_Thread_Dup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=13 bytes_equal=13 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_Thread_Dup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n same-stream: Ic installed -n1 vs new n16 EQUAL kernels=13 bytes_equal=13 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_Thread_Dup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n same-stream: Bc installed -n1 vs new n16 EQUAL kernels=13 bytes_equal=13 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_Thread_Dup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=13 bytes_equal=13 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_Thread_Dup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=13 bytes_equal=5 differ=8 only_in_a=0 only_in_b=0 edges_only_a=1 edges_only_b=2 edges_changed=133 dist_count_diffs=208 nodes_differ=98
+== P3-CC_CUDA_E_Topo_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n 2026-11-07T13:27:59-05:00
+  live Ic (2 s): rc=0 timed_out=False wall=0.667 kernels=13 records=None workers=1
+  live Bc (2 s): rc=0 timed_out=False wall=0.617 kernels=13 records=None workers=16
+  Ic capture 263855 bytes
+  replay Ic inst: [t26_replay] Ic/P3-CC_CUDA_E_Topo_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n/cap.1505400.bin: 13 kernels, 13 drains, 1045 records, 0.009 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P3-CC_CUDA_E_Topo_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n/cap.1505400.bin: 13 kernels, 13 drains, 1045 records, 0.009 s rc=0 
+  Bc capture 263511 bytes
+  replay Bc inst: [t26_replay] Bc/P3-CC_CUDA_E_Topo_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n/cap.1505476.bin: 13 kernels, 13 drains, 1045 records, 0.010 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P3-CC_CUDA_E_Topo_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n/cap.1505476.bin: 13 kernels, 13 drains, 1045 records, 0.009 s rc=0 
+P3-CC_CUDA_E_Topo_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=13 bytes_equal=13 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_E_Topo_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n same-stream: Ic installed -n1 vs new n16 EQUAL kernels=13 bytes_equal=13 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_E_Topo_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n same-stream: Bc installed -n1 vs new n16 EQUAL kernels=13 bytes_equal=13 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_E_Topo_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=13 bytes_equal=13 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_E_Topo_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=13 bytes_equal=3 differ=10 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=10 dist_count_diffs=16 nodes_differ=10
+== P3-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_CudaAtomic_NoBoundsBug_NoLivelockBug_NoFieldBug-100n 2026-11-07T13:28:04-05:00
+  live Ic (2 s): rc=0 timed_out=False wall=0.667 kernels=13 records=None workers=1
+  live Bc (2 s): rc=0 timed_out=False wall=0.667 kernels=13 records=None workers=16
+  Ic capture 6036576 bytes
+  replay Ic inst: [t26_replay] Ic/P3-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_CudaAtomic_NoBoundsBug_NoLivelockBug_NoFieldBug-100n/cap.1505802.bin: 13 kernels, 13 drains, 20603 records, 0.051 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P3-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_CudaAtomic_NoBoundsBug_NoLivelockBug_NoFieldBug-100n/cap.1505802.bin: 13 kernels, 13 drains, 20603 records, 0.048 s rc=0 
+  Bc capture 6037681 bytes
+  replay Bc inst: [t26_replay] Bc/P3-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_CudaAtomic_NoBoundsBug_NoLivelockBug_NoFieldBug-100n/cap.1505878.bin: 13 kernels, 13 drains, 20612 records, 0.050 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P3-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_CudaAtomic_NoBoundsBug_NoLivelockBug_NoFieldBug-100n/cap.1505878.bin: 13 kernels, 13 drains, 20612 records, 0.048 s rc=0 
+P3-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_CudaAtomic_NoBoundsBug_NoLivelockBug_NoFieldBug-100n fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=13 bytes_equal=13 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_CudaAtomic_NoBoundsBug_NoLivelockBug_NoFieldBug-100n same-stream: Ic installed -n1 vs new n16 EQUAL kernels=13 bytes_equal=13 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_CudaAtomic_NoBoundsBug_NoLivelockBug_NoFieldBug-100n same-stream: Bc installed -n1 vs new n16 EQUAL kernels=13 bytes_equal=13 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_CudaAtomic_NoBoundsBug_NoLivelockBug_NoFieldBug-100n same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=13 bytes_equal=13 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_E_Topo_NonDeterm_IntType_ReadWrite_Persist_CudaAtomic_NoBoundsBug_NoLivelockBug_NoFieldBug-100n live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=13 bytes_equal=1 differ=12 only_in_a=0 only_in_b=0 edges_only_a=7 edges_only_b=3 edges_changed=54 dist_count_diffs=84 nodes_differ=20
+== P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Thread_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n 2026-11-07T13:28:09-05:00
+  live Ic (3 s): rc=0 timed_out=False wall=0.667 kernels=12 records=None workers=1
+  live Bc (2 s): rc=0 timed_out=False wall=0.667 kernels=12 records=None workers=16
+  Ic capture 5475195 bytes
+  replay Ic inst: [t26_replay] Ic/P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Thread_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n/cap.1506204.bin: 12 kernels, 12 drains, 19283 records, 0.049 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Thread_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n/cap.1506204.bin: 12 kernels, 12 drains, 19283 records, 0.046 s rc=0 
+  Bc capture 5473527 bytes
+  replay Bc inst: [t26_replay] Bc/P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Thread_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n/cap.1506280.bin: 12 kernels, 12 drains, 19223 records, 0.049 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Thread_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n/cap.1506280.bin: 12 kernels, 12 drains, 19223 records, 0.047 s rc=0 
+P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Thread_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=12 bytes_equal=12 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Thread_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n same-stream: Ic installed -n1 vs new n16 EQUAL kernels=12 bytes_equal=12 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Thread_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n same-stream: Bc installed -n1 vs new n16 EQUAL kernels=12 bytes_equal=12 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Thread_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=12 bytes_equal=12 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Thread_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=12 bytes_equal=5 differ=7 only_in_a=0 only_in_b=0 edges_only_a=17 edges_only_b=20 edges_changed=282 dist_count_diffs=435 nodes_differ=175
+== P3-CC_CUDA_E_Data_IntType_ReadWrite_Persist_Atomic_NoBoundsBug_NoLivelockBug_NonDeterm_NoFieldBug_Init-100n 2026-11-07T13:28:16-05:00
+  live Ic (4 s): rc=0 timed_out=False wall=2.921 kernels=12 records=None workers=1
+  live Bc (2 s): rc=0 timed_out=False wall=0.667 kernels=12 records=None workers=16
+  Ic capture 5611773 bytes
+  replay Ic inst: [t26_replay] Ic/P3-CC_CUDA_E_Data_IntType_ReadWrite_Persist_Atomic_NoBoundsBug_NoLivelockBug_NonDeterm_NoFieldBug_Init-100n/cap.1506606.bin: 12 kernels, 12 drains, 19968 records, 0.049 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P3-CC_CUDA_E_Data_IntType_ReadWrite_Persist_Atomic_NoBoundsBug_NoLivelockBug_NonDeterm_NoFieldBug_Init-100n/cap.1506606.bin: 12 kernels, 12 drains, 19968 records, 0.047 s rc=0 
+  Bc capture 5611656 bytes
+  replay Bc inst: [t26_replay] Bc/P3-CC_CUDA_E_Data_IntType_ReadWrite_Persist_Atomic_NoBoundsBug_NoLivelockBug_NonDeterm_NoFieldBug_Init-100n/cap.1506682.bin: 12 kernels, 12 drains, 19971 records, 0.049 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P3-CC_CUDA_E_Data_IntType_ReadWrite_Persist_Atomic_NoBoundsBug_NoLivelockBug_NonDeterm_NoFieldBug_Init-100n/cap.1506682.bin: 12 kernels, 12 drains, 19971 records, 0.047 s rc=0 
+P3-CC_CUDA_E_Data_IntType_ReadWrite_Persist_Atomic_NoBoundsBug_NoLivelockBug_NonDeterm_NoFieldBug_Init-100n fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=12 bytes_equal=12 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_E_Data_IntType_ReadWrite_Persist_Atomic_NoBoundsBug_NoLivelockBug_NonDeterm_NoFieldBug_Init-100n same-stream: Ic installed -n1 vs new n16 EQUAL kernels=12 bytes_equal=12 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_E_Data_IntType_ReadWrite_Persist_Atomic_NoBoundsBug_NoLivelockBug_NonDeterm_NoFieldBug_Init-100n same-stream: Bc installed -n1 vs new n16 EQUAL kernels=12 bytes_equal=12 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_E_Data_IntType_ReadWrite_Persist_Atomic_NoBoundsBug_NoLivelockBug_NonDeterm_NoFieldBug_Init-100n same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=12 bytes_equal=12 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_E_Data_IntType_ReadWrite_Persist_Atomic_NoBoundsBug_NoLivelockBug_NonDeterm_NoFieldBug_Init-100n live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=12 bytes_equal=2 differ=10 only_in_a=0 only_in_b=0 edges_only_a=11 edges_only_b=6 edges_changed=200 dist_count_diffs=295 nodes_differ=121
+== P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_Atomic_Warp_Dup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n 2026-11-07T13:28:26-05:00
+  live Ic (2 s): rc=0 timed_out=False wall=0.667 kernels=13 records=None workers=1
+  live Bc (2 s): rc=0 timed_out=False wall=0.667 kernels=13 records=None workers=16
+  Ic capture 1905027 bytes
+  replay Ic inst: [t26_replay] Ic/P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_Atomic_Warp_Dup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n/cap.1507009.bin: 13 kernels, 13 drains, 10166 records, 0.048 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_Atomic_Warp_Dup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n/cap.1507009.bin: 13 kernels, 13 drains, 10166 records, 0.047 s rc=0 
+  Bc capture 1857408 bytes
+  replay Bc inst: [t26_replay] Bc/P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_Atomic_Warp_Dup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n/cap.1507086.bin: 13 kernels, 13 drains, 9931 records, 0.048 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_Atomic_Warp_Dup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n/cap.1507086.bin: 13 kernels, 13 drains, 9931 records, 0.045 s rc=0 
+P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_Atomic_Warp_Dup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=13 bytes_equal=13 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_Atomic_Warp_Dup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n same-stream: Ic installed -n1 vs new n16 EQUAL kernels=13 bytes_equal=13 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_Atomic_Warp_Dup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n same-stream: Bc installed -n1 vs new n16 EQUAL kernels=13 bytes_equal=13 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_Atomic_Warp_Dup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=13 bytes_equal=13 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_Atomic_Warp_Dup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=13 bytes_equal=3 differ=10 only_in_a=0 only_in_b=0 edges_only_a=4 edges_only_b=0 edges_changed=101 dist_count_diffs=182 nodes_differ=81
+== P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n 2026-11-07T13:28:32-05:00
+  live Ic (2 s): rc=0 timed_out=False wall=0.718 kernels=9 records=None workers=1
+  live Bc (2 s): rc=0 timed_out=False wall=0.768 kernels=9 records=None workers=16
+  Ic capture 9200643 bytes
+  replay Ic inst: [t26_replay] Ic/P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n/cap.1507415.bin: 9 kernels, 9 drains, 34872 records, 0.185 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n/cap.1507415.bin: 9 kernels, 9 drains, 34872 records, 0.183 s rc=0 
+  Bc capture 9220747 bytes
+  replay Bc inst: [t26_replay] Bc/P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n/cap.1507492.bin: 9 kernels, 9 drains, 35024 records, 0.185 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n/cap.1507492.bin: 9 kernels, 9 drains, 35024 records, 0.185 s rc=0 
+P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=9 bytes_equal=9 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n same-stream: Ic installed -n1 vs new n16 EQUAL kernels=9 bytes_equal=9 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n same-stream: Bc installed -n1 vs new n16 EQUAL kernels=9 bytes_equal=9 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=9 bytes_equal=9 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Warp_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=9 bytes_equal=1 differ=8 only_in_a=0 only_in_b=0 edges_only_a=13 edges_only_b=22 edges_changed=309 dist_count_diffs=415 nodes_differ=127
+== P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_Block_Dup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n 2026-11-07T13:28:39-05:00
+  live Ic (2 s): rc=0 timed_out=False wall=0.868 kernels=13 records=None workers=1
+  live Bc (3 s): rc=0 timed_out=False wall=0.868 kernels=13 records=None workers=16
+  Ic capture 25038808 bytes
+  replay Ic inst: [t26_replay] Ic/P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_Block_Dup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n/cap.1507819.bin: 13 kernels, 13 drains, 87899 records, 0.247 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_Block_Dup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n/cap.1507819.bin: 13 kernels, 13 drains, 87899 records, 0.245 s rc=0 
+  Bc capture 25543213 bytes
+  replay Bc inst: [t26_replay] Bc/P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_Block_Dup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n/cap.1507927.bin: 13 kernels, 13 drains, 89680 records, 0.238 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_Block_Dup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n/cap.1507927.bin: 13 kernels, 13 drains, 89680 records, 0.239 s rc=0 
+P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_Block_Dup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=13 bytes_equal=13 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_Block_Dup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n same-stream: Ic installed -n1 vs new n16 EQUAL kernels=13 bytes_equal=13 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_Block_Dup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n same-stream: Bc installed -n1 vs new n16 EQUAL kernels=13 bytes_equal=13 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_Block_Dup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=13 bytes_equal=13 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_V_Data_Push_Determ_IntType_ReadModifyWrite_NonPersist_CudaAtomic_Block_Dup_NoNbrBoundsBug_NoExcessThreadsBug_NoLivelockBug_NoFieldBug-100n live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=13 bytes_equal=3 differ=10 only_in_a=0 only_in_b=0 edges_only_a=6 edges_only_b=0 edges_changed=135 dist_count_diffs=191 nodes_differ=74
+== P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n 2026-11-07T13:28:46-05:00
+  live Ic (6 s): rc=0 timed_out=False wall=4.924 kernels=11 records=None workers=1
+  live Bc (3 s): rc=0 timed_out=False wall=1.319 kernels=11 records=None workers=16
+  Ic capture 41241429 bytes
+  replay Ic inst: [t26_replay] Ic/P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n/cap.1508401.bin: 11 kernels, 11 drains, 143836 records, 0.724 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n/cap.1508401.bin: 11 kernels, 11 drains, 143836 records, 0.699 s rc=0 
+  Bc capture 41207765 bytes
+  replay Bc inst: [t26_replay] Bc/P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n/cap.1508477.bin: 11 kernels, 11 drains, 143796 records, 0.741 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n/cap.1508477.bin: 11 kernels, 11 drains, 143796 records, 0.732 s rc=0 
+P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=11 bytes_equal=11 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n same-stream: Ic installed -n1 vs new n16 EQUAL kernels=11 bytes_equal=11 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n same-stream: Bc installed -n1 vs new n16 EQUAL kernels=11 bytes_equal=11 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=11 bytes_equal=11 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_Atomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=11 bytes_equal=2 differ=9 only_in_a=0 only_in_b=0 edges_only_a=12 edges_only_b=23 edges_changed=405 dist_count_diffs=464 nodes_differ=178
+== P4-1dconv-racy-small 2026-11-07T13:29:01-05:00
+  live Ic (3 s): rc=0 timed_out=False wall=0.518 kernels=2 records=None workers=1
+  live Bc (2 s): rc=0 timed_out=False wall=0.517 kernels=2 records=None workers=16
+  Ic capture 437512 bytes
+  replay Ic inst: [t26_replay] Ic/P4-1dconv-racy-small/cap.1508815.bin: 2 kernels, 2 drains, 1472 records, 0.008 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P4-1dconv-racy-small/cap.1508815.bin: 2 kernels, 2 drains, 1472 records, 0.008 s rc=0 
+  Bc capture 437512 bytes
+  replay Bc inst: [t26_replay] Bc/P4-1dconv-racy-small/cap.1508895.bin: 2 kernels, 2 drains, 1472 records, 0.008 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P4-1dconv-racy-small/cap.1508895.bin: 2 kernels, 2 drains, 1472 records, 0.008 s rc=0 
+P4-1dconv-racy-small fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-1dconv-racy-small same-stream: Ic installed -n1 vs new n16 EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-1dconv-racy-small same-stream: Bc installed -n1 vs new n16 EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-1dconv-racy-small same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-1dconv-racy-small live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=2 bytes_equal=1 differ=1 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=1 dist_count_diffs=2 nodes_differ=0
+== P4-reduction-racy-small 2026-11-07T13:29:08-05:00
+  live Ic (17 s): rc=0 timed_out=False wall=5.275 kernels=1 records=None workers=1
+  live Bc (11 s): rc=0 timed_out=False wall=0.567 kernels=1 records=None workers=16
+  Ic capture 268492 bytes
+  replay Ic inst: [t26_replay] Ic/P4-reduction-racy-small/cap.1509239.bin: 1 kernels, 1 drains, 958 records, 0.029 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P4-reduction-racy-small/cap.1509239.bin: 1 kernels, 1 drains, 958 records, 0.028 s rc=0 
+  Bc capture 269383 bytes
+  replay Bc inst: [t26_replay] Bc/P4-reduction-racy-small/cap.1509334.bin: 1 kernels, 1 drains, 961 records, 0.030 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P4-reduction-racy-small/cap.1509334.bin: 1 kernels, 1 drains, 961 records, 0.028 s rc=0 
+P4-reduction-racy-small fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-reduction-racy-small same-stream: Ic installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-reduction-racy-small same-stream: Bc installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-reduction-racy-small same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-reduction-racy-small live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=1 bytes_equal=0 differ=1 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=4 dist_count_diffs=5 nodes_differ=3
+== P4-graph-connectivity-racy-small 2026-11-07T13:29:45-05:00
+  live Ic (4 s): rc=0 timed_out=False wall=0.818 kernels=3 records=None workers=1
+  live Bc (3 s): rc=0 timed_out=False wall=0.617 kernels=3 records=None workers=16
+  Ic capture 2120978 bytes
+  replay Ic inst: [t26_replay] Ic/P4-graph-connectivity-racy-small/cap.1509683.bin: 3 kernels, 3 drains, 9871 records, 0.097 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P4-graph-connectivity-racy-small/cap.1509683.bin: 3 kernels, 3 drains, 9871 records, 0.088 s rc=0 
+  Bc capture 2121212 bytes
+  replay Bc inst: [t26_replay] Bc/P4-graph-connectivity-racy-small/cap.1509764.bin: 3 kernels, 3 drains, 9857 records, 0.099 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P4-graph-connectivity-racy-small/cap.1509764.bin: 3 kernels, 3 drains, 9857 records, 0.090 s rc=0 
+P4-graph-connectivity-racy-small fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=3 bytes_equal=3 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-graph-connectivity-racy-small same-stream: Ic installed -n1 vs new n16 EQUAL kernels=3 bytes_equal=3 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-graph-connectivity-racy-small same-stream: Bc installed -n1 vs new n16 EQUAL kernels=3 bytes_equal=3 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-graph-connectivity-racy-small same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=3 bytes_equal=3 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-graph-connectivity-racy-small live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=3 bytes_equal=0 differ=3 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=42 dist_count_diffs=72 nodes_differ=7
+== P4-rule-110-racy-small 2026-11-07T13:29:55-05:00
+  live Ic (3 s): rc=0 timed_out=False wall=0.818 kernels=16 records=None workers=1
+  live Bc (4 s): rc=0 timed_out=False wall=0.818 kernels=16 records=None workers=16
+  Ic capture 10388403 bytes
+  replay Ic inst: [t26_replay] Ic/P4-rule-110-racy-small/cap.1510094.bin: 16 kernels, 16 drains, 35909 records, 0.104 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P4-rule-110-racy-small/cap.1510094.bin: 16 kernels, 16 drains, 35909 records, 0.095 s rc=0 
+  Bc capture 10387847 bytes
+  replay Bc inst: [t26_replay] Bc/P4-rule-110-racy-small/cap.1510197.bin: 16 kernels, 16 drains, 35897 records, 0.107 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P4-rule-110-racy-small/cap.1510197.bin: 16 kernels, 16 drains, 35897 records, 0.094 s rc=0 
+P4-rule-110-racy-small fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=16 bytes_equal=16 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-rule-110-racy-small same-stream: Ic installed -n1 vs new n16 EQUAL kernels=16 bytes_equal=16 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-rule-110-racy-small same-stream: Bc installed -n1 vs new n16 EQUAL kernels=16 bytes_equal=16 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-rule-110-racy-small same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=16 bytes_equal=16 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-rule-110-racy-small live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=16 bytes_equal=0 differ=16 only_in_a=0 only_in_b=0 edges_only_a=6 edges_only_b=3 edges_changed=163 dist_count_diffs=182 nodes_differ=16
+== P4-reduction-racy-large 2026-11-07T13:30:04-05:00
+  live Ic (10 s): rc=0 timed_out=False wall=0.817 kernels=1 records=None workers=1
+  live Bc (11 s): rc=0 timed_out=False wall=0.667 kernels=1 records=None workers=16
+  Ic capture 11229206 bytes
+  replay Ic inst: [t26_replay] Ic/P4-reduction-racy-large/cap.1510551.bin: 1 kernels, 1 drains, 38152 records, 0.092 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P4-reduction-racy-large/cap.1510551.bin: 1 kernels, 1 drains, 38152 records, 0.096 s rc=0 
+  Bc capture 11229800 bytes
+  replay Bc inst: [t26_replay] Bc/P4-reduction-racy-large/cap.1510645.bin: 1 kernels, 1 drains, 38154 records, 0.093 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P4-reduction-racy-large/cap.1510645.bin: 1 kernels, 1 drains, 38154 records, 0.095 s rc=0 
+P4-reduction-racy-large fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-reduction-racy-large same-stream: Ic installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-reduction-racy-large same-stream: Bc installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-reduction-racy-large same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-reduction-racy-large live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=1 bytes_equal=0 differ=1 only_in_a=0 only_in_b=0 edges_only_a=3 edges_only_b=2 edges_changed=18 dist_count_diffs=18 nodes_differ=6
+== P4-reduction-norace-large 2026-11-07T13:30:36-05:00
+  live Ic (10 s): rc=0 timed_out=False wall=0.817 kernels=1 records=None workers=1
+  live Bc (11 s): rc=0 timed_out=False wall=0.667 kernels=1 records=None workers=16
+  Ic capture 11231879 bytes
+  replay Ic inst: [t26_replay] Ic/P4-reduction-norace-large/cap.1511008.bin: 1 kernels, 1 drains, 38161 records, 0.092 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P4-reduction-norace-large/cap.1511008.bin: 1 kernels, 1 drains, 38161 records, 0.094 s rc=0 
+  Bc capture 11227424 bytes
+  replay Bc inst: [t26_replay] Bc/P4-reduction-norace-large/cap.1511102.bin: 1 kernels, 1 drains, 38146 records, 0.093 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P4-reduction-norace-large/cap.1511102.bin: 1 kernels, 1 drains, 38146 records, 0.095 s rc=0 
+P4-reduction-norace-large fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-reduction-norace-large same-stream: Ic installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-reduction-norace-large same-stream: Bc installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-reduction-norace-large same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-reduction-norace-large live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=1 bytes_equal=0 differ=1 only_in_a=0 only_in_b=0 edges_only_a=2 edges_only_b=2 edges_changed=14 dist_count_diffs=14 nodes_differ=6
+== P4-graph-coloring-racy-small 2026-11-07T13:31:07-05:00
+  live Ic (4 s): rc=0 timed_out=False wall=2.17 kernels=42 records=None workers=1
+  live Bc (4 s): rc=0 timed_out=False wall=2.07 kernels=42 records=None workers=16
+  Ic capture 25156942 bytes
+  replay Ic inst: [t26_replay] Ic/P4-graph-coloring-racy-small/cap.1511459.bin: 42 kernels, 42 drains, 111976 records, 1.187 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P4-graph-coloring-racy-small/cap.1511459.bin: 42 kernels, 42 drains, 111976 records, 1.089 s rc=0 
+  Bc capture 25156942 bytes
+  replay Bc inst: [t26_replay] Bc/P4-graph-coloring-racy-small/cap.1511540.bin: 42 kernels, 42 drains, 111976 records, 1.182 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P4-graph-coloring-racy-small/cap.1511540.bin: 42 kernels, 42 drains, 111976 records, 1.081 s rc=0 
+P4-graph-coloring-racy-small fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=42 bytes_equal=42 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-graph-coloring-racy-small same-stream: Ic installed -n1 vs new n16 EQUAL kernels=42 bytes_equal=42 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-graph-coloring-racy-small same-stream: Bc installed -n1 vs new n16 EQUAL kernels=42 bytes_equal=42 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-graph-coloring-racy-small same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=42 bytes_equal=42 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-graph-coloring-racy-small live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=42 bytes_equal=0 differ=42 only_in_a=0 only_in_b=0 edges_only_a=11 edges_only_b=2 edges_changed=232 dist_count_diffs=420 nodes_differ=6
+== P4-matrix-multiplication-norace-small 2026-11-07T13:31:27-05:00
+  live Ic (3 s): rc=0 timed_out=False wall=0.718 kernels=1 records=None workers=1
+  live Bc (2 s): rc=0 timed_out=False wall=0.717 kernels=1 records=None workers=16
+  Ic capture 56230015 bytes
+  replay Ic inst: [t26_replay] Ic/P4-matrix-multiplication-norace-small/cap.1511871.bin: 1 kernels, 1 drains, 189425 records, 0.195 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P4-matrix-multiplication-norace-small/cap.1511871.bin: 1 kernels, 1 drains, 189425 records, 0.182 s rc=0 
+  Bc capture 56374654 bytes
+  replay Bc inst: [t26_replay] Bc/P4-matrix-multiplication-norace-small/cap.1511950.bin: 1 kernels, 1 drains, 189912 records, 0.196 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P4-matrix-multiplication-norace-small/cap.1511950.bin: 1 kernels, 1 drains, 189912 records, 0.194 s rc=0 
+P4-matrix-multiplication-norace-small fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-matrix-multiplication-norace-small same-stream: Ic installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-matrix-multiplication-norace-small same-stream: Bc installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-matrix-multiplication-norace-small same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-matrix-multiplication-norace-small live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=1 bytes_equal=0 differ=1 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=16 dist_count_diffs=29 nodes_differ=3
+== P4-1dconv-norace-large 2026-11-07T13:31:34-05:00
+  live Ic (5 s): rc=0 timed_out=False wall=1.919 kernels=2 records=None workers=1
+  live Bc (4 s): rc=0 timed_out=False wall=1.569 kernels=2 records=None workers=16
+  Ic capture 156334856 bytes
+  replay Ic inst: [t26_replay] Ic/P4-1dconv-norace-large/cap.1512279.bin: 2 kernels, 2 drains, 533440 records, 0.722 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P4-1dconv-norace-large/cap.1512279.bin: 2 kernels, 2 drains, 533440 records, 0.741 s rc=0 
+  Bc capture 156334856 bytes
+  replay Bc inst: [t26_replay] Bc/P4-1dconv-norace-large/cap.1512375.bin: 2 kernels, 2 drains, 533440 records, 0.720 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P4-1dconv-norace-large/cap.1512375.bin: 2 kernels, 2 drains, 533440 records, 0.730 s rc=0 
+P4-1dconv-norace-large fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-1dconv-norace-large same-stream: Ic installed -n1 vs new n16 EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-1dconv-norace-large same-stream: Bc installed -n1 vs new n16 EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-1dconv-norace-large same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-1dconv-norace-large live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=2 bytes_equal=1 differ=1 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=4 edges_changed=31 dist_count_diffs=56 nodes_differ=0
+== P4-rule-110-norace-large 2026-11-07T13:31:48-05:00
+  live Ic (8 s): rc=0 timed_out=False wall=2.671 kernels=64 records=None workers=1
+  live Bc (6 s): rc=0 timed_out=False wall=2.521 kernels=64 records=None workers=16
+  Ic capture 348232884 bytes
+  replay Ic inst: [t26_replay] Ic/P4-rule-110-norace-large/cap.1512784.bin: 64 kernels, 64 drains, 1178390 records, 1.632 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P4-rule-110-norace-large/cap.1512784.bin: 64 kernels, 64 drains, 1178390 records, 1.520 s rc=0 
+  Bc capture 348234477 bytes
+  replay Bc inst: [t26_replay] Bc/P4-rule-110-norace-large/cap.1512871.bin: 64 kernels, 64 drains, 1178431 records, 1.631 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P4-rule-110-norace-large/cap.1512871.bin: 64 kernels, 64 drains, 1178431 records, 1.508 s rc=0 
+P4-rule-110-norace-large fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=64 bytes_equal=64 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-rule-110-norace-large same-stream: Ic installed -n1 vs new n16 EQUAL kernels=64 bytes_equal=64 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-rule-110-norace-large same-stream: Bc installed -n1 vs new n16 EQUAL kernels=64 bytes_equal=64 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-rule-110-norace-large same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=64 bytes_equal=64 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P4-rule-110-norace-large live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=64 bytes_equal=0 differ=64 only_in_a=0 only_in_b=0 edges_only_a=33 edges_only_b=40 edges_changed=1596 dist_count_diffs=2160 nodes_differ=962
+== P5-norace_interblock_atom 2026-11-07T13:32:10-05:00
+  live Ic (7 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=1
+  live Bc (2 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=16
+  Ic capture 321 bytes
+  replay Ic inst: [t26_replay] Ic/P5-norace_interblock_atom/cap.1513195.bin: 1 kernels, 1 drains, 4 records, 0.001 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P5-norace_interblock_atom/cap.1513195.bin: 1 kernels, 1 drains, 4 records, 0.001 s rc=0 
+  Bc capture 321 bytes
+  replay Bc inst: [t26_replay] Bc/P5-norace_interblock_atom/cap.1513270.bin: 1 kernels, 1 drains, 4 records, 0.001 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P5-norace_interblock_atom/cap.1513270.bin: 1 kernels, 1 drains, 4 records, 0.001 s rc=0 
+P5-norace_interblock_atom fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-norace_interblock_atom same-stream: Ic installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-norace_interblock_atom same-stream: Bc installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-norace_interblock_atom same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-norace_interblock_atom live: Ic installed -n1 vs Bc new N=16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+== P5-race_interblock_blkatom 2026-11-07T13:32:22-05:00
+  live Ic (2 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=1
+  live Bc (2 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=16
+  Ic capture 321 bytes
+  replay Ic inst: [t26_replay] Ic/P5-race_interblock_blkatom/cap.1513589.bin: 1 kernels, 1 drains, 4 records, 0.001 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P5-race_interblock_blkatom/cap.1513589.bin: 1 kernels, 1 drains, 4 records, 0.001 s rc=0 
+  Bc capture 321 bytes
+  replay Bc inst: [t26_replay] Bc/P5-race_interblock_blkatom/cap.1513664.bin: 1 kernels, 1 drains, 4 records, 0.001 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P5-race_interblock_blkatom/cap.1513664.bin: 1 kernels, 1 drains, 4 records, 0.001 s rc=0 
+P5-race_interblock_blkatom fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-race_interblock_blkatom same-stream: Ic installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-race_interblock_blkatom same-stream: Bc installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-race_interblock_blkatom same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-race_interblock_blkatom live: Ic installed -n1 vs Bc new N=16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+== P5-race_interwarp_none-blkatom_waw 2026-11-07T13:32:27-05:00
+  live Ic (1 s): rc=0 timed_out=False wall=0.467 kernels=1 records=None workers=1
+  live Bc (2 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=16
+  Ic capture 628 bytes
+  replay Ic inst: [t26_replay] Ic/P5-race_interwarp_none-blkatom_waw/cap.1513983.bin: 1 kernels, 1 drains, 5 records, 0.001 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P5-race_interwarp_none-blkatom_waw/cap.1513983.bin: 1 kernels, 1 drains, 5 records, 0.001 s rc=0 
+  Bc capture 628 bytes
+  replay Bc inst: [t26_replay] Bc/P5-race_interwarp_none-blkatom_waw/cap.1514059.bin: 1 kernels, 1 drains, 5 records, 0.001 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P5-race_interwarp_none-blkatom_waw/cap.1514059.bin: 1 kernels, 1 drains, 5 records, 0.001 s rc=0 
+P5-race_interwarp_none-blkatom_waw fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-race_interwarp_none-blkatom_waw same-stream: Ic installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-race_interwarp_none-blkatom_waw same-stream: Bc installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-race_interwarp_none-blkatom_waw same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-race_interwarp_none-blkatom_waw live: Ic installed -n1 vs Bc new N=16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+== P5-race_interwarp_none-blklock_waw 2026-11-07T13:32:31-05:00
+  live Ic (2 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=1
+  live Bc (1 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=16
+  Ic capture 726 bytes
+  replay Ic inst: [t26_replay] Ic/P5-race_interwarp_none-blklock_waw/cap.1514378.bin: 1 kernels, 1 drains, 7 records, 0.001 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P5-race_interwarp_none-blklock_waw/cap.1514378.bin: 1 kernels, 1 drains, 7 records, 0.001 s rc=0 
+  Bc capture 726 bytes
+  replay Bc inst: [t26_replay] Bc/P5-race_interwarp_none-blklock_waw/cap.1514453.bin: 1 kernels, 1 drains, 7 records, 0.001 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P5-race_interwarp_none-blklock_waw/cap.1514453.bin: 1 kernels, 1 drains, 7 records, 0.001 s rc=0 
+P5-race_interwarp_none-blklock_waw fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-race_interwarp_none-blklock_waw same-stream: Ic installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-race_interwarp_none-blklock_waw same-stream: Bc installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-race_interwarp_none-blklock_waw same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-race_interwarp_none-blklock_waw live: Ic installed -n1 vs Bc new N=16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+== P5-norace_interwarp_blkfence_raw 2026-11-07T13:32:35-05:00
+  live Ic (2 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=1
+  live Bc (2 s): rc=0 timed_out=False wall=0.518 kernels=1 records=None workers=16
+  Ic capture 824 bytes
+  replay Ic inst: [t26_replay] Ic/P5-norace_interwarp_blkfence_raw/cap.1514772.bin: 1 kernels, 1 drains, 9 records, 0.001 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P5-norace_interwarp_blkfence_raw/cap.1514772.bin: 1 kernels, 1 drains, 9 records, 0.001 s rc=0 
+  Bc capture 824 bytes
+  replay Bc inst: [t26_replay] Bc/P5-norace_interwarp_blkfence_raw/cap.1514847.bin: 1 kernels, 1 drains, 9 records, 0.001 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P5-norace_interwarp_blkfence_raw/cap.1514847.bin: 1 kernels, 1 drains, 9 records, 0.001 s rc=0 
+P5-norace_interwarp_blkfence_raw fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-norace_interwarp_blkfence_raw same-stream: Ic installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-norace_interwarp_blkfence_raw same-stream: Bc installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-norace_interwarp_blkfence_raw same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-norace_interwarp_blkfence_raw live: Ic installed -n1 vs Bc new N=16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+== P5-norace_interwarp_dev-blklock_waw 2026-11-07T13:32:40-05:00
+  live Ic (1 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=1
+  live Bc (2 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=16
+  Ic capture 873 bytes
+  replay Ic inst: [t26_replay] Ic/P5-norace_interwarp_dev-blklock_waw/cap.1515166.bin: 1 kernels, 1 drains, 10 records, 0.001 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P5-norace_interwarp_dev-blklock_waw/cap.1515166.bin: 1 kernels, 1 drains, 10 records, 0.001 s rc=0 
+  Bc capture 873 bytes
+  replay Bc inst: [t26_replay] Bc/P5-norace_interwarp_dev-blklock_waw/cap.1515241.bin: 1 kernels, 1 drains, 10 records, 0.001 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P5-norace_interwarp_dev-blklock_waw/cap.1515241.bin: 1 kernels, 1 drains, 10 records, 0.001 s rc=0 
+P5-norace_interwarp_dev-blklock_waw fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-norace_interwarp_dev-blklock_waw same-stream: Ic installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-norace_interwarp_dev-blklock_waw same-stream: Bc installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-norace_interwarp_dev-blklock_waw same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-norace_interwarp_dev-blklock_waw live: Ic installed -n1 vs Bc new N=16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+== P5-race_interwarp_dev-blklock-no-stf_waw 2026-11-07T13:32:44-05:00
+  live Ic (2 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=1
+  live Bc (1 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=16
+  Ic capture 873 bytes
+  replay Ic inst: [t26_replay] Ic/P5-race_interwarp_dev-blklock-no-stf_waw/cap.1515560.bin: 1 kernels, 1 drains, 10 records, 0.001 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P5-race_interwarp_dev-blklock-no-stf_waw/cap.1515560.bin: 1 kernels, 1 drains, 10 records, 0.001 s rc=0 
+  Bc capture 873 bytes
+  replay Bc inst: [t26_replay] Bc/P5-race_interwarp_dev-blklock-no-stf_waw/cap.1515635.bin: 1 kernels, 1 drains, 10 records, 0.001 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P5-race_interwarp_dev-blklock-no-stf_waw/cap.1515635.bin: 1 kernels, 1 drains, 10 records, 0.001 s rc=0 
+P5-race_interwarp_dev-blklock-no-stf_waw fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-race_interwarp_dev-blklock-no-stf_waw same-stream: Ic installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-race_interwarp_dev-blklock-no-stf_waw same-stream: Bc installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-race_interwarp_dev-blklock-no-stf_waw same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-race_interwarp_dev-blklock-no-stf_waw live: Ic installed -n1 vs Bc new N=16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+== P5-norace_interblock_lock_waw 2026-11-07T13:32:50-05:00
+  live Ic (2 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=1
+  live Bc (1 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=16
+  Ic capture 682 bytes
+  replay Ic inst: [t26_replay] Ic/P5-norace_interblock_lock_waw/cap.1515954.bin: 1 kernels, 1 drains, 11 records, 0.001 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P5-norace_interblock_lock_waw/cap.1515954.bin: 1 kernels, 1 drains, 11 records, 0.001 s rc=0 
+  Bc capture 682 bytes
+  replay Bc inst: [t26_replay] Bc/P5-norace_interblock_lock_waw/cap.1516029.bin: 1 kernels, 1 drains, 11 records, 0.001 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P5-norace_interblock_lock_waw/cap.1516029.bin: 1 kernels, 1 drains, 11 records, 0.001 s rc=0 
+P5-norace_interblock_lock_waw fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-norace_interblock_lock_waw same-stream: Ic installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-norace_interblock_lock_waw same-stream: Bc installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-norace_interblock_lock_waw same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-norace_interblock_lock_waw live: Ic installed -n1 vs Bc new N=16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+== P5-canary 2026-11-07T13:32:56-05:00
+  live Ic (1 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=1
+  live Bc (1 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=16
+  Ic capture 760 bytes
+  replay Ic inst: [t26_replay] Ic/P5-canary/cap.1516348.bin: 1 kernels, 1 drains, 14 records, 0.001 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P5-canary/cap.1516348.bin: 1 kernels, 1 drains, 14 records, 0.001 s rc=0 
+  Bc capture 760 bytes
+  replay Bc inst: [t26_replay] Bc/P5-canary/cap.1516431.bin: 1 kernels, 1 drains, 14 records, 0.001 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P5-canary/cap.1516431.bin: 1 kernels, 1 drains, 14 records, 0.001 s rc=0 
+P5-canary fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-canary same-stream: Ic installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-canary same-stream: Bc installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-canary same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-canary live: Ic installed -n1 vs Bc new N=16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+== P5-norace_interwarp-block_fence_hrf-indirect 2026-11-07T13:33:00-05:00
+  live Ic (2 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=1
+  live Bc (2 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=16
+  Ic capture 2142 bytes
+  replay Ic inst: [t26_replay] Ic/P5-norace_interwarp-block_fence_hrf-indirect/cap.1516750.bin: 1 kernels, 1 drains, 31 records, 0.002 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P5-norace_interwarp-block_fence_hrf-indirect/cap.1516750.bin: 1 kernels, 1 drains, 31 records, 0.002 s rc=0 
+  Bc capture 2142 bytes
+  replay Bc inst: [t26_replay] Bc/P5-norace_interwarp-block_fence_hrf-indirect/cap.1516825.bin: 1 kernels, 1 drains, 31 records, 0.002 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P5-norace_interwarp-block_fence_hrf-indirect/cap.1516825.bin: 1 kernels, 1 drains, 31 records, 0.002 s rc=0 
+P5-norace_interwarp-block_fence_hrf-indirect fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-norace_interwarp-block_fence_hrf-indirect same-stream: Ic installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-norace_interwarp-block_fence_hrf-indirect same-stream: Bc installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-norace_interwarp-block_fence_hrf-indirect same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P5-norace_interwarp-block_fence_hrf-indirect live: Ic installed -n1 vs Bc new N=16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+== P6-hostdevice-global_readwrite_race-fixed 2026-11-07T13:33:05-05:00
+  live Ic (2 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=1
+  live Bc (2 s): rc=0 timed_out=False wall=0.518 kernels=1 records=None workers=16
+  Ic capture 744 bytes
+  replay Ic inst: [t26_replay] Ic/P6-hostdevice-global_readwrite_race-fixed/cap.1517144.bin: 1 kernels, 1 drains, 2 records, 0.001 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P6-hostdevice-global_readwrite_race-fixed/cap.1517144.bin: 1 kernels, 1 drains, 2 records, 0.001 s rc=0 
+  Bc capture 744 bytes
+  replay Bc inst: [t26_replay] Bc/P6-hostdevice-global_readwrite_race-fixed/cap.1517219.bin: 1 kernels, 1 drains, 2 records, 0.001 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P6-hostdevice-global_readwrite_race-fixed/cap.1517219.bin: 1 kernels, 1 drains, 2 records, 0.001 s rc=0 
+P6-hostdevice-global_readwrite_race-fixed fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-hostdevice-global_readwrite_race-fixed same-stream: Ic installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-hostdevice-global_readwrite_race-fixed same-stream: Bc installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-hostdevice-global_readwrite_race-fixed same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-hostdevice-global_readwrite_race-fixed live: Ic installed -n1 vs Bc new N=16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+== P6-false_positives-global_bytewise_writewrite-fixed 2026-11-07T13:33:10-05:00
+  live Ic (2 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=1
+  live Bc (1 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=16
+  Ic capture 1683 bytes
+  replay Ic inst: [t26_replay] Ic/P6-false_positives-global_bytewise_writewrite-fixed/cap.1517538.bin: 1 kernels, 1 drains, 9 records, 0.002 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P6-false_positives-global_bytewise_writewrite-fixed/cap.1517538.bin: 1 kernels, 1 drains, 9 records, 0.002 s rc=0 
+  Bc capture 1683 bytes
+  replay Bc inst: [t26_replay] Bc/P6-false_positives-global_bytewise_writewrite-fixed/cap.1517613.bin: 1 kernels, 1 drains, 9 records, 0.002 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P6-false_positives-global_bytewise_writewrite-fixed/cap.1517613.bin: 1 kernels, 1 drains, 9 records, 0.002 s rc=0 
+P6-false_positives-global_bytewise_writewrite-fixed fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-false_positives-global_bytewise_writewrite-fixed same-stream: Ic installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-false_positives-global_bytewise_writewrite-fixed same-stream: Bc installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-false_positives-global_bytewise_writewrite-fixed same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-false_positives-global_bytewise_writewrite-fixed live: Ic installed -n1 vs Bc new N=16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+== P6-false_positives-global_bytewise_readwrite-racy 2026-11-07T13:33:14-05:00
+  live Ic (2 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=1
+  live Bc (2 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=16
+  Ic capture 1742 bytes
+  replay Ic inst: [t26_replay] Ic/P6-false_positives-global_bytewise_readwrite-racy/cap.1517932.bin: 1 kernels, 1 drains, 10 records, 0.002 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P6-false_positives-global_bytewise_readwrite-racy/cap.1517932.bin: 1 kernels, 1 drains, 10 records, 0.002 s rc=0 
+  Bc capture 1742 bytes
+  replay Bc inst: [t26_replay] Bc/P6-false_positives-global_bytewise_readwrite-racy/cap.1518007.bin: 1 kernels, 1 drains, 10 records, 0.002 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P6-false_positives-global_bytewise_readwrite-racy/cap.1518007.bin: 1 kernels, 1 drains, 10 records, 0.002 s rc=0 
+P6-false_positives-global_bytewise_readwrite-racy fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-false_positives-global_bytewise_readwrite-racy same-stream: Ic installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-false_positives-global_bytewise_readwrite-racy same-stream: Bc installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-false_positives-global_bytewise_readwrite-racy same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-false_positives-global_bytewise_readwrite-racy live: Ic installed -n1 vs Bc new N=16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+== P6-memcpy-global_readwrite_race-fixed 2026-11-07T13:33:23-05:00
+  live Ic (1 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=1
+  live Bc (1 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=16
+  Ic capture 3493 bytes
+  replay Ic inst: [t26_replay] Ic/P6-memcpy-global_readwrite_race-fixed/cap.1518326.bin: 1 kernels, 1 drains, 11 records, 0.003 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P6-memcpy-global_readwrite_race-fixed/cap.1518326.bin: 1 kernels, 1 drains, 11 records, 0.003 s rc=0 
+  Bc capture 3493 bytes
+  replay Bc inst: [t26_replay] Bc/P6-memcpy-global_readwrite_race-fixed/cap.1518401.bin: 1 kernels, 1 drains, 11 records, 0.003 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P6-memcpy-global_readwrite_race-fixed/cap.1518401.bin: 1 kernels, 1 drains, 11 records, 0.003 s rc=0 
+P6-memcpy-global_readwrite_race-fixed fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-memcpy-global_readwrite_race-fixed same-stream: Ic installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-memcpy-global_readwrite_race-fixed same-stream: Bc installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-memcpy-global_readwrite_race-fixed same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-memcpy-global_readwrite_race-fixed live: Ic installed -n1 vs Bc new N=16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+== P6-false_positives-shared_bytewise_readwrite-fixed 2026-11-07T13:33:27-05:00
+  live Ic (2 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=1
+  live Bc (2 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=16
+  Ic capture 2289 bytes
+  replay Ic inst: [t26_replay] Ic/P6-false_positives-shared_bytewise_readwrite-fixed/cap.1518720.bin: 1 kernels, 1 drains, 13 records, 0.002 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P6-false_positives-shared_bytewise_readwrite-fixed/cap.1518720.bin: 1 kernels, 1 drains, 13 records, 0.002 s rc=0 
+  Bc capture 2289 bytes
+  replay Bc inst: [t26_replay] Bc/P6-false_positives-shared_bytewise_readwrite-fixed/cap.1518795.bin: 1 kernels, 1 drains, 13 records, 0.002 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P6-false_positives-shared_bytewise_readwrite-fixed/cap.1518795.bin: 1 kernels, 1 drains, 13 records, 0.002 s rc=0 
+P6-false_positives-shared_bytewise_readwrite-fixed fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-false_positives-shared_bytewise_readwrite-fixed same-stream: Ic installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-false_positives-shared_bytewise_readwrite-fixed same-stream: Bc installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-false_positives-shared_bytewise_readwrite-fixed same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-false_positives-shared_bytewise_readwrite-fixed live: Ic installed -n1 vs Bc new N=16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+== P6-memcpy-shared_writewrite_race-racy 2026-11-07T13:33:32-05:00
+  live Ic (1 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=1
+  live Bc (2 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=16
+  Ic capture 4974 bytes
+  replay Ic inst: [t26_replay] Ic/P6-memcpy-shared_writewrite_race-racy/cap.1519115.bin: 1 kernels, 1 drains, 16 records, 0.003 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P6-memcpy-shared_writewrite_race-racy/cap.1519115.bin: 1 kernels, 1 drains, 16 records, 0.003 s rc=0 
+  Bc capture 4974 bytes
+  replay Bc inst: [t26_replay] Bc/P6-memcpy-shared_writewrite_race-racy/cap.1519190.bin: 1 kernels, 1 drains, 16 records, 0.002 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P6-memcpy-shared_writewrite_race-racy/cap.1519190.bin: 1 kernels, 1 drains, 16 records, 0.003 s rc=0 
+P6-memcpy-shared_writewrite_race-racy fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-memcpy-shared_writewrite_race-racy same-stream: Ic installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-memcpy-shared_writewrite_race-racy same-stream: Bc installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-memcpy-shared_writewrite_race-racy same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-memcpy-shared_writewrite_race-racy live: Ic installed -n1 vs Bc new N=16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+== P6-intersubwarp-shared_readwrite_race-racy 2026-11-07T13:33:36-05:00
+  live Ic (2 s): rc=0 timed_out=False wall=0.568 kernels=1 records=None workers=1
+  live Bc (2 s): rc=0 timed_out=False wall=0.567 kernels=1 records=None workers=16
+  Ic capture 3381613 bytes
+  replay Ic inst: [t26_replay] Ic/P6-intersubwarp-shared_readwrite_race-racy/cap.1519509.bin: 1 kernels, 1 drains, 20007 records, 0.019 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P6-intersubwarp-shared_readwrite_race-racy/cap.1519509.bin: 1 kernels, 1 drains, 20007 records, 0.020 s rc=0 
+  Bc capture 3381613 bytes
+  replay Bc inst: [t26_replay] Bc/P6-intersubwarp-shared_readwrite_race-racy/cap.1519584.bin: 1 kernels, 1 drains, 20007 records, 0.019 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P6-intersubwarp-shared_readwrite_race-racy/cap.1519584.bin: 1 kernels, 1 drains, 20007 records, 0.019 s rc=0 
+P6-intersubwarp-shared_readwrite_race-racy fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-intersubwarp-shared_readwrite_race-racy same-stream: Ic installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-intersubwarp-shared_readwrite_race-racy same-stream: Bc installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-intersubwarp-shared_readwrite_race-racy same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-intersubwarp-shared_readwrite_race-racy live: Ic installed -n1 vs Bc new N=16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+== P6-hostdevice-global_writewrite_race-fixed 2026-11-07T13:33:41-05:00
+  live Ic (13 s): rc=0 timed_out=False wall=6.776 kernels=1 records=None workers=1
+  live Bc (13 s): rc=0 timed_out=False wall=6.776 kernels=1 records=None workers=16
+  Ic capture 148500515 bytes
+  replay Ic inst: [t26_replay] Ic/P6-hostdevice-global_writewrite_race-fixed/cap.1519903.bin: 1 kernels, 1 drains, 500001 records, 0.502 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P6-hostdevice-global_writewrite_race-fixed/cap.1519903.bin: 1 kernels, 1 drains, 500001 records, 0.450 s rc=0 
+  Bc capture 148500515 bytes
+  replay Bc inst: [t26_replay] Bc/P6-hostdevice-global_writewrite_race-fixed/cap.1519986.bin: 1 kernels, 1 drains, 500001 records, 0.502 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P6-hostdevice-global_writewrite_race-fixed/cap.1519986.bin: 1 kernels, 1 drains, 500001 records, 0.456 s rc=0 
+P6-hostdevice-global_writewrite_race-fixed fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-hostdevice-global_writewrite_race-fixed same-stream: Ic installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-hostdevice-global_writewrite_race-fixed same-stream: Bc installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-hostdevice-global_writewrite_race-fixed same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-hostdevice-global_writewrite_race-fixed live: Ic installed -n1 vs Bc new N=16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+== P6-interkernel-global_readwrite_race-racy 2026-11-07T13:34:11-05:00
+  live Ic (5 s): rc=0 timed_out=False wall=3.972 kernels=2 records=None workers=1
+  live Bc (6 s): rc=0 timed_out=False wall=3.972 kernels=2 records=None workers=16
+  Ic capture 297001597 bytes
+  replay Ic inst: [t26_replay] Ic/P6-interkernel-global_readwrite_race-racy/cap.1520308.bin: 2 kernels, 2 drains, 1000004 records, 1.330 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P6-interkernel-global_readwrite_race-racy/cap.1520308.bin: 2 kernels, 2 drains, 1000004 records, 1.336 s rc=0 
+  Bc capture 297001597 bytes
+  replay Bc inst: [t26_replay] Bc/P6-interkernel-global_readwrite_race-racy/cap.1520384.bin: 2 kernels, 2 drains, 1000004 records, 1.329 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P6-interkernel-global_readwrite_race-racy/cap.1520384.bin: 2 kernels, 2 drains, 1000004 records, 1.342 s rc=0 
+P6-interkernel-global_readwrite_race-racy fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-interkernel-global_readwrite_race-racy same-stream: Ic installed -n1 vs new n16 EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-interkernel-global_readwrite_race-racy same-stream: Bc installed -n1 vs new n16 EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-interkernel-global_readwrite_race-racy same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-interkernel-global_readwrite_race-racy live: Ic installed -n1 vs Bc new N=16 EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+== P6-interkernel-global_writewrite_race-racy 2026-11-07T13:34:29-05:00
+  live Ic (122 s): rc=124 timed_out=True wall=120.003 kernels=1 records=None workers=1
+  live Bc (122 s): rc=124 timed_out=True wall=120.003 kernels=1 records=None workers=16
+  Ic capture 3651701643 bytes
+  replay Ic inst: rc=2 
+  replay Ic n16: rc=2 
+  Bc capture 3706227595 bytes
+  replay Bc inst: rc=2 
+  replay Bc n16: rc=2 
+P6-interkernel-global_writewrite_race-racy fidelity: replay(Ic, installed -n1) vs Ic live DIFFER kernels=0 bytes_equal=0 differ=0 only_in_a=1 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-interkernel-global_writewrite_race-racy same-stream: Ic installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-interkernel-global_writewrite_race-racy same-stream: Bc installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-interkernel-global_writewrite_race-racy same-stream: Bc live (new N=16) vs installed -n1 on its records DIFFER kernels=0 bytes_equal=0 differ=0 only_in_a=1 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P6-interkernel-global_writewrite_race-racy live: Ic installed -n1 vs Bc new N=16 NO-KERNELS a=/mnt/beegfs/fzheng4/t26/t20-scalar-clock-329115/Ic/P6-interkernel-global_writewrite_race-racy/scalar-clock b=/mnt/beegfs/fzheng4/t26/t20-scalar-clock-329115/Bc/P6-interkernel-global_writewrite_race-racy/scalar-clock
+== P7-backprop-cuda 2026-11-07T13:39:36-05:00
+  live Ic (5 s): rc=0 timed_out=False wall=2.424 kernels=2 records=None workers=1
+  live Bc (5 s): rc=0 timed_out=False wall=2.422 kernels=2 records=None workers=16
+  Ic capture 302732828 bytes
+  replay Ic inst: [t26_replay] Ic/P7-backprop-cuda/cap.1521199.bin: 2 kernels, 2 drains, 1232901 records, 1.670 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P7-backprop-cuda/cap.1521199.bin: 2 kernels, 2 drains, 1232901 records, 1.730 s rc=0 
+  Bc capture 302732828 bytes
+  replay Bc inst: [t26_replay] Bc/P7-backprop-cuda/cap.1521299.bin: 2 kernels, 2 drains, 1232901 records, 1.698 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P7-backprop-cuda/cap.1521299.bin: 2 kernels, 2 drains, 1232901 records, 1.680 s rc=0 
+P7-backprop-cuda fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P7-backprop-cuda same-stream: Ic installed -n1 vs new n16 EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P7-backprop-cuda same-stream: Bc installed -n1 vs new n16 EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P7-backprop-cuda same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P7-backprop-cuda live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=2 bytes_equal=1 differ=1 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=1 dist_count_diffs=2 nodes_differ=0
+== P7-particlefilter-cuda: skipped (SKIP)
+== P7-bfs-cuda 2026-11-07T13:39:54-05:00
+  live Ic (9 s): rc=0 timed_out=False wall=6.758 kernels=24 records=None workers=1
+  live Bc (8 s): rc=0 timed_out=False wall=6.432 kernels=24 records=None workers=16
+  Ic capture 887261242 bytes
+  replay Ic inst: [t26_replay] Ic/P7-bfs-cuda/cap.1521705.bin: 24 kernels, 24 drains, 7436165 records, 4.784 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P7-bfs-cuda/cap.1521705.bin: 24 kernels, 24 drains, 7436165 records, 4.488 s rc=0 
+  Bc capture 887261242 bytes
+  replay Bc inst: [t26_replay] Bc/P7-bfs-cuda/cap.1522174.bin: 24 kernels, 24 drains, 7436165 records, 4.735 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P7-bfs-cuda/cap.1522174.bin: 24 kernels, 24 drains, 7436165 records, 4.453 s rc=0 
+P7-bfs-cuda fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=24 bytes_equal=24 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P7-bfs-cuda same-stream: Ic installed -n1 vs new n16 EQUAL kernels=24 bytes_equal=24 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P7-bfs-cuda same-stream: Bc installed -n1 vs new n16 EQUAL kernels=24 bytes_equal=24 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P7-bfs-cuda same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=24 bytes_equal=24 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P7-bfs-cuda live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=24 bytes_equal=8 differ=16 only_in_a=0 only_in_b=0 edges_only_a=5 edges_only_b=5 edges_changed=474 dist_count_diffs=657 nodes_differ=0
+== P9-crs-cuda 2026-11-07T13:40:31-05:00
+  live Ic (37 s): rc=0 timed_out=False wall=30.713 kernels=50 records=None workers=1
+  live Bc (36 s): rc=0 timed_out=False wall=30.818 kernels=50 records=None workers=16
+  Ic capture 2892925938 bytes
+  replay Ic inst: [t26_replay] Ic/P9-crs-cuda/cap.1524371.bin: 50 kernels, 50 drains, 9864919 records, 26.819 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P9-crs-cuda/cap.1524371.bin: 50 kernels, 50 drains, 9864919 records, 26.916 s rc=0 
+  Bc capture 2892925938 bytes
+  replay Bc inst: [t26_replay] Bc/P9-crs-cuda/cap.1525267.bin: 50 kernels, 50 drains, 9864919 records, 26.856 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P9-crs-cuda/cap.1525267.bin: 50 kernels, 50 drains, 9864919 records, 27.056 s rc=0 
+P9-crs-cuda fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=50 bytes_equal=50 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P9-crs-cuda same-stream: Ic installed -n1 vs new n16 EQUAL kernels=50 bytes_equal=50 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P9-crs-cuda same-stream: Bc installed -n1 vs new n16 EQUAL kernels=50 bytes_equal=50 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P9-crs-cuda same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=50 bytes_equal=50 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P9-crs-cuda live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=50 bytes_equal=0 differ=50 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=441 dist_count_diffs=921 nodes_differ=0
+== P9-overlap-cuda 2026-11-07T13:43:35-05:00
+  live Ic (19 s): rc=0 timed_out=False wall=17.727 kernels=20 records=None workers=1
+  live Bc (17 s): rc=0 timed_out=False wall=15.284 kernels=20 records=None workers=16
+  Ic capture 3892843157 bytes
+  replay Ic inst: [t26_replay] Ic/P9-overlap-cuda/cap.1529558.bin: 20 kernels, 20 drains, 13107200 records, 14.606 s rc=0 
+  replay Ic n16: [t26_replay] Ic/P9-overlap-cuda/cap.1529558.bin: 20 kernels, 20 drains, 13107200 records, 12.451 s rc=0 
+  Bc capture 3892843157 bytes
+  replay Bc inst: [t26_replay] Bc/P9-overlap-cuda/cap.1529937.bin: 20 kernels, 20 drains, 13107200 records, 14.572 s rc=0 
+  replay Bc n16: [t26_replay] Bc/P9-overlap-cuda/cap.1529937.bin: 20 kernels, 20 drains, 13107200 records, 12.537 s rc=0 
+P9-overlap-cuda fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=20 bytes_equal=20 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P9-overlap-cuda same-stream: Ic installed -n1 vs new n16 EQUAL kernels=20 bytes_equal=20 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P9-overlap-cuda same-stream: Bc installed -n1 vs new n16 EQUAL kernels=20 bytes_equal=20 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P9-overlap-cuda same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=20 bytes_equal=20 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+P9-overlap-cuda live: Ic installed -n1 vs Bc new N=16 EQUAL kernels=20 bytes_equal=20 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+== PI-conditional_edge_neighbor_boundsBug_cond-DAG_5n_5e 2026-11-07T13:45:07-05:00
+  live Ic (2 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=1
+  live Bc (2 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=16
+  Ic capture 2433796 bytes
+  replay Ic inst: [t26_replay] Ic/PI-conditional_edge_neighbor_boundsBug_cond-DAG_5n_5e/cap.1531810.bin: 1 kernels, 1 drains, 8195 records, 0.010 s rc=0 
+  replay Ic n16: [t26_replay] Ic/PI-conditional_edge_neighbor_boundsBug_cond-DAG_5n_5e/cap.1531810.bin: 1 kernels, 1 drains, 8195 records, 0.011 s rc=0 
+  Bc capture 2433796 bytes
+  replay Bc inst: [t26_replay] Bc/PI-conditional_edge_neighbor_boundsBug_cond-DAG_5n_5e/cap.1531885.bin: 1 kernels, 1 drains, 8195 records, 0.011 s rc=0 
+  replay Bc n16: [t26_replay] Bc/PI-conditional_edge_neighbor_boundsBug_cond-DAG_5n_5e/cap.1531885.bin: 1 kernels, 1 drains, 8195 records, 0.010 s rc=0 
+PI-conditional_edge_neighbor_boundsBug_cond-DAG_5n_5e fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-conditional_edge_neighbor_boundsBug_cond-DAG_5n_5e same-stream: Ic installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-conditional_edge_neighbor_boundsBug_cond-DAG_5n_5e same-stream: Bc installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-conditional_edge_neighbor_boundsBug_cond-DAG_5n_5e same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-conditional_edge_neighbor_boundsBug_cond-DAG_5n_5e live: Ic installed -n1 vs Bc new N=16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+== PI-pull_node_neighbors_reverse_cond_break-counterDAG_5n_5e 2026-11-07T13:45:12-05:00
+  live Ic (1 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=1
+  live Bc (2 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=16
+  Ic capture 2434065 bytes
+  replay Ic inst: [t26_replay] Ic/PI-pull_node_neighbors_reverse_cond_break-counterDAG_5n_5e/cap.1532204.bin: 1 kernels, 1 drains, 8200 records, 0.011 s rc=0 
+  replay Ic n16: [t26_replay] Ic/PI-pull_node_neighbors_reverse_cond_break-counterDAG_5n_5e/cap.1532204.bin: 1 kernels, 1 drains, 8200 records, 0.010 s rc=0 
+  Bc capture 2434065 bytes
+  replay Bc inst: [t26_replay] Bc/PI-pull_node_neighbors_reverse_cond_break-counterDAG_5n_5e/cap.1532279.bin: 1 kernels, 1 drains, 8200 records, 0.011 s rc=0 
+  replay Bc n16: [t26_replay] Bc/PI-pull_node_neighbors_reverse_cond_break-counterDAG_5n_5e/cap.1532279.bin: 1 kernels, 1 drains, 8200 records, 0.010 s rc=0 
+PI-pull_node_neighbors_reverse_cond_break-counterDAG_5n_5e fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-pull_node_neighbors_reverse_cond_break-counterDAG_5n_5e same-stream: Ic installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-pull_node_neighbors_reverse_cond_break-counterDAG_5n_5e same-stream: Bc installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-pull_node_neighbors_reverse_cond_break-counterDAG_5n_5e same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-pull_node_neighbors_reverse_cond_break-counterDAG_5n_5e live: Ic installed -n1 vs Bc new N=16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+== PI-conditional_edge_neighbors_warp_persistent_reverse-DAG_5n_5e 2026-11-07T13:45:16-05:00
+  live Ic (2 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=1
+  live Bc (2 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=16
+  Ic capture 2437134 bytes
+  replay Ic inst: [t26_replay] Ic/PI-conditional_edge_neighbors_warp_persistent_reverse-DAG_5n_5e/cap.1532599.bin: 1 kernels, 1 drains, 8213 records, 0.012 s rc=0 
+  replay Ic n16: [t26_replay] Ic/PI-conditional_edge_neighbors_warp_persistent_reverse-DAG_5n_5e/cap.1532599.bin: 1 kernels, 1 drains, 8213 records, 0.011 s rc=0 
+  Bc capture 2437134 bytes
+  replay Bc inst: [t26_replay] Bc/PI-conditional_edge_neighbors_warp_persistent_reverse-DAG_5n_5e/cap.1532684.bin: 1 kernels, 1 drains, 8213 records, 0.011 s rc=0 
+  replay Bc n16: [t26_replay] Bc/PI-conditional_edge_neighbors_warp_persistent_reverse-DAG_5n_5e/cap.1532684.bin: 1 kernels, 1 drains, 8213 records, 0.011 s rc=0 
+PI-conditional_edge_neighbors_warp_persistent_reverse-DAG_5n_5e fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-conditional_edge_neighbors_warp_persistent_reverse-DAG_5n_5e same-stream: Ic installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-conditional_edge_neighbors_warp_persistent_reverse-DAG_5n_5e same-stream: Bc installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-conditional_edge_neighbors_warp_persistent_reverse-DAG_5n_5e same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-conditional_edge_neighbors_warp_persistent_reverse-DAG_5n_5e live: Ic installed -n1 vs Bc new N=16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+== PI-conditional_edge_neighbor_last-power_law_200n_1000e 2026-11-07T13:45:21-05:00
+  live Ic (2 s): rc=0 timed_out=False wall=0.518 kernels=1 records=None workers=1
+  live Bc (2 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=16
+  Ic capture 2440244 bytes
+  replay Ic inst: [t26_replay] Ic/PI-conditional_edge_neighbor_last-power_law_200n_1000e/cap.1533004.bin: 1 kernels, 1 drains, 8235 records, 0.011 s rc=0 
+  replay Ic n16: [t26_replay] Ic/PI-conditional_edge_neighbor_last-power_law_200n_1000e/cap.1533004.bin: 1 kernels, 1 drains, 8235 records, 0.011 s rc=0 
+  Bc capture 2440244 bytes
+  replay Bc inst: [t26_replay] Bc/PI-conditional_edge_neighbor_last-power_law_200n_1000e/cap.1533079.bin: 1 kernels, 1 drains, 8235 records, 0.011 s rc=0 
+  replay Bc n16: [t26_replay] Bc/PI-conditional_edge_neighbor_last-power_law_200n_1000e/cap.1533079.bin: 1 kernels, 1 drains, 8235 records, 0.011 s rc=0 
+PI-conditional_edge_neighbor_last-power_law_200n_1000e fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-conditional_edge_neighbor_last-power_law_200n_1000e same-stream: Ic installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-conditional_edge_neighbor_last-power_law_200n_1000e same-stream: Bc installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-conditional_edge_neighbor_last-power_law_200n_1000e same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-conditional_edge_neighbor_last-power_law_200n_1000e live: Ic installed -n1 vs Bc new N=16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+== PI-push_node_neighbors_reverse_cond_atomicBug_break-counterDAG_200n_1000e 2026-11-07T13:45:25-05:00
+  live Ic (2 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=1
+  live Bc (2 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=16
+  Ic capture 2446678 bytes
+  replay Ic inst: [t26_replay] Ic/PI-push_node_neighbors_reverse_cond_atomicBug_break-counterDAG_200n_1000e/cap.1533398.bin: 1 kernels, 1 drains, 8293 records, 0.012 s rc=0 
+  replay Ic n16: [t26_replay] Ic/PI-push_node_neighbors_reverse_cond_atomicBug_break-counterDAG_200n_1000e/cap.1533398.bin: 1 kernels, 1 drains, 8293 records, 0.012 s rc=0 
+  Bc capture 2446678 bytes
+  replay Bc inst: [t26_replay] Bc/PI-push_node_neighbors_reverse_cond_atomicBug_break-counterDAG_200n_1000e/cap.1533473.bin: 1 kernels, 1 drains, 8293 records, 0.011 s rc=0 
+  replay Bc n16: [t26_replay] Bc/PI-push_node_neighbors_reverse_cond_atomicBug_break-counterDAG_200n_1000e/cap.1533473.bin: 1 kernels, 1 drains, 8293 records, 0.011 s rc=0 
+PI-push_node_neighbors_reverse_cond_atomicBug_break-counterDAG_200n_1000e fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-push_node_neighbors_reverse_cond_atomicBug_break-counterDAG_200n_1000e same-stream: Ic installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-push_node_neighbors_reverse_cond_atomicBug_break-counterDAG_200n_1000e same-stream: Bc installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-push_node_neighbors_reverse_cond_atomicBug_break-counterDAG_200n_1000e same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-push_node_neighbors_reverse_cond_atomicBug_break-counterDAG_200n_1000e live: Ic installed -n1 vs Bc new N=16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+== PI-populate_worklist_neighbors_persistent_atomicBug-counterDAG_200n_1000e 2026-11-07T13:45:30-05:00
+  live Ic (2 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=1
+  live Bc (2 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=16
+  Ic capture 2471780 bytes
+  replay Ic inst: [t26_replay] Ic/PI-populate_worklist_neighbors_persistent_atomicBug-counterDAG_200n_1000e/cap.1533792.bin: 1 kernels, 1 drains, 8571 records, 0.013 s rc=0 
+  replay Ic n16: [t26_replay] Ic/PI-populate_worklist_neighbors_persistent_atomicBug-counterDAG_200n_1000e/cap.1533792.bin: 1 kernels, 1 drains, 8571 records, 0.012 s rc=0 
+  Bc capture 2471780 bytes
+  replay Bc inst: [t26_replay] Bc/PI-populate_worklist_neighbors_persistent_atomicBug-counterDAG_200n_1000e/cap.1533867.bin: 1 kernels, 1 drains, 8571 records, 0.012 s rc=0 
+  replay Bc n16: [t26_replay] Bc/PI-populate_worklist_neighbors_persistent_atomicBug-counterDAG_200n_1000e/cap.1533867.bin: 1 kernels, 1 drains, 8571 records, 0.013 s rc=0 
+PI-populate_worklist_neighbors_persistent_atomicBug-counterDAG_200n_1000e fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-populate_worklist_neighbors_persistent_atomicBug-counterDAG_200n_1000e same-stream: Ic installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-populate_worklist_neighbors_persistent_atomicBug-counterDAG_200n_1000e same-stream: Bc installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-populate_worklist_neighbors_persistent_atomicBug-counterDAG_200n_1000e same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-populate_worklist_neighbors_persistent_atomicBug-counterDAG_200n_1000e live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=1 bytes_equal=0 differ=1 only_in_a=0 only_in_b=0 edges_only_a=10 edges_only_b=9 edges_changed=61 dist_count_diffs=66 nodes_differ=0
+== PI-conditional_edge_neighbors_block_shfl_cond_guardBug-DAG_5n_5e 2026-11-07T13:45:35-05:00
+  live Ic (2 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=1
+  live Bc (1 s): rc=0 timed_out=False wall=0.517 kernels=1 records=None workers=16
+  Ic capture 2789299 bytes
+  replay Ic inst: [t26_replay] Ic/PI-conditional_edge_neighbors_block_shfl_cond_guardBug-DAG_5n_5e/cap.1534192.bin: 1 kernels, 1 drains, 9434 records, 0.027 s rc=0 
+  replay Ic n16: [t26_replay] Ic/PI-conditional_edge_neighbors_block_shfl_cond_guardBug-DAG_5n_5e/cap.1534192.bin: 1 kernels, 1 drains, 9434 records, 0.027 s rc=0 
+  Bc capture 2789299 bytes
+  replay Bc inst: [t26_replay] Bc/PI-conditional_edge_neighbors_block_shfl_cond_guardBug-DAG_5n_5e/cap.1534267.bin: 1 kernels, 1 drains, 9434 records, 0.027 s rc=0 
+  replay Bc n16: [t26_replay] Bc/PI-conditional_edge_neighbors_block_shfl_cond_guardBug-DAG_5n_5e/cap.1534267.bin: 1 kernels, 1 drains, 9434 records, 0.027 s rc=0 
+PI-conditional_edge_neighbors_block_shfl_cond_guardBug-DAG_5n_5e fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-conditional_edge_neighbors_block_shfl_cond_guardBug-DAG_5n_5e same-stream: Ic installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-conditional_edge_neighbors_block_shfl_cond_guardBug-DAG_5n_5e same-stream: Bc installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-conditional_edge_neighbors_block_shfl_cond_guardBug-DAG_5n_5e same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-conditional_edge_neighbors_block_shfl_cond_guardBug-DAG_5n_5e live: Ic installed -n1 vs Bc new N=16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+== PI-conditional_edge_neighbors_block_shfl_reverse_cond_guardBug_atomicBug-power_law_200n_1000e 2026-11-07T13:45:40-05:00
+  live Ic (1 s): rc=0 timed_out=False wall=0.567 kernels=1 records=None workers=1
+  live Bc (2 s): rc=0 timed_out=False wall=0.567 kernels=1 records=None workers=16
+  Ic capture 4813906 bytes
+  replay Ic inst: [t26_replay] Ic/PI-conditional_edge_neighbors_block_shfl_reverse_cond_guardBug_atomicBug-power_law_200n_1000e/cap.1534586.bin: 1 kernels, 1 drains, 18001 records, 0.040 s rc=0 
+  replay Ic n16: [t26_replay] Ic/PI-conditional_edge_neighbors_block_shfl_reverse_cond_guardBug_atomicBug-power_law_200n_1000e/cap.1534586.bin: 1 kernels, 1 drains, 18001 records, 0.040 s rc=0 
+  Bc capture 4814837 bytes
+  replay Bc inst: [t26_replay] Bc/PI-conditional_edge_neighbors_block_shfl_reverse_cond_guardBug_atomicBug-power_law_200n_1000e/cap.1534661.bin: 1 kernels, 1 drains, 18020 records, 0.040 s rc=0 
+  replay Bc n16: [t26_replay] Bc/PI-conditional_edge_neighbors_block_shfl_reverse_cond_guardBug_atomicBug-power_law_200n_1000e/cap.1534661.bin: 1 kernels, 1 drains, 18020 records, 0.040 s rc=0 
+PI-conditional_edge_neighbors_block_shfl_reverse_cond_guardBug_atomicBug-power_law_200n_1000e fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-conditional_edge_neighbors_block_shfl_reverse_cond_guardBug_atomicBug-power_law_200n_1000e same-stream: Ic installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-conditional_edge_neighbors_block_shfl_reverse_cond_guardBug_atomicBug-power_law_200n_1000e same-stream: Bc installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-conditional_edge_neighbors_block_shfl_reverse_cond_guardBug_atomicBug-power_law_200n_1000e same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-conditional_edge_neighbors_block_shfl_reverse_cond_guardBug_atomicBug-power_law_200n_1000e live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=1 bytes_equal=0 differ=1 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=1 edges_changed=8 dist_count_diffs=8 nodes_differ=1
+== PI-conditional_edge_neighbors_block_persistent_reverse_cond_guardBug-DAG_100n_200e 2026-11-07T13:45:45-05:00
+  live Ic (1 s): rc=0 timed_out=False wall=0.567 kernels=1 records=None workers=1
+  live Bc (2 s): rc=0 timed_out=False wall=0.567 kernels=1 records=None workers=16
+  Ic capture 8727816 bytes
+  replay Ic inst: [t26_replay] Ic/PI-conditional_edge_neighbors_block_persistent_reverse_cond_guardBug-DAG_100n_200e/cap.1534985.bin: 1 kernels, 1 drains, 30615 records, 0.058 s rc=0 
+  replay Ic n16: [t26_replay] Ic/PI-conditional_edge_neighbors_block_persistent_reverse_cond_guardBug-DAG_100n_200e/cap.1534985.bin: 1 kernels, 1 drains, 30615 records, 0.058 s rc=0 
+  Bc capture 8728502 bytes
+  replay Bc inst: [t26_replay] Bc/PI-conditional_edge_neighbors_block_persistent_reverse_cond_guardBug-DAG_100n_200e/cap.1535060.bin: 1 kernels, 1 drains, 30629 records, 0.059 s rc=0 
+  replay Bc n16: [t26_replay] Bc/PI-conditional_edge_neighbors_block_persistent_reverse_cond_guardBug-DAG_100n_200e/cap.1535060.bin: 1 kernels, 1 drains, 30629 records, 0.058 s rc=0 
+PI-conditional_edge_neighbors_block_persistent_reverse_cond_guardBug-DAG_100n_200e fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-conditional_edge_neighbors_block_persistent_reverse_cond_guardBug-DAG_100n_200e same-stream: Ic installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-conditional_edge_neighbors_block_persistent_reverse_cond_guardBug-DAG_100n_200e same-stream: Bc installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-conditional_edge_neighbors_block_persistent_reverse_cond_guardBug-DAG_100n_200e same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-conditional_edge_neighbors_block_persistent_reverse_cond_guardBug-DAG_100n_200e live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=1 bytes_equal=0 differ=1 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=1 edges_changed=10 dist_count_diffs=10 nodes_differ=2
+== PI-push_node_neighbors_boundsBug_reverse_atomicBug-counterDAG_200n_1000e 2026-11-07T13:45:50-05:00
+  live Ic (2 s): rc=0 timed_out=False wall=1.318 kernels=1 records=None workers=1
+  live Bc (3 s): rc=0 timed_out=False wall=1.469 kernels=1 records=None workers=16
+  Ic capture 19854024 bytes
+  replay Ic inst: [t26_replay] Ic/PI-push_node_neighbors_boundsBug_reverse_atomicBug-counterDAG_200n_1000e/cap.1535384.bin: 1 kernels, 1 drains, 159159 records, 0.828 s rc=0 
+  replay Ic n16: [t26_replay] Ic/PI-push_node_neighbors_boundsBug_reverse_atomicBug-counterDAG_200n_1000e/cap.1535384.bin: 1 kernels, 1 drains, 159159 records, 0.812 s rc=0 
+  Bc capture 19854024 bytes
+  replay Bc inst: [t26_replay] Bc/PI-push_node_neighbors_boundsBug_reverse_atomicBug-counterDAG_200n_1000e/cap.1535459.bin: 1 kernels, 1 drains, 159159 records, 0.938 s rc=0 
+  replay Bc n16: [t26_replay] Bc/PI-push_node_neighbors_boundsBug_reverse_atomicBug-counterDAG_200n_1000e/cap.1535459.bin: 1 kernels, 1 drains, 159159 records, 0.924 s rc=0 
+PI-push_node_neighbors_boundsBug_reverse_atomicBug-counterDAG_200n_1000e fidelity: replay(Ic, installed -n1) vs Ic live EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-push_node_neighbors_boundsBug_reverse_atomicBug-counterDAG_200n_1000e same-stream: Ic installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-push_node_neighbors_boundsBug_reverse_atomicBug-counterDAG_200n_1000e same-stream: Bc installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-push_node_neighbors_boundsBug_reverse_atomicBug-counterDAG_200n_1000e same-stream: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+PI-push_node_neighbors_boundsBug_reverse_atomicBug-counterDAG_200n_1000e live: Ic installed -n1 vs Bc new N=16 DIFFER kernels=1 bytes_equal=0 differ=1 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=3 edges_changed=112 dist_count_diffs=259 nodes_differ=0
+== 64 ids 2026-11-07T13:45:59-05:00
+== done 2026-11-07T13:45:59-05:00

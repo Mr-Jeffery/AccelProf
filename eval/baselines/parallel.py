@@ -304,11 +304,12 @@ def collect_one(mrow, cuda, reps, floor=120, cap=1200):
     meta["pc_lines"] = {str(k): v for k, v in pcmap.items()}
     meta["scope_present"] = bool(scope)
     meta["hb_dump"] = blib.hb_dump()     # T4: 0 = recorded without hb_events (aggregates only)
+    meta["analyzer_workers"] = blib.analyzer_workers()   # T26: accelprof -n (the PCDepGraph shards)
     os.makedirs(f"{idir}/dots", exist_ok=True)
     for dot in glob.glob(f"{cubindir}/*.dot"):
         shutil.copy(dot, f"{idir}/dots/")
 
-    accel = ["accelprof", "-t", "pc_dependency_analysis", "-n", "1",
+    accel = ["accelprof", "-t", "pc_dependency_analysis", "-n", str(meta["analyzer_workers"]),
              f"./{base}", *args]
 
     def _clean_deps():

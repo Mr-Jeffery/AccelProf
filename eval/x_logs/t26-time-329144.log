@@ -1,0 +1,137 @@
+host=c3 gpu=[NVIDIA GeForce RTX 4060 Ti, 8.9, 615.71.09] cpu=[AMD EPYC 9115 16-Core Processor] nproc=16 job=329144 reps=3 2026-11-07T13:42:15-05:00
+installed: libsanalyzer 5a20fd14ab6c6806 collector b746b4dd23e90f46 HEAD f551ca00947e
+new: libsanalyzer 31e4d53d367e693b collector 86473afa906669e5 worktree HEAD 98371ee1db65 dirty 5
+capture: shim 13af2850be2309d2 collector 32c379841cc17fc2 replay 0a53adee05384d95
+fatbin a2d7368bc1c61986
+== P6-interkernel-global_writewrite_race-racy
+  capture 3630730123 bytes
+  inst1 rep 1: replay 7.466 s; library 2.109 s: drains 2.109 s, kernel ends 0.000 s, other calls 0.000 s; 
+  inst1 rep 2: replay 9.051 s; library 2.099 s: drains 2.099 s, kernel ends 0.000 s, other calls 0.000 s; 
+  inst1 rep 3: replay 8.057 s; library 2.111 s: drains 2.111 s, kernel ends 0.000 s, other calls 0.000 s; 
+  P6-interkernel-global_writewrite_race-racy inst1 vs inst1 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  inst16 rep 1: replay 8.582 s; library 2.106 s: drains 2.106 s, kernel ends 0.000 s, other calls 0.000 s; 
+  inst16 rep 2: replay 7.944 s; library 2.108 s: drains 2.108 s, kernel ends 0.000 s, other calls 0.000 s; 
+  inst16 rep 3: replay 8.766 s; library 2.105 s: drains 2.105 s, kernel ends 0.000 s, other calls 0.000 s; 
+  P6-interkernel-global_writewrite_race-racy inst1 vs inst16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  new1 rep 1: replay 7.129 s; library 1.720 s: drains 1.720 s, kernel ends 0.000 s, other calls 0.000 s; pass: drain_s 1.217 route_s 1.217 wait_s 0.000 busy_max_sum 0.000 kernels 1
+  new1 rep 2: replay 7.321 s; library 1.724 s: drains 1.724 s, kernel ends 0.000 s, other calls 0.000 s; pass: drain_s 1.220 route_s 1.219 wait_s 0.000 busy_max_sum 0.000 kernels 1
+  new1 rep 3: replay 7.464 s; library 1.773 s: drains 1.773 s, kernel ends 0.000 s, other calls 0.000 s; pass: drain_s 1.240 route_s 1.240 wait_s 0.000 busy_max_sum 0.000 kernels 1
+  P6-interkernel-global_writewrite_race-racy inst1 vs new1 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  new16 rep 1: replay 8.677 s; library 1.555 s: drains 1.554 s, kernel ends 0.000 s, other calls 0.000 s; pass: drain_s 1.105 route_s 0.801 wait_s 0.292 busy_max_sum 1.077 kernels 1
+  new16 rep 2: replay 8.427 s; library 1.561 s: drains 1.560 s, kernel ends 0.000 s, other calls 0.000 s; pass: drain_s 1.125 route_s 0.779 wait_s 0.334 busy_max_sum 1.101 kernels 1
+  new16 rep 3: replay 8.243 s; library 1.538 s: drains 1.537 s, kernel ends 0.000 s, other calls 0.000 s; pass: drain_s 1.100 route_s 0.807 wait_s 0.281 busy_max_sum 1.075 kernels 1
+  P6-interkernel-global_writewrite_race-racy inst1 vs new16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  new16 [PCDEP_STATS] kernel_0 {"shards": 16, "records": 53125001, "entries": 53125000, "split_entries": 0, "drain_s": 1.10529, "route_s": 0.800669, "wait_s": 0.291829, "busy_s": [0.000573946, 0.000578365, 0.000648961, 1.0768, 0.000547475, 0.000614676, 0.000598411, 0.000593225, 0.000577833, 0.000589007, 0.0402813, 0.000527887, 0.00059922, 0.000583716, 0.000601533, 0.000602042], "stall_s": [0.81249
+== P9-overlap-cuda
+  capture 3892843157 bytes
+  inst1 rep 1: replay 9.205 s; library 5.325 s: drains 4.572 s, kernel ends 0.752 s, other calls 0.001 s; 
+  inst1 rep 2: replay 7.950 s; library 4.557 s: drains 4.554 s, kernel ends 0.002 s, other calls 0.001 s; 
+  inst1 rep 3: replay 8.369 s; library 4.553 s: drains 4.551 s, kernel ends 0.002 s, other calls 0.001 s; 
+  P9-overlap-cuda inst1 vs inst1 EQUAL kernels=20 bytes_equal=20 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  inst16 rep 1: replay 4.328 s; library 0.650 s: drains 0.647 s, kernel ends 0.002 s, other calls 0.001 s; 
+  inst16 rep 2: replay 4.308 s; library 0.650 s: drains 0.647 s, kernel ends 0.002 s, other calls 0.001 s; 
+  inst16 rep 3: replay 4.432 s; library 0.642 s: drains 0.638 s, kernel ends 0.002 s, other calls 0.001 s; 
+  P9-overlap-cuda inst1 vs inst16 EQUAL kernels=20 bytes_equal=20 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  new1 rep 1: replay 5.414 s; library 2.049 s: drains 2.038 s, kernel ends 0.002 s, other calls 0.009 s; pass: drain_s 2.038 route_s 2.038 wait_s 0.000 busy_max_sum 0.000 kernels 20
+  new1 rep 2: replay 5.485 s; library 2.093 s: drains 2.083 s, kernel ends 0.002 s, other calls 0.008 s; pass: drain_s 2.083 route_s 2.083 wait_s 0.000 busy_max_sum 0.000 kernels 20
+  new1 rep 3: replay 5.252 s; library 2.023 s: drains 2.012 s, kernel ends 0.002 s, other calls 0.008 s; pass: drain_s 2.012 route_s 2.012 wait_s 0.000 busy_max_sum 0.000 kernels 20
+  P9-overlap-cuda inst1 vs new1 EQUAL kernels=20 bytes_equal=20 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  new16 rep 1: replay 4.196 s; library 0.707 s: drains 0.695 s, kernel ends 0.003 s, other calls 0.009 s; pass: drain_s 0.695 route_s 0.632 wait_s 0.060 busy_max_sum 0.450 kernels 20
+  new16 rep 2: replay 4.317 s; library 0.701 s: drains 0.689 s, kernel ends 0.003 s, other calls 0.009 s; pass: drain_s 0.689 route_s 0.637 wait_s 0.049 busy_max_sum 0.438 kernels 20
+  new16 rep 3: replay 4.276 s; library 0.704 s: drains 0.692 s, kernel ends 0.003 s, other calls 0.009 s; pass: drain_s 0.692 route_s 0.632 wait_s 0.057 busy_max_sum 0.445 kernels 20
+  P9-overlap-cuda inst1 vs new16 EQUAL kernels=20 bytes_equal=20 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  new16 [PCDEP_STATS] kernel_0 {"shards": 16, "records": 655360, "entries": 524288, "split_entries": 0, "drain_s": 0.0547684, "route_s": 0.0522758, "wait_s": 0.00241861, "busy_s": [0.0527116, 0.0527159, 0.0523463, 0.0509777, 0.0526971, 0.0527434, 0.052711, 0.0526989, 0.0526915, 0.0526512, 0.0527179, 0.0526904, 0.0527, 0.0527359, 0.0527224, 0.0526967], "stall_s": [0.00199901, 0.00200223, 0.00236322
+  new16 [PCDEP_STATS] kernel_1 {"shards": 16, "records": 655360, "entries": 524288, "split_entries": 0, "drain_s": 0.0303892, "route_s": 0.0290226, "wait_s": 0.00116883, "busy_s": [0.016102, 0.0154635, 0.0139166, 0.0137413, 0.0135938, 0.014082, 0.0146396, 0.0154199, 0.0155228, 0.0138413, 0.015372, 0.0155132, 0.0142993, 0.0155306, 0.0163312, 0.0156486], "stall_s": [0.0142641, 0.0144782, 0.0159124, 
+  new16 [PCDEP_STATS] kernel_2 {"shards": 16, "records": 655360, "entries": 524288, "split_entries": 0, "drain_s": 0.0304458, "route_s": 0.0289457, "wait_s": 0.00131187, "busy_s": [0.01435, 0.0153128, 0.0138424, 0.0156826, 0.013856, 0.0143327, 0.0146822, 0.0153543, 0.0153141, 0.0141707, 0.015329, 0.0153115, 0.0140863, 0.0152957, 0.0152756, 0.0150508], "stall_s": [0.0155266, 0.0145757, 0.0160361, 0
+  new16 [PCDEP_STATS] kernel_3 {"shards": 16, "records": 655360, "entries": 524288, "split_entries": 0, "drain_s": 0.0300421, "route_s": 0.0289186, "wait_s": 0.000926658, "busy_s": [0.0142557, 0.0155112, 0.0135688, 0.0142061, 0.0138451, 0.0146955, 0.015506, 0.0154999, 0.0155694, 0.0136581, 0.015466, 0.0157482, 0.013753, 0.0155159, 0.0156631, 0.0144914], "stall_s": [0.0154518, 0.0143339, 0.0161408,
+  new16 [PCDEP_STATS] kernel_4 {"shards": 16, "records": 655360, "entries": 524288, "split_entries": 0, "drain_s": 0.0314511, "route_s": 0.029963, "wait_s": 0.00128815, "busy_s": [0.0138971, 0.0153058, 0.0128389, 0.0167214, 0.0126244, 0.0128961, 0.0154266, 0.0152899, 0.0157707, 0.0127247, 0.0149468, 0.0138139, 0.0138631, 0.0154307, 0.0151737, 0.0151968], "stall_s": [0.0170787, 0.0155975, 0.0179628
+== P9-crs-cuda
+  capture 2892925938 bytes
+  inst1 rep 1: replay 3.972 s; library 1.142 s: drains 1.125 s, kernel ends 0.009 s, other calls 0.008 s; 
+  inst1 rep 2: replay 4.138 s; library 1.147 s: drains 1.128 s, kernel ends 0.011 s, other calls 0.008 s; 
+  inst1 rep 3: replay 4.269 s; library 1.154 s: drains 1.137 s, kernel ends 0.009 s, other calls 0.007 s; 
+  P9-crs-cuda inst1 vs inst1 EQUAL kernels=50 bytes_equal=50 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  inst16 rep 1: replay 3.205 s; library 0.311 s: drains 0.292 s, kernel ends 0.011 s, other calls 0.008 s; 
+  inst16 rep 2: replay 3.229 s; library 0.316 s: drains 0.297 s, kernel ends 0.011 s, other calls 0.008 s; 
+  inst16 rep 3: replay 3.266 s; library 0.306 s: drains 0.288 s, kernel ends 0.011 s, other calls 0.008 s; 
+  P9-crs-cuda inst1 vs inst16 DIFFER kernels=50 bytes_equal=0 differ=50 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=381 dist_count_diffs=764 nodes_differ=0
+  new1 rep 1: replay 3.180 s; library 0.634 s: drains 0.607 s, kernel ends 0.011 s, other calls 0.016 s; pass: drain_s 0.607 route_s 0.607 wait_s 0.000 busy_max_sum 0.000 kernels 50
+  new1 rep 2: replay 3.056 s; library 0.628 s: drains 0.601 s, kernel ends 0.011 s, other calls 0.016 s; pass: drain_s 0.601 route_s 0.600 wait_s 0.000 busy_max_sum 0.000 kernels 50
+  new1 rep 3: replay 3.119 s; library 0.633 s: drains 0.606 s, kernel ends 0.011 s, other calls 0.016 s; pass: drain_s 0.605 route_s 0.605 wait_s 0.000 busy_max_sum 0.000 kernels 50
+  P9-crs-cuda inst1 vs new1 EQUAL kernels=50 bytes_equal=50 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  new16 rep 1: replay 3.584 s; library 0.596 s: drains 0.556 s, kernel ends 0.015 s, other calls 0.026 s; pass: drain_s 0.556 route_s 0.378 wait_s 0.176 busy_max_sum 0.495 kernels 50
+  new16 rep 2: replay 3.553 s; library 0.598 s: drains 0.556 s, kernel ends 0.015 s, other calls 0.027 s; pass: drain_s 0.556 route_s 0.376 wait_s 0.178 busy_max_sum 0.499 kernels 50
+  new16 rep 3: replay 3.636 s; library 0.595 s: drains 0.554 s, kernel ends 0.015 s, other calls 0.026 s; pass: drain_s 0.554 route_s 0.379 wait_s 0.173 busy_max_sum 0.491 kernels 50
+  P9-crs-cuda inst1 vs new16 EQUAL kernels=50 bytes_equal=50 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  new16 [PCDEP_STATS] kernel_0 {"shards": 16, "records": 49152, "entries": 56212, "split_entries": 0, "drain_s": 0.00747469, "route_s": 0.0030958, "wait_s": 0.00434279, "busy_s": [0.00595758, 0.00596454, 0.00595488, 0.0059251, 0.00596345, 0.00596795, 0.00595935, 0.00596143, 0.00595667, 0.00596115, 0.00591772, 0.005946, 0.00592364, 0.00594939, 0.00594921, 0.00592038], "stall_s": [0.00147703, 0.0014
+  new16 [PCDEP_STATS] kernel_1 {"shards": 16, "records": 90112, "entries": 104310, "split_entries": 0, "drain_s": 0.00795509, "route_s": 0.00618704, "wait_s": 0.00173292, "busy_s": [0.00615191, 0.00613528, 0.00616036, 0.00414058, 0.00615219, 0.00571194, 0.00615195, 0.00614554, 0.00614942, 0.00613671, 0.00613499, 0.00615255, 0.00615658, 0.00614929, 0.00614262, 0.00615358], "stall_s": [0.00150873, 0
+  new16 [PCDEP_STATS] kernel_2 {"shards": 16, "records": 131072, "entries": 152285, "split_entries": 0, "drain_s": 0.0104081, "route_s": 0.00717429, "wait_s": 0.00321036, "busy_s": [0.00729279, 0.00729441, 0.00730271, 0.00728361, 0.00728933, 0.00729032, 0.00726584, 0.00729374, 0.0072929, 0.0046464, 0.0087922, 0.00729288, 0.00729307, 0.00729347, 0.00729205, 0.00729402], "stall_s": [0.00159147, 0.00
+  new16 [PCDEP_STATS] kernel_3 {"shards": 16, "records": 172032, "entries": 200447, "split_entries": 0, "drain_s": 0.0116771, "route_s": 0.00861709, "wait_s": 0.0030233, "busy_s": [0.00841675, 0.00840466, 0.00839177, 0.00843268, 0.00840142, 0.00299798, 0.00846346, 0.0084088, 0.00841654, 0.00822539, 0.0105155, 0.00841715, 0.00842047, 0.00839082, 0.00841366, 0.00841156], "stall_s": [0.0014584, 0.001
+  new16 [PCDEP_STATS] kernel_4 {"shards": 16, "records": 68346, "entries": 106297, "split_entries": 0, "drain_s": 0.00899061, "route_s": 0.00415486, "wait_s": 0.00481174, "busy_s": [0.00735787, 0.00738667, 0.00735769, 0.00683122, 0.00736298, 0.00735414, 0.00735937, 0.00735431, 0.00735559, 0.00734864, 0.00734971, 0.00734452, 0.00735737, 0.00736295, 0.0073576, 0.00735405], "stall_s": [0.00158412, 0.
+== P7-bfs-cuda
+  capture 887261242 bytes
+  inst1 rep 1: replay 2.498 s; library 1.317 s: drains 1.312 s, kernel ends 0.004 s, other calls 0.000 s; 
+  inst1 rep 2: replay 2.529 s; library 1.323 s: drains 1.317 s, kernel ends 0.005 s, other calls 0.000 s; 
+  inst1 rep 3: replay 2.596 s; library 1.397 s: drains 1.392 s, kernel ends 0.004 s, other calls 0.000 s; 
+  P7-bfs-cuda inst1 vs inst1 EQUAL kernels=24 bytes_equal=24 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  inst16 rep 1: replay 1.393 s; library 0.273 s: drains 0.267 s, kernel ends 0.005 s, other calls 0.000 s; 
+  inst16 rep 2: replay 1.411 s; library 0.275 s: drains 0.270 s, kernel ends 0.005 s, other calls 0.000 s; 
+  inst16 rep 3: replay 1.407 s; library 0.273 s: drains 0.268 s, kernel ends 0.005 s, other calls 0.001 s; 
+  P7-bfs-cuda inst1 vs inst16 DIFFER kernels=24 bytes_equal=8 differ=16 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=1 edges_changed=488 dist_count_diffs=590 nodes_differ=0
+  new1 rep 1: replay 2.251 s; library 1.108 s: drains 1.099 s, kernel ends 0.005 s, other calls 0.004 s; pass: drain_s 1.099 route_s 1.099 wait_s 0.000 busy_max_sum 0.000 kernels 24
+  new1 rep 2: replay 2.170 s; library 1.116 s: drains 1.107 s, kernel ends 0.005 s, other calls 0.004 s; pass: drain_s 1.107 route_s 1.107 wait_s 0.000 busy_max_sum 0.000 kernels 24
+  new1 rep 3: replay 2.181 s; library 1.095 s: drains 1.086 s, kernel ends 0.005 s, other calls 0.004 s; pass: drain_s 1.086 route_s 1.086 wait_s 0.000 busy_max_sum 0.000 kernels 24
+  P7-bfs-cuda inst1 vs new1 EQUAL kernels=24 bytes_equal=24 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  new16 rep 1: replay 1.529 s; library 0.413 s: drains 0.402 s, kernel ends 0.007 s, other calls 0.004 s; pass: drain_s 0.402 route_s 0.379 wait_s 0.020 busy_max_sum 0.185 kernels 24
+  new16 rep 2: replay 1.535 s; library 0.416 s: drains 0.405 s, kernel ends 0.007 s, other calls 0.004 s; pass: drain_s 0.405 route_s 0.382 wait_s 0.020 busy_max_sum 0.184 kernels 24
+  new16 rep 3: replay 1.545 s; library 0.420 s: drains 0.409 s, kernel ends 0.007 s, other calls 0.004 s; pass: drain_s 0.409 route_s 0.384 wait_s 0.022 busy_max_sum 0.191 kernels 24
+  P7-bfs-cuda inst1 vs new16 EQUAL kernels=24 bytes_equal=24 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  new16 [PCDEP_STATS] kernel_0 {"shards": 16, "records": 62525, "entries": 31268, "split_entries": 0, "drain_s": 0.00629252, "route_s": 0.00419369, "wait_s": 0.00205329, "busy_s": [0.00447376, 0.00448163, 0.00448769, 0.00444605, 0.00449202, 0.00448981, 0.00437689, 0.00446197, 0.00448883, 0.00432733, 0.00443911, 0.00445301, 0.00449509, 0.00447699, 0.00448531, 0.00448339], "stall_s": [0.00176841, 0.
+  new16 [PCDEP_STATS] kernel_1 {"shards": 16, "records": 62521, "entries": 31262, "split_entries": 0, "drain_s": 0.00550152, "route_s": 0.00299467, "wait_s": 0.00247962, "busy_s": [0.00374867, 0.00412331, 0.00376844, 0.0041263, 0.0041341, 0.00412531, 0.00412746, 0.00411063, 0.00410575, 0.00412562, 0.00412155, 0.00413454, 0.00262706, 0.0041314, 0.00413278, 0.00413277], "stall_s": [0.00171878, 0.001
+  new16 [PCDEP_STATS] kernel_2 {"shards": 16, "records": 62644, "entries": 31385, "split_entries": 0, "drain_s": 0.0030346, "route_s": 0.00240659, "wait_s": 0.000596795, "busy_s": [0.00122723, 0.00104725, 0.00119951, 0.00111556, 0.00110476, 0.00102541, 0.000988848, 0.000886907, 0.000879557, 0.000984138, 0.000837036, 0.00101509, 0.000860366, 0.000905117, 0.000842778, 0.000936718], "stall_s": [0.001
+  new16 [PCDEP_STATS] kernel_3 {"shards": 16, "records": 62616, "entries": 31338, "split_entries": 0, "drain_s": 0.00313483, "route_s": 0.00232673, "wait_s": 0.000781156, "busy_s": [0.000928678, 0.000928717, 0.000967048, 0.000952688, 0.000974958, 0.000947758, 0.00105831, 0.000810767, 0.000788817, 0.000853427, 0.000875788, 0.000983708, 0.000881847, 0.000840857, 0.000861557, 0.000920737], "stall_s":
+  new16 [PCDEP_STATS] kernel_4 {"shards": 16, "records": 63276, "entries": 32015, "split_entries": 0, "drain_s": 0.00315538, "route_s": 0.0024685, "wait_s": 0.000657536, "busy_s": [0.00113275, 0.00116691, 0.00124344, 0.00117528, 0.00117699, 0.00117469, 0.00112162, 0.000913697, 0.00100161, 0.00104115, 0.00126369, 0.000993687, 0.00103891, 0.00102416, 0.000996218, 0.00105695], "stall_s": [0.00191494,
+== P1-CC_CUDA_V_Topo_Pull_Determ_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-slower_atomic-1296n
+  capture 459698217 bytes
+  inst1 rep 1: replay 0.590 s; library 0.065 s: drains 0.063 s, kernel ends 0.001 s, other calls 0.000 s; 
+  inst1 rep 2: replay 0.588 s; library 0.065 s: drains 0.064 s, kernel ends 0.001 s, other calls 0.000 s; 
+  inst1 rep 3: replay 0.590 s; library 0.066 s: drains 0.065 s, kernel ends 0.002 s, other calls 0.000 s; 
+  P1-CC_CUDA_V_Topo_Pull_Determ_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-slower_atomic-1296n inst1 vs inst1 EQUAL kernels=15 bytes_equal=15 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  inst16 rep 1: replay 0.515 s; library 0.032 s: drains 0.030 s, kernel ends 0.002 s, other calls 0.000 s; 
+  inst16 rep 2: replay 0.517 s; library 0.031 s: drains 0.030 s, kernel ends 0.002 s, other calls 0.000 s; 
+  inst16 rep 3: replay 0.506 s; library 0.029 s: drains 0.028 s, kernel ends 0.002 s, other calls 0.000 s; 
+  P1-CC_CUDA_V_Topo_Pull_Determ_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-slower_atomic-1296n inst1 vs inst16 DIFFER kernels=15 bytes_equal=1 differ=14 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=163 dist_count_diffs=163 nodes_differ=0
+  new1 rep 1: replay 0.451 s; library 0.052 s: drains 0.050 s, kernel ends 0.002 s, other calls 0.000 s; pass: drain_s 0.050 route_s 0.050 wait_s 0.000 busy_max_sum 0.000 kernels 15
+  new1 rep 2: replay 0.451 s; library 0.052 s: drains 0.050 s, kernel ends 0.002 s, other calls 0.000 s; pass: drain_s 0.050 route_s 0.050 wait_s 0.000 busy_max_sum 0.000 kernels 15
+  new1 rep 3: replay 0.439 s; library 0.052 s: drains 0.050 s, kernel ends 0.002 s, other calls 0.000 s; pass: drain_s 0.050 route_s 0.050 wait_s 0.000 busy_max_sum 0.000 kernels 15
+  P1-CC_CUDA_V_Topo_Pull_Determ_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-slower_atomic-1296n inst1 vs new1 EQUAL kernels=15 bytes_equal=15 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  new16 rep 1: replay 0.567 s; library 0.062 s: drains 0.059 s, kernel ends 0.002 s, other calls 0.000 s; pass: drain_s 0.059 route_s 0.056 wait_s 0.003 busy_max_sum 0.015 kernels 15
+  new16 rep 2: replay 0.556 s; library 0.059 s: drains 0.056 s, kernel ends 0.003 s, other calls 0.000 s; pass: drain_s 0.056 route_s 0.053 wait_s 0.003 busy_max_sum 0.014 kernels 15
+  new16 rep 3: replay 0.544 s; library 0.059 s: drains 0.056 s, kernel ends 0.002 s, other calls 0.000 s; pass: drain_s 0.056 route_s 0.052 wait_s 0.003 busy_max_sum 0.014 kernels 15
+  P1-CC_CUDA_V_Topo_Pull_Determ_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-slower_atomic-1296n inst1 vs new16 EQUAL kernels=15 bytes_equal=15 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  new16 [PCDEP_STATS] kernel_0 {"shards": 16, "records": 131, "entries": 82, "split_entries": 0, "drain_s": 4.9461e-05, "route_s": 1.289e-05, "wait_s": 3.5621e-05, "busy_s": [1.7471e-05, 2.39e-06, 4e-07, 8.2e-07, 9.5e-07, 2.42e-06, 4.9e-07, 1.63e-06, 1.14e-06, 1.68e-06, 1.11e-06, 1.1e-06, 5.8e-07, 4.8e-07, 1.43e-06, 1.04e-06], "stall_s": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "stats_key
+  new16 [PCDEP_STATS] kernel_1 {"shards": 16, "records": 109761, "entries": 94491, "split_entries": 0, "drain_s": 0.00350765, "route_s": 0.00326234, "wait_s": 0.000171481, "busy_s": [0.000950568, 0.000754346, 0.000638836, 0.000482295, 0.000626766, 0.00120666, 0.000712206, 0.000832406, 0.00116763, 0.000945928, 0.00116617, 0.000723466, 0.000574805, 0.000615386, 0.00121446, 0.000735846], "stall_s": [
+  new16 [PCDEP_STATS] kernel_2 {"shards": 16, "records": 122521, "entries": 107074, "split_entries": 0, "drain_s": 0.00447484, "route_s": 0.00414954, "wait_s": 0.000277452, "busy_s": [0.000758025, 0.000521465, 0.000299812, 0.000205702, 0.00018646, 0.0010731, 0.000567515, 0.000415763, 0.00109887, 0.000788776, 0.001093, 0.000449813, 0.000405134, 0.000225381, 0.00118642, 0.000423973], "stall_s": [0.0
+  new16 [PCDEP_STATS] kernel_3 {"shards": 16, "records": 120627, "entries": 105530, "split_entries": 0, "drain_s": 0.00452339, "route_s": 0.00423175, "wait_s": 0.000244192, "busy_s": [0.000663455, 0.000477484, 0.000266613, 0.000222941, 0.000188582, 0.00113806, 0.000468934, 0.000418603, 0.00104868, 0.000786298, 0.000989869, 0.000443814, 0.000314863, 0.000269723, 0.00109798, 0.000516735], "stall_s":
+  new16 [PCDEP_STATS] kernel_4 {"shards": 16, "records": 119870, "entries": 104525, "split_entries": 0, "drain_s": 0.00457852, "route_s": 0.00430068, "wait_s": 0.000234942, "busy_s": [0.000714467, 0.000363234, 0.000291413, 0.000207682, 0.000176512, 0.00103339, 0.000556925, 0.000389282, 0.00104547, 0.000786797, 0.00104011, 0.000430504, 0.000373193, 0.000218253, 0.00113403, 0.000425824], "stall_s": 
+== P7-backprop-cuda
+  capture 302732828 bytes
+  inst1 rep 1: replay 0.533 s; library 0.245 s: drains 0.244 s, kernel ends 0.000 s, other calls 0.000 s; 
+  inst1 rep 2: replay 0.526 s; library 0.237 s: drains 0.236 s, kernel ends 0.000 s, other calls 0.000 s; 
+  inst1 rep 3: replay 0.532 s; library 0.240 s: drains 0.239 s, kernel ends 0.000 s, other calls 0.000 s; 
+  P7-backprop-cuda inst1 vs inst1 EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  inst16 rep 1: replay 0.351 s; library 0.050 s: drains 0.049 s, kernel ends 0.001 s, other calls 0.000 s; 
+  inst16 rep 2: replay 0.336 s; library 0.043 s: drains 0.043 s, kernel ends 0.001 s, other calls 0.000 s; 
+  inst16 rep 3: replay 0.335 s; library 0.044 s: drains 0.043 s, kernel ends 0.001 s, other calls 0.000 s; 
+  P7-backprop-cuda inst1 vs inst16 DIFFER kernels=2 bytes_equal=1 differ=1 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=1 dist_count_diffs=2 nodes_differ=0
+  new1 rep 1: replay 0.378 s; library 0.104 s: drains 0.102 s, kernel ends 0.001 s, other calls 0.001 s; pass: drain_s 0.102 route_s 0.102 wait_s 0.000 busy_max_sum 0.000 kernels 2
+  new1 rep 2: replay 0.399 s; library 0.105 s: drains 0.103 s, kernel ends 0.001 s, other calls 0.001 s; pass: drain_s 0.103 route_s 0.103 wait_s 0.000 busy_max_sum 0.000 kernels 2
+  new1 rep 3: replay 0.396 s; library 0.104 s: drains 0.103 s, kernel ends 0.001 s, other calls 0.001 s; pass: drain_s 0.103 route_s 0.103 wait_s 0.000 busy_max_sum 0.000 kernels 2
+  P7-backprop-cuda inst1 vs new1 EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  new16 rep 1: replay 0.349 s; library 0.059 s: drains 0.058 s, kernel ends 0.001 s, other calls 0.001 s; pass: drain_s 0.057 route_s 0.055 wait_s 0.002 busy_max_sum 0.034 kernels 2
+  new16 rep 2: replay 0.346 s; library 0.059 s: drains 0.057 s, kernel ends 0.001 s, other calls 0.001 s; pass: drain_s 0.057 route_s 0.055 wait_s 0.002 busy_max_sum 0.033 kernels 2
+  new16 rep 3: replay 0.344 s; library 0.059 s: drains 0.057 s, kernel ends 0.001 s, other calls 0.001 s; pass: drain_s 0.057 route_s 0.055 wait_s 0.002 busy_max_sum 0.033 kernels 2
+  P7-backprop-cuda inst1 vs new16 EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  new16 [PCDEP_STATS] kernel_0 {"shards": 16, "records": 970752, "entries": 860756, "split_entries": 0, "drain_s": 0.0406644, "route_s": 0.0399245, "wait_s": 0.000409423, "busy_s": [0.0186628, 0.0174531, 0.0209326, 0.0159788, 0.0172609, 0.0169392, 0.0211442, 0.020711, 0.0208448, 0.0208894, 0.0176214, 0.0178261, 0.0210801, 0.0172664, 0.0210505, 0.0185501], "stall_s": [0.0217679, 0.0229845, 0.019585
+  new16 [PCDEP_STATS] kernel_1 {"shards": 16, "records": 262149, "entries": 321474, "split_entries": 0, "drain_s": 0.0168323, "route_s": 0.015216, "wait_s": 0.00152735, "busy_s": [0.0109391, 0.0110927, 0.0109585, 0.0108206, 0.0108192, 0.0108242, 0.010918, 0.010889, 0.0104149, 0.0109298, 0.00980332, 0.010804, 0.0109343, 0.0105537, 0.0101786, 0.0124812], "stall_s": [0.00584526, 0.0056669, 0.00582588
+== done 2026-11-07T13:49:23-05:00
