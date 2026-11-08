@@ -11,7 +11,7 @@ Sections: 1 what was run, 2 parity (the gate), 3 Table 3 cells, 4 cost tables (H
 - Stores `final-2026-11-co-sh` (HeCBench), `-p1` (Indigo3), `-pi` (Indigo 1.3, all 4,130 ids, SuperCollider's 99 inside), `-p4` (ScoR applications), `-p6` (cuHadron, 34 that run); installed `-n 1` controls in `-p1-ctl`, `-pi-ctl`, `-ctl` (crs).
 - Analysis: the C6 command (`parallel.py analyze --chain-closure --analysis-workers 16`, code of `eval/co-chain` be325e03) on every store, and the standard analysis (no closure) of the in-job rows as the secondary comparison.
 - HeCBench = SuperCollider's 10 native binaries (X11's run tree, container `ubuntu2204.sif`, patched `accelprof` preloading `libcudart.so.13`). **The reference for all 10 is X11** (the rerun of C1 on SuperCollider's binaries, `-n 1`, 3 recordings each). C1 recorded our own builds for 6 of the 10 (dxtc2, expdist, mr, tridiagonal, knn, atomicCAS differ in SASS), so C1's HeCBench rows are not used as a reference here. For Indigo3, Indigo 1.3, ScoR applications and cuHadron the reference is C1's recordings analysed by C6 (X11 has no rows for them); C1's standard-analysis rows are the secondary table.
-- P7 (the 14 other HeCBench applications) was recorded afterwards, timing only, 13 of 14 (stencil1d not yet): section 7. It is not part of the gate and not part of sections 2 to 4.
+- P7 (the 14 other HeCBench applications) was recorded afterwards, timing only, all 14: section 7. It is not part of the gate and not part of sections 2 to 4.
 
 ## 2. Parity
 
@@ -133,29 +133,30 @@ Notes: the per-record cost falls 2.2x in the median and the fitted slope 4.9x; t
 - `co-sharded-p1/`, `-pi/`, `-p4/`, `-p6/` rows, `chain/` chain-closure rows, `pairs/*_vs_c6.txt` (every differing id with only-in-A / only-in-B pairs).
 - `c1cmp/` standard-analysis comparison against C1 (`p1.txt`, `pi.txt`, `p4.txt`, `p6.txt`, `p9.txt`), control comparisons (`*_chain_ctl_vs_c6.txt`, `*_chain_ctl_vs_n16.txt`, `*_ctl_vs_c1.txt`).
 - `co-sharded-replay/` replay chain analysis of the replay outputs.
-- `co-sharded-p7-<app>/` P7 rows (13 CSVs, section 7), `c1cmp/p7ids/` the id files, `c1cmp/p7_tables.md` the generated table.
+- `co-sharded-p7-<app>/` P7 rows (14 CSVs, section 7), `c1cmp/p7ids/` the id files, `c1cmp/p7_tables.md` the generated table.
 - Table 3 inputs and outputs: cluster `/home/fzheng4/x12-t3/` (`out-n16/tables/c6_tables.md`, `out-c6/tables/c6_tables.md`).
 - Scripts: `eval/x12/` (`x12_record.sbatch`, `x12_suite.sbatch`, `x12_analyze*.sbatch`, `x12_pairs.py`, `x12_table3.py`, `x12_replay_chain.sbatch`, gate scripts).
 
 ## 6. Caveats
 
 - Walls depend on the node (CPU class) as much as on the run; X11's three runs of one program span up to 1.8x.
-- Sections 2 to 4 are the 10 SuperCollider binaries. Section 7 adds P7 timing only (13 of 14, no parity).
+- Sections 2 to 4 are the 10 SuperCollider binaries. Section 7 adds P7 timing only (all 14, no parity).
 - Indigo3 and Indigo 1.3 are parity evidence only; they are not in the cost tables.
 - The Indigo differences are run-to-run order; the evidence is the control and the same-stream replay of section 2.2. The pass itself reproduces the installed `-n 1` on the same stream bit for bit.
 
 ## 7. HeCBench other 14 (P7), `-n 16`, timing only
 
-Jeffery's request: record P7 at `accelprof -n 16` as in Figure 4, no parity check, skip stencil1d for now. **13 of the 14 programs ran**: backprop, bezier-surface, bitonic-sort, heartwall, haversine, nbody, mandelbrot, pathfinder, srad, lavaMD, particlefilter, hotspot, bfs. stencil1d (86 x 10^9 records, 36,373 s at `-n 1`) is not run; it can be added as one more `x12_suite.sbatch` job with `IDFILE`.
+Request: record P7 at `accelprof -n 16` as in Figure 4, no parity check. All 14 programs ran: 13 in jobs 329610 to 329622, then stencil1d (86 x 10^9 records) in job 329741 (7 h 34 min, 3 reps of about 9,000 s each).
 
-How: same harness and policy as section 1 (T26 runtime, `N=16 REPS=3 CAP=84600`, whole `rtx4060ti16g` node per program, native run in the same job, stores `final-2026-11-co-sh-p7`, one job per program, jobs 329610 to 329622). Our own builds of P7 (the manifest's `P7-<app>-cuda`, the same binaries as C1). All 13 jobs `COMPLETED`, each log ends `== done rc=0`, 3 reps per program, every row has `workers=16`, no ERROR or TIMEOUT.
+How: same harness and policy as section 1 (T26 runtime, `N=16 REPS=3 CAP=84600`, whole `rtx4060ti16g` node per program, native run in the same job, store `final-2026-11-co-sh-p7`, one job per program). Our own builds of P7 (the manifest's `P7-<app>-cuda`, the same binaries as C1). All 14 jobs `COMPLETED`, each log ends `== done rc=0`, 3 reps per program, every row has `workers=16`, no ERROR or TIMEOUT.
 
-What this is not: P7 was **not gated**. The in-job verdicts are recorded and equal C1's for all 13 (RACE for bfs, heartwall, particlefilter, pathfinder, srad; CLEAN for the rest), and the drained record counts are identical to C1's for all 13, but no pair set was compared. P7 has no X11 rows (X11 is SuperCollider's 10), so C1's `-n 1` rows are the only reference, and C1's geomean is recomputed over the same 13 programs.
+What this is not: P7 was **not gated**. The in-job verdicts are recorded and equal C1's for all 14 (RACE for bfs, heartwall, particlefilter, pathfinder, srad; CLEAN for the rest), and the drained record counts are identical to C1's for all 14, but no pair set was compared. P7 has no X11 rows (X11 is SuperCollider's 10), so C1's `-n 1` rows are the only reference. C1 has 3 reps per program except stencil1d, which has one (36,373 s); the C1 columns reproduce `report_tables.md` (geomean 93.5, peak RSS median 1,078 MB).
 
 Per program (median of 3 reps; wall = tool wall including the analysis the harness runs in the job; native = native run in the same job; records = drained records; sorted by records):
 
 | program | records | verdict N=16 / C1 | N=16: wall s | native s | slowdown | µs/rec | peak MB | C1 `-n 1`: wall s | native s | slowdown | µs/rec | peak MB | wall speed-up |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| stencil1d | 85,983,231,000 | CLEAN / CLEAN | 9,079.5 | 4.722 | 1,922.8 | 0.106 | 4,169 | 36,373.3 | 4.774 | 7,619.1 | 0.423 | 4,240 | 4.0x |
 | particlefilter | 22,515,702,514 | RACE / RACE | 1,488.3 | 1.269 | 1,172.8 | 0.066 | 2,053 | 3,200.2 | 1.171 | 2,732.9 | 0.142 | 1,152 | 2.2x |
 | heartwall | 8,071,484,636 | RACE / RACE | 1,106.5 | 0.769 | 1,438.8 | 0.137 | 1,259 | 2,347.6 | 0.769 | 3,052.7 | 0.291 | 988 | 2.1x |
 | pathfinder | 7,058,581,010 | RACE / RACE | 623.3 | 1.470 | 424.0 | 0.088 | 2,018 | 702.4 | 1.470 | 477.9 | 0.100 | 2,023 | 1.1x |
@@ -170,23 +171,22 @@ Per program (median of 3 reps; wall = tool wall including the analysis the harne
 | bfs | 7,436,165 | RACE / RACE | 4.5 | 1.420 | 3.2 | 0.609 | 1,180 | 4.8 | 1.069 | 4.5 | 0.649 | 1,004 | 1.1x |
 | backprop | 1,232,901 | CLEAN / CLEAN | 1.0 | 0.268 | 3.6 | 0.786 | 922 | 1.7 | 0.268 | 6.2 | 1.355 | 902 | 1.7x |
 
-- N=16: geomean slowdown 39.0 (n=13); median µs/record 0.248; peak RSS median 1,259 MB, max 4,048 MB; median serial floor 0.175 µs
-- C1 `-n 1`: geomean slowdown 66.7 (n=13); median µs/record 0.424; peak RSS median 1,004 MB, max 3,936 MB; median serial floor 0.356 µs
-- fit wall = a + b x records (N=16, n=13): a = 114.2 s, b = 0.0691 µs/record
-- fit wall = a + b x records (C1 -n 1, n=13): a = 142.6 s, b = 0.1463 µs/record
-- wall speed-up C1/N=16: geomean 1.74x, min 0.98x (bitonic-sort), max 3.06x (lavaMD)
-- workers notes: ['16']; reps per program: [3]
+- N=16: geomean slowdown 51.5 (n=14); median µs/record 0.214; peak RSS median 1,282 MB, max 4,169 MB; median serial floor 0.156 µs
+- C1 `-n 1`: geomean slowdown 93.5 (n=14); median µs/record 0.424; peak RSS median 1,078 MB, max 4,240 MB; median serial floor 0.390 µs
+- fit wall = a + b x records (N=16, n=14): a = 22.0 s, b = 0.1030 µs/record
+- fit wall = a + b x records (C1 -n 1, n=14): a = -577.9 s, b = 0.4114 µs/record
+- wall speed-up C1/N=16: geomean 1.84x, min 0.98x (bitonic-sort), max 4.01x (stencil1d)
+- workers notes: ['16']; reps per program N=16: [3]; C1: [1, 3]
 - records equal to C1: True; verdict equal to C1: True
-- >=1e9 records (particlefilter, heartwall, pathfinder, bitonic-sort): N=16 geomean slowdown 334.7 vs C1 530.7; median µs/rec 0.113 vs 0.216
+- >=1e9 records (stencil1d, particlefilter, heartwall, pathfinder, bitonic-sort): N=16 geomean slowdown 474.8 vs C1 904.1; median µs/rec 0.106 vs 0.291
 
 
 Reading:
 
-- Over the same 13 programs the geomean slowdown goes from 66.7x (C1, `-n 1`) to 39.0x (`-n 16`). C1's 93.52 in `report_tables.md` is over all 14 and includes stencil1d (36,373 s, 7,619x), so it is not the number to compare with.
-- Median per-record cost 0.248 µs vs 0.424 µs; fitted slope 0.069 vs 0.146 µs/record. These are smaller gains than on SuperCollider's 10 (section 4: 4.9x on the slope); the programs that did not speed up (below) pull the median and the slope.
-- Gains are uneven: lavaMD 3.1x, srad 2.7x, particlefilter 2.2x, heartwall 2.1x, haversine 2.0x, hotspot 2.0x, but **bitonic-sort 1.0x** (1.23 x 10^9 records, 649 s vs 635 s) and **pathfinder 1.1x** (7.06 x 10^9 records, 623 s vs 702 s), and bfs 1.1x. These stay at their `-n 1` cost per record (bitonic-sort 0.53 vs 0.52 µs, pathfinder 0.088 vs 0.100), which suggests their time is not in the sharded PCDepGraph pass. The cause was not investigated here.
-- The four programs with more than 10^9 records: geomean slowdown 334.7x vs 530.7x, median 0.113 vs 0.216 µs/record.
-- Peak RSS rises a little (median 1,259 vs 1,004 MB, max 4,048 MB bezier-surface vs 3,936 MB); particlefilter's goes from 1,152 to 2,053 MB.
+- Over all 14 programs the geomean slowdown goes from 93.5x (C1, `-n 1`) to 51.5x (`-n 16`); median per-record cost 0.214 µs vs 0.424 µs; the fitted slope falls 0.411 to 0.103 µs/record.
+- stencil1d, the largest program, gains most: 36,373 s to 9,079 s (4.0x), 0.423 to 0.106 µs per record. It is the one that dominates the slope and the geomean gap.
+- Gains are uneven: lavaMD 3.1x, srad 2.7x, particlefilter 2.2x, heartwall 2.1x, haversine 2.0x, hotspot 2.0x, but **bitonic-sort 1.0x** (1.23 x 10^9 records, 649 s vs 635 s), **pathfinder 1.1x** (7.06 x 10^9 records, 623 s vs 702 s) and bfs 1.1x. These stay at their `-n 1` cost per record (bitonic-sort 0.53 vs 0.52 µs, pathfinder 0.088 vs 0.100), which suggests their time is not in the sharded PCDepGraph pass. The cause was not investigated here.
+- The five programs with more than 10^9 records: geomean slowdown 474.8x vs 904.1x, median 0.106 vs 0.291 µs/record.
+- Peak RSS rises a little (median 1,282 vs 1,078 MB; max 4,169 MB stencil1d vs 4,240 MB); particlefilter's goes from 1,152 to 2,053 MB.
 
-Caveats specific to P7: native walls are measured in each job and move between jobs (nbody 12.1 s here vs 14.6 s in C1, bitonic-sort 37.0 s vs 31.9 s, mandelbrot 2.3 s vs 3.8 s), so the slowdown ratio moves with the native run, not only with the tool wall; the wall speed-up column (tool wall only) is the cleaner comparison. The first rep of a short program (backprop, 1.7 s vs 0.97 s) carries warm-up; medians are used. P7 walls have not been compared with any other `-n` value; only `-n 1` (C1) and `-n 16`.
-
+Caveats specific to P7: native walls are measured in each job and move between jobs (nbody 12.1 s here vs 14.6 s in C1, bitonic-sort 37.0 s vs 31.9 s, mandelbrot 2.3 s vs 3.8 s), so the slowdown ratio moves with the native run, not only with the tool wall; the wall speed-up column (tool wall only) is the cleaner comparison. The first rep of a short program (backprop, 1.7 s vs 0.97 s) carries warm-up; medians are used. C1's stencil1d is a single rep. P7 has only been run at `-n 1` (C1) and `-n 16`.

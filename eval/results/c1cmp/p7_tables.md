@@ -1,5 +1,6 @@
 | program | records | verdict N=16 / C1 | N=16: wall s | native s | slowdown | µs/rec | peak MB | C1 `-n 1`: wall s | native s | slowdown | µs/rec | peak MB | wall speed-up |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| stencil1d | 85,983,231,000 | CLEAN / CLEAN | 9,079.5 | 4.722 | 1,922.8 | 0.106 | 4,169 | 36,373.3 | 4.774 | 7,619.1 | 0.423 | 4,240 | 4.0x |
 | particlefilter | 22,515,702,514 | RACE / RACE | 1,488.3 | 1.269 | 1,172.8 | 0.066 | 2,053 | 3,200.2 | 1.171 | 2,732.9 | 0.142 | 1,152 | 2.2x |
 | heartwall | 8,071,484,636 | RACE / RACE | 1,106.5 | 0.769 | 1,438.8 | 0.137 | 1,259 | 2,347.6 | 0.769 | 3,052.7 | 0.291 | 988 | 2.1x |
 | pathfinder | 7,058,581,010 | RACE / RACE | 623.3 | 1.470 | 424.0 | 0.088 | 2,018 | 702.4 | 1.470 | 477.9 | 0.100 | 2,023 | 1.1x |
@@ -14,11 +15,11 @@
 | bfs | 7,436,165 | RACE / RACE | 4.5 | 1.420 | 3.2 | 0.609 | 1,180 | 4.8 | 1.069 | 4.5 | 0.649 | 1,004 | 1.1x |
 | backprop | 1,232,901 | CLEAN / CLEAN | 1.0 | 0.268 | 3.6 | 0.786 | 922 | 1.7 | 0.268 | 6.2 | 1.355 | 902 | 1.7x |
 
-- N=16: geomean slowdown 39.0 (n=13); median µs/record 0.248; peak RSS median 1,259 MB, max 4,048 MB; median serial floor 0.175 µs
-- C1 `-n 1`: geomean slowdown 66.7 (n=13); median µs/record 0.424; peak RSS median 1,004 MB, max 3,936 MB; median serial floor 0.356 µs
-- fit wall = a + b x records (N=16, n=13): a = 114.2 s, b = 0.0691 µs/record
-- fit wall = a + b x records (C1 -n 1, n=13): a = 142.6 s, b = 0.1463 µs/record
-- wall speed-up C1/N=16: geomean 1.74x, min 0.98x (bitonic-sort), max 3.06x (lavaMD)
-- workers notes: ['16']; reps per program: [3]
+- N=16: geomean slowdown 51.5 (n=14); median µs/record 0.214; peak RSS median 1,282 MB, max 4,169 MB; median serial floor 0.156 µs
+- C1 `-n 1`: geomean slowdown 93.5 (n=14); median µs/record 0.424; peak RSS median 1,078 MB, max 4,240 MB; median serial floor 0.390 µs
+- fit wall = a + b x records (N=16, n=14): a = 22.0 s, b = 0.1030 µs/record
+- fit wall = a + b x records (C1 -n 1, n=14): a = -577.9 s, b = 0.4114 µs/record
+- wall speed-up C1/N=16: geomean 1.84x, min 0.98x (bitonic-sort), max 4.01x (stencil1d)
+- workers notes: ['16']; reps per program N=16: [3]; C1: [1, 3]
 - records equal to C1: True; verdict equal to C1: True
-- >=1e9 records (particlefilter, heartwall, pathfinder, bitonic-sort): N=16 geomean slowdown 334.7 vs C1 530.7; median µs/rec 0.113 vs 0.216
+- >=1e9 records (stencil1d, particlefilter, heartwall, pathfinder, bitonic-sort): N=16 geomean slowdown 474.8 vs C1 904.1; median µs/rec 0.106 vs 0.291
