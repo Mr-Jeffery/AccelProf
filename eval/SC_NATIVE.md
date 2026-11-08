@@ -20,7 +20,7 @@ Branch eval/sc-native-hecbench (from origin/cuVein 98371ee1). Reproduce: `python
 
 | program (label) | racecheck | iGUARD | vector-clock | scalar-clock | collector-only mode | SuperCollider |
 |---|---|---|---|---|---|---|
-| atomicCAS (RACE) | CLEAN 84.3x → CLEAN 79.9x | RACE 1091x → RACE 1099x * | TO † | TO † | CLEAN 299x → RACE 438x | RACE 1.4x † |
+| atomicCAS (RACE) | CLEAN 84.3x → CLEAN 79.9x | RACE 1091x → RACE 1099x * | TO † | TO → RACE * | CLEAN 299x → RACE 438x | RACE 1.4x † |
 | dxtc2 (RACE) | CLEAN 1905x → RACE 1728x | CLEAN 20.5x → CLEAN 25.2x | RACE 9147x → RACE 7496x | RACE 1847x → RACE 1095x | RACE 587x → RACE 639x | RACE 10.5x † |
 | knn (RACE) | CLEAN 712x → CLEAN 765x * | RACE 11.4x → RACE 10.8x * | CLEAN 4889x → RACE * | CLEAN 807x → RACE 1202x * | RACE 312x → RACE 324x | RACE 3.6x † |
 | tridiagonal (RACE) | RACE 7693x → RACE 8712x * | CLEAN 56.1x → CLEAN 56.7x | RACE 66714x → RACE 55140x * | RACE 11969x → RACE 12135x * | RACE 6330x → RACE 4769x | RACE 16.5x † |
@@ -44,12 +44,12 @@ HeCBench SuperCollider subset (10 programs), old → new:
 | racecheck | 1/5 → 3/5 | 0/5 | 0 | 0 | 116.5x (10) → 91.8x (10) |
 | iGUARD | 2/5 | 3/5 | 0 | 0 | 28.7x (10) → 20.0x (10) |
 | vector-clock | 2/3 → 3/3 | 0/5 | 2 | 0 | 1118.6x (8) → 489.8x (7) |
-| scalar-clock | 3/4 → 4/4 | 0/5 | 1 | 0 | 354.4x (9) → 218.9x (9) |
+| scalar-clock | 3/4 → 5/5 | 0/5 | 1 → 0 | 0 | 354.4x (9) → 218.9x (9) |
 | collector-only mode | 4/5 → 5/5 | 1/5 | 0 | 0 | 107.8x (10) → 74.4x (10) |
 | SuperCollider | 5/5 | 0/5 | 0 | 0 | 2.3x (10) |
 ## Missing and why
 
-- atomicCAS vector-clock: not run at cap=84600 (Jeffery); recorded TO, old row also TO. atomicCAS scalar-clock: resubmitted (Jeffery; recording 329004, analysis 329005 with the old rows' verdict code), result pending; recorded TO until then.
+- atomicCAS vector-clock: not run at cap=84600 (Jeffery); recorded TO, old row also TO. atomicCAS scalar-clock (resubmitted, Jeffery): TO at 84,600 s after 60,000 of 60,003 kernels; 2 reports in that prefix (global:0x40-0xd0:RAW, global:0x40-0x100:RAW), counted RACE, no slowdown (jobs 329004 / 329005).
 - tridiagonal vector-clock and scalar-clock: the first analysis (wt-x1b harness, serial) hit its 13,800 s limit; re-scored from the same recordings with the old rows' verdict code (origin/cuVein 98371ee1, 16 workers; jobs 328968/328969, 137 s / 136 s): RACE, 24 reports each, as the old rows.
 - expdist vector-clock: TO at 84,600 s; analysis of the 4-kernel prefix ran out of memory (108 GB): no reports. knn vector-clock: TO at 84,600 s, 2 reports in the 279-kernel prefix, counted RACE, no slowdown.
 - Race locations for atomicCAS, dxtc2, expdist in SuperCollider's reports: missing (no line table; SuperCollider not re-run).

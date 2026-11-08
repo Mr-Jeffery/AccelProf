@@ -1,0 +1,7 @@
+host=c1 mem=125G job=329005 app=atomicCAS tool=scalar-clock run=1 tag=x11b-scalar-clock-atomicCAS-r1 harness=5ee0e3d05c83 2026-11-08T10:53:18-05:00
+[analyze] /home/fzheng4/AccelProf/.env/bin/python /home/fzheng4/wt-x11/eval/baselines/parallel.py analyze --manifest /mnt/beegfs/fzheng4/x11_work/runtree-x11b-scalar-clock-atomicCAS-r1/manifest.csv --id X11-atomicCAS --confirm --confirm-dir /home/fzheng4/wt-x11/eval/x_logs/x11/stageB/x11b-scalar-clock-atomicCAS-r1/confirm --tag x11b-scalar-clock-atomicCAS-r1 --results-dir /home/fzheng4/wt-x11/eval/x_logs/x11/stageB/x11b-scalar-clock-atomicCAS-r1 --analysis-timeout 13800 --analysis-workers 16
+[analyze 1] X11-atomicCAS
+analyze: 1 programs -> /home/fzheng4/wt-x11/eval/x_logs/x11/stageB/x11b-scalar-clock-atomicCAS-r1/baselines-cuvein-shardx11b-scalar-clock-atomicCAS-r1all.csv
+[analyze] parallel.py analyze rc=0
+[partial] {"id": "X11-atomicCAS", "mode": "scalar-clock", "store": "/mnt/beegfs/fzheng4/cuvein_traces/x11b-scalar-clock-atomicCAS-r1/X11-atomicCAS", "partial_dirs": [{"dir": "scalar-clock-partial-rep1", "kernel_jsons": 60000, "dropped_truncated": [], "partial_marker": "{\"wall\": 84600.013, \"peak_mb\": 1065.7, \"rc\": 124, \"timed_out\": true, \"nkernels\": 60000, \"dump_mb\": 247.7, \"complete\": false, \"err\": \"./atomicCAS 10000\\nRunning the pc_dependency_analysis tool for atomicCAS...\", \"mode\": \"scalar-clock\", \"rep\": 1, \"note\": \"timed-out rep: prefix of the run, last kernel ", "reports"
+== done rc=0 2026-11-08T10:53:57-05:00
