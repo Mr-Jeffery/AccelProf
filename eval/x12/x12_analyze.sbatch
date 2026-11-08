@@ -15,5 +15,5 @@ export ACCEL_PROF_HOME=$C CUVEIN_HOME=$C
 M=/mnt/beegfs/fzheng4/x12_work/runtree-$STORE-$APP/manifest.csv; d=$W/eval/results/$RES/chain-$APP; mkdir -p $d/confirm
 echo "host=$(hostname) nproc=$(nproc) co-chain=$(git -C $C rev-parse HEAD) $(date -Is)"
 BASELINE_TRACE_DIR=$B/$STORE BASELINE_MODES=collector-only $PY $C/eval/baselines/parallel.py analyze --manifest $M --id X11-$APP \
-    --tag chain-$APP --results-dir $d --confirm --confirm-dir $d/confirm --chain-closure --analysis-timeout 14400 --analysis-workers 16
+    --tag chain-$APP --results-dir $d --confirm --confirm-dir $d/confirm --chain-closure --analysis-timeout ${ATO:-14400} --analysis-workers 16
 echo "== done rc=$? $(date -Is)"
