@@ -304,6 +304,9 @@ def collect_one(mrow, cuda, reps, floor=120, cap=1200):
     meta["pc_lines"] = {str(k): v for k, v in pcmap.items()}
     meta["scope_present"] = bool(scope)
     meta["hb_dump"] = blib.hb_dump()     # T4: 0 = recorded without hb_events (aggregates only)
+    # X1b: YOSEMITE_HB_SHARDS per mode (scalar-clock only; 0 = serial pass) and the node's CPU count
+    meta["hb_shards"] = {VC: 0, SC: blib.hb_shards()}
+    meta["nproc"] = os.cpu_count()
     os.makedirs(f"{idir}/dots", exist_ok=True)
     for dot in glob.glob(f"{cubindir}/*.dot"):
         shutil.copy(dot, f"{idir}/dots/")
@@ -504,7 +507,8 @@ def _kill_group(proc):
     proc.kill()
 
 
-def _analyze_capped(mode_dir, dots_dir, cap_s, mem_gb=-1, workers=None):
+def _analyze_capped(mode_dir, dots_dir, cap_s, mem_gb=-1, workers=None, chain_closure=None,
+                    stats_out=None, co_async=None, co_r3=None):
     """rc._analyze_reports in a forked child with a wall-clock cap (cap_s, 0 = run
     inline, uncapped) and an address-space cap (mem_gb: -1 = 80 % of the node's RAM,
     0 = none). -> (result, reason): reason '' = analyzed; 'analysis-timeout' (child
@@ -520,9 +524,13 @@ def _analyze_capped(mode_dir, dots_dir, cap_s, mem_gb=-1, workers=None):
     polls the group's summed RSS every second -- above mem_gb the group is killed and the
     result is analysis-oom, as for a MemoryError; past cap_s the whole group is killed. A
     worker that dies (signal) kills the child the same way, so the row reads
-    analysis-died(rc=-9) as when the serial child is OOM-killed."""
+    analysis-died(rc=-9) as when the serial child is OOM-killed.
+    C6: chain_closure / stats_out go to rc._analyze_reports (chain_closure_enabled(); stats_out
+    is filled in this process, also from the forked child's result).
+    C6b: co_async / co_r3 go to rc._analyze_reports as they are (None = its env resolution)."""
     if not cap_s:
-        return rc._analyze_reports(mode_dir, dots_dir, workers), ""
+        return rc._analyze_reports(mode_dir, dots_dir, workers, chain_closure=chain_closure,
+                                   stats_out=stats_out, co_async=co_async, co_r3=co_r3), ""
     import multiprocessing, queue
     mem_gb = _analysis_mem_cap_gb(mem_gb)
     ctx = multiprocessing.get_context("fork")
@@ -535,7 +543,10 @@ def _analyze_capped(mode_dir, dots_dir, cap_s, mem_gb=-1, workers=None):
                 import resource
                 lim = int(mem_gb * 1e9)
                 resource.setrlimit(resource.RLIMIT_AS, (lim, lim))
-            q.put(("OK", rc._analyze_reports(mode_dir, dots_dir, workers)))
+            st = {}
+            res = rc._analyze_reports(mode_dir, dots_dir, workers, chain_closure=chain_closure,
+                                      stats_out=st, co_async=co_async, co_r3=co_r3)
+            q.put(("OK", (res, st)))
         except MemoryError:
             os._exit(3)     # nothing can be allocated any more (not even the queue's
                             # feeder thread): exit code 3 is the OOM marker for the parent
@@ -575,7 +586,9 @@ def _analyze_capped(mode_dir, dots_dir, cap_s, mem_gb=-1, workers=None):
             return ([], set(), []), "analysis-timeout"
     proc.join()
     if tag == "OK":
-        return payload, ""
+        if stats_out is not None:
+            stats_out.update(payload[1])
+        return payload[0], ""
     name, msg = payload
     if name == "ValueError":
         raise ValueError(msg)
@@ -583,12 +596,27 @@ def _analyze_capped(mode_dir, dots_dir, cap_s, mem_gb=-1, workers=None):
 
 
 def analyze_one(idir, writer, confirm_dir, analysis_cap=0, analysis_mem=-1,
-                analysis_workers=None):
+                analysis_workers=None, chain_closure=None, chain_log="", co_async=None,
+                co_r3=None):
     # X7 (A1): each (id, mode) row whose saved dump was analysed carries, at the end of its
     # notes, `;analysis_s=<wall of the verdict step>;analysis_workers=<pool size asked for>;
     # analysis_kjsons=<kernel JSONs in the mode's dump>` (one analysis per mode, shared by
     # its reps). A5-style parity compares rows modulo these three tokens.
+    # C6 (chain closure; chain_closure: the explicit switch, else $CUVEIN_CHAIN_CLOSURE=1, see
+    # rc.chain_closure_enabled): when on, every row's notes end with `;chain=1` and, on an analysed
+    # row, `;chain_hops=<n>;chain_derived=<n>;chain_rescued=<n>;chain_s=<closure seconds>;
+    # chain_maxk=<most derived in one kernel>` (sums over the mode's kernels); chain_log, if
+    # given, gets one JSON line per kernel (id, mode, kernel_json, hops, derived, rescued,
+    # closure_s, capped), appended in kernel order. Off: no token, no file.
+    # C6b (collector-only rules; co_async / co_r3: the explicit switch, else $CUVEIN_CO_ASYNC=1 /
+    # $CUVEIN_CO_R3, see rc.co_async_enabled / rc.co_r3_mode): they reach the collector-only
+    # mode's analysis only (the other modes get the defaults explicitly), and its rows' notes
+    # end with `;co_async=1` and/or `;co_r3=<strict|off>` (nothing at the defaults).
     workers = rc.analysis_workers(analysis_workers)
+    chain = rc.chain_closure_enabled(chain_closure)
+    chain_tail = rc.chain_note(None) if chain else ""
+    co_async, co_r3 = rc.co_async_enabled(co_async), rc.co_r3_mode(co_r3)
+    co_tail = rc.co_note(co_async, co_r3)
     # a store the T8 converter did not reach carries engine/trace-only keys: accepted
     # for one release with a deprecation line (CUVEIN_NO_LEGACY_NAMES=1 -> error)
     meta = blib.hb_modes.canon_meta(json.loads(Path(f"{idir}/meta.json").read_text()),
@@ -602,7 +630,7 @@ def analyze_one(idir, writer, confirm_dir, analysis_cap=0, analysis_mem=-1,
 
     verdicts = {}
     if meta.get("error"):
-        writer.writerow(blib.row(**common, verdict="ERROR", notes=meta["error"]))
+        writer.writerow(blib.row(**common, verdict="ERROR", notes=meta["error"] + chain_tail))
         return {m: "ERROR" for m in MODES}
     dots_dir = f"{idir}/dots"
     native = meta.get("native_wall")
@@ -623,7 +651,8 @@ def analyze_one(idir, writer, confirm_dir, analysis_cap=0, analysis_mem=-1,
                 writer.writerow(blib.row(**common, mode=mode, rep=1, verdict="ERROR",
                                          notes=f"collection-interrupted(node={meta.get('node')};"
                                                f"job={meta.get('slurm_job', '')};"
-                                               f"started={meta.get('started', '')})"))
+                                               f"started={meta.get('started', '')})"
+                                               + chain_tail + (co_tail if mode == CO else "")))
                 verdicts[mode] = "ERROR"
             continue
         # analyze the saved trace once (deterministic verdict), reuse across reps
@@ -632,12 +661,19 @@ def analyze_one(idir, writer, confirm_dir, analysis_cap=0, analysis_mem=-1,
         partial = bool(mm.get("partial"))
         mode_dir = blib.hb_modes.resolve_dir(idir, mode)   # pre-T8 store: <id>/engine|trace-only
         tnote = ""                  # X7 (A1): the verdict step's timer, when it ran
+        cstats = {}                 # C6
         if mm.get("saved") and os.path.isdir(mode_dir):
             t_an = time.time()
             try:
-                (ids_, pcs, raw), reason = _analyze_capped(mode_dir, dots_dir,
-                                                           analysis_cap, analysis_mem, workers)
+                (ids_, pcs, raw), reason = _analyze_capped(
+                    mode_dir, dots_dir, analysis_cap, analysis_mem, workers,
+                    chain if chain else None, cstats if chain else None,
+                    co_async if mode == CO else False, co_r3 if mode == CO else "cfg")
                 analyzed = not reason
+                if chain and chain_log and cstats.get("kernels"):
+                    with open(chain_log, "a") as lf:
+                        for kd in cstats["kernels"]:
+                            lf.write(json.dumps({"id": meta["id"], "mode": mode, **kd}) + "\n")
                 cnote = rc.classes_note(raw)             # T9 (D2): report classes
                 raw, raw_sc = rc.split_raw(raw)
             except ValueError:
@@ -692,6 +728,10 @@ def analyze_one(idir, writer, confirm_dir, analysis_cap=0, analysis_mem=-1,
             if meta.get("tool_timeout_cap") is not None:   # absent in metas before X0
                 notes = f"cap={meta['tool_timeout_cap']};{notes}"
             notes += tnote                                 # X7 (A1)
+            if chain:                                      # C6
+                notes += rc.chain_note(cstats if analyzed else None)
+            if mode == CO:                                 # C6b ('' at the defaults)
+                notes += co_tail
             writer.writerow(blib.row(
                 **common, mode=mode, rep=rep, verdict=verdict, reports_dedup=nd,
                 report_ids=ri, report_lines=rl, wall_s=rm.get("wall"),
@@ -837,6 +877,19 @@ def cmd_analyze(a):
     results_dir = getattr(a, "results_dir", "") or blib.RESULTS_DIR
     os.makedirs(results_dir, exist_ok=True)
     path = f"{results_dir}/baselines-cuvein-shard{tag}.csv"
+    # C6: --chain-closure (else $CUVEIN_CHAIN_CLOSURE=1) -> the chain closure, resolved once and
+    # passed down explicitly; its per-kernel stats go to <results-dir>/chain-kernels-<tag>.jsonl
+    # (created empty here, one line per kernel appended by analyze_one in kernel order; a program
+    # that hit the chain cap adds one {"id", "capped": true, "error"} line). Off: no file.
+    chain = rc.chain_closure_enabled(getattr(a, "chain_closure", None))
+    chain_log = f"{results_dir}/chain-kernels-{tag}.jsonl" if chain else ""
+    if chain:
+        open(chain_log, "w").close()
+    chain_tail = rc.chain_note(None) if chain else ""
+    # C6b: --co-async / --co-r3 (else $CUVEIN_CO_ASYNC=1 / $CUVEIN_CO_R3), resolved once here (a
+    # bad --co-r3 value stops before any row) and passed down explicitly; collector-only rows only
+    co_async = rc.co_async_enabled(getattr(a, "co_async", None))
+    co_r3 = rc.co_r3_mode(getattr(a, "co_r3", None))
     import csv
     with open(path, "w", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=blib.COLUMNS)
@@ -847,17 +900,22 @@ def cmd_analyze(a):
             if not os.path.exists(f"{idir}/meta.json"):
                 w.writerow(blib.row(id=m["id"], pset=m["pset"], program=m["program"],
                                     build=m["build"], input=m["input"], tool="cuvein",
-                                    verdict="ERROR", notes="no-trace-collected"))
+                                    verdict="ERROR", notes="no-trace-collected" + chain_tail))
                 continue
             n += 1
             print(f"[analyze {n}] {m['id']}", flush=True)
             try:
                 analyze_one(idir, w, confirm_dir, getattr(a, "analysis_timeout", 0),
-                            getattr(a, "analysis_mem", -1), getattr(a, "analysis_workers", None))
+                            getattr(a, "analysis_mem", -1), getattr(a, "analysis_workers", None),
+                            chain, chain_log, co_async, co_r3)
             except Exception as e:
                 w.writerow(blib.row(id=m["id"], pset=m["pset"], program=m["program"],
                                     build=m["build"], input=m["input"], tool="cuvein",
-                                    verdict="ERROR", notes=f"{type(e).__name__}:{e}"))
+                                    verdict="ERROR", notes=f"{type(e).__name__}:{e}{chain_tail}"))
+                if chain and "chain-cap" in str(e):
+                    with open(chain_log, "a") as lf:
+                        lf.write(json.dumps({"id": m["id"], "capped": True,
+                                             "error": str(e)[:300]}) + "\n")
     print(f"analyze: {n} programs -> {path}")
 
 
@@ -1032,6 +1090,25 @@ def main():
                             "revision's re-run, kept apart from the merged baseline)")
         p.add_argument("--confirm-dir", dest="confirm_dir", default="",
                        help="with --confirm: detail JSON dir (default eval/baselines/confirm)")
+    sub.choices["analyze"].add_argument(
+        "--chain-closure", dest="chain_closure", action="store_const", const=True, default=None,
+        help="C6: also judge the pc pairs a chain of reads joins (sync_dominance.analyze"
+             "(chain_closure=True)); default off, else $CUVEIN_CHAIN_CLOSURE=1. Rows' notes get "
+             "chain=1 and chain_* stats; per-kernel stats go to <results-dir>/chain-kernels-"
+             "<tag>.jsonl")
+    sub.choices["analyze"].add_argument(
+        "--co-async", dest="co_async", action="store_const", const=True, default=None,
+        help="C6b, collector-only rows only: a cp.async (LDGSTS) copy is its thread's async "
+             "agent's access; a same-thread edge from a copy is reported unless a DEPBAR.LE "
+             "SB0, 0x0 lies on every CFG path to the later access (sync_dominance.analyze"
+             "(co_async=True)); default off, else $CUVEIN_CO_ASYNC=1. Notes get co_async=1; raw "
+             "records get async")
+    sub.choices["analyze"].add_argument(
+        "--co-r3", dest="co_r3", choices=("cfg", "strict", "off"), default=None,
+        help="C6b, collector-only rows only: R3's atomic-chain certificate -- cfg (region "
+             "dominance, the default), strict (cfg and none of scalar-clock's CFG-decidable "
+             "declines: the landing check, write-before-lock), off (none); else $CUVEIN_CO_R3. "
+             "Notes get co_r3=<mode> unless cfg; raw records get atomic_chain_off")
     pm = sub.add_parser("merge")
     pm.add_argument("--tool", default="cuvein", help="comma list of tool families")
     pm.add_argument("--results-dir", dest="results_dir", default="",

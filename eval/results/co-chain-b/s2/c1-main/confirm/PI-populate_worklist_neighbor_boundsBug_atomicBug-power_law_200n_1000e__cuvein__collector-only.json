@@ -1,0 +1,77 @@
+{
+  "id": "PI-populate_worklist_neighbor_boundsBug_atomicBug-power_law_200n_1000e",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "global:0x100-0x130:RAW",
+    "global:0x130-0x130:WAW",
+    "global:0x140-0x140:WAW"
+  ],
+  "pcs": [
+    256,
+    304,
+    320
+  ],
+  "lines": "populate_worklist_neighbor_boundsBug_atomicBug.cu:54;populate_worklist_neighbor_boundsBug_atomicBug.cu:55",
+  "raw": [
+    {
+      "a_pc": 256,
+      "b_pc": 304,
+      "space": "global",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    },
+    {
+      "a_pc": 304,
+      "b_pc": 304,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    },
+    {
+      "a_pc": 320,
+      "b_pc": 320,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "256": "populate_worklist_neighbor_boundsBug_atomicBug.cu:54",
+    "304": "populate_worklist_neighbor_boundsBug_atomicBug.cu:54",
+    "320": "populate_worklist_neighbor_boundsBug_atomicBug.cu:55"
+  }
+}

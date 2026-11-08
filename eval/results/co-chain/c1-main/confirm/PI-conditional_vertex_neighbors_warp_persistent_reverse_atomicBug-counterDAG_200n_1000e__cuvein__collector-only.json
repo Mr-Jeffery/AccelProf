@@ -1,0 +1,53 @@
+{
+  "id": "PI-conditional_vertex_neighbors_warp_persistent_reverse_atomicBug-counterDAG_200n_1000e",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "global:0x2f0-0x310:RAW",
+    "global:0x310-0x310:WAW"
+  ],
+  "pcs": [
+    752,
+    784
+  ],
+  "lines": "conditional_vertex_neighbors_warp_persistent_reverse_atomicBug.cu:57",
+  "raw": [
+    {
+      "a_pc": 752,
+      "b_pc": 784,
+      "space": "global",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 784,
+      "b_pc": 784,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "752": "conditional_vertex_neighbors_warp_persistent_reverse_atomicBug.cu:57",
+    "784": "conditional_vertex_neighbors_warp_persistent_reverse_atomicBug.cu:57"
+  }
+}

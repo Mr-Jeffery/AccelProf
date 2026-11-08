@@ -1,0 +1,99 @@
+{
+  "id": "PI-push_node_neighbors_persistent_reverse_atomicBug-counterDAG_5n_5e",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "global:0x1d0-0x230:RAW",
+    "global:0x1d0-0x260:WAW",
+    "global:0x260-0x2c0:RAW",
+    "global:0x260-0x2e0:WAW"
+  ],
+  "pcs": [
+    464,
+    560,
+    608,
+    704,
+    736
+  ],
+  "lines": "push_node_neighbors_persistent_reverse_atomicBug.cu:52",
+  "raw": [
+    {
+      "a_pc": 464,
+      "b_pc": 560,
+      "space": "global",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 464,
+      "b_pc": 608,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain",
+      "chain_path": [
+        "0x1d0",
+        "0x230",
+        "0x260"
+      ]
+    },
+    {
+      "a_pc": 608,
+      "b_pc": 704,
+      "space": "global",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 608,
+      "b_pc": 736,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain",
+      "chain_path": [
+        "0x260",
+        "0x2c0",
+        "0x2e0"
+      ]
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "736": "push_node_neighbors_persistent_reverse_atomicBug.cu:52",
+    "608": "push_node_neighbors_persistent_reverse_atomicBug.cu:52",
+    "704": "push_node_neighbors_persistent_reverse_atomicBug.cu:52",
+    "560": "push_node_neighbors_persistent_reverse_atomicBug.cu:52",
+    "464": "push_node_neighbors_persistent_reverse_atomicBug.cu:52"
+  }
+}

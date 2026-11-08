@@ -1,0 +1,43 @@
+id,pset,program,mode,verdict,cause,native_rc,timeout_s,dump_mb,peak_mb,wall_s,native_wall_s,evidence
+P6-bulkcpy-global_readwrite_race-fixed,P6,bulkcpy/global_readwrite_race,vector-clock,ERROR,needs-sm90,0,,,,,,
+P6-bulkcpy-global_readwrite_race-fixed,P6,bulkcpy/global_readwrite_race,scalar-clock,ERROR,needs-sm90,0,,,,,,
+P6-bulkcpy-global_readwrite_race-racy,P6,bulkcpy/global_readwrite_race,vector-clock,ERROR,needs-sm90,0,,,,,,
+P6-bulkcpy-global_readwrite_race-racy,P6,bulkcpy/global_readwrite_race,scalar-clock,ERROR,needs-sm90,0,,,,,,
+P6-bulkcpy-global_readwrite_race_g2s-fixed,P6,bulkcpy/global_readwrite_race_g2s,vector-clock,ERROR,needs-sm90,0,,,,,,
+P6-bulkcpy-global_readwrite_race_g2s-fixed,P6,bulkcpy/global_readwrite_race_g2s,scalar-clock,ERROR,needs-sm90,0,,,,,,
+P6-bulkcpy-global_readwrite_race_g2s-racy,P6,bulkcpy/global_readwrite_race_g2s,vector-clock,ERROR,needs-sm90,0,,,,,,
+P6-bulkcpy-global_readwrite_race_g2s-racy,P6,bulkcpy/global_readwrite_race_g2s,scalar-clock,ERROR,needs-sm90,0,,,,,,
+P6-bulkcpy-global_writewrite_race-fixed,P6,bulkcpy/global_writewrite_race,vector-clock,ERROR,needs-sm90,0,,,,,,
+P6-bulkcpy-global_writewrite_race-fixed,P6,bulkcpy/global_writewrite_race,scalar-clock,ERROR,needs-sm90,0,,,,,,
+P6-bulkcpy-global_writewrite_race-racy,P6,bulkcpy/global_writewrite_race,vector-clock,ERROR,needs-sm90,0,,,,,,
+P6-bulkcpy-global_writewrite_race-racy,P6,bulkcpy/global_writewrite_race,scalar-clock,ERROR,needs-sm90,0,,,,,,
+P6-bulkcpy-shared_readwrite_race-fixed,P6,bulkcpy/shared_readwrite_race,vector-clock,ERROR,needs-sm90,0,,,,,,
+P6-bulkcpy-shared_readwrite_race-fixed,P6,bulkcpy/shared_readwrite_race,scalar-clock,ERROR,needs-sm90,0,,,,,,
+P6-bulkcpy-shared_readwrite_race-racy,P6,bulkcpy/shared_readwrite_race,vector-clock,ERROR,needs-sm90,0,,,,,,
+P6-bulkcpy-shared_readwrite_race-racy,P6,bulkcpy/shared_readwrite_race,scalar-clock,ERROR,needs-sm90,0,,,,,,
+P6-bulkcpy-shared_writeread_race_g2s-fixed,P6,bulkcpy/shared_writeread_race_g2s,vector-clock,ERROR,needs-sm90,0,,,,,,
+P6-bulkcpy-shared_writeread_race_g2s-fixed,P6,bulkcpy/shared_writeread_race_g2s,scalar-clock,ERROR,needs-sm90,0,,,,,,
+P6-bulkcpy-shared_writeread_race_g2s-racy,P6,bulkcpy/shared_writeread_race_g2s,vector-clock,ERROR,needs-sm90,0,,,,,,
+P6-bulkcpy-shared_writeread_race_g2s-racy,P6,bulkcpy/shared_writeread_race_g2s,scalar-clock,ERROR,needs-sm90,0,,,,,,
+P6-bulkcpy-shared_writewrite_race_g2s-fixed,P6,bulkcpy/shared_writewrite_race_g2s,vector-clock,ERROR,needs-sm90,0,,,,,,
+P6-bulkcpy-shared_writewrite_race_g2s-fixed,P6,bulkcpy/shared_writewrite_race_g2s,scalar-clock,ERROR,needs-sm90,0,,,,,,
+P6-bulkcpy-shared_writewrite_race_g2s-racy,P6,bulkcpy/shared_writewrite_race_g2s,vector-clock,ERROR,needs-sm90,0,,,,,,
+P6-bulkcpy-shared_writewrite_race_g2s-racy,P6,bulkcpy/shared_writewrite_race_g2s,scalar-clock,ERROR,needs-sm90,0,,,,,,
+P6-dsmem-shared_readwrite_race-fixed,P6,dsmem/shared_readwrite_race,vector-clock,ERROR,needs-sm90,0,,,,,,
+P6-dsmem-shared_readwrite_race-fixed,P6,dsmem/shared_readwrite_race,scalar-clock,ERROR,needs-sm90,0,,,,,,
+P6-dsmem-shared_readwrite_race-racy,P6,dsmem/shared_readwrite_race,vector-clock,ERROR,needs-sm90,0,,,,,,
+P6-dsmem-shared_readwrite_race-racy,P6,dsmem/shared_readwrite_race,scalar-clock,ERROR,needs-sm90,0,,,,,,
+P6-dsmem-shared_writewrite_race-fixed,P6,dsmem/shared_writewrite_race,vector-clock,ERROR,needs-sm90,0,,,,,,
+P6-dsmem-shared_writewrite_race-fixed,P6,dsmem/shared_writewrite_race,scalar-clock,ERROR,needs-sm90,0,,,,,,
+P6-dsmem-shared_writewrite_race-racy,P6,dsmem/shared_writewrite_race,vector-clock,ERROR,needs-sm90,0,,,,,,
+P6-dsmem-shared_writewrite_race-racy,P6,dsmem/shared_writewrite_race,scalar-clock,ERROR,needs-sm90,0,,,,,,
+P7-haversine-cuda,P7,haversine-cuda,vector-clock,TIMEOUT,hb-clock-hang,0,5400,2.2,9496.3,5400.006,3.525,./haversine-cuda /home/fzheng4/AccelProf/eval/baselines/corpora/HeCBench/src/geodesic-cuda/locations.txt 100 | Running the pc_dependency_analysis tool for haversine-cuda...
+P7-haversine-cuda,P7,haversine-cuda,scalar-clock,CLEAN,resolved,0,,,13998.7,4131.136,3.592,events=629145600
+P7-particlefilter-cuda,P7,particlefilter-cuda,vector-clock,TIMEOUT,hb-state-memory,0,5400,0.3,124052.2,5400.058,1.171,./particlefilter-cuda -x 128 -y 128 -z 10 -np 400000 | Running the pc_dependency_analysis tool for particlefilter-cuda...
+P7-particlefilter-cuda,P7,particlefilter-cuda,scalar-clock,RACE,resolved,0,,,189685.6,234.019,1.22,events=5643848
+P7-stencil1d-cuda,P7,stencil1d-cuda,vector-clock,TIMEOUT,hb-state-memory,0,84600,7.3,98492.2,84600.019,5.088,./stencil1d-cuda 134217728 1000 | Running the pc_dependency_analysis tool for stencil1d-cuda...
+P7-stencil1d-cuda,P7,stencil1d-cuda,scalar-clock,TIMEOUT,hb-state-memory,0,84600,27.3,168101.7,84600.017,5.629,./stencil1d-cuda 134217728 1000 | Running the pc_dependency_analysis tool for stencil1d-cuda...
+P9-atomicCAS-cuda,P9,atomicCAS-cuda,vector-clock,TIMEOUT,hb-state-memory,0,1200,0.0,99100.4,1200.011,3.776,./atomicCAS-cuda 10000 | Running the pc_dependency_analysis tool for atomicCAS-cuda...
+P9-atomicCAS-cuda,P9,atomicCAS-cuda,scalar-clock,TIMEOUT,time-cap,0,84600,246.9,1103.5,84600.023,3.927,./atomicCAS-cuda 10000 | Running the pc_dependency_analysis tool for atomicCAS-cuda...
+P9-expdist-cuda,P9,expdist-cuda,vector-clock,TIMEOUT,hb-clock-hang,0,84600,0.0,21016.5,84600.019,2.223,./expdist-cuda 10000 10 | Running the pc_dependency_analysis tool for expdist-cuda...
+P9-expdist-cuda,P9,expdist-cuda,scalar-clock,RACE,resolved,0,,,13773.9,2696.849,2.185,events=1650046572

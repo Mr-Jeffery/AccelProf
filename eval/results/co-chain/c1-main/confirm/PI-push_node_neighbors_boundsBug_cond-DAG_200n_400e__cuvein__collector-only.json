@@ -1,0 +1,211 @@
+{
+  "id": "PI-push_node_neighbors_boundsBug_cond-DAG_200n_400e",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "global:0x70-0x240:WAR",
+    "global:0x70-0x380:WAR",
+    "global:0x70-0x410:WAR",
+    "global:0x70-0x4a0:WAR",
+    "global:0x70-0x530:WAR",
+    "global:0x80-0x240:WAR",
+    "global:0x80-0x380:WAR",
+    "global:0x80-0x410:WAR",
+    "global:0x80-0x4a0:WAR",
+    "global:0x80-0x530:WAR"
+  ],
+  "pcs": [
+    112,
+    128,
+    576,
+    896,
+    1040,
+    1184,
+    1328
+  ],
+  "lines": "device_atomic_functions.hpp:142;push_node_neighbors_boundsBug_cond.cu:48;push_node_neighbors_boundsBug_cond.cu:49",
+  "raw": [
+    {
+      "a_pc": 112,
+      "b_pc": 576,
+      "space": "global",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain",
+      "chain_path": [
+        "0x70",
+        "0x80",
+        "0x240"
+      ]
+    },
+    {
+      "a_pc": 112,
+      "b_pc": 896,
+      "space": "global",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain",
+      "chain_path": [
+        "0x70",
+        "0x80",
+        "0x380"
+      ]
+    },
+    {
+      "a_pc": 112,
+      "b_pc": 1040,
+      "space": "global",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain",
+      "chain_path": [
+        "0x70",
+        "0x80",
+        "0x410"
+      ]
+    },
+    {
+      "a_pc": 112,
+      "b_pc": 1184,
+      "space": "global",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain",
+      "chain_path": [
+        "0x70",
+        "0x80",
+        "0x4a0"
+      ]
+    },
+    {
+      "a_pc": 112,
+      "b_pc": 1328,
+      "space": "global",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain",
+      "chain_path": [
+        "0x70",
+        "0x80",
+        "0x530"
+      ]
+    },
+    {
+      "a_pc": 128,
+      "b_pc": 576,
+      "space": "global",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": "benign",
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 128,
+      "b_pc": 896,
+      "space": "global",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": "benign",
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 128,
+      "b_pc": 1040,
+      "space": "global",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": "benign",
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 128,
+      "b_pc": 1184,
+      "space": "global",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": "benign",
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 128,
+      "b_pc": 1328,
+      "space": "global",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": "benign",
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "576": "device_atomic_functions.hpp:142",
+    "128": "push_node_neighbors_boundsBug_cond.cu:49",
+    "896": "device_atomic_functions.hpp:142",
+    "1184": "device_atomic_functions.hpp:142",
+    "112": "push_node_neighbors_boundsBug_cond.cu:48",
+    "1040": "device_atomic_functions.hpp:142",
+    "1328": "device_atomic_functions.hpp:142"
+  }
+}

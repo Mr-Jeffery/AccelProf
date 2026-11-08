@@ -29,6 +29,10 @@ import os
 FROZEN = dict(collector="ee78cb899e8a0a65", libsanalyzer="2201fcb7d57ae783",
               fatbin="a2d7368bc1c61986", fatbin_late="e96343121c74ca0a")
 BAD_NODES = {"c54", "c2", "c21", "c37"}
+if os.environ.get("FINAL_B"):   # X1b: the T22 cont. + T23 + T24 install (f551ca0); c23, c46 have no /home
+    FROZEN = dict(collector="b746b4dd23e90f46", libsanalyzer="5a20fd14ab6c6806",
+                  fatbin="a2d7368bc1c61986", fatbin_late="e96343121c74ca0a")
+    BAD_NODES |= {"c23", "c46"}
 MODES = ("vector-clock", "scalar-clock")
 NEED = {"vector-clock": ("hb_aggregates", "hb_sync_pass", "hb_rmw_points", "hb_stats",
                          "hb_races", "hb_chain"),
@@ -76,6 +80,8 @@ def main():
                 bad.append(f"status={m.get('status')}")
             if m.get("error"):
                 bad.append(f"error={m.get('error')}")   # missing-exe: reported, not a defect
+            if os.environ.get("FINAL_B") and not m.get("error") and                     (m.get("hb_shards") or {}).get("scalar-clock") != int(os.environ.get("FINAL_B_SHARDS", "16")):
+                bad.append(f"hb_shards={m.get('hb_shards')}")
             if str(m.get("arch")) != "8.9":
                 bad.append(f"arch={m.get('arch')}")
             if m.get("node") in BAD_NODES:

@@ -1,0 +1,53 @@
+{
+  "id": "PI-conditional_edge_neighbors_warp_atomicBug-DAG_100n_200e",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "global:0xd10-0xd40:RAW",
+    "global:0xd40-0xd40:WAW"
+  ],
+  "pcs": [
+    3344,
+    3392
+  ],
+  "lines": "conditional_edge_neighbors_warp_atomicBug.cu:61",
+  "raw": [
+    {
+      "a_pc": 3344,
+      "b_pc": 3392,
+      "space": "global",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 3392,
+      "b_pc": 3392,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "3344": "conditional_edge_neighbors_warp_atomicBug.cu:61",
+    "3392": "conditional_edge_neighbors_warp_atomicBug.cu:61"
+  }
+}

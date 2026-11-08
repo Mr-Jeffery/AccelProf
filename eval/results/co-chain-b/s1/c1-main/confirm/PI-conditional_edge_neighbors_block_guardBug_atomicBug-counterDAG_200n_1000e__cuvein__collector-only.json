@@ -1,0 +1,79 @@
+{
+  "id": "PI-conditional_edge_neighbors_block_guardBug_atomicBug-counterDAG_200n_1000e",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0x280-0x2a0:RAW",
+    "global:0x310-0x360:RAW",
+    "global:0x360-0x360:WAW"
+  ],
+  "pcs": [
+    640,
+    672,
+    784,
+    864
+  ],
+  "lines": "conditional_edge_neighbors_block_guardBug_atomicBug.cu:63;conditional_edge_neighbors_block_guardBug_atomicBug.cu:69;conditional_edge_neighbors_block_guardBug_atomicBug.cu:72",
+  "raw": [
+    {
+      "a_pc": 640,
+      "b_pc": 672,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    },
+    {
+      "a_pc": 784,
+      "b_pc": 864,
+      "space": "global",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    },
+    {
+      "a_pc": 864,
+      "b_pc": 864,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "640": "conditional_edge_neighbors_block_guardBug_atomicBug.cu:63",
+    "784": "conditional_edge_neighbors_block_guardBug_atomicBug.cu:69",
+    "864": "conditional_edge_neighbors_block_guardBug_atomicBug.cu:72",
+    "672": "conditional_edge_neighbors_block_guardBug_atomicBug.cu:63"
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "id": "PI-pull_node_neighbors_block_persistent_reverse_cond_syncBug-DAG_100n_100e",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0x250-0x250:WAW",
+    "shared:0x250-0x2e0:WAR",
+    "shared:0x2e0-0x300:RAW"
+  ],
+  "pcs": [
+    592,
+    736,
+    768
+  ],
+  "lines": "pull_node_neighbors_block_persistent_reverse_cond_syncBug.cu:60;pull_node_neighbors_block_persistent_reverse_cond_syncBug.cu:64",
+  "raw": [
+    {
+      "a_pc": 592,
+      "b_pc": 592,
+      "space": "shared",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain",
+      "chain_path": [
+        "0x250",
+        "0x2e0",
+        "0x250"
+      ]
+    },
+    {
+      "a_pc": 592,
+      "b_pc": 736,
+      "space": "shared",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 736,
+      "b_pc": 768,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "592": "pull_node_neighbors_block_persistent_reverse_cond_syncBug.cu:60",
+    "736": "pull_node_neighbors_block_persistent_reverse_cond_syncBug.cu:64",
+    "768": "pull_node_neighbors_block_persistent_reverse_cond_syncBug.cu:64"
+  }
+}

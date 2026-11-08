@@ -1,0 +1,1435 @@
+{
+ "id": "hecbench-surfel-1-fixed",
+ "target": "hecbench-surfel-1",
+ "exe": "/mnt/beegfs/fzheng4/realworld_t21b/build/hecbench-surfel-1/fixed/main",
+ "cuda_home": "/usr/local/cuda-13.4",
+ "n_cubins": 1,
+ "n_dots": 1,
+ "oracle_kernel_substr": "surfel_render_tile",
+ "spec_found": true,
+ "modes": {
+  "collector-only": {
+   "n_kernel_jsons": 6,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "void surfel_render<float>(float const*, int, float, int, int, float*)",
+     "mangled": "_Z13surfel_renderIfEvPKT_iS0_iiPS0_",
+     "dot": "main.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 29,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_1.json",
+     "name": "void surfel_render_tile<float, 256>(float const*, int, float, int, int, float*)",
+     "mangled": "_Z18surfel_render_tileIfLi256EEvPKT_iS0_iiPS0_",
+     "dot": "main.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 28,
+      "skipped": 23,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_2.json",
+     "name": "void surfel_render<float>(float const*, int, float, int, int, float*)",
+     "mangled": "_Z13surfel_renderIfEvPKT_iS0_iiPS0_",
+     "dot": "main.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 29,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_3.json",
+     "name": "void surfel_render_tile<float, 256>(float const*, int, float, int, int, float*)",
+     "mangled": "_Z18surfel_render_tileIfLi256EEvPKT_iS0_iiPS0_",
+     "dot": "main.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 28,
+      "skipped": 23,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_4.json",
+     "name": "void surfel_render<float>(float const*, int, float, int, int, float*)",
+     "mangled": "_Z13surfel_renderIfEvPKT_iS0_iiPS0_",
+     "dot": "main.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 0,
+      "skipped": 29,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_5.json",
+     "name": "void surfel_render_tile<float, 256>(float const*, int, float, int, int, float*)",
+     "mangled": "_Z18surfel_render_tileIfLi256EEvPKT_iS0_iiPS0_",
+     "dot": "main.sm_89.dot",
+     "summary": {
+      "races": 0,
+      "sc": 0,
+      "ordered": 28,
+      "skipped": 23,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 3,
+   "n_race": 0,
+   "n_sc": 0,
+   "reports": [],
+   "site_verdicts": [
+    {
+     "current_pc": 720,
+     "current_pc_hex": "0x2d0",
+     "ancient_pc": 1104,
+     "ancient_pc_hex": "0x450",
+     "opcodes": [
+      "STS",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 22,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      832
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void surfel_render_tile<float, 256>(float const*, int, float, int, int, float*)",
+     "mangled": "_Z18surfel_render_tileIfLi256EEvPKT_iS0_iiPS0_",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 87
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 97
+      }
+     ]
+    },
+    {
+     "current_pc": 720,
+     "current_pc_hex": "0x2d0",
+     "ancient_pc": 1520,
+     "ancient_pc_hex": "0x5f0",
+     "opcodes": [
+      "STS",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 22,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      832
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void surfel_render_tile<float, 256>(float const*, int, float, int, int, float*)",
+     "mangled": "_Z18surfel_render_tileIfLi256EEvPKT_iS0_iiPS0_",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 87
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 105
+      }
+     ]
+    },
+    {
+     "current_pc": 736,
+     "current_pc_hex": "0x2e0",
+     "ancient_pc": 1104,
+     "ancient_pc_hex": "0x450",
+     "opcodes": [
+      "STS",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 22,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      832
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void surfel_render_tile<float, 256>(float const*, int, float, int, int, float*)",
+     "mangled": "_Z18surfel_render_tileIfLi256EEvPKT_iS0_iiPS0_",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 87
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 97
+      }
+     ]
+    },
+    {
+     "current_pc": 736,
+     "current_pc_hex": "0x2e0",
+     "ancient_pc": 1504,
+     "ancient_pc_hex": "0x5e0",
+     "opcodes": [
+      "STS",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 22,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      832
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void surfel_render_tile<float, 256>(float const*, int, float, int, int, float*)",
+     "mangled": "_Z18surfel_render_tileIfLi256EEvPKT_iS0_iiPS0_",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 87
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 98
+      }
+     ]
+    },
+    {
+     "current_pc": 752,
+     "current_pc_hex": "0x2f0",
+     "ancient_pc": 1088,
+     "ancient_pc_hex": "0x440",
+     "opcodes": [
+      "STS",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 22,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      832
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void surfel_render_tile<float, 256>(float const*, int, float, int, int, float*)",
+     "mangled": "_Z18surfel_render_tileIfLi256EEvPKT_iS0_iiPS0_",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 87
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 101
+      }
+     ]
+    },
+    {
+     "current_pc": 752,
+     "current_pc_hex": "0x2f0",
+     "ancient_pc": 1504,
+     "ancient_pc_hex": "0x5e0",
+     "opcodes": [
+      "STS",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 22,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      832
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void surfel_render_tile<float, 256>(float const*, int, float, int, int, float*)",
+     "mangled": "_Z18surfel_render_tileIfLi256EEvPKT_iS0_iiPS0_",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 87
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 98
+      }
+     ]
+    },
+    {
+     "current_pc": 768,
+     "current_pc_hex": "0x300",
+     "ancient_pc": 1088,
+     "ancient_pc_hex": "0x440",
+     "opcodes": [
+      "STS",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 22,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      832
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void surfel_render_tile<float, 256>(float const*, int, float, int, int, float*)",
+     "mangled": "_Z18surfel_render_tileIfLi256EEvPKT_iS0_iiPS0_",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 87
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 101
+      }
+     ]
+    },
+    {
+     "current_pc": 768,
+     "current_pc_hex": "0x300",
+     "ancient_pc": 1424,
+     "ancient_pc_hex": "0x590",
+     "opcodes": [
+      "STS",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 22,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      832
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void surfel_render_tile<float, 256>(float const*, int, float, int, int, float*)",
+     "mangled": "_Z18surfel_render_tileIfLi256EEvPKT_iS0_iiPS0_",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 87
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 101
+      }
+     ]
+    },
+    {
+     "current_pc": 784,
+     "current_pc_hex": "0x310",
+     "ancient_pc": 1072,
+     "ancient_pc_hex": "0x430",
+     "opcodes": [
+      "STS",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 22,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      832
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void surfel_render_tile<float, 256>(float const*, int, float, int, int, float*)",
+     "mangled": "_Z18surfel_render_tileIfLi256EEvPKT_iS0_iiPS0_",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 87
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 102
+      }
+     ]
+    },
+    {
+     "current_pc": 784,
+     "current_pc_hex": "0x310",
+     "ancient_pc": 1424,
+     "ancient_pc_hex": "0x590",
+     "opcodes": [
+      "STS",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 22,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      832
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void surfel_render_tile<float, 256>(float const*, int, float, int, int, float*)",
+     "mangled": "_Z18surfel_render_tileIfLi256EEvPKT_iS0_iiPS0_",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 87
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 101
+      }
+     ]
+    },
+    {
+     "current_pc": 800,
+     "current_pc_hex": "0x320",
+     "ancient_pc": 1072,
+     "ancient_pc_hex": "0x430",
+     "opcodes": [
+      "STS",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 22,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      832
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void surfel_render_tile<float, 256>(float const*, int, float, int, int, float*)",
+     "mangled": "_Z18surfel_render_tileIfLi256EEvPKT_iS0_iiPS0_",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 87
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 102
+      }
+     ]
+    },
+    {
+     "current_pc": 800,
+     "current_pc_hex": "0x320",
+     "ancient_pc": 1472,
+     "ancient_pc_hex": "0x5c0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 22,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      832
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void surfel_render_tile<float, 256>(float const*, int, float, int, int, float*)",
+     "mangled": "_Z18surfel_render_tileIfLi256EEvPKT_iS0_iiPS0_",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 87
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 103
+      }
+     ]
+    },
+    {
+     "current_pc": 816,
+     "current_pc_hex": "0x330",
+     "ancient_pc": 1520,
+     "ancient_pc_hex": "0x5f0",
+     "opcodes": [
+      "STS",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 22,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      832
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void surfel_render_tile<float, 256>(float const*, int, float, int, int, float*)",
+     "mangled": "_Z18surfel_render_tileIfLi256EEvPKT_iS0_iiPS0_",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 87
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 105
+      }
+     ]
+    },
+    {
+     "current_pc": 816,
+     "current_pc_hex": "0x330",
+     "ancient_pc": 1952,
+     "ancient_pc_hex": "0x7a0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 22,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      832
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void surfel_render_tile<float, 256>(float const*, int, float, int, int, float*)",
+     "mangled": "_Z18surfel_render_tileIfLi256EEvPKT_iS0_iiPS0_",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 87
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 105
+      }
+     ]
+    },
+    {
+     "current_pc": 1072,
+     "current_pc_hex": "0x430",
+     "ancient_pc": 784,
+     "ancient_pc_hex": "0x310",
+     "opcodes": [
+      "LDS.64",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 132,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      832
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void surfel_render_tile<float, 256>(float const*, int, float, int, int, float*)",
+     "mangled": "_Z18surfel_render_tileIfLi256EEvPKT_iS0_iiPS0_",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 102
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 87
+      }
+     ]
+    },
+    {
+     "current_pc": 1072,
+     "current_pc_hex": "0x430",
+     "ancient_pc": 800,
+     "ancient_pc_hex": "0x320",
+     "opcodes": [
+      "LDS.64",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 132,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      832
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void surfel_render_tile<float, 256>(float const*, int, float, int, int, float*)",
+     "mangled": "_Z18surfel_render_tileIfLi256EEvPKT_iS0_iiPS0_",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 102
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 87
+      }
+     ]
+    },
+    {
+     "current_pc": 1088,
+     "current_pc_hex": "0x440",
+     "ancient_pc": 752,
+     "ancient_pc_hex": "0x2f0",
+     "opcodes": [
+      "LDS.64",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      832
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void surfel_render_tile<float, 256>(float const*, int, float, int, int, float*)",
+     "mangled": "_Z18surfel_render_tileIfLi256EEvPKT_iS0_iiPS0_",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 101
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 87
+      }
+     ]
+    },
+    {
+     "current_pc": 1088,
+     "current_pc_hex": "0x440",
+     "ancient_pc": 768,
+     "ancient_pc_hex": "0x300",
+     "opcodes": [
+      "LDS.64",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 128,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      832
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void surfel_render_tile<float, 256>(float const*, int, float, int, int, float*)",
+     "mangled": "_Z18surfel_render_tileIfLi256EEvPKT_iS0_iiPS0_",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 101
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 87
+      }
+     ]
+    },
+    {
+     "current_pc": 1104,
+     "current_pc_hex": "0x450",
+     "ancient_pc": 720,
+     "ancient_pc_hex": "0x2d0",
+     "opcodes": [
+      "LDS.64",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 130,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      832
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void surfel_render_tile<float, 256>(float const*, int, float, int, int, float*)",
+     "mangled": "_Z18surfel_render_tileIfLi256EEvPKT_iS0_iiPS0_",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 97
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 87
+      }
+     ]
+    },
+    {
+     "current_pc": 1104,
+     "current_pc_hex": "0x450",
+     "ancient_pc": 736,
+     "ancient_pc_hex": "0x2e0",
+     "opcodes": [
+      "LDS.64",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 130,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      832
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void surfel_render_tile<float, 256>(float const*, int, float, int, int, float*)",
+     "mangled": "_Z18surfel_render_tileIfLi256EEvPKT_iS0_iiPS0_",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 97
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 87
+      }
+     ]
+    },
+    {
+     "current_pc": 1424,
+     "current_pc_hex": "0x590",
+     "ancient_pc": 768,
+     "ancient_pc_hex": "0x300",
+     "opcodes": [
+      "LDS.64",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 129,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      832
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void surfel_render_tile<float, 256>(float const*, int, float, int, int, float*)",
+     "mangled": "_Z18surfel_render_tileIfLi256EEvPKT_iS0_iiPS0_",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 101
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 87
+      }
+     ]
+    },
+    {
+     "current_pc": 1424,
+     "current_pc_hex": "0x590",
+     "ancient_pc": 784,
+     "ancient_pc_hex": "0x310",
+     "opcodes": [
+      "LDS.64",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 129,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      832
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void surfel_render_tile<float, 256>(float const*, int, float, int, int, float*)",
+     "mangled": "_Z18surfel_render_tileIfLi256EEvPKT_iS0_iiPS0_",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 101
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 87
+      }
+     ]
+    },
+    {
+     "current_pc": 1472,
+     "current_pc_hex": "0x5c0",
+     "ancient_pc": 800,
+     "ancient_pc_hex": "0x320",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 131,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      832
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void surfel_render_tile<float, 256>(float const*, int, float, int, int, float*)",
+     "mangled": "_Z18surfel_render_tileIfLi256EEvPKT_iS0_iiPS0_",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 103
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 87
+      }
+     ]
+    },
+    {
+     "current_pc": 1504,
+     "current_pc_hex": "0x5e0",
+     "ancient_pc": 736,
+     "ancient_pc_hex": "0x2e0",
+     "opcodes": [
+      "LDS.64",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 131,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      832
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void surfel_render_tile<float, 256>(float const*, int, float, int, int, float*)",
+     "mangled": "_Z18surfel_render_tileIfLi256EEvPKT_iS0_iiPS0_",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 98
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 87
+      }
+     ]
+    },
+    {
+     "current_pc": 1504,
+     "current_pc_hex": "0x5e0",
+     "ancient_pc": 752,
+     "ancient_pc_hex": "0x2f0",
+     "opcodes": [
+      "LDS.64",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 131,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      832
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void surfel_render_tile<float, 256>(float const*, int, float, int, int, float*)",
+     "mangled": "_Z18surfel_render_tileIfLi256EEvPKT_iS0_iiPS0_",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 98
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 87
+      }
+     ]
+    },
+    {
+     "current_pc": 1520,
+     "current_pc_hex": "0x5f0",
+     "ancient_pc": 720,
+     "ancient_pc_hex": "0x2d0",
+     "opcodes": [
+      "LDS.64",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 130,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      832
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void surfel_render_tile<float, 256>(float const*, int, float, int, int, float*)",
+     "mangled": "_Z18surfel_render_tileIfLi256EEvPKT_iS0_iiPS0_",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 105
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 87
+      }
+     ]
+    },
+    {
+     "current_pc": 1520,
+     "current_pc_hex": "0x5f0",
+     "ancient_pc": 816,
+     "ancient_pc_hex": "0x330",
+     "opcodes": [
+      "LDS.64",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 130,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      832
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void surfel_render_tile<float, 256>(float const*, int, float, int, int, float*)",
+     "mangled": "_Z18surfel_render_tileIfLi256EEvPKT_iS0_iiPS0_",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 105
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 87
+      }
+     ]
+    },
+    {
+     "current_pc": 1952,
+     "current_pc_hex": "0x7a0",
+     "ancient_pc": 816,
+     "ancient_pc_hex": "0x330",
+     "opcodes": [
+      "LDS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 131,
+     "access_size": 4,
+     "strength": "block",
+     "ordering_syncs": [
+      832
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void surfel_render_tile<float, 256>(float const*, int, float, int, int, float*)",
+     "mangled": "_Z18surfel_render_tileIfLi256EEvPKT_iS0_iiPS0_",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 105
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/hecbench-surfel-1/fixed/src/src/surfel-cuda/main.cu",
+       "line": 87
+      }
+     ]
+    }
+   ],
+   "site_skipped": {
+    "read_read": 24
+   }
+  }
+ },
+ "dots_checked": 0,
+ "dots_regenerated_equal": 0
+}

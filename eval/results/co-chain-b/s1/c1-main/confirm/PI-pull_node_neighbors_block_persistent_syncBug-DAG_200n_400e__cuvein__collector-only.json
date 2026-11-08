@@ -1,0 +1,59 @@
+{
+  "id": "PI-pull_node_neighbors_block_persistent_syncBug-DAG_200n_400e",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0x1f0-0x280:RAW",
+    "shared:0x280-0x2a0:RAW"
+  ],
+  "pcs": [
+    496,
+    640,
+    672
+  ],
+  "lines": "pull_node_neighbors_block_persistent_syncBug.cu:58;pull_node_neighbors_block_persistent_syncBug.cu:62",
+  "raw": [
+    {
+      "a_pc": 496,
+      "b_pc": 640,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    },
+    {
+      "a_pc": 640,
+      "b_pc": 672,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "496": "pull_node_neighbors_block_persistent_syncBug.cu:58",
+    "640": "pull_node_neighbors_block_persistent_syncBug.cu:62",
+    "672": "pull_node_neighbors_block_persistent_syncBug.cu:62"
+  }
+}

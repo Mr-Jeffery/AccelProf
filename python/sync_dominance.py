@@ -71,8 +71,10 @@ _INSTR = re.compile(r"^\s*([0-9a-fA-F]{4,}):\s+(?:(@!?U?P[T\d]+)\s+)?(\S+)")
 
 class _Ins(tuple):
     """One parsed instruction, (pc, opcode); `.pred` is True for a guarded one (@P / @!P,
-    not @PT). A tuple subclass so every caller's `for pc, op in instrs` keeps working."""
+    not @PT). A tuple subclass so every caller's `for pc, op in instrs` keeps working.
+    `.args` (C6b) is the operand text after the opcode (read only for DEPBAR)."""
     pred = False
+    args = ""
 
 
 class AlignmentError(Exception):
@@ -303,6 +305,14 @@ def async_pcs(eng):
     return {pc for pc, op in eng.pc_opcode.items() if op.split(".")[0] == "LDGSTS"}
 
 
+# C6b: analyze(co_r3=) -- R3's certificate on a collector-only dump: "cfg" (region dominance,
+# the default), "strict" (cfg plus scalar-clock's CFG-decidable declines), "off" (none).
+CO_R3_MODES = ("cfg", "strict", "off")
+# C6b co_async: the DEPBAR that waits for every cp.async group (cp.async.wait_all /
+# wait_group 0): `DEPBAR.LE SB0, 0x0`. A non-zero count leaves the newest groups in flight.
+_DEPBAR_ALL = re.compile(r"^\s*SB0\s*,\s*0x0+\b")
+
+
 def dump_async_pcs(eng, trace):
     """async_pcs for one dump: empty unless the dump carries HbClock's `hb_async`
     marker. An older dump (pre-T1a collector) has LDGSTS accesses but no pipeline_commit /
@@ -492,6 +502,8 @@ def _parse_dot(path):
                     ins = _Ins((int(m.group(1), 16), m.group(3)))
                     if m.group(2) and m.group(2).lstrip("@") != "PT":
                         ins.pred = True
+                    if m.group(3).startswith("DEPBAR"):
+                        ins.args = line[m.end():]
                     instrs.append(ins)
             blocks[node.get_name().strip('"')] = instrs
         edges = [(e.get_source().split(":")[0].strip('"'),
@@ -522,7 +534,7 @@ class HBGraph:
 
     # the fields __init__ derives from (blocks, edges, entry) alone; nothing writes them later
     _STATIC = ("G", "pc_opcode", "pc_node", "syncs", "unknown_syncs", "ins_succ",
-               "ins_pred_pcs", "ins_preds", "qualifying", "dom", "postdom")
+               "ins_pred_pcs", "ins_preds", "qualifying", "dom", "postdom", "depbar_all")
 
     def _init_trace_state(self):
         """The per-trace fields at their unattached values (as __init__ always set them)."""
@@ -532,6 +544,8 @@ class HBGraph:
         self.release_points = None  # T12: u -> PO-next RMW pcs from the trace
         self.acquire_points = None  # T12: v -> PO-previous RMW pcs from the trace
         self._reach = {}      # fenced()'s memo: per object, so it never outlives one trace
+        self.r3_cfg_only = False   # C6b co_r3=strict: the landing / write-before-lock gates
+                                   # decided on the CFG alone (same_location taken as true)
 
     @classmethod
     def from_static(cls, proto):
@@ -556,6 +570,7 @@ class HBGraph:
         # instruction of the block; a block's last instruction -> the first of each successor
         # block; an unguarded EXIT/RET -> none) and the guarded pcs.
         self.ins_succ, self.ins_pred_pcs = {}, set()
+        self.depbar_all = set()   # C6b: unguarded `DEPBAR.LE SB0, 0x0` pcs (async_waited)
         self._build_ins_graph(blocks, edges)
         for bname, instrs in blocks.items():
             cur, n = f"{bname}#0", 0
@@ -604,6 +619,8 @@ class HBGraph:
                 pc, op = ins
                 if getattr(ins, "pred", False):
                     self.ins_pred_pcs.add(pc)
+                elif op.split(".")[0] == "DEPBAR" and _DEPBAR_ALL.match(getattr(ins, "args", "")):
+                    self.depbar_all.add(pc)
                 if classify(op) == "exit" and not getattr(ins, "pred", False):
                     self.ins_succ[pc] = []
                 elif i + 1 < len(instrs):
@@ -651,6 +668,24 @@ class HBGraph:
         if self.fence_at(p, side) >= s or self.fence_at(q, side) >= s:
             return True
         return q not in self._unfenced_reach(p, s, side, True)
+
+    def async_waited(self, copy, later):
+        """C6b co_async: does an unguarded DEPBAR waiting for all cp.async groups
+        (`DEPBAR.LE SB0, 0x0`) lie on every CFG path (instruction graph) from the copy at pc
+        `copy` to the access at pc `later`? False for a pc the CFG does not know (errs toward
+        reporting); a later access no path reaches is vacuously waited for."""
+        if copy not in self.ins_succ or later not in self.ins_succ:
+            return False
+        seen, stack = set(), list(self.ins_succ.get(copy, ()))
+        while stack:
+            x = stack.pop()
+            if x in seen or x in self.depbar_all:
+                continue
+            if x == later:
+                return False
+            seen.add(x)
+            stack.extend(self.ins_succ.get(x, ()))
+        return True
 
     def record_pcs(self):
         """pcs a trace record can carry: memory instructions, barriers/warpsync, exits and
@@ -755,7 +790,11 @@ class HBGraph:
         so they read its connected components. At pc level a component can join locations a pc
         touches only some of, the over-approximation R3 makes everywhere: the closure only adds
         pairs, so a gate declines more chains and no chain is certified that was not before.
-        $CUVEIN_R3_LOC_CLOSURE=0 reads the edge pairs only (the pre-T23 rule; ablation)."""
+        $CUVEIN_R3_LOC_CLOSURE=0 reads the edge pairs only (the pre-T23 rule; ablation).
+        C6b: under r3_cfg_only (analyze(co_r3="strict")) the landing and write-before-lock
+        gates take the location condition as true -- decided on the CFG alone."""
+        if self.r3_cfg_only and gate in ("landing", "before_acquire"):
+            return True
         if not self._loc_closure:
             return frozenset((a, b)) in self.same_loc
         ca = self._loc_class.get(a)
@@ -1413,12 +1452,116 @@ def _observed(dist):
     return NONE, 0
 
 
+# C6 (chain closure, default off; analyze(..., chain_closure=True)): one kernel stops, with
+# ChainCapError, once its chains derive more than CHAIN_CAP (anc, cur) pairs -- never truncated.
+CHAIN_CAP = 10 ** 6
+
+
+class ChainCapError(RuntimeError):
+    """The chain closure of one kernel exceeded CHAIN_CAP derived pairs; the message starts with
+    'chain-cap' and names the kernel and the count."""
+
+
+def chain_closure_pairs(hops, is_read, conflict, cap, label=""):
+    """C6. hops = {anc_pc: {cur_pc: widest observed distance (NONE..GRID)}}, every non-cold-miss
+    edge of one kernel. A chain is a walk a -> h1 -> ... -> hk -> c (k >= 1) whose inner pcs
+    h1..hk are all reads (is_read); its two ends' thread relation is at most its widest hop (the
+    ultrametric argument: same-warp < same-block < same-grid). -> {(a, c): (bound, path)} for
+    every pair that conflicts (conflict(a, c)) and whose bound is cross-thread (> NONE);
+    path = one witness [a, h1, ..., hk, c] whose widest hop is the bound. Closure is over pcs,
+    not addresses. Raises ChainCapError past `cap` pairs.
+    C6b: the bound is the WIDEST hop over EVERY such walk (C6 took the narrowest chain, a
+    minimax): each chain bounds only its own instances, and a chain whose hops lay on different
+    addresses can give a bound below a real instance's distance. Equivalently: the widest hop
+    (u, v) with u = a or a read reachable from a, and c = v or reachable from the read v, all
+    through reads. Found per source a by a breadth-first search over (inner node, widest hop so
+    far) states, a state kept only when it widens its node's level (at most 4 per node); the
+    witness is the search-tree walk to the state that gives the bound (the shallowest such
+    state, then the smallest pc)."""
+    from collections import deque
+    out = {}
+    for a in sorted(hops):
+        best, state, queue = {}, {}, deque()   # inner (read) node -> widest level reached;
+        for h in sorted(hops[a]):              # (node, level) -> (parent state, depth)
+            d = hops[a][h]
+            if is_read(h) and d > best.get(h, -1):
+                best[h] = d
+                state[(h, d)] = (None, 1)
+                queue.append((h, d))
+        while queue:
+            h, lv = queue.popleft()
+            if lv < best[h]:
+                continue                       # a wider state of h is queued after this one
+            depth = state[(h, lv)][1]
+            for c in sorted(hops.get(h, {})):
+                nl = max(lv, hops[h][c])
+                if is_read(c) and nl > best.get(c, -1):
+                    best[c] = nl
+                    state[(c, nl)] = ((h, lv), depth + 1)
+                    queue.append((c, nl))
+        ends = {}                              # endpoint c -> (bound, depth, last inner state)
+        for st in sorted(state):
+            h, lv = st
+            for c, dc in hops.get(h, {}).items():
+                key = (max(lv, dc), -state[st][1])
+                if c not in ends or key > ends[c][:2] or \
+                        (key == ends[c][:2] and st < ends[c][2]):
+                    ends[c] = key + (st,)
+        for c in sorted(ends):
+            bound, _, st = ends[c]
+            if bound <= NONE or not conflict(a, c):
+                continue
+            path = []
+            while st is not None:
+                path.append(st[0])
+                st = state[st][0]
+            out[(a, c)] = (bound, [a] + path[::-1] + [c])
+            if len(out) > cap:
+                raise ChainCapError(f"chain-cap: kernel {label}: {len(out)} derived pairs "
+                                    f"exceed the cap of {cap}")
+    return out
+
+
 def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
-            barrier_pass=True, event_candidates=True):
+            barrier_pass=True, event_candidates=True, chain_closure=False, co_async=False,
+            co_r3="cfg"):
+    """chain_closure (C6, default off, output unchanged when off): also judge the (anc, cur) pcs
+    that a CHAIN of recorded edges joins -- the collector keeps one last accessor per word, so a
+    read in between hides the conflict (block 1 reads, block 0 reads, block 0 writes: edges
+    read->read and read->write, never read->write across the blocks). See chain_closure_pairs.
+    Each derived pair is judged by judge() at the chain's bound, weight 1, same_inst 0. C6b: every
+    edge is judged at max(its own widest distance, its widest chain bound); where the chain bound
+    is wider the record is a rescue (chain_rescue; an intra-thread-only edge, skipped today, is the
+    C6 case). Verdict records carry chain / chain_rescue (+ chain_path, hex pcs, on the
+    chain-sourced ones); diagnostics.chain_closure = {hops, derived, rescued, closure_s, capped}.
+
+    co_async, co_r3 (C6b, collector-only dumps only -- a kernel JSON with no hb_* key; on any
+    other dump they change nothing; defaults = output unchanged):
+      co_async=True: an LDGSTS (cp.async) pc's accesses are the issuing thread's async agent's
+        (T1a, async_pcs: a kernel with ARRIVES.LDGSTSBAR keeps the pre-T1a reading). An edge
+        with a same-thread instance (intra_thread > 0) whose EARLIER access is a copy and whose
+        later one is not is a cross-agent candidate: judged at max(WARP, the edge's own and
+        chain distance) with no R1/R3 credit (as T1a), unless a DEPBAR waiting for all groups
+        (`DEPBAR.LE SB0, 0x0`, unguarded) lies on every CFG path from the copy to the later
+        access (HBGraph.async_waited); a wait with a non-zero count never orders it. Every
+        verdict record gets "async" (True on the candidates' records); diagnostics.co_rules.
+      co_r3 = "cfg" (default: today's region-dominance certificate) | "strict" (the
+        certificate stands only if R3 also finds a chain with scalar-clock's CFG-decidable
+        declines -- _past_release's landing check and _before_acquire's write-before-lock --
+        decided on the CFG alone, i.e. the location condition taken as true, HBGraph.
+        r3_cfg_only) | "off" (no R3 certificate; R1 alone orders). Every verdict record gets
+        "atomic_chain_off" (True where the cfg certificate was withheld)."""
     trace = json.loads(Path(trace_path).read_text())
     # X7: parse_dot + select_kernel + HBGraph(...), cached inside graph_cache()
     mangled, eng = kernel_graph(dot_path, trace["kernel"]["kernel_name"])
     asy = dump_async_pcs(eng, trace)   # T1a: the copies (cp.async), if the dump models them
+    if co_r3 not in CO_R3_MODES:
+        raise ValueError(f"co_r3 '{co_r3}' not in {CO_R3_MODES}")
+    # C6b: the collector-only switches act on a collector-only dump only (no hb_* key)
+    co_dump = not any(k.startswith("hb_") for k in trace)
+    co_async = bool(co_async) and co_dump
+    r3_mode = co_r3 if co_dump else "cfg"
+    asy_co = async_pcs(eng) if co_async else set()
 
     # space/access come from the trace, keyed by pc
     flags = {n["pc"]: parse_flags(n["flags"]) for n in trace.get("nodes", [])}
@@ -1578,9 +1721,12 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
 
     verdicts, skipped = [], []
 
-    def judge(cur, anc, observed, weight, same_inst, rescued, access_size, from_events):
+    def judge(cur, anc, observed, weight, same_inst, rescued, access_size, from_events,
+              agent=False):
         """Verdict for one conflicting pc pair (anc earlier, cur later), observed at
-        thread distance `observed` (NONE = warp-same-instruction, weight same_inst)."""
+        thread distance `observed` (NONE = warp-same-instruction, weight same_inst).
+        agent (C6b co_async): anc is a copy of cur's own thread's async agent -- no R1 or R3
+        credit, as the T1a reading below gives a copy that is the earlier access."""
         rec = {"current_pc": cur, "ancient_pc": anc}
         cur_space, cur_access = flags.get(cur, ("generic", "read"))
         anc_space, anc_access = flags.get(anc, ("generic", "read"))
@@ -1613,6 +1759,23 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
             ev = dict(ev, chain=None)
             if anc in asy:
                 ev.update(strength=NONE, syncs=[])
+        if agent:
+            ev = dict(ev, chain=None, strength=NONE, syncs=[])
+        withheld = False
+        if r3_mode != "cfg" and ev["chain"] is not None:
+            # C6b co_r3: withhold the region-dominance certificate (off), or keep it only where
+            # R3 finds a chain with the CFG-decided declines (strict; nested in cfg: its
+            # declines are a superset, so any chain it finds cfg finds too)
+            chain2 = None
+            if r3_mode == "strict":
+                eng.r3_cfg_only = True
+                try:
+                    chain2 = eng.ordered(cur, anc, observed, cur_access == "read",
+                                         anc_access == "read", static=not same)["chain"]
+                finally:
+                    eng.r3_cfg_only = False
+            withheld = chain2 is None
+            ev = dict(ev, chain=chain2)
         r1_ordered = ev["strength"] >= observed          # R1 dominance
         chain_ordered = ev["chain"] is not None          # R3 PC-level handshake
         # the pair's class (D12): DR if some HbClock instance is a DR, else SC; with no
@@ -1698,7 +1861,45 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
         if ev["loc_closure"]:   # T23: only where the closure answered a gate (additive key)
             verdicts[-1]["r3_loc_closure"] = [[g, hex(a), hex(b)]
                                               for g, a, b in ev["loc_closure"]]
+        if co_async:            # C6b: additive keys, only with the switch on a collector-only dump
+            verdicts[-1]["async"] = agent
+        if r3_mode != "cfg":
+            verdicts[-1]["atomic_chain_off"] = withheld
 
+
+    def emit(cur, anc, observed, weight, same_inst, rescued, access_size, from_events, tag=None,
+             agent=False):
+        """judge(), plus (chain_closure only) the chain tags on the record it appended."""
+        n0 = len(verdicts)
+        judge(cur, anc, observed, weight, same_inst, rescued, access_size, from_events, agent)
+        if chain_closure and len(verdicts) > n0:
+            verdicts[-1].update(tag or {"chain": False, "chain_rescue": False})
+
+    chain_bound, edge_pairs, n_hops, closure_s, n_rescued = {}, set(), 0, 0.0, 0
+    if chain_closure:
+        from time import perf_counter
+        t_cl = perf_counter()
+        hops = {}
+        for e in trace.get("edges", []):
+            cur, anc = e["current_pc"], e.get("ancient_pc")
+            if e.get("cold_miss") or anc is None:
+                continue
+            edge_pairs.add((anc, cur))
+            dist = e.get("dist", {})
+            d, _ = _observed(dist)
+            if d == NONE and dist.get("intra_instance_launch", 0):
+                d = WARP      # a same-instruction self edge: other lanes of one warp (judge's WARP)
+            row = hops.setdefault(anc, {})
+            row[cur] = max(row.get(cur, NONE), d)
+        n_hops = sum(len(r) for r in hops.values())
+
+        def _acc(pc):
+            return "atomic" if pc in atom else flags.get(pc, ("generic", "read"))[1]
+
+        chain_bound = chain_closure_pairs(
+            hops, lambda pc: _acc(pc) == "read", lambda a, c: not (_acc(a) == "read" == _acc(c)),
+            CHAIN_CAP, f"{trace['kernel']['kernel_name']} ({trace_path})")
+        closure_s = perf_counter() - t_cl
 
     for e in trace.get("edges", []):
         cur, anc = e["current_pc"], e.get("ancient_pc")
@@ -1708,15 +1909,40 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
             continue
         observed, weight = _observed(e.get("dist", {}))
         same_inst = e.get("dist", {}).get("intra_instance_launch", 0)
-        rescued = False
+        rescued, tag = False, None
+        cb = chain_bound.get((anc, cur))            # C6: empty unless chain_closure
+        # C6b co_async: a same-thread instance whose earlier access is a copy (the agent's)
+        cand = bool(asy_co) and anc in asy_co and cur not in asy_co and \
+            e.get("dist", {}).get("intra_thread", 0) > 0 and not eng.async_waited(anc, cur)
+        if cand:
+            own = max(observed, WARP)                # the agent's distance is its thread's (T1a)
+            if cb and cb[0] > own:
+                own = cb[0]
+                tag = {"chain": False, "chain_rescue": True,
+                       "chain_path": [hex(p) for p in cb[1]]}
+                n_rescued += 1
+            emit(cur, anc, own, weight or e["dist"]["intra_thread"], 0, False,
+                 e.get("current_access_size"), False, tag, agent=True)
+            continue
         if observed == NONE and same_inst == 0:
             observed = observed_dyn.get(frozenset((cur, anc)), NONE) if cur != anc else NONE
-            if observed == NONE:
+            if observed == NONE and not cb:
                 skipped.append({**rec, "reason": "intra_thread_only"})
                 continue
-            rescued, weight = True, 1   # cross-thread per the event stream, not the edge
-        judge(cur, anc, observed, weight, same_inst, rescued,
-              e.get("current_access_size"), False)
+            rescued, weight = True, 1   # cross-thread per the event stream (or a chain), not the edge
+        # C6b: judged at max(own widest distance, widest chain bound); a same-instruction edge's
+        # own distance is WARP (judge's reading of it). Wider chain -> a rescue (C6's
+        # intra-thread-only case is the own = NONE one).
+        own = observed if observed > NONE else (WARP if same_inst else NONE)
+        if cb and cb[0] > own:
+            observed = cb[0]
+            if same_inst and weight == 0:
+                weight = same_inst
+            tag = {"chain": False, "chain_rescue": True,
+                   "chain_path": [hex(p) for p in cb[1]]}
+            n_rescued += 1
+        emit(cur, anc, observed, weight, same_inst, rescued,
+             e.get("current_access_size"), False, tag)
 
     # event-stream candidates no edge produced a verdict for (see event_pairs above)
     cand_diag = None
@@ -1738,12 +1964,21 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
                 cand_diag["no_event_evidence"] += 1
                 continue
             anc, cur, dist, n = info
-            judge(cur, anc, dist, n, 0, False, None, True)
+            emit(cur, anc, dist, n, 0, False, None, True)
             cand_diag["judged"] += 1
+
+    # C6: the pairs only a chain joins (no edge of their own), after the edge and event verdicts
+    n_derived = 0
+    for (a, c), (bound, path) in sorted(chain_bound.items()):
+        if (a, c) in edge_pairs:
+            continue        # an edge: judged above (or rescued above), never re-judged
+        n_derived += 1
+        emit(c, a, bound, 1, 0, False, None, False,
+             {"chain": True, "chain_rescue": False, "chain_path": [hex(p) for p in path]})
 
     races = sum(v["verdict"] == "RACE" for v in verdicts)
     n_sc = sum(v["verdict"] == "SC" for v in verdicts)
-    return {
+    report = {
         "inputs": {"cfg_dot": str(dot_path), "trace_json": str(trace_path)},
         "kernel": {"mangled": mangled, "name": trace["kernel"]["kernel_name"]},
         # T16: the chain-edge policy the dump's hb_races were computed under (None: no HbClock
@@ -1778,6 +2013,17 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
                     # the model_bug annotation (R1 contradicted by hb_races), on DR and SC
                     "model_bug": sum(bool(v.get("model_bug")) for v in verdicts)},
     }
+    if chain_closure:
+        report["diagnostics"]["chain_closure"] = {
+            "hops": n_hops, "derived": n_derived, "rescued": n_rescued,
+            "closure_s": round(closure_s, 6), "capped": False}
+    if co_async or r3_mode != "cfg":     # C6b: only when a switch acted on this (collector-only) dump
+        report["diagnostics"]["co_rules"] = {
+            "async": co_async, "async_pcs": len(asy_co), "r3": r3_mode,
+            "async_reports": sum(bool(v.get("async")) and v["verdict"] in ("RACE", "SC")
+                                 for v in verdicts),
+            "r3_withheld": sum(bool(v.get("atomic_chain_off")) for v in verdicts)}
+    return report
 
 
 def render(report, out):

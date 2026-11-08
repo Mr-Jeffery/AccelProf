@@ -1,0 +1,53 @@
+{
+  "id": "llmc-new-3-buggy",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0x120-0x680:WAW",
+    "shared:0x680-0x680:WAW"
+  ],
+  "pcs": [
+    288,
+    1664
+  ],
+  "lines": "attention_backward.cu:201;attention_backward.cu:209",
+  "raw": [
+    {
+      "a_pc": 288,
+      "b_pc": 1664,
+      "space": "shared",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 1664,
+      "b_pc": 1664,
+      "space": "shared",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "288": "attention_backward.cu:201",
+    "1664": "attention_backward.cu:209"
+  }
+}

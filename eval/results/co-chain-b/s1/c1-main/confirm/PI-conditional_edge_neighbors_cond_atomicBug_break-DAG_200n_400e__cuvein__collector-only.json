@@ -1,0 +1,65 @@
+{
+  "id": "PI-conditional_edge_neighbors_cond_atomicBug_break-DAG_200n_400e",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "global:0x1c0-0x1e0:RAW",
+    "global:0x1e0-0x1e0:WAW"
+  ],
+  "pcs": [
+    448,
+    480
+  ],
+  "lines": "conditional_edge_neighbors_cond_atomicBug_break.cu:52",
+  "raw": [
+    {
+      "a_pc": 448,
+      "b_pc": 480,
+      "space": "global",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": [
+        "0x1c0",
+        "0x1c0",
+        "0x1e0"
+      ],
+      "async": false,
+      "atomic_chain_off": false
+    },
+    {
+      "a_pc": 480,
+      "b_pc": 480,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain_rescue",
+      "chain_path": [
+        "0x1e0",
+        "0x1c0",
+        "0x1e0"
+      ],
+      "async": false,
+      "atomic_chain_off": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "448": "conditional_edge_neighbors_cond_atomicBug_break.cu:52",
+    "480": "conditional_edge_neighbors_cond_atomicBug_break.cu:52"
+  }
+}

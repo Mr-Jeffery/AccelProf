@@ -1,0 +1,57 @@
+{
+  "id": "PI-conditional_vertex_neighbors_persistent_reverse_atomicBug_break-counterDAG_200n_1000e",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "global:0x190-0x1b0:RAW",
+    "global:0x1b0-0x1b0:WAW"
+  ],
+  "pcs": [
+    400,
+    432
+  ],
+  "lines": "conditional_vertex_neighbors_persistent_reverse_atomicBug_break.cu:52",
+  "raw": [
+    {
+      "a_pc": 400,
+      "b_pc": 432,
+      "space": "global",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    },
+    {
+      "a_pc": 432,
+      "b_pc": 432,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "400": "conditional_vertex_neighbors_persistent_reverse_atomicBug_break.cu:52",
+    "432": "conditional_vertex_neighbors_persistent_reverse_atomicBug_break.cu:52"
+  }
+}

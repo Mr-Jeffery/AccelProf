@@ -15,6 +15,7 @@
 #                       necessary condition), skipping kernel JSONs over n MB
 #   W=<checkout>        whose t23_closure.py and python/ run (default: the task worktree)
 W=${W:-/home/fzheng4/wt-t23}
+for need in /home/fzheng4/AccelProf /mnt/beegfs/fzheng4; do [ -d "$need" ] || { echo "MISSING $need on $(hostname)"; exit 75; }; done
 cd "$W" || exit 1
 source eval/baselines/setup/home_quota_guard.sh
 : "${SCAN:?set SCAN=<scan name>}"

@@ -1,0 +1,65 @@
+{
+  "id": "P7-lavaMD-cuda",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0x740-0x740:WAW",
+    "shared:0x750-0x750:WAW"
+  ],
+  "pcs": [
+    1856,
+    1872
+  ],
+  "lines": "kernel.h:110;kernel.h:111",
+  "raw": [
+    {
+      "a_pc": 1856,
+      "b_pc": 1856,
+      "space": "shared",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain",
+      "chain_path": [
+        "0x740",
+        "0xc60",
+        "0x740"
+      ],
+      "async": false,
+      "atomic_chain_off": false
+    },
+    {
+      "a_pc": 1872,
+      "b_pc": 1872,
+      "space": "shared",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain",
+      "chain_path": [
+        "0x750",
+        "0xce0",
+        "0x750"
+      ],
+      "async": false,
+      "atomic_chain_off": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "1856": "kernel.h:110",
+    "1872": "kernel.h:111"
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "id": "PI-conditional_edge_neighbors_block_cond_syncBug_atomicBug-DAG_100n_200e",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0x220-0x2c0:RAW",
+    "shared:0x2c0-0x2e0:RAW",
+    "global:0x360-0x380:RAW",
+    "global:0x380-0x380:WAW"
+  ],
+  "pcs": [
+    544,
+    704,
+    736,
+    864,
+    896
+  ],
+  "lines": "conditional_edge_neighbors_block_cond_syncBug_atomicBug.cu:60;conditional_edge_neighbors_block_cond_syncBug_atomicBug.cu:64;conditional_edge_neighbors_block_cond_syncBug_atomicBug.cu:71",
+  "raw": [
+    {
+      "a_pc": 544,
+      "b_pc": 704,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 704,
+      "b_pc": 736,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 864,
+      "b_pc": 896,
+      "space": "global",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 896,
+      "b_pc": 896,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "544": "conditional_edge_neighbors_block_cond_syncBug_atomicBug.cu:60",
+    "736": "conditional_edge_neighbors_block_cond_syncBug_atomicBug.cu:64",
+    "864": "conditional_edge_neighbors_block_cond_syncBug_atomicBug.cu:71",
+    "896": "conditional_edge_neighbors_block_cond_syncBug_atomicBug.cu:71",
+    "704": "conditional_edge_neighbors_block_cond_syncBug_atomicBug.cu:64"
+  }
+}

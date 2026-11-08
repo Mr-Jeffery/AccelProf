@@ -1,0 +1,39 @@
+{
+  "id": "PI-conditional_edge_neighbors_warp_reverse_cond_guardBug-power_law_200n_1000e",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "global:0x6f0-0x790:RAW"
+  ],
+  "pcs": [
+    1776,
+    1936
+  ],
+  "lines": "conditional_edge_neighbors_warp_reverse_cond_guardBug.cu:63;device_atomic_functions.hpp:152",
+  "raw": [
+    {
+      "a_pc": 1776,
+      "b_pc": 1936,
+      "space": "global",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": "benign",
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "1776": "conditional_edge_neighbors_warp_reverse_cond_guardBug.cu:63",
+    "1936": "device_atomic_functions.hpp:152"
+  }
+}

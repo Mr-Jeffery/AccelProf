@@ -1,0 +1,54 @@
+c2cand: ref rows 16, new rows 16, ids ref 16 new 16
+c2cand: field differences 40 over 11 programs
+c2cand: programs analysed (chain stats in notes) 16 of 16; derived=0 and rescued=0 (or not analysed): 3; derived>0: 13; rescued>0: 8
+c2cand: PARITY VIOLATIONS (zero-derived/zero-rescued program differing from the reference): 0 programs, 0 fields
+c2cand: REFERENCE HAS NO VERDICT (ref ERROR, new verdict), excluded from the violation count: []
+c2cand: unresolved (new analysis-timeout, reference has a verdict; excluded from the parity check): []
+c2cand: notes-vs-jsonl mismatches: 0
+c2cand: ERROR chain-cap rows: 0; jsonl cap lines 0
+c2cand: verdict changes vs reference rows (suite, ref -> new): none
+c2cand: verdict changes vs reference, programs with at least one changed row: none
+suite	programs	analysed	derived>0	rescued>0	verdict_changed_programs	analysis_s_median	analysis_s_max	analysis_s_sum	chain_s_sum	chain_share_median	chain_share_sum_ratio
+RW	16	16	13	8	0	9.092	4097.393	4310.4	0.0	0.0000	0.0000
+c2cand: sum of analysis_s over analysed programs (one per (program, mode)): 4310.4 s = 1.197 h
+differences (id, mode, rep, field, ref, new):
+  (('colmap-new-1-buggy', 'collector-only', '1'), 'reports_dedup', '272', '4248')
+  (('colmap-new-1-buggy', 'collector-only', '1'), 'report_ids', 'shared:0x620-0x2c30:WAR shared:0x620-0x2eb0:WAR shared:0x620-0x3150:WAR shared:0x630-0x2c30:RAW shared:0x630-0x2eb0:RAW ', 'shared:0x500-0x620:RAW shared:0x500-0x630:RAW shared:0x500-0x640:RAW shared:0x500-0x650:RAW shared:0x500-0x660:RAW share')
+  (('colmap-new-1-buggy', 'collector-only', '1'), 'classes', 'race:272', 'race:4248')
+  (('cuml-tsne-new-1-buggy', 'collector-only', '1'), 'reports_dedup', '56', '72')
+  (('cuml-tsne-new-1-buggy', 'collector-only', '1'), 'report_ids', 'shared:0x260-0x350:RAW shared:0x290-0x380:RAW shared:0x2a0-0x3b0:RAW shared:0x2b0-0x3e0:RAW global:0x2d0-0x4d0:RAW globa', 'shared:0x260-0x350:RAW shared:0x290-0x380:RAW shared:0x2a0-0x3b0:RAW shared:0x2b0-0x3e0:RAW global:0x2d0-0x4d0:RAW globa')
+  (('cuml-tsne-new-1-buggy', 'collector-only', '1'), 'report_lines', 'barnes_hut_kernels.cuh:130;barnes_hut_kernels.cuh:131;barnes_hut_kernels.cuh:132;barnes_hut_kernels.cuh:133;barnes_hut_k', 'barnes_hut_kernels.cuh:130;barnes_hut_kernels.cuh:131;barnes_hut_kernels.cuh:132;barnes_hut_kernels.cuh:133;barnes_hut_k')
+  (('cuml-tsne-new-1-buggy', 'collector-only', '1'), 'classes', 'race:56,sc:24', 'race:72,sc:43')
+  (('droidslam-new-1-buggy', 'collector-only', '1'), 'reports_dedup', '21', '187')
+  (('droidslam-new-1-buggy', 'collector-only', '1'), 'report_ids', 'shared:0x7d0-0x7d0:WAW shared:0x810-0x810:WAW shared:0x850-0x850:WAW shared:0x870-0x870:WAW shared:0x880-0x880:WAW share', 'shared:0x7d0-0x7d0:WAW shared:0x810-0x810:WAW shared:0x850-0x850:WAW shared:0x870-0x870:WAW shared:0x880-0x880:WAW share')
+  (('droidslam-new-1-buggy', 'collector-only', '1'), 'report_lines', 'TensorAccessor.h:154;droid_kernels.cu:236;droid_kernels.cu:290;droid_kernels.cu:299;droid_kernels.cu:312;droid_kernels.c', 'TensorAccessor.h:151;TensorAccessor.h:154;droid_kernels.cu:236;droid_kernels.cu:290;droid_kernels.cu:299;droid_kernels.c')
+  (('droidslam-new-1-buggy', 'collector-only', '1'), 'classes', 'race:21', 'race:187')
+  (('llmc-new-2-buggy', 'collector-only', '1'), 'reports_dedup', '1', '2')
+  (('llmc-new-2-buggy', 'collector-only', '1'), 'report_ids', 'shared:0xa60-0xa90:WAR', 'shared:0xa60-0xa60:WAW shared:0xa60-0xa90:WAR')
+  (('llmc-new-2-buggy', 'collector-only', '1'), 'classes', 'race:1', 'race:2')
+  (('llmc-new-3-k8-buggy', 'collector-only', '1'), 'reports_dedup', '9', '18')
+  (('llmc-new-3-k8-buggy', 'collector-only', '1'), 'report_ids', 'shared:0xe0-0x6e0:WAW shared:0xe0-0x700:RAW shared:0x6e0-0x6e0:WAW shared:0x700-0x1300:WAR shared:0x1300-0x1300:WAW shar', 'shared:0xe0-0x6e0:WAW shared:0xe0-0x700:RAW shared:0xe0-0x1300:WAW shared:0xe0-0x1320:RAW shared:0xe0-0x1f20:WAW shared:')
+  (('llmc-new-3-k8-buggy', 'collector-only', '1'), 'classes', 'race:9', 'race:18')
+  (('mmcv-fps-new-1-buggy', 'collector-only', '1'), 'reports_dedup', '2', '6')
+  (('mmcv-fps-new-1-buggy', 'collector-only', '1'), 'report_ids', 'shared:0x7d0-0x10b0:WAR shared:0xbd0-0x14b0:WAR', 'shared:0x7a0-0x7a0:WAW shared:0x7d0-0x7d0:WAW shared:0x7d0-0x10b0:WAR shared:0xba0-0xba0:WAW shared:0xbd0-0xbd0:WAW shar')
+  (('mmcv-fps-new-1-buggy', 'collector-only', '1'), 'report_lines', 'furthest_point_sample_cuda_kernel.cuh:14;furthest_point_sample_cuda_kernel.cuh:52;furthest_point_sample_cuda_kernel.cuh:', 'furthest_point_sample_cuda_kernel.cuh:14;furthest_point_sample_cuda_kernel.cuh:50;furthest_point_sample_cuda_kernel.cuh:')
+  (('mmcv-fps-new-1-buggy', 'collector-only', '1'), 'classes', 'race:2', 'race:6')
+  (('openpcdet-fps-new-1-buggy', 'collector-only', '1'), 'reports_dedup', '2', '6')
+  (('openpcdet-fps-new-1-buggy', 'collector-only', '1'), 'report_ids', 'shared:0xbd0-0x14b0:WAR shared:0x16e0-0x1fc0:WAR', 'shared:0xba0-0xba0:WAW shared:0xbd0-0xbd0:WAW shared:0xbd0-0x14b0:WAR shared:0x16b0-0x16b0:WAW shared:0x16e0-0x16e0:WAW ')
+  (('openpcdet-fps-new-1-buggy', 'collector-only', '1'), 'report_lines', 'sampling_gpu.cu:147;sampling_gpu.cu:212;sampling_gpu.cu:250;sampling_gpu.cu:315', 'sampling_gpu.cu:146;sampling_gpu.cu:147;sampling_gpu.cu:212;sampling_gpu.cu:249;sampling_gpu.cu:250;sampling_gpu.cu:315')
+  (('openpcdet-fps-new-1-buggy', 'collector-only', '1'), 'classes', 'race:2', 'race:6')
+  (('pcl-new-1-buggy', 'collector-only', '1'), 'reports_dedup', '136', '550')
+  (('pcl-new-1-buggy', 'collector-only', '1'), 'report_ids', 'shared:0xa00-0xb20:WAR shared:0xa20-0xa30:RAW shared:0xa30-0xa50:WAR shared:0xa30-0xb20:WAR shared:0xa50-0xa60:RAW share', 'shared:0x9d0-0xa00:RAW shared:0x9d0-0xa30:RAW shared:0x9d0-0xa50:WAW shared:0x9d0-0xa60:RAW shared:0x9d0-0xa80:WAW share')
+  (('pcl-new-1-buggy', 'collector-only', '1'), 'report_lines', 'eigen.hpp:215;eigen.hpp:216;eigen.hpp:217;eigen.hpp:321;eigen.hpp:322;eigen.hpp:323;eigen.hpp:341;eigen.hpp:346;eigen.hp', 'eigen.hpp:215;eigen.hpp:216;eigen.hpp:217;eigen.hpp:225;eigen.hpp:226;eigen.hpp:227;eigen.hpp:228;eigen.hpp:229;eigen.hp')
+  (('pcl-new-1-buggy', 'collector-only', '1'), 'classes', 'race:136', 'race:550')
+  (('pointnet2pt-fps-new-1-buggy', 'collector-only', '1'), 'reports_dedup', '1', '3')
+  (('pointnet2pt-fps-new-1-buggy', 'collector-only', '1'), 'report_ids', 'shared:0xec0-0x16c0:WAR', 'shared:0xe90-0xe90:WAW shared:0xec0-0xec0:WAW shared:0xec0-0x16c0:WAR')
+  (('pointnet2pt-fps-new-1-buggy', 'collector-only', '1'), 'report_lines', 'sampling_gpu.cu:112;sampling_gpu.cu:170', 'sampling_gpu.cu:111;sampling_gpu.cu:112;sampling_gpu.cu:170')
+  (('pointnet2pt-fps-new-1-buggy', 'collector-only', '1'), 'classes', 'race:1', 'race:3')
+  (('pytorch_cluster-new-1-buggy', 'collector-only', '1'), 'reports_dedup', '14', '23')
+  (('pytorch_cluster-new-1-buggy', 'collector-only', '1'), 'report_ids', 'shared:0x1430-0x1460:WAR shared:0x1450-0x1470:WAR shared:0x14e0-0x1510:WAR shared:0x1500-0x1520:WAR shared:0x1590-0x15c0', 'global:0x1a0-0x620:RAW shared:0x13e0-0x13e0:WAW shared:0x1420-0x1460:WAR shared:0x1430-0x1460:WAR shared:0x1450-0x1470:W')
+  (('pytorch_cluster-new-1-buggy', 'collector-only', '1'), 'report_lines', 'fps_cuda.cu:14;fps_cuda.cu:34;fps_cuda.cu:37;fps_cuda.cu:40;fps_cuda.cu:42;fps_cuda.cu:48;fps_cuda.cu:49;fps_cuda.cu:52;', 'fps_cuda.cu:14;fps_cuda.cu:27;fps_cuda.cu:34;fps_cuda.cu:36;fps_cuda.cu:37;fps_cuda.cu:40;fps_cuda.cu:42;fps_cuda.cu:48;')
+  (('pytorch_cluster-new-1-buggy', 'collector-only', '1'), 'classes', 'race:14', 'race:23')
+  (('sglang-open-1-buggy', 'collector-only', '1'), 'reports_dedup', '1', '2')
+  (('sglang-open-1-buggy', 'collector-only', '1'), 'report_ids', 'shared:0xee0-0x1190:RAW', 'shared:0xee0-0xf20:RAW shared:0xee0-0x1190:RAW')
+  (('sglang-open-1-buggy', 'collector-only', '1'), 'classes', 'race:1', 'race:2')

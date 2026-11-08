@@ -1,0 +1,61 @@
+{
+  "id": "P7-srad-cuda",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0xa80-0xab0:RAW",
+    "shared:0xac0-0xae0:RAW"
+  ],
+  "pcs": [
+    2688,
+    2736,
+    2752,
+    2784
+  ],
+  "lines": "reduce_kernel.cu:84;reduce_kernel.cu:85",
+  "raw": [
+    {
+      "a_pc": 2688,
+      "b_pc": 2736,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    },
+    {
+      "a_pc": 2752,
+      "b_pc": 2784,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "2688": "reduce_kernel.cu:84",
+    "2784": "reduce_kernel.cu:85",
+    "2736": "reduce_kernel.cu:84",
+    "2752": "reduce_kernel.cu:85"
+  }
+}

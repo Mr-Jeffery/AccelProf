@@ -1,0 +1,1300 @@
+{
+ "id": "pytorch_cluster-1-buggy",
+ "target": "pytorch_cluster-1",
+ "exe": "/mnt/beegfs/fzheng4/realworld_t21b/build/pytorch_cluster-1/buggy/driver",
+ "cuda_home": "/usr/local/cuda-13.4",
+ "n_cubins": 1,
+ "n_dots": 1,
+ "oracle_kernel_substr": "nearest_kernel",
+ "spec_found": true,
+ "modes": {
+  "collector-only": {
+   "n_kernel_jsons": 1,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long)",
+     "mangled": "_Z14nearest_kernelIfEvPKT_S2_PKlS4_Plll",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 12,
+      "sc": 0,
+      "ordered": 8,
+      "skipped": 78,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 1,
+   "n_race": 12,
+   "n_sc": 0,
+   "reports": [
+    {
+     "mode": "collector-only",
+     "kernel": "void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long)",
+     "mangled": "_Z14nearest_kernelIfEvPKT_S2_PKlS4_Plll",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 9504,
+     "b_pc": 9552,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 53
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 54
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long)",
+     "mangled": "_Z14nearest_kernelIfEvPKT_S2_PKlS4_Plll",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 9536,
+     "b_pc": 9568,
+     "a_op": "LDS.64",
+     "b_op": "STS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long)",
+     "mangled": "_Z14nearest_kernelIfEvPKT_S2_PKlS4_Plll",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 9712,
+     "b_pc": 9760,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 53
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 54
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long)",
+     "mangled": "_Z14nearest_kernelIfEvPKT_S2_PKlS4_Plll",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 9744,
+     "b_pc": 9776,
+     "a_op": "LDS.64",
+     "b_op": "STS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long)",
+     "mangled": "_Z14nearest_kernelIfEvPKT_S2_PKlS4_Plll",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 9888,
+     "b_pc": 9936,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 53
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 54
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long)",
+     "mangled": "_Z14nearest_kernelIfEvPKT_S2_PKlS4_Plll",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 9920,
+     "b_pc": 9952,
+     "a_op": "LDS.64",
+     "b_op": "STS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long)",
+     "mangled": "_Z14nearest_kernelIfEvPKT_S2_PKlS4_Plll",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 10176,
+     "b_pc": 10224,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 53
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 54
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long)",
+     "mangled": "_Z14nearest_kernelIfEvPKT_S2_PKlS4_Plll",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 10208,
+     "b_pc": 10240,
+     "a_op": "LDS.64",
+     "b_op": "STS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long)",
+     "mangled": "_Z14nearest_kernelIfEvPKT_S2_PKlS4_Plll",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 10352,
+     "b_pc": 10400,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 53
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 54
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long)",
+     "mangled": "_Z14nearest_kernelIfEvPKT_S2_PKlS4_Plll",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 10384,
+     "b_pc": 10416,
+     "a_op": "LDS.64",
+     "b_op": "STS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long)",
+     "mangled": "_Z14nearest_kernelIfEvPKT_S2_PKlS4_Plll",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 10512,
+     "b_pc": 10560,
+     "a_op": "LDS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 53
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 54
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long)",
+     "mangled": "_Z14nearest_kernelIfEvPKT_S2_PKlS4_Plll",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 10544,
+     "b_pc": 10576,
+     "a_op": "LDS.64",
+     "b_op": "STS.64",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    }
+   ],
+   "site_verdicts": [
+    {
+     "current_pc": 9552,
+     "current_pc_hex": "0x2550",
+     "ancient_pc": 9504,
+     "ancient_pc_hex": "0x2520",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 24,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long)",
+     "mangled": "_Z14nearest_kernelIfEvPKT_S2_PKlS4_Plll",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 54
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 53
+      }
+     ]
+    },
+    {
+     "current_pc": 9568,
+     "current_pc_hex": "0x2560",
+     "ancient_pc": 9536,
+     "ancient_pc_hex": "0x2540",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 48,
+     "access_size": 8,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long)",
+     "mangled": "_Z14nearest_kernelIfEvPKT_S2_PKlS4_Plll",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ]
+    },
+    {
+     "current_pc": 9744,
+     "current_pc_hex": "0x2610",
+     "ancient_pc": 9568,
+     "ancient_pc_hex": "0x2560",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 96,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      9600
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long)",
+     "mangled": "_Z14nearest_kernelIfEvPKT_S2_PKlS4_Plll",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ]
+    },
+    {
+     "current_pc": 9760,
+     "current_pc_hex": "0x2620",
+     "ancient_pc": 9712,
+     "ancient_pc_hex": "0x25f0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 48,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long)",
+     "mangled": "_Z14nearest_kernelIfEvPKT_S2_PKlS4_Plll",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 54
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 53
+      }
+     ]
+    },
+    {
+     "current_pc": 9776,
+     "current_pc_hex": "0x2630",
+     "ancient_pc": 9744,
+     "ancient_pc_hex": "0x2610",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 96,
+     "access_size": 8,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long)",
+     "mangled": "_Z14nearest_kernelIfEvPKT_S2_PKlS4_Plll",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ]
+    },
+    {
+     "current_pc": 9920,
+     "current_pc_hex": "0x26c0",
+     "ancient_pc": 9776,
+     "ancient_pc_hex": "0x2630",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 192,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      9808
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long)",
+     "mangled": "_Z14nearest_kernelIfEvPKT_S2_PKlS4_Plll",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ]
+    },
+    {
+     "current_pc": 9936,
+     "current_pc_hex": "0x26d0",
+     "ancient_pc": 9888,
+     "ancient_pc_hex": "0x26a0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 96,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long)",
+     "mangled": "_Z14nearest_kernelIfEvPKT_S2_PKlS4_Plll",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 54
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 53
+      }
+     ]
+    },
+    {
+     "current_pc": 9952,
+     "current_pc_hex": "0x26e0",
+     "ancient_pc": 9920,
+     "ancient_pc_hex": "0x26c0",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 192,
+     "access_size": 8,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long)",
+     "mangled": "_Z14nearest_kernelIfEvPKT_S2_PKlS4_Plll",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ]
+    },
+    {
+     "current_pc": 10208,
+     "current_pc_hex": "0x27e0",
+     "ancient_pc": 9952,
+     "ancient_pc_hex": "0x26e0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 384,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      10000
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long)",
+     "mangled": "_Z14nearest_kernelIfEvPKT_S2_PKlS4_Plll",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ]
+    },
+    {
+     "current_pc": 10224,
+     "current_pc_hex": "0x27f0",
+     "ancient_pc": 10176,
+     "ancient_pc_hex": "0x27c0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 192,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long)",
+     "mangled": "_Z14nearest_kernelIfEvPKT_S2_PKlS4_Plll",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 54
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 53
+      }
+     ]
+    },
+    {
+     "current_pc": 10240,
+     "current_pc_hex": "0x2800",
+     "ancient_pc": 10208,
+     "ancient_pc_hex": "0x27e0",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 384,
+     "access_size": 8,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long)",
+     "mangled": "_Z14nearest_kernelIfEvPKT_S2_PKlS4_Plll",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ]
+    },
+    {
+     "current_pc": 10384,
+     "current_pc_hex": "0x2890",
+     "ancient_pc": 10240,
+     "ancient_pc_hex": "0x2800",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 768,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      10272
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long)",
+     "mangled": "_Z14nearest_kernelIfEvPKT_S2_PKlS4_Plll",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ]
+    },
+    {
+     "current_pc": 10400,
+     "current_pc_hex": "0x28a0",
+     "ancient_pc": 10352,
+     "ancient_pc_hex": "0x2870",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 382,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long)",
+     "mangled": "_Z14nearest_kernelIfEvPKT_S2_PKlS4_Plll",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 54
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 53
+      }
+     ]
+    },
+    {
+     "current_pc": 10416,
+     "current_pc_hex": "0x28b0",
+     "ancient_pc": 10384,
+     "ancient_pc_hex": "0x2890",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 764,
+     "access_size": 8,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long)",
+     "mangled": "_Z14nearest_kernelIfEvPKT_S2_PKlS4_Plll",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ]
+    },
+    {
+     "current_pc": 10544,
+     "current_pc_hex": "0x2930",
+     "ancient_pc": 10416,
+     "ancient_pc_hex": "0x28b0",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 1276,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      10448
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long)",
+     "mangled": "_Z14nearest_kernelIfEvPKT_S2_PKlS4_Plll",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ]
+    },
+    {
+     "current_pc": 10560,
+     "current_pc_hex": "0x2940",
+     "ancient_pc": 10512,
+     "ancient_pc_hex": "0x2910",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 510,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long)",
+     "mangled": "_Z14nearest_kernelIfEvPKT_S2_PKlS4_Plll",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 54
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 53
+      }
+     ]
+    },
+    {
+     "current_pc": 10576,
+     "current_pc_hex": "0x2950",
+     "ancient_pc": 10544,
+     "ancient_pc_hex": "0x2930",
+     "opcodes": [
+      "STS.64",
+      "LDS.64"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 1020,
+     "access_size": 8,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "kernel": "void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long)",
+     "mangled": "_Z14nearest_kernelIfEvPKT_S2_PKlS4_Plll",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ]
+    },
+    {
+     "current_pc": 10704,
+     "current_pc_hex": "0x29d0",
+     "ancient_pc": 10576,
+     "ancient_pc_hex": "0x2950",
+     "opcodes": [
+      "LDS.64",
+      "STS.64"
+     ],
+     "space": "shared",
+     "race_type": "RAW",
+     "observed_distance": "block",
+     "contested_weight": 508,
+     "access_size": 8,
+     "strength": "block",
+     "ordering_syncs": [
+      10608
+     ],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "ORDERED",
+     "kernel": "void nearest_kernel<float>(float const*, float const*, long const*, long const*, long*, long, long)",
+     "mangled": "_Z14nearest_kernelIfEvPKT_S2_PKlS4_Plll",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/pytorch_cluster-1/buggy/src/csrc/cuda/nearest_cuda.cu",
+       "line": 55
+      }
+     ]
+    }
+   ],
+   "site_skipped": {
+    "read_read": 33,
+    "intra_thread_only": 23
+   }
+  }
+ },
+ "dots_checked": 1,
+ "dots_regenerated_equal": 1
+}

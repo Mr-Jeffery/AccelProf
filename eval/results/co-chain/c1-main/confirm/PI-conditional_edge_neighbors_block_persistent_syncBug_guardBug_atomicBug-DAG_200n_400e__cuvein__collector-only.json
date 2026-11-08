@@ -1,0 +1,91 @@
+{
+  "id": "PI-conditional_edge_neighbors_block_persistent_syncBug_guardBug_atomicBug-DAG_200n_400e",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0x210-0x2a0:RAW",
+    "shared:0x2a0-0x2c0:RAW",
+    "global:0x340-0x380:RAW",
+    "global:0x380-0x380:WAW"
+  ],
+  "pcs": [
+    528,
+    672,
+    704,
+    832,
+    896
+  ],
+  "lines": "conditional_edge_neighbors_block_persistent_syncBug_guardBug_atomicBug.cu:57;conditional_edge_neighbors_block_persistent_syncBug_guardBug_atomicBug.cu:61;conditional_edge_neighbors_block_persistent_syncBug_guardBug_atomicBug.cu:67;conditional_edge_neighbors_block_persistent_syncBug_guardBug_atomicBug.cu:70",
+  "raw": [
+    {
+      "a_pc": 528,
+      "b_pc": 672,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 672,
+      "b_pc": 704,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 832,
+      "b_pc": 896,
+      "space": "global",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 896,
+      "b_pc": 896,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "832": "conditional_edge_neighbors_block_persistent_syncBug_guardBug_atomicBug.cu:67",
+    "896": "conditional_edge_neighbors_block_persistent_syncBug_guardBug_atomicBug.cu:70",
+    "672": "conditional_edge_neighbors_block_persistent_syncBug_guardBug_atomicBug.cu:61",
+    "704": "conditional_edge_neighbors_block_persistent_syncBug_guardBug_atomicBug.cu:61",
+    "528": "conditional_edge_neighbors_block_persistent_syncBug_guardBug_atomicBug.cu:57"
+  }
+}

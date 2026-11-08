@@ -1,0 +1,144 @@
+amrex-1-buggy	collector-only	1	verdict	ERROR	RACE
+amrex-1-buggy	collector-only	1	reports_dedup	0	59
+amrex-1-buggy	collector-only	1	report_ids		global:0xa30-0x1700:RAW global:0xa30-0x21d0:WAR global:0xa90-0x1700:RAW global:0xa90-0x21d0:WAR global:0xb00-0x1700:RAW 
+amrex-1-buggy	collector-only	1	report_lines		AMReX_GpuLaunchGlobal.H:43
+amrex-1-buggy	collector-only	1	classes		race:59
+amrex-1-fixed	collector-only	1	verdict	ERROR	RACE
+amrex-1-fixed	collector-only	1	reports_dedup	0	2
+amrex-1-fixed	collector-only	1	report_ids		global:0x1250-0x1250:WAW global:0x14d0-0x14d0:WAW
+amrex-1-fixed	collector-only	1	report_lines		AMReX_GpuLaunchGlobal.H:43
+amrex-1-fixed	collector-only	1	classes		race:2
+cccl-1-buggy	collector-only	1	reports_dedup	12	16
+cccl-1-buggy	collector-only	1	report_ids	shared:0xf0-0x1d0:WAR shared:0x130-0x1d0:WAR shared:0x140-0x1d0:WAR shared:0x1d0-0x250:RAW shared:0x250-0x2c0:WAR shared	shared:0xf0-0x1d0:WAR shared:0x130-0x1d0:WAR shared:0x140-0x1d0:WAR shared:0x1d0-0x250:RAW shared:0x1d0-0x2c0:WAW shared
+cccl-1-buggy	collector-only	1	classes	race:12	race:16
+cccl-1-fixed	collector-only	1	reports_dedup	12	16
+cccl-1-fixed	collector-only	1	report_ids	shared:0xf0-0x220:WAR shared:0x130-0x220:WAR shared:0x140-0x220:WAR shared:0x220-0x2a0:RAW shared:0x2a0-0x310:WAR shared	shared:0xf0-0x220:WAR shared:0x130-0x220:WAR shared:0x140-0x220:WAR shared:0x220-0x2a0:RAW shared:0x220-0x310:WAW shared
+cccl-1-fixed	collector-only	1	classes	race:12	race:16
+cccl-2-buggy	collector-only	1	reports_dedup	454	457
+cccl-2-buggy	collector-only	1	report_ids	shared:0x5a20-0x6350:WAR shared:0x5a20-0x6370:WAR shared:0x5a30-0x62a0:WAR shared:0x5a30-0x62c0:WAR shared:0x5fe0-0x62a0	shared:0x5a20-0x62a0:WAR shared:0x5a20-0x6350:WAR shared:0x5a20-0x6370:WAR shared:0x5a30-0x62a0:WAR shared:0x5a30-0x62c0
+cccl-2-buggy	collector-only	1	classes	race:454	race:457
+cccl-3-buggy	collector-only	1	reports_dedup	36	57
+cccl-3-buggy	collector-only	1	report_ids	global:0x40-0xadb0:WAR global:0x40-0xbc40:WAR global:0x80-0xad90:WAR global:0x80-0xadc0:WAR shared:0x510-0x540:RAW share	global:0x40-0xadb0:WAR global:0x40-0xbc40:WAR global:0x80-0xad90:WAR global:0x80-0xadc0:WAR shared:0x510-0x540:RAW share
+cccl-3-buggy	collector-only	1	report_lines	agent_topk.cuh:364;agent_topk.cuh:439;agent_topk.cuh:618;agent_topk.cuh:795;agent_topk.cuh:796;agent_topk.cuh:800;agent_	agent_topk.cuh:141;agent_topk.cuh:364;agent_topk.cuh:422;agent_topk.cuh:439;agent_topk.cuh:618;agent_topk.cuh:795;agent_
+cccl-3-buggy	collector-only	1	classes	race:36,sc:8	race:57,sc:8
+cccl-3-fixed	collector-only	1	reports_dedup	36	58
+cccl-3-fixed	collector-only	1	report_ids	global:0x40-0xadc0:WAR global:0x40-0xbc50:WAR global:0x80-0xada0:WAR global:0x80-0xadd0:WAR shared:0x510-0x540:RAW share	global:0x40-0xadc0:WAR global:0x40-0xbc50:WAR global:0x80-0xada0:WAR global:0x80-0xadd0:WAR shared:0x510-0x540:RAW share
+cccl-3-fixed	collector-only	1	report_lines	agent_topk.cuh:364;agent_topk.cuh:439;agent_topk.cuh:618;agent_topk.cuh:797;agent_topk.cuh:798;agent_topk.cuh:802;agent_	agent_topk.cuh:141;agent_topk.cuh:364;agent_topk.cuh:422;agent_topk.cuh:439;agent_topk.cuh:618;agent_topk.cuh:797;agent_
+cccl-3-fixed	collector-only	1	classes	race:36,sc:8	race:58,sc:8
+cccl-4-buggy	collector-only	1	reports_dedup	1	2
+cccl-4-buggy	collector-only	1	report_ids	global:0x50-0x960:WAR	global:0x50-0x960:WAR global:0x50-0xcf0:WAR
+cccl-4-buggy	collector-only	1	report_lines	driver_buggy.cu:85;single_pass_scan_operators.cuh:695	driver_buggy.cu:68;driver_buggy.cu:85;single_pass_scan_operators.cuh:695
+cccl-4-buggy	collector-only	1	classes	race:1,sc:4	race:2,sc:15
+cccl-4-fixed	collector-only	1	classes	sc:5	sc:15
+cmssw-1-buggy	collector-only	1	reports_dedup	3	5
+cmssw-1-buggy	collector-only	1	report_ids	global:0x360-0x1000:RAW global:0x6f0-0x930:RAW global:0x6f0-0x1000:RAW	global:0x360-0x1000:RAW global:0x360-0x1050:WAW global:0x6f0-0x930:RAW global:0x6f0-0x1000:RAW global:0x6f0-0x1050:WAW
+cmssw-1-buggy	collector-only	1	classes	race:3	race:5
+cmssw-1-fixed	collector-only	1	classes	sc:3	sc:6
+ginkgo-5-buggy	collector-only	1	reports_dedup	3	6
+ginkgo-5-buggy	collector-only	1	report_ids	global:0x1f0-0x1f0:WAW global:0x1320-0x1320:WAW global:0x23c0-0x23c0:WAW	global:0x170-0x1f0:WAR global:0x1f0-0x1f0:WAW global:0x1150-0x1320:WAR global:0x1320-0x1320:WAW global:0x22e0-0x23c0:WAR
+ginkgo-5-buggy	collector-only	1	report_lines	bit_packed_storage.hpp:154;kernel_launch.hpp:60;kernel_launch_reduction.hpp:62	bit_packed_storage.hpp:154;bit_packed_storage.hpp:160;kernel_launch.hpp:60;kernel_launch_reduction.hpp:62
+ginkgo-5-buggy	collector-only	1	classes	race:3	race:6
+hecbench-dxtc2-1-buggy	collector-only	1	reports_dedup	92	114
+hecbench-dxtc2-1-buggy	collector-only	1	report_ids	shared:0x240-0x2110:WAW shared:0x250-0x2100:WAW shared:0x260-0x2a0:RAW shared:0x270-0x2120:WAW shared:0x280-0x2b0:RAW sh	shared:0x240-0x2110:WAW shared:0x250-0x2100:WAW shared:0x260-0x2a0:RAW shared:0x260-0x2f0:WAW shared:0x270-0x2120:WAW sh
+hecbench-dxtc2-1-buggy	collector-only	1	report_lines	helper_math.h:371;helper_math.h:372;helper_math.h:373;main.cu:100;main.cu:101;main.cu:102;main.cu:103;main.cu:104;main.c	helper_math.h:371;helper_math.h:372;helper_math.h:373;main.cu:100;main.cu:101;main.cu:102;main.cu:103;main.cu:104;main.c
+hecbench-dxtc2-1-buggy	collector-only	1	classes	race:92	race:114
+hecbench-hungarian-1-buggy	collector-only	1	reports_dedup	233	435
+hecbench-hungarian-1-buggy	collector-only	1	report_ids	global:0xd0-0x1c0:WAR global:0x120-0x120:WAW global:0x120-0x1b0:WAW shared:0x130-0x150:WAR shared:0x150-0x160:RAW global	shared:0x90-0x90:WAW shared:0xa0-0xa0:WAW global:0xd0-0x1c0:WAR global:0x120-0x120:WAW shared:0x120-0x150:WAR shared:0x1
+hecbench-hungarian-1-buggy	collector-only	1	report_lines	main.cu:131;main.cu:137;main.cu:145;main.cu:146;main.cu:147;main.cu:148;main.cu:149;main.cu:178;main.cu:179;main.cu:302;	main.cu:130;main.cu:131;main.cu:137;main.cu:145;main.cu:146;main.cu:147;main.cu:148;main.cu:149;main.cu:178;main.cu:179;
+hecbench-hungarian-1-buggy	collector-only	1	classes	race:233,sc:239	race:435,sc:310
+hecbench-hungarian-1-fixed	collector-only	1	reports_dedup	235	438
+hecbench-hungarian-1-fixed	collector-only	1	report_ids	global:0xd0-0x1c0:WAR global:0x120-0x120:WAW global:0x120-0x1b0:WAW global:0x170-0x240:RAW global:0x170-0x2d0:RAW shared	shared:0x90-0x90:WAW shared:0xa0-0xa0:WAW global:0xd0-0x1c0:WAR global:0x120-0x120:WAW global:0x120-0x1b0:WAW shared:0x1
+hecbench-hungarian-1-fixed	collector-only	1	report_lines	main.cu:131;main.cu:137;main.cu:146;main.cu:148;main.cu:150;main.cu:152;main.cu:154;main.cu:183;main.cu:184;main.cu:381;	main.cu:130;main.cu:131;main.cu:137;main.cu:146;main.cu:148;main.cu:150;main.cu:152;main.cu:154;main.cu:183;main.cu:184;
+hecbench-hungarian-1-fixed	collector-only	1	classes	race:235,sc:250	race:438,sc:310
+hecbench-morphology-1-buggy	collector-only	1	reports_dedup	4	26
+hecbench-morphology-1-buggy	collector-only	1	report_ids	shared:0x270-0x2b0:RAW shared:0x290-0x2d0:RAW shared:0x2d0-0x320:RAW shared:0x2f0-0x340:RAW	shared:0x260-0x2b0:WAR shared:0x260-0x320:WAR shared:0x270-0x2b0:RAW shared:0x270-0x320:WAR shared:0x280-0x2d0:WAR share
+hecbench-morphology-1-buggy	collector-only	1	report_lines	morphology.cu:92;morphology.cu:94;morphology.cu:95;morphology.cu:97;morphology.cu:98	morphology.cu:131;morphology.cu:132;morphology.cu:16;morphology.cu:92;morphology.cu:94;morphology.cu:95;morphology.cu:97
+hecbench-morphology-1-buggy	collector-only	1	classes	race:4	race:26
+hecbench-morphology-1-fixed	collector-only	1	reports_dedup	4	34
+hecbench-morphology-1-fixed	collector-only	1	report_ids	shared:0x1d0-0x290:RAW shared:0x1e0-0x2b0:RAW shared:0x1f0-0x280:RAW shared:0x210-0x2a0:RAW	shared:0x1d0-0x290:RAW shared:0x1d0-0x2b0:RAW shared:0x1d0-0x310:WAW shared:0x1d0-0x3d0:RAW shared:0x1d0-0x3f0:RAW share
+hecbench-morphology-1-fixed	collector-only	1	report_lines	morphology.cu:102;morphology.cu:103;morphology.cu:88;morphology.cu:89;morphology.cu:92	morphology.cu:102;morphology.cu:103;morphology.cu:107;morphology.cu:108;morphology.cu:138;morphology.cu:139;morphology.c
+hecbench-morphology-1-fixed	collector-only	1	classes	race:4	race:34
+hecbench-surfel-1-buggy	collector-only	1	reports_dedup	14	27
+hecbench-surfel-1-buggy	collector-only	1	report_ids	shared:0x2d0-0x450:WAR shared:0x2d0-0x5f0:WAR shared:0x2e0-0x450:WAR shared:0x2e0-0x5e0:WAR shared:0x2f0-0x440:WAR share	shared:0x2d0-0x2d0:WAW shared:0x2d0-0x2e0:WAW shared:0x2d0-0x330:WAW shared:0x2d0-0x450:WAR shared:0x2d0-0x5f0:WAR share
+hecbench-surfel-1-buggy	collector-only	1	classes	race:14	race:27
+hecbench-surfel-1-fixed	collector-only	1	verdict	CLEAN	RACE
+hecbench-surfel-1-fixed	collector-only	1	reports_dedup	0	13
+hecbench-surfel-1-fixed	collector-only	1	report_ids		shared:0x2d0-0x2d0:WAW shared:0x2d0-0x2e0:WAW shared:0x2d0-0x330:WAW shared:0x2e0-0x2e0:WAW shared:0x2e0-0x2f0:WAW share
+hecbench-surfel-1-fixed	collector-only	1	report_lines		main.cu:41;main.cu:43
+hecbench-surfel-1-fixed	collector-only	1	classes		race:13
+kokkos-5-buggy	collector-only	1	reports_dedup	19	69
+kokkos-5-buggy	collector-only	1	report_ids	shared:0x440-0x4e0:RAW shared:0x4e0-0x510:RAW shared:0x4e0-0x5d0:WAR shared:0x980-0x9a0:RAW shared:0x980-0xa70:WAR globa	shared:0x440-0x4e0:RAW shared:0x440-0x5d0:WAW shared:0x4d0-0x510:WAR shared:0x4d0-0x5d0:WAR shared:0x4e0-0x510:RAW share
+kokkos-5-buggy	collector-only	1	report_lines	Kokkos_Cuda_Parallel_Range.hpp:321;Kokkos_Cuda_ReduceScan.hpp:551;Kokkos_Cuda_ReduceScan.hpp:560;Kokkos_Cuda_ReduceScan.	Kokkos_Cuda_Parallel_Range.hpp:321;Kokkos_Cuda_ReduceScan.hpp:551;Kokkos_Cuda_ReduceScan.hpp:560;Kokkos_Cuda_ReduceScan.
+kokkos-5-buggy	collector-only	1	classes	race:19	race:69
+kokkos-5-fixed	collector-only	1	reports_dedup	23	71
+kokkos-5-fixed	collector-only	1	report_ids	shared:0x440-0x4f0:RAW shared:0x4f0-0x520:RAW shared:0x4f0-0x5e0:WAR shared:0x520-0x570:RAW shared:0x990-0x9b0:RAW share	shared:0x440-0x4f0:RAW shared:0x440-0x5e0:WAW shared:0x4e0-0x520:WAR shared:0x4e0-0x5e0:WAR shared:0x4f0-0x520:RAW share
+kokkos-5-fixed	collector-only	1	report_lines	Kokkos_Cuda_Parallel_Range.hpp:321;Kokkos_Cuda_ReduceScan.hpp:552;Kokkos_Cuda_ReduceScan.hpp:562;Kokkos_Cuda_ReduceScan.	Kokkos_Cuda_Parallel_Range.hpp:321;Kokkos_Cuda_ReduceScan.hpp:552;Kokkos_Cuda_ReduceScan.hpp:562;Kokkos_Cuda_ReduceScan.
+kokkos-5-fixed	collector-only	1	classes	race:23	race:71
+kokkos-6-buggy	collector-only	1	reports_dedup	32	94
+kokkos-6-buggy	collector-only	1	report_ids	shared:0x5b0-0x6b0:RAW shared:0x6b0-0x6e0:RAW shared:0x6b0-0x780:WAR shared:0x6e0-0x730:RAW shared:0xb20-0xb40:RAW share	shared:0x5b0-0x6b0:RAW shared:0x5b0-0x780:WAW shared:0x6a0-0x6e0:WAR shared:0x6a0-0x780:WAR shared:0x6b0-0x6e0:RAW share
+kokkos-6-buggy	collector-only	1	report_lines	Kokkos_Cuda_Parallel_Team.hpp:439;Kokkos_Cuda_Parallel_Team.hpp:441;Kokkos_Cuda_Parallel_Team.hpp:450;Kokkos_Cuda_Parall	Kokkos_Cuda_Parallel_Team.hpp:439;Kokkos_Cuda_Parallel_Team.hpp:441;Kokkos_Cuda_Parallel_Team.hpp:446;Kokkos_Cuda_Parall
+kokkos-6-buggy	collector-only	1	classes	race:32	race:94
+kokkos-6-fixed	collector-only	1	reports_dedup	26	87
+kokkos-6-fixed	collector-only	1	report_ids	shared:0x5b0-0x6b0:RAW shared:0x6b0-0x6e0:RAW shared:0x6b0-0x780:WAR shared:0x6e0-0x730:RAW shared:0xb20-0xb40:RAW share	shared:0x5b0-0x6b0:RAW shared:0x5b0-0x780:WAW shared:0x6a0-0x6e0:WAR shared:0x6a0-0x780:WAR shared:0x6b0-0x6e0:RAW share
+kokkos-6-fixed	collector-only	1	report_lines	Kokkos_Cuda_Parallel_Team.hpp:439;Kokkos_Cuda_Parallel_Team.hpp:441;Kokkos_Cuda_Parallel_Team.hpp:450;Kokkos_Cuda_Parall	Kokkos_Cuda_Parallel_Team.hpp:439;Kokkos_Cuda_Parallel_Team.hpp:441;Kokkos_Cuda_Parallel_Team.hpp:446;Kokkos_Cuda_Parall
+kokkos-6-fixed	collector-only	1	classes	race:26	race:87
+lit-arrayfire-1-buggy	collector-only	1	reports_dedup	6	10
+lit-arrayfire-1-buggy	collector-only	1	report_ids	shared:0xd30-0xfe0:RAW shared:0xd50-0xe00:RAW shared:0xda0-0xfe0:RAW shared:0x10e0-0x1230:RAW shared:0x1100-0x1190:WAR s	shared:0xd30-0xfe0:RAW shared:0xd50-0xe00:RAW shared:0xda0-0xfe0:RAW shared:0xdd0-0xdd0:WAW shared:0xe00-0xe00:WAW share
+lit-arrayfire-1-buggy	collector-only	1	classes	race:6	race:10
+lit-arrayfire-1-fixed	collector-only	1	reports_dedup	4	8
+lit-arrayfire-1-fixed	collector-only	1	report_ids	shared:0xd30-0xff0:RAW shared:0xda0-0xff0:RAW shared:0x10e0-0x1240:RAW shared:0x1150-0x1240:RAW	shared:0xd30-0xff0:RAW shared:0xda0-0xff0:RAW shared:0xea0-0xea0:WAW shared:0xeb0-0xeb0:WAW shared:0x10e0-0x1240:RAW sha
+lit-arrayfire-1-fixed	collector-only	1	report_lines	scan_dim_by_key_impl.hpp:263;scan_dim_by_key_impl.hpp:30;scan_dim_by_key_impl.hpp:306;scan_dim_by_key_impl.hpp:314;scan_	scan_dim_by_key_impl.hpp:263;scan_dim_by_key_impl.hpp:280;scan_dim_by_key_impl.hpp:30;scan_dim_by_key_impl.hpp:306;scan_
+lit-arrayfire-1-fixed	collector-only	1	classes	race:4	race:8
+lit-exllamav3-1-buggy	collector-only	1	reports_dedup	84	176
+lit-exllamav3-1-buggy	collector-only	1	report_ids	shared:0x2d0-0x2d0:WAW shared:0x300-0x1680:WAR shared:0x7e0-0x8d0:WAR shared:0x8d0-0x8f0:RAW shared:0x8f0-0x9e0:WAR shar	shared:0x2d0-0x2d0:WAW shared:0x2d0-0x1680:WAW shared:0x300-0x1680:WAR shared:0x7c0-0x8d0:WAW shared:0x7e0-0x8d0:WAR sha
+lit-exllamav3-1-buggy	collector-only	1	report_lines	cuda_fp16.h:5192;cuda_fp16.hpp:965;routing.cu:170;routing.cu:174;routing.cu:175;routing.cu:183;routing.cu:52;routing.cu:	cuda_fp16.h:5192;cuda_fp16.hpp:965;routing.cu:170;routing.cu:174;routing.cu:175;routing.cu:183;routing.cu:50;routing.cu:
+lit-exllamav3-1-buggy	collector-only	1	classes	race:84	race:176
+lit-exllamav3-1-fixed	collector-only	1	reports_dedup	64	156
+lit-exllamav3-1-fixed	collector-only	1	report_ids	shared:0x2d0-0x2d0:WAW shared:0x300-0x1690:WAR shared:0x7f0-0x8e0:WAR shared:0x8e0-0x900:RAW shared:0x900-0x9f0:WAR shar	shared:0x2d0-0x2d0:WAW shared:0x2d0-0x1690:WAW shared:0x300-0x1690:WAR shared:0x7d0-0x8e0:WAW shared:0x7f0-0x8e0:WAR sha
+lit-exllamav3-1-fixed	collector-only	1	report_lines	cuda_fp16.h:5192;cuda_fp16.hpp:965;routing.cu:170;routing.cu:174;routing.cu:175;routing.cu:183;routing.cu:52;routing.cu:	cuda_fp16.h:5192;cuda_fp16.hpp:965;routing.cu:170;routing.cu:174;routing.cu:175;routing.cu:183;routing.cu:50;routing.cu:
+lit-exllamav3-1-fixed	collector-only	1	classes	race:64	race:156
+lit-shoc-1-buggy	collector-only	1	reports_dedup	22	134
+lit-shoc-1-buggy	collector-only	1	report_ids	shared:0x240-0xbc0:RAW shared:0x240-0xc60:RAW shared:0x810-0xff0:WAR shared:0x850-0xff0:WAR shared:0xa70-0xa90:WAR share	shared:0x240-0xbc0:RAW shared:0x240-0xc60:RAW shared:0x240-0xc90:WAW shared:0x240-0xd30:WAW shared:0x810-0xff0:WAR share
+lit-shoc-1-buggy	collector-only	1	report_lines	scan_kernel.h:127;scan_kernel.h:128;scan_kernel.h:129;scan_kernel.h:130;scan_kernel.h:131;scan_kernel.h:135;scan_kernel.	scan_kernel.h:126;scan_kernel.h:127;scan_kernel.h:128;scan_kernel.h:129;scan_kernel.h:130;scan_kernel.h:131;scan_kernel.
+lit-shoc-1-buggy	collector-only	1	classes	race:22	race:134
+lit-shoc-1-fixed	collector-only	1	reports_dedup	10	120
+lit-shoc-1-fixed	collector-only	1	report_ids	shared:0xa70-0xa90:WAR shared:0xa80-0xaa0:WAR shared:0xab0-0xad0:WAR shared:0xac0-0xae0:WAR shared:0xaf0-0xb10:WAR share	shared:0xa30-0xa90:WAR shared:0xa30-0xad0:WAR shared:0xa30-0xb10:WAR shared:0xa30-0xb50:WAR shared:0xa30-0xb90:WAR share
+lit-shoc-1-fixed	collector-only	1	report_lines	scan_kernel.h:127;scan_kernel.h:128;scan_kernel.h:129;scan_kernel.h:130;scan_kernel.h:131	scan_kernel.h:126;scan_kernel.h:127;scan_kernel.h:128;scan_kernel.h:129;scan_kernel.h:130;scan_kernel.h:131
+lit-shoc-1-fixed	collector-only	1	classes	race:10	race:120
+llamacpp-2-buggy	collector-only	1	reports_dedup	8	14
+llamacpp-2-buggy	collector-only	1	report_ids	shared:0x6d0-0x1220:RAW shared:0x760-0x1220:RAW shared:0xb00-0x5490:RAW shared:0xb00-0x54d0:RAW shared:0xb00-0x5510:RAW 	shared:0x6d0-0x1220:RAW shared:0x760-0x1220:RAW shared:0xb00-0x5490:RAW shared:0xb00-0x54d0:RAW shared:0xb00-0x5510:RAW 
+llamacpp-2-buggy	collector-only	1	classes	race:8	race:14
+llamacpp-2-fixed	collector-only	1	reports_dedup	8	14
+llamacpp-2-fixed	collector-only	1	report_ids	shared:0x6d0-0x1230:RAW shared:0x760-0x1230:RAW shared:0xb00-0x5490:RAW shared:0xb00-0x54d0:RAW shared:0xb00-0x5510:RAW 	shared:0x6d0-0x1230:RAW shared:0x760-0x1230:RAW shared:0xb00-0x5490:RAW shared:0xb00-0x54d0:RAW shared:0xb00-0x5510:RAW 
+llamacpp-2-fixed	collector-only	1	classes	race:8	race:14
+llamacpp-5-buggy	collector-only	1	reports_dedup	1032	1546
+llamacpp-5-buggy	collector-only	1	report_ids	shared:0x4c0-0x730:RAW shared:0x4c0-0x740:RAW shared:0x4c0-0x750:RAW shared:0x4c0-0x760:RAW shared:0x4c0-0x770:RAW share	shared:0x4c0-0x730:RAW shared:0x4c0-0x740:RAW shared:0x4c0-0x750:RAW shared:0x4c0-0x760:RAW shared:0x4c0-0x770:RAW share
+llamacpp-5-buggy	collector-only	1	classes	race:1032	race:1546
+llamacpp-5-fixed	collector-only	1	reports_dedup	768	1026
+llamacpp-5-fixed	collector-only	1	report_ids	shared:0x4c0-0x730:RAW shared:0x4c0-0x740:RAW shared:0x4c0-0x750:RAW shared:0x4c0-0x760:RAW shared:0x4c0-0x770:RAW share	shared:0x4c0-0x730:RAW shared:0x4c0-0x740:RAW shared:0x4c0-0x750:RAW shared:0x4c0-0x760:RAW shared:0x4c0-0x770:RAW share
+llamacpp-5-fixed	collector-only	1	classes	race:768	race:1026
+opencv-2-buggy	collector-only	1	reports_dedup	105	2521
+opencv-2-buggy	collector-only	1	report_ids	global:0x290-0x3320:WAR global:0x410-0x3320:WAR global:0x500-0x3320:WAR global:0x630-0x3320:WAR global:0x720-0x3320:WAR 	global:0x140-0x3320:WAR global:0x290-0x3320:WAR global:0x410-0x3320:WAR global:0x500-0x3320:WAR global:0x630-0x3320:WAR 
+opencv-2-buggy	collector-only	1	report_lines	canny.cu:121;canny.cu:256;canny.cu:258;canny.cu:260;canny.cu:262;canny.cu:264;canny.cu:266;canny.cu:268;canny.cu:284;can	canny.cu:121;canny.cu:256;canny.cu:258;canny.cu:260;canny.cu:262;canny.cu:264;canny.cu:266;canny.cu:268;canny.cu:272;can
+opencv-2-buggy	collector-only	1	classes	race:105	race:2521
+opencv-2-fixed	collector-only	1	reports_dedup	8	9
+opencv-2-fixed	collector-only	1	report_ids	global:0x290-0x35b0:WAR global:0x410-0x35b0:WAR global:0x500-0x35b0:WAR global:0x630-0x35b0:WAR global:0x720-0x35b0:WAR 	global:0x140-0x35b0:WAR global:0x290-0x35b0:WAR global:0x410-0x35b0:WAR global:0x500-0x35b0:WAR global:0x630-0x35b0:WAR 
+opencv-2-fixed	collector-only	1	report_lines	canny.cu:121;canny.cu:256;canny.cu:258;canny.cu:260;canny.cu:262;canny.cu:264;canny.cu:266;canny.cu:268;canny.cu:306	canny.cu:121;canny.cu:256;canny.cu:258;canny.cu:260;canny.cu:262;canny.cu:264;canny.cu:266;canny.cu:268;canny.cu:306;cud
+opencv-2-fixed	collector-only	1	classes	race:8	race:9
+pytorch-1-buggy	collector-only	1	reports_dedup	3	5
+pytorch-1-buggy	collector-only	1	report_ids	shared:0x190-0x250:RAW shared:0x190-0x3c0:WAR global:0x5f0-0x610:RAW	shared:0x190-0x190:WAW shared:0x190-0x250:RAW shared:0x190-0x3c0:WAR global:0x5f0-0x610:RAW global:0x610-0x610:WAW
+pytorch-1-buggy	collector-only	1	classes	race:3	race:5
+pytorch-1-fixed	collector-only	1	reports_dedup	3	5
+pytorch-1-fixed	collector-only	1	report_ids	shared:0x1b0-0x270:RAW shared:0x1b0-0x3e0:WAR global:0x610-0x630:RAW	shared:0x1b0-0x1b0:WAW shared:0x1b0-0x270:RAW shared:0x1b0-0x3e0:WAR global:0x610-0x630:RAW global:0x630-0x630:WAW
+pytorch-1-fixed	collector-only	1	classes	race:3	race:5
+pytorch_cluster-1-buggy	collector-only	1	reports_dedup	12	18
+pytorch_cluster-1-buggy	collector-only	1	report_ids	shared:0x2520-0x2550:WAR shared:0x2540-0x2560:WAR shared:0x25f0-0x2620:WAR shared:0x2610-0x2630:WAR shared:0x26a0-0x26d0	shared:0x2510-0x2550:WAR shared:0x2520-0x2550:WAR shared:0x2540-0x2560:WAR shared:0x25e0-0x2620:WAR shared:0x25f0-0x2620
+pytorch_cluster-1-buggy	collector-only	1	classes	race:12	race:18
+raft-1-buggy	collector-only	1	reports_dedup	24	29
+raft-1-buggy	collector-only	1	report_ids	global:0xc0-0x5f10:WAR global:0xc0-0x6130:WAR global:0xd0-0x60f0:WAR global:0xd0-0x6120:WAR global:0xd0-0x7250:WAR globa	global:0xc0-0x5f10:WAR global:0xc0-0x6130:WAR global:0xd0-0x60f0:WAR global:0xd0-0x6120:WAR global:0xd0-0x7250:WAR globa
+raft-1-buggy	collector-only	1	report_lines	device_atomic_functions.hpp:226;map.cuh:64;select_radix.cuh:322;select_radix.cuh:388;select_radix.cuh:761;select_radix.c	device_atomic_functions.hpp:226;map.cuh:64;map.cuh:86;select_radix.cuh:322;select_radix.cuh:388;select_radix.cuh:391;sel
+raft-1-buggy	collector-only	1	classes	race:24,sc:1	race:29,sc:2
+raft-1-fixed	collector-only	1	reports_dedup	22	27
+raft-1-fixed	collector-only	1	report_ids	global:0xc0-0x5f40:WAR global:0xc0-0x6160:WAR global:0xd0-0x6120:WAR global:0xd0-0x6150:WAR global:0xd0-0x7280:WAR globa	global:0xc0-0x5f40:WAR global:0xc0-0x6160:WAR global:0xd0-0x6120:WAR global:0xd0-0x6150:WAR global:0xd0-0x7280:WAR globa
+raft-1-fixed	collector-only	1	report_lines	device_atomic_functions.hpp:226;map.cuh:64;select_radix.cuh:322;select_radix.cuh:388;select_radix.cuh:771;select_radix.c	device_atomic_functions.hpp:226;map.cuh:64;map.cuh:86;select_radix.cuh:322;select_radix.cuh:388;select_radix.cuh:391;sel
+raft-1-fixed	collector-only	1	classes	race:22,sc:1	race:27,sc:2
