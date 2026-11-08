@@ -1,0 +1,39 @@
+{
+  "id": "PI-conditional_edge_neighbors_reverse_guardBug_break-counterDAG_200n_1000e",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "global:0x130-0x1d0:WAR"
+  ],
+  "pcs": [
+    304,
+    464
+  ],
+  "lines": "conditional_edge_neighbors_reverse_guardBug_break.cu:51;device_atomic_functions.hpp:152",
+  "raw": [
+    {
+      "a_pc": 304,
+      "b_pc": 464,
+      "space": "global",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": "benign",
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "304": "conditional_edge_neighbors_reverse_guardBug_break.cu:51",
+    "464": "device_atomic_functions.hpp:152"
+  }
+}

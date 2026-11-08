@@ -1,0 +1,99 @@
+{
+  "id": "PI-conditional_edge_neighbors_block_persistent_cond_syncBug_atomicBug-counterDAG_200n_1000e",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0x230-0x2c0:RAW",
+    "shared:0x2c0-0x2e0:RAW",
+    "global:0x370-0x390:RAW",
+    "global:0x390-0x390:WAW"
+  ],
+  "pcs": [
+    560,
+    704,
+    736,
+    880,
+    912
+  ],
+  "lines": "conditional_edge_neighbors_block_persistent_cond_syncBug_atomicBug.cu:59;conditional_edge_neighbors_block_persistent_cond_syncBug_atomicBug.cu:63;conditional_edge_neighbors_block_persistent_cond_syncBug_atomicBug.cu:70",
+  "raw": [
+    {
+      "a_pc": 560,
+      "b_pc": 704,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    },
+    {
+      "a_pc": 704,
+      "b_pc": 736,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    },
+    {
+      "a_pc": 880,
+      "b_pc": 912,
+      "space": "global",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    },
+    {
+      "a_pc": 912,
+      "b_pc": 912,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "736": "conditional_edge_neighbors_block_persistent_cond_syncBug_atomicBug.cu:63",
+    "704": "conditional_edge_neighbors_block_persistent_cond_syncBug_atomicBug.cu:63",
+    "560": "conditional_edge_neighbors_block_persistent_cond_syncBug_atomicBug.cu:59",
+    "880": "conditional_edge_neighbors_block_persistent_cond_syncBug_atomicBug.cu:70",
+    "912": "conditional_edge_neighbors_block_persistent_cond_syncBug_atomicBug.cu:70"
+  }
+}

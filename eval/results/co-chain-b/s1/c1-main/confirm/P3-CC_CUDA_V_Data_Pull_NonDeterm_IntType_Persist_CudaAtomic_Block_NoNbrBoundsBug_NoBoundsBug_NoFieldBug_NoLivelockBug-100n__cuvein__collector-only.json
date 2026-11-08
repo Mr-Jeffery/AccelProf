@@ -1,0 +1,98 @@
+{
+  "id": "P3-CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug-100n",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0x170-0xad0:RAW",
+    "shared:0x340-0x340:WAW"
+  ],
+  "pcs": [
+    368,
+    832,
+    2768
+  ],
+  "lines": "CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug.cu:59;CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug.cu:78;CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug.cu:82",
+  "raw": [
+    {
+      "a_pc": 368,
+      "b_pc": 2768,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    },
+    {
+      "a_pc": 832,
+      "b_pc": 832,
+      "space": "shared",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    }
+  ],
+  "raw_sc": [
+    {
+      "a_pc": 240,
+      "b_pc": 2880,
+      "space": "global",
+      "verdict": "SC",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": "sc",
+      "hb_chain": null,
+      "matrix_class": "sc",
+      "conflict_class": "SC",
+      "model_bug": false,
+      "chain_src": "chain_rescue",
+      "chain_path": [
+        "0xf0",
+        "0x290",
+        "0xb40"
+      ],
+      "async": false,
+      "atomic_chain_off": false
+    },
+    {
+      "a_pc": 656,
+      "b_pc": 2880,
+      "space": "global",
+      "verdict": "SC",
+      "race_type": "RAW",
+      "strength": "block",
+      "hb_class": "sc",
+      "hb_chain": null,
+      "matrix_class": "sc",
+      "conflict_class": "SC",
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    }
+  ],
+  "scope_file": "",
+  "pc_lines": {
+    "368": "CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug.cu:59",
+    "832": "CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug.cu:78",
+    "2768": "CC_CUDA_V_Data_Pull_NonDeterm_IntType_Persist_CudaAtomic_Block_NoNbrBoundsBug_NoBoundsBug_NoFieldBug_NoLivelockBug.cu:82"
+  }
+}

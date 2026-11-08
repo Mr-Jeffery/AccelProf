@@ -1,0 +1,168 @@
+s2: ref rows 14141, new rows 14141, ids ref 4725 new 4725; C6 rows 14141
+s2: confirm JSONs read 4709
+s2: field differences vs C1 11598 over 1130 programs
+s2: programs analysed 4709 of 4725; all four counts 0 (incl. not analysed): 3356; derived>0 1093; rescued>0 687; async>0 1; atomic_chain_off>0 24
+s2: PARITY VIOLATIONS (all-four-counts-0 program differing from C1): 0 programs, 0 fields
+s2: REFERENCE HAS NO VERDICT (ref ERROR, new verdict), excluded: []
+s2: unresolved (new analysis-timeout, reference has verdict), excluded: []
+s2: notes-vs-jsonl mismatches: 0
+s2: ERROR rows: 16 (16 programs); chain-cap ERROR rows: 0; jsonl cap lines 0
+  ERROR P6-dsmem-shared_writewrite_race-fixed   missing-exe;chain=1;anode=c14
+  ERROR P6-bulkcpy-shared_writeread_race_g2s-fixed   missing-exe;chain=1;anode=c14
+  ERROR P6-bulkcpy-shared_writewrite_race_g2s-racy   missing-exe;chain=1;anode=c14
+  ERROR P6-bulkcpy-shared_writewrite_race_g2s-fixed   missing-exe;chain=1;anode=c14
+  ERROR P6-dsmem-shared_readwrite_race-racy   missing-exe;chain=1;anode=c14
+  ERROR P6-dsmem-shared_readwrite_race-fixed   missing-exe;chain=1;anode=c14
+  ERROR P6-dsmem-shared_writewrite_race-racy   missing-exe;chain=1;anode=c14
+  ERROR P6-bulkcpy-global_readwrite_race-racy   missing-exe;chain=1;anode=c14
+  ERROR P6-bulkcpy-global_readwrite_race-fixed   missing-exe;chain=1;anode=c14
+  ERROR P6-bulkcpy-global_readwrite_race_g2s-racy   missing-exe;chain=1;anode=c14
+  ERROR P6-bulkcpy-global_readwrite_race_g2s-fixed   missing-exe;chain=1;anode=c14
+  ERROR P6-bulkcpy-global_writewrite_race-racy   missing-exe;chain=1;anode=c14
+  ERROR P6-bulkcpy-global_writewrite_race-fixed   missing-exe;chain=1;anode=c14
+  ERROR P6-bulkcpy-shared_readwrite_race-racy   missing-exe;chain=1;anode=c14
+  ERROR P6-bulkcpy-shared_readwrite_race-fixed   missing-exe;chain=1;anode=c14
+  ERROR P6-bulkcpy-shared_writeread_race_g2s-racy   missing-exe;chain=1;anode=c14
+s2: verdict changes vs C1: programs per (suite, C1 verdict -> new verdict) with tag counts
+  P4	CLEAN->RACE	programs=2	derived=2 rescued=2 async=0 atomic_chain_off=2	no_tag=0
+  P5	CLEAN->RACE	programs=3	derived=1 rescued=0 async=0 atomic_chain_off=3	no_tag=0
+  P6	CLEAN->RACE	programs=1	derived=0 rescued=0 async=1 atomic_chain_off=0	no_tag=0
+  P7	CLEAN->RACE	programs=2	derived=2 rescued=1 async=0 atomic_chain_off=0	no_tag=0
+  P9	CLEAN->RACE	programs=1	derived=1 rescued=0 async=0 atomic_chain_off=0	no_tag=0
+  PI	CLEAN->RACE	programs=26	derived=25 rescued=1 async=0 atomic_chain_off=0	no_tag=0
+    C1 change CLEAN->RACE	P4-uts-norace-large	derived,rescued,atomic_chain_off
+    C1 change CLEAN->RACE	P4-uts-norace-small	derived,rescued,atomic_chain_off
+    C1 change CLEAN->RACE	P5-canary	atomic_chain_off
+    C1 change CLEAN->RACE	P5-norace_interwarp-block_fence-atom_hrd-indirect	atomic_chain_off
+    C1 change CLEAN->RACE	P5-race_interblock_none-lock_rtraw	derived,atomic_chain_off
+    C1 change CLEAN->RACE	P6-memcpy-shared_readwrite_race-racy	async
+    C1 change CLEAN->RACE	P7-hotspot-cuda	derived,rescued
+    C1 change CLEAN->RACE	P7-lavaMD-cuda	derived
+    C1 change CLEAN->RACE	P9-knn-cuda	derived
+    C1 change CLEAN->RACE	PI-conditional_edge_neighbors_warp_persistent_guardBug-counterDAG_5n_5e	rescued
+    C1 change CLEAN->RACE	PI-pull_node_neighbors_boundsBug_cond-DAG_100n_100e	derived
+    C1 change CLEAN->RACE	PI-pull_node_neighbors_boundsBug_cond-DAG_100n_200e	derived
+    C1 change CLEAN->RACE	PI-pull_node_neighbors_boundsBug_cond-DAG_200n_400e	derived
+    C1 change CLEAN->RACE	PI-pull_node_neighbors_boundsBug_cond-counterDAG_200n_1000e	derived
+    C1 change CLEAN->RACE	PI-pull_node_neighbors_boundsBug_cond-counterDAG_5n_5e	derived
+    C1 change CLEAN->RACE	PI-pull_node_neighbors_boundsBug_cond-power_law_200n_1000e	derived
+    C1 change CLEAN->RACE	PI-pull_node_neighbors_boundsBug_cond_break-DAG_100n_100e	derived
+    C1 change CLEAN->RACE	PI-pull_node_neighbors_boundsBug_cond_break-DAG_100n_200e	derived
+    C1 change CLEAN->RACE	PI-pull_node_neighbors_boundsBug_cond_break-DAG_200n_400e	derived
+    C1 change CLEAN->RACE	PI-pull_node_neighbors_boundsBug_cond_break-counterDAG_200n_1000e	derived
+    C1 change CLEAN->RACE	PI-pull_node_neighbors_boundsBug_cond_break-counterDAG_5n_5e	derived
+    C1 change CLEAN->RACE	PI-pull_node_neighbors_boundsBug_cond_break-power_law_200n_1000e	derived
+    C1 change CLEAN->RACE	PI-pull_node_neighbors_boundsBug_reverse_cond-DAG_100n_100e	derived
+    C1 change CLEAN->RACE	PI-pull_node_neighbors_boundsBug_reverse_cond-DAG_100n_200e	derived
+    C1 change CLEAN->RACE	PI-pull_node_neighbors_boundsBug_reverse_cond-DAG_200n_400e	derived
+    C1 change CLEAN->RACE	PI-pull_node_neighbors_boundsBug_reverse_cond-counterDAG_200n_1000e	derived
+    C1 change CLEAN->RACE	PI-pull_node_neighbors_boundsBug_reverse_cond-counterDAG_5n_5e	derived
+    C1 change CLEAN->RACE	PI-pull_node_neighbors_boundsBug_reverse_cond-power_law_200n_1000e	derived
+    C1 change CLEAN->RACE	PI-pull_node_neighbors_boundsBug_reverse_cond_break-DAG_100n_100e	derived
+    C1 change CLEAN->RACE	PI-pull_node_neighbors_boundsBug_reverse_cond_break-DAG_100n_200e	derived
+    C1 change CLEAN->RACE	PI-pull_node_neighbors_boundsBug_reverse_cond_break-DAG_200n_400e	derived
+    C1 change CLEAN->RACE	PI-pull_node_neighbors_boundsBug_reverse_cond_break-counterDAG_200n_1000e	derived
+    C1 change CLEAN->RACE	PI-pull_node_neighbors_boundsBug_reverse_cond_break-counterDAG_5n_5e	derived
+    C1 change CLEAN->RACE	PI-pull_node_neighbors_boundsBug_reverse_cond_break-power_law_200n_1000e	derived
+    C1 change CLEAN->RACE	PI-push_node_neighbors_boundsBug_reverse_cond_atomicBug_break-counterDAG_5n_5e	derived
+s2: verdict changes vs C6: programs per (suite, C6 verdict -> new verdict) with tag counts
+  P5	CLEAN->RACE	programs=3	derived=1 rescued=0 async=0 atomic_chain_off=3	no_tag=0
+  P6	CLEAN->RACE	programs=1	derived=0 rescued=0 async=1 atomic_chain_off=0	no_tag=0
+    C6 change CLEAN->RACE	P5-canary	atomic_chain_off
+    C6 change CLEAN->RACE	P5-norace_interwarp-block_fence-atom_hrd-indirect	atomic_chain_off
+    C6 change CLEAN->RACE	P5-race_interblock_none-lock_rtraw	derived,atomic_chain_off
+    C6 change CLEAN->RACE	P6-memcpy-shared_readwrite_race-racy	async
+s2: lscpu records (host -> model): {'c14': ['Intel(R) Xeon(R) Silver 4110 CPU @ 2.10GHz']}
+s2: rows per anode: {'c14': 14141}
+s2: rows whose anode is not a verified Xeon Silver 4110 host: 0
+suite	programs	analysed	derived>0	rescued>0	async>0	atomic_chain_off>0	verdict_changed_vs_C1	verdict_changed_vs_C6	analysis_s_median	analysis_s_max	analysis_s_sum	chain_s_sum	chain_share_median	chain_share_sum_ratio
+P1	400	400	172	173	0	0	0	0	1.150	2.706	459.0	1.1	0.0020	0.0024
+P3	60	60	20	22	0	0	0	0	1.095	1.998	66.4	0.1	0.0018	0.0018
+P4	28	28	24	10	0	12	2	0	2.098	21.756	140.3	0.1	0.0001	0.0010
+P5	33	33	3	0	0	11	3	3	0.535	0.897	18.6	0.0	0.0000	0.0000
+P6	50	34	1	2	1	0	1	1	0.524	0.847	17.9	0.0	0.0000	0.0013
+P7	14	14	7	5	0	0	2	0	1.317	14.291	41.3	4.9	0.0147	0.1177
+P9	10	10	5	3	0	0	1	0	3.426	13.767	49.3	2.9	0.0126	0.0585
+PI	4130	4130	861	472	0	1	26	0	0.615	1.908	2763.5	0.2	0.0000	0.0001
+s2: sum of analysis_s over analysed programs: 3556.4 s = 0.988 h
+differences vs C1 (id, mode, rep, field, ref, new), first 80:
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_Atomic_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-100n', 'collector-only', '1'), 'classes', 'sc:2', 'sc:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_Atomic_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-100n', 'collector-only', '2'), 'classes', 'sc:2', 'sc:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_Atomic_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-100n', 'collector-only', '3'), 'classes', 'sc:2', 'sc:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_Atomic_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-1296n', 'collector-only', '1'), 'classes', 'sc:2', 'sc:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_Atomic_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-1296n', 'collector-only', '2'), 'classes', 'sc:2', 'sc:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_Atomic_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-1296n', 'collector-only', '3'), 'classes', 'sc:2', 'sc:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_CudaAtomic_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-100n', 'collector-only', '1'), 'classes', 'sc:2', 'sc:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_CudaAtomic_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-100n', 'collector-only', '2'), 'classes', 'sc:2', 'sc:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_CudaAtomic_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-100n', 'collector-only', '3'), 'classes', 'sc:2', 'sc:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_CudaAtomic_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-1296n', 'collector-only', '1'), 'classes', 'sc:2', 'sc:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_CudaAtomic_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-1296n', 'collector-only', '2'), 'classes', 'sc:2', 'sc:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_CudaAtomic_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-1296n', 'collector-only', '3'), 'classes', 'sc:2', 'sc:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_CudaAtomic_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-100n', 'collector-only', '1'), 'classes', 'sc:2', 'sc:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_CudaAtomic_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-100n', 'collector-only', '2'), 'classes', 'sc:2', 'sc:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_CudaAtomic_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-100n', 'collector-only', '3'), 'classes', 'sc:2', 'sc:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_CudaAtomic_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-1296n', 'collector-only', '1'), 'classes', 'sc:2', 'sc:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_CudaAtomic_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-1296n', 'collector-only', '2'), 'classes', 'sc:2', 'sc:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_CudaAtomic_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-1296n', 'collector-only', '3'), 'classes', 'sc:2', 'sc:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-100n', 'collector-only', '1'), 'reports_dedup', '2', '3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-100n', 'collector-only', '1'), 'report_ids', 'global:0x170-0x1e0:WAR global:0x1e0-0x1e0:WAW', 'global:0xd0-0x1e0:WAR global:0x170-0x1e0:WAR global:0x1e0-0x1e0:WAW')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-100n', 'collector-only', '1'), 'report_lines', 'BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFie', 'BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFie')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-100n', 'collector-only', '1'), 'classes', 'race:2', 'race:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-100n', 'collector-only', '2'), 'reports_dedup', '2', '3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-100n', 'collector-only', '2'), 'report_ids', 'global:0x170-0x1e0:WAR global:0x1e0-0x1e0:WAW', 'global:0xd0-0x1e0:WAR global:0x170-0x1e0:WAR global:0x1e0-0x1e0:WAW')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-100n', 'collector-only', '2'), 'report_lines', 'BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFie', 'BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFie')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-100n', 'collector-only', '2'), 'classes', 'race:2', 'race:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-100n', 'collector-only', '3'), 'reports_dedup', '2', '3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-100n', 'collector-only', '3'), 'report_ids', 'global:0x170-0x1e0:WAR global:0x1e0-0x1e0:WAW', 'global:0xd0-0x1e0:WAR global:0x170-0x1e0:WAR global:0x1e0-0x1e0:WAW')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-100n', 'collector-only', '3'), 'report_lines', 'BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFie', 'BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFie')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-100n', 'collector-only', '3'), 'classes', 'race:2', 'race:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-1296n', 'collector-only', '1'), 'reports_dedup', '2', '3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-1296n', 'collector-only', '1'), 'report_ids', 'global:0x170-0x1e0:RAW global:0x1e0-0x1e0:WAW', 'global:0xd0-0x1e0:WAR global:0x170-0x1e0:RAW global:0x1e0-0x1e0:WAW')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-1296n', 'collector-only', '1'), 'report_lines', 'BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFie', 'BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFie')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-1296n', 'collector-only', '1'), 'classes', 'race:2', 'race:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-1296n', 'collector-only', '2'), 'reports_dedup', '2', '3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-1296n', 'collector-only', '2'), 'report_ids', 'global:0x170-0x1e0:RAW global:0x1e0-0x1e0:WAW', 'global:0xd0-0x1e0:WAR global:0x170-0x1e0:RAW global:0x1e0-0x1e0:WAW')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-1296n', 'collector-only', '2'), 'report_lines', 'BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFie', 'BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFie')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-1296n', 'collector-only', '2'), 'classes', 'race:2', 'race:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-1296n', 'collector-only', '3'), 'reports_dedup', '2', '3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-1296n', 'collector-only', '3'), 'report_ids', 'global:0x170-0x1e0:RAW global:0x1e0-0x1e0:WAW', 'global:0xd0-0x1e0:WAR global:0x170-0x1e0:RAW global:0x1e0-0x1e0:WAW')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-1296n', 'collector-only', '3'), 'report_lines', 'BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFie', 'BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFie')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-1296n', 'collector-only', '3'), 'classes', 'race:2', 'race:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-100n', 'collector-only', '1'), 'reports_dedup', '2', '3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-100n', 'collector-only', '1'), 'report_ids', 'global:0x170-0x1e0:WAR global:0x1e0-0x1e0:WAW', 'global:0xd0-0x1e0:WAR global:0x170-0x1e0:WAR global:0x1e0-0x1e0:WAW')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-100n', 'collector-only', '1'), 'report_lines', 'BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFie', 'BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFie')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-100n', 'collector-only', '1'), 'classes', 'race:2', 'race:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-100n', 'collector-only', '2'), 'reports_dedup', '2', '3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-100n', 'collector-only', '2'), 'report_ids', 'global:0x170-0x1e0:WAR global:0x1e0-0x1e0:WAW', 'global:0xd0-0x1e0:WAR global:0x170-0x1e0:WAR global:0x1e0-0x1e0:WAW')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-100n', 'collector-only', '2'), 'report_lines', 'BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFie', 'BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFie')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-100n', 'collector-only', '2'), 'classes', 'race:2', 'race:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-100n', 'collector-only', '3'), 'reports_dedup', '2', '3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-100n', 'collector-only', '3'), 'report_ids', 'global:0x170-0x1e0:WAR global:0x1e0-0x1e0:WAW', 'global:0xd0-0x1e0:WAR global:0x170-0x1e0:WAR global:0x1e0-0x1e0:WAW')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-100n', 'collector-only', '3'), 'report_lines', 'BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFie', 'BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFie')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-100n', 'collector-only', '3'), 'classes', 'race:2', 'race:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-1296n', 'collector-only', '1'), 'reports_dedup', '2', '3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-1296n', 'collector-only', '1'), 'report_ids', 'global:0x170-0x1e0:RAW global:0x1e0-0x1e0:WAW', 'global:0xd0-0x1e0:WAR global:0x170-0x1e0:RAW global:0x1e0-0x1e0:WAW')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-1296n', 'collector-only', '1'), 'report_lines', 'BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFie', 'BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFie')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-1296n', 'collector-only', '1'), 'classes', 'race:2', 'race:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-1296n', 'collector-only', '2'), 'reports_dedup', '2', '3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-1296n', 'collector-only', '2'), 'report_ids', 'global:0x170-0x1e0:RAW global:0x1e0-0x1e0:WAW', 'global:0xd0-0x1e0:WAR global:0x170-0x1e0:RAW global:0x1e0-0x1e0:WAW')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-1296n', 'collector-only', '2'), 'report_lines', 'BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFie', 'BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFie')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-1296n', 'collector-only', '2'), 'classes', 'race:2', 'race:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-1296n', 'collector-only', '3'), 'reports_dedup', '2', '3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-1296n', 'collector-only', '3'), 'report_ids', 'global:0x170-0x1e0:RAW global:0x1e0-0x1e0:WAW', 'global:0xd0-0x1e0:WAR global:0x170-0x1e0:RAW global:0x1e0-0x1e0:WAW')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-1296n', 'collector-only', '3'), 'report_lines', 'BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFie', 'BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFie')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_NonPersist_RaceBug_NoExcessThreadsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-1296n', 'collector-only', '3'), 'classes', 'race:2', 'race:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_Persist_Atomic_NoBoundsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-100n', 'collector-only', '1'), 'classes', 'sc:2', 'sc:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_Persist_Atomic_NoBoundsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-100n', 'collector-only', '2'), 'classes', 'sc:2', 'sc:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_Persist_Atomic_NoBoundsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-100n', 'collector-only', '3'), 'classes', 'sc:2', 'sc:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_Persist_Atomic_NoBoundsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-1296n', 'collector-only', '1'), 'classes', 'sc:2', 'sc:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_Persist_Atomic_NoBoundsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-1296n', 'collector-only', '2'), 'classes', 'sc:2', 'sc:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_Persist_Atomic_NoBoundsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-1296n', 'collector-only', '3'), 'classes', 'sc:2', 'sc:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_Persist_CudaAtomic_NoBoundsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-100n', 'collector-only', '1'), 'classes', 'sc:2', 'sc:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_Persist_CudaAtomic_NoBoundsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-100n', 'collector-only', '2'), 'classes', 'sc:2', 'sc:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_Persist_CudaAtomic_NoBoundsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-100n', 'collector-only', '3'), 'classes', 'sc:2', 'sc:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_Persist_CudaAtomic_NoBoundsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-1296n', 'collector-only', '1'), 'classes', 'sc:2', 'sc:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_Persist_CudaAtomic_NoBoundsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-1296n', 'collector-only', '2'), 'classes', 'sc:2', 'sc:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_Persist_CudaAtomic_NoBoundsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-default-1296n', 'collector-only', '3'), 'classes', 'sc:2', 'sc:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_Persist_CudaAtomic_NoBoundsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-100n', 'collector-only', '1'), 'classes', 'sc:2', 'sc:3')
+  (('P1-BFS_CUDA_E_Data_IntType_ReadWrite_Persist_CudaAtomic_NoBoundsBug_NoLivelockBug_NonDeterm_NoUninitializedBug_NoFieldBug_NoOverflowBug-slower_atomic-100n', 'collector-only', '2'), 'classes', 'sc:2', 'sc:3')

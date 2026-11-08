@@ -1,0 +1,57 @@
+{
+  "id": "PI-conditional_edge_neighbor_boundsBug_last_cond_guardBug_atomicBug-power_law_200n_1000e",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "global:0x130-0x160:WAR",
+    "global:0x160-0x160:WAW"
+  ],
+  "pcs": [
+    304,
+    352
+  ],
+  "lines": "conditional_edge_neighbor_boundsBug_last_cond_guardBug_atomicBug.cu:54;conditional_edge_neighbor_boundsBug_last_cond_guardBug_atomicBug.cu:56",
+  "raw": [
+    {
+      "a_pc": 304,
+      "b_pc": 352,
+      "space": "global",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    },
+    {
+      "a_pc": 352,
+      "b_pc": 352,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "304": "conditional_edge_neighbor_boundsBug_last_cond_guardBug_atomicBug.cu:54",
+    "352": "conditional_edge_neighbor_boundsBug_last_cond_guardBug_atomicBug.cu:56"
+  }
+}

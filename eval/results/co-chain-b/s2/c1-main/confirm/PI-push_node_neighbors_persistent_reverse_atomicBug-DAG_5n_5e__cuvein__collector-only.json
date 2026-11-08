@@ -1,0 +1,105 @@
+{
+  "id": "PI-push_node_neighbors_persistent_reverse_atomicBug-DAG_5n_5e",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "global:0x1a0-0x1d0:WAR",
+    "global:0x1d0-0x1d0:WAW",
+    "global:0x230-0x260:WAR",
+    "global:0x260-0x260:WAW"
+  ],
+  "pcs": [
+    416,
+    464,
+    560,
+    608
+  ],
+  "lines": "push_node_neighbors_persistent_reverse_atomicBug.cu:52",
+  "raw": [
+    {
+      "a_pc": 416,
+      "b_pc": 464,
+      "space": "global",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain_rescue",
+      "chain_path": [
+        "0x1a0",
+        "0x1a0",
+        "0x1d0"
+      ],
+      "async": false,
+      "atomic_chain_off": false
+    },
+    {
+      "a_pc": 464,
+      "b_pc": 464,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    },
+    {
+      "a_pc": 560,
+      "b_pc": 608,
+      "space": "global",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain_rescue",
+      "chain_path": [
+        "0x230",
+        "0x230",
+        "0x260"
+      ],
+      "async": false,
+      "atomic_chain_off": false
+    },
+    {
+      "a_pc": 608,
+      "b_pc": 608,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "416": "push_node_neighbors_persistent_reverse_atomicBug.cu:52",
+    "560": "push_node_neighbors_persistent_reverse_atomicBug.cu:52",
+    "608": "push_node_neighbors_persistent_reverse_atomicBug.cu:52",
+    "464": "push_node_neighbors_persistent_reverse_atomicBug.cu:52"
+  }
+}

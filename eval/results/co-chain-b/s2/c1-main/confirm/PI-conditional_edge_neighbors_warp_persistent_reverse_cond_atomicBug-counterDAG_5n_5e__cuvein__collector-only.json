@@ -1,0 +1,57 @@
+{
+  "id": "PI-conditional_edge_neighbors_warp_persistent_reverse_cond_atomicBug-counterDAG_5n_5e",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "global:0x6d0-0x710:RAW",
+    "global:0x710-0x710:WAW"
+  ],
+  "pcs": [
+    1744,
+    1808
+  ],
+  "lines": "conditional_edge_neighbors_warp_persistent_reverse_cond_atomicBug.cu:63",
+  "raw": [
+    {
+      "a_pc": 1744,
+      "b_pc": 1808,
+      "space": "global",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    },
+    {
+      "a_pc": 1808,
+      "b_pc": 1808,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "1744": "conditional_edge_neighbors_warp_persistent_reverse_cond_atomicBug.cu:63",
+    "1808": "conditional_edge_neighbors_warp_persistent_reverse_cond_atomicBug.cu:63"
+  }
+}

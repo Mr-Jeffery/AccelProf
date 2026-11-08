@@ -1,0 +1,108 @@
+# assert_no_hb: no hb_* key reaches the collector-only verdict layer (step 3)
+
+## 1. Stripped copy (c6b_s3_strip.py)
+ids 4725, kernel JSONs 21636, bytes in 887845183, bytes out 824848027, errors 0, ids without a scalar-clock directory 18.
+hb_* keys deleted (dicts at any depth; each file is re-walked after deletion and asserted to hold none):
+  top:hb_aggregates: 21636
+  top:hb_async: 21636
+  top:hb_events_count: 21636
+  top:hb_exits: 21636
+  top:hb_lanes_count: 21636
+  top:hb_rmw_points: 21636
+  top:hb_stats: 21636
+  top:hb_sync_pass: 21636
+nested hb_* keys (below the top level) deleted outside the removed top-level subtrees: 0
+
+## 2. Guarded loader, dynamic result over the three runs
+Every kernel JSON is parsed with an object_hook that raises HbGuardError on a dict holding an hb_* key, and into a dict subclass whose
+__getitem__/get/__contains__/pop/setdefault raise on an hb_* key that is PRESENT. A probe of an ABSENT hb_* key is counted per call site (the
+unmodified verdict layer probes such keys on every dump, collector-only recordings included; the answer is the key-absent default).
+
+run s1: sd.analyze calls 24271; value reads / hb keys present in memory (assert == 0): 0; probes of absent hb_* keys: 153786
+    sync_dominance.py:1108|hb_events: 7990
+    sync_dominance.py:1170|hb_events: 21636
+    sync_dominance.py:1608|hb_races: 21636
+    sync_dominance.py:1638|hb_races_sync_only: 21636
+    sync_dominance.py:227|hb_events: 29626
+    sync_dominance.py:251|hb_sync_pass: 21636
+    sync_dominance.py:263|hb_rmw_points: 7990
+    sync_dominance.py:321|hb_async: 21636
+run s2: sd.analyze calls 24271; value reads / hb keys present in memory (assert == 0): 0; probes of absent hb_* keys: 153786
+    sync_dominance.py:1108|hb_events: 7990
+    sync_dominance.py:1170|hb_events: 21636
+    sync_dominance.py:1608|hb_races: 21636
+    sync_dominance.py:1638|hb_races_sync_only: 21636
+    sync_dominance.py:227|hb_events: 29626
+    sync_dominance.py:251|hb_sync_pass: 21636
+    sync_dominance.py:263|hb_rmw_points: 7990
+    sync_dominance.py:321|hb_async: 21636
+run cfg: sd.analyze calls 24271; value reads / hb keys present in memory (assert == 0): 0; probes of absent hb_* keys: 153786
+    sync_dominance.py:1108|hb_events: 7990
+    sync_dominance.py:1170|hb_events: 21636
+    sync_dominance.py:1608|hb_races: 21636
+    sync_dominance.py:1638|hb_races_sync_only: 21636
+    sync_dominance.py:227|hb_events: 29626
+    sync_dominance.py:251|hb_sync_pass: 21636
+    sync_dominance.py:263|hb_rmw_points: 7990
+    sync_dominance.py:321|hb_async: 21636
+
+Strict demonstration (S3_STRICT=1, P5-canary, one worker): the unmodified analysis raises at its first probe of an absent key -> strict mode cannot be run through to a verdict without changing sync_dominance.py:
+    HbGuardError:STRICT: probe of hb key 'hb_async' at sync_dominance.py:321;chain=1
+
+## 3. Static grep: hb_ literals in the modules the collector-only path imports
+modules (transitive local imports from parallel.py / run_cuvein.py / blib.py / sync_dominance.py): parallel.py, run_cuvein.py, blib.py, sync_dominance.py, aggregate.py, host_hb.py, hb_modes.py, hb_oracle.py
+
+### prefix test (dump detection): 1 lines
+  python/sync_dominance.py:1561: co_dump = not any(k.startswith("hb_") for k in trace)
+
+### key read / probe: 45 lines
+  eval/baselines/parallel.py:306: meta["hb_dump"] = blib.hb_dump()     # T4: 0 = recorded without hb_events (aggregates only)
+  eval/baselines/parallel.py:308: meta["hb_shards"] = {VC: 0, SC: blib.hb_shards()}
+  eval/baselines/parallel.py:438: events += len(t.get("hb_events") or ()) or int(t.get("hb_events_count") or 0)
+  eval/baselines/run_cuvein.py:343: if v.get("model_bug") or v.get("hb_class") == "model_bug":
+  eval/baselines/run_cuvein.py:358: c = v.get("matrix_class", v.get("hb_class")) or "race"
+  eval/baselines/run_cuvein.py:367: s[3] = s[3] or (f is True and c == "structural" and not v.get("hb_chain"))
+  eval/baselines/run_cuvein.py:379: "hb_class": v.get("hb_class"), "hb_chain": v.get("hb_chain"),
+  eval/baselines/run_cuvein.py:386: "hb_class": v.get("hb_class"), "hb_chain": v.get("hb_chain"),
+  python/sync_dominance.py:166: return gate_mode(gate or os.environ.get("CUVEIN_GATE") or trace.get("hb_gate") or "trusting")
+  python/sync_dominance.py:204: p = trace.get("hb_gate_policy")
+  python/sync_dominance.py:206: for r in trace.get("hb_races") or ():
+  python/sync_dominance.py:227: if not trace.get("hb_events"):
+  python/sync_dominance.py:231: return "hb_sync_pass" in trace or "hb_rmw_points" in trace or \
+  python/sync_dominance.py:238: ev = trace.get("hb_events")
+  python/sync_dominance.py:239: return len(ev) if ev else int(trace.get("hb_events_count") or 0)
+  python/sync_dominance.py:244: ev = trace.get("hb_events")
+  python/sync_dominance.py:245: return sum(len(e.get("lanes", ())) for e in ev) if ev else int(trace.get("hb_lanes_count") or 0)
+  python/sync_dominance.py:251: sp = trace.get("hb_sync_pass")
+  python/sync_dominance.py:263: rp = trace.get("hb_rmw_points")
+  python/sync_dominance.py:321: return async_pcs(eng) if trace.get("hb_async") else set()
+  python/sync_dominance.py:1108: events = trace.get("hb_events")
+  python/sync_dominance.py:1170: events = trace.get("hb_events")
+  python/sync_dominance.py:1346: if tv_out is not None and trace.get("hb_exits") and pending:
+  python/sync_dominance.py:1351: if tv_out is not None and trace.get("hb_exits") and pending_sw:   # T24
+  python/sync_dominance.py:1608: hb_races = trace.get("hb_races")
+  python/sync_dominance.py:1638: sync_only = trace.get("hb_races_sync_only")
+  python/sync_dominance.py:2008: "hb_classes": {c: sum(v["hb_class"] == c for v in verdicts)
+  python/sync_dominance.py:2043: elif v["verdict"] == "RACE" and v["hb_chain"]:
+  python/sync_dominance.py:2044: via = " (PC-level hb " + "->".join(v["hb_chain"]) + " refuted by dynamic HB)"
+  python/sync_dominance.py:2045: elif v["hb_chain"]:
+  python/sync_dominance.py:2046: via = " via hb(" + "->".join(v["hb_chain"]) + ")"
+  python/sync_dominance.py:2047: elif v.get("hb_class") == "barrier-ordered":
+  python/sync_dominance.py:2060: cls = f" {v['hb_class']}" if v.get("hb_class") else ""
+  eval/aggregate.py:115: hb_races = d.get("hb_races")
+  eval/aggregate.py:143: elif not args.oracle or hb_oracle is None or not d.get("hb_events"):
+  eval/aggregate.py:162: structural = sum(v.get("hb_class") == "structural" for v in verdicts)
+  eval/aggregate.py:163: latent = sum(v.get("hb_class") == "latent" for v in verdicts)
+  eval/aggregate.py:164: tv_violations = sum(v.get("hb_class") == "model_bug" or bool(v.get("model_bug"))
+  eval/aggregate.py:166: benign = sum(v.get("hb_class") == "benign" for v in verdicts)
+  eval/aggregate.py:167: warp_po = sum(v.get("hb_class") == "warp-po-ordered" for v in verdicts)
+  python/host_hb.py:83: events = trace.get("hb_events")
+  python/host_hb.py:100: for e in sorted(trace.get("hb_events") or (), key=lambda e: e["seq"]):
+  python/hb_oracle.py:201: events = sorted(trace.get("hb_events", []), key=lambda e: e["seq"])
+  python/hb_oracle.py:923: if strict and trace.get("hb_exits") and open_segs:
+  python/hb_oracle.py:930: if strict and trace.get("hb_exits") and pending_sw:
+
+other lines mentioning hb_ (comments, docstrings, identifiers such as hb_modes / hb_class / hb_chain): eval/aggregate.py 18, eval/baselines/blib.py 18, eval/baselines/parallel.py 9, eval/baselines/run_cuvein.py 16, python/hb_modes.py 11, python/hb_oracle.py 18, python/host_hb.py 3, python/sync_dominance.py 74
+
+Cross-check: dynamic probe sites 8; of them in the static key-read/prefix list: 8; not in it: []
+Static key-read lines never probed in the three runs: [('aggregate.py', 115), ('aggregate.py', 143), ('aggregate.py', 162), ('aggregate.py', 163), ('aggregate.py', 164), ('aggregate.py', 166), ('aggregate.py', 167), ('hb_oracle.py', 201), ('hb_oracle.py', 923), ('hb_oracle.py', 930), ('host_hb.py', 83), ('host_hb.py', 100), ('parallel.py', 306), ('parallel.py', 308), ('parallel.py', 438), ('run_cuvein.py', 343), ('run_cuvein.py', 358), ('run_cuvein.py', 367), ('run_cuvein.py', 379), ('run_cuvein.py', 386), ('sync_dominance.py', 166), ('sync_dominance.py', 204), ('sync_dominance.py', 206), ('sync_dominance.py', 231), ('sync_dominance.py', 238), ('sync_dominance.py', 239), ('sync_dominance.py', 244), ('sync_dominance.py', 245), ('sync_dominance.py', 1346), ('sync_dominance.py', 1351), ('sync_dominance.py', 1561), ('sync_dominance.py', 2008), ('sync_dominance.py', 2043), ('sync_dominance.py', 2044), ('sync_dominance.py', 2045), ('sync_dominance.py', 2046), ('sync_dominance.py', 2047), ('sync_dominance.py', 2060)]

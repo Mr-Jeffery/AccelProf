@@ -1,0 +1,77 @@
+{
+  "id": "PI-populate_worklist_neighbors_persistent_atomicBug_break-DAG_100n_200e",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "global:0x1a0-0x1d0:RAW",
+    "global:0x1d0-0x1d0:WAW",
+    "global:0x1e0-0x1e0:WAW"
+  ],
+  "pcs": [
+    416,
+    464,
+    480
+  ],
+  "lines": "populate_worklist_neighbors_persistent_atomicBug_break.cu:52;populate_worklist_neighbors_persistent_atomicBug_break.cu:53",
+  "raw": [
+    {
+      "a_pc": 416,
+      "b_pc": 464,
+      "space": "global",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    },
+    {
+      "a_pc": 464,
+      "b_pc": 464,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    },
+    {
+      "a_pc": 480,
+      "b_pc": 480,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "416": "populate_worklist_neighbors_persistent_atomicBug_break.cu:52",
+    "480": "populate_worklist_neighbors_persistent_atomicBug_break.cu:53",
+    "464": "populate_worklist_neighbors_persistent_atomicBug_break.cu:52"
+  }
+}

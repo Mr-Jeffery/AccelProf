@@ -1,0 +1,37 @@
+{
+  "id": "P6-memcpy-shared_writewrite_race-racy",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0x70-0x70:WAW"
+  ],
+  "pcs": [
+    112
+  ],
+  "lines": "shared_writewrite_race.cu:54",
+  "raw": [
+    {
+      "a_pc": 112,
+      "b_pc": 112,
+      "space": "shared",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "112": "shared_writewrite_race.cu:54"
+  }
+}

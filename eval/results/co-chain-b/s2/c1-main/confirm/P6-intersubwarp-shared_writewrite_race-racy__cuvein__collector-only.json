@@ -1,0 +1,39 @@
+{
+  "id": "P6-intersubwarp-shared_writewrite_race-racy",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0x120-0x160:WAW"
+  ],
+  "pcs": [
+    288,
+    352
+  ],
+  "lines": "shared_writewrite_race.cu:54;shared_writewrite_race.cu:67",
+  "raw": [
+    {
+      "a_pc": 288,
+      "b_pc": 352,
+      "space": "shared",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null,
+      "async": false,
+      "atomic_chain_off": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "288": "shared_writewrite_race.cu:67",
+    "352": "shared_writewrite_race.cu:54"
+  }
+}
