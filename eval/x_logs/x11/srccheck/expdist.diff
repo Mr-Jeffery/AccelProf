@@ -1,0 +1,57 @@
+diff --git a/src/expdist-cuda/CMakeLists.txt b/src/expdist-cuda/CMakeLists.txt
+new file mode 100644
+index 00000000..37a1cb4e
+--- /dev/null
++++ b/src/expdist-cuda/CMakeLists.txt
+@@ -0,0 +1,8 @@
++# expdist-cuda/CMakeLists.txt
++
++add_hecbench_benchmark(
++    NAME expdist
++    MODEL cuda
++    SOURCES main.cu
++    CATEGORIES algorithms
++)
+diff --git a/src/expdist-cuda/Makefile b/src/expdist-cuda/Makefile
+index 4f9ea75a..28886acd 100644
+--- a/src/expdist-cuda/Makefile
++++ b/src/expdist-cuda/Makefile
+@@ -7,7 +7,7 @@ CC        = nvcc
+ OPTIMIZE  = yes
+ DEBUG     = no
+ ARCH      = sm_60
+-LAUNCHER  =
++LAUNCHER  ?=
+ 
+ #===============================================================================
+ # Program name & source code list
+@@ -24,7 +24,7 @@ obj = $(source:.cu=.o)
+ #===============================================================================
+ 
+ # Standard Flags
+-CFLAGS := $(EXTRA_CFLAGS) -std=c++14 -Xcompiler -Wall -arch=$(ARCH)
++CFLAGS := $(EXTRA_CFLAGS) -std=c++17 -Xcompiler -Wall -arch=$(ARCH)
+ 
+ # Linker Flags
+ LDFLAGS = 
+diff --git a/src/expdist-cuda/kernel.h b/src/expdist-cuda/kernel.h
+index 810aa0fe..2ce8edc3 100644
+--- a/src/expdist-cuda/kernel.h
++++ b/src/expdist-cuda/kernel.h
+@@ -64,10 +64,14 @@ void distance_tiled(
+   #pragma unroll
+   for (int d=0; d<dim; d++) {
+     fill_shared_mem_tiled_1D<tile_size_x, block_size_x>(sh_A[d], A+d*m, tx, i);
+-    fill_shared_mem_tiled_1D<tile_size_y, block_size_y>(sh_B[d], B+d*n, ty, j);
++    if (tx == 0)
++      fill_shared_mem_tiled_1D<tile_size_y, block_size_y>(sh_B[d], B+d*n, ty, j);
+   }
+   fill_shared_mem_tiled_1D<tile_size_x, block_size_x>(sh_scale_A, scale_A, tx, i);
+-  fill_shared_mem_tiled_1D<tile_size_y, block_size_y>(sh_scale_B, scale_B, ty, j);
++  if (tx == 0)
++    fill_shared_mem_tiled_1D<tile_size_y, block_size_y>(sh_scale_B, scale_B, ty, j);
++
++  __syncthreads();
+ 
+   T s_cross_term = 0.0;
+   #pragma unroll

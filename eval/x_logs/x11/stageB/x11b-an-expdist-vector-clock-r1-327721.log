@@ -1,0 +1,7 @@
+host=c39 mem=125G job=327721 app=expdist tool=vector-clock run=1 tag=x11b-vector-clock-expdist-r1 harness=94fde7322c25 2026-11-06T20:04:01-05:00
+[analyze] /home/fzheng4/AccelProf/.env/bin/python /home/fzheng4/wt-x1b/eval/baselines/parallel.py analyze --manifest /mnt/beegfs/fzheng4/x11_work/runtree-x11b-vector-clock-expdist-r1/manifest.csv --id X11-expdist --confirm --confirm-dir /home/fzheng4/wt-x11/eval/x_logs/x11/stageB/x11b-vector-clock-expdist-r1/confirm --tag x11b-vector-clock-expdist-r1 --results-dir /home/fzheng4/wt-x11/eval/x_logs/x11/stageB/x11b-vector-clock-expdist-r1 --analysis-timeout 13800
+[analyze 1] X11-expdist
+analyze: 1 programs -> /home/fzheng4/wt-x11/eval/x_logs/x11/stageB/x11b-vector-clock-expdist-r1/baselines-cuvein-shardx11b-vector-clock-expdist-r1all.csv
+[analyze] parallel.py analyze rc=0
+[partial] {"id": "X11-expdist", "mode": "vector-clock", "store": "/mnt/beegfs/fzheng4/cuvein_traces/x11b-vector-clock-expdist-r1/X11-expdist", "partial_dirs": [{"dir": "vector-clock-partial-rep1", "kernel_jsons": 4, "dropped_truncated": [], "partial_marker": "{\"wall\": 84600.014, \"peak_mb\": 33105.0, \"rc\": 124, \"timed_out\": true, \"nkernels\": 4, \"dump_mb\": 15050.2, \"complete\": false, \"err\": \"./expdist 10000 10\\nRunning the pc_dependency_analysis tool for expdist...\", \"mode\": \"vector-clock\", \"rep\": 1, \"note\": \"timed-out rep: prefix of the run, last kernel JS", "reports": 0, "repo
+== done rc=0 2026-11-06T20:10:01-05:00

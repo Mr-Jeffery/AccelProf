@@ -1,0 +1,177 @@
+diff --git a/src/atomicCAS-cuda/CMakeLists.txt b/src/atomicCAS-cuda/CMakeLists.txt
+new file mode 100644
+index 00000000..c9a4c64b
+--- /dev/null
++++ b/src/atomicCAS-cuda/CMakeLists.txt
+@@ -0,0 +1,8 @@
++# atomicCAS-cuda/CMakeLists.txt
++
++add_hecbench_benchmark(
++    NAME atomicCAS
++    MODEL cuda
++    SOURCES main.cu
++    CATEGORIES algorithms
++)
+diff --git a/src/atomicCAS-cuda/Makefile b/src/atomicCAS-cuda/Makefile
+index 5a44e7df..525538f8 100644
+--- a/src/atomicCAS-cuda/Makefile
++++ b/src/atomicCAS-cuda/Makefile
+@@ -7,7 +7,7 @@ CC        = nvcc
+ OPTIMIZE  = yes
+ DEBUG     = no
+ ARCH      = sm_60
+-LAUNCHER  =
++LAUNCHER  ?=
+ 
+ #===============================================================================
+ # Program name & source code list
+@@ -24,7 +24,7 @@ obj = $(source:.cu=.o)
+ #===============================================================================
+ 
+ # Standard Flags
+-CFLAGS := $(EXTRA_CFLAGS) -std=c++14 -Xcompiler -Wall -arch=$(ARCH)
++CFLAGS := $(EXTRA_CFLAGS) -std=c++17 -Xcompiler -Wall -arch=$(ARCH)
+ 
+ # Linker Flags
+ LDFLAGS = 
+diff --git a/src/atomicCAS-cuda/kernels.h b/src/atomicCAS-cuda/kernels.h
+index 1e178658..afd4d9f1 100644
+--- a/src/atomicCAS-cuda/kernels.h
++++ b/src/atomicCAS-cuda/kernels.h
+@@ -2,7 +2,13 @@
+ __device__ __forceinline__
+ long long atomic_min(long long *address, long long val)
+ {
++  #if CUDA_VERSION >= 12080
++  long long ret = __nv_atomic_load_n(address, __NV_ATOMIC_RELAXED);
++  #elif __HIPCC__
++  long long ret = __atomic_load_n(address, __ATOMIC_RELAXED);
++  #else
+   long long ret = *address;
++  #endif
+   while(val < ret)
+   {
+     long long old = ret;
+@@ -16,7 +22,13 @@ long long atomic_min(long long *address, long long val)
+ __device__ __forceinline__
+ unsigned long long atomic_min(unsigned long long *address, unsigned long long val)
+ {
++  #if CUDA_VERSION >= 12080
++  unsigned long long ret = __nv_atomic_load_n(address, __NV_ATOMIC_RELAXED);
++  #elif __HIPCC__
++  unsigned long long ret = __atomic_load_n(address, __ATOMIC_RELAXED);
++  #else
+   unsigned long long ret = *address;
++  #endif
+   while(val < ret)
+   {
+     unsigned long long old = ret;
+@@ -30,7 +42,14 @@ unsigned long long atomic_min(unsigned long long *address, unsigned long long va
+ __device__ __forceinline__
+ long long atomic_add(long long *address, long long val)
+ {
+-  long long old, newdbl, ret = *address;
++  long long old, newdbl;
++  #if CUDA_VERSION >= 12080
++  long long ret = __nv_atomic_load_n(address, __NV_ATOMIC_RELAXED);
++  #elif __HIPCC__
++  long long ret = __atomic_load_n(address, __ATOMIC_RELAXED);
++  #else
++  long long ret = *address;
++  #endif
+   do {
+     old = ret;
+     newdbl = old+val;
+@@ -42,7 +61,13 @@ long long atomic_add(long long *address, long long val)
+ __device__ __forceinline__
+ long long atomic_max(long long *address, long long val)
+ {
++  #if CUDA_VERSION >= 12080
++  long long ret = __nv_atomic_load_n(address, __NV_ATOMIC_RELAXED);
++  #elif __HIPCC__
++  long long ret = __atomic_load_n(address, __ATOMIC_RELAXED);
++  #else
+   long long ret = *address;
++  #endif
+   while(val > ret)
+   {
+     long long old = ret;
+@@ -56,7 +81,13 @@ long long atomic_max(long long *address, long long val)
+ __device__ __forceinline__
+ unsigned long long atomic_max(unsigned long long *address, unsigned long long val)
+ {
++  #if CUDA_VERSION >= 12080
++  unsigned long long ret = __nv_atomic_load_n(address, __NV_ATOMIC_RELAXED);
++  #elif __HIPCC__
++  unsigned long long ret = __atomic_load_n(address, __ATOMIC_RELAXED);
++  #else
+   unsigned long long ret = *address;
++  #endif
+   while(val > ret)
+   {
+     unsigned long long old = ret;
+@@ -70,7 +101,14 @@ unsigned long long atomic_max(unsigned long long *address, unsigned long long va
+ __device__ __forceinline__
+ unsigned long long atomic_add(unsigned long long *address, unsigned long long val)
+ {
+-  unsigned long long old, newdbl, ret = *address;
++  unsigned long long old, newdbl;
++  #if CUDA_VERSION >= 12080
++  unsigned long long ret = __nv_atomic_load_n(address, __NV_ATOMIC_RELAXED);
++  #elif __HIPCC__
++  unsigned long long ret = __atomic_load_n(address, __ATOMIC_RELAXED);
++  #else
++  unsigned long long ret = *address;
++  #endif
+   do {
+     old = ret;
+     newdbl = old+val;
+@@ -86,7 +124,15 @@ unsigned long long atomic_add(unsigned long long *address, unsigned long long va
+ __device__ __forceinline__
+ double atomic_min(double *address, double val)
+ {
++  #if CUDA_VERSION >= 12080
++  unsigned long long ret = __nv_atomic_load_n((unsigned long long *)address,
++                                              __NV_ATOMIC_RELAXED);
++  #elif __HIPCC__
++  unsigned long long ret = __atomic_load_n((unsigned long long *)address,
++                                           __ATOMIC_RELAXED);
++  #else
+   unsigned long long ret = __double_as_longlong(*address);
++  #endif
+   while(val < __longlong_as_double(ret))
+   {
+     unsigned long long old = ret;
+@@ -100,7 +146,15 @@ double atomic_min(double *address, double val)
+ __device__ __forceinline__
+ double atomic_max(double *address, double val)
+ {
++  #if CUDA_VERSION >= 12080
++  unsigned long long ret = __nv_atomic_load_n((unsigned long long *)address,
++                                              __NV_ATOMIC_RELAXED);
++  #elif __HIPCC__
++  unsigned long long ret = __atomic_load_n((unsigned long long *)address,
++                                           __ATOMIC_RELAXED);
++  #else
+   unsigned long long ret = __double_as_longlong(*address);
++  #endif
+   while(val > __longlong_as_double(ret))
+   {
+     unsigned long long old = ret;
+@@ -116,7 +170,15 @@ double atomic_add(double *address, double val)
+ {
+   // Doing it all as longlongs cuts one __longlong_as_double from the inner loop
+   unsigned long long *ptr = (unsigned long long *)address;
+-  unsigned long long old, newdbl, ret = *ptr;
++
++  unsigned long long old, newdbl;
++  #if CUDA_VERSION >= 12080
++  unsigned long long ret = __nv_atomic_load_n(ptr, __NV_ATOMIC_RELAXED);
++  #elif __HIPCC__
++  unsigned long long ret = __atomic_load_n(ptr, __ATOMIC_RELAXED);
++  #else
++  unsigned long long ret = *ptr;
++  #endif
+   do {
+     old = ret;
+     newdbl = __double_as_longlong(__longlong_as_double(old)+val);

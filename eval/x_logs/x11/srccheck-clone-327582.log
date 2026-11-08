@@ -1,0 +1,103 @@
+Cloning into '/home/fzheng4/x11-work/HeCBench'...
+fatal: too many arguments
+
+usage: git cat-file <type> <object>
+   or: git cat-file (-e | -p) <object>
+   or: git cat-file (-t | -s) [--allow-unknown-type] <object>
+   or: git cat-file (--textconv | --filters)
+                    [<rev>:<path|tree-ish> | --path=<path|tree-ish> <rev>]
+   or: git cat-file (--batch | --batch-check | --batch-command) [--batch-all-objects]
+                    [--buffer] [--follow-symlinks] [--unordered]
+                    [--textconv | --filters] [-Z]
+
+Check object existence or emit object contents
+    -e                    check if <object> exists
+    -p                    pretty-print <object> content
+
+Emit [broken] object attributes
+    -t                    show object type (one of 'blob', 'tree', 'commit', 'tag', ...)
+    -s                    show object size
+    --[no-]allow-unknown-type
+                          allow -s and -t to work with broken/corrupt objects
+    --[no-]use-mailmap    use mail map file
+    --[no-]mailmap ...    alias of --use-mailmap
+
+Batch objects requested on stdin (or --batch-all-objects)
+    --batch[=<format>]    show full <object> or <rev> contents
+    --batch-check[=<format>]
+                          like --batch, but don't emit <contents>
+    -Z                    stdin and stdout is NUL-terminated
+    --batch-command[=<format>]
+                          read commands from stdin
+    --batch-all-objects   with --batch[-check]: ignores stdin, batches all known objects
+
+Change or optimize batch output
+    --[no-]buffer         buffer --batch output
+    --[no-]follow-symlinks
+                          follow in-tree symlinks
+    --[no-]unordered      do not order objects before emitting them
+
+Emit object (blob or tree) with conversion or filter (stand-alone, or with batch)
+    --textconv            run textconv on object's content
+    --filters             run filters on object's content
+    --[no-]path blob|tree use a <path> for (--textconv | --filters); Not with 'batch'
+
+6a8c46c4 2025-09-09T09:24:01-07:00 [keccaktreehash] update the benchmarks
+7d2d3c56 2026-09-01T13:56:32-04:00 Merge branch 'ORNL:master' into master
+commits in range: 5862
+=== atomicCAS
+2b73f4da 2026-08-17T10:45:57-07:00 [makefiles] allow LAUNCHER, CUDA_ARCH, HIP_ARCH, and SM to be set from the environment
+a3c11f79 2026-04-27T13:59:05-04:00 [atomicCAS-cuda/hip] try to address memory races
+55e02976 2026-04-02T14:39:36-04:00 [makefile] change the compile flags from c++14 to c++17 for CUDA and OpenMP programs
+6cc5eac0 2026-04-02T14:39:13-04:00 Add CMake support for 63 additional benchmarks (209 implementations)
+66f9eadf 2026-04-02T14:35:21-04:00 Add LAUNCHER for wrapping benchmarks in `run:` targets
+8fc336b5 2026-04-02T14:35:09-04:00 [lulesh] generate consistent pseudo-random numbers across different versions of the application for verification; fix compiler warnings for unused variables; update the list of header files
+=== dxtc2
+2b73f4da 2026-08-17T10:45:57-07:00 [makefiles] allow LAUNCHER, CUDA_ARCH, HIP_ARCH, and SM to be set from the environment
+55e02976 2026-04-02T14:39:36-04:00 [makefile] change the compile flags from c++14 to c++17 for CUDA and OpenMP programs
+568f1240 2026-04-02T14:39:27-04:00 [cmake_build] update build scripts for all CUDA benchmarks that do not depend on MPI and 3rd-party libraries
+f8e6ee87 2026-04-02T14:39:09-04:00 Add CMake support for 49 additional benchmarks (180 implementations)
+6e11c2bb 2026-04-02T14:38:35-04:00 [dxtc2] update the CUDA, HIP, and SYCL kernels to address https://github.com/zjin-lcf/HeCBench/issues/133
+557f37ba 2026-04-02T14:38:34-04:00 [dxtc2] update the benchmarks in addition to addressing the issues https://github.com/zjin-lcf/HeCBench/issues/131,https://github.com/zjin-lcf/HeCBench/issues/132
+00850447 2026-04-02T14:36:13-04:00 [dxtc2] address the issue #61; update the scripts to execute the program with two image sets
+=== knn
+2b73f4da 2026-08-17T10:45:57-07:00 [makefiles] allow LAUNCHER, CUDA_ARCH, HIP_ARCH, and SM to be set from the environment
+76f98105 2026-05-23T10:26:57-07:00 [knn] call the C++ chrono API for timing; include the SYCL queue instantiation in the timing
+22574e78 2026-04-17T14:00:33-04:00 [knn] address shared memory access to the same location
+55e02976 2026-04-02T14:39:36-04:00 [makefile] change the compile flags from c++14 to c++17 for CUDA and OpenMP programs
+2081af55 2026-04-02T14:39:07-04:00 Add CMake support for 44 additional benchmarks (147 implementations)
+4425c086 2026-04-02T14:38:14-04:00 [knn] display precision-based verification result
+8ad03d26 2026-04-02T14:37:52-04:00 [knn] update the header list
+66f9eadf 2026-04-02T14:35:21-04:00 Add LAUNCHER for wrapping benchmarks in `run:` targets
+8fc336b5 2026-04-02T14:35:09-04:00 [lulesh] generate consistent pseudo-random numbers across different versions of the application for verification; fix compiler warnings for unused variables; update the list of header files
+=== tridiagonal
+2b73f4da 2026-08-17T10:45:57-07:00 [makefiles] allow LAUNCHER, CUDA_ARCH, HIP_ARCH, and SM to be set from the environment
+6c4e3669 2026-08-04T13:29:35-05:00 [Makefile][clean] fix: scope rm globs to prevent deleting tracked files
+55e02976 2026-04-02T14:39:36-04:00 [makefile] change the compile flags from c++14 to c++17 for CUDA and OpenMP programs
+568f1240 2026-04-02T14:39:27-04:00 [cmake_build] update build scripts for all CUDA benchmarks that do not depend on MPI and 3rd-party libraries
+6cc5eac0 2026-04-02T14:39:13-04:00 Add CMake support for 63 additional benchmarks (209 implementations)
+3e6155de 2026-04-02T14:36:09-04:00 [tridiagonal] add the LAUNCHER command for all runs
+66f9eadf 2026-04-02T14:35:21-04:00 Add LAUNCHER for wrapping benchmarks in `run:` targets
+8fc336b5 2026-04-02T14:35:09-04:00 [lulesh] generate consistent pseudo-random numbers across different versions of the application for verification; fix compiler warnings for unused variables; update the list of header files
+=== expdist
+2b73f4da 2026-08-17T10:45:57-07:00 [makefiles] allow LAUNCHER, CUDA_ARCH, HIP_ARCH, and SM to be set from the environment
+3583b2c4 2026-04-17T13:03:09-04:00 [expdist] address memory access races in the kernels
+55e02976 2026-04-02T14:39:36-04:00 [makefile] change the compile flags from c++14 to c++17 for CUDA and OpenMP programs
+f8e6ee87 2026-04-02T14:39:09-04:00 Add CMake support for 49 additional benchmarks (180 implementations)
+692cba32 2026-04-02T14:36:46-04:00 [expdist] set the scale size properly
+66f9eadf 2026-04-02T14:35:21-04:00 Add LAUNCHER for wrapping benchmarks in `run:` targets
+8fc336b5 2026-04-02T14:35:09-04:00 [lulesh] generate consistent pseudo-random numbers across different versions of the application for verification; fix compiler warnings for unused variables; update the list of header files
+=== mr
+2b73f4da 2026-08-17T10:45:57-07:00 [makefiles] allow LAUNCHER, CUDA_ARCH, HIP_ARCH, and SM to be set from the environment
+f7d0d5b9 2026-04-02T14:39:52-04:00 [mr-cuda]  Static variables are not supported in acc routine in OpenMP
+55e02976 2026-04-02T14:39:36-04:00 [makefile] change the compile flags from c++14 to c++17 for CUDA and OpenMP programs
+6a2ab28e 2026-04-02T14:39:11-04:00 Add CMake support for 52 additional benchmarks (190 implementations)
+b1a8e1a2 2026-04-02T14:38:58-04:00 [mr] add an option to repeat kernel execution
+66f9eadf 2026-04-02T14:35:21-04:00 Add LAUNCHER for wrapping benchmarks in `run:` targets
+8fc336b5 2026-04-02T14:35:09-04:00 [lulesh] generate consistent pseudo-random numbers across different versions of the application for verification; fix compiler warnings for unused variables; update the list of header files
+177 /home/fzheng4/wt-x11/eval/x_logs/x11/srccheck/atomicCAS.diff
+2660 /home/fzheng4/wt-x11/eval/x_logs/x11/srccheck/dxtc2.diff
+118 /home/fzheng4/wt-x11/eval/x_logs/x11/srccheck/knn.diff
+46 /home/fzheng4/wt-x11/eval/x_logs/x11/srccheck/tridiagonal.diff
+57 /home/fzheng4/wt-x11/eval/x_logs/x11/srccheck/expdist.diff
+165 /home/fzheng4/wt-x11/eval/x_logs/x11/srccheck/mr.diff

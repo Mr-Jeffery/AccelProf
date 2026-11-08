@@ -1,0 +1,96 @@
+A collector-only overlap r1 327606
+A collector-only overlap r2 327607
+A collector-only overlap r3 327608
+A collector-only fpc r1 327609
+A collector-only fpc r2 327610
+A collector-only fpc r3 327611
+A collector-only gpp r1 327612
+A collector-only gpp r2 327613
+A collector-only gpp r3 327614
+A collector-only crs r1 327615
+A collector-only crs r2 327616
+A collector-only crs r3 327617
+A collector-only mr r1 327618
+A collector-only mr r2 327619
+A collector-only mr r3 327620
+A collector-only dxtc2 r1 327621
+A collector-only dxtc2 r2 327622
+A collector-only dxtc2 r3 327623
+A collector-only expdist r1 327624
+A collector-only expdist r2 327625
+A collector-only expdist r3 327626
+A collector-only knn r1 327627
+A collector-only knn r2 327628
+A collector-only knn r3 327629
+A collector-only tridiagonal r1 327630
+A collector-only tridiagonal r2 327631
+A collector-only tridiagonal r3 327632
+B mr racecheck r1 327633
+B mr racecheck r2 327634
+B mr racecheck r3 327635
+B mr iguard r1 327636
+B mr iguard r2 327637
+B mr iguard r3 327638
+B mr vector-clock r1 327639
+B mr vector-clock r2 327640
+B mr vector-clock r3 327641
+B mr scalar-clock r1 327642
+B mr scalar-clock r2 327643
+B mr scalar-clock r3 327644
+B dxtc2 racecheck r1 327645
+B dxtc2 racecheck r2 327646
+B dxtc2 racecheck r3 327647
+B dxtc2 iguard r1 327648
+B dxtc2 iguard r2 327649
+B dxtc2 iguard r3 327650
+B dxtc2 vector-clock r1 327651
+B dxtc2 vector-clock r2 327652
+B dxtc2 vector-clock r3 327653
+B dxtc2 scalar-clock r1 327654
+B dxtc2 scalar-clock r2 327655
+B dxtc2 scalar-clock r3 327656
+B expdist racecheck r1 327657
+B expdist racecheck r2 327658
+B expdist racecheck r3 327659
+B expdist iguard r1 327661
+B expdist iguard r2 327662
+B expdist iguard r3 327663
+B expdist vector-clock r1 327664
+B expdist scalar-clock r1 327665
+B tridiagonal racecheck r1 327666
+B tridiagonal iguard r1 327667
+B tridiagonal iguard r2 327668
+B tridiagonal iguard r3 327669
+B tridiagonal vector-clock r1 327670
+B tridiagonal scalar-clock r1 327671
+B atomicCAS racecheck r1 327672
+B atomicCAS racecheck r2 327673
+B atomicCAS racecheck r3 327674
+B atomicCAS iguard r1 327675
+B atomicCAS vector-clock r1 327676
+B atomicCAS scalar-clock r1 327677
+B knn racecheck r1 327678
+B knn iguard r1 327679
+B knn vector-clock r1 327680
+B knn scalar-clock r1 327681
+SMOKE overlap scalar-clock rec=327694 analysis=327695
+B2 mr vector-clock r1 rec=327696 analysis=327697
+B2 mr vector-clock r2 rec=327698 analysis=327699
+B2 mr vector-clock r3 rec=327700 analysis=327701
+B2 mr scalar-clock r1 rec=327702 analysis=327703
+B2 mr scalar-clock r2 rec=327704 analysis=327705
+B2 mr scalar-clock r3 rec=327706 analysis=327707
+B2 dxtc2 vector-clock r1 rec=327708 analysis=327709
+B2 dxtc2 vector-clock r2 rec=327710 analysis=327711
+B2 dxtc2 vector-clock r3 rec=327712 analysis=327713
+B2 dxtc2 scalar-clock r1 rec=327714 analysis=327715
+B2 dxtc2 scalar-clock r2 rec=327716 analysis=327717
+B2 dxtc2 scalar-clock r3 rec=327718 analysis=327719
+B2 expdist vector-clock r1 rec=327720 analysis=327721
+B2 expdist scalar-clock r1 rec=327722 analysis=327723
+B2 tridiagonal vector-clock r1 rec=327724 analysis=327725
+B2 tridiagonal scalar-clock r1 rec=327726 analysis=327727
+B2 knn vector-clock r1 rec=327728 analysis=327729
+B2 knn scalar-clock r1 rec=327730 analysis=327731
+GATE 327732 afterany:327606:327607:327608:327609:327610:327611:327612:327613:327614:327615:327616:327617:327695 (replaces 327682: now also waits for the smoke analysis 327695 and checks it)
+B3 2026-11-07T11:22:40-05:00 atomicCAS scalar-clock r1 rec=329004 analysis=329005 (Jeffery: resubmit; analysis with origin/cuVein 98371ee1 verdict code, 16 workers)
