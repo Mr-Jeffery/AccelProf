@@ -1,0 +1,137 @@
+host=c3 gpu=[NVIDIA GeForce RTX 4060 Ti, 8.9, 615.71.09] cpu=[AMD EPYC 9115 16-Core Processor] nproc=16 job=329126 reps=3 2026-11-07T13:27:33-05:00
+installed: libsanalyzer 5a20fd14ab6c6806 collector b746b4dd23e90f46 HEAD f551ca00947e
+new: libsanalyzer 31e4d53d367e693b collector 86473afa906669e5 worktree HEAD 98371ee1db65 dirty 5
+capture: shim 13af2850be2309d2 collector 32c379841cc17fc2 replay 0a53adee05384d95
+fatbin a2d7368bc1c61986
+== P6-interkernel-global_writewrite_race-racy
+  capture 3630730123 bytes
+  inst1 rep 1: 13.360 s 
+  inst1 rep 2: 14.733 s 
+  inst1 rep 3: 14.690 s 
+  P6-interkernel-global_writewrite_race-racy inst1 vs inst1 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  inst16 rep 1: 14.276 s 
+  inst16 rep 2: 14.038 s 
+  inst16 rep 3: 13.818 s 
+  P6-interkernel-global_writewrite_race-racy inst1 vs inst16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  new1 rep 1: 7.477 s 
+  new1 rep 2: 7.494 s 
+  new1 rep 3: 7.584 s 
+  P6-interkernel-global_writewrite_race-racy inst1 vs new1 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  new16 rep 1: 13.563 s 
+  new16 rep 2: 13.763 s 
+  new16 rep 3: 13.609 s 
+  P6-interkernel-global_writewrite_race-racy inst1 vs new16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  new16 [PCDEP_STATS] kernel_0 {"shards": 16, "records": 53125001, "entries": 53125000, "split_entries": 0, "drain_s": 1.09499, "route_s": 0.79165, "wait_s": 0.290426, "busy_s": [0.000619019, 0.000512645, 0.000480054, 0.000569931, 0.000608372, 0.000504134, 0.000615724, 0.000578145, 0.000555693, 0.000568238, 0.000525385, 0.000447634, 0.000479373, 0.000535293, 0.0367755, 1.07203], "stall_s": [0.8035
+== P9-overlap-cuda
+  capture 3892843157 bytes
+  inst1 rep 1: 12.936 s 
+  inst1 rep 2: 12.639 s 
+  inst1 rep 3: 13.056 s 
+  P9-overlap-cuda inst1 vs inst1 EQUAL kernels=20 bytes_equal=20 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  inst16 rep 1: 8.994 s 
+  inst16 rep 2: 8.995 s 
+  inst16 rep 3: 8.976 s 
+  P9-overlap-cuda inst1 vs inst16 EQUAL kernels=20 bytes_equal=20 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  new1 rep 1: 5.951 s 
+  new1 rep 2: 5.851 s 
+  new1 rep 3: 5.866 s 
+  P9-overlap-cuda inst1 vs new1 EQUAL kernels=20 bytes_equal=20 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  new16 rep 1: 9.034 s 
+  new16 rep 2: 9.023 s 
+  new16 rep 3: 9.024 s 
+  P9-overlap-cuda inst1 vs new16 EQUAL kernels=20 bytes_equal=20 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  new16 [PCDEP_STATS] kernel_0 {"shards": 16, "records": 655360, "entries": 524288, "split_entries": 0, "drain_s": 0.0565386, "route_s": 0.054016, "wait_s": 0.00235643, "busy_s": [0.0503787, 0.0512813, 0.0512766, 0.0500702, 0.0497783, 0.0504547, 0.0512073, 0.05003, 0.0501361, 0.0499876, 0.0501268, 0.0506289, 0.0502669, 0.0512424, 0.0512982, 0.050069], "stall_s": [0.00607896, 0.0051679, 0.00518538,
+  new16 [PCDEP_STATS] kernel_1 {"shards": 16, "records": 655360, "entries": 524288, "split_entries": 0, "drain_s": 0.0301061, "route_s": 0.0291539, "wait_s": 0.000748467, "busy_s": [0.00958203, 0.00961262, 0.0146901, 0.0106538, 0.0113551, 0.0147203, 0.0147217, 0.0147107, 0.0146827, 0.0099591, 0.0106585, 0.00961338, 0.0146893, 0.00970511, 0.0147063, 0.0146781], "stall_s": [0.0202267, 0.0201793, 0.0
+  new16 [PCDEP_STATS] kernel_2 {"shards": 16, "records": 655360, "entries": 524288, "split_entries": 0, "drain_s": 0.0296833, "route_s": 0.0287291, "wait_s": 0.000755097, "busy_s": [0.0107955, 0.00986214, 0.0148226, 0.00962947, 0.00955425, 0.0148277, 0.0148237, 0.0148298, 0.0148151, 0.00976402, 0.00956783, 0.00987876, 0.0148354, 0.00995578, 0.0148073, 0.0148114], "stall_s": [0.018853, 0.0194819, 0
+  new16 [PCDEP_STATS] kernel_3 {"shards": 16, "records": 655360, "entries": 524288, "split_entries": 0, "drain_s": 0.0301946, "route_s": 0.029227, "wait_s": 0.000767707, "busy_s": [0.0151665, 0.0152338, 0.0150596, 0.014959, 0.0149857, 0.0155224, 0.0154961, 0.0154458, 0.0155964, 0.0151972, 0.0149498, 0.0152785, 0.0155811, 0.015632, 0.0154481, 0.0151907], "stall_s": [0.0149819, 0.014859, 0.015097, 0
+  new16 [PCDEP_STATS] kernel_4 {"shards": 16, "records": 655360, "entries": 524288, "split_entries": 0, "drain_s": 0.0308235, "route_s": 0.0296871, "wait_s": 0.000939238, "busy_s": [0.0154251, 0.0134157, 0.0153304, 0.0148401, 0.0146416, 0.0152638, 0.0153126, 0.0151748, 0.0150262, 0.0153264, 0.0152313, 0.0145671, 0.0153247, 0.0149723, 0.0159484, 0.01525], "stall_s": [0.0151163, 0.0173886, 0.015217,
+== P9-crs-cuda
+  capture 2892925938 bytes
+  inst1 rep 1: 7.684 s 
+  inst1 rep 2: 7.726 s 
+  inst1 rep 3: 7.658 s 
+  P9-crs-cuda inst1 vs inst1 EQUAL kernels=50 bytes_equal=50 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  inst16 rep 1: 6.889 s 
+  inst16 rep 2: 6.850 s 
+  inst16 rep 3: 6.865 s 
+  P9-crs-cuda inst1 vs inst16 DIFFER kernels=50 bytes_equal=0 differ=50 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=381 dist_count_diffs=764 nodes_differ=0
+  new1 rep 1: 3.466 s 
+  new1 rep 2: 3.468 s 
+  new1 rep 3: 3.468 s 
+  P9-crs-cuda inst1 vs new1 EQUAL kernels=50 bytes_equal=50 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  new16 rep 1: 7.188 s 
+  new16 rep 2: 7.188 s 
+  new16 rep 3: 7.167 s 
+  P9-crs-cuda inst1 vs new16 EQUAL kernels=50 bytes_equal=50 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  new16 [PCDEP_STATS] kernel_0 {"shards": 16, "records": 49152, "entries": 56215, "split_entries": 0, "drain_s": 0.00722094, "route_s": 0.00593211, "wait_s": 0.00124944, "busy_s": [0.00534148, 0.00532145, 0.00484844, 0.0054008, 0.00531014, 0.00534172, 0.00534022, 0.00527486, 0.00533411, 0.00533933, 0.00532201, 0.00531983, 0.0052979, 0.00532132, 0.0053397, 0.0053346], "stall_s": [0.00184422, 0.0018
+  new16 [PCDEP_STATS] kernel_1 {"shards": 16, "records": 90112, "entries": 104559, "split_entries": 0, "drain_s": 0.00786442, "route_s": 0.00625264, "wait_s": 0.00158535, "busy_s": [0.00600291, 0.00601331, 0.00600962, 0.00600473, 0.00600194, 0.00632058, 0.00599755, 0.00601491, 0.00600845, 0.00601052, 0.00598892, 0.00521503, 0.00521062, 0.00600626, 0.00599301, 0.00601144], "stall_s": [0.00152218, 0
+  new16 [PCDEP_STATS] kernel_2 {"shards": 16, "records": 131072, "entries": 152253, "split_entries": 0, "drain_s": 0.00976758, "route_s": 0.00760277, "wait_s": 0.0021366, "busy_s": [0.00747361, 0.00738311, 0.00738822, 0.00738025, 0.00465125, 0.0073809, 0.00739497, 0.00738022, 0.00735196, 0.00737278, 0.00737907, 0.00678729, 0.00738188, 0.00822169, 0.00741214, 0.0073678], "stall_s": [0.00152066, 0.0
+  new16 [PCDEP_STATS] kernel_3 {"shards": 16, "records": 172032, "entries": 200504, "split_entries": 0, "drain_s": 0.0109704, "route_s": 0.00887959, "wait_s": 0.00204354, "busy_s": [0.00826633, 0.00829501, 0.00822637, 0.00834841, 0.00821744, 0.0082416, 0.00805172, 0.00824366, 0.00823186, 0.00821551, 0.00605284, 0.00821797, 0.00823378, 0.00975606, 0.00822095, 0.00820749], "stall_s": [0.00180507, 0.
+  new16 [PCDEP_STATS] kernel_4 {"shards": 16, "records": 68346, "entries": 106301, "split_entries": 0, "drain_s": 0.00883312, "route_s": 0.00408962, "wait_s": 0.00472383, "busy_s": [0.0073068, 0.00730849, 0.007044, 0.00730055, 0.00730188, 0.00730504, 0.00729668, 0.00728205, 0.00730516, 0.00730937, 0.00730768, 0.00728554, 0.00729523, 0.00729699, 0.00730449, 0.00730058], "stall_s": [0.0015064, 0.001
+== P7-bfs-cuda
+  capture 887261242 bytes
+  inst1 rep 1: 3.630 s 
+  inst1 rep 2: 3.677 s 
+  inst1 rep 3: 3.618 s 
+  P7-bfs-cuda inst1 vs inst1 EQUAL kernels=24 bytes_equal=24 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  inst16 rep 1: 2.557 s 
+  inst16 rep 2: 2.563 s 
+  inst16 rep 3: 2.588 s 
+  P7-bfs-cuda inst1 vs inst16 DIFFER kernels=24 bytes_equal=8 differ=16 only_in_a=0 only_in_b=0 edges_only_a=1 edges_only_b=1 edges_changed=465 dist_count_diffs=563 nodes_differ=0
+  new1 rep 1: 2.265 s 
+  new1 rep 2: 2.322 s 
+  new1 rep 3: 2.229 s 
+  P7-bfs-cuda inst1 vs new1 EQUAL kernels=24 bytes_equal=24 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  new16 rep 1: 2.709 s 
+  new16 rep 2: 2.705 s 
+  new16 rep 3: 2.713 s 
+  P7-bfs-cuda inst1 vs new16 EQUAL kernels=24 bytes_equal=24 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  new16 [PCDEP_STATS] kernel_0 {"shards": 16, "records": 62525, "entries": 31268, "split_entries": 0, "drain_s": 0.00630434, "route_s": 0.00368863, "wait_s": 0.0025758, "busy_s": [0.00479903, 0.00479488, 0.00479853, 0.00474797, 0.00507879, 0.00478866, 0.0047644, 0.00475348, 0.004752, 0.00478808, 0.0048007, 0.00474902, 0.00478477, 0.00478664, 0.00476884, 0.00477949], "stall_s": [0.00119347, 0.00119
+  new16 [PCDEP_STATS] kernel_1 {"shards": 16, "records": 62521, "entries": 31262, "split_entries": 0, "drain_s": 0.0053183, "route_s": 0.00286741, "wait_s": 0.00243418, "busy_s": [0.00397068, 0.00397158, 0.00398104, 0.00397728, 0.00397868, 0.00398808, 0.00398651, 0.00398215, 0.00396208, 0.00397314, 0.00396822, 0.00397929, 0.0039735, 0.00240846, 0.00396383, 0.00397773], "stall_s": [0.00131345, 0.00
+  new16 [PCDEP_STATS] kernel_2 {"shards": 16, "records": 62644, "entries": 31385, "split_entries": 0, "drain_s": 0.00293469, "route_s": 0.00234864, "wait_s": 0.000558085, "busy_s": [0.000868107, 0.00104012, 0.00106439, 0.000826517, 0.000882098, 0.00106203, 0.00106553, 0.000800487, 0.000836707, 0.00105693, 0.000879517, 0.00103135, 0.000884067, 0.000896468, 0.00111057, 0.00103199], "stall_s": [0.001
+  new16 [PCDEP_STATS] kernel_3 {"shards": 16, "records": 62616, "entries": 31338, "split_entries": 0, "drain_s": 0.00323447, "route_s": 0.00242271, "wait_s": 0.000786137, "busy_s": [0.000828246, 0.00103106, 0.00104682, 0.000871308, 0.000820137, 0.00106638, 0.00103953, 0.000865788, 0.000813336, 0.00101671, 0.000803987, 0.0010653, 0.000811866, 0.000797287, 0.00106145, 0.00105186], "stall_s": [0.0020
+  new16 [PCDEP_STATS] kernel_4 {"shards": 16, "records": 63276, "entries": 32016, "split_entries": 0, "drain_s": 0.00340466, "route_s": 0.00246951, "wait_s": 0.000906728, "busy_s": [0.00103502, 0.00104514, 0.0011397, 0.000937357, 0.00100221, 0.001113, 0.00105973, 0.000954358, 0.00101611, 0.00108423, 0.00101359, 0.00107645, 0.000996989, 0.00105259, 0.00109945, 0.00106776], "stall_s": [0.00192949, 0
+== P1-CC_CUDA_V_Topo_Pull_Determ_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-slower_atomic-1296n
+  capture 459875164 bytes
+  inst1 rep 1: 1.167 s 
+  inst1 rep 2: 1.175 s 
+  inst1 rep 3: 1.168 s 
+  P1-CC_CUDA_V_Topo_Pull_Determ_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-slower_atomic-1296n inst1 vs inst1 EQUAL kernels=15 bytes_equal=15 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  inst16 rep 1: 1.095 s 
+  inst16 rep 2: 1.091 s 
+  inst16 rep 3: 1.091 s 
+  P1-CC_CUDA_V_Topo_Pull_Determ_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-slower_atomic-1296n inst1 vs inst16 DIFFER kernels=15 bytes_equal=1 differ=14 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=167 dist_count_diffs=167 nodes_differ=0
+  new1 rep 1: 0.507 s 
+  new1 rep 2: 0.512 s 
+  new1 rep 3: 0.510 s 
+  P1-CC_CUDA_V_Topo_Pull_Determ_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-slower_atomic-1296n inst1 vs new1 EQUAL kernels=15 bytes_equal=15 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  new16 rep 1: 1.120 s 
+  new16 rep 2: 1.109 s 
+  new16 rep 3: 1.120 s 
+  P1-CC_CUDA_V_Topo_Pull_Determ_IntType_NonPersist_RaceBug_Block_NoNbrBoundsBug_NoExcessThreadsBug_NoFieldBug_NoLivelockBug-slower_atomic-1296n inst1 vs new16 EQUAL kernels=15 bytes_equal=15 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  new16 [PCDEP_STATS] kernel_0 {"shards": 16, "records": 131, "entries": 82, "split_entries": 0, "drain_s": 4.4151e-05, "route_s": 1.006e-05, "wait_s": 3.3071e-05, "busy_s": [1.749e-05, 1.541e-06, 1e-06, 1.27e-06, 5.9e-07, 1.88e-06, 7e-07, 3e-08, 8.3e-07, 9.9e-07, 1.19e-06, 1.15e-06, 1.46e-06, 7.5e-07, 4.8e-07, 1.2e-06], "stall_s": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "stats_keys": [2
+  new16 [PCDEP_STATS] kernel_1 {"shards": 16, "records": 109761, "entries": 94168, "split_entries": 0, "drain_s": 0.00380063, "route_s": 0.00339976, "wait_s": 0.000311322, "busy_s": [0.00143502, 0.00113964, 0.00102, 0.000713145, 0.000771557, 0.00131572, 0.000944628, 0.000746587, 0.000650266, 0.000990629, 0.000790988, 0.00105382, 0.00135815, 0.000655056, 0.000625886, 0.000711476], "stall_s": [0.002
+  new16 [PCDEP_STATS] kernel_2 {"shards": 16, "records": 122266, "entries": 106953, "split_entries": 0, "drain_s": 0.0048275, "route_s": 0.00438303, "wait_s": 0.000389393, "busy_s": [0.001301, 0.000953457, 0.000562075, 0.000392543, 0.000584585, 0.000900798, 0.000572445, 0.000410734, 0.000333433, 0.000778427, 0.000595976, 0.000616815, 0.00123943, 0.000486844, 0.000289843, 0.000258262], "stall_s": [
+  new16 [PCDEP_STATS] kernel_3 {"shards": 16, "records": 120694, "entries": 105274, "split_entries": 0, "drain_s": 0.00443875, "route_s": 0.00408522, "wait_s": 0.000308603, "busy_s": [0.00140862, 0.000912068, 0.000545785, 0.000355845, 0.000634346, 0.000794797, 0.000520364, 0.000366253, 0.000336582, 0.000845188, 0.000553315, 0.000574235, 0.000904278, 0.000328033, 0.000350423, 0.000315164], "stall_s
+  new16 [PCDEP_STATS] kernel_4 {"shards": 16, "records": 120442, "entries": 105231, "split_entries": 0, "drain_s": 0.00439796, "route_s": 0.00398546, "wait_s": 0.000366474, "busy_s": [0.00132942, 0.000936568, 0.000439664, 0.000293722, 0.000581495, 0.000683846, 0.000427244, 0.000382773, 0.000318253, 0.000770357, 0.000596764, 0.000411844, 0.000577465, 0.000344543, 0.000274533, 0.000283512], "stall_s
+== P7-backprop-cuda
+  capture 302732828 bytes
+  inst1 rep 1: 0.899 s 
+  inst1 rep 2: 0.904 s 
+  inst1 rep 3: 0.894 s 
+  P7-backprop-cuda inst1 vs inst1 EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  inst16 rep 1: 0.699 s 
+  inst16 rep 2: 0.700 s 
+  inst16 rep 3: 0.701 s 
+  P7-backprop-cuda inst1 vs inst16 DIFFER kernels=2 bytes_equal=1 differ=1 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=1 dist_count_diffs=2 nodes_differ=0
+  new1 rep 1: 0.433 s 
+  new1 rep 2: 0.431 s 
+  new1 rep 3: 0.433 s 
+  P7-backprop-cuda inst1 vs new1 EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  new16 rep 1: 0.716 s 
+  new16 rep 2: 0.715 s 
+  new16 rep 3: 0.715 s 
+  P7-backprop-cuda inst1 vs new16 EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  new16 [PCDEP_STATS] kernel_0 {"shards": 16, "records": 970752, "entries": 860545, "split_entries": 0, "drain_s": 0.0407174, "route_s": 0.0400657, "wait_s": 0.000344283, "busy_s": [0.0169436, 0.0163219, 0.0141779, 0.0167135, 0.020804, 0.0165717, 0.0209388, 0.0208702, 0.0210563, 0.0207899, 0.0171127, 0.0171635, 0.0210265, 0.0158623, 0.0208178, 0.0207215], "stall_s": [0.023602, 0.0241958, 0.0263312
+  new16 [PCDEP_STATS] kernel_1 {"shards": 16, "records": 262149, "entries": 321381, "split_entries": 0, "drain_s": 0.0164621, "route_s": 0.0149264, "wait_s": 0.00145309, "busy_s": [0.00967191, 0.00969031, 0.00970187, 0.00870475, 0.00852136, 0.0108049, 0.00988115, 0.0091945, 0.00988815, 0.00987059, 0.0096801, 0.0100285, 0.00987668, 0.00966757, 0.00988538, 0.00948326], "stall_s": [0.00617834, 0.0061
+== done 2026-11-07T13:37:10-05:00

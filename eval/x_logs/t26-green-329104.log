@@ -1,0 +1,36 @@
+host=c3 gpu=[NVIDIA GeForce RTX 4060 Ti, 8.9, 615.71.09] cpu=[AMD EPYC 9115 16-Core Processor] nproc=16 job=329104 2026-11-07T13:21:25-05:00
+installed: libsanalyzer 5a20fd14ab6c6806 collector b746b4dd23e90f46 HEAD f551ca00947e
+new: libsanalyzer 31e4d53d367e693b collector 86473afa906669e5 worktree HEAD 98371ee1db65 dirty 5
+capture: shim c5ebab1e4a81af2c collector 32c379841cc17fc2 replay 0a53adee05384d95
+fatbin a2d7368bc1c61986
+== A4 seven + test_collector_only.py 2026-11-07T13:21:26-05:00
+
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+  /home/fzheng4/wt/sharded-pcdep/.env/lib/python3.14/site-packages/pydot/dot_parser.py:379: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    subgraph.setParseAction(push_subgraph_stmt)
+
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+  /home/fzheng4/wt/sharded-pcdep/.env/lib/python3.14/site-packages/pydot/dot_parser.py:380: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    graph_stmt.setParseAction(push_graph_stmt)
+
+test_sync_dominance.py::test_scor_microbenchmark[norace_interblock_atom]
+  /home/fzheng4/wt/sharded-pcdep/.env/lib/python3.14/site-packages/pydot/dot_parser.py:381: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    parser.setParseAction(push_top_graph_stmt)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+306 passed, 8 warnings in 281.09s (0:04:41)
+== test_no_dump.py 2026-11-07T13:26:09-05:00
+test_no_dump.py::test_sync_instance_equals_offline_pass[strong_stores_barrier_weak_load-vector-clock]
+  /home/fzheng4/wt/sharded-pcdep/.env/lib/python3.14/site-packages/pydot/dot_parser.py:381: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    parser.setParseAction(push_top_graph_stmt)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+31 passed, 8 warnings in 26.22s
+== test_co_chain.py from f31a5067 C6b step 4: CO_CHAIN_B.md -- six-column tables (VC, SC, C1, C6, S1, S2), false-report split with the async / atomic-chain-off tags, what moved against C6, step 3 result and probe deviation, cost by CAP_84600 section 3 with a same-node re-time, setup 2026-11-07T13:26:35-05:00
+    ^^^^^^^^^^^^^^^^^^^^^^^
+E   ModuleNotFoundError: No module named 'aggregate'
+=========================== short test summary info ============================
+ERROR python/test_co_chain.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 error in 0.73s
+== done 2026-11-07T13:26:36-05:00

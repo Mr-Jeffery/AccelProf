@@ -1,0 +1,63 @@
+host=c3 gpu=[NVIDIA GeForce RTX 4060 Ti, 8.9, 615.71.09] cpu=[AMD EPYC 9115 16-Core Processor] nproc=16 job=329096 2026-11-07T13:17:08-05:00
+installed: libsanalyzer 5a20fd14ab6c6806 collector b746b4dd23e90f46 HEAD f551ca00947e
+new: libsanalyzer 31e4d53d367e693b collector 86473afa906669e5 worktree HEAD 98371ee1db65 dirty 5
+capture: shim c5ebab1e4a81af2c collector 32c379841cc17fc2 replay 0a53adee05384d95
+fatbin a2d7368bc1c61986
+work=/tmp/fzheng4-t26-fix-329096 (763G free)
+== collector_only
+  live I0  rc=0 2.6s
+  live Ic  rc=0 0.5s
+  live A   rc=0 0.7s
+  live B   rc=0 0.9s
+  live Bc  rc=0 0.5s
+  Ic capture 28468 bytes
+  replay Ic inst: [t26_replay] /tmp/fzheng4-t26-fix-329096/collector_only/Ic/cap.2614410.bin: 4 kernels, 4 drains, 107 records, 0.001 s rc=0 
+  replay Ic n1: [t26_replay] /tmp/fzheng4-t26-fix-329096/collector_only/Ic/cap.2614410.bin: 4 kernels, 4 drains, 107 records, 0.000 s rc=0 
+  replay Ic n16: [t26_replay] /tmp/fzheng4-t26-fix-329096/collector_only/Ic/cap.2614410.bin: 4 kernels, 4 drains, 107 records, 0.001 s rc=0 
+  replay Ic n16t: [t26_replay] /tmp/fzheng4-t26-fix-329096/collector_only/Ic/cap.2614410.bin: 4 kernels, 4 drains, 107 records, 0.001 s rc=0 
+  Bc capture 28468 bytes
+  replay Bc inst: [t26_replay] /tmp/fzheng4-t26-fix-329096/collector_only/Bc/cap.2614526.bin: 4 kernels, 4 drains, 107 records, 0.001 s rc=0 
+  replay Bc n1: [t26_replay] /tmp/fzheng4-t26-fix-329096/collector_only/Bc/cap.2614526.bin: 4 kernels, 4 drains, 107 records, 0.000 s rc=0 
+  replay Bc n16: [t26_replay] /tmp/fzheng4-t26-fix-329096/collector_only/Bc/cap.2614526.bin: 4 kernels, 4 drains, 107 records, 0.001 s rc=0 
+  replay Bc n16t: [t26_replay] /tmp/fzheng4-t26-fix-329096/collector_only/Bc/cap.2614526.bin: 4 kernels, 4 drains, 107 records, 0.001 s rc=0 
+collector_only same-stream fidelity: replay(Ic, installed) vs Ic live EQUAL kernels=4 bytes_equal=4 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+collector_only same-stream fidelity: replay(Bc, new N=16) vs Bc live EQUAL kernels=4 bytes_equal=4 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+collector_only same-stream parity: stream Ic installed -n1 vs new n1 EQUAL kernels=4 bytes_equal=4 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+collector_only same-stream parity: stream Ic installed -n1 vs new n16 EQUAL kernels=4 bytes_equal=4 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+collector_only same-stream parity: stream Ic installed -n1 vs new n16t EQUAL kernels=4 bytes_equal=4 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+collector_only same-stream parity: stream Bc installed -n1 vs new n1 EQUAL kernels=4 bytes_equal=4 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+collector_only same-stream parity: stream Bc installed -n1 vs new n16 EQUAL kernels=4 bytes_equal=4 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+collector_only same-stream parity: stream Bc installed -n1 vs new n16t EQUAL kernels=4 bytes_equal=4 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+collector_only same-stream parity: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=4 bytes_equal=4 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+collector_only live: installed -n1 (I0) vs new N=1 (A) EQUAL kernels=4 bytes_equal=4 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+collector_only live: installed -n1 (I0) vs new N=16 (B) EQUAL kernels=4 bytes_equal=4 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+collector_only live control: installed -n1 (I0) vs installed -n1 again (Ic) EQUAL kernels=4 bytes_equal=4 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+== local_mem_blocks
+  live I0  rc=0 1.1s
+  live Ic  rc=0 0.5s
+  live A   rc=0 0.6s
+  live B   rc=0 0.5s
+  live Bc  rc=0 0.5s
+  Ic capture 77337 bytes
+  replay Ic inst: [t26_replay] /tmp/fzheng4-t26-fix-329096/local_mem_blocks/Ic/cap.2614914.bin: 1 kernels, 1 drains, 260 records, 0.000 s rc=0 
+  replay Ic n1: [t26_replay] /tmp/fzheng4-t26-fix-329096/local_mem_blocks/Ic/cap.2614914.bin: 1 kernels, 1 drains, 260 records, 0.000 s rc=0 
+  replay Ic n16: [t26_replay] /tmp/fzheng4-t26-fix-329096/local_mem_blocks/Ic/cap.2614914.bin: 1 kernels, 1 drains, 260 records, 0.001 s rc=0 
+  replay Ic n16t: [t26_replay] /tmp/fzheng4-t26-fix-329096/local_mem_blocks/Ic/cap.2614914.bin: 1 kernels, 1 drains, 260 records, 0.001 s rc=0 
+  Bc capture 77337 bytes
+  replay Bc inst: [t26_replay] /tmp/fzheng4-t26-fix-329096/local_mem_blocks/Bc/cap.2615030.bin: 1 kernels, 1 drains, 260 records, 0.000 s rc=0 
+  replay Bc n1: [t26_replay] /tmp/fzheng4-t26-fix-329096/local_mem_blocks/Bc/cap.2615030.bin: 1 kernels, 1 drains, 260 records, 0.000 s rc=0 
+  replay Bc n16: [t26_replay] /tmp/fzheng4-t26-fix-329096/local_mem_blocks/Bc/cap.2615030.bin: 1 kernels, 1 drains, 260 records, 0.001 s rc=0 
+  replay Bc n16t: [t26_replay] /tmp/fzheng4-t26-fix-329096/local_mem_blocks/Bc/cap.2615030.bin: 1 kernels, 1 drains, 260 records, 0.001 s rc=0 
+local_mem_blocks same-stream fidelity: replay(Ic, installed) vs Ic live EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+local_mem_blocks same-stream fidelity: replay(Bc, new N=16) vs Bc live EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+local_mem_blocks same-stream parity: stream Ic installed -n1 vs new n1 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+local_mem_blocks same-stream parity: stream Ic installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+local_mem_blocks same-stream parity: stream Ic installed -n1 vs new n16t EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+local_mem_blocks same-stream parity: stream Bc installed -n1 vs new n1 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+local_mem_blocks same-stream parity: stream Bc installed -n1 vs new n16 EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+local_mem_blocks same-stream parity: stream Bc installed -n1 vs new n16t EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+local_mem_blocks same-stream parity: Bc live (new N=16) vs installed -n1 on its records EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+local_mem_blocks live: installed -n1 (I0) vs new N=1 (A) EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+local_mem_blocks live: installed -n1 (I0) vs new N=16 (B) EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+local_mem_blocks live control: installed -n1 (I0) vs installed -n1 again (Ic) EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+== done 2026-11-07T13:17:24-05:00

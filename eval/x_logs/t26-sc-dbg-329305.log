@@ -1,0 +1,28 @@
+host=c3 gpu=[NVIDIA GeForce RTX 4060 Ti, 8.9, 615.71.09] cpu=[AMD EPYC 9115 16-Core Processor] nproc=16 job=329305 apps=[mr] 2026-11-07T15:21:33-05:00
+installed: libsanalyzer 5a20fd14ab6c6806 collector b746b4dd23e90f46 HEAD f551ca00947e
+new: libsanalyzer 31e4d53d367e693b collector 86473afa906669e5 worktree HEAD 4400cdbbc09d dirty 0
+capture: shim 13af2850be2309d2 collector 32c379841cc17fc2 replay 0a53adee05384d95
+fatbin a2d7368bc1c61986
+store=/mnt/beegfs/fzheng4/t26/sc-329305 work=/tmp/t26-sc-329305 (763G free)
+accelprof lines changed: 1 lib -> /home/fzheng4/stage-t26/cap-rt-lib
+LD_LIBRARY_PATH=/opt/ohpc/pub/compiler/gcc/12.4.0/lib64:/usr/local/cuda-13.3/compute-sanitizer:/usr/local/cuda-13.3/lib64:/.singularity.d/libs
+mr ae32d5d82d938220
+== mr: args [] rc=0 wall=2575 ms kernels=16 binary=ae32d5d82d938220 captures=1 bytes=103918433
+   [t26-capture] 16 drains, 845192 records
+== capture done rc=0 2026-11-07T15:21:39-05:00
+== mr 2026-11-07T15:21:39-05:00
+  capture 103918433 bytes (1 files, largest replayed)
+  replay inst: [t26_replay] mr/cap.2675056.bin: 16 kernels, 16 drains, 845192 records, 0.253 s [t26_replay] library 0.066 s: drains 0.064 s, kernel ends 0.001 s, other calls 0.000 s rc=0 
+  replay n1: [t26_replay] mr/cap.2675056.bin: 16 kernels, 16 drains, 845192 records, 0.158 s [t26_replay] library 0.040 s: drains 0.039 s, kernel ends 0.002 s, other calls 0.000 s rc=0 
+  replay n16: [t26_replay] mr/cap.2675056.bin: 16 kernels, 16 drains, 845192 records, 0.222 s [t26_replay] library 0.051 s: drains 0.049 s, kernel ends 0.002 s, other calls 0.000 s rc=0 
+  replay n16t: [t26_replay] mr/cap.2675056.bin: 16 kernels, 16 drains, 845192 records, 0.221 s [t26_replay] library 0.052 s: drains 0.050 s, kernel ends 0.002 s, other calls 0.000 s rc=0 
+mr same-stream: installed -n1 vs new n1 EQUAL kernels=16 bytes_equal=16 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+mr same-stream: installed -n1 vs new n16 EQUAL kernels=16 bytes_equal=16 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+mr same-stream: installed -n1 vs new n16t EQUAL kernels=16 bytes_equal=16 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+mr fidelity: installed replay vs live (installed -n1 via shim) EQUAL kernels=16 bytes_equal=16 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+mr context: X11 r1 vs this live run DIFFER kernels=16 bytes_equal=0 differ=16 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=248 dist_count_diffs=413 nodes_differ=0
+mr context: X11 r2 vs this live run DIFFER kernels=16 bytes_equal=0 differ=16 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=248 dist_count_diffs=415 nodes_differ=0
+mr context: X11 r3 vs this live run DIFFER kernels=16 bytes_equal=0 differ=16 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=246 dist_count_diffs=415 nodes_differ=0
+mr context: X11 r1 vs r2 DIFFER kernels=16 bytes_equal=0 differ=16 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=247 dist_count_diffs=420 nodes_differ=0
+mr context: X11 r1 vs r3 DIFFER kernels=16 bytes_equal=0 differ=16 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=248 dist_count_diffs=414 nodes_differ=0
+== done 2026-11-07T15:21:41-05:00

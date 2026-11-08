@@ -121,6 +121,21 @@ def base_env(cuda_home=None, hb_trace=False, hb_mode=None, scope_file=None):
     return e
 
 
+def analyzer_workers():
+    """T26 (eval/SHARDED_PCDEP.md): $BASELINE_WORKERS = the analyzer's worker count, `accelprof -n`
+    (YOSEMITE_WORKER_COUNT): the shard count of the location-sharded PCDepGraph pass, whose output is
+    the same at any count. Default 1, the count every earlier sweep used. Recorded in every program's
+    meta.json as `analyzer_workers`."""
+    v = os.environ.get("BASELINE_WORKERS", "1")
+    try:
+        n = int(v)
+    except ValueError:
+        raise SystemExit(f"BASELINE_WORKERS={v!r} is not an integer")
+    if n < 1:
+        raise SystemExit(f"BASELINE_WORKERS={n} must be >= 1")
+    return n
+
+
 def hb_shards():
     """X1b: $BASELINE_HB_SHARDS=N sets YOSEMITE_HB_SHARDS=N for the scalar-clock runs only (T22's sharded
     sync pass; vector-clock mode never sees the knob). 0 / unset = the serial pass (X1). Recorded in

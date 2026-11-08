@@ -1,0 +1,22 @@
+N16 vs C1: ids compared 10 (only in A 0, only in B 4699); pair set EQUAL 4, DIFFER 5, not comparable 1
+  DIFFER[same pc pairs, class differs (RAW/WAR/WAW direction)] P9-crs-cuda: verdict RACE vs RACE; classes race:7 vs race:7; |pairs| 7 vs 7
+    only in N16: []
+    only in C1: []
+    lines only A ['kernels.cu:38', 'kernels.cu:42'] only B ['kernels.cu:36']
+  DIFFER[pc-pair set differs] P9-dxtc2-cuda: verdict RACE vs RACE; classes race:174 vs race:3; |pairs| 174 vs 3
+    only in N16: ['shared:0x18e0-0x18f0:RAW', 'shared:0x18e0-0x1900:RAW', 'shared:0x18e0-0x1910:RAW', 'shared:0x18e0-0x1a30:RAW', 'shared:0x1c30-0x1c90:RAW', 'shared:0x1c30-0x1ce0:RAW', 'shared:0x1c30-0x1d30:RAW', 'shared:0x1c30-0x1d80:RAW', 'shared:0x1c30-0x1dd0:RAW', 'shared:0x1c30-0x1e20:RAW', 'shared:0x1c30-0x1e70:RAW', 'shared:0x1c30-0x1ec0:RAW']
+    only in C1: ['shared:0x2b50-0x2b90:WAR', 'shared:0x2b60-0x2ba0:WAR', 'shared:0x2b70-0x2bb0:WAR']
+    lines only A ['helper_math.h:371', 'helper_math.h:372', 'helper_math.h:373', 'helper_math.h:597', 'main.cu:100', 'main.cu:101'] only B ['main.cu:448']
+  DIFFER[pc-pair set differs] P9-expdist-cuda: verdict CLEAN vs RACE; classes  vs race:22; |pairs| 0 vs 22
+    only in N16: []
+    only in C1: ['shared:0x250-0x250:WAW', 'shared:0x260-0x260:WAW', 'shared:0x270-0x270:WAW', 'shared:0x280-0x280:WAW', 'shared:0x2c90-0x2cb0:RAW', 'shared:0x2d0-0x2d0:WAW', 'shared:0x340-0x340:WAW', 'shared:0x350-0x350:WAW', 'shared:0x360-0x360:WAW', 'shared:0x370-0x370:WAW', 'shared:0x3c0-0x3c0:WAW', 'shared:0x3d0-0x3d0:WAW']
+    lines only A [] only B ['kernel.h:28', 'kernel.h:82', 'kernel.h:91', 'sm_20_atomic_functions.hpp:84', 'sm_60_atomic_functions.hpp:294']
+  DIFFER[pc-pair set differs] P9-knn-cuda: verdict RACE vs CLEAN; classes race:5 vs ; |pairs| 5 vs 0
+    only in N16: ['shared:0x140-0x140:WAW', 'shared:0x140-0x940:RAW', 'shared:0x140-0x9b0:RAW', 'shared:0x160-0x160:WAW', 'shared:0x160-0x950:RAW']
+    only in C1: []
+    lines only A ['main.cu:63', 'main.cu:64', 'main.cu:93'] only B []
+  DIFFER[same pc pairs, class differs (RAW/WAR/WAW direction)] P9-tridiagonal-cuda: verdict RACE vs RACE; classes race:20 vs race:20; |pairs| 20 vs 20
+    only in N16: []
+    only in C1: []
+    lines only A ['pcr_kernels.cu:61', 'pcr_kernels.cu:66', 'pcr_kernels.cu:69', 'pcr_kernels.cu:78', 'pcr_kernels.cu:81', 'pcr_kernels.cu:82'] only B ['cyclic_kernels.cu:136', 'pcr_kernels.cu:103', 'pcr_kernels.cu:104', 'pcr_kernels.cu:115', 'pcr_kernels.cu:121', 'pcr_kernels.cu:127']
+  NOT-COMPARABLE P9-atomicCAS-cuda: no verdict: N16=CLEAN C1=ERROR
