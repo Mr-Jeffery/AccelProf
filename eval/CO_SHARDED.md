@@ -134,6 +134,7 @@ Notes: the per-record cost falls 2.2x in the median and the fitted slope 4.9x; t
 - `c1cmp/` standard-analysis comparison against C1 (`p1.txt`, `pi.txt`, `p4.txt`, `p6.txt`, `p9.txt`), control comparisons (`*_chain_ctl_vs_c6.txt`, `*_chain_ctl_vs_n16.txt`, `*_ctl_vs_c1.txt`).
 - `co-sharded-replay/` replay chain analysis of the replay outputs.
 - `co-sharded-p7-<app>/` P7 rows (14 CSVs, section 7), `c1cmp/p7ids/` the id files, `c1cmp/p7_tables.md` the generated table.
+- Real-world (section 8): `co-sharded-rw/`, `co-sharded-rw-an-*/`, `co-sharded-rw-score/`, `c1cmp/rwids/`.
 - Table 3 inputs and outputs: cluster `/home/fzheng4/x12-t3/` (`out-n16/tables/c6_tables.md`, `out-c6/tables/c6_tables.md`).
 - Scripts: `eval/x12/` (`x12_record.sbatch`, `x12_suite.sbatch`, `x12_analyze*.sbatch`, `x12_pairs.py`, `x12_table3.py`, `x12_replay_chain.sbatch`, gate scripts).
 
@@ -141,6 +142,7 @@ Notes: the per-record cost falls 2.2x in the median and the fitted slope 4.9x; t
 
 - Walls depend on the node (CPU class) as much as on the run; X11's three runs of one program span up to 1.8x.
 - Sections 2 to 4 are the 10 SuperCollider binaries. Section 7 adds P7 timing only (all 14, no parity).
+- Section 8 (T21b/T21c) uses `REPS=1`, a 1,200 s cap and 3,600 s analysis timeout (C2's values), not the HeCBench 3 reps / 84,600 s; accuracy only, no cost claim.
 - Indigo3 and Indigo 1.3 are parity evidence only; they are not in the cost tables.
 - The Indigo differences are run-to-run order; the evidence is the control and the same-stream replay of section 2.2. The pass itself reproduces the installed `-n 1` on the same stream bit for bit.
 
@@ -190,3 +192,48 @@ Reading:
 - Peak RSS rises a little (median 1,282 vs 1,078 MB; max 4,169 MB stencil1d vs 4,240 MB); particlefilter's goes from 1,152 to 2,053 MB.
 
 Caveats specific to P7: native walls are measured in each job and move between jobs (nbody 12.1 s here vs 14.6 s in C1, bitonic-sort 37.0 s vs 31.9 s, mandelbrot 2.3 s vs 3.8 s), so the slowdown ratio moves with the native run, not only with the tool wall; the wall speed-up column (tool wall only) is the cleaner comparison. The first rep of a short program (backprop, 1.7 s vs 0.97 s) carries warm-up; medians are used. C1's stencil1d is a single rep. P7 has only been run at `-n 1` (C1) and `-n 16`.
+
+## 8. Real-world recall (T21b) and candidates (T21c) at `-n 16`
+
+Recorded with the same setting as the HeCBench rows of sections 1 to 4 (T26 runtime `/home/fzheng4/wt/sharded-pcdep`, libsanalyzer `31e4d53d367e693b`, collector `86473afa906669e5`, `accelprof -n 16`, harness `~/wt/x12`, `x12_suite.sbatch`, whole `rtx4060ti16g` node, `--confirm --keep-all`, native run in the same job), with these differences: the ids come from the real-world manifests (`eval/realworld/manifest_t21b.csv`, `manifest_t21c.csv`, builds already on BeeGFS), `REPS=1`, tool cap 1,200 s and analysis timeout 3,600 s, CUDA 13.4 (C2's values for these two sets; the HeCBench jobs used 3 reps and 84,600 s), and the scoring is C2's and C6's: attribution (`rw_attribute.py`) and `rw_score.py` against the oracle pairs `recall_pairs.json`. Scope: C2's 72 runs minus `amrex-1` buggy and fixed (kept out for now), so **70 runs**: T21b 54 (27 targets, buggy and fixed), T21c 16. `lightgbm-new-1`, `lightgbm-new-2` and `llamacpp-open-2` are not in C2 or C6 either. 43 jobs (one per target, both builds), stores `realworld-2026-11-co-sh` and `realworld-2026-11-t21c-co-sh`, all `workers=16`, all logs `== done rc=0`. Analyses: standard (C2's mode) and chain closure (C6's mode, primary), both from the stored recordings with `parallel.py analyze`, code = the co-chain worktree (`be325e03`) for the analysis and for the attribution of both modes; the standard attribution uses C6's harness copies with the two chain edits reverted.
+
+### 8.1 Result
+
+Components and builds as in `eval/CO_CHAIN.md` section 2.2 (`amrex-1` excluded from every column here; the C2, C6, vector-clock and scalar-clock columns are those files' numbers over the same 27 targets):
+
+| T21b scope | outcome | vector-clock | scalar-clock | C2 CO (`-n 1`, standard) | **`-n 16` standard** | C6 CO + chain (`-n 1`) | **`-n 16` chain** |
+|---|---|---|---|---|---|---|---|
+| buggy, data-race components (25) | DETECTED | 25 | 25 | 21 | **21** | 24 | **24** |
+| | MISSED | 0 | 0 | 4 | **4** | 1 | **1** |
+| buggy, strong-conflict components (5) | DETECTED | 2 | 2 | 2 | **2** | 2 | **2** |
+| | DETECTED-AS-DR | 3 | 3 | 3 | **3** | 3 | **3** |
+| fixed builds (27) | CLEAN-FOR-PAIR | 20 | 20 | 17 | **17** | 17 | **17** |
+| | RESIDUAL-AS-EXPECTED | 6 | 6 | 7 | **7** | 7 | **7** |
+| | STILL-REPORTED | 1 | 1 | 3 | **3** | 3 | **3** |
+
+- **`-n 16` standard equals C2 on every row**: all 57 T21b rows and all 18 T21c rows have the same outcome (and the same run verdict, RACE or CLEAN, on all 70 ids). The four missed data-race components are `cccl-3`, `ginkgo-5`, `kokkos-5`, `raft-1`, as in C2.
+- **`-n 16` chain equals C6 on every T21b row** (outcomes after C6's label spelling: `CLEAN` for CLEAN-FOR-PAIR and so on). The chain closure moves the three components C2 missed and scalar-clock detects (`cccl-3` top-k, `ginkgo-5` range-minimum, `kokkos-5` rw_sum) to DETECTED; `raft-1` select_k stays missed (the non-read-hop case of `CO_CHAIN.md` section 3). Fixed builds: CLEAN 17, RESIDUAL 7 (cccl-3, cmssw-1, hecbench-dxtc2-1, hecbench-hungarian-1, kokkos-5, pytorch-4, raft-1), STILL 3 (cccl-1, llamacpp-2, pytorch-1), as C2 and C6.
+
+| T21c (18 scored rows, 16 ids) | DETECTED | DETECTED (family) | DETECTED-AS-DR | MISSED |
+|---|---|---|---|---|
+| C2 CO (`-n 1`) | 13 | 1 | 3 | 1 (`pcl-new-1`) |
+| **`-n 16` standard** | **13** | **1** | **3** | **1** (`pcl-new-1`) |
+| **`-n 16` chain** | **14** | **1** | **3** | **0** |
+
+`-n 16` standard equals C2 row for row. The chain run equals C6 except `colmap-new-1` buggy, which C6 could not finish attributing (`NOT-SCORED`, still running after 7 h) and which is DETECTED here; with it, all 18 attributed rows are detected or detected-as-DR in the chain run (the one change from standard is `pcl-new-1`, MISSED to DETECTED, as in C6). The three ids C2 had to re-analyse at 82,800 s (`hecbench-hungarian-1`, `raft-1`, `colmap-new-1`) finished inside the 3,600 s analysis timeout here, and `amrex-1` is out.
+
+### 8.2 Differences that are not outcome changes
+
+- Report counts differ by a few on 8 of 57 T21b rows against C2 (standard: `cccl-3` race 37 vs 36, `cccl-4` buggy 2 vs 1, `hecbench-hungarian-1` 236/249 vs 235/239 buggy and 233/245 vs 235/250 fixed, `opencv-2` 107 vs 105, `raft-1` 23 vs 24) and on 2 of 18 T21c rows (`cuml-tsne-new-1` sc 22 vs 24, `pytorch_cluster-new-1` 15 vs 14); the chain run differs from C6's on 6 T21b rows by 1 to 4 reports (`cccl-3` 55 vs 57, 54 vs 58 fixed, `hecbench-hungarian-1` 446 vs 445 and 439 vs 441, `hecbench-morphology-1` fixed 70 vs 68). In every case the verdict, the matched oracle pair and the outcome are the same. These are separate GPU executions (the recordings are new, not C2's), and the programs with atomics reach different interleavings; I did not replay these ids on the same stream, since no outcome moved, so the cause of each count is unverified.
+- `cccl-4-buggy`: race 2 (sc 4) here, race 1 (sc 4) in C2 (the one-target test of this setting gave the same).
+
+### 8.3 What went wrong on the way (kept for the record)
+
+- The recording jobs' own standard analysis (inside `parallel.py run`) did not set `CUVEIN_DOT_PREFILTER=1`, which C2 and C6 set for the real-world sets; without it the analysis parses every `.dot` of the build (146 dots, 320 MB for llamacpp-5) and 7 ids ended ERROR at the 3,600 s analysis timeout (llamacpp-2, -4, -5 both builds, llamacpp-open-1 buggy). The recordings were fine: C2's own `llamacpp-5-buggy` recording hangs the same way without the variable and takes 2.4 s with it. All 70 stored recordings were therefore re-analysed with `CUVEIN_DOT_PREFILTER=1` (`x12_analyze_suite.sbatch` with `PREFILTER=1`); on the 62 ids that finished in both, the verdict, `reports_dedup` and `report_ids` are identical with and without the variable. The rows in `co-sharded-rw/` therefore carry 7 ERROR verdicts that are not the numbers used here; use `co-sharded-rw-an-*`.
+- `colmap-new-1` buggy (standard) also ended ERROR in the prefiltered re-analysis at 3,600 s; its standard row is the recording job's (RACE, 272 reports, `analysis_s` 2,599 s, no prefilter) and its standard attribution ran on that. Its chain analysis finished (RACE).
+
+### 8.4 Evidence
+
+- `eval/results/co-sharded-rw/<set>-<target>/` the 43 recording jobs' rows (see 8.3), `co-sharded-rw-an-{recall,cand}-{std,chain}/` the prefiltered analyses (the rows used), `co-sharded-rw-score/{std,chain}/{realworld,realworld_t21c}/` `recall.csv` and the scoring output, `co-sharded-rw-score/cmp.txt` the comparison with C2 and C6; attribution JSONs (80 MB) stay on the cluster in `/home/fzheng4/x12rw/{std,chain}/res/`.
+- `eval/x12/x12_rw_setup.sh`, `x12_rw_attr.sbatch` (setup of the scoring copies, attribution of each id on a CPU node, then `rw_score.py`), `x12_rw_cmp.py` (the comparison); `eval/realworld/` the C2 harness, manifests, oracles and `recall_pairs.json` (copied from `origin/eval/collector-only-realworld` 24939df8); `c1cmp/rwids/` the id files and job ids.
+- The sharded pass is not what changed these tables: the recording differs from C2's only in `-n 16` and in being a new execution, and the outcomes match C2 and C6 on every row.

@@ -1,0 +1,64 @@
+{
+  "id": "hecbench-morphology-1",
+  "tier": "core",
+  "wave": 1,
+  "route": "R1",
+  "kernel": "twoWayScan<opType> (device function inlined into vhgw_horiz<opType> and vhgw_vert<opType>, 4 kernel instances: opType 0/1 x horiz/vert)",
+  "space": "shared",
+  "build_revision": {
+    "buggy": "e245737e759f0bba355d4e7148ecd1185dedb2c3",
+    "fixed": "7be8747ef1156a96b273f91cab7f9b6e3e6c3429"
+  },
+  "sites": [
+    {
+      "role": "write",
+      "file": "src/morphology-cuda/morphology.cu",
+      "line_start": 94,
+      "line_end": 95,
+      "source": "opArray[tid + selSize - 1] = elementOp<opType>(opArray[tid + selSize - 1], opArray[tid + selSize - 1 - offset]);  (statement spans L94-L95; the store is attributed to L94)",
+      "operation": "st.shared.u8 (STS.U8)",
+      "strength": "plain"
+    },
+    {
+      "role": "read",
+      "file": "src/morphology-cuda/morphology.cu",
+      "line_start": 95,
+      "line_end": 95,
+      "source": "opArray[tid + selSize - 1 - offset]  (operand of the same statement; ld.shared.u8)",
+      "operation": "ld.shared.u8 (LDS.U8)",
+      "strength": "plain"
+    }
+  ],
+  "thread_relation": "cross-warp-same-block",
+  "thread_pair_example": "driver ./main 64 64 192 192 1 (hsize = vsize = selSize = 64 -> blocks of 64 threads = 2 warps), vhgw_horiz, any block, offset = 1: thread 31 (warp 0) writes opArray[31 + 64 - 1] = opArray[94] (L94) while thread 32 (warp 1) reads opArray[32 + 64 - 1 - 1] = opArray[94] (L95); the barrier is only at the end of the iteration (L100). Mirrored cross-warp pair in the reverse scan (L98, not listed as a site): thread 32 writes opArray[32] while thread 31 reads opArray[31 + 1] = opArray[32] (threads 33/34 give the same pair inside warp 1). vhgw_vert has the same pairs with threadIdx.y as tid (block (1,64)).",
+  "expected_class": "DR",
+  "class_reason": "plain unsigned char accesses in dynamic shared memory by different warps with no barrier between the read of an iteration and the in-place write by another thread: DR. Single-byte accesses; the conflicting addresses are identical bytes.",
+  "buggy_expected": "the pair (write L94 vs read L95, plus the reverse-scan pair L98 vs L98) is reported as DR (RAW/WAR across warps on opArray bytes), in all four kernel instances; for selSize <= 32 only an intra-warp lock-step pair would remain (not exercised by this driver).",
+  "fixed": {
+    "expected": "absent",
+    "residual_sites": null,
+    "reason": "the fix (7be8747e) rewrites the loop into a read phase into registers (L102-L103), __syncthreads (L105), then a write phase (L107-L108), with a __syncthreads (L100) at the start of every iteration, so no read of opArray in an iteration is concurrent with a write of the same iteration (verify.expected_report_fixed)."
+  },
+  "sass_notes": "sm_89 SASS of vhgw_horiz<1> from the shipped build (sassline.sh): L95 LDS.U8 R2,[R11+-0x1] (0x0260) and LDS.U8 R3,[R11+UR4] (0x0270), L94 STS.U8 [R11+-0x1] (0x02b0), reverse scan L98 LDS.U8 [R9] (0x02c0), LDS.U8 [R9+UR5] (0x02d0), STS.U8 [R9] (0x0320), BAR.SYNC.DEFER_BLOCKING 0x0 at 0x0330 (L100); all plain LDS.U8/STS.U8, no .STRONG token, no WARPSYNC anywhere in the kernels. vhgw_vert has the same structure (L95 0x0280/0x0290, L94 0x02d0, L98 0x02e0-0x0340, BAR 0x0350). The fixed build: LDS L102/L103 (0x02a0-0x02d0 in vhgw_vert), BAR.SYNC at L105 (0x0310), STS at L107/L108 (0x0330/0x0350), BAR.SYNC at L100 (0x0250).",
+  "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against src/morphology-cuda/morphology.cu@e245737 (buggy) and @7be8747 (fixed) and the sm_89 SASS of the build on 2026-10-20",
+  "open_questions": [
+    "Accesses are single bytes: a detector with word-granular shadow memory may merge neighbouring bytes written by different threads into extra (false) pairs; the true conflicts are on identical byte addresses (verify.notes).",
+    "The driver is 192x192 (reporter: 512x512); the 128x128 image prints FAIL in both variants (the app's own result check depends on the border), 130..256 PASS."
+  ],
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "corrected",
+    "changes": [
+      {
+        "field": "thread_pair_example",
+        "old": "driver ./main 64 64 192 192 1 (selSize = 64 -> blocks of 64 threads = 2 warps), vhgw_horiz, any block, offset = 1: thread 31 (warp 0) writes opArray[31 + 64 - 1] = opArray[94] (L94) while thread 32 (warp 1) reads opArray[32 + 64 - 1 - 1] = opArray[94] (L95); the barrier is only at the end of the iteration (L100). Mirrored pair in the reverse scan (L98, not listed as a site): thread 34 writes opArray[34] while thread 33 reads opArray[33 + 1] = opArray[34]. vhgw_vert has the same pair with threadIdx.y as tid.",
+        "new": "driver ./main 64 64 192 192 1 (hsize = vsize = selSize = 64 -> blocks of 64 threads = 2 warps), vhgw_horiz, any block, offset = 1: thread 31 (warp 0) writes opArray[31 + 64 - 1] = opArray[94] (L94) while thread 32 (warp 1) reads opArray[32 + 64 - 1 - 1] = opArray[94] (L95); the barrier is only at the end of the iteration (L100). Mirrored cross-warp pair in the reverse scan (L98, not listed as a site): thread 32 writes opArray[32] while thread 31 reads opArray[31 + 1] = opArray[32] (threads 33/34 give the same pair inside warp 1). vhgw_vert has the same pairs with threadIdx.y as tid (block (1,64)).",
+        "reason": "the old mirrored example (thread 34 writes opArray[34], thread 33 reads it) is a pair inside warp 1, not a cross-warp pair; the cross-warp reverse-scan pair at offset 1 is threads 31/32 on opArray[32]. Block size comes from hsize/vsize (argv[1], argv[2]). Sites and class unchanged.",
+        "evidence": "src/morphology-cuda/morphology.cu:97-98,189-199 and src/morphology-cuda/main.cu:21-24 at e245737e759f"
+      }
+    ],
+    "notes": "Checked at e245737: twoWayScan (morphology.cu:82-102) is inlined into vhgw_horiz (:105-134, block (hsize,1)) and vhgw_vert (:137-170, block (1,vsize)) (:189-199); the forward step writes opArray[tid+selSize-1] (:94) and reads opArray[tid+selSize-1-offset] (:95), which thread tid-offset writes in the same iteration; the only barrier per iteration is :100. Plain unsigned char dynamic shared memory: DR. Intra-warp pairs exist as well. Fixed 7be8747: read phase into registers (:102-103), __syncthreads (:105), write phase (:107-108), __syncthreads at the start of every iteration (:100). The loop now ends without a barrier, but for selSize = 64 the last iteration (offset 32) writes only opArray[tid] (tid <= 31) and opArray[tid+63] (tid >= 32), exactly the elements each thread itself reads after the scan (vhgw_horiz :140; vhgw_vert likewise), so no pair remains: 'absent' holds. The driver deviates from the CLAUDE.md table (128x128), as recorded in open_questions. sass_notes are the builder's: the reviewer read sources and diffs only and did not re-dump SASS (the one srun queued with an estimated start the next day and was withdrawn).",
+    "depends_on_D20": false
+  }
+}

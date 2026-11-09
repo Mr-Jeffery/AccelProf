@@ -1,0 +1,137 @@
+{
+  "id": "ginkgo-5-buggy",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "global:0x170-0x1f0:WAR",
+    "global:0x1f0-0x1f0:WAW",
+    "global:0x1150-0x1320:WAR",
+    "global:0x1320-0x1320:WAW",
+    "global:0x22e0-0x23c0:WAR",
+    "global:0x23c0-0x23c0:WAW"
+  ],
+  "pcs": [
+    368,
+    496,
+    4432,
+    4896,
+    8928,
+    9152
+  ],
+  "lines": "bit_packed_storage.hpp:154;bit_packed_storage.hpp:160;kernel_launch.hpp:60;kernel_launch_reduction.hpp:62",
+  "raw": [
+    {
+      "a_pc": 368,
+      "b_pc": 496,
+      "space": "global",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain_rescue",
+      "chain_path": [
+        "0x170",
+        "0x170",
+        "0x1f0"
+      ]
+    },
+    {
+      "a_pc": 496,
+      "b_pc": 496,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 4432,
+      "b_pc": 4896,
+      "space": "global",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain_rescue",
+      "chain_path": [
+        "0x1150",
+        "0x1150",
+        "0x1320"
+      ]
+    },
+    {
+      "a_pc": 4896,
+      "b_pc": 4896,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 8928,
+      "b_pc": 9152,
+      "space": "global",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain_rescue",
+      "chain_path": [
+        "0x22e0",
+        "0x22e0",
+        "0x23c0"
+      ]
+    },
+    {
+      "a_pc": 9152,
+      "b_pc": 9152,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "4896": "kernel_launch_reduction.hpp:62",
+    "8928": "bit_packed_storage.hpp:160",
+    "9152": "bit_packed_storage.hpp:154",
+    "368": "kernel_launch.hpp:60",
+    "496": "kernel_launch.hpp:60",
+    "4432": "kernel_launch_reduction.hpp:62"
+  }
+}

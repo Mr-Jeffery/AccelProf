@@ -1,0 +1,124 @@
+{
+  "id": "opencv-2",
+  "tier": "core",
+  "wave": 1,
+  "route": "R2",
+  "kernel": "canny::edgesHysteresisLocalKernel(PtrStepSzi map, short2* st) (modules/gpu/src/cuda/canny.cu)",
+  "space": "shared",
+  "build_revision": {
+    "buggy": "ce42593fe684a88c82aba121fb9bb433bb3aea34",
+    "fixed": "7fd21d217ad7cc027f5cdd3474b17df71343ba2a"
+  },
+  "sites": [
+    {
+      "role": "read",
+      "file": "modules/gpu/src/cuda/canny.cu",
+      "line_start": 285,
+      "line_end": 285,
+      "source": "n += smem[threadIdx.y    ][threadIdx.x + 1] == 2;",
+      "operation": "ld.volatile.shared (SASS: LDS R4, [R10.X4+0x4] at 0x0af0 in the first of the 16 unrolled iterations, inside the 'if (smem[ty+1][tx+1] == 1)' branch; the other unrolled copies are at 0x0d80, 0x1010, ...)",
+      "strength": "volatile(strong)"
+    },
+    {
+      "role": "write",
+      "file": "modules/gpu/src/cuda/canny.cu",
+      "line_start": 297,
+      "line_end": 297,
+      "source": "smem[threadIdx.y + 1][threadIdx.x + 1] = 2;",
+      "operation": "st.volatile.shared (SASS: @P0 STS [R10.X4+0x4c], R5 at 0x0d20 in the first unrolled iteration; copies at 0x0fb0, 0x1240, ...; executed only by threads with n > 0)",
+      "strength": "volatile(strong)"
+    }
+  ],
+  "thread_relation": "cross-warp-same-block",
+  "thread_pair_example": "driver 64x64 map, grid (4,4), block (16,16) (a warp holds two tile rows: warp w = rows 2w, 2w+1), block (0,0), iteration k: thread (tx=3,ty=1) in warp 0 (cell smem[2][4], value 1 with a neighbour equal to 2) writes smem[2][4] at L297, while thread (3,2) in warp 1 reads smem[2][4] at L285 (smem[ty][tx+1] with ty=2) as one of its 8 neighbour reads; no __syncthreads between the barrier at L270 (before the loop) and the end of the 16 unrolled iterations. The reader needs its own cell == 1; the writer needs value 1 with a neighbour == 2, hence the chains of 1s with a seed 2 in the driver input. The same pair exists inside a warp (rows 2w and 2w+1) and across the warp boundary rows (1,2), (3,4), ...",
+  "expected_class": "SC",
+  "class_reason": "smem is declared '__shared__ volatile int smem[18][18]', so every read and write of it is a volatile (strong) access; both sites of the pair are strong, and nothing orders them (no barrier, no fence in the loop), so the unordered conflict is a strong-vs-strong conflict (SC), not a plain data race (DR); verify.corrections: 'SC, not DR'.",
+  "buggy_expected": "The pair (volatile read of a neighbour cell at L285 vs volatile write of that cell at L297, cross-warp in the same block, repeated for the 8 neighbour reads L284-L293) is reported as SC in edgesHysteresisLocalKernel, only for cells with value 1 adjacent to a cell that reaches 2.",
+  "fixed": {
+    "expected": "absent",
+    "residual_sites": null,
+    "reason": "The fix adds two __syncthreads() inside the loop: L296 between the neighbour reads (L284-L293) and the write (moves to L299), and L301 after the write, so each read phase, write phase and the next read phase are barrier-separated; the post-loop reads (L308-L317 in the buggy file, L312-L321 in the fixed file: line numbers shift by +4 after L295) run after the last barrier. The barriers sit after 'if (x >= map.cols || y >= map.rows) return;' (L272-273), which removes no thread for the driver's 64x64 map (multiple of 16), so every thread of every block reaches them (SASS: 33 BAR.SYNC in the fixed kernel = 1 + 2 x 16 unrolled iterations; 1 in the buggy one)."
+  },
+  "extra_pairs": [
+    {
+      "sites": [
+        {
+          "role": "write",
+          "file": "modules/gpu/src/cuda/canny.cu",
+          "line_start": 297,
+          "line_end": 297,
+          "source": "smem[threadIdx.y + 1][threadIdx.x + 1] = 2;",
+          "operation": "st.volatile.shared, last unrolled iteration (k = 15)",
+          "strength": "volatile(strong)"
+        },
+        {
+          "role": "read",
+          "file": "modules/gpu/src/cuda/canny.cu",
+          "line_start": 308,
+          "line_end": 317,
+          "source": "n += smem[threadIdx.y    ][threadIdx.x    ] == 1; ... n += smem[threadIdx.y + 2][threadIdx.x + 2] == 1;  (post-loop neighbour reads, executed only when e == 2)",
+          "operation": "ld.volatile.shared (SASS LDS at 0x3340-0x3400)",
+          "strength": "volatile(strong)"
+        }
+      ],
+      "thread_relation": "cross-warp-same-block",
+      "expected_class": "SC",
+      "note": "derived from reading the source, not in the record's access list: in the buggy file nothing orders the last iteration's writes against the post-loop neighbour reads (the loop-end barrier L301 exists only in the fixed file). Fixed: ordered by the barrier L301."
+    },
+    {
+      "sites": [
+        {
+          "role": "write",
+          "file": "modules/gpu/src/cuda/canny.cu",
+          "line_start": 297,
+          "line_end": 297,
+          "source": "smem[threadIdx.y + 1][threadIdx.x + 1] = 2;",
+          "operation": "st.volatile.shared, iteration k",
+          "strength": "volatile(strong)"
+        },
+        {
+          "role": "read",
+          "file": "modules/gpu/src/cuda/canny.cu",
+          "line_start": 284,
+          "line_end": 293,
+          "source": "the 8 neighbour reads (L284, L285, L286, L288, L289, L291, L292, L293) of iteration k+1",
+          "operation": "ld.volatile.shared",
+          "strength": "volatile(strong)"
+        }
+      ],
+      "thread_relation": "cross-warp-same-block",
+      "expected_class": "SC",
+      "note": "the RAW flavour of the primary pair across iterations (write in iteration k, read in iteration k+1); a detector that reports the unrolled copies separately will list several (read, write) address pairs for the same source lines."
+    }
+  ],
+  "sass_notes": "sm_89, nvdisasm -g of the driver built with -lineinfo (the lineinfo check of the R2 route is SAME: targets/lit-arrayfire-1/lineinfo.check). The 16-iteration loop is fully unrolled, so every source line of the loop appears 16 times in the SASS. Buggy kernel: the only BAR.SYNC is at canny.cu:270 (0x0a60); the neighbour reads are LDS (L284 [R10.X4] 0x0ae0, L285 [R10.X4+0x4] 0x0af0, L286 +0x8, L288 +0x48, L289 +0x50, L291 +0x90, L292 +0x94, L293 +0x98 0x0ba0) and the write is '@P0 STS [R10.X4+0x4c], R5' (L297, 0x0d20). Fixed kernel: BAR.SYNC at L296 (0x0cf0) between the reads and the write, '@P0 STS' at L299 (0x0d30), BAR.SYNC at L301 (0x0d40), 33 BAR.SYNC in total. Shared accesses to the volatile array are plain LDS / STS on sm_89: no .STRONG token on any smem access of either build (the only STRONG token in the kernel is the global atomic ATOMG.E.ADD.STRONG.GPU for 'counter' at L322), no WARPSYNC. So the volatile qualifier is visible only in the source / PTX (ld.volatile.shared, st.volatile.shared), not as a SASS token. Native evidence (sm_75 smoke build on c38, not a deliverable): the buggy driver gives different results run to run (10 to 22 mismatching cells out of 4096, cells==2 between 938 and 950 of 960, stack entries 82-87 instead of 72) while the fixed driver gives 0 mismatches, 960 cells, 72 stack entries in every run.",
+  "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against modules/gpu/src/cuda/canny.cu@ce42593f (and @7fd21d21 for the fixed lines) on 2026-10-20; lines and SASS offsets taken from the files as compiled (R2 harness file names = repo paths).",
+  "open_questions": [
+    "A detector working on SASS cannot see the volatile qualifier as a token (plain LDS/STS on sm_89); whether it classifies the pair as SC (from PTX ld.volatile/st.volatile or from knowing the source) or as DR (from the SASS mnemonics) is not decided by the sources. The expected_class SC follows verify.corrections (volatile = strong).",
+    "Which of the 16 unrolled copies and which of the 8 neighbour reads a detector reports first is not fixed; any (neighbour read L284-L293, write L297) pair on the same smem cell counts as the racing pair.",
+    "Not the target pair, present in BOTH variants: the halo loads from global memory at L252-268 (map(y-1,x), map(y+1,x), map(y,x-1), ... read by one block) and the store map(y, x) = e at L302 (fixed L306) by the neighbouring block touch the same int of the global map with no ordering between blocks (plain/plain, cross-block). A detector may report this pair on both builds; it is unrelated to the fix and must not be counted against CLEAN-FOR-PAIR on the fixed build (added by the step-4 review)."
+  ],
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "corrected",
+    "changes": [
+      {
+        "field": "extra_pairs[1].sites[1].source",
+        "old": "the 8 neighbour reads (L284, L285, L286, L288, L289, L291, L292, L293) of iteration k+1 (and the own-cell read L282)",
+        "new": "the 8 neighbour reads (L284, L285, L286, L288, L289, L291, L292, L293) of iteration k+1",
+        "reason": "the own-cell read at L282 reads smem[ty+1][tx+1], which inside the loop is written (L297) only by the same thread, so it is not part of a cross-thread pair; only the 8 neighbour reads conflict with other threads' L297 writes.",
+        "evidence": "modules/gpu/src/cuda/canny.cu:282,297 @ce42593 (halo cells are written only before the barrier, L252-268)"
+      },
+      {
+        "field": "open_questions[+]",
+        "old": null,
+        "new": "Not the target pair, present in BOTH variants: the halo loads from global memory at L252-268 (map(y-1,x), map(y+1,x), map(y,x-1), ... read by one block) and the store map(y, x) = e at L302 (fixed L306) by the neighbouring block touch the same int of the global map with no ordering between blocks (plain/plain, cross-block). A detector may report this pair on both builds; it is unrelated to the fix and must not be counted against CLEAN-FOR-PAIR on the fixed build (added by the step-4 review).",
+        "reason": "unregistered cross-block global race in the same kernel, present in both variants, that a detector can report on the fixed build",
+        "evidence": "canny.cu:252-268 and :302 @ce42593; canny.cu:252-268 and :306 @7fd21d2; driver grid (4,4) of 16x16 blocks on 64x64 (driver.cu:4)"
+      }
+    ],
+    "notes": "R2 harness: every copied kernel file under r2/buggy and r2/fixed is byte-identical (cmp) to git show <buggy_commit>:<path> / <fix_commit>:<path>; git diff buggy..fix of those files is exactly the fix hunk described in fixed.reason. (canny.cu and cuda_devptrs.hpp). Primary pair confirmed at ce42593: smem is '__shared__ volatile int smem[18][18]' (canny.cu:247); inside the 16-step loop thread (tx,ty) reads its 8 neighbours (L284-293, guarded by its own cell == 1, L282) and writes its own cell = 2 (L297); the only barrier is L270 before the loop. Example re-derived: block (16,16), thread (3,1) = linear 19 is warp 0, writes smem[2][4] at L297; thread (3,2) = linear 35 is warp 1, reads smem[ty][tx+1] = smem[2][4] at L285: cross-warp, 32-bit volatile/volatile, unordered. extra_pairs[0] (last-iteration write vs post-loop reads L308-317) and extra_pairs[1] (write in k vs neighbour reads in k+1) confirmed, apart from the L282 note corrected above. Fixed (7fd21d2): __syncthreads() at L296 (between the reads and the write) and L301 (after the write) inside the unrolled loop; post-loop reads move to L312-321; all threads reach them for the 64x64 driver (the early return at L272-273 removes no thread). 'absent' confirmed for the registered pairs (see the added open question for the unrelated cross-block global pair). depends_on_D20 = true: every racing access is to volatile shared memory. Under PTX (ld/st.volatile.shared, strong .sys) the pair is SC, which is the registered expected_class; the oracle's sass_notes (not re-verified here) say the SASS is plain LDS/STS with no .STRONG token, so a detector applying the token rule (D9) to SASS would report DR. How this target counts is the open D20 decision; expected_class left as 'SC'. Not independently verified: the SASS opcodes, register operands and offsets quoted in sites/sass_notes (the one permitted srun on -p normal could not start: partition fully allocated, estimated start 2026-10-21 14:37, so the job was cancelled); access widths were checked from the source types instead. Native-run and smoke-run statements in open_questions are builder results and were not reviewed.",
+    "depends_on_D20": true
+  }
+}

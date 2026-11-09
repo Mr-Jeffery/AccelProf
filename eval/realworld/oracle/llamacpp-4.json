@@ -1,0 +1,55 @@
+{
+  "id": "llamacpp-4",
+  "tier": "core",
+  "wave": 1,
+  "route": "R1",
+  "kernel": "soft_max_f32<use_shared=true, ncols=1024, block_size=1024, float> (block_reduce<> from common.cuh inlined twice: MAX at softmax.cu:102, SUM at softmax.cu:120); mangled _Z12soft_max_f32ILb1ELi1024ELi1024EfEvPKfPKT2_S1_Pf15soft_max_params",
+  "space": "shared",
+  "build_revision": {
+    "buggy": "0b14b87d7c20cb753b94b96854dd7b45306fc696",
+    "fixed": "9bd4c09ea571a9020f30eeef169b552625b5b5a4"
+  },
+  "sites": [
+    {
+      "role": "read",
+      "file": "ggml/src/ggml-cuda/common.cuh",
+      "line_start": 643,
+      "line_end": 643,
+      "source": "val = shared_vals[lane_id];   (block_reduce, first call: MAX reduction, softmax.cu:102)",
+      "operation": "ld.shared.f32 (SASS LDS R5,[R0.X4] at 0x0870)",
+      "strength": "plain"
+    },
+    {
+      "role": "write",
+      "file": "ggml/src/ggml-cuda/common.cuh",
+      "line_start": 638,
+      "line_end": 638,
+      "source": "shared_vals[warp_id] = val;   (block_reduce, second call: SUM reduction, softmax.cu:120; lane_id == 0 only)",
+      "operation": "st.shared.f32 (SASS @!P0 STS [R14],R15 at 0x0a20)",
+      "strength": "plain"
+    }
+  ],
+  "thread_relation": "cross-warp-same-block",
+  "thread_pair_example": "driver SOFT_MAX type=f32,ne=[1024,16,1,1],mask=0,sinks=0 (scale 1.0 and 0.1): 16 blocks of 1024 threads = 32 warps, buf_iw = shared_vals. Thread 161 (warp 5, lane 1) reads shared_vals[1] in the first block_reduce (L643) while thread 32 (warp 1, lane 0) writes shared_vals[1] in the second block_reduce (L638): there is no barrier between the end of reduction #1 (the barrier at L640 precedes the reads) and the write phase of reduction #2 (softmax.cu:104-120 only has expf/stores to vals[] and warp shuffles). WAR across warps.",
+  "expected_class": "DR",
+  "class_reason": "plain ld.shared / st.shared on the same shared_vals slot by different warps with no barrier between the last read of reduction #1 and the first write of reduction #2: unordered conflicting plain accesses = DR (WAR).",
+  "buggy_expected": "the pair (read common.cuh:643 in reduction #1, write common.cuh:638 in reduction #2) is reported as DR (shared WAR, cross-warp) for the soft_max_f32<true,1024,1024,float> launches (the PR quotes 3516 racecheck hazards for [1024,16,1,1]).",
+  "fixed": {
+    "expected": "absent",
+    "residual_sites": null,
+    "reason": "the fix (9bd4c09e) adds `if (block_size > WARP_SIZE) { __syncthreads(); }` before the second block_reduce in soft_max_f32 (softmax.cu:119-123 of the fixed file), so every read of shared_vals in reduction #1 happens before any write in reduction #2; also double-buffers the cooperative single-row kernel (not launched by this driver) and uses s_sum + 32 in group_norm_f32 (norm.cu). Nothing is expected for the pair (verify.expected_report_fixed)."
+  },
+  "sass_notes": "sm_89 SASS of soft_max_f32<true,1024,1024,float> from the shipped build (sassline.sh): reduction #1: SHFL.BFLY x5 (warp max), @!P0 STS (common.cuh:638, 0x0850), BAR.SYNC.DEFER_BLOCKING (common.cuh:640, 0x0860), LDS (common.cuh:643, 0x0870); then LDS vals (softmax.cu:114, 0x0880), STS vals (softmax.cu:116, 0x0970); reduction #2: SHFL.BFLY x5, @!P0 STS (common.cuh:638, 0x0a20), BAR (common.cuh:640, 0x0a30), LDS (common.cuh:643, 0x0a60). Between the LDS at 0x0870 and the STS at 0x0a20 there is no BAR/WARPSYNC. All plain STS/LDS, no .STRONG token. Fixed build (same kernel, common.cuh lines shifted by +1 because of the added comment): reduction #1 STS (common.cuh:639, 0x0850), BAR (common.cuh:641, 0x0860), LDS (common.cuh:644, 0x0870); the added BAR.SYNC.DEFER_BLOCKING at softmax.cu:122 (0x0990) sits between the LDS at 0x0870 and reduction #2's STS (common.cuh:639, 0x0a30), BAR (0x0a40), LDS (0x0a70).",
+  "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against ggml/src/ggml-cuda/common.cuh and softmax.cu@0b14b87 (buggy) and @9bd4c09 (fixed) and the sm_89 SASS of the build on 2026-10-20",
+  "open_questions": [
+    "The regex -p 'ne=\\[1024,16,1,1\\],mask=0,sinks=0' matches two test cases (scale 1.0 and 0.1), both launching soft_max_f32<true,1024,1024,float>; the same pair also exists in the other block_size > 32 instances of the template (e.g. <true,512,512>, <true,0,0>) which this driver does not launch."
+  ],
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "confirmed",
+    "changes": [],
+    "notes": "Checked at 0b14b87: soft_max_f32 calls block_reduce twice with buf_iw (softmax.cu:102, :120); block_reduce (common.cuh:629-649) writes shared_vals[warp_id] from lane 0 (:638), barrier (:640), reads shared_vals[lane_id] for lane_id < block_size/32 (:642-643), and returns without a barrier. Between the two calls (softmax.cu:104-117) there is only thread-local work on vals[col] (own column; ncols = block_size = 1024): no barrier, so the read of call 1 and the write of call 2 conflict (thread 161 vs thread 32 on shared_vals[1]); intra-warp instances also exist (e.g. thread 33 vs thread 32). Plain float shared: DR. Fix 9bd4c09 adds if (block_size > WARP_SIZE) __syncthreads() before the second call (fixed softmax.cu:119-123), plus a comment in common.cuh (+1 line) and the cooperative-kernel double buffer (not launched by this driver): 'absent' holds; nothing after the second call writes buf_iw. sass_notes are the builder's: the reviewer read sources and diffs only and did not re-dump SASS (the one srun queued with an estimated start the next day and was withdrawn).",
+    "depends_on_D20": false
+  }
+}

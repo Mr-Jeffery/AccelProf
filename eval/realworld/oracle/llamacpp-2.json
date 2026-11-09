@@ -1,0 +1,57 @@
+{
+  "id": "llamacpp-2",
+  "tier": "core",
+  "wave": 1,
+  "route": "R1",
+  "kernel": "mm_ids_helper<4> (template n_expert_used_template = 4; mangled _Z13mm_ids_helperILi4EEvPKiPiS2_S2_iiiiib)",
+  "space": "shared",
+  "build_revision": {
+    "buggy": "9e0e220594af405a62835dc3a27495729fd8506b",
+    "fixed": "73a43d1f69345aee8bb186ef4b3172cef892f2e5"
+  },
+  "sites": [
+    {
+      "role": "write",
+      "file": "ggml/src/ggml-cuda/mmid.cu",
+      "line_start": 96,
+      "line_end": 96,
+      "source": "store[it_compact + it_compact_add_lower] = mm_ids_helper_store(it, iex_used);",
+      "operation": "st.shared.u32 (PTX st.shared.u32 [%r141]; SASS predicated @!P1 STS [R11.X4], R10)",
+      "strength": "plain"
+    },
+    {
+      "role": "read",
+      "file": "ggml/src/ggml-cuda/mmid.cu",
+      "line_start": 106,
+      "line_end": 106,
+      "source": "const mm_ids_helper_store store_it = store[itc];",
+      "operation": "ld.shared.u32 (SASS LDS)",
+      "strength": "plain"
+    }
+  ],
+  "thread_relation": "intra-warp",
+  "thread_pair_example": "driver MUL_MAT_ID type_a=q4_0,type_b=f32,n_mats=8,n_used=4,b=0,m=512,n=32,k=256: mm_ids_helper<4><<<8 experts, 32 threads>>> (one warp per block, neu_padded = 4, 8 token slots per warp iteration, dynamic smem n_tokens*4 = 128 B). Block e, lane 5 (token slot it0 + 1, iex = 1) writes store[0] at L96 when ids[(it0 + 1) * si1 + 1] == e and no lower token slot of this iteration uses e (it_compact = 0, it_compact_add_lower = 0), while lane 0 (itc = threadIdx.x = 0) reads store[0] at L106 after the loop. Between the two only full-mask __shfl_up_sync (L89), __shfl_sync (L100), the any-reduction (shfl.sync.bfly) and warp_reduce_sum (redux.sync.add.s32, L103) lie; no __syncwarp and no barrier.",
+  "expected_class": "DR",
+  "class_reason": "both accesses are plain st.shared / ld.shared (no volatile, no atomics, no .STRONG); lanes of one warp, ordered only by full-mask shfl.sync / redux.sync, which PTX does not define as memory-ordering operations (only bar.warp.sync / __syncwarp orders memory among the participating lanes): unordered conflicting plain accesses = DR (RAW), as the fix's added __syncwarp() acknowledges.",
+  "buggy_expected": "the pair (write L96, read L106) is reported as DR (intra-warp RAW on the dynamic shared array store[]), provided the detector does not treat a full-mask shfl.sync / redux.sync as an ordering point between lanes. The same pair exists in every mm_ids_helper<N> instance (N = 0, 2, 4, 6, 8, 10, 16, 32); the driver launches only mm_ids_helper<4>.",
+  "fixed": {
+    "expected": "absent",
+    "residual_sites": null,
+    "reason": "the fix (73a43d1f) inserts ggml_cuda_syncwarp() (= __syncwarp()) after the warp_reduce_sum (new L104), i.e. between the last write of the loop and the reads of L106-L107 of the fixed file; PTX of the fixed kernel contains exactly one bar.warp.sync -1 there. Nothing is expected for the pair (verify.expected_report_fixed)."
+  },
+  "sass_notes": "sm_89 SASS of mm_ids_helper<4> from the shipped build (sassline.sh + cuobjdump -sass): ptxas emitted NO WARPSYNC in either build. Buggy: STS (L96) at 0x06d0, 0x0760, 0x0ab0 (predicated), SHFL.BFLY (any-reduction, sm_30_intrinsics.hpp:408) 0x0310-0x03c0, SHFL.UP x7 (L89, sm_30_intrinsics.hpp:384) per iteration, SHFL.IDX (L100) 0x05e0/0x0740/0x0a60, REDUX.SUM.S32 UR4,R9 (warp_reduce_sum, L103, sm_80_rt.hpp:115) at 0x0af0, then the first LDS (L106) at 0x0c70 and further LDS at 0x0e20-0x0ea0, 0x1220, 0x1520-0x1580; no WARPSYNC, no BAR in the function. Fixed: PTX has the single 'bar.warp.sync -1' (mmid.cu:104) but the kernel carries __launch_bounds__(32,1) (.maxntid 32), and ptxas lowered it to a single NOP at 0x0b00 right after the REDUX: the fixed SASS is the buggy SASS plus that NOP (every later address shifts by 0x10); so a SASS-only detector sees no synchronisation in the fixed build either. All shared accesses are plain STS/LDS, no .STRONG token. PTX (compute_89 embedded): buggy has 0 bar.warp.sync, fixed 1.",
+  "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against ggml/src/ggml-cuda/mmid.cu@9e0e220 (buggy) and @73a43d1 (fixed), the dispatch ggml_cuda_mul_mat_id -> ggml_cuda_mul_mat_q (mmq.cu:200) -> ggml_cuda_launch_mm_ids_helper<4>, and the sm_89 SASS/PTX of the build on 2026-10-20",
+  "open_questions": [
+    "Whether the detector counts SHFL/REDUX as ordering: if it does, the buggy build has no DR for this pair and the target degenerates to 'detector must model PTX, not hardware' (the verifier's DR holds only if full-mask shfl.sync is not an ordering point).",
+    "SASS-level visibility of the fix: ptxas turns the added __syncwarp() into a NOP (single-warp block, .maxntid 32), so the fixed SASS contains no WARPSYNC; a detector reading only SASS cannot see the fix and may report the same DR on the fixed build (a SASS-visibility limit, not an application difference). The fix commit also changes mmf.cuh and fattn-vec.cuh (other kernels, not launched by this driver).",
+    "The driver runs the MUL_MAT_ID test case for q4_0 (mmq path); dispatch was confirmed by reading mmq.cu:200 / ggml-cuda.cu:1905-1943 (n = 32 tokens > MMVQ_MAX_BATCH_SIZE = 8, ggml_cuda_should_use_mmq true for q4_0 on cc >= 7.5) and by the sm_75 smoke run (see status.json)."
+  ],
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "confirmed",
+    "changes": [],
+    "notes": "Checked at 9e0e220: mm_ids_helper<4> (mmid.cu:31-125) has neu_padded = 4, eight token slots per iteration (:73-74); lane 5 (slot it0+1, iex 1) stores store[it_compact + it_compact_add_lower] at :96 and lane 0 loads store[0] at :106; in between only __shfl_up_sync (:89), __shfl_sync (:100), warp_reduce_any<4> (shfl.xor, common.cuh:504-513) and warp_reduce_sum (__reduce_add_sync on cc >= 8.0, common.cuh:444-447). None of these is a memory-ordering operation in PTX (CLAUDE.md T21 item 2); no __syncwarp or barrier: plain DR. Dispatch: n_used=4 -> launch_mm_ids_helper<4> (mmid.cu:158-159), reached from mmq.cu:200; n=32 > MMVQ_MAX_BATCH_SIZE=8 (mmvq.cuh:3). Fix 73a43d1 adds ggml_cuda_syncwarp() (= __syncwarp(), new common.cuh:124-128) after :103, so the fixed load is at mmid.cu:107 (the oracle's 'L106-L107' = the for line and the load). Ground truth for the fixed build is 'absent' by source/PTX; the open question on the builder's SASS observation (the __syncwarp lowered to a NOP) stands and decides what a SASS-level detector sees on the fixed build. sass_notes are the builder's: the reviewer read sources and diffs only and did not re-dump SASS (the one srun queued with an estimated start the next day and was withdrawn).",
+    "depends_on_D20": false
+  }
+}

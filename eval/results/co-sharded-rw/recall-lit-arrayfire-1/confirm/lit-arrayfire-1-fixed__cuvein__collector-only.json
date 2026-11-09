@@ -1,0 +1,85 @@
+{
+  "id": "lit-arrayfire-1-fixed",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0xd30-0xff0:RAW",
+    "shared:0xda0-0xff0:RAW",
+    "shared:0x10e0-0x1240:RAW",
+    "shared:0x1150-0x1240:RAW"
+  ],
+  "pcs": [
+    3376,
+    3488,
+    4080,
+    4320,
+    4432,
+    4672
+  ],
+  "lines": "scan_dim_by_key_impl.hpp:263;scan_dim_by_key_impl.hpp:30;scan_dim_by_key_impl.hpp:306;scan_dim_by_key_impl.hpp:314;scan_dim_by_key_impl.hpp:325;scan_dim_by_key_impl.hpp:329",
+  "raw": [
+    {
+      "a_pc": 3376,
+      "b_pc": 4080,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    },
+    {
+      "a_pc": 3488,
+      "b_pc": 4080,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    },
+    {
+      "a_pc": 4320,
+      "b_pc": 4672,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    },
+    {
+      "a_pc": 4432,
+      "b_pc": 4672,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "4672": "scan_dim_by_key_impl.hpp:306",
+    "4320": "scan_dim_by_key_impl.hpp:263",
+    "3488": "scan_dim_by_key_impl.hpp:329",
+    "3376": "scan_dim_by_key_impl.hpp:325",
+    "4080": "scan_dim_by_key_impl.hpp:314",
+    "4432": "scan_dim_by_key_impl.hpp:30"
+  }
+}

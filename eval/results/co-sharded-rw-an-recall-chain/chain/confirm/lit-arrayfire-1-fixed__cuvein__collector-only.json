@@ -1,0 +1,182 @@
+{
+  "id": "lit-arrayfire-1-fixed",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0xd30-0xff0:RAW",
+    "shared:0xda0-0xff0:RAW",
+    "shared:0xea0-0xea0:WAW",
+    "shared:0xeb0-0xeb0:WAW",
+    "shared:0x10e0-0x1240:RAW",
+    "shared:0x1150-0x1240:RAW",
+    "shared:0x11e0-0x11e0:WAW",
+    "shared:0x11f0-0x11f0:WAW"
+  ],
+  "pcs": [
+    3376,
+    3488,
+    3744,
+    3760,
+    4080,
+    4320,
+    4432,
+    4576,
+    4592,
+    4672
+  ],
+  "lines": "scan_dim_by_key_impl.hpp:263;scan_dim_by_key_impl.hpp:280;scan_dim_by_key_impl.hpp:30;scan_dim_by_key_impl.hpp:306;scan_dim_by_key_impl.hpp:307;scan_dim_by_key_impl.hpp:308;scan_dim_by_key_impl.hpp:314;scan_dim_by_key_impl.hpp:325;scan_dim_by_key_impl.hpp:329",
+  "raw": [
+    {
+      "a_pc": 3376,
+      "b_pc": 4080,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 3488,
+      "b_pc": 4080,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 3744,
+      "b_pc": 3744,
+      "space": "shared",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain_rescue",
+      "chain_path": [
+        "0xea0",
+        "0x9d0",
+        "0xea0"
+      ]
+    },
+    {
+      "a_pc": 3760,
+      "b_pc": 3760,
+      "space": "shared",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain",
+      "chain_path": [
+        "0xeb0",
+        "0xd50",
+        "0xeb0"
+      ]
+    },
+    {
+      "a_pc": 4320,
+      "b_pc": 4672,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 4432,
+      "b_pc": 4672,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 4576,
+      "b_pc": 4576,
+      "space": "shared",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain",
+      "chain_path": [
+        "0x11e0",
+        "0x910",
+        "0x11e0"
+      ]
+    },
+    {
+      "a_pc": 4592,
+      "b_pc": 4592,
+      "space": "shared",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain",
+      "chain_path": [
+        "0x11f0",
+        "0x920",
+        "0x1100",
+        "0x11f0"
+      ]
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "3744": "scan_dim_by_key_impl.hpp:308",
+    "4576": "scan_dim_by_key_impl.hpp:30",
+    "4672": "scan_dim_by_key_impl.hpp:306",
+    "4320": "scan_dim_by_key_impl.hpp:263",
+    "3488": "scan_dim_by_key_impl.hpp:329",
+    "3376": "scan_dim_by_key_impl.hpp:325",
+    "3760": "scan_dim_by_key_impl.hpp:307",
+    "4080": "scan_dim_by_key_impl.hpp:314",
+    "4432": "scan_dim_by_key_impl.hpp:30",
+    "4592": "scan_dim_by_key_impl.hpp:280"
+  }
+}

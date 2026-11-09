@@ -1,0 +1,85 @@
+{
+  "id": "cccl-2",
+  "tier": "core",
+  "wave": 1,
+  "route": "R1h",
+  "kernel": "cub::DeviceRleSweepKernel (DeviceRunLengthEncode::NonTrivialRuns on int keys, one tile of 96 threads x 15 items = 1,440 items)",
+  "space": "shared",
+  "build_revision": {
+    "buggy": "eea703e55307d0d73b5fd71a9b74fca096bfdc82",
+    "fixed": "ee14babeaa054df82dabc782a9f48df3a0d537e5"
+  },
+  "sites": [
+    {
+      "role": "read",
+      "file": "cub/cub/agent/agent_rle.cuh",
+      "line_start": 455,
+      "line_end": 455,
+      "source": "warp_aggregate = temp_storage.aliasable.scan_storage.warp_aggregates.Alias()[warp_id];",
+      "operation": "ld.shared (SASS LDS R0, [R45.X8+0x304] at 0x1990)",
+      "strength": "plain"
+    },
+    {
+      "role": "read",
+      "file": "cub/cub/agent/agent_rle.cuh",
+      "line_start": 461,
+      "line_end": 469,
+      "source": "tile_aggregate = ...warp_aggregates.Alias()[0]; and the loop tile_aggregate = scan_op(tile_aggregate, ...warp_aggregates.Alias()[WARP]);",
+      "operation": "ld.shared (SASS LDS.128 R24, [0x300] and LDS.128 R4, [0x310] at 0x1960/0x1970, attributed to agent_rle.cuh:461)",
+      "strength": "plain"
+    },
+    {
+      "role": "write",
+      "file": "cub/cub/warp/specializations/warp_exchange_smem.cuh",
+      "line_start": 156,
+      "line_end": 156,
+      "source": "items_shared[ranks[ITEM]] = input_items[ITEM];  (WarpExchange::ScatterToStriped, called from cub/cub/agent/agent_rle.cuh:496 in the time-sliced store path used by Policy860 on sm_89)",
+      "operation": "st.shared.v2.u32 / 64-bit (SASS STS.64 [Rn.X8], Rm at 0x2be0..0x2cd0, attributed to warp_exchange_smem.cuh:156)",
+      "strength": "plain"
+    }
+  ],
+  "thread_relation": "cross-warp, same block (first tile, tile_idx == 0); intra-warp-0 lane pairs also race",
+  "thread_pair_example": "block 0: a lane of warp 0 whose rank is 96..99 stores items_shared[rank] (8-byte KeyValuePair) at bytes 8*rank = 0x300..0x31f, which overlaps scan_storage.warp_aggregates at 0x304..0x31b (discontinuity storage = 2 x 96 ints at 0x000..0x2ff, warp_scan = three empty WarpScanShfl::TempStorage at 0x300..0x302, warp_aggregates 4-byte aligned at 0x304; consistent with the builder's SASS reads LDS [R45.X8+0x304] for warp_aggregates[warp_id].key and LDS.128 [0x300]/[0x310]); warp 1 or 2 (thread 32 or 64) reads warp_aggregates[0..2] at agent_rle.cuh:455/:461/:469. Needs >= 97 non-trivial run starts in warp 0's range: the driver (key = i/2) has 240.",
+  "expected_class": "DR",
+  "class_reason": "all accesses are plain shared loads/stores (no volatile, no atomics).",
+  "buggy_expected": "a shared-memory WAR data race (DR) between the warp_aggregates reads and the exchange stores on the first tile, reported across warps (and between lanes of warp 0).",
+  "fixed": {
+    "expected": "absent",
+    "residual_sites": null,
+    "reason": "the fix adds CTA_SYNC() at the end of WarpScanAllocations() (agent_rle.cuh +4 lines): the fixed SASS has a BAR.SYNC at 0x19b0 directly after the LDS of the warp aggregates (0x1990); in the buggy SASS no barrier separates the reads from the exchange stores (next BAR at 0x2570)."
+  },
+  "sass_notes": "buggy: BAR.SYNC 0x1920, then LDS.128 x2 (0x1960/0x1970, agent_rle.cuh:461) and LDS (0x1990, :455), no barrier, MEMBAR.SC.CTA at 0x1bb0 (single_pass_scan_operators.cuh:119), ..., STS.64 x15 at 0x2be0 (warp_exchange_smem.cuh:156). Kernel _ZN3cub...DeviceRleSweepKernel... in the driver. The non-time-sliced scatter lines (agent_rle.cuh:564/569) are not compiled for sm_89 in this policy (verify.corrections).",
+  "derived_from": "verify.accesses + verify.thread_pair + verify.corrections of eval/realworld/targets.jsonl (cccl-2), re-checked against cub/cub/agent/agent_rle.cuh at eea703e (lines 448-472) and against nvdisasm -g of the built driver (eval/x_logs/sass-cccl-2-*.txt) on 2026-10-20",
+  "open_questions": [
+    "verify.thread_pair's byte offsets were a hand calculation; the SASS shows warp_aggregates at 0x300.. (LDS.128 [0x300]) which is consistent with ranks 96-98 of the 8-byte exchange items, but the detector is the oracle for which lane pairs it reports.",
+    "Benign write-write pair outside the target, present in BOTH builds (added by the step-4 review): discarded items get rank WARP_THREADS*ITEMS_PER_THREAD = 480 (agent_rle.cuh:752-754 at eea703e) and WarpExchangeSmem stores them at items_shared[480] (warp_exchange_smem.cuh:156), one element past the 480-element array (:62-71, no padding for 15 items), i.e. over temp_storage.tile_idx/tile_inclusive (agent_rle.cuh:264-265, not read on the first tile). With key = i/2 every odd item is a non-head (agent_rle.cuh:385) and is discarded, so many lanes of the active warp store the same 8 bytes from different unrolled STS.64 instructions with no __syncwarp between them: an intra-warp WAW on one address. The fix does not touch it. A report warp_exchange_smem.cuh:156 vs :156 (WAW) on either build is this pair, not the oracle pair and not a fixed-build false positive."
+  ],
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "corrected",
+    "changes": [
+      {
+        "field": "thread_pair_example",
+        "old": "block 0: a lane of warp 0 whose rank is 96..98 stores items_shared[rank] at byte 8*rank = 0x300..0x317, which aliases scan_storage.warp_aggregates (the SASS reads them at 0x300..0x31f); warp 1 or 2 (thread 32 or 64) reads warp_aggregates[1]/[2] at agent_rle.cuh:455/:461/:469. Needs >= 97 non-trivial run starts in warp 0's range: the driver (key = i/2) has 240.",
+        "new": "block 0: a lane of warp 0 whose rank is 96..99 stores items_shared[rank] (8-byte KeyValuePair) at bytes 8*rank = 0x300..0x31f, which overlaps scan_storage.warp_aggregates at 0x304..0x31b (discontinuity storage = 2 x 96 ints at 0x000..0x2ff, warp_scan = three empty WarpScanShfl::TempStorage at 0x300..0x302, warp_aggregates 4-byte aligned at 0x304; consistent with the builder's SASS reads LDS [R45.X8+0x304] for warp_aggregates[warp_id].key and LDS.128 [0x300]/[0x310]); warp 1 or 2 (thread 32 or 64) reads warp_aggregates[0..2] at agent_rle.cuh:455/:461/:469. Needs >= 97 non-trivial run starts in warp 0's range: the driver (key = i/2) has 240.",
+        "reason": "warp_aggregates starts at 0x304, not 0x300: the three WarpScanShfl TempStorage members are empty structs (1 byte each) and Uninitialized<KeyValuePair<int,int>[3]> uses a 4-byte DeviceWord, so the array is only 4-byte aligned; it spans 0x304..0x31b and rank 99 (0x318..0x31f) also overlaps it. Sites, relation and class are unchanged.",
+        "evidence": "cub/cub/agent/agent_rle.cuh:244-247, cub/cub/block/block_discontinuity.cuh:130-131, cub/cub/warp/warp_scan.cuh:172-174, cub/cub/warp/specializations/warp_scan_shfl.cuh:80, cub/cub/util_type.cuh:444,466-469,702-712 at eea703e55307"
+      },
+      {
+        "field": "open_questions",
+        "old": [
+          "verify.thread_pair's byte offsets were a hand calculation; the SASS shows warp_aggregates at 0x300.. (LDS.128 [0x300]) which is consistent with ranks 96-98 of the 8-byte exchange items, but the detector is the oracle for which lane pairs it reports."
+        ],
+        "new": [
+          "verify.thread_pair's byte offsets were a hand calculation; the SASS shows warp_aggregates at 0x300.. (LDS.128 [0x300]) which is consistent with ranks 96-98 of the 8-byte exchange items, but the detector is the oracle for which lane pairs it reports.",
+          "Benign write-write pair outside the target, present in BOTH builds (added by the step-4 review): discarded items get rank WARP_THREADS*ITEMS_PER_THREAD = 480 (agent_rle.cuh:752-754 at eea703e) and WarpExchangeSmem stores them at items_shared[480] (warp_exchange_smem.cuh:156), one element past the 480-element array (:62-71, no padding for 15 items), i.e. over temp_storage.tile_idx/tile_inclusive (agent_rle.cuh:264-265, not read on the first tile). With key = i/2 every odd item is a non-head (agent_rle.cuh:385) and is discarded, so many lanes of the active warp store the same 8 bytes from different unrolled STS.64 instructions with no __syncwarp between them: an intra-warp WAW on one address. The fix does not touch it. A report warp_exchange_smem.cuh:156 vs :156 (WAW) on either build is this pair, not the oracle pair and not a fixed-build false positive."
+        ],
+        "reason": "added the discard-slot WAW that exists in both builds, so that a fixed-build report of it is triaged correctly",
+        "evidence": "cub/cub/agent/agent_rle.cuh:752-754, cub/cub/warp/specializations/warp_exchange_smem.cuh:62-71,156 at eea703e55307"
+      }
+    ],
+    "notes": "Checked at eea703e: Policy860 (selected for sm_89) = DefaultTuning = AgentRlePolicy<96, 15 (int), BLOCK_LOAD_DIRECT, LOAD_LDG, STORE_WARP_TIME_SLICING=true> (cub/cub/device/dispatch/tuning/tuning_run_length_encode.cuh:585-602,626-629), so ScatterTwoPhase<.., Int2Type<true>> runs (agent_rle.cuh:482-535) whenever tile_num_runs_aggregate >= 96 (:642; the driver's one tile has 720). Warp 0 calls ScatterToStriped on exchange_pairs[0] (:494-497) with no barrier after WarpScanAllocations (:446 is the last one; the first-tile path :715-769 has only thread-local code in between), while warps 1/2 may still read warp_aggregates (:455, :461, :469); scatter_aliasable and scan_storage are members of one union (:240-262). Fix ee14babe adds CTA_SYNC() after the loop ending at :470 (end of WarpScanAllocations); later slices are separated by CTA_SYNC (:504) and WarpExchange by WARP_SYNC (warp_exchange_smem.cuh:159), so the oracle pair is absent in the fixed build. Intra-warp lane pairs of warp 0 also exist. All accesses plain: DR. sass_notes are the builder's: the reviewer read sources and diffs only and did not re-dump SASS (the one srun queued with an estimated start the next day and was withdrawn).",
+    "depends_on_D20": false
+  }
+}

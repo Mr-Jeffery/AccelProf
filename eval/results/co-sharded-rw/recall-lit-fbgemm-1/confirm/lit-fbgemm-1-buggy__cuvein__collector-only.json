@@ -1,0 +1,35 @@
+{
+  "id": "lit-fbgemm-1-buggy",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0x27d0-0x2b00:WAR"
+  ],
+  "pcs": [
+    10192,
+    11008
+  ],
+  "lines": "sm_30_intrinsics.hpp:439",
+  "raw": [
+    {
+      "a_pc": 10192,
+      "b_pc": 11008,
+      "space": "shared",
+      "race_type": "WAR",
+      "strength": "warp",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "10192": "sm_30_intrinsics.hpp:439",
+    "11008": "sm_30_intrinsics.hpp:439"
+  }
+}

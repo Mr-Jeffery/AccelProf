@@ -1,0 +1,53 @@
+{
+  "id": "openpcdet-fps-new-1-buggy",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0xbd0-0x14b0:WAR",
+    "shared:0x16e0-0x1fc0:WAR"
+  ],
+  "pcs": [
+    3024,
+    5296,
+    5856,
+    8128
+  ],
+  "lines": "sampling_gpu.cu:147;sampling_gpu.cu:212;sampling_gpu.cu:250;sampling_gpu.cu:315",
+  "raw": [
+    {
+      "a_pc": 3024,
+      "b_pc": 5296,
+      "space": "shared",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    },
+    {
+      "a_pc": 5856,
+      "b_pc": 8128,
+      "space": "shared",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "3024": "sampling_gpu.cu:147",
+    "5856": "sampling_gpu.cu:250",
+    "5296": "sampling_gpu.cu:212",
+    "8128": "sampling_gpu.cu:315"
+  }
+}

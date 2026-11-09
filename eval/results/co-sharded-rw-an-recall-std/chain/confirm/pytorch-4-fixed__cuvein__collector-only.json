@@ -1,0 +1,35 @@
+{
+  "id": "pytorch-4-fixed",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0x1ea0-0x20c0:WAR"
+  ],
+  "pcs": [
+    7840,
+    8384
+  ],
+  "lines": "Sorting.cu:77;device_atomic_functions.hpp:142",
+  "raw": [
+    {
+      "a_pc": 7840,
+      "b_pc": 8384,
+      "space": "shared",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "7840": "Sorting.cu:77",
+    "8384": "device_atomic_functions.hpp:142"
+  }
+}

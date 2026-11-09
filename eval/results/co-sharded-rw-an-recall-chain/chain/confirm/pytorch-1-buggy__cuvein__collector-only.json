@@ -1,0 +1,124 @@
+{
+  "id": "pytorch-1-buggy",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0x190-0x190:WAW",
+    "shared:0x190-0x250:RAW",
+    "shared:0x190-0x3c0:WAR",
+    "global:0x5f0-0x610:RAW",
+    "global:0x610-0x610:WAW"
+  ],
+  "pcs": [
+    400,
+    592,
+    960,
+    1520,
+    1552
+  ],
+  "lines": "Embedding.cu:122;Embedding.cu:66;Embedding.cu:82;Embedding.cu:99",
+  "raw": [
+    {
+      "a_pc": 400,
+      "b_pc": 400,
+      "space": "shared",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain",
+      "chain_path": [
+        "0x190",
+        "0x250",
+        "0x3c0",
+        "0x190"
+      ]
+    },
+    {
+      "a_pc": 400,
+      "b_pc": 592,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": [
+        "0x250",
+        "0x3c0",
+        "0x190"
+      ]
+    },
+    {
+      "a_pc": 400,
+      "b_pc": 960,
+      "space": "shared",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": [
+        "0x190",
+        "0x250",
+        "0x3c0"
+      ]
+    },
+    {
+      "a_pc": 1520,
+      "b_pc": 1552,
+      "space": "global",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 1552,
+      "b_pc": 1552,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain",
+      "chain_path": [
+        "0x610",
+        "0x5f0",
+        "0x610"
+      ]
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "960": "Embedding.cu:99",
+    "1552": "Embedding.cu:122",
+    "1520": "Embedding.cu:122",
+    "592": "Embedding.cu:82",
+    "400": "Embedding.cu:66"
+  }
+}

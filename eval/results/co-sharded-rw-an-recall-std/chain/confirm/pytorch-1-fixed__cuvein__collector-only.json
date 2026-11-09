@@ -1,0 +1,69 @@
+{
+  "id": "pytorch-1-fixed",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0x1b0-0x270:RAW",
+    "shared:0x1b0-0x3e0:WAR",
+    "global:0x610-0x630:RAW"
+  ],
+  "pcs": [
+    432,
+    624,
+    992,
+    1552,
+    1584
+  ],
+  "lines": "Embedding.cu:104;Embedding.cu:127;Embedding.cu:71;Embedding.cu:87",
+  "raw": [
+    {
+      "a_pc": 432,
+      "b_pc": 624,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    },
+    {
+      "a_pc": 432,
+      "b_pc": 992,
+      "space": "shared",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    },
+    {
+      "a_pc": 1552,
+      "b_pc": 1584,
+      "space": "global",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "992": "Embedding.cu:104",
+    "1552": "Embedding.cu:127",
+    "1584": "Embedding.cu:127",
+    "624": "Embedding.cu:87",
+    "432": "Embedding.cu:71"
+  }
+}

@@ -1,0 +1,141 @@
+{
+  "id": "mmcv-fps-new-1-buggy",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0x7a0-0x7a0:WAW",
+    "shared:0x7d0-0x7d0:WAW",
+    "shared:0x7d0-0x10b0:WAR",
+    "shared:0xba0-0xba0:WAW",
+    "shared:0xbd0-0xbd0:WAW",
+    "shared:0xbd0-0x14b0:WAR"
+  ],
+  "pcs": [
+    1952,
+    2000,
+    2976,
+    3024,
+    4272,
+    5296
+  ],
+  "lines": "furthest_point_sample_cuda_kernel.cuh:14;furthest_point_sample_cuda_kernel.cuh:50;furthest_point_sample_cuda_kernel.cuh:52;furthest_point_sample_cuda_kernel.cuh:66;furthest_point_sample_cuda_kernel.cuh:67;furthest_point_sample_cuda_kernel.cuh:80",
+  "raw": [
+    {
+      "a_pc": 1952,
+      "b_pc": 1952,
+      "space": "shared",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain",
+      "chain_path": [
+        "0x7a0",
+        "0x850",
+        "0x7a0"
+      ]
+    },
+    {
+      "a_pc": 2000,
+      "b_pc": 2000,
+      "space": "shared",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain",
+      "chain_path": [
+        "0x7d0",
+        "0x870",
+        "0x7d0"
+      ]
+    },
+    {
+      "a_pc": 2000,
+      "b_pc": 4272,
+      "space": "shared",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    },
+    {
+      "a_pc": 2976,
+      "b_pc": 2976,
+      "space": "shared",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain",
+      "chain_path": [
+        "0xba0",
+        "0xc50",
+        "0xba0"
+      ]
+    },
+    {
+      "a_pc": 3024,
+      "b_pc": 3024,
+      "space": "shared",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain",
+      "chain_path": [
+        "0xbd0",
+        "0xc70",
+        "0xbd0"
+      ]
+    },
+    {
+      "a_pc": 3024,
+      "b_pc": 5296,
+      "space": "shared",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "1952": "furthest_point_sample_cuda_kernel.cuh:50",
+    "2976": "furthest_point_sample_cuda_kernel.cuh:66",
+    "4272": "furthest_point_sample_cuda_kernel.cuh:14",
+    "2000": "furthest_point_sample_cuda_kernel.cuh:52",
+    "3024": "furthest_point_sample_cuda_kernel.cuh:67",
+    "5296": "furthest_point_sample_cuda_kernel.cuh:80"
+  }
+}

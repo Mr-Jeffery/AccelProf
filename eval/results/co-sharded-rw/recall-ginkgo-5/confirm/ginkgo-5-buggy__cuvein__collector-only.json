@@ -1,0 +1,65 @@
+{
+  "id": "ginkgo-5-buggy",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "global:0x1f0-0x1f0:WAW",
+    "global:0x1320-0x1320:WAW",
+    "global:0x23c0-0x23c0:WAW"
+  ],
+  "pcs": [
+    496,
+    4896,
+    9152
+  ],
+  "lines": "bit_packed_storage.hpp:154;kernel_launch.hpp:60;kernel_launch_reduction.hpp:62",
+  "raw": [
+    {
+      "a_pc": 496,
+      "b_pc": 496,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    },
+    {
+      "a_pc": 4896,
+      "b_pc": 4896,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    },
+    {
+      "a_pc": 9152,
+      "b_pc": 9152,
+      "space": "global",
+      "race_type": "WAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "496": "kernel_launch.hpp:60",
+    "4896": "kernel_launch_reduction.hpp:62",
+    "9152": "bit_packed_storage.hpp:154"
+  }
+}

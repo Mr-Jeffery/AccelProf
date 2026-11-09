@@ -1,0 +1,59 @@
+{
+  "id": "sglang-open-1-buggy",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0xee0-0xf20:RAW",
+    "shared:0xee0-0x1190:RAW"
+  ],
+  "pcs": [
+    3808,
+    3872,
+    4496
+  ],
+  "lines": "moe_align_kernel.cu:297",
+  "raw": [
+    {
+      "a_pc": 3808,
+      "b_pc": 3872,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "chain_rescue",
+      "chain_path": [
+        "0xee0",
+        "0x1190",
+        "0xf20"
+      ]
+    },
+    {
+      "a_pc": 3808,
+      "b_pc": 4496,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false,
+      "chain_src": "edge",
+      "chain_path": null
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "3808": "moe_align_kernel.cu:297",
+    "3872": "moe_align_kernel.cu:297",
+    "4496": "moe_align_kernel.cu:297"
+  }
+}

@@ -1,0 +1,73 @@
+=== set b
+rows std 57 chain 57 c2 59 c6 59
+X12 std vs C2 differences: 0
+X12 chain vs C6 differences: 30
+    (('bitsandbytes-1', 'fixed', '-'), 'CLEAN-FOR-PAIR', 'CLEAN')
+    (('cccl-1', 'fixed', '-'), 'STILL-REPORTED', 'STILL')
+    (('cccl-2', 'fixed', '-'), 'CLEAN-FOR-PAIR', 'CLEAN')
+    (('cccl-3', 'fixed', '-'), 'RESIDUAL-AS-EXPECTED', 'RESIDUAL')
+    (('cccl-4', 'fixed', '-'), 'CLEAN-FOR-PAIR', 'CLEAN')
+    (('cmssw-1', 'fixed', '-'), 'RESIDUAL-AS-EXPECTED', 'RESIDUAL')
+    (('ginkgo-1', 'fixed', '-'), 'CLEAN-FOR-PAIR', 'CLEAN')
+    (('ginkgo-5', 'fixed', '-'), 'CLEAN-FOR-PAIR', 'CLEAN')
+    (('hecbench-dxtc2-1', 'fixed', '-'), 'RESIDUAL-AS-EXPECTED', 'RESIDUAL')
+    (('hecbench-hungarian-1', 'buggy', 'SC'), 'DETECTED-AS-DR', 'DET-as-DR')
+    (('hecbench-hungarian-1', 'fixed', '-'), 'RESIDUAL-AS-EXPECTED', 'RESIDUAL')
+    (('hecbench-morphology-1', 'fixed', '-'), 'CLEAN-FOR-PAIR', 'CLEAN')
+    (('hecbench-surfel-1', 'fixed', '-'), 'CLEAN-FOR-PAIR', 'CLEAN')
+    (('kokkos-5', 'fixed', '-'), 'RESIDUAL-AS-EXPECTED', 'RESIDUAL')
+    (('kokkos-6', 'fixed', '-'), 'CLEAN-FOR-PAIR', 'CLEAN')
+    (('lit-arrayfire-1', 'fixed', '-'), 'CLEAN-FOR-PAIR', 'CLEAN')
+    (('lit-exllamav3-1', 'fixed', '-'), 'CLEAN-FOR-PAIR', 'CLEAN')
+    (('lit-fbgemm-1', 'fixed', '-'), 'CLEAN-FOR-PAIR', 'CLEAN')
+    (('lit-shoc-1', 'buggy', 'SC'), 'DETECTED-AS-DR', 'DET-as-DR')
+    (('lit-shoc-1', 'fixed', '-'), 'CLEAN-FOR-PAIR', 'CLEAN')
+    (('llamacpp-2', 'fixed', '-'), 'STILL-REPORTED', 'STILL')
+    (('llamacpp-4', 'fixed', '-'), 'CLEAN-FOR-PAIR', 'CLEAN')
+    (('llamacpp-5', 'fixed', '-'), 'CLEAN-FOR-PAIR', 'CLEAN')
+    (('opencv-2', 'buggy', 'SC'), 'DETECTED-AS-DR', 'DET-as-DR')
+    (('opencv-2', 'fixed', '-'), 'CLEAN-FOR-PAIR', 'CLEAN')
+    (('pytorch-1', 'fixed', '-'), 'STILL-REPORTED', 'STILL')
+    (('pytorch-3', 'fixed', '-'), 'CLEAN-FOR-PAIR', 'CLEAN')
+    (('pytorch-4', 'fixed', '-'), 'RESIDUAL-AS-EXPECTED', 'RESIDUAL')
+    (('pytorch_cluster-1', 'fixed', '-'), 'CLEAN-FOR-PAIR', 'CLEAN')
+    (('raft-1', 'fixed', '-'), 'RESIDUAL-AS-EXPECTED', 'RESIDUAL')
+=== set c
+rows std 17 chain 17 c2 17 c6 19
+X12 std vs C2 differences: 0
+X12 chain vs C6 differences: 4
+    (('colmap-new-1', 'buggy', 'DR'), 'DETECTED', 'NOT-SCORED')
+    (('droidslam-new-1', 'buggy', 'SC'), 'DETECTED-AS-DR', 'DET-as-DR')
+    (('opencv_contrib-new-1', 'buggy', 'SC'), 'DETECTED-AS-DR', 'DET-as-DR')
+    (('pcl-new-1', 'buggy', 'SC'), 'DETECTED-AS-DR', 'DET-as-DR')
+
+##### normalized
+b chain vs C6 after label normalisation: []
+b std vs C2: []
+b std counts [(('buggy', 'DETECTED'), 23), (('buggy', 'DETECTED-AS-DR'), 3), (('buggy', 'MISSED'), 4), (('fixed', 'CLEAN-FOR-PAIR'), 17), (('fixed', 'RESIDUAL-AS-EXPECTED'), 7), (('fixed', 'STILL-REPORTED'), 3)]
+b chain counts [(('buggy', 'DETECTED'), 26), (('buggy', 'DETECTED-AS-DR'), 3), (('buggy', 'MISSED'), 1), (('fixed', 'CLEAN-FOR-PAIR'), 17), (('fixed', 'RESIDUAL-AS-EXPECTED'), 7), (('fixed', 'STILL-REPORTED'), 3)]
+b C2 counts (same ids) [(('buggy', 'DETECTED'), 23), (('buggy', 'DETECTED-AS-DR'), 3), (('buggy', 'MISSED'), 4), (('fixed', 'CLEAN-FOR-PAIR'), 17), (('fixed', 'RESIDUAL-AS-EXPECTED'), 7), (('fixed', 'STILL-REPORTED'), 3)]
+b ids where (n_race,n_sc) std != C2: 8 of 57
+     (('cccl-3', 'buggy', 'DR'), ('37', '8'), ('36', '8'))
+     (('cccl-3', 'buggy', 'SC'), ('37', '8'), ('36', '8'))
+     (('cccl-4', 'buggy', 'DR'), ('2', '4'), ('1', '4'))
+     (('hecbench-hungarian-1', 'buggy', 'SC'), ('236', '249'), ('235', '239'))
+     (('hecbench-hungarian-1', 'fixed', '-'), ('233', '245'), ('235', '250'))
+     (('opencv-2', 'buggy', 'SC'), ('107', '0'), ('105', '0'))
+     (('raft-1', 'buggy', 'DR'), ('23', '1'), ('24', '1'))
+     (('raft-1', 'buggy', 'SC'), ('23', '1'), ('24', '1'))
+b ids where chain (n_race,n_sc) != C6: 6 of 57
+     (('cccl-3', 'buggy', 'DR'), ('55', '8'), ('57', '8'))
+     (('cccl-3', 'buggy', 'SC'), ('55', '8'), ('57', '8'))
+     (('cccl-3', 'fixed', '-'), ('54', '8'), ('58', '8'))
+     (('hecbench-hungarian-1', 'buggy', 'SC'), ('446', '310'), ('445', '310'))
+     (('hecbench-hungarian-1', 'fixed', '-'), ('439', '310'), ('441', '310'))
+     (('hecbench-morphology-1', 'fixed', '-'), ('70', '0'), ('68', '0'))
+c chain vs C6 after label normalisation: [(('colmap-new-1', 'buggy', 'DR'), 'DETECTED', 'NOT-SCORED')]
+c std vs C2: []
+c std counts [(('buggy', 'DETECTED'), 13), (('buggy', 'DETECTED-AS-DR'), 3), (('buggy', 'MISSED'), 1)]
+c chain counts [(('buggy', 'DETECTED'), 14), (('buggy', 'DETECTED-AS-DR'), 3)]
+c C2 counts (same ids) [(('buggy', 'DETECTED'), 13), (('buggy', 'DETECTED-AS-DR'), 3), (('buggy', 'MISSED'), 1)]
+c ids where (n_race,n_sc) std != C2: 2 of 17
+     (('cuml-tsne-new-1', 'buggy', 'DR'), ('56', '22'), ('56', '24'))
+     (('pytorch_cluster-new-1', 'buggy', 'DR'), ('15', '0'), ('14', '0'))

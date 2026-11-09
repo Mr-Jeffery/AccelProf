@@ -1,0 +1,56 @@
+{
+  "id": "llamacpp-5",
+  "tier": "core",
+  "wave": 1,
+  "route": "R1",
+  "kernel": "ssm_scan_f32<splitD=128, N=16, L_template=0> (Mamba-1 selective scan, USE_CUB path)",
+  "space": "shared",
+  "build_revision": {
+    "buggy": "039e20a2db9e87b2477c76cc04905f3e1acad77f",
+    "fixed": "fb83cc9a072b4e85b329d4f95c59478180204c87"
+  },
+  "sites": [
+    {
+      "role": "write",
+      "file": "ggml/src/ggml-cuda/ssm-scan.cu",
+      "line_start": 87,
+      "line_end": 88,
+      "source": "smemB[threadIdx.x] = B_block[i * stride_B + threadIdx.x]; smemC[threadIdx.x] = C_block[i * stride_C + threadIdx.x];   (threads threadIdx.x < N = 16, iteration i + 1)",
+      "operation": "st.shared.f32 (STS [R38.X4], STS [R38.X4+0x40])",
+      "strength": "plain"
+    },
+    {
+      "role": "read",
+      "file": "ggml/src/ggml-cuda/ssm-scan.cu",
+      "line_start": 103,
+      "line_end": 104,
+      "source": "float state = regs0[n] * expf(dt_soft_plus * regA[n]) + smemB[n] * x_dt; sumf += state * smemC[n];   (all 128 threads, iteration i)",
+      "operation": "ld.shared.f32 (LDS.128 [RZ], [0x10], [0x20], [0x30] for smemB; [0x40]..[0x70] for smemC)",
+      "strength": "plain"
+    }
+  ],
+  "thread_relation": "cross-warp-same-block",
+  "thread_pair_example": "block (seq, y), 128 threads = 4 warps, N = 16, loop over L = 32 tokens (L_template = 0): thread 40 (warp 1) reads smemB[5] at L103 in iteration i while thread 5 (warp 0, threadIdx.x < N) already writes smemB[5] at L87 in iteration i + 1 (WAR across warps); the only barrier per iteration is at L90 (after the writes, before the reads). Second hazard of the same kernel (cub temp storage): the two BlockLoad calls at L69 and L70 reuse cub_temp_storage.load_temp with no __syncthreads in between (BLOCK_LOAD_WARP_TRANSPOSE, per-warp regions): lanes of one warp read at the end of the first Load what another lane of the same warp overwrites at the start of the second Load.",
+  "expected_class": "DR",
+  "class_reason": "plain shared stores/loads (no volatile, no atomics) by different warps of one block, ordered only by the single barrier at L90 which separates the writes from the reads of the SAME iteration but not the reads of iteration i from the writes of iteration i + 1: unordered conflicting plain accesses = DR (WAR).",
+  "buggy_expected": "the pair (write L87/L88 of iteration i + 1, read L103/L104 of iteration i) is reported as DR (shared WAR, cross-warp) on smemB/smemC; the cub BlockLoad temp-storage reuse (L69 vs L70, inlined cub code: uninitialized_copy.cuh:37 STS vs LDS, block_exchange.cuh) may appear as additional DR hazards in cub files.",
+  "fixed": {
+    "expected": "absent",
+    "residual_sites": null,
+    "reason": "the fix (fb83cc9a) adds __syncthreads() between the two BlockLoad calls (new L70) and at the end of every loop iteration (new L109), so the reads of iteration i are ordered before the writes of iteration i + 1 and the cub temp storage is not reused unsynchronised; nothing is expected for these pairs (verify.expected_report_fixed)."
+  },
+  "sass_notes": "sm_89 SASS of ssm_scan_f32<128,16,0> from the shipped build (sassline.sh, nvdisasm -g): per iteration LDG.E.CONSTANT (L87 0x0c60, L88 0x0c70), predicated @!P1 STS [R38.X4] (L87, 0x0ca0) and @!P1 STS [R38.X4+0x40] (L88, 0x0cb0), BAR.SYNC.DEFER_BLOCKING at 0x0cc0 (L90, the only BAR in the loop), then LDS.128 on smemB (L103: [RZ] 0x0ee0, [0x20] 0x1030, [0x10] 0x10b0, [0x30] 0x1200) and smemC (L104: [0x40] 0x0f20, [0x50] 0x1070, [0x60] 0x1190, [0x70] 0x12b0), then STG (L107); no BAR/WARPSYNC after the LDS before the loop back edge. smemB is at shared offset 0x00-0x3f, smemC at 0x40-0x7f, cub_temp_storage from 0x80. All shared accesses are plain STS/LDS, no .STRONG token. The cub BlockLoad pair: first Load STS group 0x04c0-0x0710 + LDS group 0x0730-0x0820, second Load STS group 0x0850-0x0940 + LDS group 0x0960-0x0a50 (all attributed to uninitialized_copy.cuh:37), no BAR and no WARPSYNC between them (the first BAR of the kernel is 0x0cc0). The fixed build has the extra BAR.SYNC.DEFER_BLOCKING at ssm-scan.cu:70 (0x0830, between the two Loads) and at :109 (0x16d0, end of the iteration), plus the original one at :91 (0x0cd0).",
+  "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against ggml/src/ggml-cuda/ssm-scan.cu@039e20a (buggy) and @fb83cc9 (fixed) and the sm_89 SASS of the build on 2026-10-20",
+  "open_questions": [
+    "The cub temp-storage hazard (L69 vs L70) is intra-warp (BLOCK_LOAD_WARP_TRANSPOSE uses per-warp regions) and lives in cub headers (uninitialized_copy.cuh / block_exchange.cuh); it is a second racing pair of the same target and not in the two sites above.",
+    "The driver restricts the run to the Mamba-1 case with -p 'd_state=16,head_dim=1,'; the record's unfiltered '-o SSM_SCAN' also runs three Mamba-2/Falcon-H1/overlap cases (kernel ssm_scan_f32_group), which are not part of this target."
+  ],
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "confirmed",
+    "changes": [],
+    "notes": "Checked at 039e20a: ssm_scan_f32 (ssm-scan.cu:18-120), USE_CUB for CUDART >= 11.7 (:1-3), 128 threads (:247), smemB/smemC plain __shared__ float[16] (:56-57); per iteration threads < 16 write them (:87-88), barrier :90, all threads read smemB[n]/smemC[n] (:103-104), no barrier before the next iteration's writes: WAR across warps, DR. The two BlockLoad calls (:69-70) reuse cub_temp_storage.load_temp (BLOCK_LOAD_WARP_TRANSPOSE, per-warp regions) without a barrier: the second, intra-warp pair noted in open_questions. Fix fb83cc9 adds __syncthreads() between the loads (fixed :70) and at the end of the loop body (fixed :109); it also changes the launch's dynamic shared size from (threads*(d_state+1)*2)*sizeof(float) (buggy :252-254) to 0 (fixed :254-255), which does not affect the race (the kernel uses only static __shared__). 'absent' holds for both pairs. sass_notes are the builder's: the reviewer read sources and diffs only and did not re-dump SASS (the one srun queued with an estimated start the next day and was withdrawn).",
+    "depends_on_D20": false
+  }
+}

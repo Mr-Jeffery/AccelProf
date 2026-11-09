@@ -1,0 +1,76 @@
+{
+  "id": "hecbench-dxtc2-1",
+  "tier": "core",
+  "wave": 1,
+  "route": "R1",
+  "kernel": "compress (device helpers colorSums, bestFitLine, sortColors, loadColorBlock inlined)",
+  "space": "shared",
+  "build_revision": {
+    "buggy": "fe80f0f7475d8e68fa91e6c31270255826040efc",
+    "fixed": "6e11c2bb2d354bce70a84e3b301757fa50b3cafd"
+  },
+  "sites": [
+    {
+      "role": "write",
+      "file": "src/dxtc2-cuda/main.cu",
+      "line_start": 70,
+      "line_end": 70,
+      "source": "sums[idx] = colors[idx];",
+      "operation": "st.shared.f32 x3 (float3: three STS at [base+0x600/0x604/0x608])",
+      "strength": "plain"
+    },
+    {
+      "role": "read",
+      "file": "src/dxtc2-cuda/main.cu",
+      "line_start": 71,
+      "line_end": 71,
+      "source": "sums[idx] += sums[idx ^ 8];   // the load of sums[idx ^ 8]",
+      "operation": "ld.shared.f32 x3 (float3: three LDS at [base+0x600/0x604/0x608])",
+      "strength": "plain"
+    }
+  ],
+  "thread_relation": "intra-warp",
+  "thread_pair_example": "block 0, driver 32x32 image (64 blocks of 64 threads), only lanes 0-15 of warp 0 (idx < 16) run loadColorBlock: thread 0 writes sums[0] (L70) while thread 8 reads sums[8 ^ 8] = sums[0] (L71); the next lines (L72-L74: ^4, ^2, ^1) repeat the shape. Other racing pairs of the same block (all lanes 0-15, no barrier): covariance fill L88-L93 vs the tree reduction L99-L104 (the __syncthreads at L95 and L106 are commented out); L99-L104 vs the reads of covariance[0..5] by all lanes in firstEigenVector (L110); dps[idx] write L170 vs sortColors read L131; ranks write L134 vs reads L138; tmp = colors[idx] (L176) vs colors[xrefs[idx]] = tmp (L178).",
+  "expected_class": "DR",
+  "class_reason": "plain shared accesses (float3 members, float, int) by different lanes of one warp, no __syncwarp and no barrier between the write and the read (the lock-step assumption of pre-Volta CUDA): unordered conflicting plain accesses, DR under independent thread scheduling.",
+  "buggy_expected": "the pair write L70 -> read L71 (and L71-L74 chain, the covariance L88-L104 chain, dps L170->L131, ranks L134->L138, colors L176->L178) is reported as DR (intra-warp RAW/WAR on sums[], covariance[], dps[], xrefs[], colors[]), lanes 0-15 of warp 0 only.",
+  "fixed": {
+    "expected": "residual",
+    "residual_sites": [
+      {
+        "role": "read",
+        "file": "src/dxtc2-cuda/main.cu",
+        "line_start": 448,
+        "line_end": 448,
+        "source": "colors[xrefs[idx]] = colors[idx];   // fixed file; the load colors[idx]",
+        "operation": "ld.shared.f32 x3 (float3)",
+        "strength": "plain"
+      },
+      {
+        "role": "write",
+        "file": "src/dxtc2-cuda/main.cu",
+        "line_start": 448,
+        "line_end": 448,
+        "source": "colors[xrefs[idx]] = colors[idx];   // fixed file; the store colors[xrefs[idx]] of another lane",
+        "operation": "st.shared.f32 x3 (float3)",
+        "strength": "plain"
+      }
+    ],
+    "reason": "the fix (6e11c2bb) inlines the helpers into compress() with cg::sync(cta) between all phases (load, sum by thread 0, covariance fill, tree reduction, eigenvector/dps, rank, tie-resolution), so the colorSums, covariance, dps and rank pairs of the buggy build are absent. The scatter colors[xrefs[idx]] = colors[idx] (fixed L448, the buggy L176-L178) is unchanged: lane j reads colors[j] while lane i writes colors[xrefs[i] = j] with no barrier between the read phase and the write phase, so a strict PTX detector may still report one intra-warp DR pair (lanes 0-15); hardware racecheck output cannot confirm (the issue-133 log saturated at the hazard limit). Residual risk for the fixed ground truth (verify.expected_report_fixed)."
+  },
+  "sass_notes": "sm_89 SASS of the shipped build (sassline.sh, nvdisasm -g), buggy: L70 = 3x STS [R0+0x600], [R0+0x604], [R0+0x608] (0x0260, 0x0280, 0x0290), L71 = 3x LDS [R9+0x600..0x608] (0x02a0-0x02c0), L72 LDS 0x0330-0x0350, L73 0x03c0-0x03e0, L74 0x0450-0x0470; covariance fill L89/L91/L93 STS.64 (0x0590, 0x05a0, 0x05b0), tree reduction L99-L104 LDS/STS (0x05d0-0x0ad0, 4 unrolled steps); the first BAR.SYNC of the kernel (cg::sync, sm_30_intrinsics.hpp:99) is only at 0x2140, i.e. after all of loadColorBlock; there is no WARPSYNC and no BAR between L70 and 0x2140. All shared accesses are plain LDS/STS (LDS.128/STS.64 for float3 pieces), no .STRONG token. Fixed build: BAR.SYNC after every phase (first at 0x0240); L448 = LDS [R13], LDS [R5+0x380..0x388] (0x2b30-0x2b70) then STS [R7+0x380..0x388] (0x2b90-0x2bb0), plain, no sync between.",
+  "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against src/dxtc2-cuda/main.cu@fe80f0f (buggy) and @6e11c2b (fixed) and the sm_89 SASS of the build on 2026-10-20",
+  "open_questions": [
+    "Residual DR pair in the fixed build at L448 (see fixed.reason): absent vs DR in the fixed ground truth is open.",
+    "Built with -std=c++17 instead of the Makefile's -std=c++14 (CUDA 13.4 libcu++ requires C++17); kernel source unchanged.",
+    "P9 overlap: eval/baselines/manifest.csv P9-dxtc2-cuda is the same app (an older build of it), input full lena_std.ppm."
+  ],
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "confirmed",
+    "changes": [],
+    "notes": "Checked at fe80f0f: compress runs with NUM_THREADS=64 (main.cu:46, :698); loadColorBlock (main.cu:147-180) works under if (idx < 16) with no barrier or __syncwarp; the first cg::sync is at main.cu:481, after the call at :479. L70 sums[idx] = colors[idx] and L71 sums[idx] += sums[idx ^ 8] give the RAW thread 0 -> thread 8; the other listed chains (L71-L74, L88-L93 vs L99-L104 with //__syncthreads() at L95/L106, firstEigenVector(covariance) at L110, dps L170 -> L131, ranks L134 -> L138/L139, colors L176 -> L178) have the same shape. All plain shared arrays (main.cu:86, 153, 475-477). Fixed 6e11c2b: everything is inlined into compress (main.cu:360-470) with cg::sync after every phase (:383, :391, :404, :415, :426, :437, :444, :450); the scatter colors[xrefs[idx]] = colors[idx] at :448 has no barrier between the loads and the stores, and after the tie resolution (:440-445) xrefs is a permutation, so lane j loads colors[j] while lane i with xrefs[i] = j stores it: the residual intra-warp DR (lanes 0-15) holds by source. sass_notes are the builder's: the reviewer read sources and diffs only and did not re-dump SASS (the one srun queued with an estimated start the next day and was withdrawn).",
+    "depends_on_D20": false
+  }
+}

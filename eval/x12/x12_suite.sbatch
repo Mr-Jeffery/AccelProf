@@ -14,14 +14,15 @@ for d in /home/fzheng4/AccelProf /mnt/beegfs/fzheng4; do timeout 10 ls $d > /dev
 W=${W:?}; RT=${RT:?}; PSET=${PSET:-}; IDFILE=${IDFILE:-}; REPS=${REPS:-3}; NSHARDS=${NSHARDS:-8}; K=${SLURM_ARRAY_TASK_ID:-0}; N=${N:-16}
 SEL=(--pset $PSET --shard $K/$NSHARDS); [ -n "$IDFILE" ] && SEL=(--id-file $IDFILE)   # IDFILE: one id per line (the -n 1 controls)
 STORE=${STORE:?}; RES=${RES:?}; CAP=${CAP:-84600}
+MANIFEST=${MANIFEST:-}; CUDAV=${CUDAV:-13.3}; ATO=${ATO:-14400}   # real-world sets: MANIFEST=<manifest_t21b|c.csv> CUDAV=13.4 ATO=3600 (C2's policy)
 source $W/eval/baselines/setup/home_quota_guard.sh
 cd $RT || exit 1
 for v in $(env | /usr/bin/grep -o '^\(CUVEIN\|YOSEMITE\)_[A-Z0-9_]*'); do unset $v; done
 unset BASELINE_MODES BASELINE_TRACE_ALLOW_NONBEEGFS
 export BASELINE_MODES=collector-only BASELINE_WORKERS=$N BASELINE_KEEP_REPS=1
-export ACCEL_PROF_HOME=$RT CUDA_HOME=/usr/local/cuda-13.3
+export ACCEL_PROF_HOME=$RT CUDA_HOME=/usr/local/cuda-$CUDAV
 source /home/fzheng4/AccelProf/eval/baselines/gpu_env.sh
-export PATH=/usr/local/cuda-13.3/bin:$PATH
+export PATH=/usr/local/cuda-$CUDAV/bin:$PATH
 export LD_LIBRARY_PATH=/opt/ohpc/pub/compiler/gcc/12.4.0/lib64:${LD_LIBRARY_PATH:-}
 export BASELINE_TRACE_DIR=/mnt/beegfs/fzheng4/cuvein_traces/$STORE
 h() { sha256sum "$1" | cut -c1-16; }
@@ -31,7 +32,7 @@ SAN=$(ldd $RT/lib/libcompute_sanitizer.so | awk '/libsanalyzer/{print $3}')
 echo "host=$(hostname) gpu=[$gpu] nproc=$(nproc) cpu=[$(lscpu | sed -n 's/^Model name: *//p')] job=${SLURM_JOB_ID} shard=$K/$NSHARDS N=$N store=$STORE $(date -Is)"
 echo "runtime $RT HEAD=$(git -C $RT rev-parse --short=12 HEAD) libsanalyzer=$(h $SAN) collector=$(h $RT/lib/libcompute_sanitizer.so) harness $W HEAD=$(git -C $W rev-parse --short=12 HEAD) dirty=$(git -C $W status --porcelain -uno | wc -l)"
 mkdir -p $W/eval/results/$RES/confirm
-$PY $W/eval/baselines/parallel.py run "${SEL[@]}" --reps $REPS --confirm --keep-all \
-    --timeout-floor $CAP --timeout-cap $CAP --analysis-timeout 14400 --analysis-workers 16 --tag x12${PSET:-ids} \
+$PY $W/eval/baselines/parallel.py run ${MANIFEST:+--manifest $MANIFEST} "${SEL[@]}" --reps $REPS --confirm --keep-all \
+    --timeout-floor $CAP --timeout-cap $CAP --analysis-timeout $ATO --analysis-workers 16 --tag x12${PSET:-ids} \
     --results-dir $W/eval/results/$RES --confirm-dir $W/eval/results/$RES/confirm
 echo "== done rc=$? $(date -Is)"

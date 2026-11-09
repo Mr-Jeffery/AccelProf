@@ -1,0 +1,121 @@
+{
+  "id": "lit-arrayfire-1-buggy",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0xd30-0xfe0:RAW",
+    "shared:0xd50-0xe00:RAW",
+    "shared:0xda0-0xfe0:RAW",
+    "shared:0x10e0-0x1230:RAW",
+    "shared:0x1100-0x1190:WAR",
+    "shared:0x1150-0x1230:RAW"
+  ],
+  "pcs": [
+    3376,
+    3408,
+    3488,
+    3584,
+    4064,
+    4320,
+    4352,
+    4432,
+    4496,
+    4656
+  ],
+  "lines": "scan_dim_by_key_impl.hpp:262;scan_dim_by_key_impl.hpp:265;scan_dim_by_key_impl.hpp:290;scan_dim_by_key_impl.hpp:30;scan_dim_by_key_impl.hpp:311;scan_dim_by_key_impl.hpp:324;scan_dim_by_key_impl.hpp:328",
+  "raw": [
+    {
+      "a_pc": 3376,
+      "b_pc": 4064,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    },
+    {
+      "a_pc": 3408,
+      "b_pc": 3584,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    },
+    {
+      "a_pc": 3488,
+      "b_pc": 4064,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    },
+    {
+      "a_pc": 4320,
+      "b_pc": 4656,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    },
+    {
+      "a_pc": 4352,
+      "b_pc": 4496,
+      "space": "shared",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    },
+    {
+      "a_pc": 4432,
+      "b_pc": 4656,
+      "space": "shared",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "3584": "scan_dim_by_key_impl.hpp:328",
+    "4352": "scan_dim_by_key_impl.hpp:265",
+    "4064": "scan_dim_by_key_impl.hpp:311",
+    "4320": "scan_dim_by_key_impl.hpp:262",
+    "3488": "scan_dim_by_key_impl.hpp:328",
+    "3376": "scan_dim_by_key_impl.hpp:324",
+    "3408": "scan_dim_by_key_impl.hpp:262",
+    "4656": "scan_dim_by_key_impl.hpp:290",
+    "4496": "scan_dim_by_key_impl.hpp:30",
+    "4432": "scan_dim_by_key_impl.hpp:30"
+  }
+}

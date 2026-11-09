@@ -1,0 +1,85 @@
+{
+  "id": "cccl-3",
+  "tier": "core",
+  "wave": 1,
+  "route": "R1h",
+  "kernel": "cub::detail::topk::DeviceTopKHistogramKernel and DeviceTopKKernel (finalize_pass in both); DeviceTopK::MaxKeys over 1e5 unsigned keys, k=16",
+  "space": "global",
+  "build_revision": {
+    "buggy": "8b99dbeba05c7e5a5b83cd80075c4d7392995098",
+    "fixed": "879ab26a112fbbbeb86ad96e1d2cc5c657c890a9"
+  },
+  "sites": [
+    {
+      "role": "atomic",
+      "file": "cub/cub/agent/agent_topk.cuh",
+      "line_start": 441,
+      "line_end": 448,
+      "source": "atomicAdd(global_histogram + (histo_offset + threadIdx.x), temp_storage.histogram[...]);  (merge_histograms, every thread of every block)",
+      "operation": "atom.global.add.u64 (SASS ATOMG.E.ADD.64.STRONG.GPU; the inlined atomicAdd is attributed to device_atomic_functions.hpp:226)",
+      "strength": "atomic"
+    },
+    {
+      "role": "read",
+      "file": "cub/cub/agent/agent_topk.cuh",
+      "line_start": 589,
+      "line_end": 589,
+      "source": "block_load_trans_t(temp_storage.load_trans).Load(histogram, thread_data, num_buckets);  (compute_bin_offsets(volatile OffsetT* histogram), last block)",
+      "operation": "ld.volatile.global.u64 (SASS LDG.E.64.STRONG.SYS, attributed to block_load.cuh:379)",
+      "strength": "volatile"
+    },
+    {
+      "role": "write",
+      "file": "cub/cub/agent/agent_topk.cuh",
+      "line_start": 422,
+      "line_end": 427,
+      "source": "histogram[histo_offset + threadIdx.x] = 0;  (init_histograms, called by the last block, L681)",
+      "operation": "st.global.u64 (SASS STG.E.64 [..], RZ, attributed to agent_topk.cuh:422)",
+      "strength": "plain"
+    }
+  ],
+  "pairs": [
+    {
+      "a": "atomic (merge_histograms, thread t of block B)",
+      "b": "volatile read (compute_bin_offsets, last block)",
+      "class": "SC"
+    },
+    {
+      "a": "atomic (merge_histograms)",
+      "b": "plain zeroing store (init_histograms, last block)",
+      "class": "DR"
+    }
+  ],
+  "thread_relation": "cross-block (the retiring block's late threads vs the last block)",
+  "thread_pair_example": "block 3 thread 200 does its atomicAdd of its bins after thread 0 of block 3 has already executed atomicInc(finished_block_cnt) (finalize_pass L652-L660: __threadfence per thread, then thread 0's atomicInc with no __syncthreads); the last block then reads the same bin (volatile load) and zeroes it (plain store).",
+  "expected_class": "DR+SC",
+  "class_reason": "atomic vs volatile load: both strong, unordered -> strong conflict (SC, D20); atomic vs plain store: not both strong -> data race (DR).",
+  "buggy_expected": "SC for {merge_histograms atomicAdd, compute_bin_offsets volatile load} plus DR for {merge_histograms atomicAdd, init_histograms plain store}, in cross-block form on the global histogram.",
+  "fixed": {
+    "expected": "residual",
+    "residual_sites": "same three sites",
+    "reason": "uncertain (verify.expected_report_fixed). The fix puts __syncthreads() (agent_topk.cuh:654 at 879ab26) between the per-thread __threadfence (:651) and thread 0's atomicInc (:660), so in every block each merge_histograms atomicAdd is followed by that thread's fence and, through the barrier, precedes the block's retirement increment. The last block still has no fence after its own atomicInc: atomicInc (:660) -> __syncthreads_or (:665) -> volatile histogram loads (compute_bin_offsets, called at :673) -> ... -> init_histograms zeroing stores (called at :683). Under a strict PTX reading there is no acquire pattern on the reading side, so BOTH buggy pairs survive: atomicAdd vs volatile load (SC) and atomicAdd vs the plain zeroing store (DR), i.e. a residual DR+SC report on the same three sites, not an SC report alone. A detector that treats __threadfence + atomic counter as a release/acquire hand-off reports nothing. Builder's SASS note: ATOMG.E.INC.STRONG.GPU, then BAR.RED.OR, then the volatile loads, no MEMBAR in between. T21b triages a fixed-build report here against this note; it is not a false positive by default."
+  },
+  "sass_notes": "buggy DeviceTopKHistogramKernel: ATOMG.E.ADD.64.STRONG.GPU (0x1040..0x1190), MEMBAR.SC.GPU + ERRBAR + CCTL.IVALL (agent_topk.cuh:652, 0x11b0..0x1250), ATOMG.E.INC.STRONG.GPU (device_atomic_functions.hpp:162, 0x12d0), BAR.RED.OR (agent_topk.cuh:663), LDG.E.64.STRONG.SYS (block_load.cuh:379, 0x1410..); global volatile loads and atomics carry STRONG tokens (D9). Fixed: one more BAR.SYNC between the MEMBAR and the ATOMG.E.INC; the SASS lines move by -1/+2 (agent_topk.cuh:651, :665).",
+  "derived_from": "verify.accesses + verify.thread_pair + verify.expected_report_fixed of eval/realworld/targets.jsonl (cccl-3), re-checked against cub/cub/agent/agent_topk.cuh at 8b99dbe (lines 418-450, 584-596, 640-665) and nvdisasm -g of the built driver (eval/x_logs/sass-cccl-3-*.txt) on 2026-10-20",
+  "open_questions": [
+    "which of the three kernels (DeviceTopKKernel, DeviceTopKHistogramKernel, DeviceTopKLastFilterKernel) are launched with 1e5 keys and k=16 is established by the T21a nsys reach check (native/cccl-3-*.kernels.csv); the pattern exists in the first two.",
+    "the zeroing store site (init_histograms) was identified from the source; its global-store SASS (STG.E.64 ... RZ at agent_topk.cuh:422) appears in DeviceTopKKernel."
+  ],
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "corrected",
+    "changes": [
+      {
+        "field": "fixed.reason",
+        "old": "uncertain (verify.expected_report_fixed): the fix puts __syncthreads() after the per-thread __threadfence and before thread 0's atomicInc (finalize_pass, +2 lines); thread 0 therefore has fence -> atomicInc (a release pattern) but the last block has no acquire fence after its atomicInc (SASS: ATOMG.E.INC.STRONG.GPU then BAR.RED.OR then the volatile loads, no MEMBAR in between), so a strict PTX reading may keep the SC report; a detector that treats fence+atomic as release/acquire hand-off reports nothing. T21b triages a fixed-build report here against this note, it is not a false positive by default.",
+        "new": "uncertain (verify.expected_report_fixed). The fix puts __syncthreads() (agent_topk.cuh:654 at 879ab26) between the per-thread __threadfence (:651) and thread 0's atomicInc (:660), so in every block each merge_histograms atomicAdd is followed by that thread's fence and, through the barrier, precedes the block's retirement increment. The last block still has no fence after its own atomicInc: atomicInc (:660) -> __syncthreads_or (:665) -> volatile histogram loads (compute_bin_offsets, called at :673) -> ... -> init_histograms zeroing stores (called at :683). Under a strict PTX reading there is no acquire pattern on the reading side, so BOTH buggy pairs survive: atomicAdd vs volatile load (SC) and atomicAdd vs the plain zeroing store (DR), i.e. a residual DR+SC report on the same three sites, not an SC report alone. A detector that treats __threadfence + atomic counter as a release/acquire hand-off reports nothing. Builder's SASS note: ATOMG.E.INC.STRONG.GPU, then BAR.RED.OR, then the volatile loads, no MEMBAR in between. T21b triages a fixed-build report here against this note; it is not a false positive by default.",
+        "reason": "the old text said a strict PTX reading 'may keep the SC report'; the same missing acquire leaves the atomicAdd vs plain zeroing-store pair (DR) unordered as well, so the strict residual is DR+SC on the same three sites (residual_sites already names all three).",
+        "evidence": "cub/cub/agent/agent_topk.cuh:651-683 at 879ab26a112f (fixed); :422,:427,:441,:448,:589,:652-681 at 8b99dbeba05c (buggy)"
+      }
+    ],
+    "notes": "Checked at 8b99dbe: finalize_pass (agent_topk.cuh:642-684) has the per-thread __threadfence (:652) and thread 0's atomicInc (:656-660) with no barrier in between, while other threads of the block may not yet have issued their merge_histograms atomicAdd (:441/:448; merge_histograms is called at :580 and :826, immediately before finalize_pass at :792/:828). The last block is another block (inside the retiring block __syncthreads_or at :663 orders the late thread); it reads the global histogram through volatile OffsetT* (:584, :589 -> block_load.cuh:379 LoadDirectStriped) and then zeroes it (:681 -> :422/:427). Pass 0 runs DeviceTopKHistogramKernel (invoke_histogram_only) and passes 1.. run DeviceTopKKernel (invoke_filter_and_histogram), one launch per pass (cub/cub/device/dispatch/dispatch_topk.cuh:616-693), so the race is within one launch, cross-block, and both kernels contain it. is_last_pass is a runtime bool, so init_histograms at :681 is compiled into both kernels (the open_questions note puts the STG only in DeviceTopKKernel; by source it is in both). Classes: atomic (strong) vs volatile load (strong) = unordered strong conflict SC; atomic vs plain store = DR; DR+SC as pre-registered. Counting the SC pair depends on D20 (option (ii) counts only the DR pair). sass_notes are the builder's: the reviewer read sources and diffs only and did not re-dump SASS (the one srun queued with an estimated start the next day and was withdrawn).",
+    "depends_on_D20": true
+  }
+}

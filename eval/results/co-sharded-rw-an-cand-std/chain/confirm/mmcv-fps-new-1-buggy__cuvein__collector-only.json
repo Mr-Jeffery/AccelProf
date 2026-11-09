@@ -1,0 +1,53 @@
+{
+  "id": "mmcv-fps-new-1-buggy",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "shared:0x7d0-0x10b0:WAR",
+    "shared:0xbd0-0x14b0:WAR"
+  ],
+  "pcs": [
+    2000,
+    3024,
+    4272,
+    5296
+  ],
+  "lines": "furthest_point_sample_cuda_kernel.cuh:14;furthest_point_sample_cuda_kernel.cuh:52;furthest_point_sample_cuda_kernel.cuh:67;furthest_point_sample_cuda_kernel.cuh:80",
+  "raw": [
+    {
+      "a_pc": 2000,
+      "b_pc": 4272,
+      "space": "shared",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    },
+    {
+      "a_pc": 3024,
+      "b_pc": 5296,
+      "space": "shared",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    }
+  ],
+  "raw_sc": [],
+  "scope_file": "",
+  "pc_lines": {
+    "2000": "furthest_point_sample_cuda_kernel.cuh:52",
+    "4272": "furthest_point_sample_cuda_kernel.cuh:14",
+    "5296": "furthest_point_sample_cuda_kernel.cuh:80",
+    "3024": "furthest_point_sample_cuda_kernel.cuh:67"
+  }
+}

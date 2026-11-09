@@ -1,0 +1,189 @@
+{
+  "id": "pytorch-4",
+  "tier": "core",
+  "wave": 1,
+  "route": "R2",
+  "kernel": "gatherKthValue",
+  "space": "global",
+  "build_revision": {
+    "buggy": "9d0b77f4cdf467cc57b39161c8ab5362d8e12731",
+    "fixed": "79a4a9c02e730ec2331f49d8e0d066fd70aa3f9b"
+  },
+  "sites": [
+    {
+      "role": "write",
+      "file": "aten/src/ATen/native/cuda/Sorting.cu",
+      "line_start": 86,
+      "line_end": 86,
+      "source": "indicesSliceStart[0] = kValueIndex;",
+      "operation": "STG.E.64 [R16.64], R24 (st.global.s64, SASS 0x2010; executed by every thread with foundKValue); this instance by one thread with foundKValue (e.g. thread 0, warp 0)",
+      "strength": "plain"
+    },
+    {
+      "role": "write",
+      "file": "aten/src/ATen/native/cuda/Sorting.cu",
+      "line_start": 86,
+      "line_end": 86,
+      "source": "indicesSliceStart[0] = kValueIndex;",
+      "operation": "STG.E.64 [R16.64], R24 (st.global.s64, SASS 0x2010; executed by every thread with foundKValue); this instance by another thread with foundKValue (e.g. thread 32, warp 1), same 8-byte word indices[0]",
+      "strength": "plain"
+    }
+  ],
+  "thread_relation": "cross-warp-same-block",
+  "thread_pair_example": "driver input: one slice of 4096 equal elements (0.0f), k = 5, launch <<<1, 1024>>>: every thread's first element (i = threadIdx.x) equals kValue, so all 1024 threads execute L85 and L86 on the same two global words (kthValue[0], indices[0]). E.g. block 0: thread 0 (warp 0) and thread 32 (warp 1) both store indices[0] at L86 (values 0 vs 32) and kthValue[0] at L85 (equal values). Each store site races with ITSELF as executed by another thread (WAW, the two sites are the two words of the same finding: L86 carries the observable nondeterminism, L85 stores identical values), also between lanes of one warp.",
+  "expected_class": "DR",
+  "class_reason": "Plain (non-atomic, non-volatile) global stores to one word from many threads of different warps (and lanes) with no barrier or other ordering between them; there is no strong/atomic access involved, so DR (not SC) under D20. The values written to kthValue[0] are identical but the indices written to indices[0] differ per thread, so the surviving index is arbitrary (smoke run on sm_75: index=208 instead of 0).",
+  "buggy_expected": "WAW on the global words kthValue[slice] (L85) and indices[slice] (L86), reported as DR between different threads of block 0, cross-warp (and intra-warp pairs as well)",
+  "fixed": {
+    "expected": "residual",
+    "residual_sites": [
+      {
+        "role": "read",
+        "file": "aten/src/ATen/native/cuda/Sorting.cu",
+        "line_start": 77,
+        "line_end": 77,
+        "source": "if (i >= minIndexFound) {",
+        "operation": "LDS R5, [0x80] (ld.shared.s32 of the __shared__ int32_t minIndexFound; SASS 0x1ea0 in the fixed driver)",
+        "strength": "plain"
+      },
+      {
+        "role": "atomic",
+        "file": "aten/src/ATen/native/cuda/Sorting.cu",
+        "line_start": 86,
+        "line_end": 86,
+        "source": "atomicMin(&minIndexFound, static_cast<int32_t>(i));",
+        "operation": "REDUX.MIN.S32 UR5,R24 / VOTEU.ANY / @P0 ATOMS.MIN.S32 RZ,[0x80],R0 (warp-aggregated shared atomicMin; SASS 0x2070-0x20c0 in the fixed driver)",
+        "strength": "atomic"
+      }
+    ],
+    "reason": "the fix removes the global WAW: each thread now atomicMin's its first match into the __shared__ minIndexFound (fixed L86), __syncthreads (fixed L91), and only thread 0 writes indices[0] and kthValue[0] (fixed L94-95). verify.expected_report_fixed: the WAW pair is gone; BUT the early-exit read `if (i >= minIndexFound)` (fixed L77, plain LDS) runs concurrently with other threads' atomicMin on the same shared word with no barrier in between: a plain-read vs atomic-RMW conflict, benign by design (the read only prunes the search; any stale value still yields the correct minimum), that a detector may report on the fixed commit (class DR by D20: one side is a plain access). The initialising store L71 (thread 0) is ordered before the loop by the barrier at L73, and the final read L94 follows the barrier at L91."
+  },
+  "sass_notes": "cuobjdump/nvdisasm -g (via /home/fzheng4/sassline.sh) of sm_89 gatherKthValue<float,int,1> (the instantiation the driver launches). Buggy driver: Sorting.cu:85 STG.E [R18.64],R13 (0x2000), Sorting.cu:86 STG.E.64 [R16.64],R24 (0x2010); preceding k-value scan LDG.E.CONSTANT (doLdg, 0x1eb0, attributed to sm_32_intrinsics.hpp:166). Fixed driver: Sorting.cu:71 @!P1 STS [0x80] (0x1e60), :73 WARPSYNC + BAR.SYNC (0x1e40/0x1e70), :77 LDS R5,[0x80] (0x1ea0), doLdg LDG.E.CONSTANT (0x1f20), :86 atomicMin lowered (attributed to device_atomic_functions.hpp:142) to REDUX.MIN.S32 UR5,R24 (0x2070) + VOTEU.ANY (0x2080) + @P0 ATOMS.MIN.S32 RZ,[0x80],R0 (0x20c0), :91 BAR.SYNC (0x20f0), :94 LDS R2,[0x80] (0x2110) + STG.E.64 (0x2130), :95 STG.E (0x2140). No .STRONG token on any of these sites (plain STG.E / LDS; the shared atomic is ATOMS). radixSelect (SortingRadixSelect.cuh, same blob in both revisions) precedes in both variants and contains its own barriers; it is not part of the racing pair. Instantiation notes: driver launches scalar float, index_t int32_t, Dim 1 (as run_launcher does for a contiguous 1-D slice); other instantiations in the fatbin are the host dispatcher's and are never launched. Lineinfo: line attribution above is from the -lineinfo build; R2 lineinfo check cited from targets/lit-arrayfire-1/lineinfo.check: RESULT SAME, -lineinfo does not change the SASS.",
+  "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against aten/src/ATen/native/cuda/Sorting.cu@9d0b77f (buggy) and @79a4a9c (fixed) on 2026-10-20",
+  "open_questions": [
+    "T_RACECHECK=na for this target (the buggy race is global memory), but the residual in the fixed variant (plain LDS vs ATOMS.MIN on shared minIndexFound) is shared memory: racecheck on the fixed variant could be informative; the coordinator decides.",
+    "The D20 class of the residual (plain read vs atomic RMW, no strong read) is assigned DR here by reading the plain side; not checked against a detector.",
+    "Not the target pair: with the all-equal input radixSelect never calls findPattern: findPattern is reached only through found_unique, which needs count == 1 && kToFind == 1 (SortingRadixSelect.cuh:350-353), but every digit's count is 4096 or 0 and kToFind stays 5. countRadixUsingMask (SortingRadixSelect.cuh:195-245: init by threads < RadixSize, barrier, warp-aggregated atomicAdd into smem by lane 0, barrier, read, barrier) has no unordered shared pair, so radixSelect is not expected to add shared-memory findings for this driver in either variant (corrected by the step-4 review)."
+  ],
+  "extra_pairs": [
+    {
+      "sites": [
+        {
+          "role": "write",
+          "file": "aten/src/ATen/native/cuda/Sorting.cu",
+          "line_start": 85,
+          "line_end": 85,
+          "source": "kthValueSliceStart[0] = kValue;",
+          "operation": "STG.E [R18.64], R13 (st.global.f32, SASS 0x2000; executed by every thread with foundKValue); by one thread with foundKValue",
+          "strength": "plain"
+        },
+        {
+          "role": "write",
+          "file": "aten/src/ATen/native/cuda/Sorting.cu",
+          "line_start": 85,
+          "line_end": 85,
+          "source": "kthValueSliceStart[0] = kValue;",
+          "operation": "STG.E [R18.64], R13 (st.global.f32, SASS 0x2000; executed by every thread with foundKValue); by another thread with foundKValue, same 4-byte word kthValue[0]",
+          "strength": "plain"
+        }
+      ],
+      "thread_relation": "cross-warp-same-block (and intra-warp)",
+      "expected_class": "DR",
+      "note": "same-value WAW on kthValue[slice]: every matching thread stores the same kValue; a formal data race (plain/plain, unordered). Removed by the fix (only thread 0 stores, fixed L95, after the barrier L91)."
+    }
+  ],
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "corrected",
+    "changes": [
+      {
+        "field": "sites",
+        "old": [
+          {
+            "role": "write",
+            "file": "aten/src/ATen/native/cuda/Sorting.cu",
+            "line_start": 85,
+            "line_end": 85,
+            "source": "kthValueSliceStart[0] = kValue;",
+            "operation": "STG.E [R18.64], R13 (st.global.f32, SASS 0x2000; executed by every thread with foundKValue)",
+            "strength": "plain"
+          },
+          {
+            "role": "write",
+            "file": "aten/src/ATen/native/cuda/Sorting.cu",
+            "line_start": 86,
+            "line_end": 86,
+            "source": "indicesSliceStart[0] = kValueIndex;",
+            "operation": "STG.E.64 [R16.64], R24 (st.global.s64, SASS 0x2010; executed by every thread with foundKValue)",
+            "strength": "plain"
+          }
+        ],
+        "new": [
+          {
+            "role": "write",
+            "file": "aten/src/ATen/native/cuda/Sorting.cu",
+            "line_start": 86,
+            "line_end": 86,
+            "source": "indicesSliceStart[0] = kValueIndex;",
+            "operation": "STG.E.64 [R16.64], R24 (st.global.s64, SASS 0x2010; executed by every thread with foundKValue); this instance by one thread with foundKValue (e.g. thread 0, warp 0)",
+            "strength": "plain"
+          },
+          {
+            "role": "write",
+            "file": "aten/src/ATen/native/cuda/Sorting.cu",
+            "line_start": 86,
+            "line_end": 86,
+            "source": "indicesSliceStart[0] = kValueIndex;",
+            "operation": "STG.E.64 [R16.64], R24 (st.global.s64, SASS 0x2010; executed by every thread with foundKValue); this instance by another thread with foundKValue (e.g. thread 32, warp 1), same 8-byte word indices[0]",
+            "strength": "plain"
+          }
+        ],
+        "reason": "L85 and L86 write different words (kthValue[slice] of the float values tensor vs indices[slice] of the int64 indices tensor), so (L85, L86) is not a conflicting pair. Each store races with itself executed by another thread; the primary pair is L86 vs L86 (the WAW with differing values that the fix targets), and L85 vs L85 (same-value WAW) moves to extra_pairs.",
+        "evidence": "aten/src/ATen/native/cuda/Sorting.cu:49-51,84-87 @9d0b77f"
+      },
+      {
+        "field": "extra_pairs",
+        "old": null,
+        "new": [
+          {
+            "sites": [
+              {
+                "role": "write",
+                "file": "aten/src/ATen/native/cuda/Sorting.cu",
+                "line_start": 85,
+                "line_end": 85,
+                "source": "kthValueSliceStart[0] = kValue;",
+                "operation": "STG.E [R18.64], R13 (st.global.f32, SASS 0x2000; executed by every thread with foundKValue); by one thread with foundKValue",
+                "strength": "plain"
+              },
+              {
+                "role": "write",
+                "file": "aten/src/ATen/native/cuda/Sorting.cu",
+                "line_start": 85,
+                "line_end": 85,
+                "source": "kthValueSliceStart[0] = kValue;",
+                "operation": "STG.E [R18.64], R13 (st.global.f32, SASS 0x2000; executed by every thread with foundKValue); by another thread with foundKValue, same 4-byte word kthValue[0]",
+                "strength": "plain"
+              }
+            ],
+            "thread_relation": "cross-warp-same-block (and intra-warp)",
+            "expected_class": "DR",
+            "note": "same-value WAW on kthValue[slice]: every matching thread stores the same kValue; a formal data race (plain/plain, unordered). Removed by the fix (only thread 0 stores, fixed L95, after the barrier L91)."
+          }
+        ],
+        "reason": "new key holding the L85 self-pair moved out of sites",
+        "evidence": "Sorting.cu:84-85 @9d0b77f"
+      },
+      {
+        "field": "open_questions[2]",
+        "old": "Not the target pair, but present in BOTH variants with the all-equal input: findPattern in SortingRadixSelect.cuh (verbatim, same blob in both revisions) lets every matching thread store smem[0] and smem[1] (same values, benign shared WAW) before its barrier, so a shared-memory detector or racecheck may report extra benign findings in radixSelect for both variants; they are unrelated to the L85/L86 pair of gatherKthValue.",
+        "new": "Not the target pair: with the all-equal input radixSelect never calls findPattern: findPattern is reached only through found_unique, which needs count == 1 && kToFind == 1 (SortingRadixSelect.cuh:350-353), but every digit's count is 4096 or 0 and kToFind stays 5. countRadixUsingMask (SortingRadixSelect.cuh:195-245: init by threads < RadixSize, barrier, warp-aggregated atomicAdd into smem by lane 0, barrier, read, barrier) has no unordered shared pair, so radixSelect is not expected to add shared-memory findings for this driver in either variant (corrected by the step-4 review).",
+        "reason": "factually wrong for the driver input: findPattern is not executed when all elements are equal (no unique digit count), and even when executed the matching element is unique, so the claimed benign smem[0]/smem[1] WAW does not occur",
+        "evidence": "aten/src/ATen/native/cuda/SortingRadixSelect.cuh:256-301,329-375 @9d0b77f (identical @79a4a9c)"
+      }
+    ],
+    "notes": "R2 harness: every copied kernel file under r2/buggy and r2/fixed is byte-identical (cmp) to git show <buggy_commit>:<path> / <fix_commit>:<path>; git diff buggy..fix of those files is exactly the fix hunk described in fixed.reason. (Sorting.cu, SortingCommon.cuh, SortingRadixSelect.cuh; the commit's Sorting.cpp / test / __init__ changes are host side). Buggy race confirmed at 9d0b77f: with 4096 zeros and k = 5, kValue = 0 and every thread's first element matches (Sorting.cu:71-81), so all 1024 threads store indices[0] = i (L86, int64, differing values) and kthValue[0] = kValue (L85, float, equal values) with no barrier: plain/plain WAW, cross-warp and intra-warp -> DR. Driver <<<1, 1024>>>, gatherKthValue<float, int32_t, 1> (driver.cu:6-7,58). Fixed (79a4a9c) residual confirmed: minIndexFound initialised by thread 0 (L71) before the barrier L73; in the loop each thread reads minIndexFound plainly at L77 while other threads atomicMin it at L86 with no barrier until L91: plain read vs atomic RMW is not morally strong -> DR, as registered (CLAUDE.md T21 item 3 lists this residual). The final read (L94) and the stores (L94-95) by thread 0 follow the barrier L91. Not independently verified: the SASS opcodes, register operands and offsets quoted in sites/sass_notes (the one permitted srun on -p normal could not start: partition fully allocated, estimated start 2026-10-21 14:37, so the job was cancelled); access widths were checked from the source types instead. Native-run and smoke-run statements in open_questions are builder results and were not reviewed.",
+    "depends_on_D20": false
+  }
+}

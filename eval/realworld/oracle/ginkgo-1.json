@@ -1,0 +1,56 @@
+{
+  "id": "ginkgo-1",
+  "tier": "core",
+  "wave": 2,
+  "route": "R1",
+  "kernel": "gko::kernels::cuda::generic_kernel_col_reduction_2d_blocked<double, rw_fn, rw_op, rw_fin> (direct launch from the driver: grid (1,1), default_block_size = 512 threads, rows = 8, cols = 64)",
+  "space": "shared",
+  "build_revision": {
+    "buggy": "e0d4d6e0715756384145ec8730e7e4b9e0700ff3",
+    "fixed": "4d8ec443d3eb579e402e4a427dacc4b535ec3676"
+  },
+  "sites": [
+    {
+      "role": "write",
+      "file": "common/cuda_hip/base/kernel_launch_reduction.hpp",
+      "line_start": 309,
+      "line_end": 309,
+      "source": "block_partial[threadIdx.x] = partial;",
+      "operation": "st.shared.f64 (SASS STS.64 [R0.X8], R24)",
+      "strength": "plain"
+    },
+    {
+      "role": "read",
+      "file": "common/cuda_hip/base/kernel_launch_reduction.hpp",
+      "line_start": 317,
+      "line_end": 317,
+      "source": "partial = op(partial, block_partial[i + warp_rank]);   (unrolled over i = 0, 32, ..., 480: 16 loads per thread of warp 0)",
+      "operation": "ld.shared.f64 (SASS LDS.64 Rx, [R30 + k*0x100], k = 0..15)",
+      "strength": "plain"
+    }
+  ],
+  "thread_relation": "cross-warp-same-block",
+  "thread_pair_example": "block (0,0), cols = 64, gridDim.y = 1 so col_step = 32 and the column-block loop runs twice: in iteration 1 thread 0 (warp 0) executes LDS block_partial[32] (i = 32, warp_rank = 0) at L317; in iteration 2 thread 32 (warp 1) executes STS block_partial[32] at L309. The only barrier between the iteration-1 read and the iteration-2 write is the one at L310 which sits BEFORE the reads. Warp 0 reading its own slots (i = 0, warp_rank = lane) is same-thread and does not conflict; warps 1..15 are the conflicting writers.",
+  "expected_class": "DR",
+  "class_reason": "Both accesses are plain shared-memory accesses (PTX st.shared.f64 / ld.shared.f64, SASS STS.64 / LDS.64 without .STRONG, no volatile/atomic). A store of warp 1..15 in iteration n+1 and a load of warp 0 in iteration n hit the same shared address with no barrier in between (L310 orders only write-before-read of the same iteration) -> data race of plain accesses (DR). No strong access, so no SC component.",
+  "buggy_expected": "The pair is reported as DR (WAR, shared, cross-warp): read at L317 (iteration n, warp 0) vs write at L309 (iteration n+1, warps 1..15). It only occurs when the loop runs at least twice, which the driver forces with cols = 64 > col_step = 32; the library reaches that only for cols > 65535*32.",
+  "fixed": {
+    "expected": "absent",
+    "residual_sites": null,
+    "reason": "The fix introduces col_step = gridDim.y * warp_size and adds 'if (block_col + col_step < cols) block.sync();' at L324-L326, after the warp-0 reads and before the next iteration's store at L309. The condition is uniform per block, so the barrier is reached by all threads whenever another iteration follows. SASS: a second BAR.SYNC 0x0 at 0x0b80 after the STG at L320. Line numbers of L309/L317 are unchanged in the fixed file (the one inserted line and one removed line cancel)."
+  },
+  "sass_notes": "sm_89 SASS of the driver kernel, buggy: STS.64 [R0.X8],R24 at 0x08d0 (L309), BAR.SYNC 0x0 at 0x08f0 (L310, line table: sm_30_intrinsics.hpp:99 because block.sync() inlines __syncthreads), 16 unrolled LDS.64 from 0x0910 to 0x0ac0 (L317), STG.E.64 at 0x0b50 (L320); no barrier after the loads. Fixed: same code, STS.64 at 0x08a0, BAR.SYNC at 0x08d0, LDS.64 0x0910..0x0ac0, STG at 0x0b50 and a second BAR.SYNC 0x0 at 0x0b80 (L325, conditional). No .STRONG token on any of these accesses. The driver is compiled with the project's own CUDA backend flags (cmake configure only): -O3 -DNDEBUG -std=c++17 --generate-code=arch=compute_89,code=[compute_89,sm_89] --expt-relaxed-constexpr --expt-extended-lambda plus -lineinfo.",
+  "derived_from": "verify.accesses + verify.thread_pair of targets.jsonl, re-checked against common/cuda_hip/base/kernel_launch_reduction.hpp@e0d4d6e and @4d8ec44, the PTX (cuobjdump -ptx, .loc) and the sm_89 SASS (/home/fzheng4/sassline.sh) of the built drivers, on 2026-10-20",
+  "open_questions": [
+    "The record says 256 threads / a 256-entry block_partial; at this revision default_block_size is 512 (common/cuda_hip/base/kernel_launch.hpp L48), so block_partial has 512 entries and the driver launches 512 threads (the kernel's loop and array are sized by default_block_size; 256 threads would leave entries 256..511 uninitialised). The racing pair is the same, with warps 1..15 instead of 1..7.",
+    "Direct launch is not the library's own launch path (run_kernel_col_reduction_cached); the kernel header is the checked-out revision's, only the functors and the launch are ours."
+  ],
+  "review": {
+    "reviewer": "fresh-context Opus, T21a step 4",
+    "date": "2026-10-20",
+    "verdict": "confirmed",
+    "changes": [],
+    "notes": "Checked against common/cuda_hip/base/kernel_launch_reduction.hpp at e0d4d6e: store block_partial[threadIdx.x] at :309, block.sync() at :310 (the only barrier in the loop body), warp-0 loads block_partial[i + warp_rank], i = 0..480 step 32, at :317 (inside 'if (threadIdx.x < warp_size)' :312), loop header :298-:300. default_block_size = 512 (common/cuda_hip/base/kernel_launch.hpp:48), so block_partial has 512 entries (:291) and the 512-thread direct launch is the right one. The record's 256 would leave entries 256..511 uninitialised. Thread 32w+l (w = 1..15) skips :312, loops back and stores block_partial[32w+l] in iteration n+1 while lane l of warp 0 may still load it in iteration n. Nothing orders the two (:310 orders store-before-load of one iteration only). Both plain shared accesses, so DR; relation cross-warp-same-block. The library reaches a second iteration only when ceildiv(cols, 32) > 65535 (:496-:499 cap gridDim.y), so the direct launch is needed. Fix 4d8ec44: col_step at :297, loop header folded into :299-:300, 'if (block_col + col_step < cols) block.sync();' at :324-:326 (barrier :325). The condition is uniform per block, and :309/:317 keep their line numbers. The fix removes the race: fixed = absent. SASS opcodes, tokens and offsets quoted in sites/sass_notes were not re-checked: the one allowed srun (-p normal -t 10) could not start (partition full, estimated start 2026-10-21 14:37) and was cancelled. Everything above is from the upstream sources at the two commits.",
+    "depends_on_D20": false
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "id": "cccl-4-buggy",
+  "tool": "cuvein",
+  "mode": "collector-only",
+  "verdict": "RACE",
+  "report_ids": [
+    "global:0x50-0x960:WAR",
+    "global:0x50-0xcf0:WAR"
+  ],
+  "pcs": [
+    80,
+    2400,
+    3312
+  ],
+  "lines": "driver_buggy.cu:68;driver_buggy.cu:85;single_pass_scan_operators.cuh:695",
+  "raw": [
+    {
+      "a_pc": 80,
+      "b_pc": 2400,
+      "space": "global",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    },
+    {
+      "a_pc": 80,
+      "b_pc": 3312,
+      "space": "global",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": null,
+      "hb_chain": null,
+      "matrix_class": "race",
+      "conflict_class": "DR",
+      "a2": null,
+      "model_bug": false
+    }
+  ],
+  "raw_sc": [
+    {
+      "a_pc": 320,
+      "b_pc": 496,
+      "space": "global",
+      "verdict": "SC",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": "sc",
+      "hb_chain": null,
+      "matrix_class": "sc",
+      "conflict_class": "SC",
+      "model_bug": false
+    },
+    {
+      "a_pc": 496,
+      "b_pc": 2352,
+      "space": "global",
+      "verdict": "SC",
+      "race_type": "WAR",
+      "strength": "none",
+      "hb_class": "sc",
+      "hb_chain": null,
+      "matrix_class": "sc",
+      "conflict_class": "SC",
+      "model_bug": false
+    },
+    {
+      "a_pc": 496,
+      "b_pc": 3296,
+      "space": "global",
+      "verdict": "SC",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": "sc",
+      "hb_chain": null,
+      "matrix_class": "sc",
+      "conflict_class": "SC",
+      "model_bug": false
+    },
+    {
+      "a_pc": 1520,
+      "b_pc": 2352,
+      "space": "global",
+      "verdict": "SC",
+      "race_type": "RAW",
+      "strength": "none",
+      "hb_class": "sc",
+      "hb_chain": null,
+      "matrix_class": "sc",
+      "conflict_class": "SC",
+      "model_bug": false
+    }
+  ],
+  "scope_file": "",
+  "pc_lines": {
+    "80": "single_pass_scan_operators.cuh:695",
+    "2400": "driver_buggy.cu:85",
+    "3312": "driver_buggy.cu:68"
+  }
+}
