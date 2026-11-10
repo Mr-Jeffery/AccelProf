@@ -1,0 +1,39 @@
+P4 cuvein collector-only graph-coloring_norace assignColorsKernel(int*, int*, int*, int*, int*, i | global:0x160-0x4d0 global:0x500-0x6b0 | global:0x160-0x4d0=race global:0x500-0x6b0=race
+P4 cuvein collector-only graph-coloring_norace detectConflictsKernel(int*, int*, int*, int*, int* | global:0x160-0x4b0 global:0x4b0-0x4b0 global:0x4e0-0x690 | global:0x160-0x4b0=race global:0x4b0-0x4b0=race global:0x4e0-0x690=race
+P4 cuvein collector-only graph-coloring_norace forbidColorsKernel(int*, int*, int*, int*, int*, i | global:0x160-0x550 global:0x550-0x550 global:0x580-0x730 | global:0x160-0x550=race global:0x550-0x550=race global:0x580-0x730=race
+P4 cuvein collector-only graph-connectivity_norace compressKernel(int*, int*, int*, int*, int*) | global:0x160-0x400 global:0x430-0x5e0 | global:0x160-0x400=race global:0x430-0x5e0=race
+P4 cuvein collector-only graph-connectivity_norace initKernel(int*, int*, int*, int*, int*) | global:0x160-0x260 global:0x290-0x440 | global:0x160-0x260=race global:0x290-0x440=race
+P4 cuvein collector-only graph-connectivity_norace linkKernel(int*, int*, int*, int*, int*, int*, int | global:0x160-0x410 global:0x410-0x410 global:0x440-0x5f0 | global:0x160-0x410=race global:0x410-0x410=race global:0x440-0x5f0=race
+P4 cuvein vector-clock reduction_norace void reduceSinglePass<512u, true>(int const*, int  | global:0xab0-0x1690 | global:0xab0-0x1690=structural
+P4 cuvein scalar-clock reduction_norace void reduceSinglePass<512u, true>(int const*, int  | global:0xab0-0x1690 | global:0xab0-0x1690=race
+P4 cuvein collector-only reduction_norace void reduceSinglePass<512u, true>(int const*, int  | global:0x3b0-0xf60 global:0x550-0xf60 global:0x6e0-0xf60 | global:0x3b0-0xf60=race global:0x550-0xf60=race global:0x6e0-0xf60=race
+P4 cuvein collector-only uts_norace parTreeSearch(StackStats*, Node*, StackStats*, Nod | shared:0x3b50-0x3b50 shared:0x3b50-0x3c90 shared:0x3b50-0x3d20 shared:0x3c90-0x3d20 | shared:0x3b50-0x3b50=race shared:0x3b50-0x3c90=race sh
+P6 cuvein vector-clock asyncmemcpy__kernel_memcpy_dto write_kernel(int*, int) | global:0x890-0x890 global:0x890-0x9a0 global:0x890-0x9c0 global:0x890-0x9e0 global:0x890-0x9f0 global:0x890-0xa00 global:0x890-0xa10 global:
+P6 cuvein scalar-clock asyncmemcpy__kernel_memcpy_dto write_kernel(int*, int) | global:0x890-0x890 global:0x890-0x9a0 global:0x890-0x9c0 global:0x890-0x9e0 global:0x890-0x9f0 global:0x890-0xa00 global:0x890-0xa10 global:
+P6 cuvein collector-only asyncmemcpy__kernel_memcpy_dto write_kernel(int*, int) | global:0x890-0x9a0 global:0x890-0xa20 global:0x9a0-0x9c0 global:0x9c0-0x9e0 global:0x9e0-0x9f0 global:0x9f0-0xa00 global:0xa00-0xa10 global:
+P9 cuvein collector-only hecbench:crs gcrs_m_1_w_4_coding_dotprod(int, int, long const*, | shared:0x3e0-0x810 shared:0x460-0x810 shared:0x550-0x810 | shared:0x3e0-0x810=race shared:0x460-0x810=race shared:0x550-0x810=race
+P9 cuvein collector-only hecbench:crs gcrs_m_1_w_5_coding_dotprod(int, int, long const*, | shared:0x500-0x970 shared:0x570-0x970 shared:0x580-0x970 shared:0x5a0-0x970 shared:0x640-0x970 shared:0x690-0x970 | shared:0x500-0x970=race 
+P9 cuvein scalar-clock hecbench:expdist void reduce_cross_term<double>(double*, double con | shared:0x7b0-0x7d0 | shared:0x7b0-0x7d0=race
+P9 cuvein scalar-clock hecbench:expdist void reduce_cross_term<float>(float*, float const* | shared:0x7a0-0x7c0 | shared:0x7a0-0x7c0=race
+P9 cuvein collector-only hecbench:expdist void reduce_cross_term<double>(double*, double con | shared:0x7b0-0x7d0 | shared:0x7b0-0x7d0=race
+P9 cuvein collector-only hecbench:expdist void reduce_cross_term<float>(float*, float const* | shared:0x7a0-0x7c0 | shared:0x7a0-0x7c0=race
+P9 cuvein collector-only hecbench:tridiagonal pcr_branch_free_kernel(float const*, float const*, | shared:0xa80-0x1020 shared:0xa90-0x1030 shared:0xa90-0x11e0 shared:0xaa0-0x1000 shared:0xaa0-0x11a0 | shared:0xa80-0x1020=race shared:0xa90-
+P9 cuvein collector-only hecbench:tridiagonal pcr_small_systems_kernel(float const*, float const | shared:0x8c0-0x9d0 shared:0x8d0-0x9e0 shared:0x8d0-0xb80 shared:0x8e0-0x8e0 shared:0x8e0-0x990 shared:0x8e0-0xb50 | shared:0x8c0-0x9d0=race 
+P4 iguard  1dconv_norace convolveKernel(float*, int, float*, int, float*) | 
+P4 iguard  graph-coloring_norace forbidColorsKernel(int*, int*, int*, int*, int*, i | 
+P4 iguard  reduction_norace void reduceSinglePass<512u, true>(int const*, int  | 
+P4 iguard  uts_norace parTreeSearch(StackStats*, Node*, StackStats*, Nod | 
+P6 iguard  false_positives__global_bytewi bytewise_readwrite_kernel(int*, int*) | 
+P6 iguard  false_positives__global_bytewi bytewise_readwrite_kernel(int*, int*) | 
+P6 iguard  false_positives__global_bytewi bytewise_race_kernel(int*, int*) | 
+P6 iguard  false_positives__global_bytewi bytewise_race_kernel(int*, int*) | 
+P9 iguard  hecbench:fpc fpc2_kernel(unsigned long const*, unsigned int*) | 
+P9 iguard  hecbench:fpc fpc_kernel(unsigned long const*, unsigned int*) | 
+P9 iguard  hecbench:gpp solver(int, int, int, int const*, int const*, doub | 
+P9 iguard  hecbench:knn cuInsertionSort(float*, int*, int, int, int) | 
+P9 iguard  hecbench:mr mr32_eff(unsigned int const*, unsigned int const*, | 
+P9 iguard  hecbench:mr mr32_sf(unsigned int const*, unsigned int const*,  | 
+MISSED
+{'suite': 'P6', 'tool': 'supercollider', 'mode': '', 'binary': '/home/fzheng4/AccelProf/eval/baselines/bin/P6/interkernel__global_readwrite_race__racy.sm86.out', 'kernel': 'producer_kernel(int*)', 'verdict': 'CLEAN'}
+{'suite': 'P9', 'tool': 'iguard', 'mode': '', 'binary': 'hecbench:knn', 'kernel': 'cuComputeDistanceGlobal(float const*, int, float const*, int, int, float*)', 'verdict': 'CLEAN'}
+{'suite': 'P9', 'tool': 'racecheck', 'mode': '', 'binary': 'hecbench:tridiagonal', 'kernel': 'cyclic_branch_free_kernel(float const*, float const*, float const*, float const*, float*, int, int, int)', 'verdict': 'CLEAN'}

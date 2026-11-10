@@ -1,0 +1,83 @@
+bin2c
+compute-sanitizer
+crt
+ctadvisor
+cudafe++
+cuda-gdb
+cuda-gdb-minimal
+cuda-gdb-python3.10-tui
+cuda-gdb-python3.11-tui
+cuda-gdb-python3.12-tui
+cuda-gdb-python3.13-tui
+cuda-gdb-python3.14-tui
+cuda-gdb-python3.8-tui
+cuda-gdb-python3.9-tui
+cuda-gdbserver
+cu++filt
+cuobjdump
+fatbinary
+ncu
+ncu-ui
+nsight-sys
+nsys
+nsys-ui
+nvcc
+__nvcc_device_query
+nvcc.profile
+nvdisasm
+nvlink
+nvprune
+ptxas
+tileiras
+tileirdisasm
+
+ELF file    1: 1dconv_main-1dconv_kernel.sm_89.cubin
+ELF file    2: 1dconv_main.sm_89.cubin
+ELF file    3: 1dconv_kernel.sm_89.cubin
+Skipping .debug_frame section, as length was 0
+.nv.constant0._Z14convolveKernelPfiS_iS_
+.nv.constant0._Z10initKernelPfiS_iS_
+.nv.info._Z14convolveKernelPfiS_iS_
+.nv.info._Z10initKernelPfiS_iS_
+.text._Z14convolveKernelPfiS_iS_
+.text._Z10initKernelPfiS_iS_
+
+Fatbin elf code:
+================
+arch = sm_89
+code version = [1,8]
+host = linux
+compile_size = 64bit
+identifier = 1dconv_main.cu 1dconv_kernel.cu 
+
+64-bit ELF: type=ET_EXEC, ABI=8, sm=89, toolkit=13.3, flags=0x5005904
+Sections:
+Index Offset   Size ES Align                      Type    Flags Link     Info Name
+    1     40     7d  0  1                       STRTAB        0    0        0 .shstrtab
+    2     bd     7d  0  1                       STRTAB        0    0        0 .strtab
+    3    140     78 18  8                       SYMTAB        0    2        5 .symtab
+    4    1b8    12c  0  4                         NOTE  2000000    0        0 .note.nv.tkinfo
+    5    2e4     20  0  4                         NOTE  1000000    4        0 .note.nv.cuinfo
+    6    304     20  8  4               CUDA_CALLGRAPH        0    3        0 .nv.callgraph
+    7    328     10  8  8               CUDA_RELOCINFO        0    0        0 .nv.rel.action
+
+.section .strtab
+
+.section .shstrtab
+
+.section .symtab
+ index           value           size      info    other  shndx    name  
+   0               0               0        0        0      0     (null)
+ 0x1               0               0      0x3        0    0x4     .note.nv.tkinfo
+ 0x2               0               0      0x3        0    0x5     .note.nv.cuinfo
+ 0x3               0               0      0x3        0    0x6     .nv.callgraph
+ 0x4               0               0      0x3        0    0x7     .nv.rel.action
+
+
+.section .note.nv.tkinfo
+Entry: 1
+  Owner                  Data size        Description
+  NVIDIA Corp            276              NVIDIA CUDA Toolkit Information
+	Note Version: 2
+	Tool Name: nvlink
+	Tool Version: Cuda compilation tools, release 13.3, V13.3.73

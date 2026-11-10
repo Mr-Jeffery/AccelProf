@@ -1,0 +1,73 @@
+/mnt/beegfs/fzheng4/home_archive/eval_baselines/corpora
+clone_HeCBench.err
+clone_Indigo3Suite.err
+clone_IndigoSuite.err
+HeCBench
+Indigo3Suite
+IndigoSuite
+1
+6337
+===== Indigo3Suite/generatedCodes/CUDA/BFS-CUDA/BFS_CUDA_E_Data_IntType_ReadModifyWrite_NonPersist_Atomic_ExcessThreadsBug_NoLivelockBug_Determ_NoUninitializedBug_FieldBug_NoOverflowBug.cu lines 46 - 59
+45: 
+46: static __global__ void init(const int src, data_type* const dist, data_type* const dist_n, const int size, const ECLgraph g, int* const wl1, int* const wlsize, int* const time)
+47: {
+48:   // initialize dist array
+49:   const int v = threadIdx.x + blockIdx.x * ThreadsPerBlock;
+50:   if (v < size) {
+51:     const data_type temp = (v == src) ? 0 : maxval;
+52:     dist_n[v] = temp;
+53:     dist[v] = temp;
+54:   }
+55:   if (v < g.edges) {
+56:     time[v] = 0;
+57:   }
+58:   // initialize worklist
+59:   if (v == 0) {
+===== Indigo3Suite/generatedCodes/CUDA/CC-CUDA/CC_CUDA_E_Data_IntType_ReadModifyWrite_NonPersist_Atomic_ExcessThreadsBug_NoLivelockBug_Determ_FieldBug_Init.cu lines 47 - 60
+46: 
+47: static __global__ void init(data_type* const label, data_type* const label_n, const ECLgraph g, int* const wl1, int* const wlsize)
+48: {
+49:   // initialize label array
+50:   const int v = threadIdx.x + blockIdx.x * ThreadsPerBlock;
+51:   if (v < g.nodes) {
+52:     label_n[v] = v;
+53:     label[v] = v;
+54:     for (int i = g.nindex[v]; i < g.nindex[v + 1]; i++) {
+55:       wl1[i] = i;
+56:     }
+57:   }
+58:   if (v == 0) {
+59:     *wlsize = g.edges;
+60:   }
+===== Indigo3Suite/generatedCodes/CUDA/MIS-CUDA/MIS_CUDA_E_Data_push_Determ_IntType_NonPersist_Atomic_Thread_FieldBug_ExcessThreadsBug_NoUninitializedBug.cu lines 46 - 59
+45: 
+46: static __global__ void init(const ECLgraph g, const int* const sp, data_type* const priority, flag_t* const status, flag_t* const status_n, flag_t* const lost, int* const wl1, int* const wlsize)
+47: {
+48:   // initialize arrays
+49:   const int v = threadIdx.x + blockIdx.x * ThreadsPerBlock;
+50:   if (v < g.nodes)
+51:   {
+52:     priority[v] = hash(v + 712313887);
+53:     status[v] = undecided;
+54:     status_n[v] = undecided;
+55:     lost[v] = 0;
+56:   }
+57:   if (v < g.edges)
+58:   {
+59:     // initialize worklist
+===== Indigo3Suite/generatedCodes/CUDA/MST-CUDA/MST_CUDA_E_Data_Atomic_IntType_NonPersist_ExcessThreadsBug_FieldBug.cu lines 46 - 59
+45: 
+46: static __global__ void init(const ECLgraph g, data_type* const eweight, bool* const included, idx_type* const parent, idx_type* const minv, int* const wl1, idx_type* const wlsize)
+47: {
+48:   const int v = threadIdx.x + blockIdx.x * ThreadsPerBlock;
+49:   if (v < g.nodes) {
+50:     //initially, each vertex is its own parent
+51:     parent[v] = v;
+52:     minv[v] = INT_MAX;
+53: 
+54:     const int beg = g.nindex[v];
+55:     const int end = g.nindex[v + 1];
+56:     for (int e = beg; e < end; e++) {
+57:       const int n = g.nlist[e];
+58:       // only in one direction
+59:       if (n > v) {

@@ -1,0 +1,61 @@
+total 8801
+drwxr-xr-x 2 fzheng4 ncsu       2 Nov  5 18:46 .
+drwxr-xr-x 3 fzheng4 ncsu       1 Nov  5 18:46 ..
+-rw-r--r-- 1 fzheng4 ncsu 9010141 Nov  5 19:55 iguard_rep1.txt
+-rw-r--r-- 1 fzheng4 ncsu     617 Nov  5 18:46 native.txt
+== iguard_rep1.txt
+------------- NVBit (NVidia Binary Instrumentation Tool v1.8) Loaded --------------
+NVBit core environment variables (mostly for nvbit-devs):
+ACK_CTX_INIT_LIMITATION = 0 - if set, no warning will be printed for nvbit_at_ctx_init()
+            NVDISASM = nvdisasm - override default nvdisasm found in PATH
+            NOBANNER = 0 - if set, does not print this banner
+       NO_EAGER_LOAD = 1 - lazy module loading is now turned on by default. If you see deadlocks in your tool, set NO_EAGER_LOAD to 0
+---------------------------------------------------------------------------------
+         INSTR_BEGIN = 0 - Beginning of the instruction interval where to apply instrumentation
+           INSTR_END = 4294967295 - End of the instruction interval where to apply instrumentation
+        TOOL_VERBOSE = 0 - Enable verbosity inside the tool (def = 0)
+            TOOL_OFF = 0 - Do not instrument/detect (def = 0)
+           BYTE_GRAN = 4 - Granularity of detection in bytes (def = 4)
+         CHECK_LOCKS = 1 - Whether to do lockset detection (def = 1)
+           CHECK_ITS = 1 - Whether to consider ITS when checking (def = 1)
+            CONT_OPT = 1 - Whether to perform backoff and coalescing optimizations for contention (def = 1)
+                EXIT = 0 - Quit on encountering error (def = 0)
+            MD_SCALE = 1 - Factor by which to scale down metadata (def = 1)
+             TIMEOUT = 0 - Time in seconds after which to quit detection (0 = never; def = 0)
+             MANAGED = 1 - Force 
+18
+== native.txt
+Atomic min for data type U64 | Average execution time: 0.000003 (s)
+Atomic min for data type S64 | Average execution time: 0.000003 (s)
+Atomic min for data type F64 | Average execution time: 0.000005 (s)
+Atomic max for data type U64 | Average execution time: 0.000003 (s)
+Atomic max for data type S64 | Average execution time: 0.000003 (s)
+Atomic max for data type F64 | Average execution time: 0.000005 (s)
+Atomic add for data type U64 | Average execution time: 1.087820 (s)
+Atomic add for data type S64 | Average execution time: 1.076199 (s)
+Atomic add for data type F64 | Average execution time: 1.069187 (s)
+PASS
+
+0
+iguard_rep1.txt
+native.txt
+28:Kernel mr32_sf(unsigned int const*, unsigned int const*, int*, int) - grid size 391,1,1 - block size 256,1,1 - nregs -347703420 - shmem 32602 - cuda stream id 0
+30:Race: Missing gpufence
+31:@P0 RED.E.ADD.STRONG.GPU [R16.64], R9 ; - Kernel mr32_sf(unsigned int const*, unsigned int const*, int*, int): Sass offset 3104 - (TID 3455, 7f5ac5e61e00)
+36:Race: Missing gpufence
+37:@P0 RED.E.ADD.STRONG.GPU [R16.64], R3 ; - Kernel mr32_sf(unsigned int const*, unsigned int const*, int*, int): Sass offset 15680 - (TID 14655, 7f5ac5e61e00)
+41:Kernel mr32_eff(unsigned int const*, unsigned int const*, int*, int) - grid size 391,1,1 - block size 256,1,1 - nregs -347703420 - shmem 32602 - cuda stream id 0
+43:Race: Missing gpufence
+44:@P0 RED.E.ADD.STRONG.GPU [R4.64], R7 ; - Kernel mr32_eff(unsigned int const*, unsigned int const*, int*, int): Sass offset 2512 - (TID 8607, 7f5ac5e61e00)
+hazards=20;kinds=Error: Race reported between Write access at void distance_tiled<double; (i|Error: Race reported between Write access at void distance_tiled<float; (in;cap=84600;node=c55
+
+total 8801
+drwxr-xr-x 2 fzheng4 ncsu       2 Nov  5 18:46 .
+drwxr-xr-x 3 fzheng4 ncsu       1 Nov  5 18:46 ..
+-rw-r--r-- 1 fzheng4 ncsu 9010141 Nov  5 19:55 iguard_rep1.txt
+-rw-r--r-- 1 fzheng4 ncsu     617 Nov  5 18:46 native.txt
+total 11
+drwxr-xr-x 2 fzheng4 ncsu    2 Nov  5 17:35 .
+drwxr-xr-x 3 fzheng4 ncsu    1 Nov  5 17:35 ..
+-rw-r--r-- 1 fzheng4 ncsu 8009 Nov  5 17:35 iguard_rep1.txt
+-rw-r--r-- 1 fzheng4 ncsu 1322 Nov  5 17:35 native.txt

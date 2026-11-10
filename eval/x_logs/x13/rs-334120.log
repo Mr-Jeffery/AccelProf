@@ -1,0 +1,44 @@
+## inventory: suite -> (in_cubin, launched): binaries
+P1 {(2, 2): 200}
+P4 {(1, 1): 6, (2, 2): 2, (3, 3): 4, (20, 1): 2}
+P6 {(1, 1): 30, (2, 2): 4}
+P9 {(1, 1): 3, (2, 2): 2, (3, 3): 1, (4, 4): 1, (8, 6): 1, (9, 9): 1, (20, 20): 1}
+PI {(1, 1): 590}
+binaries with launched < cubin entries:
+   P4 reduction_norace cubin 20 launched 1
+   P4 reduction_racy cubin 20 launched 1
+   P9 hecbench:tridiagonal cubin 8 launched 6
+PI binaries with launched != cubin: 0
+## reports in race-free kernels: (suite, tool/mode) -> kernels
+('P1', 'iguard') 52
+('P4', 'cuvein/collector-only') 8
+('P4', 'cuvein/scalar-clock') 1
+('P4', 'cuvein/vector-clock') 1
+('P4', 'iguard') 4
+('P6', 'cuvein/collector-only') 1
+('P6', 'cuvein/scalar-clock') 1
+('P6', 'cuvein/vector-clock') 1
+('P6', 'iguard') 4
+('P9', 'cuvein/collector-only') 6
+('P9', 'cuvein/scalar-clock') 2
+('P9', 'iguard') 6
+('PI', 'cuvein/collector-only') 32
+('PI', 'iguard') 108
+TOTAL per tool/mode: {'cuvein/collector-only': 47, 'cuvein/vector-clock': 2, 'cuvein/scalar-clock': 4, 'iguard': 174}
+of which in a kernel of a RACY-labelled binary: {'cuvein/scalar-clock': 2, 'cuvein/collector-only': 4, 'iguard': 1}
+## racy kernels missed in a binary the tool reported: (suite, tool/mode) -> kernels
+('P6', 'supercollider') 1
+('P9', 'iguard') 1
+('P9', 'racecheck') 1
+TOTAL: {'supercollider': 1, 'iguard': 1, 'racecheck': 1}
+never-launched (cubin entry not launched) non-HeCBench binaries: 2 [('P4', 'reduction_norace', 19), ('P4', 'reduction_racy', 19)]
+HeCBench atomicCAS cubin 9 launched 9 not launched: []
+HeCBench dxtc2 cubin 1 launched 1 not launched: []
+HeCBench knn cubin 3 launched 3 not launched: []
+HeCBench tridiagonal cubin 8 launched 6 not launched: ['sweep_small_systems_global_vec4_kernel(floatconst*,floatconst*,floatconst*,floatconst*,float*,float*,int,int,bool)', 'sweep_small_systems_local_kernel(floatconst*,floatconst*,floatconst*,floatconst*,float*,int,int,bool)']
+HeCBench expdist cubin 4 launched 4 not launched: []
+HeCBench overlap cubin 1 launched 1 not launched: []
+HeCBench fpc cubin 2 launched 2 not launched: []
+HeCBench gpp cubin 1 launched 1 not launched: []
+HeCBench crs cubin 20 launched 20 not launched: []
+HeCBench mr cubin 2 launched 2 not launched: []

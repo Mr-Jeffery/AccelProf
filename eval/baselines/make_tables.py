@@ -1370,7 +1370,7 @@ def comparison_matrix_section(runs, meta, man):
 # reports; CLEAN if every run finished and none reports; else TIMEOUT if any run timed out, else
 # ERROR. Overhead stays per run. `--unit run` keeps the per-run summary byte for byte.
 UNIT = next((sys.argv[k + 1] for k, a in enumerate(sys.argv[:-1]) if a == "--unit"), "binary")
-assert UNIT in ("binary", "run"), f"--unit must be binary or run, not {UNIT!r}"
+assert UNIT in ("binary", "run", "kernel"), f"--unit must be binary, run or kernel, not {UNIT!r}"
 SUMMARY_PER_RUN_OUT = f"{APH}/eval/BASELINES_SUMMARY_PER_RUN.md"
 # cuHadron categories outside the per-kernel HB model (decided 2026-10-18): host-vs-device,
 # cross-stream kernels, host-API memcpy against a kernel
@@ -1967,6 +1967,11 @@ def _certain_paths(argv):
 
 
 def main():
+    if UNIT == "kernel":       # X13: Table 4 per kernel (eval/baselines/per_kernel/kernel_table.py reads eval/results/per-kernel/*.csv)
+        sys.path.insert(0, f"{HERE}/per_kernel")
+        import kernel_table
+        kernel_table.main()
+        return
     runs, meta = load_runs()
     certain = _certain_paths(sys.argv[1:])
     if certain:

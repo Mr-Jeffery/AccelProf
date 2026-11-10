@@ -1,0 +1,76 @@
+atomicCAS vecto void atomicAddDerived<double>(double*) TIMEOUT 0 1 0
+atomicCAS vecto void atomicAddDerived<long long>(long  TIMEOUT 0 1 0
+atomicCAS vecto void atomicAddDerived<unsigned long lo TIMEOUT 0 1 0
+atomicCAS vecto void atomicMaxDerived<double>(double*) TIMEOUT 0 1 0
+atomicCAS vecto void atomicMaxDerived<long long>(long  TIMEOUT 0 1 0
+atomicCAS vecto void atomicMaxDerived<unsigned long lo TIMEOUT 0 1 0
+atomicCAS vecto void atomicMinDerived<double>(double*) TIMEOUT 0 1 0
+atomicCAS vecto void atomicMinDerived<long long>(long  TIMEOUT 0 1 0
+atomicCAS vecto void atomicMinDerived<unsigned long lo TIMEOUT 0 1 0
+atomicCAS scala void atomicAddDerived<double>(double*) TIMEOUT 0 1 0
+atomicCAS scala void atomicAddDerived<long long>(long  TIMEOUT 0 1 0
+atomicCAS scala void atomicAddDerived<unsigned long lo TIMEOUT 0 1 0
+atomicCAS scala void atomicMaxDerived<double>(double*) TIMEOUT 0 1 0
+atomicCAS scala void atomicMaxDerived<long long>(long  TIMEOUT 0 1 0
+atomicCAS scala void atomicMaxDerived<unsigned long lo TIMEOUT 0 1 0
+atomicCAS scala void atomicMinDerived<double>(double*) TIMEOUT 0 1 0
+atomicCAS scala void atomicMinDerived<long long>(long  TIMEOUT 0 1 0
+atomicCAS scala void atomicMinDerived<unsigned long lo TIMEOUT 0 1 0
+atomicCAS colle void atomicAddDerived<double>(double*) RACE 1 3 3
+atomicCAS colle void atomicAddDerived<long long>(long  RACE 1 3 3
+atomicCAS colle void atomicAddDerived<unsigned long lo RACE 1 3 3
+atomicCAS colle void atomicMaxDerived<double>(double*) RACE 1 3 3
+atomicCAS colle void atomicMaxDerived<long long>(long  RACE 1 3 3
+atomicCAS colle void atomicMaxDerived<unsigned long lo RACE 1 3 3
+atomicCAS colle void atomicMinDerived<double>(double*) RACE 1 3 3
+atomicCAS colle void atomicMinDerived<long long>(long  RACE 1 3 3
+atomicCAS colle void atomicMinDerived<unsigned long lo RACE 1 3 3
+dxtc2 vecto compress(unsigned int const*, unsigned RACE 193 3 3
+dxtc2 scala compress(unsigned int const*, unsigned RACE 193 3 3
+dxtc2 colle compress(unsigned int const*, unsigned RACE 196 3 3
+expdist vecto void distance<double>(double const*, d TIMEOUT 0 1 0
+expdist vecto void distance<float>(float const*, flo TIMEOUT 0 1 0
+expdist vecto void reduce_cross_term<double>(double* TIMEOUT 0 1 0
+expdist vecto void reduce_cross_term<float>(float*,  TIMEOUT 0 1 0
+expdist scala void distance<double>(double const*, d RACE 27 1 1
+expdist scala void distance<float>(float const*, flo RACE 27 1 1
+expdist scala void reduce_cross_term<double>(double* RACE 1 1 1
+expdist scala void reduce_cross_term<float>(float*,  RACE 1 1 1
+expdist colle void distance<double>(double const*, d RACE 27 3 3
+expdist colle void distance<float>(float const*, flo RACE 27 3 3
+expdist colle void reduce_cross_term<double>(double* RACE 1 3 3
+expdist colle void reduce_cross_term<float>(float*,  RACE 1 3 3
+knn vecto cuComputeDistanceGlobal(float const*,  RACE 2 1 1
+knn vecto cuInsertionSort(float*, int*, int, int CLEAN 0 1 1
+knn vecto cuParallelSqrt(float*, int, int) CLEAN 0 1 1
+knn scala cuComputeDistanceGlobal(float const*,  RACE 2 1 1
+knn scala cuInsertionSort(float*, int*, int, int CLEAN 0 1 1
+knn scala cuParallelSqrt(float*, int, int) CLEAN 0 1 1
+knn colle cuComputeDistanceGlobal(float const*,  RACE 9 3 3
+knn colle cuInsertionSort(float*, int*, int, int CLEAN 0 3 3
+knn colle cuParallelSqrt(float*, int, int) CLEAN 0 3 3
+tridiagonal vecto cyclic_branch_free_kernel(float const* RACE 12 1 1
+tridiagonal vecto cyclic_small_systems_kernel(float cons RACE 12 1 1
+tridiagonal vecto pcr_branch_free_kernel(float const*, f CLEAN 0 1 1
+tridiagonal vecto pcr_small_systems_kernel(float const*, CLEAN 0 1 1
+tridiagonal vecto sweep_small_systems_global_kernel(floa CLEAN 0 1 1
+tridiagonal vecto transpose(float*, float const*, int, i CLEAN 0 1 1
+tridiagonal scala cyclic_branch_free_kernel(float const* RACE 12 1 1
+tridiagonal scala cyclic_small_systems_kernel(float cons RACE 12 1 1
+tridiagonal scala pcr_branch_free_kernel(float const*, f CLEAN 0 1 1
+tridiagonal scala pcr_small_systems_kernel(float const*, CLEAN 0 1 1
+tridiagonal scala sweep_small_systems_global_kernel(floa CLEAN 0 1 1
+tridiagonal scala transpose(float*, float const*, int, i CLEAN 0 1 1
+tridiagonal colle cyclic_branch_free_kernel(float const* RACE 42 3 3
+tridiagonal colle cyclic_small_systems_kernel(float cons RACE 40 3 3
+tridiagonal colle pcr_branch_free_kernel(float const*, f RACE 5 3 3
+tridiagonal colle pcr_small_systems_kernel(float const*, RACE 6 3 3
+tridiagonal colle sweep_small_systems_global_kernel(floa CLEAN 0 3 3
+tridiagonal colle transpose(float*, float const*, int, i CLEAN 0 3 3
+iguard P4 racy:
+graph-coloring_racy assignColorsKernel(int*,  RACE
+graph-coloring_racy detectConflictsKernel(int RACE
+graph-coloring_racy forbidColorsKernel(int*,  RACE
+graph-connectivity_racy compressKernel(int*, int* RACE
+graph-connectivity_racy initKernel(int*, int*, in RACE
+graph-connectivity_racy linkKernel(int*, int*, in RACE

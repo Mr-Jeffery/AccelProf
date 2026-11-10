@@ -1,0 +1,24 @@
+checks: {'fold-back-differs': 2}
+launched kernels not in the cubin entry list: 0
+pair in two kernels: 0
+fold-back-differs	hecbench:expdist	vector-clock		binary=TIMEOUT from-kernels=CLEAN kernels={'voiddistance<double>(doubleconst*,doubleconst*,int,int,doubleconst*,doubleconst*,double*)': 'CLEAN', 'voiddistance<float>(floatconst*,floatconst*,int,int,floatconst*,floatconst*,float*)': 'CLEAN', 'voidreduce_cross_term<double>(double*,doubleconst*,int,int,int)': 'CLEAN', 'voidreduce_cross_term<float>(float*,floatconst*,int,int,int)': 'CLEAN'}
+fold-back-differs	hecbench:tridiagonal	vector-clock		binary=RACE from-kernels=ERROR kernels={'cyclic_branch_free_kernel(floatconst*,floatconst*,floatconst*,floatconst*,float*,int,int,int)': 'ERROR', 'cyclic_small_systems_kernel(floatconst*,floatconst*,floatconst*,floatconst*,float*,int,int,int)': 'ERROR', 'pcr_branch_free_kernel(floatconst*,floatconst*,floatconst*,floatconst*,float*,int,int,int)': 'CLEAN', 'pcr_small_systems_kernel(floatconst*,floatconst*,floatconst*,floatconst*,float*,int,int,int)': 'CLEAN', 'sweep_small_systems_global_kernel(floatconst*,floatconst*,floatconst*,floatconst*,float*,float*,int,int,bool)': 'ERROR', 'transpose(float*,floatconst*,int,int)': 'ERROR'}
+
+4272 report rows; 545 notes {'iguard:fold-back': 378, 'iguard:Line52\tRED.E.MIN.S32': 30, 'iguard:Line51\tRED.E.MIN.S32': 20, 'racecheck:fold-back': 17, 'supercollider:fold-back': 16, 'iguard:Line53\tRED.E.MIN.S32': 10, 'iguard:Line52\tLDG.ER2,[R6.6': 9, 'iguard:Line53\tLDG.ER10,[R4.': 8, 'iguard:Line52\tLDG.ER10,[R4.': 8, 'iguard:Line52\tLDG.ER3,[R4.6': 8, 'iguard:Line53\tLDG.ER0,[R2.6': 6, 'iguard:Line51\tLDG.ER2,[R6.6': 6}
+1101 {'CLEAN': 546, 'RACE': 405, 'GATE': 6, '': 144}
+| suite | kind | racy / race-free / unlabelled kernels | racecheck | iGUARD | HiRace | SuperCollider | collector-only | scalar-clock | vector-clock |
+|---|---|---|---|---|---|---|---|---|---|
+| Indigo3 | recall | 100 / 300 / 0 | 4/100 | 38/100 | - | - | 100/100 | 100/100 | 100/100 |
+| | FP | | 0/300 | 52/300 | - | - | 0/300 | 0/300 | 0/300 |
+| Indigo 1.3 | recall | 266 / 180 / 144 | 40/266 | 84/266 | 266/266 | 42/45 | 266/266 | 266/266 | 266/266 |
+| | FP | | 0/180 | 73/180 | 0/180 | 0/44 | 32/180 | 0/180 | 0/180 |
+| Indigo 1.3, SC's 99 | recall | 45 / 44 / 10 | 3/45 | 6/45 | 45/45 | 42/45 | 45/45 | 45/45 | 45/45 |
+| | FP | | 0/44 | 17/44 | 0/44 | 0/44 | 4/44 | 0/44 | 0/44 |
+| ScoR applications | recall | 11 / 13 / 0 | 0/8, 3 TO/ERR | 11/11 | - | - | 11/11 | 11/11 | 11/11 |
+| | FP | | 0/13 | 4/13 | - | - | 8/13 | 1/13 | 1/13 |
+| cuHadron (in scope; SuperCollider: all 34) | recall | 6 / 14 / 0 | 4/6 | 0/6 | - | 9/15 | 6/6 | 6/6 | 6/6 |
+| | FP | | 0/14 | 0/14 | - | 0/23 | 0/14 | 0/14 | 0/14 |
+| HeCBench, SC's 10 | recall | 13 / 30 / 6 | 1/13 | 9/13 | - | 13/13 | 13/13, 2 TO/ERR | 4/4, 12 TO/ERR | 2/4, 13 TO/ERR |
+| | FP | | 0/30 | 6/30 | - | 0/30 | 4/30 | 2/30 | 0/30 |
+| All (P1+PI+P4+P6@in) | recall | 383 / 507 / - | 48/380, 3 TO/ERR | 133/383 | 266/266 | 51/60 | 383/383 | 383/383 | 383/383 |
+| | FP | | 0/507 | 129/507 | 0/180 | 0/67 | 40/507 | 1/507 | 1/507 |

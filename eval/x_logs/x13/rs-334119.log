@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/home/fzheng4/wt-x13/eval/baselines/per_kernel/report_stats.py", line 21, in <module>
+    rows.append((suite(b), b, len(cub.get(exe, ())), len(ks)))
+                 ~~~~~^^^
+  File "/home/fzheng4/wt-x13/eval/baselines/per_kernel/report_stats.py", line 7, in <lambda>
+    suite = lambda b: "P9" if b.startswith("hecbench:") else re.search(r"/bin/(P\d)/", b).group(1)
+                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'group'

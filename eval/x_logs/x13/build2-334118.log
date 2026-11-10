@@ -1,0 +1,23 @@
+checks: {'fold-back-differs': 1}
+launched kernels not in the cubin entry list: 0
+pair in two kernels: 0
+fold-back-differs	hecbench:expdist	vector-clock		binary=TIMEOUT from-kernels=CLEAN kernels={'voiddistance<double>(doubleconst*,doubleconst*,int,int,doubleconst*,doubleconst*,double*)': 'CLEAN', 'voiddistance<float>(floatconst*,floatconst*,int,int,floatconst*,floatconst*,float*)': 'CLEAN', 'voidreduce_cross_term<double>(double*,doubleconst*,int,int,int)': 'CLEAN', 'voidreduce_cross_term<float>(float*,floatconst*,int,int,int)': 'CLEAN'}
+
+6093 report rows; 50 notes {'racecheck:fold-back': 17, 'iguard:fold-back': 16, 'supercollider:fold-back': 16, 'racecheck:race-without-lines': 1}
+1101 {'CLEAN': 550, 'RACE': 407, '': 144}
+| suite | kind | racy / race-free / unlabelled kernels | racecheck | iGUARD | HiRace | SuperCollider | collector-only | scalar-clock | vector-clock |
+|---|---|---|---|---|---|---|---|---|---|
+| Indigo3 | recall | 100 / 300 / 0 | 4/100 | 100/100 | - | - | 100/100 | 100/100 | 100/100 |
+| | FP | | 0/300 | 52/300 | - | - | 0/300 | 0/300 | 0/300 |
+| Indigo 1.3 | recall | 266 / 180 / 144 | 40/266 | 258/266 | 266/266 | 42/45 | 266/266 | 266/266 | 266/266 |
+| | FP | | 0/180 | 108/180 | 0/180 | 0/44 | 32/180 | 0/180 | 0/180 |
+| Indigo 1.3, SC's 99 | recall | 45 / 44 / 10 | 3/45 | 42/45 | 45/45 | 42/45 | 45/45 | 45/45 | 45/45 |
+| | FP | | 0/44 | 24/44 | 0/44 | 0/44 | 4/44 | 0/44 | 0/44 |
+| ScoR applications | recall | 11 / 13 / 0 | 0/8, 3 TO/ERR | 11/11 | - | - | 11/11 | 11/11 | 11/11 |
+| | FP | | 0/13 | 4/13 | - | - | 8/13 | 1/13 | 1/13 |
+| cuHadron (in scope; SuperCollider: all 34) | recall | 6 / 14 / 0 | 4/6 | 1/6 | - | 9/15 | 6/6 | 6/6 | 6/6 |
+| | FP | | 0/14 | 4/14 | - | 0/23 | 0/14 | 0/14 | 0/14 |
+| HeCBench, SC's 10 | recall | 15 / 34 / 0 | 2/15 | 9/15 | - | 15/15 | 15/15 | 6/6, 9 TO/ERR | 4/6, 9 TO/ERR |
+| | FP | | 0/34 | 6/34 | - | 0/34 | 6/34 | 2/34 | 0/34 |
+| All (P1+PI+P4+P6@in) | recall | 383 / 507 / - | 48/380, 3 TO/ERR | 370/383 | 266/266 | 51/60 | 383/383 | 383/383 | 383/383 |
+| | FP | | 0/507 | 168/507 | 0/180 | 0/67 | 40/507 | 1/507 | 1/507 |

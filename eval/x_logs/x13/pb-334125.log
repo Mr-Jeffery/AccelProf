@@ -1,0 +1,39 @@
+iguard P9:atomicCAS voidatomicAddDerived<double>(double*) |  | iguard-full-log
+iguard P9:atomicCAS voidatomicAddDerived<longlong>(longlong*) |  | iguard-full-log
+iguard P9:atomicCAS voidatomicAddDerived<unsignedlonglong>(unsign |  | iguard-full-log
+iguard P9:atomicCAS voidatomicMaxDerived<double>(double*) |  | iguard-full-log
+iguard P9:atomicCAS voidatomicMaxDerived<longlong>(longlong*) |  | iguard-full-log
+iguard P9:atomicCAS voidatomicMaxDerived<unsignedlonglong>(unsign |  | iguard-full-log
+iguard P9:atomicCAS voidatomicMinDerived<double>(double*) |  | iguard-full-log
+iguard P9:atomicCAS voidatomicMinDerived<longlong>(longlong*) |  | iguard-full-log
+iguard P9:atomicCAS voidatomicMinDerived<unsignedlonglong>(unsign |  | iguard-full-log
+supercollider P9:atomicCAS voidatomicAddDerived<double>(double*) |  | _Z10atomic_addPyy->['voidatomicAddDerived<unsignedlonglong>(unsignedlonglong*)'];_Z10atomi
+supercollider P9:atomicCAS voidatomicAddDerived<longlong>(longlong*) |  | _Z10atomic_addPyy->['voidatomicAddDerived<unsignedlonglong>(unsignedlonglong*)'];_Z10atomi
+supercollider P9:atomicCAS voidatomicAddDerived<unsignedlonglong>(unsign |  | _Z10atomic_addPyy->['voidatomicAddDerived<unsignedlonglong>(unsignedlonglong*)'];_Z10atomi
+supercollider P9:atomicCAS voidatomicMaxDerived<double>(double*) |  | _Z10atomic_addPyy->['voidatomicAddDerived<unsignedlonglong>(unsignedlonglong*)'];_Z10atomi
+supercollider P9:atomicCAS voidatomicMaxDerived<longlong>(longlong*) |  | _Z10atomic_addPyy->['voidatomicAddDerived<unsignedlonglong>(unsignedlonglong*)'];_Z10atomi
+supercollider P9:atomicCAS voidatomicMaxDerived<unsignedlonglong>(unsign |  | _Z10atomic_addPyy->['voidatomicAddDerived<unsignedlonglong>(unsignedlonglong*)'];_Z10atomi
+supercollider P9:atomicCAS voidatomicMinDerived<double>(double*) |  | _Z10atomic_addPyy->['voidatomicAddDerived<unsignedlonglong>(unsignedlonglong*)'];_Z10atomi
+supercollider P9:atomicCAS voidatomicMinDerived<longlong>(longlong*) |  | _Z10atomic_addPyy->['voidatomicAddDerived<unsignedlonglong>(unsignedlonglong*)'];_Z10atomi
+supercollider P9:atomicCAS voidatomicMinDerived<unsignedlonglong>(unsign |  | _Z10atomic_addPyy->['voidatomicAddDerived<unsignedlonglong>(unsignedlonglong*)'];_Z10atomi
+racecheck P9:dxtc2 compress(unsignedintconst*,unsignedintconst*, | main.cu:100;main.cu:101;main.cu:102;main.cu:128;main.cu:131;main.cu:13 | 
+supercollider P9:dxtc2 compress(unsignedintconst*,unsignedintconst*, |  | single-kernel-binary(no-log-lines)
+racecheck P9:expdist voiddistance<double>(doubleconst*,doubleconst |  | distance_tiled<double>->['voiddistance<double>(doubleconst*,doubleconst*,int,int,doublecon
+racecheck P9:expdist voiddistance<float>(floatconst*,floatconst*,i |  | distance_tiled<double>->['voiddistance<double>(doubleconst*,doubleconst*,int,int,doublecon
+supercollider P9:expdist voiddistance<double>(doubleconst*,doubleconst |  | _Z24fill_shared_mem_tiled_1DILi4ELi8EfEvRAmlT_T0__T1_PKS0_ii->['voiddistance<float>(floatc
+supercollider P9:expdist voiddistance<float>(floatconst*,floatconst*,i |  | _Z24fill_shared_mem_tiled_1DILi4ELi8EfEvRAmlT_T0__T1_PKS0_ii->['voiddistance<float>(floatc
+iguard P9:fpc fpc2_kernel(unsignedlongconst*,unsignedint*) |  | 
+iguard P9:fpc fpc_kernel(unsignedlongconst*,unsignedint*) |  | 
+iguard P9:gpp solver(int,int,int,intconst*,intconst*,double |  | 
+iguard P9:knn cuInsertionSort(float*,int*,int,int,int) |  | iguard-full-log
+supercollider P9:knn cuComputeDistanceGlobal(floatconst*,int,float | main.cu:60;main.cu:61;main.cu:62;main.cu:63;main.cu:64 | 
+iguard P9:mr mr32_eff(unsignedintconst*,unsignedintconst*, |  | iguard-full-log
+iguard P9:mr mr32_sf(unsignedintconst*,unsignedintconst*,i |  | iguard-full-log
+racecheck P9:tridiagonal cyclic_small_systems_kernel(floatconst*,float | cyclic_kernels.cu:108;cyclic_kernels.cu:113;cyclic_kernels.cu:81;cycli | 
+supercollider P9:tridiagonal cyclic_branch_free_kernel(floatconst*,floatco | cyclic_kernels.cu:108;cyclic_kernels.cu:225;cyclic_kernels.cu:226 | 
+supercollider P9:tridiagonal cyclic_small_systems_kernel(floatconst*,float | cyclic_kernels.cu:108;cyclic_kernels.cu:225;cyclic_kernels.cu:226 | 
+RERUN
+5 ('P9-atomicCAS-cuda', 'RACE', 'sc_races=9;node=c2')
+5 ('P9-dxtc2-cuda', 'ERROR', 'runtime-not-attached;rc=1;loadPPM() : Fa')
+5 ('P9-expdist-cuda', 'RACE', 'sc_races=24;node=c2')
+amb/unm notes: 0

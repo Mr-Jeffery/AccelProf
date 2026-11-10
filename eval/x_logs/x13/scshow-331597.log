@@ -1,0 +1,151 @@
+/mnt/beegfs/fzheng4/x13_sc_logs:
+P9-atomicCAS-cuda
+P9-dxtc2-cuda
+P9-expdist-cuda
+
+/mnt/beegfs/fzheng4/x13_sc_logs/P9-atomicCAS-cuda:
+native0.txt
+native1.txt
+native2.txt
+sc_rep1.txt
+sc_rep2.txt
+sc_rep3.txt
+sc_rep4.txt
+sc_rep5.txt
+
+/mnt/beegfs/fzheng4/x13_sc_logs/P9-dxtc2-cuda:
+native0.txt
+native1.txt
+native2.txt
+sc_rep1.txt
+sc_rep2.txt
+sc_rep3.txt
+sc_rep4.txt
+sc_rep5.txt
+
+/mnt/beegfs/fzheng4/x13_sc_logs/P9-expdist-cuda:
+native0.txt
+native1.txt
+native2.txt
+sc_rep1.txt
+sc_rep2.txt
+sc_rep3.txt
+=== P9-atomicCAS-cuda
+
+████████████████████████████████████████████████████████
+█                                                      █
+█           🏁 RACECHECKER ENGAGED! 🏁                 █
+█                                                      █
+█    Note: This tool disables lazy loading             █
+█    DEBUG_LEVEL    : 0                                █
+█    MAX_ERRORS     : 64                               █
+█    BLOCK_STEERING : 0                                █
+█                                                      █
+████████████████████████████████████████████████████████
+
+Atomic min for data type U64 | Average execution time: 0.000043 (s)
+Atomic min for data type S64 | Average execution time: 0.000042 (s)
+Atomic min for data type F64 | Average execution time: 0.000041 (s)
+Atomic max for data type U64 | Average execution time: 0.000042 (s)
+Atomic max for data type S64 | Average execution time: 0.000042 (s)
+Atomic max for data type F64 | Average execution time: 0.000042 (s)
+Atomic add for data type U64 | Average execution time: 1.011358 (s)
+Atomic add for data type S64 | Average execution time: 0.979111 (s)
+Atomic add for data type F64 | Average execution time: 0.369260 (s)
+PASS
+████████████████████████████████████████████████████████
+█          ⚠️  ⚠️  ⚠️  ⚠️  ⚠️  ⚠️  ⚠️  ⚠️  ⚠️  ⚠️                █
+█       💥 9   RACE CONDITIONS DETECTED! 💥            █
+█                                                      █
+████████████████████████████████████████████████████████
+
+  ⚠️  Inlined function _Z10atomic_minPyy at /opt/HeCBench/src/atomicCAS-cuda/kernels.h:19
+     Type          : This thread READ from an address that another thread clobbered
+     PC offset     : 0x230
+     PC            : 0x7faf1f2ab830
+     First noticed : Thread (160,0,0), Block (67,0,0), Address 0x7faf1b000000
+     Occurrences   : 1816 times (possibly by other threads at other addresses)
+                   : 1133 times at the address!
+
+  ⚠️  Inlined function _Z10atomic_minPxx at /opt/HeCBench/src/atomicCAS-cuda/kernels.h:5
+     Type          : This thread READ from an address that another thread clobbered
+     PC offset     : 0x230
+     PC            : 0x7faf1f2a9530
+     First noticed : Thread (64,0,0), Block (45,0,0), Address 0x7faf1b000200
+     Occurrences   : 1851 times (possibly by other threads at other addresses)
+                   : 1017 times at the address!
+
+  ⚠️  Inlined function _Z10atomic_minPdd at /opt/HeCBench/src/atomicCAS-cuda/kernels.h:89
+     Type          : This thread READ from an address that another thread clobbered
+     PC offset     : 0x1e0
+     PC            : 0x7faf1f2a71e0
+     First noticed : Thread (32,0,0), Block (98,0,0), Address 0x7faf1b000400
+     Occurrences   : 1890 times (possibly by other threads at other addresses)
+                   : 407 times at the address!
+
+  ⚠️  Inlined function _Z10atomic_maxPyy at /opt/HeCBench/src/atomicCAS-cuda/kernels.h:59
+     Type          : This thread READ from a
+9
+0
+=== P9-expdist-cuda
+Test single precision
+
+████████████████████████████████████████████████████████
+█                                                      █
+█           🏁 RACECHECKER ENGAGED! 🏁                 █
+█                                                      █
+█    Note: This tool disables lazy loading             █
+█    DEBUG_LEVEL    : 0                                █
+█    MAX_ERRORS     : 64                               █
+█    BLOCK_STEERING : 0                                █
+█                                                      █
+████████████████████████████████████████████████████████
+
+Average kernel execution time 0.071134 (s)
+    device result: 36670372.000000
+      host result: 36787944.000000
+analytical result: 36787944.117144
+
+Test double precision
+Average kernel execution time 0.242483 (s)
+    device result: 36670316.873106
+      host result: 36787944.203189
+analytical result: 36787944.117144
+
+████████████████████████████████████████████████████████
+█          ⚠️  ⚠️  ⚠️  ⚠️  ⚠️  ⚠️  ⚠️  ⚠️  ⚠️  ⚠️                █
+█       💥 24  RACE CONDITIONS DETECTED! 💥            █
+█                                                      █
+████████████████████████████████████████████████████████
+
+  ⚠️  Inlined function _Z14distance_tiledIfLi2EEvPKT_S2_iiS2_S2_PS0_ at /opt/HeCBench/src/expdist-cuda/kernel.h:67
+  ⚠️  Inlined function _Z24fill_shared_mem_tiled_1DILi4ELi8EfEvRAmlT_T0__T1_PKS0_ii at /opt/HeCBench/src/expdist-cuda/kernel.h:28
+     Type          : This warp WROTE more than one value to the same address
+     Lanes in warp : { l1 l2 l3 l4 l5 l6 l7 l8 l9 l10 l11 l12 l13 l14 l15 l16 l17 l18 l19 l20 l21 l22 l23 l24 l25 l26 l27 l28 l29 l30 l31 }
+     PC offset     : 0xe10
+     PC            : 0x7f60632ab210
+     First noticed : Thread (1,0,0), Block (48,0,0), Address 0x400
+     Occurrences   : 1946880 times (possibly by other threads at other addresses)
+                   : 133 times at the address!
+
+  ⚠️  Inlined function _Z14distance_tiledIfLi2EEvPKT_S2_iiS2_S2_PS0_ at /opt/HeCBench/src/expdist-cuda/kernel.h:67
+  ⚠️  Inlined function _Z24fill_shared_mem_tiled_1DILi4ELi8EfEvRAmlT_T0__T1_PKS0_ii at /opt/HeCBench/src/expdist-cuda/kernel.h:28
+     Type          : This warp WROTE more than one value to the same address
+     Lanes in warp : { l2 l3 l4 l5 l6 l7 l8 l9 l10 l11 l12 l13 l14 l15 l16 l17 l18 l19 l20 l21 l22 l23 l24 l25 l26 l27 l28 l29 l30 l31 }
+     PC offset     : 0x10b0
+     PC            : 0x7f60632ab4b0
+     First noticed : Thread (2,0,0), Block (66,0,0), Address 0x420
+     Occurrences   : 1984314 times (possibly by other threads at other addresses)
+                   : 134 times at the address!
+
+  ⚠️  Inlined function _Z14distance_tiledIfLi2EEvPKT_S2_iiS2_S2_PS0_ at /opt/HeCBench/src/expdist-cuda/kernel.h:67
+  ⚠️  Inlined function _Z24fill_shared_mem_tiled_1DILi4ELi8EfEvRAmlT_T0__T1_PKS0_ii at /opt/HeCBench/src/expdist-cuda/kernel.h:28
+     Type          : This warp WROTE mo
+48
+0
+=== P9-dxtc2-cuda
+loadPPM() : Failed to open file: ../dxtc2-sycl/data/lena_std.ppm
+Error, unable to open source image file <../dxtc2-sycl/data/lena_std.ppm>
+
+0
+0
