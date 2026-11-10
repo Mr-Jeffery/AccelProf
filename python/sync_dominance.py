@@ -1677,6 +1677,16 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
         sync_pcsets = {frozenset(k) for k in offline}
         for k, d in offline_dist.items():
             observed_dyn[frozenset(k)] = max(observed_dyn.get(frozenset(k), NONE), d)
+    # M2 (eval/MODEL_BUG_PAIRS.md): the widest distance at which the barrier-only clock left an
+    # instance of a pair unordered. R1 is judged against it (r1_ordered below). Scalar-clock:
+    # the pass above already put it into observed_dyn. Vector-clock: hb_races_sync_only carries
+    # no distance, so take it from the dump's hb_sync_pass when it has one (any file recorded
+    # since T4); a pre-T4 vector-clock dump keeps the hb_races distances alone.
+    sync_dist = {}
+    if hb_races is not None and use_aggregates(trace):
+        agg = aggregated_sync_pass(trace)
+        if agg is not None:
+            sync_dist = {frozenset(k): d for k, d in agg[1].items()}
 
     # Event-stream candidates: the conflicting pc pairs the event stream shows that
     # barriers/syncwarps leave unordered (vector-clock: hb_races_sync_only + hb_races; trace-
@@ -1746,7 +1756,16 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
         if cur in atom and anc in atom and eng.coherence(cur, anc) >= widest:
             skipped.append({**rec, "reason": "rmw_pair_morally_strong"})
             return
-        ev = eng.ordered(cur, anc, observed, cur_access == "read",
+        # R1 and R3 are asked at the pair's widest distance. A trace edge keeps only the last
+        # accessor of a location, so `observed` can be narrower than an instance the clocks
+        # saw (M2, eval/MODEL_BUG_PAIRS.md: every edge inside one block, the unordered instance
+        # between two blocks, a block barrier certifying the pair -- CUB top-k, RAFT select_k,
+        # Kokkos ParallelReduce). A barrier of scope s orders only the instances at distance
+        # <= s; R3 is asked at the same distance, so a chain can still order the pair.
+        # $CUVEIN_R1_OBSERVED_ONLY=1 restores the edge distance alone (ablation).
+        r1_dist = observed if os.environ.get("CUVEIN_R1_OBSERVED_ONLY") == "1" else \
+            max(widest, sync_dist.get(frozenset((cur, anc)), NONE))
+        ev = eng.ordered(cur, anc, r1_dist, cur_access == "read",
                          anc_access == "read", static=not same)
         if cur in asy or anc in asy:
             # T1a review: the static rules place an access at its instruction, but a copy
@@ -1770,13 +1789,13 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
             if r3_mode == "strict":
                 eng.r3_cfg_only = True
                 try:
-                    chain2 = eng.ordered(cur, anc, observed, cur_access == "read",
+                    chain2 = eng.ordered(cur, anc, r1_dist, cur_access == "read",
                                          anc_access == "read", static=not same)["chain"]
                 finally:
                     eng.r3_cfg_only = False
             withheld = chain2 is None
             ev = dict(ev, chain=chain2)
-        r1_ordered = ev["strength"] >= observed          # R1 dominance
+        r1_ordered = ev["strength"] >= r1_dist         # R1 dominance, at the widest distance
         chain_ordered = ev["chain"] is not None          # R3 PC-level handshake
         # the pair's class (D12): DR if some HbClock instance is a DR, else SC; with no
         # HbClock instance, R2 at the widest observed distance (never SC -> DR reversed)
