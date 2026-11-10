@@ -1,0 +1,597 @@
+{
+ "difference": "finding:vc-reports/sc-ORDERED+R1",
+ "rows_in_differences_csv": 5,
+ "pairs": [
+  {
+   "id": "cccl-3-buggy",
+   "kernel": "void cub::_V_300600_SM_890::detail::topk::DeviceTopKKernel<cub::_V_300600_SM_890::detail::topk::policy_selector_from_types<unsigned int>, unsigned int*, unsigned int*, cub::_V_300600_SM_890::NullType*, cub::_V_300600_SM_890::NullType*, unsigned long long, unsigned long long, unsigned int, cub::_V_300600_SM_890::detail::topk::extract_bin_op_t<unsigned int, (cub::_V_300600_SM_890::detail::topk::select)1, 11, cub::_V_300600_SM_890::detail::identity_decomposer_t, true>, cub::_V_300600_SM_890::detail::topk::identify_candidates_op_t<unsigned int, (cub::_V_300600_SM_890::detail::topk::select)1, 11, cub::_V_300600_SM_890::detail::identity_decomposer_t, true> >(unsigned int*, unsigned int*, cub::_V_300600_SM_890::NullType*, cub::_V_300600_SM_890::NullType*, unsigned int*, unsigned long long*, unsigned int*, unsigned long long*, cub::_V_300600_SM_890::detail::topk::Counter<cuda::std::__4::iterator_traits<unsigned int*, void>::value_type, unsigned long long, unsigned long long>*, unsigned long long*, unsigned long long, unsigned long long, unsigned long long, cub::_V_300600_SM_890::detail::topk::extract_bin_op_t<unsigned int, (cub::_V_300600_SM_890::detail::topk::select)1, 11, cub::_V_300600_SM_890::detail::identity_decomposer_t, true>, cub::_V_300600_SM_890::detail::topk::identify_candidates_op_t<unsigned int, (cub::_V_300600_SM_890::detail::topk::select)1, 11, cub::_V_300600_SM_890::detail::identity_decomposer_t, true>, int, bool)",
+   "pc_a": "0x80",
+   "pc_b": "0xad90",
+   "kernel_file": "kernel_1.json",
+   "store": "realworld-2026-10",
+   "status": "ok",
+   "cochain_s2": "missing: id not in eval/co-chain-b S2 results (its store final-2026-11-co has no realworld ids); not substituted",
+   "pdir": "/mnt/beegfs/fzheng4/cuvein_traces/realworld-2026-10/cccl-3-buggy",
+   "dot": "/mnt/beegfs/fzheng4/cuvein_traces/realworld-2026-10/cccl-3-buggy/dots/driver.sm_89.dot",
+   "cfg_cluster": "_ZN3cub16_V_300600_SM_8906detail4topk16DeviceTopKKernelINS2_26policy_selector_from_typesIjEEPjS6_PNS0_8NullTypeES8_yyjNS2_16extract_bin_op_tIjLNS2_6selectE1ELi11ENS1_21identity_decomposer_tELb1EEENS2_24identify_candidates_op_tIjLSA_1ELi11ESB_Lb1EEEEEvT0_T1_T2_T3_PT6_PT4_SK_SM_PNS2_7CounterIN4cuda3std3__415iterator_traitsISF_vE10value_typeESL_T5_EESM_SL_SU_SL_T7_T8_ib",
+   "kernel_name_in_report": "void cub::_V_300600_SM_890::detail::topk::DeviceTopKKernel<cub::_V_300600_SM_890::detail::topk::policy_selector_from_types<unsigned int>, unsigned int*, unsigned int*, cub::_V_300600_SM_890::NullType*, cub::_V_300600_SM_890::NullType*, unsigned long long, unsigned long long, unsigned int, cub::_V_300600_SM_890::detail::topk::extract_bin_op_t<unsigned int, (cub::_V_300600_SM_890::detail::topk::select)1, 11, cub::_V_300600_SM_890::detail::identity_decomposer_t, true>, cub::_V_300600_SM_890::detail::topk::identify_candidates_op_t<unsigned int, (cub::_V_300600_SM_890::detail::topk::select)1, 11, cub::_V_300600_SM_890::detail::identity_decomposer_t, true> >(unsigned int*, unsigned int*, cub::_V_300600_SM_890::NullType*, cub::_V_300600_SM_890::NullType*, unsigned int*, unsigned long long*, unsigned int*, unsigned long long*, cub::_V_300600_SM_890::detail::topk::Counter<cuda::std::__4::iterator_traits<unsigned int*, void>::value_type, unsigned long long, unsigned long long>*, unsigned long long*, unsigned long long, unsigned long long, unsigned long long, cub::_V_300600_SM_890::detail::topk::extract_bin_op_t<unsigned int, (cub::_V_300600_SM_890::detail::topk::select)1, 11, cub::_V_300600_SM_890::detail::identity_decomposer_t, true>, cub::_V_300600_SM_890::detail::topk::identify_candidates_op_t<unsigned int, (cub::_V_300600_SM_890::detail::topk::select)1, 11, cub::_V_300600_SM_890::detail::identity_decomposer_t, true>, int, bool)",
+   "verdicts": [
+    {
+     "current_pc_hex": "0xad90",
+     "ancient_pc_hex": "0x80",
+     "opcodes": [
+      "STG.E.64",
+      "LDG.E.64"
+     ],
+     "space": "global",
+     "race_type": "WAR",
+     "verdict": "RACE",
+     "hb_class": "structural",
+     "matrix_class": "structural",
+     "strength": "block",
+     "observed_distance": "block",
+     "ordering_syncs": [
+      "0x140",
+      "0xaca0"
+     ],
+     "hb_chain": null,
+     "event_candidate": false,
+     "edge_rescued": false,
+     "model_bug": true,
+     "conflict_class": "DR",
+     "contested_weight": 2
+    }
+   ],
+   "hb_races": [
+    {
+     "a_pc": "0x80",
+     "b_pc": "0xad90",
+     "a": {
+      "block": 0,
+      "warp": 0,
+      "thread": 0
+     },
+     "b": {
+      "block": 34,
+      "warp": 0,
+      "thread": 0
+     },
+     "distance": "grid",
+     "record_dist": "grid",
+     "class": "DR",
+     "space": "global",
+     "kind": "WAR",
+     "count": 24576,
+     "loc_block": 34,
+     "addr": 140167784832528,
+     "async": null
+    }
+   ],
+   "sync_only": {
+    "in": true,
+    "count": 24576
+   },
+   "edges": [
+    {
+     "current_pc": 44432,
+     "current_pc_hex": "0xad90",
+     "ancient_pc": 128,
+     "ancient_pc_hex": "0x80",
+     "cold_miss": false,
+     "current_access_size": 8,
+     "dist": {
+      "intra_thread": 0,
+      "intra_instance_launch": 0,
+      "intra_warp": 0,
+      "intra_block": 2,
+      "intra_grid": 0
+     },
+     "observed_bucket": "block",
+     "observed_count": 2
+    }
+   ],
+   "loop": {
+    "regions": [
+     "BB95#0",
+     "BB238#0"
+    ],
+    "per_sync": [
+     {
+      "sync": "0x140",
+      "barrier_on_cycle": false,
+      "pc_a_in_barrier_cycle": false,
+      "pc_b_in_barrier_cycle": false,
+      "both": false
+     },
+     {
+      "sync": "0xaca0",
+      "barrier_on_cycle": false,
+      "pc_a_in_barrier_cycle": false,
+      "pc_b_in_barrier_cycle": false,
+      "both": false
+     }
+    ],
+    "both_in_loop_with_barrier": false,
+    "pc_a_on_any_cycle": false,
+    "pc_b_on_any_cycle": false,
+    "source": "/mnt/beegfs/fzheng4/cuvein_traces/realworld-2026-10/cccl-3-buggy/dots/driver.sm_89.dot cluster _ZN3cub16_V_300600_SM_8906detail4topk16DeviceTopKKernelINS2_26policy_selector_from_typesIjEEPjS6_PNS0_8NullTypeES8_yyjNS2_16extract_bin_op_tIjLNS2_6selectE1ELi11ENS1_21identity_decomposer_tELb1EEENS2_24identify_candidates_op_tIjLSA_1ELi11ESB_Lb1EEEEEvT0_T1_T2_T3_PT6_PT4_SK_SM_PNS2_7CounterIN4cuda3std3__415iterator_traitsISF_vE10value_typeESL_T5_EESM_SL_SU_SL_T7_T8_ib: HBGraph.G strongly connected component of the sync node"
+   },
+   "opcodes_in_cfg": [
+    "LDG.E.64",
+    "STG.E.64"
+   ]
+  },
+  {
+   "id": "kokkos-5-buggy",
+   "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda> >(Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>)",
+   "pc_a": "0xbc0",
+   "pc_b": "0xc90",
+   "kernel_file": "kernel_3.json",
+   "store": "realworld-2026-10",
+   "status": "ok",
+   "cochain_s2": "missing: id not in eval/co-chain-b S2 results (its store final-2026-11-co has no realworld ids); not substituted",
+   "pdir": "/mnt/beegfs/fzheng4/cuvein_traces/realworld-2026-10/kokkos-5-buggy",
+   "alignment_error": "no kernel clusters found in /mnt/beegfs/fzheng4/cuvein_traces/realworld-2026-10/kokkos-5-buggy/dots/driver.cpp-libkokkoscore-libcuda-libcudart-libdl.sm_89.dot",
+   "dot": "/mnt/beegfs/fzheng4/cuvein_traces/realworld-2026-10/kokkos-5-buggy/dots/driver.sm_89.dot",
+   "cfg_cluster": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_14ParallelReduceI12RwSumFunctorNS_11RangePolicyIJNS_4CudaEEEENS_11InvalidTypeES5_EEEEvT_",
+   "kernel_name_in_report": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda> >(Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>)",
+   "verdicts": [
+    {
+     "current_pc_hex": "0xc90",
+     "ancient_pc_hex": "0xbc0",
+     "opcodes": [
+      "STG.E",
+      "ATOMG.E.ADD.STRONG.GPU"
+     ],
+     "space": "global",
+     "race_type": "WAW",
+     "verdict": "RACE",
+     "hb_class": "structural",
+     "matrix_class": "structural",
+     "strength": "block",
+     "observed_distance": "block",
+     "ordering_syncs": [
+      "0xc50"
+     ],
+     "hb_chain": null,
+     "event_candidate": false,
+     "edge_rescued": false,
+     "model_bug": true,
+     "conflict_class": "DR",
+     "contested_weight": 1
+    }
+   ],
+   "hb_races": [
+    {
+     "a_pc": "0xbc0",
+     "b_pc": "0xc90",
+     "a": {
+      "block": 1,
+      "warp": 0,
+      "thread": 0
+     },
+     "b": {
+      "block": 2,
+      "warp": 1,
+      "thread": 0
+     },
+     "distance": "grid",
+     "record_dist": "grid",
+     "class": "DR",
+     "space": "global",
+     "kind": "WAW",
+     "count": 768,
+     "loc_block": 2,
+     "addr": 139780390125696,
+     "async": null
+    }
+   ],
+   "sync_only": {
+    "in": true,
+    "count": 768
+   },
+   "edges": [
+    {
+     "current_pc": 3216,
+     "current_pc_hex": "0xc90",
+     "ancient_pc": 3008,
+     "ancient_pc_hex": "0xbc0",
+     "cold_miss": false,
+     "current_access_size": 4,
+     "dist": {
+      "intra_thread": 0,
+      "intra_instance_launch": 0,
+      "intra_warp": 0,
+      "intra_block": 1,
+      "intra_grid": 0
+     },
+     "observed_bucket": "block",
+     "observed_count": 1
+    }
+   ],
+   "loop": {
+    "regions": [
+     "BB11#0",
+     "BB12#0"
+    ],
+    "per_sync": [
+     {
+      "sync": "0xc50",
+      "barrier_on_cycle": false,
+      "pc_a_in_barrier_cycle": false,
+      "pc_b_in_barrier_cycle": false,
+      "both": false
+     }
+    ],
+    "both_in_loop_with_barrier": false,
+    "pc_a_on_any_cycle": false,
+    "pc_b_on_any_cycle": false,
+    "source": "/mnt/beegfs/fzheng4/cuvein_traces/realworld-2026-10/kokkos-5-buggy/dots/driver.sm_89.dot cluster _ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_14ParallelReduceI12RwSumFunctorNS_11RangePolicyIJNS_4CudaEEEENS_11InvalidTypeES5_EEEEvT_: HBGraph.G strongly connected component of the sync node"
+   },
+   "opcodes_in_cfg": [
+    "ATOMG.E.ADD.STRONG.GPU",
+    "STG.E"
+   ]
+  },
+  {
+   "id": "kokkos-5-fixed",
+   "kernel": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda> >(Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>)",
+   "pc_a": "0xbd0",
+   "pc_b": "0xca0",
+   "kernel_file": "kernel_3.json",
+   "store": "realworld-2026-10",
+   "status": "ok",
+   "cochain_s2": "missing: id not in eval/co-chain-b S2 results (its store final-2026-11-co has no realworld ids); not substituted",
+   "pdir": "/mnt/beegfs/fzheng4/cuvein_traces/realworld-2026-10/kokkos-5-fixed",
+   "alignment_error": "no kernel clusters found in /mnt/beegfs/fzheng4/cuvein_traces/realworld-2026-10/kokkos-5-fixed/dots/driver.cpp-libkokkoscore-libcuda-libcudart-libdl.sm_89.dot",
+   "dot": "/mnt/beegfs/fzheng4/cuvein_traces/realworld-2026-10/kokkos-5-fixed/dots/driver.sm_89.dot",
+   "cfg_cluster": "_ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_14ParallelReduceI12RwSumFunctorNS_11RangePolicyIJNS_4CudaEEEENS_11InvalidTypeES5_EEEEvT_",
+   "kernel_name_in_report": "void Kokkos::Impl::cuda_parallel_launch_local_memory<Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda> >(Kokkos::Impl::ParallelReduce<RwSumFunctor, Kokkos::RangePolicy<Kokkos::Cuda>, Kokkos::InvalidType, Kokkos::Cuda>)",
+   "verdicts": [
+    {
+     "current_pc_hex": "0xca0",
+     "ancient_pc_hex": "0xbd0",
+     "opcodes": [
+      "STG.E",
+      "ATOMG.E.ADD.STRONG.GPU"
+     ],
+     "space": "global",
+     "race_type": "WAW",
+     "verdict": "RACE",
+     "hb_class": "structural",
+     "matrix_class": "structural",
+     "strength": "block",
+     "observed_distance": "block",
+     "ordering_syncs": [
+      "0xc60"
+     ],
+     "hb_chain": null,
+     "event_candidate": false,
+     "edge_rescued": false,
+     "model_bug": true,
+     "conflict_class": "DR",
+     "contested_weight": 1
+    }
+   ],
+   "hb_races": [
+    {
+     "a_pc": "0xbd0",
+     "b_pc": "0xca0",
+     "a": {
+      "block": 1,
+      "warp": 0,
+      "thread": 0
+     },
+     "b": {
+      "block": 2,
+      "warp": 3,
+      "thread": 0
+     },
+     "distance": "grid",
+     "record_dist": "grid",
+     "class": "DR",
+     "space": "global",
+     "kind": "WAW",
+     "count": 768,
+     "loc_block": 2,
+     "addr": 140089527107712,
+     "async": null
+    }
+   ],
+   "sync_only": {
+    "in": true,
+    "count": 768
+   },
+   "edges": [
+    {
+     "current_pc": 3232,
+     "current_pc_hex": "0xca0",
+     "ancient_pc": 3024,
+     "ancient_pc_hex": "0xbd0",
+     "cold_miss": false,
+     "current_access_size": 4,
+     "dist": {
+      "intra_thread": 0,
+      "intra_instance_launch": 0,
+      "intra_warp": 0,
+      "intra_block": 1,
+      "intra_grid": 0
+     },
+     "observed_bucket": "block",
+     "observed_count": 1
+    }
+   ],
+   "loop": {
+    "regions": [
+     "BB11#0",
+     "BB12#0"
+    ],
+    "per_sync": [
+     {
+      "sync": "0xc60",
+      "barrier_on_cycle": false,
+      "pc_a_in_barrier_cycle": false,
+      "pc_b_in_barrier_cycle": false,
+      "both": false
+     }
+    ],
+    "both_in_loop_with_barrier": false,
+    "pc_a_on_any_cycle": false,
+    "pc_b_on_any_cycle": false,
+    "source": "/mnt/beegfs/fzheng4/cuvein_traces/realworld-2026-10/kokkos-5-fixed/dots/driver.sm_89.dot cluster _ZN6Kokkos4Impl33cuda_parallel_launch_local_memoryINS0_14ParallelReduceI12RwSumFunctorNS_11RangePolicyIJNS_4CudaEEEENS_11InvalidTypeES5_EEEEvT_: HBGraph.G strongly connected component of the sync node"
+   },
+   "opcodes_in_cfg": [
+    "ATOMG.E.ADD.STRONG.GPU",
+    "STG.E"
+   ]
+  },
+  {
+   "id": "raft-1-buggy",
+   "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+   "pc_a": "0x2df0",
+   "pc_b": "0x60a0",
+   "kernel_file": "kernel_1.json",
+   "store": "realworld-2026-10",
+   "status": "ok",
+   "cochain_s2": "missing: id not in eval/co-chain-b S2 results (its store final-2026-11-co has no realworld ids); not substituted",
+   "pdir": "/mnt/beegfs/fzheng4/cuvein_traces/realworld-2026-10/raft-1-buggy",
+   "alignment_error": "no kernel clusters found in /mnt/beegfs/fzheng4/cuvein_traces/realworld-2026-10/raft-1-buggy/dots/driver-libdeps.sm_89.dot",
+   "dot": "/mnt/beegfs/fzheng4/cuvein_traces/realworld-2026-10/raft-1-buggy/dots/driver.sm_89.dot",
+   "cfg_cluster": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+   "kernel_name_in_report": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+   "verdicts": [
+    {
+     "current_pc_hex": "0x60a0",
+     "ancient_pc_hex": "0x2df0",
+     "opcodes": [
+      "STG.E.64",
+      "ATOMG.E.ADD.64.STRONG.GPU"
+     ],
+     "space": "global",
+     "race_type": "WAW",
+     "verdict": "RACE",
+     "hb_class": "structural",
+     "matrix_class": "structural",
+     "strength": "block",
+     "observed_distance": "block",
+     "ordering_syncs": [
+      "0x5270",
+      "0x5280"
+     ],
+     "hb_chain": null,
+     "event_candidate": false,
+     "edge_rescued": false,
+     "model_bug": true,
+     "conflict_class": "DR",
+     "contested_weight": 2
+    }
+   ],
+   "hb_races": [
+    {
+     "a_pc": "0x2df0",
+     "b_pc": "0x60a0",
+     "a": {
+      "block": 0,
+      "warp": 3,
+      "thread": 31
+     },
+     "b": {
+      "block": 9,
+      "warp": 0,
+      "thread": 0
+     },
+     "distance": "grid",
+     "record_dist": "grid",
+     "class": "DR",
+     "space": "global",
+     "kind": "WAW",
+     "count": 34,
+     "loc_block": 9,
+     "addr": 140127978791552,
+     "async": null
+    }
+   ],
+   "sync_only": {
+    "in": true,
+    "count": 34
+   },
+   "edges": [
+    {
+     "current_pc": 24736,
+     "current_pc_hex": "0x60a0",
+     "ancient_pc": 11760,
+     "ancient_pc_hex": "0x2df0",
+     "cold_miss": false,
+     "current_access_size": 8,
+     "dist": {
+      "intra_thread": 0,
+      "intra_instance_launch": 0,
+      "intra_warp": 0,
+      "intra_block": 2,
+      "intra_grid": 0
+     },
+     "observed_bucket": "block",
+     "observed_count": 2
+    }
+   ],
+   "loop": {
+    "regions": [
+     "BB23643#0",
+     "BB23679#0"
+    ],
+    "per_sync": [
+     {
+      "sync": "0x5270",
+      "barrier_on_cycle": false,
+      "pc_a_in_barrier_cycle": false,
+      "pc_b_in_barrier_cycle": false,
+      "both": false
+     },
+     {
+      "sync": "0x5280",
+      "barrier_on_cycle": false,
+      "pc_a_in_barrier_cycle": false,
+      "pc_b_in_barrier_cycle": false,
+      "both": false
+     }
+    ],
+    "both_in_loop_with_barrier": false,
+    "pc_a_on_any_cycle": true,
+    "pc_b_on_any_cycle": false,
+    "source": "/mnt/beegfs/fzheng4/cuvein_traces/realworld-2026-10/raft-1-buggy/dots/driver.sm_89.dot cluster _ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi: HBGraph.G strongly connected component of the sync node"
+   },
+   "opcodes_in_cfg": [
+    "ATOMG.E.ADD.64.STRONG.GPU",
+    "STG.E.64"
+   ]
+  },
+  {
+   "id": "raft-1-fixed",
+   "kernel": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+   "pc_a": "0x2df0",
+   "pc_b": "0x60d0",
+   "kernel_file": "kernel_1.json",
+   "store": "realworld-2026-10",
+   "status": "ok",
+   "cochain_s2": "missing: id not in eval/co-chain-b S2 results (its store final-2026-11-co has no realworld ids); not substituted",
+   "pdir": "/mnt/beegfs/fzheng4/cuvein_traces/realworld-2026-10/raft-1-fixed",
+   "alignment_error": "no kernel clusters found in /mnt/beegfs/fzheng4/cuvein_traces/realworld-2026-10/raft-1-fixed/dots/driver-libdeps.sm_89.dot",
+   "dot": "/mnt/beegfs/fzheng4/cuvein_traces/realworld-2026-10/raft-1-fixed/dots/driver.sm_89.dot",
+   "cfg_cluster": "_ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi",
+   "kernel_name_in_report": "void raft::matrix::detail::select::radix::impl::radix_kernel<float, long, 8, 512, false, raft::matrix::detail::select::dense_layout<long> >(float const*, long const*, unsigned long, unsigned long, float*, long*, raft::matrix::detail::select::radix::impl::Counter<float, long>*, long*, long, long const*, long, bool, int)",
+   "verdicts": [
+    {
+     "current_pc_hex": "0x60d0",
+     "ancient_pc_hex": "0x2df0",
+     "opcodes": [
+      "STG.E.64",
+      "ATOMG.E.ADD.64.STRONG.GPU"
+     ],
+     "space": "global",
+     "race_type": "WAW",
+     "verdict": "RACE",
+     "hb_class": "structural",
+     "matrix_class": "structural",
+     "strength": "block",
+     "observed_distance": "block",
+     "ordering_syncs": [
+      "0x5190",
+      "0x51b0",
+      "0x52b0"
+     ],
+     "hb_chain": null,
+     "event_candidate": false,
+     "edge_rescued": false,
+     "model_bug": true,
+     "conflict_class": "DR",
+     "contested_weight": 4
+    }
+   ],
+   "hb_races": [
+    {
+     "a_pc": "0x2df0",
+     "b_pc": "0x60d0",
+     "a": {
+      "block": 0,
+      "warp": 3,
+      "thread": 31
+     },
+     "b": {
+      "block": 9,
+      "warp": 0,
+      "thread": 0
+     },
+     "distance": "grid",
+     "record_dist": "grid",
+     "class": "DR",
+     "space": "global",
+     "kind": "WAW",
+     "count": 33,
+     "loc_block": 9,
+     "addr": 140122240983680,
+     "async": null
+    }
+   ],
+   "sync_only": {
+    "in": true,
+    "count": 33
+   },
+   "edges": [
+    {
+     "current_pc": 24784,
+     "current_pc_hex": "0x60d0",
+     "ancient_pc": 11760,
+     "ancient_pc_hex": "0x2df0",
+     "cold_miss": false,
+     "current_access_size": 8,
+     "dist": {
+      "intra_thread": 0,
+      "intra_instance_launch": 0,
+      "intra_warp": 0,
+      "intra_block": 4,
+      "intra_grid": 0
+     },
+     "observed_bucket": "block",
+     "observed_count": 4
+    }
+   ],
+   "loop": {
+    "regions": [
+     "BB23643#0",
+     "BB23679#0"
+    ],
+    "per_sync": [
+     {
+      "sync": "0x5190",
+      "barrier_on_cycle": false,
+      "pc_a_in_barrier_cycle": false,
+      "pc_b_in_barrier_cycle": false,
+      "both": false
+     },
+     {
+      "sync": "0x51b0",
+      "barrier_on_cycle": false,
+      "pc_a_in_barrier_cycle": false,
+      "pc_b_in_barrier_cycle": false,
+      "both": false
+     },
+     {
+      "sync": "0x52b0",
+      "barrier_on_cycle": false,
+      "pc_a_in_barrier_cycle": false,
+      "pc_b_in_barrier_cycle": false,
+      "both": false
+     }
+    ],
+    "both_in_loop_with_barrier": false,
+    "pc_a_on_any_cycle": true,
+    "pc_b_on_any_cycle": false,
+    "source": "/mnt/beegfs/fzheng4/cuvein_traces/realworld-2026-10/raft-1-fixed/dots/driver.sm_89.dot cluster _ZN4raft6matrix6detail6select5radix4impl12radix_kernelIflLi8ELi512ELb0ENS2_12dense_layoutIlEEEEvPKT_PKT0_mmPS8_PSB_PNS4_7CounterIS8_SB_EESF_SB_SD_SB_bi: HBGraph.G strongly connected component of the sync node"
+   },
+   "opcodes_in_cfg": [
+    "ATOMG.E.ADD.64.STRONG.GPU",
+    "STG.E.64"
+   ]
+  }
+ ]
+}
