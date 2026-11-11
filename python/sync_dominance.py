@@ -1462,7 +1462,15 @@ class ChainCapError(RuntimeError):
     'chain-cap' and names the kernel and the count."""
 
 
-def chain_closure_pairs(hops, is_read, conflict, cap, label=""):
+def chain_atomic_hop_enabled(chain_atomic_hop=None):
+    """M5: may a chain also pass through an atomic hop entered by an atomic-to-atomic step?
+    Explicit argument > $CUVEIN_CHAIN_ATOMIC_HOP (default 1; 0 restores the read-only rule)."""
+    if chain_atomic_hop is None:
+        return os.environ.get("CUVEIN_CHAIN_ATOMIC_HOP", "1") != "0"
+    return bool(chain_atomic_hop)
+
+
+def chain_closure_pairs(hops, is_read, conflict, cap, label="", is_atomic=None):
     """C6. hops = {anc_pc: {cur_pc: widest observed distance (NONE..GRID)}}, every non-cold-miss
     edge of one kernel. A chain is a walk a -> h1 -> ... -> hk -> c (k >= 1) whose inner pcs
     h1..hk are all reads (is_read); its two ends' thread relation is at most its widest hop (the
@@ -1477,14 +1485,22 @@ def chain_closure_pairs(hops, is_read, conflict, cap, label=""):
     through reads. Found per source a by a breadth-first search over (inner node, widest hop so
     far) states, a state kept only when it widens its node's level (at most 4 per node); the
     witness is the search-tree walk to the state that gives the bound (the shallowest such
-    state, then the smallest pc)."""
+    state, then the smallest pc).
+    M5: with is_atomic given, an inner pc h also passes when is_atomic(h) and the step into h
+    (from the previous pc of the walk, a or an inner hop) is atomic against atomic. A plain write
+    still ends a chain; a read hop is passed as before; the step from a read into an atomic is
+    not an atomic-atomic step."""
     from collections import deque
+
+    def passes(p, h):
+        return is_read(h) or (is_atomic is not None and is_atomic(h) and is_atomic(p))
+
     out = {}
     for a in sorted(hops):
         best, state, queue = {}, {}, deque()   # inner (read) node -> widest level reached;
         for h in sorted(hops[a]):              # (node, level) -> (parent state, depth)
             d = hops[a][h]
-            if is_read(h) and d > best.get(h, -1):
+            if passes(a, h) and d > best.get(h, -1):
                 best[h] = d
                 state[(h, d)] = (None, 1)
                 queue.append((h, d))
@@ -1495,7 +1511,7 @@ def chain_closure_pairs(hops, is_read, conflict, cap, label=""):
             depth = state[(h, lv)][1]
             for c in sorted(hops.get(h, {})):
                 nl = max(lv, hops[h][c])
-                if is_read(c) and nl > best.get(c, -1):
+                if passes(h, c) and nl > best.get(c, -1):
                     best[c] = nl
                     state[(c, nl)] = ((h, lv), depth + 1)
                     queue.append((c, nl))
@@ -1524,7 +1540,7 @@ def chain_closure_pairs(hops, is_read, conflict, cap, label=""):
 
 def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
             barrier_pass=True, event_candidates=True, chain_closure=False, co_async=False,
-            co_r3="cfg"):
+            co_r3="cfg", chain_atomic_hop=None):
     """chain_closure (C6, default off, output unchanged when off): also judge the (anc, cur) pcs
     that a CHAIN of recorded edges joins -- the collector keeps one last accessor per word, so a
     read in between hides the conflict (block 1 reads, block 0 reads, block 0 writes: edges
@@ -1898,7 +1914,9 @@ def analyze(dot_path, trace_path, assume_warp_lockstep=False, strong_ldst=None,
 
         chain_bound = chain_closure_pairs(
             hops, lambda pc: _acc(pc) == "read", lambda a, c: not (_acc(a) == "read" == _acc(c)),
-            CHAIN_CAP, f"{trace['kernel']['kernel_name']} ({trace_path})")
+            CHAIN_CAP, f"{trace['kernel']['kernel_name']} ({trace_path})",
+            is_atomic=(lambda pc: _acc(pc) == "atomic")
+            if chain_atomic_hop_enabled(chain_atomic_hop) else None)
         closure_s = perf_counter() - t_cl
 
     for e in trace.get("edges", []):

@@ -49,6 +49,9 @@ _DKEY = {"thread": "intra_thread", "warp": "intra_warp", "block": "intra_block",
 @pytest.fixture(autouse=True)
 def _no_env(monkeypatch):
     monkeypatch.delenv("CUVEIN_CHAIN_CLOSURE", raising=False)
+    # M5: these tests encode C6/C6b's counts, i.e. the read-only chain rule; the atomic-hop tests
+    # below pass chain_atomic_hop explicitly, and the env test sets the variable itself
+    monkeypatch.setenv("CUVEIN_CHAIN_ATOMIC_HOP", "0")
 
 
 # ---------------------------------------------------------------- synthetic kernels
@@ -62,7 +65,8 @@ def _dot(ops):
     last = max(ops) + 0x10
     lines = []
     for pc in range(0, last, 0x10):
-        t = {"R": "LDG.E R2, [R4.64]", "W": "STG.E [R4.64], R2"}.get(ops.get(pc), "NOP")
+        t = {"R": "LDG.E R2, [R4.64]", "W": "STG.E [R4.64], R2",
+             "A": "ATOMG.E.ADD.STRONG.GPU PT, RZ, [R4.64], R2"}.get(ops.get(pc), "NOP")
         lines.append(f"{pc:04x}:{bs} {bs} {bs} {esc(t)}{bs} ;{bs}l")
     m = "_Z5ktestv"
     head = (f"<entry>\t.global\t\t{m}{bs}l\t.type\t\t{m},@function{bs}l"
@@ -80,7 +84,7 @@ def _kernel_json(ops, edges):
     return {"tool": "pc_dependency_analysis",
             "kernel": {"kernel_id": 0, "kernel_name": "ktest()", "device_id": 0, "kernel_pc": 0,
                        "grid_dim": [2, 1, 1], "block_dim": [64, 1, 1]},
-            "nodes": [{"pc": pc, "flags": "READ GLOBAL" if k == "R" else "WRITE GLOBAL"}
+            "nodes": [{"pc": pc, "flags": {"R": "READ GLOBAL", "A": "ATOMIC GLOBAL"}.get(k, "WRITE GLOBAL")}
                       for pc, k in sorted(ops.items())],
             "edges": [{"current_pc": c, "ancient_pc": a, "cold_miss": a is None,
                        "current_access_size": 4, "dist": {_DKEY[d]: 1}} for c, a, d in edges]}
@@ -176,6 +180,58 @@ def test_a_write_or_atomic_ends_a_chain():
     assert sd.chain_closure_pairs(hops, rd, lambda a, c: True, 10) == {}
     assert sd.chain_closure_pairs(hops, lambda pc: True, lambda a, c: True, 10)[(A, C)][0] == GRID
 
+
+# ---------------------------------------------------------------- 4b. M5: atomic-atomic hops
+def test_atomic_atomic_load_chain_derives_the_pair(tmp_path):
+    """M5: A and B are atomics, B is entered from A by an atomic-against-atomic step, C is a load:
+    the chain A -> B -> C (no edge A -> C) derives (A, C) at the chain's widest hop. With
+    chain_atomic_hop=False (CUVEIN_CHAIN_ATOMIC_HOP=0) the chain stops at B, as before."""
+    ops = {A: "A", B: "A", C: "R"}
+    dot, kj = _synth(tmp_path, "aal", ops, [(B, A, "block"), (C, B, "grid")])
+    on = sd.analyze(dot, kj, chain_closure=True, chain_atomic_hop=True)
+    v = _tags(on)[(A, C)]
+    assert v["chain"] is True and v["chain_rescue"] is False
+    assert v["chain_path"] == ["0x10", "0x20", "0x30"] and v["observed_distance"] == "grid"
+    assert on["diagnostics"]["chain_closure"]["derived"] == 1
+    off = sd.analyze(dot, kj, chain_closure=True, chain_atomic_hop=False)
+    assert (A, C) not in _tags(off) and off["diagnostics"]["chain_closure"]["derived"] == 0
+
+
+def test_atomic_store_load_chain_still_has_no_pair(tmp_path):
+    """M5: a plain store in the middle still ends a chain, with the switch on."""
+    ops = {A: "A", B: "W", C: "R"}
+    dot, kj = _synth(tmp_path, "asl", ops, [(B, A, "block"), (C, B, "grid")])
+    on = sd.analyze(dot, kj, chain_closure=True, chain_atomic_hop=True)
+    assert (A, C) not in _tags(on) and on["diagnostics"]["chain_closure"]["derived"] == 0
+    # the step into an atomic hop must itself be atomic against atomic: a read -> atomic step
+    # (A read, B read, C atomic hop, D read) does not pass C
+    hops = {A: {B: GRID}, B: {C: GRID}, C: {D: GRID}}
+    out = sd.chain_closure_pairs(hops, lambda pc: pc in (A, B, D), lambda a, c: True, 10,
+                                 is_atomic=lambda pc: pc == C)
+    assert (A, D) not in out and (B, D) not in out
+
+
+def test_atomic_hop_env_and_param_resolution(monkeypatch):
+    monkeypatch.delenv("CUVEIN_CHAIN_ATOMIC_HOP", raising=False)      # the default: on
+    assert sd.chain_atomic_hop_enabled() is True and sd.chain_atomic_hop_enabled(None) is True
+    assert sd.chain_atomic_hop_enabled(False) is False
+    monkeypatch.setenv("CUVEIN_CHAIN_ATOMIC_HOP", "0")
+    assert sd.chain_atomic_hop_enabled(None) is False and sd.chain_atomic_hop_enabled(True) is True
+    monkeypatch.setenv("CUVEIN_CHAIN_ATOMIC_HOP", "1")
+    assert sd.chain_atomic_hop_enabled(None) is True
+
+
+def test_rtraw_atomic_hops_add_pairs_and_keep_the_read_chain_pair(tmp_path):
+    """M5 on the real rtraw recording (a lock: atomics against atomics): the switch adds derived
+    pairs, loses none, and the read-chain pair of test 1 is still there; off is C6b's count."""
+    dot, kj = _rtraw(tmp_path)
+    off = sd.analyze(dot, kj, chain_closure=True, chain_atomic_hop=False)
+    on = sd.analyze(dot, kj, chain_closure=True, chain_atomic_hop=True)
+    k_off = {k for k, v in _tags(off).items() if v["chain"]}
+    k_on = {k for k, v in _tags(on).items() if v["chain"]}
+    assert k_off == {(0x140, 0x340)} and k_on >= k_off      # derived pairs the judge drops carry no record
+    assert off["diagnostics"]["chain_closure"]["derived"] == 1
+    assert on["diagnostics"]["chain_closure"]["derived"] == 4
 
 # ---------------------------------------------------------------- 5. ultrametric bound
 def test_three_hops_mixed_distances_take_the_widest():
