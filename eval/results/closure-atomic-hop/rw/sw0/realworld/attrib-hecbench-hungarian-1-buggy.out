@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "/home/fzheng4/m5rw/t21b/eval/realworld/harness/rw_attribute.py", line 272, in <module>
+    main()
+    ~~~~^^
+  File "/home/fzheng4/m5rw/t21b/eval/realworld/harness/rw_attribute.py", line 174, in main
+    rep = sd.analyze(dot, kj, chain_closure=True, co_async=True, co_r3="off")
+  File "/home/fzheng4/wt-m5/python/sync_dominance.py", line 1570, in analyze
+    trace = json.loads(Path(trace_path).read_text())
+                       ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/fzheng4/AccelProf/.env/lib/python3.14/pathlib/__init__.py", line 787, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fzheng4/AccelProf/.env/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [Errno 70] Communication error on send: '/mnt/beegfs/fzheng4/cuvein_traces/realworld-2026-10-co/hecbench-hungarian-1-buggy/collector-only/kernel_1774.json'

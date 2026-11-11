@@ -1,0 +1,12 @@
+== sw0 ['n_kernel_jsons', 'kernels', 'unaligned', 'kernel_seen', 'n_race', 'n_sc', 'reports', 'site_verdicts', 'site_skipped']
+site_verdicts 70 skipped 3
+{"current_pc": 21328, "current_pc_hex": "0x5350", "ancient_pc": 20688, "ancient_pc_hex": "0x50d0", "opcodes": ["LDG.E.64.STRONG.SYS", "ATOMG.E.ADD.64.STRONG.GPU"], "space": "global", "race_type": "RAW", "observed_distance": "grid", "contested_weight": 320, "access_size": 8, "strength": "block", "ordering_syncs": [21104, 21120], "atomic_coherence": "grid", "hb_chain": null, "warp_same_inst": false, "edge_rescued": false, "event_candidate": false, "hb_class": "sc", "matrix_class": "sc", "model_bug": null, "a2_uncertain": null, "conflict_class": "SC", "benign": null, "assumption": null, "verdict"
+{'current_pc': 24656, 'ancient_pc': 24048, 'space': 'global', 'race_type': 'WAR', 'hb_class': None, 'verdict': 'ORDERED'}
+{'current_pc': 24656, 'ancient_pc': 24064, 'space': 'global', 'race_type': 'WAR', 'hb_class': None, 'verdict': 'ORDERED'}
+{'current_pc': 24064, 'ancient_pc': 23888, 'space': 'global', 'race_type': 'RAW', 'hb_class': None, 'verdict': 'ORDERED'}
+{'current_pc': 24656, 'ancient_pc': 23888, 'space': 'global', 'race_type': 'WAW', 'hb_class': None, 'verdict': 'ORDERED'}
+Traceback (most recent call last):
+  File "/home/fzheng4/wt-m5/eval/x_logs/m5/raft.py", line 14, in <module>
+    for x in (m.get(k) or [])[:10]: print("skipped", json.dumps(x)[:300])
+             ~~~~~~~~~~~~~~~~^^^^^
+KeyError: slice(None, 10, None)

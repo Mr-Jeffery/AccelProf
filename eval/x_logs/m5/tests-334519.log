@@ -1,0 +1,67 @@
+host=c22 rev=4cb6547e2cc7 dirty=2 2026-11-10T23:01:39-05:00
+AMD EPYC 7302P 16-Core Processor
+compiled
+=== CUVEIN_CHAIN_ATOMIC_HOP=1
+.....F..F...................................                             [100%]
+=================================== FAILURES ===================================
+________________ test_atomic_atomic_load_chain_derives_the_pair ________________
+python/test_co_chain.py:198: in test_atomic_atomic_load_chain_derives_the_pair
+    assert {(x["ancient_pc"], x["current_pc"]) for x in off["verdicts"]} == {(A, B), (B, C)}
+E   assert {(32, 48)} == {(16, 32), (32, 48)}
+E     
+E     Extra items in the right set:
+E     (16, 32)
+E     Use -v to get more diff
+________ test_rtraw_atomic_hops_add_pairs_and_keep_the_read_chain_pair _________
+python/test_co_chain.py:233: in test_rtraw_atomic_hops_add_pairs_and_keep_the_read_chain_pair
+    assert k_off == {(0x140, 0x340)} and k_on > k_off and len(k_on) == 4
+E   assert ({(320, 832)} == {(320, 832)}
+E     
+E     Use -v to get more diff and {(320, 832)} > {(320, 832)}
+E     
+E     Both sets are equal)
+=========================== short test summary info ============================
+FAILED python/test_co_chain.py::test_atomic_atomic_load_chain_derives_the_pair
+FAILED python/test_co_chain.py::test_rtraw_atomic_hops_add_pairs_and_keep_the_read_chain_pair
+2 failed, 42 passed in 99.00s (0:01:38)
+=== CUVEIN_CHAIN_ATOMIC_HOP=0
+.....F..F...................................                             [100%]
+=================================== FAILURES ===================================
+________________ test_atomic_atomic_load_chain_derives_the_pair ________________
+python/test_co_chain.py:198: in test_atomic_atomic_load_chain_derives_the_pair
+    assert {(x["ancient_pc"], x["current_pc"]) for x in off["verdicts"]} == {(A, B), (B, C)}
+E   assert {(32, 48)} == {(16, 32), (32, 48)}
+E     
+E     Extra items in the right set:
+E     (16, 32)
+E     Use -v to get more diff
+________ test_rtraw_atomic_hops_add_pairs_and_keep_the_read_chain_pair _________
+python/test_co_chain.py:233: in test_rtraw_atomic_hops_add_pairs_and_keep_the_read_chain_pair
+    assert k_off == {(0x140, 0x340)} and k_on > k_off and len(k_on) == 4
+E   assert ({(320, 832)} == {(320, 832)}
+E     
+E     Use -v to get more diff and {(320, 832)} > {(320, 832)}
+E     
+E     Both sets are equal)
+=========================== short test summary info ============================
+FAILED python/test_co_chain.py::test_atomic_atomic_load_chain_derives_the_pair
+FAILED python/test_co_chain.py::test_rtraw_atomic_hops_add_pairs_and_keep_the_read_chain_pair
+2 failed, 42 passed in 101.32s (0:01:41)
+=== all closure/co tests in python/ (switch 1)
+python/test_atomic_memory_model.py
+python/test_barrier_exit.py
+python/test_barrier_soundness.py
+python/test_co_chain.py
+python/test_coherent_ldst.py
+python/test_collector_only.py
+python/test_co_rules.py
+python/test_cp_async.py
+python/test_hb_substitutions.py
+python/test_host_hb.py
+python/test_instance_gate.py
+python/test_no_dump.py
+python/test_sync_dominance.py
+python/test_sync_shapes.py
+python/test_syncwarp.py
+python/test_verdict_parallel.py
+end 2026-11-10T23:05:02-05:00

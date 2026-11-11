@@ -1,0 +1,11 @@
+report keys: ['a2', 'a_frames', 'a_op', 'a_pc', 'b_frames', 'b_op', 'b_pc', 'chain_path', 'chain_src', 'conflict_class', 'dot', 'dot_equals_regenerated', 'hb_chain', 'hb_class', 'kernel', 'kernel_jsons', 'mangled', 'matrix_class', 'mode', 'model_bug', 'race_type', 'space', 'strength', 'verdict']
+raft-1-buggy sw0 43 sw1 46 lost 0
+  NEW ['0x1630', '0x60a0'] WAW None RACE chain ['0x1630', '0x2610', '0x60a0'] ATOMG.E.ADD.64.STRONG.GPU STG.E.64 None None
+  NEW ['0x17b0', '0x2f40'] RAW None RACE chain ['0x17b0', '0x2790', '0x2f40'] ATOMS.CAST.SPIN.64 LDS.64 None None
+  NEW ['0x1e20', '0x60a0'] WAW None RACE chain ['0x1e20', '0x2610', '0x60a0'] ATOMG.E.ADD.64.STRONG.GPU STG.E.64 None None
+raft-1-fixed sw0 41 sw1 46 lost 0
+  NEW ['0x2df0', '0x60d0'] WAW None RACE chain_rescue ['0x2df0', '0x1e20', '0x60d0'] ATOMG.E.ADD.64.STRONG.GPU STG.E.64 None None
+  NEW ['0x1630', '0x60d0'] WAW None RACE chain ['0x1630', '0x1e20', '0x60d0'] ATOMG.E.ADD.64.STRONG.GPU STG.E.64 None None
+  NEW ['0x17b0', '0x2f40'] RAW None RACE chain ['0x17b0', '0x2790', '0x2f40'] ATOMS.CAST.SPIN.64 LDS.64 None None
+  NEW ['0x1e20', '0x60d0'] WAW None RACE chain_rescue ['0x1e20', '0x1e20', '0x60d0'] ATOMG.E.ADD.64.STRONG.GPU STG.E.64 None None
+  NEW ['0x2610', '0x60d0'] WAW None RACE chain ['0x2610', '0x1e20', '0x60d0'] ATOMG.E.ADD.64.STRONG.GPU STG.E.64 None None

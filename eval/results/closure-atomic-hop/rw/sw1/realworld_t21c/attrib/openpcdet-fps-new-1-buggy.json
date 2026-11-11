@@ -1,0 +1,883 @@
+{
+ "id": "openpcdet-fps-new-1-buggy",
+ "target": "openpcdet-fps-new-1",
+ "exe": "/mnt/beegfs/fzheng4/realworld_t21c/build/openpcdet-fps-new-1/buggy/driver",
+ "cuda_home": "/usr/local/cuda-13.4",
+ "n_cubins": 1,
+ "n_dots": 1,
+ "oracle_kernel_substr": "farthest_point_sampling_kernel",
+ "spec_found": true,
+ "modes": {
+  "collector-only": {
+   "n_kernel_jsons": 3,
+   "kernels": [
+    {
+     "kernel_json": "kernel_0.json",
+     "name": "void pcdet_batch::farthest_point_sampling_kernel<1024u>(int, int, int, float const*, float*, int*)",
+     "mangled": "_ZN11pcdet_batch30farthest_point_sampling_kernelILj1024EEEviiiPKfPfPi",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 3,
+      "sc": 0,
+      "ordered": 60,
+      "skipped": 82,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_1.json",
+     "name": "void pcdet_stack::farthest_point_sampling_kernel<1024u>(int, int, int, float const*, float*, int*)",
+     "mangled": "_ZN11pcdet_stack30farthest_point_sampling_kernelILj1024EEEviiiPKfPfPi",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 3,
+      "sc": 0,
+      "ordered": 60,
+      "skipped": 82,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    },
+    {
+     "kernel_json": "kernel_2.json",
+     "name": "void pcdet_stack::stack_farthest_point_sampling_kernel<1024u>(int, int, float const*, float*, int*, int*, int*)",
+     "mangled": "_ZN11pcdet_stack36stack_farthest_point_sampling_kernelILj1024EEEviiPKfPfPiS4_S4_",
+     "dot": "driver.sm_89.dot",
+     "summary": {
+      "races": 3,
+      "sc": 0,
+      "ordered": 60,
+      "skipped": 91,
+      "hb_classes": null,
+      "model_bug": 0
+     },
+     "gate_policy": null
+    }
+   ],
+   "unaligned": [],
+   "kernel_seen": 3,
+   "n_race": 9,
+   "n_sc": 0,
+   "reports": [
+    {
+     "mode": "collector-only",
+     "kernel": "void pcdet_batch::farthest_point_sampling_kernel<1024u>(int, int, int, float const*, float*, int*)",
+     "mangled": "_ZN11pcdet_batch30farthest_point_sampling_kernelILj1024EEEviiiPKfPfPi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2976,
+     "b_pc": 2976,
+     "a_op": "STS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_batch/src/sampling_gpu.cu",
+       "line": 146
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_batch/src/sampling_gpu.cu",
+       "line": 146
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "chain_src": "chain",
+     "chain_path": [
+      "0xba0",
+      "0xc50",
+      "0xba0"
+     ],
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void pcdet_batch::farthest_point_sampling_kernel<1024u>(int, int, int, float const*, float*, int*)",
+     "mangled": "_ZN11pcdet_batch30farthest_point_sampling_kernelILj1024EEEviiiPKfPfPi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3024,
+     "b_pc": 3024,
+     "a_op": "STS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_batch/src/sampling_gpu.cu",
+       "line": 147
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_batch/src/sampling_gpu.cu",
+       "line": 147
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "chain_src": "chain",
+     "chain_path": [
+      "0xbd0",
+      "0xc70",
+      "0xbd0"
+     ],
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void pcdet_batch::farthest_point_sampling_kernel<1024u>(int, int, int, float const*, float*, int*)",
+     "mangled": "_ZN11pcdet_batch30farthest_point_sampling_kernelILj1024EEEviiiPKfPfPi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3024,
+     "b_pc": 5296,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_batch/src/sampling_gpu.cu",
+       "line": 147
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_batch/src/sampling_gpu.cu",
+       "line": 212
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "chain_src": "edge",
+     "chain_path": null,
+     "kernel_jsons": [
+      "kernel_0.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void pcdet_stack::farthest_point_sampling_kernel<1024u>(int, int, int, float const*, float*, int*)",
+     "mangled": "_ZN11pcdet_stack30farthest_point_sampling_kernelILj1024EEEviiiPKfPfPi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 2976,
+     "b_pc": 2976,
+     "a_op": "STS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_stack/src/sampling_gpu.cu",
+       "line": 70
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_stack/src/sampling_gpu.cu",
+       "line": 70
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "chain_src": "chain",
+     "chain_path": [
+      "0xba0",
+      "0xc50",
+      "0xba0"
+     ],
+     "kernel_jsons": [
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void pcdet_stack::farthest_point_sampling_kernel<1024u>(int, int, int, float const*, float*, int*)",
+     "mangled": "_ZN11pcdet_stack30farthest_point_sampling_kernelILj1024EEEviiiPKfPfPi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3024,
+     "b_pc": 3024,
+     "a_op": "STS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_stack/src/sampling_gpu.cu",
+       "line": 71
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_stack/src/sampling_gpu.cu",
+       "line": 71
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "chain_src": "chain",
+     "chain_path": [
+      "0xbd0",
+      "0xc70",
+      "0xbd0"
+     ],
+     "kernel_jsons": [
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void pcdet_stack::farthest_point_sampling_kernel<1024u>(int, int, int, float const*, float*, int*)",
+     "mangled": "_ZN11pcdet_stack30farthest_point_sampling_kernelILj1024EEEviiiPKfPfPi",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 3024,
+     "b_pc": 5296,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_stack/src/sampling_gpu.cu",
+       "line": 71
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_stack/src/sampling_gpu.cu",
+       "line": 136
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "chain_src": "edge",
+     "chain_path": null,
+     "kernel_jsons": [
+      "kernel_1.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void pcdet_stack::stack_farthest_point_sampling_kernel<1024u>(int, int, float const*, float*, int*, int*, int*)",
+     "mangled": "_ZN11pcdet_stack36stack_farthest_point_sampling_kernelILj1024EEEviiPKfPfPiS4_S4_",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 5808,
+     "b_pc": 5808,
+     "a_op": "STS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_stack/src/sampling_gpu.cu",
+       "line": 249
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_stack/src/sampling_gpu.cu",
+       "line": 249
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "chain_src": "chain",
+     "chain_path": [
+      "0x16b0",
+      "0x1760",
+      "0x16b0"
+     ],
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void pcdet_stack::stack_farthest_point_sampling_kernel<1024u>(int, int, float const*, float*, int*, int*, int*)",
+     "mangled": "_ZN11pcdet_stack36stack_farthest_point_sampling_kernelILj1024EEEviiPKfPfPiS4_S4_",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 5856,
+     "b_pc": 5856,
+     "a_op": "STS",
+     "b_op": "STS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_stack/src/sampling_gpu.cu",
+       "line": 250
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_stack/src/sampling_gpu.cu",
+       "line": 250
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAW",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "chain_src": "chain",
+     "chain_path": [
+      "0x16e0",
+      "0x1780",
+      "0x16e0"
+     ],
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    },
+    {
+     "mode": "collector-only",
+     "kernel": "void pcdet_stack::stack_farthest_point_sampling_kernel<1024u>(int, int, float const*, float*, int*, int*, int*)",
+     "mangled": "_ZN11pcdet_stack36stack_farthest_point_sampling_kernelILj1024EEEviiPKfPfPiS4_S4_",
+     "dot": "driver.sm_89.dot",
+     "dot_equals_regenerated": true,
+     "space": "shared",
+     "a_pc": 5856,
+     "b_pc": 8128,
+     "a_op": "STS",
+     "b_op": "LDS",
+     "a_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_stack/src/sampling_gpu.cu",
+       "line": 250
+      }
+     ],
+     "b_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_stack/src/sampling_gpu.cu",
+       "line": 315
+      }
+     ],
+     "verdict": "RACE",
+     "race_type": "WAR",
+     "strength": "none",
+     "hb_class": null,
+     "hb_chain": null,
+     "matrix_class": "race",
+     "conflict_class": "DR",
+     "a2": null,
+     "model_bug": false,
+     "chain_src": "edge",
+     "chain_path": null,
+     "kernel_jsons": [
+      "kernel_2.json"
+     ]
+    }
+   ],
+   "site_verdicts": [
+    {
+     "current_pc": 3024,
+     "current_pc_hex": "0xbd0",
+     "ancient_pc": 5296,
+     "ancient_pc_hex": "0x14b0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 417,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "async": false,
+     "atomic_chain_off": false,
+     "chain": false,
+     "chain_rescue": false,
+     "kernel": "void pcdet_batch::farthest_point_sampling_kernel<1024u>(int, int, int, float const*, float*, int*)",
+     "mangled": "_ZN11pcdet_batch30farthest_point_sampling_kernelILj1024EEEviiiPKfPfPi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_batch/src/sampling_gpu.cu",
+       "line": 147
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_batch/src/sampling_gpu.cu",
+       "line": 212
+      }
+     ]
+    },
+    {
+     "current_pc": 2976,
+     "current_pc_hex": "0xba0",
+     "ancient_pc": 2976,
+     "ancient_pc_hex": "0xba0",
+     "opcodes": [
+      "STS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "WAW",
+     "observed_distance": "block",
+     "contested_weight": 1,
+     "access_size": null,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "async": false,
+     "atomic_chain_off": false,
+     "chain": true,
+     "chain_rescue": false,
+     "kernel": "void pcdet_batch::farthest_point_sampling_kernel<1024u>(int, int, int, float const*, float*, int*)",
+     "mangled": "_ZN11pcdet_batch30farthest_point_sampling_kernelILj1024EEEviiiPKfPfPi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_batch/src/sampling_gpu.cu",
+       "line": 146
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_batch/src/sampling_gpu.cu",
+       "line": 146
+      }
+     ]
+    },
+    {
+     "current_pc": 3024,
+     "current_pc_hex": "0xbd0",
+     "ancient_pc": 3024,
+     "ancient_pc_hex": "0xbd0",
+     "opcodes": [
+      "STS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "WAW",
+     "observed_distance": "block",
+     "contested_weight": 1,
+     "access_size": null,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "async": false,
+     "atomic_chain_off": false,
+     "chain": true,
+     "chain_rescue": false,
+     "kernel": "void pcdet_batch::farthest_point_sampling_kernel<1024u>(int, int, int, float const*, float*, int*)",
+     "mangled": "_ZN11pcdet_batch30farthest_point_sampling_kernelILj1024EEEviiiPKfPfPi",
+     "kernel_json": "kernel_0.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_batch/src/sampling_gpu.cu",
+       "line": 147
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_batch/src/sampling_gpu.cu",
+       "line": 147
+      }
+     ]
+    },
+    {
+     "current_pc": 3024,
+     "current_pc_hex": "0xbd0",
+     "ancient_pc": 5296,
+     "ancient_pc_hex": "0x14b0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 93,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "async": false,
+     "atomic_chain_off": false,
+     "chain": false,
+     "chain_rescue": false,
+     "kernel": "void pcdet_stack::farthest_point_sampling_kernel<1024u>(int, int, int, float const*, float*, int*)",
+     "mangled": "_ZN11pcdet_stack30farthest_point_sampling_kernelILj1024EEEviiiPKfPfPi",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_stack/src/sampling_gpu.cu",
+       "line": 71
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_stack/src/sampling_gpu.cu",
+       "line": 136
+      }
+     ]
+    },
+    {
+     "current_pc": 2976,
+     "current_pc_hex": "0xba0",
+     "ancient_pc": 2976,
+     "ancient_pc_hex": "0xba0",
+     "opcodes": [
+      "STS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "WAW",
+     "observed_distance": "block",
+     "contested_weight": 1,
+     "access_size": null,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "async": false,
+     "atomic_chain_off": false,
+     "chain": true,
+     "chain_rescue": false,
+     "kernel": "void pcdet_stack::farthest_point_sampling_kernel<1024u>(int, int, int, float const*, float*, int*)",
+     "mangled": "_ZN11pcdet_stack30farthest_point_sampling_kernelILj1024EEEviiiPKfPfPi",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_stack/src/sampling_gpu.cu",
+       "line": 70
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_stack/src/sampling_gpu.cu",
+       "line": 70
+      }
+     ]
+    },
+    {
+     "current_pc": 3024,
+     "current_pc_hex": "0xbd0",
+     "ancient_pc": 3024,
+     "ancient_pc_hex": "0xbd0",
+     "opcodes": [
+      "STS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "WAW",
+     "observed_distance": "block",
+     "contested_weight": 1,
+     "access_size": null,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "async": false,
+     "atomic_chain_off": false,
+     "chain": true,
+     "chain_rescue": false,
+     "kernel": "void pcdet_stack::farthest_point_sampling_kernel<1024u>(int, int, int, float const*, float*, int*)",
+     "mangled": "_ZN11pcdet_stack30farthest_point_sampling_kernelILj1024EEEviiiPKfPfPi",
+     "kernel_json": "kernel_1.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_stack/src/sampling_gpu.cu",
+       "line": 71
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_stack/src/sampling_gpu.cu",
+       "line": 71
+      }
+     ]
+    },
+    {
+     "current_pc": 5856,
+     "current_pc_hex": "0x16e0",
+     "ancient_pc": 8128,
+     "ancient_pc_hex": "0x1fc0",
+     "opcodes": [
+      "STS",
+      "LDS"
+     ],
+     "space": "shared",
+     "race_type": "WAR",
+     "observed_distance": "block",
+     "contested_weight": 103,
+     "access_size": 4,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "async": false,
+     "atomic_chain_off": false,
+     "chain": false,
+     "chain_rescue": false,
+     "kernel": "void pcdet_stack::stack_farthest_point_sampling_kernel<1024u>(int, int, float const*, float*, int*, int*, int*)",
+     "mangled": "_ZN11pcdet_stack36stack_farthest_point_sampling_kernelILj1024EEEviiPKfPfPiS4_S4_",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_stack/src/sampling_gpu.cu",
+       "line": 250
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_stack/src/sampling_gpu.cu",
+       "line": 315
+      }
+     ]
+    },
+    {
+     "current_pc": 5808,
+     "current_pc_hex": "0x16b0",
+     "ancient_pc": 5808,
+     "ancient_pc_hex": "0x16b0",
+     "opcodes": [
+      "STS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "WAW",
+     "observed_distance": "block",
+     "contested_weight": 1,
+     "access_size": null,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "async": false,
+     "atomic_chain_off": false,
+     "chain": true,
+     "chain_rescue": false,
+     "kernel": "void pcdet_stack::stack_farthest_point_sampling_kernel<1024u>(int, int, float const*, float*, int*, int*, int*)",
+     "mangled": "_ZN11pcdet_stack36stack_farthest_point_sampling_kernelILj1024EEEviiPKfPfPiS4_S4_",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_stack/src/sampling_gpu.cu",
+       "line": 249
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_stack/src/sampling_gpu.cu",
+       "line": 249
+      }
+     ]
+    },
+    {
+     "current_pc": 5856,
+     "current_pc_hex": "0x16e0",
+     "ancient_pc": 5856,
+     "ancient_pc_hex": "0x16e0",
+     "opcodes": [
+      "STS",
+      "STS"
+     ],
+     "space": "shared",
+     "race_type": "WAW",
+     "observed_distance": "block",
+     "contested_weight": 1,
+     "access_size": null,
+     "strength": "none",
+     "ordering_syncs": [],
+     "atomic_coherence": "none",
+     "hb_chain": null,
+     "warp_same_inst": false,
+     "edge_rescued": false,
+     "event_candidate": false,
+     "hb_class": null,
+     "matrix_class": null,
+     "model_bug": null,
+     "a2_uncertain": null,
+     "conflict_class": "DR",
+     "benign": null,
+     "assumption": null,
+     "verdict": "RACE",
+     "async": false,
+     "atomic_chain_off": false,
+     "chain": true,
+     "chain_rescue": false,
+     "kernel": "void pcdet_stack::stack_farthest_point_sampling_kernel<1024u>(int, int, float const*, float*, int*, int*, int*)",
+     "mangled": "_ZN11pcdet_stack36stack_farthest_point_sampling_kernelILj1024EEEviiPKfPfPiS4_S4_",
+     "kernel_json": "kernel_2.json",
+     "cur_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_stack/src/sampling_gpu.cu",
+       "line": 250
+      }
+     ],
+     "anc_frames": [
+      {
+       "file": "/mnt/local/fzheng4/rw/openpcdet-fps-new-1/buggy/src/pcdet/ops/pointnet2/pointnet2_stack/src/sampling_gpu.cu",
+       "line": 250
+      }
+     ]
+    }
+   ],
+   "site_skipped": {
+    "intra_thread_only": 4,
+    "read_read": 5
+   }
+  }
+ },
+ "dots_checked": 1,
+ "dots_regenerated_equal": 1
+}

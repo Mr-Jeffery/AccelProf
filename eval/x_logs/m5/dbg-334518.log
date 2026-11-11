@@ -1,0 +1,30 @@
+F
+=================================== FAILURES ===================================
+_____________________ test_rtraw_extended_pair_is_derived ______________________
+python/test_co_chain.py:135: in test_rtraw_extended_pair_is_derived
+    assert cc["derived"] == 1 and cc["rescued"] == 0 and cc["capped"] is False and cc["hops"] == 7
+E   assert (4 == 1)
+=========================== short test summary info ============================
+FAILED python/test_co_chain.py::test_rtraw_extended_pair_is_derived - assert ...
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
+1 failed, 22 deselected in 1.46s
+F.F                                                                      [100%]
+=================================== FAILURES ===================================
+____________________ test_switch_on_identical_serial_n1_n8 _____________________
+python/test_co_chain.py:454: in test_switch_on_identical_serial_n1_n8
+    assert [x["derived"] for x in st["kernels"]] == [1, 1, 2, 1, 1] and st["rescued"] == 1
+E   assert ([4, 1, 2, 4, 1] == [1, 1, 2, 1, 1]
+E     
+E     At index 0 diff: 4 != 1
+E     Use -v to get more diff)
+_____________________________ test_chain_cap_error _____________________________
+python/test_co_chain.py:488: in test_chain_cap_error
+    assert msg.startswith("chain-cap") and "ktest()" in msg and "kernel_" in msg \
+E   AssertionError: ('serial-1', 'chain-cap: kernel kmain(unsigned int volatile*) (/tmp/pytest-of-fzheng4/pytest-1/test_chain_cap_error0/dump/kernel_0.json): 2 derived pairs exceed the cap of 1')
+E   assert (True and 'ktest()' in 'chain-cap: kernel kmain(unsigned int volatile*) (/tmp/pytest-of-fzheng4/pytest-1/test_chain_cap_error0/dump/kernel_0.json): 2 derived pairs exceed the cap of 1')
+E    +  where True = <built-in method startswith of str object at 0x7fa55a2cc440>('chain-cap')
+E    +    where <built-in method startswith of str object at 0x7fa55a2cc440> = 'chain-cap: kernel kmain(unsigned int volatile*) (/tmp/pytest-of-fzheng4/pytest-1/test_chain_cap_error0/dump/kernel_0.json): 2 derived pairs exceed the cap of 1'.startswith
+=========================== short test summary info ============================
+FAILED python/test_co_chain.py::test_switch_on_identical_serial_n1_n8 - asser...
+FAILED python/test_co_chain.py::test_chain_cap_error - AssertionError: ('seri...
+2 failed, 1 passed, 21 deselected in 26.96s
