@@ -1,0 +1,24 @@
+        /*07a0*/                   ATOMG.E.CAS.STRONG.GPU PT, R5, [R8], R4, R5 ;           /* 0x00000004080573a9 */
+                                                                                           /* 0x000ea400001ee105 */
+        /*07b0*/                   ISETP.NE.AND P0, PT, R5, R4, PT ;                       /* 0x000000040500720c */
+                                                                                           /* 0x004fda0003f05270 */
+        /*07c0*/               @P0 BRA 0x780 ;                                             /* 0xffffffb000000947 */
+                                                                                           /* 0x000fea000383ffff */
+        /*07d0*/                   IMAD.MOV.U32 R4, RZ, RZ, c[0x0][0x1dc] ;                /* 0x00007700ff047624 */
+                                                                                           /* 0x000fe200078e00ff */
+        /*07e0*/                   MOV R8, R7 ;                                            /* 0x0000000700087202 */
+                                                                                           /* 0x000fe20000000f00 */
+        /*07f0*/                   WARPSYNC 0xffffffff ;                                   /* 0xffffffff00007948 */
+                                                                                           /* 0x000fe20003800000 */
+        /*0800*/                   BAR.SYNC.DEFER_BLOCKING 0x0 ;                           /* 0x0000000000007b1d */
+----
+        /*7170*/                   ATOMG.E.CAS.STRONG.GPU PT, R3, [R70], R2, R3 ;          /* 0x00000002460373a9 */
+                                                                                           /* 0x000f6400001ee103 */
+        /*7180*/                   ISETP.NE.AND P0, PT, R3, R2, PT ;                       /* 0x000000020300720c */
+                                                                                           /* 0x020fda0003f05270 */
+        /*7190*/               @P0 BRA 0x7150 ;                                            /* 0xffffffb000000947 */
+                                                                                           /* 0x000fea000383ffff */
+        /*71a0*/                   WARPSYNC 0xffffffff ;                                   /* 0xffffffff00007948 */
+                                                                                           /* 0x000fe20003800000 */
+        /*71b0*/                   BAR.SYNC.DEFER_BLOCKING 0x0 ;                           /* 0x0000000000007b1d */
+----

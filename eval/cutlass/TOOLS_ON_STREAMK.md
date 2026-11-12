@@ -129,3 +129,94 @@ cuRace S2's "other" reports are shared-memory pairs of the mainloop: the tile st
 - **What S2's 148/52 shared-memory reports are** (mainloop tile store/load pairs, present on stock and fixed alike): not triaged.
 - **Why iGUARD labels the same offsets "Missing lock" on some reps of the fixed builds.** The stock builds always get "Missing gpufence". Not investigated beyond counting.
 - **Whether the paper's production rows used a different iGUARD flag set.** The repo shows none; see above.
+
+## Why stock and fixed give identical reports (follow-up, 2026-11-12)
+
+CPU jobs on `normal` (c3): 340767 (step 1), 340768–340773 (steps 3–4). No GPU job and no rebuild; step 2 did not apply.
+Files: `eval/cutlass/tools_streamk/why/`; scripts `eval/cutlass/harness/x9_tools_why1.sh`, `x9_tools_why3.py`,
+`x9_tools_why3b.py`.
+
+**Two binaries, not four.** Split 2 and split 3 are the same executable run with a different argument (`<exe> 1 2` /
+`<exe> 1 3`, manifest column `args`). There is one stock binary (`repro`) and one fixed binary (`repro_fixed`).
+
+| | stock (`repro`) | fixed (`repro_fixed`) |
+|---|---|---|
+| sha256, executable | `3f72c070…` | `c89f6e8c…` |
+| sha256, `-cubin` | `8cec6dc9…` | `0663f4dd…` |
+| `barrier.h` included (`nvcc -M`, same flags as `build.sh`) | `$CB/src/cutlass-v4.8.1/include/cutlass/barrier.h` (`b4851b64…`) | `$CB/tools_streamk/build/overlay_fixed/cutlass/barrier.h` (`1dac4e13…`; diff against the tag = `fix.patch`'s 7 lines after line 175) |
+| SASS whole kernel (`cuobjdump -sass`, 1 function) | ATOMG.E.CAS 2, MEMBAR 2, CCTL.IVALL 3 | ATOMG.E.CAS 2, MEMBAR 4, CCTL.IVALL 5 |
+| fence after the CAS loop, both `wait_eq_reset` sites | **absent** | **present**: `MEMBAR.ALL.GPU; ERRBAR; CCTL.IVALL` before `BAR.SYNC` |
+| reported pair, split 2 (scalar-clock and S2 alike) | 64 pc pairs: store `block_striped.h:194` ← `gemm_universal_streamk.h:772` (`share_accumulators`, first peer's partial store) × load `functional.h:134` ← `block_striped.h:181` ← SK:813 (`acquire_accumulators`, after `wait_eq_reset` at SK:809) | the same 64 pc pairs, same frames |
+| reported pair, split 3 | 48 pc pairs: store `block_striped.h:194` ← `epilogue_base_streamk.h:181` ← SK:989 (`epilogue.share`) × load `block_striped.h:165` ← `epilogue_base_streamk.h:133` (16) / `:144` (32) ← SK:920 (`epilogue.reduce`, after `wait_eq_reset` at SK:885) | the same 48 pc pairs, same frames |
+| store before the producer's own arrive? | yes: SK:772 (taken by the first peer, `block_idx == first_block_idx`, SK:769) runs before `arrive_inc` at SK:794 in the same function; SK:989 before `arrive_range_inc` at SK:992 | same |
+| block relation of the recorded instances (kernel JSON edges between the two pcs, `dist`) | split 2: 64 edges, store→load, `intra_grid` 16,384, `intra_block`/`intra_warp`/`intra_thread` 0; split 3: 48 edges, `intra_grid` 49,152, others 0 | identical counts |
+| R3's release points of the store pcs / acquire points of the load pcs (`hb_rmw_points`, scalar-clock recording) | `[]` for all 64 / 64 (split 2) and 16 / 6 (split 3); no key of either table is non-empty | identical: all `[]` |
+| verdict | RACE, DR RAW, `hb_class` None | RACE, DR RAW, `hb_class` None |
+| dossier's own run (job 325921, `repro_fixed 1` = both splits in one run) | 112 pairs, RACE (`results/cutlass/repro/`) | 112 pairs, RACE, all CONFIRMED (both modes); binary `$CB/findings/streamk-wait-eq-reset/build/repro_fixed` (sha256 `7d1907f9…`, built 11-03 08:13) — its SASS is identical to this build's (`cuobjdump -sass` diff empty) |
+
+**SASS quotes** (`cuobjdump -sass`, from `ATOMG.E.CAS` to `BAR.SYNC`; `why/repro.cas_to_bar.txt`, `why/repro_fixed.cas_to_bar.txt`):
+
+Stock, site 1 (SK:809 path) and site 2 (SK:885 path):
+```
+/*07a0*/  ATOMG.E.CAS.STRONG.GPU PT, R5, [R8], R4, R5 ;
+/*07b0*/  ISETP.NE.AND P0, PT, R5, R4, PT ;
+/*07c0*/  @P0 BRA 0x780 ;
+/*07d0*/  IMAD.MOV.U32 R4, RZ, RZ, c[0x0][0x1dc] ;
+/*07e0*/  MOV R8, R7 ;
+/*07f0*/  WARPSYNC 0xffffffff ;
+/*0800*/  BAR.SYNC.DEFER_BLOCKING 0x0 ;
+
+/*7170*/  ATOMG.E.CAS.STRONG.GPU PT, R3, [R70], R2, R3 ;
+/*7180*/  ISETP.NE.AND P0, PT, R3, R2, PT ;
+/*7190*/  @P0 BRA 0x7150 ;
+/*71a0*/  WARPSYNC 0xffffffff ;
+/*71b0*/  BAR.SYNC.DEFER_BLOCKING 0x0 ;
+```
+Fixed, site 1 and site 2:
+```
+/*07b0*/  ATOMG.E.CAS.STRONG.GPU PT, R5, [R8], R4, R5 ;
+/*07c0*/  ISETP.NE.AND P0, PT, R5, R4, PT ;
+/*07d0*/  @P0 BRA 0x790 ;
+/*07e0*/  BSYNC B0 ;
+/*07f0*/  MEMBAR.ALL.GPU ;
+/*0800*/  ERRBAR;
+/*0810*/  CCTL.IVALL ;
+/*0820*/  IMAD.MOV.U32 R4, RZ, RZ, c[0x0][0x1dc] ;
+/*0830*/  MOV R8, R7 ;
+/*0840*/  WARPSYNC 0xffffffff ;
+/*0850*/  BAR.SYNC.DEFER_BLOCKING 0x0 ;
+
+/*71d0*/  ATOMG.E.CAS.STRONG.GPU PT, R3, [R70], R2, R3 ;
+/*71e0*/  ISETP.NE.AND P0, PT, R3, R2, PT ;
+/*71f0*/  @P0 BRA 0x71b0 ;
+/*7200*/  BSYNC B0 ;
+/*7210*/  MEMBAR.ALL.GPU ;
+/*7220*/  ERRBAR;
+/*7230*/  CCTL.IVALL ;
+/*7240*/  WARPSYNC 0xffffffff ;
+/*7250*/  BAR.SYNC.DEFER_BLOCKING 0x0 ;
+```
+
+**Findings, step by step.**
+1. **The fence is in the fixed binary** at both `wait_eq_reset` sites. The fixed build included the overlay `barrier.h`, not the tag's.
+2. **No rebuild needed.** The fence is present, so step 2 did not apply.
+3. **The reported pair is the dossier's race**, in both splits and in both builds. It is not a different conflict such as workspace reuse:
+   - The store is the producer's partial store, made before that producer's own arrive (SK:772 → `arrive_inc` SK:794; SK:989 → `arrive_range_inc` SK:992).
+   - The load is the consumer's partial load after `wait_eq_reset`.
+   - Every recorded instance of the pair is store-then-load between different CTAs. Evidence: the `dist` counters of the kernel JSON edges between the two pcs (`why/edges.tsv`), `intra_grid` only, with no `intra_block` instance.
+   - This is a count per edge, not a per-instance block id. It establishes "different blocks" for every instance the collector recorded on these pcs. It does not name the blocks.
+   - The direction rules out reuse of a slot by a later tile: every edge runs store → load, and none runs load → store.
+4. **Why the fixed build is still reported.**
+   - **cuRace (both clocks), from the files.** The verdict layer can order a cross-CTA pair only through R3, because R1 and the barrier-ordered rule are intra-CTA. R3 starts from the PO-next RMW of the storing thread and ends at the PO-previous RMW of the loading thread (`sync_dominance.trace_rmw_points`; recorded online as `hb_rmw_points`).
+     - In these recordings both tables are empty for every store and load pc, in stock and fixed alike.
+     - The fence is executed only by thread 0: the `if (thread_idx == 0)` block of `wait_eq_reset`, overlay `barrier.h` lines 171–184, fence at line 179; `Sync::sync()` at line 185. The RMWs (`atomicCAS`, `red`) are thread 0's too.
+     - So the fence changes no input the rules read. The verdict is the same pair, RACE DR, with no R3 chain, on both builds.
+     - This confirms the earlier explanation (the elected-thread hand-off) on the recorded data. It is a statement about the detector's inputs; it does not decide whether the fixed hand-off is ordered under PTX.
+   - **iGUARD.** The fixed build's loads are reported at the same 64 / 6 offsets. The fence sits only in thread 0's path, and the loads are made by all threads after `BAR.SYNC`. That fits a per-thread fence check, but I did not read iGUARD's detector source, so its reason is **not determined**.
+   - **racecheck.** It sees shared memory only, and both accesses are global: 0 hazards on all builds.
+5. **The dossier's own fixed run also reported the race.** Job 325921, `repro_fixed 1`, both splits in one run, reported the same 112 pairs (64 + 48) in both modes. Dossier §7 says: "the brief's 'fixed reproducer's clean run in both modes' is not met". Its binary has a different sha256 (other build) but identical SASS. X9's step-6 requirement was therefore never met, and the dossier says so.
+
+**Not determined.**
+- **Which CTA did each store or load.** The recordings carry relation counts, not block ids. A dump with `hb_events` (`BASELINE_HB_DUMP=1`) was not taken.
+- **iGUARD's internal reason** for flagging the fixed build's loads (see 4).
+- **Whether the fixed hand-off is ordered under PTX.** Not re-derived here; the dossier's §7 argument stands as written.
