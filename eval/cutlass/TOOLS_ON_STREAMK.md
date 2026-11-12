@@ -122,7 +122,7 @@ cuRace S2's "other" reports are shared-memory pairs of the mainloop: the tile st
   - `iguard-<id>.csv`
   - `scalar-clock/`
   - `s2/`
-- Logs: `eval/x_logs/x9-tools-340757.log`, `x9-tools-s2.log`. Recordings: `/mnt/beegfs/fzheng4/cutlass/tools_streamk/traces/`.
+- Logs (on ARC only; `eval/x_logs/*.log` is gitignored): `eval/x_logs/x9-tools-340757.log`, `x9-tools-s2.log`. Recordings: `/mnt/beegfs/fzheng4/cutlass/tools_streamk/traces/`.
 
 ## Not determined
 
