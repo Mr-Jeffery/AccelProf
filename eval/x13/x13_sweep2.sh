@@ -28,7 +28,7 @@ if [ -n "${TIMING:-}" ]; then RUNS+=(
 ); fi
 OPT=""; ROOT=$D/runs
 [ -n "${TIMING:-}" ] && { OPT="--no-stats"; ROOT=$D/timing_n$WORKERS; }
-if [ -n "${MALLOC:-}" ]; then RUNS=("bfs__1M|$BIN/P7/bfs-cuda|$G/graph1MW_6.txt"); OPT="--preload /home/fzheng4/stage-x13/bin/libx13malloc.so --no-native"; ROOT=$D/malloclog; fi
+if [ -n "${MALLOC:-}" ]; then RUNS=("bfs__500K|$BIN/P7/bfs-cuda|$D/data/graph500KW_6.txt" "bfs__1M|$BIN/P7/bfs-cuda|$G/graph1MW_6.txt");OPT="--preload /home/fzheng4/stage-x13/bin/libx13malloc.so --no-native"; ROOT=$D/malloclog; fi
 echo "host=$(hostname) job=${SLURM_JOB_ID:-} mode=$MODE workers=$WORKERS opt=[$OPT] root=$ROOT $(date -Is)"
 echo "runtime HEAD=$(git -C $W rev-parse --short=12 HEAD) libsanalyzer=$(sha256sum $S/san-install/lib/libsanalyzer.so | cut -c1-16)"
 mkdir -p $ROOT

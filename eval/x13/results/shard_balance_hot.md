@@ -1,0 +1,17 @@
+| program | size | pass | hottest segments (shard: space, block/object, offset -> lanes, share of all lane-records) |
+|---|---|---|---|
+| atomicCAS | r100 | pcdep (collector-only) | 3: global, 0, 0x7fadf9000400 -> 116,185,273 (34.37 %); 1: global, 0, 0x7fadf9000200 -> 111,606,114 (33.02 %); 1: global, 0, 0x7fadf9000000 -> 110,239,706 (32.61 %) |
+| atomicCAS | r200 | pcdep (collector-only) | 10: global, 0, 0x7f937b000400 -> 116,364,874 (34.01 %); 5: global, 0, 0x7f937b000000 -> 113,580,091 (33.20 %); 9: global, 0, 0x7f937b000200 -> 112,188,003 (32.79 %) |
+| bfs | 1M | pcdep (collector-only) | 4: global, 0, 0x7f44639e8800 -> 126,016 (0.26 %); 15: global, 0, 0x7f44638cbb00 -> 523 (0.00 %); 7: global, 0, 0x7f4463909b80 -> 522 (0.00 %); 9: global, 0, 0x7f44638f4400 -> 515 (0.00 %) |
+| bfs | 1M | pcdep (scalar-clock) | 5: global, 0, 0x7f89d39e8800 -> 126,016 (0.26 %); 3: global, 0, 0x7f89d3800000 -> 644 (0.00 %); 13: global, 0, 0x7f89d3909b80 -> 522 (0.00 %); 6: global, 0, 0x7f89d38f4980 -> 512 (0.00 %) |
+| bfs | 1M | sync (scalar-clock) | 5: global, 0, 0x7f89d39e8800 -> 999,943 (2.05 %); 3: global, 0, 0x7f89d3800000 -> 644 (0.00 %); 13: global, 0, 0x7f89d3909b80 -> 522 (0.00 %); 6: global, 0, 0x7f89d38f4980 -> 512 (0.00 %) |
+| bfs | 500K | pcdep (collector-only) | 11: global, 0, 0x7fe1b95e8600 -> 65,761 (0.28 %); 1: global, 0, 0x7fe1b92f4400 -> 945 (0.00 %); 4: global, 0, 0x7fe1b9200080 -> 644 (0.00 %); 1: global, 0, 0x7fe1b927a580 -> 641 (0.00 %) |
+| bfs | 500K | pcdep (scalar-clock) | 12: global, 0, 0x7ff1595e8600 -> 65,761 (0.28 %); 11: global, 0, 0x7ff1592f4400 -> 945 (0.00 %); 2: global, 0, 0x7ff159200080 -> 644 (0.00 %); 1: global, 0, 0x7ff15927a280 -> 516 (0.00 %) |
+| bfs | 500K | sync (scalar-clock) | 12: global, 0, 0x7ff1595e8600 -> 498,534 (2.05 %); 11: global, 0, 0x7ff1592f4400 -> 1,083 (0.00 %); 2: global, 0, 0x7ff159200080 -> 644 (0.00 %); 1: global, 0, 0x7ff15927a280 -> 516 (0.00 %) |
+| pathfinder | R1000 | pcdep (collector-only) | 1: shared, 0, 0x80 -> 32,640 (0.00 %); 2: shared, 17, 0x280 -> 30,720 (0.00 %); 12: shared, 17, 0x180 -> 30,720 (0.00 %); 7: shared, 0, 0x200 -> 30,080 (0.00 %) |
+| pathfinder | R100 | pcdep (collector-only) | 10: shared, 22, 0x180 -> 7,680 (0.01 %); 0: shared, 13, 0x80 -> 7,680 (0.01 %); 4: shared, 13, 0x100 -> 7,680 (0.01 %); 7: shared, 13, 0x280 -> 7,680 (0.01 %) |
+| pathfinder | R10 | pcdep (collector-only) | 0: shared, 31, 0x280 -> 1,920 (0.03 %); 1: shared, 4, 0x180 -> 1,920 (0.03 %); 2: shared, 31, 0x100 -> 1,920 (0.03 %); 3: shared, 3, 0x80 -> 1,920 (0.03 %) |
+| pathfinder | R200 | pcdep (collector-only) | 11: shared, 80, 0x280 -> 13,440 (0.01 %); 3: shared, 22, 0x100 -> 13,440 (0.01 %); 6: shared, 22, 0x300 -> 11,520 (0.01 %); 7: shared, 22, 0x80 -> 11,520 (0.01 %) |
+| pathfinder | R20 | pcdep (collector-only) | 1: shared, 15, 0x100 -> 3,840 (0.03 %); 5: shared, 15, 0x280 -> 3,840 (0.03 %); 10: shared, 15, 0x80 -> 3,840 (0.03 %); 11: shared, 15, 0x300 -> 3,840 (0.03 %) |
+| stencil1d | L10 | pcdep (collector-only) | 4: shared, 194, 0x300 -> 2,836,480 (0.01 %); 5: shared, 194, 0x80 -> 2,836,480 (0.01 %); 2: shared, 70, 0x380 -> 2,834,432 (0.01 %); 14: shared, 70, 0x200 -> 2,834,432 (0.01 %) |
+| stencil1d | L20 | pcdep (collector-only) | 6: shared, 43, 0x200 -> 4,268,544 (0.01 %); 4: shared, 27, 0x200 -> 4,268,032 (0.01 %); 6: shared, 89, 0x280 -> 4,267,520 (0.01 %); 5: shared, 89, 0x80 -> 2,850,816 (0.01 %) |

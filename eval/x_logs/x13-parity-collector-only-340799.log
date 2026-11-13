@@ -1,0 +1,106 @@
+host=c3 job=340799 mode=collector-only ids=[P4-reduction-norace-large P4-matrix-multiplication-norace-small P5-canary P7-backprop-cuda P7-bfs-cuda] 2026-11-12T20:06:05-05:00
+installed: libsanalyzer 5a20fd14ab6c6806 collector b746b4dd23e90f46 HEAD f551ca00947e
+new: libsanalyzer 98c61ee2697ed57a collector 0a70a76ad63fa437 worktree HEAD 241dfe40d4e4 dirty 0
+capture: shim e1a01cdd4f0cf5de collector 7667335870ca77e7 replay 9221d5d3b7788d04
+fatbin a2d7368bc1c61986
+== P4-reduction-norace-large 2026-11-12T20:06:06-05:00
+  live Bc (10 s): rc=0 timed_out=False wall=0.667 kernels=1 workers=16
+  capture 11225345 bytes (1 files)
+  replay off: rc=0 
+  replay on: rc=0 
+  replay off0: rc=0 
+  replay on0: rc=0 
+P4-reduction-norace-large counter off vs on, default inline EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  rc=0
+P4-reduction-norace-large counter off vs on, every drain threaded EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  rc=0
+  byte comparison: 2 kernel files, 0 differ
+  off: kernel files 1 shards_N.json 0 shards_sync_N.json 0
+  on: kernel files 1 shards_N.json 1 shards_sync_N.json 0
+  off0: kernel files 1 shards_N.json 0 shards_sync_N.json 0
+  on0: kernel files 1 shards_N.json 1 shards_sync_N.json 0
+  on pcdep: lane_records 1130299 warp_records 36156 distinct 36156 split 0
+  on sync: lane_records 0 warp_records 0 distinct 0 split 0
+  on0 pcdep: lane_records 1130299 warp_records 36156 distinct 36156 split 0
+  on0 sync: lane_records 0 warp_records 0 distinct 0 split 0
+== P4-matrix-multiplication-norace-small 2026-11-12T20:06:17-05:00
+  live Bc (3 s): rc=0 timed_out=False wall=0.718 kernels=1 workers=16
+  capture 56294761 bytes (1 files)
+  replay off: rc=0 
+  replay on: rc=0 
+  replay off0: rc=0 
+  replay on0: rc=0 
+P4-matrix-multiplication-norace-small counter off vs on, default inline EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  rc=0
+P4-matrix-multiplication-norace-small counter off vs on, every drain threaded EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  rc=0
+  byte comparison: 2 kernel files, 0 differ
+  off: kernel files 1 shards_N.json 0 shards_sync_N.json 0
+  on: kernel files 1 shards_N.json 1 shards_sync_N.json 0
+  off0: kernel files 1 shards_N.json 0 shards_sync_N.json 0
+  on0: kernel files 1 shards_N.json 1 shards_sync_N.json 0
+  on pcdep: lane_records 5940952 warp_records 186763 distinct 186763 split 0
+  on sync: lane_records 0 warp_records 0 distinct 0 split 0
+  on0 pcdep: lane_records 5940952 warp_records 186763 distinct 186763 split 0
+  on0 sync: lane_records 0 warp_records 0 distinct 0 split 0
+== P5-canary 2026-11-12T20:06:21-05:00
+  live Bc (1 s): rc=0 timed_out=False wall=0.517 kernels=1 workers=16
+  capture 760 bytes (1 files)
+  replay off: rc=0 
+  replay on: rc=0 
+  replay off0: rc=0 
+  replay on0: rc=0 
+P5-canary counter off vs on, default inline EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  rc=0
+P5-canary counter off vs on, every drain threaded EQUAL kernels=1 bytes_equal=1 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  rc=0
+  byte comparison: 2 kernel files, 0 differ
+  off: kernel files 1 shards_N.json 0 shards_sync_N.json 0
+  on: kernel files 1 shards_N.json 1 shards_sync_N.json 0
+  off0: kernel files 1 shards_N.json 0 shards_sync_N.json 0
+  on0: kernel files 1 shards_N.json 1 shards_sync_N.json 0
+  on pcdep: lane_records 10 warp_records 10 distinct 10 split 0
+  on sync: lane_records 0 warp_records 0 distinct 0 split 0
+  on0 pcdep: lane_records 10 warp_records 10 distinct 10 split 0
+  on0 sync: lane_records 0 warp_records 0 distinct 0 split 0
+== P7-backprop-cuda 2026-11-12T20:06:23-05:00
+  live Bc (4 s): rc=0 timed_out=False wall=1.468 kernels=2 workers=16
+  capture 302732828 bytes (1 files)
+  replay off: rc=0 
+  replay on: rc=0 
+  replay off0: rc=0 
+  replay on0: rc=0 
+P7-backprop-cuda counter off vs on, default inline EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  rc=0
+P7-backprop-cuda counter off vs on, every drain threaded EQUAL kernels=2 bytes_equal=2 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  rc=0
+  byte comparison: 4 kernel files, 0 differ
+  off: kernel files 2 shards_N.json 0 shards_sync_N.json 0
+  on: kernel files 2 shards_N.json 2 shards_sync_N.json 0
+  off0: kernel files 2 shards_N.json 0 shards_sync_N.json 0
+  on0: kernel files 2 shards_N.json 2 shards_sync_N.json 0
+  on pcdep: lane_records 16449600 warp_records 1181780 distinct 806916 split 374864
+  on sync: lane_records 0 warp_records 0 distinct 0 split 0
+  on0 pcdep: lane_records 16449600 warp_records 1181780 distinct 806916 split 374864
+  on0 sync: lane_records 0 warp_records 0 distinct 0 split 0
+== P7-bfs-cuda 2026-11-12T20:06:29-05:00
+  live Bc (7 s): rc=0 timed_out=False wall=4.823 kernels=24 workers=16
+  capture 887261242 bytes (1 files)
+  replay off: rc=0 
+  replay on: rc=0 
+  replay off0: rc=0 
+  replay on0: rc=0 
+P7-bfs-cuda counter off vs on, default inline EQUAL kernels=24 bytes_equal=24 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  rc=0
+P7-bfs-cuda counter off vs on, every drain threaded EQUAL kernels=24 bytes_equal=24 differ=0 only_in_a=0 only_in_b=0 edges_only_a=0 edges_only_b=0 edges_changed=0 dist_count_diffs=0 nodes_differ=0
+  rc=0
+  byte comparison: 48 kernel files, 0 differ
+  off: kernel files 24 shards_N.json 0 shards_sync_N.json 0
+  on: kernel files 24 shards_N.json 24 shards_sync_N.json 0
+  off0: kernel files 24 shards_N.json 0 shards_sync_N.json 0
+  on0: kernel files 24 shards_N.json 24 shards_sync_N.json 0
+  on pcdep: lane_records 47878127 warp_records 12504655 distinct 6301003 split 2326449
+  on sync: lane_records 0 warp_records 0 distinct 0 split 0
+  on0 pcdep: lane_records 47878127 warp_records 12504655 distinct 6301003 split 2326449
+  on0 sync: lane_records 0 warp_records 0 distinct 0 split 0
+== done 2026-11-12T20:06:45-05:00

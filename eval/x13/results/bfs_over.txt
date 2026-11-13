@@ -1,0 +1,42 @@
+#### bfs 500K collector-only
+allocations: d_graph_nodes 0x7f9989000000+4000000, d_graph_edges 0x7f9989400000+12001548, d_graph_mask 0x7f998b200000+500000, d_updating_graph_mask 0x7f998b27a200+500000, d_graph_visited 0x7f998b2f4400+500000, d_cost 0x7f998b400000+2000000, d_over 0x7f998b5e8600+1
+d_over 0x7f998b5e8600 segment 0x7f998b5e8600
+-- pcdep: 24 kernels, lane-records 23,868,338; top shard 10 with 1,595,599 (6.69 %)
+   shard 10 segment 0x7f998b5e8600 (d_over): 65,761 lanes over 7 kernels where it is the shard's top = 4.12 % of the shard, 0.28 % of all
+   shard 10 segment 0x7f998b305f80 (d_graph_visited): 464 lanes over 1 kernels where it is the shard's top = 0.03 % of the shard, 0.00 % of all
+   shard 10 segment 0x7f998b21d080 (d_graph_mask): 260 lanes over 2 kernels where it is the shard's top = 0.02 % of the shard, 0.00 % of all
+   d_over's segment 0x7f998b5e8600 on shard 10: 65,761 lanes over 7 kernels where it is that shard's top segment = 4.12 % of shard 10, 0.28 % of all lane-records; shard 10 has 6.69 % of all; top shard is 10
+#### bfs 1M collector-only
+allocations: d_graph_nodes 0x7f99ff000000+8000000, d_graph_edges 0x7f99ee000000+23999880, d_graph_mask 0x7f99ef800000+1000000, d_updating_graph_mask 0x7f99ef8f4400+1000000, d_graph_visited 0x7f99efa00000+1000000, d_cost 0x7f99efc00000+4000000, d_over 0x7f99ef9e8800+1
+d_over 0x7f99ef9e8800 segment 0x7f99ef9e8800
+-- pcdep: 24 kernels, lane-records 47,878,127; top shard 4 with 3,161,844 (6.60 %)
+   shard 4 segment 0x7f99ef9e8800 (d_over): 126,016 lanes over 7 kernels where it is the shard's top = 3.99 % of the shard, 0.26 % of all
+   shard 4 segment 0x7f99efa3e880 (d_graph_visited): 423 lanes over 1 kernels where it is the shard's top = 0.01 % of the shard, 0.00 % of all
+   shard 4 segment 0x7f99efad6f00 (d_graph_visited): 343 lanes over 1 kernels where it is the shard's top = 0.01 % of the shard, 0.00 % of all
+   d_over's segment 0x7f99ef9e8800 on shard 4: 126,016 lanes over 7 kernels where it is that shard's top segment = 3.99 % of shard 4, 0.26 % of all lane-records; shard 4 has 6.60 % of all; top shard is 4
+#### bfs 500K scalar-clock
+allocations: d_graph_nodes 0x7f4063000000+4000000, d_graph_edges 0x7f4063400000+12001548, d_graph_mask 0x7f4065200000+500000, d_updating_graph_mask 0x7f406527a200+500000, d_graph_visited 0x7f40652f4400+500000, d_cost 0x7f4065400000+2000000, d_over 0x7f40655e8600+1
+d_over 0x7f40655e8600 segment 0x7f40655e8600
+-- pcdep: 24 kernels, lane-records 23,868,338; top shard 11 with 1,612,607 (6.76 %)
+   shard 11 segment 0x7f40655e8600 (d_over): 65,761 lanes over 7 kernels where it is the shard's top = 4.08 % of the shard, 0.28 % of all
+   shard 11 segment 0x7f40652fc700 (d_graph_visited): 467 lanes over 1 kernels where it is the shard's top = 0.03 % of the shard, 0.00 % of all
+   shard 11 segment 0x7f4065200680 (d_graph_mask): 384 lanes over 3 kernels where it is the shard's top = 0.02 % of the shard, 0.00 % of all
+   d_over's segment 0x7f40655e8600 on shard 11: 65,761 lanes over 7 kernels where it is that shard's top segment = 4.08 % of shard 11, 0.28 % of all lane-records; shard 11 has 6.76 % of all; top shard is 11
+-- sync: 24 kernels, lane-records 24,302,479; top shard 11 with 2,045,460 (8.42 %)
+   shard 11 segment 0x7f40655e8600 (d_over): 498,534 lanes over 7 kernels where it is the shard's top = 24.37 % of the shard, 2.05 % of all
+   shard 11 segment 0x7f40652fc700 (d_graph_visited): 467 lanes over 1 kernels where it is the shard's top = 0.02 % of the shard, 0.00 % of all
+   shard 11 segment 0x7f4065200680 (d_graph_mask): 384 lanes over 3 kernels where it is the shard's top = 0.02 % of the shard, 0.00 % of all
+   d_over's segment 0x7f40655e8600 on shard 11: 498,534 lanes over 7 kernels where it is that shard's top segment = 24.37 % of shard 11, 2.05 % of all lane-records; shard 11 has 8.42 % of all; top shard is 11
+#### bfs 1M scalar-clock
+allocations: d_graph_nodes 0x7f1cb7000000+8000000, d_graph_edges 0x7f1ca6000000+23999880, d_graph_mask 0x7f1ca7800000+1000000, d_updating_graph_mask 0x7f1ca78f4400+1000000, d_graph_visited 0x7f1ca7a00000+1000000, d_cost 0x7f1ca7c00000+4000000, d_over 0x7f1ca79e8800+1
+d_over 0x7f1ca79e8800 segment 0x7f1ca79e8800
+-- pcdep: 24 kernels, lane-records 47,878,127; top shard 2 with 3,115,840 (6.51 %)
+   shard 2 segment 0x7f1ca79e8800 (d_over): 126,016 lanes over 7 kernels where it is the shard's top = 4.04 % of the shard, 0.26 % of all
+   shard 2 segment 0x7f1ca7a4d680 (d_graph_visited): 446 lanes over 1 kernels where it is the shard's top = 0.01 % of the shard, 0.00 % of all
+   shard 2 segment 0x7f1ca79c9f80 (d_updating_graph_mask): 389 lanes over 3 kernels where it is the shard's top = 0.01 % of the shard, 0.00 % of all
+   d_over's segment 0x7f1ca79e8800 on shard 2: 126,016 lanes over 7 kernels where it is that shard's top segment = 4.04 % of shard 2, 0.26 % of all lane-records; shard 2 has 6.51 % of all; top shard is 2
+-- sync: 24 kernels, lane-records 48,792,045; top shard 2 with 3,992,223 (8.18 %)
+   shard 2 segment 0x7f1ca79e8800 (d_over): 999,943 lanes over 8 kernels where it is the shard's top = 25.05 % of the shard, 2.05 % of all
+   shard 2 segment 0x7f1ca7a4d680 (d_graph_visited): 449 lanes over 1 kernels where it is the shard's top = 0.01 % of the shard, 0.00 % of all
+   shard 2 segment 0x7f1ca7a87e80 (d_graph_visited): 331 lanes over 1 kernels where it is the shard's top = 0.01 % of the shard, 0.00 % of all
+   d_over's segment 0x7f1ca79e8800 on shard 2: 999,943 lanes over 8 kernels where it is that shard's top segment = 25.05 % of shard 2, 2.05 % of all lane-records; shard 2 has 8.18 % of all; top shard is 2

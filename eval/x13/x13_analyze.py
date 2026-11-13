@@ -71,8 +71,8 @@ for r in rows:
         top = s["top"]
         topl = f"{top[0][0]}, {top[0][1]}, {top[0][2]:#x}" if top else "n/a"
         share = f"{100 * top[1] / s['lane'][s['top_shard']]:.2f} %" if top else "n/a"
-        md.append(f"| {r['prog']} | {r['size']} | {pas} | {s['kernels']} | {TL:,} | {ML:,} | {pct(ML / TL)} | {n * ML / TL:.3f} | {pct(s['crit_l'] / TL)} | {TW:,} | {MW:,} | {pct(MW / TW)} | {n * MW / TW:.3f} | {pct(s['split'] / s['distinct'])} | {s['top_shard']} | {topl} | {top[1]:,} | {share} |" if top else
-                  f"| {r['prog']} | {r['size']} | {pas} | {s['kernels']} | {TL:,} | {ML:,} | {pct(ML / TL)} | {n * ML / TL:.3f} | {pct(s['crit_l'] / TL)} | {TW:,} | {MW:,} | {pct(MW / TW)} | {n * MW / TW:.3f} | {pct(s['split'] / s['distinct'])} | {s['top_shard']} | n/a | n/a | n/a |")
+        md.append(f"| {r['prog']} | {r['size']} | {pas} ({r['mode']}) | {s['kernels']} | {TL:,} | {ML:,} | {pct(ML / TL)} | {n * ML / TL:.3f} | {pct(s['crit_l'] / TL)} | {TW:,} | {MW:,} | {pct(MW / TW)} | {n * MW / TW:.3f} | {pct(s['split'] / s['distinct'])} | {s['top_shard']} | {topl} | {top[1]:,} | {share} |" if top else
+                  f"| {r['prog']} | {r['size']} | {pas} ({r['mode']}) | {s['kernels']} | {TL:,} | {ML:,} | {pct(ML / TL)} | {n * ML / TL:.3f} | {pct(s['crit_l'] / TL)} | {TW:,} | {MW:,} | {pct(MW / TW)} | {n * MW / TW:.3f} | {pct(s['split'] / s['distinct'])} | {s['top_shard']} | n/a | n/a | n/a |")
         T = s["types"]
         tot_rec = sum(T.values())
         sync_rec = T.get("barrier", 0) + T.get("block_exit", 0) + T.get("syncwarp", 0) + T.get("pipeline_commit", 0) + T.get("pipeline_wait", 0)
@@ -94,22 +94,26 @@ json.dump(summary, open(f"{prefix}.json", "w"), indent=1)
 # stability: per (prog, mode, pas) the max/total at the sizes, ratio of the larger-size value to the smaller-size one
 by = defaultdict(list)
 for x in summary:
-    by[(x["prog"], x["pas"])].append(x)
+    by[(x["prog"], x["mode"], x["pas"])].append(x)
 st = ["| program | pass | sizes | lane max/total | ratio (larger / smaller size) | flag (>10 % apart) | warp max/total | ratio |", "|---|---|---|---|---|---|---|---|"]
-for (prog, pas), xs in sorted(by.items()):
+PAIRS = {"stencil1d": ("L10", "L20"), "pathfinder": ("R10", "R20"), "bfs": ("500K", "1M"), "atomicCAS": ("r100", "r200")}
+for (prog, mode_, pas), xs in sorted(by.items()):
+    xs = [x for x in xs if x["size"] in PAIRS.get(prog, ())]
     if len(xs) < 2:
         continue
-    xs = sorted(xs, key=lambda x: x["drained_records"])
+    xs = sorted(xs, key=lambda x: x["total_lane"])
     a, b = xs[0], xs[-1]
     ra = b["max_over_total"] / a["max_over_total"]
     rw = b["warp_max_over_total"] / a["warp_max_over_total"]
-    st.append(f"| {prog} | {pas} | {a['size']} -> {b['size']} | {pct(a['max_over_total'])} -> {pct(b['max_over_total'])} | {ra:.4f} | {'YES' if abs(ra - 1) > 0.10 else 'no'} | {pct(a['warp_max_over_total'])} -> {pct(b['warp_max_over_total'])} | {rw:.4f} |")
+    st.append(f"| {prog} | {pas} ({mode_}) | {a['size']} -> {b['size']} | {pct(a['max_over_total'])} -> {pct(b['max_over_total'])} | {ra:.4f} | {'YES' if abs(ra - 1) > 0.10 else 'no'} | {pct(a['warp_max_over_total'])} -> {pct(b['warp_max_over_total'])} | {rw:.4f} |")
 open(f"{prefix}_stability.md", "w").write("\n".join(st) + "\n")
 
 ty = ["| program | size | pass | drained records | global | shared | local | barrier | block_exit | syncwarp | pipeline | sync-event fraction (barrier+exit+syncwarp+pipeline) |", "|---|---|---|---|---|---|---|---|---|---|---|---|"]
 for x in summary:
+    if x["pas"] != "pcdep":          # the sync pass's router does not count record types
+        continue
     T = x["record_types"]
-    ty.append(f"| {x['prog']} | {x['size']} | {x['pas']} | {x['drained_records']:,} | {T.get('global', 0):,} | {T.get('shared', 0):,} | {T.get('local', 0):,} | {T.get('barrier', 0):,} | {T.get('block_exit', 0):,} | {T.get('syncwarp', 0):,} | {T.get('pipeline_commit', 0) + T.get('pipeline_wait', 0):,} | {pct(x['sync_event_frac'])} |")
+    ty.append(f"| {x['prog']} | {x['size']} | {x['pas']} ({x['mode']}) | {x['drained_records']:,} | {T.get('global', 0):,} | {T.get('shared', 0):,} | {T.get('local', 0):,} | {T.get('barrier', 0):,} | {T.get('block_exit', 0):,} | {T.get('syncwarp', 0):,} | {T.get('pipeline_commit', 0) + T.get('pipeline_wait', 0):,} | {pct(x['sync_event_frac'])} |")
 open(f"{prefix}_types.md", "w").write("\n".join(ty) + "\n")
 
 tm = ["| program | size | mode | N | wall (s, counter on) | native (s) | peak RSS (MB) | rc | timed out | job |", "|---|---|---|---|---|---|---|---|---|---|"]
@@ -117,6 +121,24 @@ for r in rows:
     ru = r["run"]
     tm.append(f"| {r['prog']} | {r['size']} | {r['mode']} | {ru['workers']} | {ru.get('wall')} | {ru.get('native_wall')} | {ru.get('peak_mb')} | {ru.get('rc')} | {ru.get('timed_out')} | {ru.get('slurm_job')} |")
 open(f"{prefix}_runs.md", "w").write("\n".join(tm) + "\n")
+
+# the hottest (shard, segment) pairs: a shard's top segment of each kernel, summed over the kernels where it is that shard's top
+hot = ["| program | size | pass | hottest segments (shard: space, block/object, offset -> lanes, share of all lane-records) |", "|---|---|---|---|"]
+for r in rows:
+    for pas in ("pcdep", "sync"):
+        if pas not in r:
+            continue
+        pat = "shards_[0-9]*.json" if pas == "pcdep" else "shards_sync_[0-9]*.json"
+        ks = [json.load(open(f)) for f in glob.glob(f"{runs_dir}/{r['prog']}__{r['size']}__{r['mode']}/shards/{pat}")]
+        agg = defaultdict(int)
+        tot = sum(sum(k["lane_records"]) for k in ks)
+        for k in ks:
+            for i, t in enumerate(k["top_segment_per_shard"]):
+                if t:
+                    agg[(i, t["space"], t["block_or_object"], t["offset"])] += t["lanes"]
+        top = sorted(agg.items(), key=lambda kv: -kv[1])[:4]
+        hot.append(f"| {r['prog']} | {r['size']} | {pas} ({r['mode']}) | " + "; ".join(f"{k[0]}: {k[1]}, {k[2]}, {k[3]:#x} -> {v:,} ({100 * v / tot:.2f} %)" for k, v in top) + " |")
+open(f"{prefix}_hot.md", "w").write("\n".join(hot) + "\n")
 print(open(f"{prefix}.md").read())
 print(open(f"{prefix}_stability.md").read())
 print(open(f"{prefix}_types.md").read())

@@ -58,7 +58,13 @@ if a.mode == "scalar-clock":
 if not a.no_stats:
     env["YOSEMITE_SHARD_STATS"] = "1"
 if a.preload:
-    env["LD_PRELOAD"] = a.preload
+    # accelprof sets LD_PRELOAD=<collector> for `./app`, replacing ours: ./app becomes a static launcher
+    # (exec_wrap.c) that re-executes the real binary with our shim in front of the collector
+    os.remove(link)
+    shutil.copy(os.environ.get("X13_WRAP", "/home/fzheng4/stage-x13/bin/exec_wrap"), link)   # gcc -static exec_wrap.c
+    env["X13_REAL_EXE"] = exe
+    env["X13_PRELOAD"] = a.preload
+    env["X13_MALLOC_LOG"] = f"{out}/malloc.txt"
 accel = ["accelprof", "-t", "pc_dependency_analysis", "-n", str(a.workers), f"./{base}", *args]
 rec["cmd"] = " ".join(accel)
 rec["env"] = {k: v for k, v in env.items() if k.startswith(("YOSEMITE_", "BASELINE_"))}

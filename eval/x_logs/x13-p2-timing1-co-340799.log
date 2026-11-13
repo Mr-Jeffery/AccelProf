@@ -1,0 +1,19 @@
+host=c3 job=340799 mode=collector-only workers=1 opt=[--no-stats] root=/mnt/beegfs/fzheng4/x13/timing_n1 2026-11-12T20:50:11-05:00
+runtime HEAD=d9b87f0f6f8b libsanalyzer=98c61ee2697ed57a
+== stencil1d__L10 [collector-only N=1] 2026-11-12T20:50:11-05:00: stencil1d-cuda 134217728 10
+{"id": "X13-stencil1d__L10", "mode": "collector-only", "wall": 180.011, "native_wall": 0.465, "peak_mb": 4011.2, "rc": 0, "timed_out": false, "nkernels": 10, "nshards_files": 0, "drained_records": 0}
+== stencil1d__L20 [collector-only N=1] 2026-11-12T20:53:12-05:00: stencil1d-cuda 134217728 20
+{"id": "X13-stencil1d__L20", "mode": "collector-only", "wall": 353.978, "native_wall": 0.515, "peak_mb": 4011.0, "rc": 0, "timed_out": false, "nkernels": 20, "nshards_files": 0, "drained_records": 0}
+== pathfinder__R10 [collector-only N=1] 2026-11-12T20:59:07-05:00: pathfinder-cuda 100000 10 5
+{"id": "X13-pathfinder__R10", "mode": "collector-only", "wall": 0.816, "native_wall": 0.215, "peak_mb": 947.0, "rc": 0, "timed_out": false, "nkernels": 2, "nshards_files": 0, "drained_records": 0}
+== pathfinder__R20 [collector-only N=1] 2026-11-12T20:59:09-05:00: pathfinder-cuda 100000 20 5
+{"id": "X13-pathfinder__R20", "mode": "collector-only", "wall": 1.016, "native_wall": 0.215, "peak_mb": 964.4, "rc": 0, "timed_out": false, "nkernels": 4, "nshards_files": 0, "drained_records": 0}
+== bfs__500K [collector-only N=1] 2026-11-12T20:59:11-05:00: bfs-cuda /mnt/beegfs/fzheng4/x13/data/graph500KW_6.txt
+{"id": "X13-bfs__500K", "mode": "collector-only", "wall": 2.017, "native_wall": 0.466, "peak_mb": 1002.4, "rc": 0, "timed_out": false, "nkernels": 24, "nshards_files": 0, "drained_records": 0}
+== bfs__1M [collector-only N=1] 2026-11-12T20:59:14-05:00: bfs-cuda /home/fzheng4/AccelProf/eval/baselines/corpora/HeCBench/src/data/bfs/graph1MW_6.txt
+{"id": "X13-bfs__1M", "mode": "collector-only", "wall": 3.319, "native_wall": 0.715, "peak_mb": 1061.9, "rc": 0, "timed_out": false, "nkernels": 24, "nshards_files": 0, "drained_records": 0}
+== atomicCAS__r100 [collector-only N=1] 2026-11-12T20:59:19-05:00: atomicCAS-cuda 100
+{"id": "X13-atomicCAS__r100", "mode": "collector-only", "wall": 33.104, "native_wall": 3.669, "peak_mb": 933.6, "rc": 0, "timed_out": false, "nkernels": 603, "nshards_files": 0, "drained_records": 0}
+== atomicCAS__r200 [collector-only N=1] 2026-11-12T20:59:56-05:00: atomicCAS-cuda 200
+{"id": "X13-atomicCAS__r200", "mode": "collector-only", "wall": 44.014, "native_wall": 3.669, "peak_mb": 933.8, "rc": 0, "timed_out": false, "nkernels": 1203, "nshards_files": 0, "drained_records": 0}
+== done 2026-11-12T21:00:45-05:00
