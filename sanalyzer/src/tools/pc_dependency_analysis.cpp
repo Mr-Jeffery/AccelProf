@@ -2825,6 +2825,7 @@ static void pcdep_merge_shards(phmap::flat_hash_map<uint64_t, PC_statisitics>& p
                                phmap::flat_hash_map<uint32_t, std::pair<uint32_t, uint32_t>>& pc_flags,
                                std::unordered_map<uint32_t, std::array<uint64_t, 97>>& distinct_sector_count,
                                uint32_t kernel_id);
+static void shard_stats_write(const std::string& dir, uint32_t kernel_id);   // X13
 
 void PcDependency::kernel_start_callback(std::shared_ptr<KernelLaunch_t> kernel) {
 
@@ -2977,8 +2978,53 @@ static unsigned hb_shards_requested() {
     return n;
 }
 
+// X13 (eval/SHARD_BALANCE.md): YOSEMITE_SHARD_STATS=1 counts, per shard and per kernel, what the
+// router sends where: lane-records (lanes, once per shard a lane reaches), warp-records (entries
+// with lanes, once per shard reached), the records split across shards, and the 128-byte segments
+// each shard owns with the lane count of each. Instrumentation only: it reads what the routers have
+// already decided and writes shards_N.json / shards_sync_N.json beside kernel_N.json.
+struct ShardStats {
+    struct Key {
+        uint64_t hi, seg;
+        bool operator==(const Key& o) const { return hi == o.hi && seg == o.seg; }
+    };
+    struct KeyHash {
+        size_t operator()(const Key& k) const {
+            return static_cast<size_t>((k.seg * 0x9e3779b97f4a7c15ULL) ^ (k.hi * 0xc2b2ae3d27d4eb4fULL) ^ (k.seg >> 29));
+        }
+    };
+    bool on = false;
+    unsigned n = 0;
+    std::vector<uint64_t> lane, warp;
+    std::vector<std::unordered_map<Key, uint64_t, KeyHash>> seg;
+    uint64_t records = 0, split = 0;
+    uint64_t types[16] = {};                                // the drain's records by MemoryType
+    static bool enabled() {
+        static const bool e = [] {
+            const char* v = std::getenv("YOSEMITE_SHARD_STATS");
+            return v != nullptr && v[0] != '\0' && v[0] != '0';
+        }();
+        return e;
+    }
+    void init(unsigned nn) {
+        n = nn;
+        on = enabled() && nn > 1;
+        if (on) reset();
+    }
+    void reset() {
+        if (!on) return;
+        lane.assign(n, 0);
+        warp.assign(n, 0);
+        seg.assign(n, {});
+        records = split = 0;
+        for (auto& t : types) t = 0;
+    }
+    void at(unsigned s, uint64_t hi, uint64_t sg, uint64_t cnt) { seg[s][Key{hi, sg}] += cnt; }
+};
+
 struct ShardPool {
     using Clock_ = std::chrono::steady_clock;
+    ShardStats sst;                                         // X13
     unsigned n = 0;
     // a drain below inline_max records is routed and run on the caller, not worth the wake-ups;
     // YOSEMITE_HB_SHARD_INLINE_MAX=0 sends every drain to the threads (the tests' small kernels)
@@ -3024,6 +3070,7 @@ struct ShardPool {
             shards.back()->load_scopes(scope_file);
             shards.back()->quiet = true;
         }
+        sst.init(n);
         cents.resize(n);
         busy_s.assign(n, 0.0);
         stall_s.assign(n, 0.0);
@@ -3100,6 +3147,7 @@ struct ShardPool {
                     const unsigned s = shard_of(hi, s0);
                     masks[s] = m;
                     touched = uint64_t(1) << s;
+                    if (sst.on) sst.at(s, hi, s0, static_cast<uint64_t>(__builtin_popcount(m)));
                 } else {
                     uint64_t cseg = ~uint64_t(0);
                     unsigned cs = 0;
@@ -3109,6 +3157,7 @@ struct ShardPool {
                         if (sg != cseg) { cseg = sg; cs = shard_of(hi, sg); }
                         masks[cs] |= 1u << l;
                         touched |= uint64_t(1) << cs;
+                        if (sst.on) sst.at(cs, hi, sg, 1);
                     }
                 }
             }
@@ -3116,13 +3165,20 @@ struct ShardPool {
             touched |= (uint64_t(1) << tv) | (uint64_t(1) << rm);
             extra[tv] |= HbClock::ENT_TV;
             extra[rm] |= HbClock::ENT_RMW;
+            unsigned nz = 0;                                // X13: shards holding lanes of this record
             for (uint64_t t = touched; t != 0; t &= (t - 1)) {
                 const unsigned s = static_cast<unsigned>(__builtin_ctzll(t));
                 cents[s][c].push_back(extra[s] | kk | masks[s]);
                 lanes[s] += static_cast<uint64_t>(__builtin_popcount(masks[s]));
+                if (sst.on && masks[s] != 0) {
+                    sst.lane[s] += static_cast<uint64_t>(__builtin_popcount(masks[s]));
+                    sst.warp[s] += 1;
+                    ++nz;
+                }
                 masks[s] = 0;
                 extra[s] = 0;
             }
+            if (sst.on && nz != 0) { sst.records += 1; if (nz > 1) sst.split += 1; }
         }
         {
             std::lock_guard<std::mutex> l(cmu);
@@ -3227,6 +3283,7 @@ struct ShardPool {
         std::fill(busy_s.begin(), busy_s.end(), 0.0);
         std::fill(stall_s.begin(), stall_s.end(), 0.0);
         for (auto* v : {&lanes, &tv_recs, &rmw_lanes}) std::fill(v->begin(), v->end(), 0);
+        sst.reset();
     }
     // kernel end: the shards' results into the emitter `out` (the singleton, which processed no
     // record): sync pairs, R3 points (after each shard's rmw_finish), the first trace-validity
@@ -3703,6 +3760,7 @@ void PcDependency::kernel_end_callback(std::shared_ptr<KernelEnd_t> kernel) {
     auto evt = std::prev(kernel_events.end())->second;
     evt->end_time = _timer.get();
     // T26: the shards' statistics into the global maps, once per kernel
+    shard_stats_write(output_directory, evt->kernel_id);   // X13: only with YOSEMITE_SHARD_STATS=1
     pcdep_merge_shards(_pc_statistics, _pc_flags, _distinct_sector_count, evt->kernel_id);
     kernel_trace_flush(evt);
 
@@ -4046,6 +4104,7 @@ struct PcdRoute {
     uint32_t masks[64] = {};
     uint32_t fl[64] = {};
     uint64_t touched = 0;
+    ShardStats* st = nullptr;                              // X13
     void lane(unsigned s, uint32_t bit, uint32_t f) {
         masks[s] |= bit;
         fl[s] |= f;
@@ -4065,9 +4124,15 @@ struct PcdRoute {
             if (s0 == seg(l, last)) {
                 if (s0 != cseg) { cseg = s0; cs = pcd_owner(n, hi, s0); }
                 lane(cs, 1u << l, f);
+                if (st) st->at(cs, hi, s0, 1);
             } else {                                           // spans segments: by word
-                for (int i = 0; i < access_size; i += 4)
-                    lane(pcd_owner(n, hi, seg(l, i)), 1u << l, f | PCD_SPLIT);
+                uint64_t pseg = ~uint64_t(0);
+                for (int i = 0; i < access_size; i += 4) {
+                    const uint64_t sg = seg(l, i);
+                    const unsigned os = pcd_owner(n, hi, sg);
+                    lane(os, 1u << l, f | PCD_SPLIT);
+                    if (st && sg != pseg) { st->at(os, hi, sg, 1); pseg = sg; }
+                }
             }
         }
     }
@@ -4091,9 +4156,11 @@ struct PcdPool {
     bool stats = false;
     double drain_s = 0, route_s = 0, wait_s = 0;
     uint64_t records = 0, entries = 0, split_entries = 0;
+    ShardStats sst;                                        // X13
 
     void start(unsigned nshards) {
         n = nshards;
+        sst.init(nshards);
         inline_max = read_env_u32("YOSEMITE_PCDEP_INLINE_MAX", 4096);
         stats = read_env_u32("YOSEMITE_PCDEP_STATS", 0) != 0;
         for (unsigned i = 0; i < n; ++i) shards.push_back(std::make_unique<PcdShard>());
@@ -4161,6 +4228,7 @@ struct PcdPool {
         for (auto& s : shards) s->clear();
         drain_s = route_s = wait_s = 0;
         records = entries = split_entries = 0;
+        sst.reset();
     }
 };
 // never destroyed: its threads wait on it until the process ends (as T22's ShardPool)
@@ -4286,6 +4354,7 @@ void PcDependency::gpu_data_analysis(void* data, uint64_t size) {
     if (threaded) pool->launch();
     PcdRoute rt;
     rt.n = n;
+    rt.st = pool->sst.on ? &pool->sst : nullptr;
     double route_s = 0;
     for (uint64_t c = 0; c < pool->nchunks; ++c) {
         const auto t0 = std::chrono::steady_clock::now();
@@ -4297,6 +4366,7 @@ void PcDependency::gpu_data_analysis(void* data, uint64_t size) {
             uint64_t base = 0;
             shadow_memory* sm = nullptr;
             bool miss = false;
+            if (rt.st) rt.st->types[static_cast<unsigned>(t.type) & 15u] += 1;
             switch (t.type) {
                 case MemoryType::BlockExit:
                     release_shared_shadow_object(shared_pool, t.ctaId, __builtin_popcount(t.active_mask));
@@ -4355,8 +4425,14 @@ void PcDependency::gpu_data_analysis(void* data, uint64_t size) {
                                                 : static_cast<unsigned>(k % n);
             rt.touched |= uint64_t(1) << rs;
             rt.fl[rs] |= PCD_REC;
+            unsigned nz = 0;                                   // X13: shards holding lanes of this record
             for (uint64_t tt = rt.touched; tt != 0; tt &= (tt - 1)) {
                 const unsigned s = static_cast<unsigned>(__builtin_ctzll(tt));
+                if (rt.st && rt.masks[s] != 0) {
+                    rt.st->lane[s] += static_cast<uint64_t>(__builtin_popcount(rt.masks[s]));
+                    rt.st->warp[s] += 1;
+                    ++nz;
+                }
                 const PcdEnt e{static_cast<uint32_t>(k), rt.masks[s], rt.fl[s] | (miss ? PCD_MISS : 0u),
                                obj, base, sm};
                 if (n == 1) pcd_apply(*pool->shards[0], ctx, 0, e);
@@ -4367,6 +4443,7 @@ void PcDependency::gpu_data_analysis(void* data, uint64_t size) {
                 rt.masks[s] = 0;
                 rt.fl[s] = 0;
             }
+            if (rt.st && nz != 0) { rt.st->records += 1; if (nz > 1) rt.st->split += 1; }
             rt.touched = 0;
         }
         route_s += std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count();
@@ -4429,6 +4506,52 @@ static void pcdep_merge_shards(phmap::flat_hash_map<uint64_t, PC_statisitics>& p
         fprintf(stderr, "[PCDEP_STATS] kernel_%u %s\n", kernel_id, o.str().c_str());
     }
     pool->reset_kernel();
+}
+
+// X13: shards_N.json (PCDepGraph pass) and shards_sync_N.json (sync pass), at kernel end
+static void shard_stats_dump(const char* pass, const ShardStats& s, const std::string& path) {
+    if (!s.on) return;
+    std::ofstream o(path);
+    auto list = [&](const char* name, const std::vector<uint64_t>& v) {
+        o << "\"" << name << "\": [";
+        for (size_t i = 0; i < v.size(); ++i) o << (i ? ", " : "") << v[i];
+        o << "]";
+    };
+    o << "{\"pass\": \"" << pass << "\", \"shards\": " << s.n << ", ";
+    list("lane_records", s.lane);
+    o << ", ";
+    list("warp_records", s.warp);
+    o << ", \"warp_records_distinct\": " << s.records << ", \"split_warp_records\": " << s.split << ", ";
+    std::vector<uint64_t> d(s.n);
+    for (unsigned i = 0; i < s.n; ++i) d[i] = s.seg[i].size();
+    list("distinct_segments_per_shard", d);
+    o << ", \"record_types\": {";
+    static const char* tn[] = {"global", "shared", "local", "block_exit", "barrier", "syncwarp",
+                               "pipeline_commit", "pipeline_wait"};
+    for (unsigned i = 0; i < 8; ++i) o << (i ? ", " : "") << "\"" << tn[i] << "\": " << s.types[i];
+    o << "}, \"top_segment_per_shard\": [";
+    for (unsigned i = 0; i < s.n; ++i) {
+        const ShardStats::Key* bk = nullptr;
+        uint64_t bc = 0;
+        for (const auto& kv : s.seg[i])
+            if (bk == nullptr || kv.second > bc || (kv.second == bc && (kv.first.hi < bk->hi ||
+                (kv.first.hi == bk->hi && kv.first.seg < bk->seg)))) { bk = &kv.first; bc = kv.second; }
+        o << (i ? ", " : "");
+        if (bk == nullptr) { o << "null"; continue; }
+        const bool sh = (bk->hi >> 63) != 0;
+        o << "{\"space\": \"" << (sh ? "shared" : "global") << "\", \"block_or_object\": "
+          << (sh ? (bk->hi & ~(uint64_t(1) << 63)) : 0) << ", \"offset\": " << (bk->seg << 7)
+          << ", \"lanes\": " << bc << "}";
+    }
+    o << "]}\n";
+}
+
+static void shard_stats_write(const std::string& dir, uint32_t kernel_id) {
+    if (!ShardStats::enabled()) return;
+    const std::string id = std::to_string(kernel_id);   // not kernel_*.json: the harness globs that
+    if (PcdPool* p = pcd_pool()) shard_stats_dump("pcdep", p->sst, dir + "/shards_" + id + ".json");
+    if (ShardPool* h = hb_shard_pool())
+        if (h->active) shard_stats_dump("sync", h->sst, dir + "/shards_sync_" + id + ".json");
 }
 
 static void pcdep_start_kernel(uint64_t worker_count) {
