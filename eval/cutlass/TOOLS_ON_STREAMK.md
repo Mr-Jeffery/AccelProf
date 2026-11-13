@@ -220,3 +220,54 @@ Fixed, site 1 and site 2:
 - **Which CTA did each store or load.** The recordings carry relation counts, not block ids. A dump with `hb_events` (`BASELINE_HB_DUMP=1`) was not taken.
 - **iGUARD's internal reason** for flagging the fixed build's loads (see 4).
 - **Whether the fixed hand-off is ordered under PTX.** Not re-derived here; the dossier's §7 argument stands as written.
+
+## Vector clock on stock and fixed (follow-up, 2026-11-12)
+
+**Recording.** GPU job 340792 on `rtx4060ti16g`, node c3. Excluded nodes as in the brief: c0, c1, c2, c11–c15, c18, c21–c23, c34–c37, c46, c54.
+- Mode: vector-clock (`BASELINE_MODES=vector-clock`, this checkout's harness), with the default dump, so `hb_events` were kept.
+- Cap: 1,200 s per run, for both collect and analyze.
+- Binaries: the ones job 340757 built, with sha256 checked against `why/sha256.txt`. Nothing was rebuilt.
+
+**Scoring.** `parallel.py analyze --confirm`, the same command the production-set rows were scored with.
+
+**Clock trace.** CPU jobs 340794–340797 on `normal` (c3) ran `x9_tools_vc_trace.py`. It replays each dump with `python/hb_oracle.py`, the specification HbClock is checked against.
+- The file itself is not modified. A hook call is added to an in-memory copy, after the file is read.
+- On all four dumps, the oracle's race totals and its barrier-only races on the pair equal the HbClock keys in the dump.
+
+**Files.**
+- `eval/cutlass/tools_streamk/vc/trace-*.txt`
+- `confirm/vector-clock/` and `attribution_vc.tsv`
+- `eval/results/cutlass/tools_streamk/vector-clock/`
+- `runs/*vector-clock*`, `runs/times-vc.tsv`
+- Scripts: `harness/x9_tools_vc.sh`, `x9_tools_vc_attr.py`, `x9_tools_vc_trace.py`
+
+**How to read the table.**
+- **Traced instance:** one per run. It is the first load at the reported load pc whose 16-byte granule was last written at the reported store pc by a thread of another block, with both threads outside warp 0.
+- **Threads:** P = producer thread (the store). L = consumer thread (the load). P0 and C0 = thread 0 of the producer's and the consumer's block, the only threads that run the flag RMWs.
+- **Clock values:** e = vc[P][P] at the store. "x = n" means vc[x][P] = n after that event. vs is the barrier-only clock.
+- **The acquire:** it is deferred to the close of the CAS window, which is C0's next record (the instance gate, `hb_gate: instance`). It is taken only if that next record is acquire-fenced for the CAS pc in the gate table, `gate_table()[cas][2]`.
+
+| run | wall: collect / analyze (s) | verdict (production scoring) | dossier's pair reported? | other reports | class of the pair's records | HbClock in the dump, on the pair: vector-clock races / barrier-only races | traced instance | 1. producer's BAR.SYNC join | 2. RED publish | 3. acquiring CAS (+ MEMBAR) | 4. consumer's BAR.SYNC | at the consumer's load |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| stock, split 2 | 5.5 / 2.1 | RACE | **yes**, 64 of 64 pc pairs: store `block_striped.h:194` ← SK:772 × load `functional.h:134` | 0 | `structural` DR (64) | 64 races (on the traced pc pair `0x6c30`→`0x71d0`: DR, 256 instances) / 256 | store `0x6c30` b3.w1.l3, seq 17098, e = 18 → load `0x71d0` b7.w1.l0, seq 17926 | BAR `0x7030` (barrier.h:187 ← SK:794), instance completes at seq 17876: P0 = 18 | RED `0x70c0` (barrier.h:191 ← SK:794) by P0, seq 17891: released[flag `…0a0018`] = 18 | CAS `0x7170` (SK:809) spins; window closes at WARPSYNC `0x71a0`, seq 17900; `0x71a0` **not** acquire-fenced for `0x7170` → no join: C0 = 0 | BAR `0x71b0`, seq 17907: L = 0 | vc[L][P] = 0 < 18: **not held, lost at step 3**; vs = 0 |
+| stock, split 3 | 4.3 / 2.1 | RACE | **yes**, 48 of 48: store `block_striped.h:194` ← SK:989 × load `block_striped.h:165` | 0 | `structural` DR (48) | 48 races (on `0x63c0`→`0xd30`: DR, 256) / 256 | store `0x63c0` b1.w1.l0, seq 41221, e = 13 → load `0xd30` b42.w1.l0, seq 42083 | BAR `0x64f0` (barrier.h:204 ← SK:992), seq 41900: P0 = 13 | RED `0x6550` (8 flags, barrier.h:208 ← SK:992), seq 41943: released[8 flags] = 13 | CAS `0x07a0` (SK:885) spins; window closes at WARPSYNC `0x07f0`, seq 42006; not acquire-fenced → C0 = 0 | BAR `0x0800`, seq 42039: L = 0 | 0 < 13: **not held, lost at step 3**; vs = 0 |
+| fixed, split 2 | 4.1 / 2.0 | RACE | **yes**, 64 of 64, same frames | 0 | `latent` DR (64) | **0 races** / 256 | store `0x6c80` b1.w1.l3, seq 17094, e = 18 → load `0x7270` b5.w1.l0, seq 17924 | BAR `0x7080` (barrier.h:194 ← SK:794), seq 17873: P0 = 18 | RED `0x7110` (barrier.h:198), seq 17885: released[flag `…0a0008`] = 18 | CAS `0x71d0` (SK:809) spins; window closes at WARPSYNC `0x7240`, seq 17897; `0x7240` **is** acquire-fenced for `0x71d0` (MEMBAR.ALL.GPU at `0x7210` lies between) → join: C0 = 18 | BAR `0x7250`, seq 17906: L = 18 | vc[L][P] = 18 ≥ 18: **held**; vs[L][P] = 0 |
+| fixed, split 3 | 4.1 / 3.5 | RACE | **yes**, 48 of 48, same frames | 0 | `latent` DR (48) | **0 races** / 256 | store `0x6410` b1.w1.l0, seq 41246, e = 13 → load `0xd80` b42.w1.l0, seq 42107 | BAR `0x6540` (barrier.h:211 ← SK:992), seq 41916: P0 = 13 | RED `0x65a0` (8 flags, barrier.h:215), seq 41959: released[8 flags] = 13 | CAS `0x07b0` (SK:885); window closes at WARPSYNC `0x0840`, seq 42025; acquire-fenced (MEMBAR at `0x07f0`) → C0 = 13 | BAR `0x0850`, seq 42060: L = 13 | 13 ≥ 13: **held**; vs = 0 |
+
+**Findings.**
+1. **Stock is reported** at the dossier's pair in both splits, as `structural` (raced in this schedule). The vector clock loses the store at step 3: the consumer's CAS window closes at a record that is not acquire-fenced, so the acquire is not taken. The producer side is intact: P0 holds the store after the BAR.SYNC join, and the RED publishes it.
+2. **Fixed is not clean.** It is reported at the same 64 / 48 pc pairs, with 0 other reports.
+   - Here the vector clock **does** carry the store to the load, through all four steps: the fence makes the CAS's next record acquire-fenced, and the join is taken.
+   - HbClock's `hb_races` is empty on the fixed dumps (0 of 64 / 48 pairs). That covers every recorded instance, not only the traced one.
+   - The verdict comes from the verdict matrix (`sync_dominance._hb_class`). The pair is:
+     - not raced in this schedule;
+     - not proved ordered for every schedule: R1 is intra-CTA, and R3's release and acquire tables are empty for these pcs (previous section);
+     - left unordered by the barrier-only clock: `hb_races_sync_only` lists it with 256 instances, and vs[L][P] = 0 at the traced load.
+   - That makes it `latent` ("ordered only through atomic release/acquire joins"). `CLASS_VERDICT` maps `latent` to RACE (the Race ∪ Latent operating point of the program-level rows).
+3. **Other reports:** none in any of the four runs (no flag-only, no other pair). `raw_sc` is empty.
+4. **Correction to the previous section's SASS quotes.** By the line info and these traces, the CAS at `0x07a0` / `0x07b0` is the SK:885 site (split 3), and `0x7170` / `0x71d0` is the SK:809 site (split 2). The quote labels "site 1 (SK:809 path)" and "site 2 (SK:885 path)" are swapped. The quoted instructions are unchanged.
+
+**Not determined.**
+- **Clock values for the other instances.** Only one instance per run was traced. Their outcome in aggregate is determined: 0 vector-clock races on fixed, and 256 barrier-only races on the pair in all four runs.
+- **The MEMBAR is not a record in the dump.** Its effect is visible only through the gate table (`fenced()` on the acquire side). The recording does not show it as an event.
+- **Whether the fixed hand-off is ordered under PTX.** Not re-derived; the same as the previous section.
